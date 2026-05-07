@@ -1,0 +1,177 @@
+{
+  "id": "5128213",
+  "name": "font-xiaojiage",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "43532821",
+      "name": "0",
+      "font_class": "xiaojiage-0",
+      "unicode": "101ec",
+      "unicode_decimal": 66028
+    },
+    {
+      "icon_id": "43532822",
+      "name": "2",
+      "font_class": "xiaojiage-2",
+      "unicode": "101ed",
+      "unicode_decimal": 66029
+    },
+    {
+      "icon_id": "43532823",
+      "name": "1",
+      "font_class": "xiaojiage-1",
+      "unicode": "101ee",
+      "unicode_decimal": 66030
+    },
+    {
+      "icon_id": "43532824",
+      "name": "4",
+      "font_class": "xiaojiage-4",
+      "unicode": "101ef",
+      "unicode_decimal": 66031
+    },
+    {
+      "icon_id": "43532825",
+      "name": "5",
+      "font_class": "xiaojiage-5",
+      "unicode": "101f0",
+      "unicode_decimal": 66032
+    },
+    {
+      "icon_id": "43532826",
+      "name": "8",
+      "font_class": "xiaojiage-8",
+      "unicode": "101f1",
+      "unicode_decimal": 66033
+    },
+    {
+      "icon_id": "43532827",
+      "name": "6",
+      "font_class": "xiaojiage-6",
+      "unicode": "101f2",
+      "unicode_decimal": 66034
+    },
+    {
+      "icon_id": "43532828",
+      "name": "D",
+      "font_class": "xiaojiage-d",
+      "unicode": "101f3",
+      "unicode_decimal": 66035
+    },
+    {
+      "icon_id": "43532829",
+      "name": "A",
+      "font_class": "xiaojiage-a",
+      "unicode": "101f4",
+      "unicode_decimal": 66036
+    },
+    {
+      "icon_id": "43532830",
+      "name": "B",
+      "font_class": "xiaojiage-b",
+      "unicode": "101f5",
+      "unicode_decimal": 66037
+    },
+    {
+      "icon_id": "43532831",
+      "name": "E",
+      "font_class": "xiaojiage-e",
+      "unicode": "101f6",
+      "unicode_decimal": 66038
+    },
+    {
+      "icon_id": "43532832",
+      "name": "9",
+      "font_class": "xiaojiage-9",
+      "unicode": "101f7",
+      "unicode_decimal": 66039
+    },
+    {
+      "icon_id": "43532833",
+      "name": "C",
+      "font_class": "xiaojiage-c",
+      "unicode": "101f8",
+      "unicode_decimal": 66040
+    },
+    {
+      "icon_id": "43532834",
+      "name": "G",
+      "font_class": "xiaojiage-g",
+      "unicode": "101f9",
+      "unicode_decimal": 66041
+    },
+    {
+      "icon_id": "43532835",
+      "name": "3",
+      "font_class": "xiaojiage-3",
+      "unicode": "101fa",
+      "unicode_decimal": 66042
+    },
+    {
+      "icon_id": "43532836",
+      "name": "F",
+      "font_class": "xiaojiage-f",
+      "unicode": "101fb",
+      "unicode_decimal": 66043
+    },
+    {
+      "icon_id": "43532837",
+      "name": "7",
+      "font_class": "xiaojiage-7",
+      "unicode": "101fc",
+      "unicode_decimal": 66044
+    },
+    {
+      "icon_id": "43532838",
+      "name": "K",
+      "font_class": "xiaojiage-k",
+      "unicode": "101fd",
+      "unicode_decimal": 66045
+    },
+    {
+      "icon_id": "43532839",
+      "name": "H",
+      "font_class": "xiaojiage-h",
+      "unicode": "101fe",
+      "unicode_decimal": 66046
+    },
+    {
+      "icon_id": "43532840",
+      "name": "M",
+      "font_class": "xiaojiage-m",
+      "unicode": "101ff",
+      "unicode_decimal": 66047
+    },
+    {
+      "icon_id": "43532841",
+      "name": "L",
+      "font_class": "xiaojiage-l",
+      "unicode": "10200",
+      "unicode_decimal": 66048
+    },
+    {
+      "icon_id": "43532842",
+      "name": "J",
+      "font_class": "xiaojiage-j",
+      "unicode": "10201",
+      "unicode_decimal": 66049
+    },
+    {
+      "icon_id": "43532843",
+      "name": "N",
+      "font_class": "xiaojiage-n",
+      "unicode": "10202",
+      "unicode_decimal": 66050
+    },
+    {
+      "icon_id": "43532844",
+      "name": "I",
+      "font_class": "xiaojiage-i",
+      "unicode": "10203",
+      "unicode_decimal": 66051
+    }
+  ]
+}

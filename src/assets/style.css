@@ -1,0 +1,77 @@
+@layer theme, base, antd, components, utilities;
+
+@import "tailwindcss";
+@import "@antdv-next/tailwind/theme.css";
+
+
+.fade-transform-enter-from,
+.fade-transform-leave-to {
+  @apply translate-y-5 opacity-0;
+}
+
+.fade-transform-enter-to,
+.fade-transform-leave-from {
+  @apply opacity-100;
+}
+
+.fade-transform-enter-active {
+  @apply transition-all duration-500 ease-in-out;
+}
+
+.fade-transform-leave-active {
+  @apply transition-all duration-500;
+}
+
+/* ========== 认证页面背景 ========== */
+.auth-background {
+  @apply relative;
+}
+
+.auth-background::before {
+  @apply absolute inset-0 opacity-30 blur-[100px] z-0 pointer-events-none content-[''] bg-[linear-gradient(154deg,rgba(7,7,9,0.08235)_30%,var(--ant-color-primary)_48%,rgba(7,7,9,0.08235)_64%)];
+}
+
+.auth-background > * {
+  @apply relative z-10;
+}
+
+/* ========== Icon 图标样式 ========== */
+.icon {
+  @apply align-middle;
+  font-size: calc(var(--text-lg) * 1px) ;
+}
+
+.icon.align {
+  @apply mb-3;
+}
+
+.ant-btn-lg .icon {
+  font-size: calc(var(--text-h3) * 1px);
+}
+
+/* ========== 登录页 Banner 动画 ========== */
+/* 淡入 + 质感上下浮动动画 */
+.auth-banner-animate {
+  @apply animate-[fadeInFloat_1.2s_cubic-bezier(0.4,0,0.2,1)_forwards,smoothFloat_4s_ease-in-out_1.2s_infinite];
+}
+
+@keyframes fadeInFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes smoothFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-15px) scale(1.02);
+  }
+}
