@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { useMenuPrincipalStore } from '@/stores/menuStore.ts'
-import { type ComponentInternalInstance, getCurrentInstance, h, onMounted, ref, watch } from 'vue'
-import { createIcon, filterTreeDeep, requireNonNullOrUndefined, unmergeTree } from '@/utils'
-import type { RouteLocationNormalizedLoaded } from 'vue-router'
-import type { ResourceData } from '@/types'
-import { convertObject } from '@/utils/commonUtils.ts'
-import { RESOURCE_TYPE } from '@/constants/systemConstant.ts'
+import {useMenuPrincipalStore} from '@/stores/menuStore.js'
+import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
+import {requireNonNullOrUndefined} from '@/utils'
+import LRecursionMenu from '@/components/layout/home/menu/RecursionMenu.vue'
+import type {ResourceData} from "@/types";
 
 defineOptions({
-  name: 'DMenu',
+  name: 'LMenu',
 })
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+
+const menuPrincipalStore = useMenuPrincipalStore()
 
 interface MenuProps {
   /**
@@ -22,15 +22,20 @@ interface MenuProps {
   menuTypes: string[]
 }
 
-const menuPrincipalStore = useMenuPrincipalStore()
+interface MenuState {
+  selectedKeys:string[],
+  openKeys:string[],
+  data: ResourceData[],
+}
 
 const props = withDefaults(defineProps<MenuProps>(), {
   menuTypes: () => [],
 })
 
-const menuOptions = ref<Record<string, string[]>>({
+const menuOptions = ref<MenuState>({
   selectedKeys: [],
   openKeys: [],
+  data:[],
 })
 
 /*const getItemKey = (item: ResourceData) => {
@@ -102,18 +107,21 @@ function onClick(info: { key: string }) {
   }
   globalProperties.$router.push({ path: menuPrincipalStore.replaceValue(menu) })
 }*/
+
+const mounted = async () => {
+  menuOptions.value.data = await menuPrincipalStore.getPrincipalResources(props.menuTypes)
+}
+
+onMounted(mounted)
 </script>
 
 <template>
-<!--  <a-menu
-    class="border-e-0"
+  <a-menu
+    :classes="{root:'border-e-0'}"
     v-model:open-keys="menuOptions.openKeys"
     v-model:selected-keys="menuOptions.selectedKeys"
     v-bind="$attrs"
-    :items="getMenuData()"
-    :label-render="labelRender"
-    :icon-render="iconRender"
-    @click="onClick"
   >
-  </a-menu>-->
+    <l-recursion-menu :data="menuOptions.data"/>
+  </a-menu>
 </template>

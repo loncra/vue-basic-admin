@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'DLayoutFooter',
+  name: 'LLayoutFooter',
 })
 
 const version = import.meta.env.VITE_APP_VERSION_VALUE

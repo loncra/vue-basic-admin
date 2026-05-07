@@ -3,6 +3,9 @@
 @import "tailwindcss";
 @import "@antdv-next/tailwind/theme.css";
 
+.ant-app {
+  @apply bg-layout min-h-screen;
+}
 
 .fade-transform-enter-from,
 .fade-transform-leave-to {
@@ -74,4 +77,21 @@
   50% {
     transform: translateY(-15px) scale(1.02);
   }
+}
+
+/* ========== 顶部工具栏 ========== */
+
+.layout-header {
+  @apply bg-container px-0 pl-lg pr-lg border-b border-b-border-secondary border-solid;
+}
+
+.layout-header .ant-menu-item:hover::after,
+.layout-header .ant-menu-submenu:hover::after,
+.layout-header .ant-menu-item-active::after,
+.layout-header .ant-menu-submenu-active::after,
+.layout-header .ant-menu-item-open::after,
+.layout-header .ant-menu-submenu-open::after,
+.layout-header .ant-menu-item-selected::after,
+.layout-header .ant-menu-submenu-selected::after {
+  @apply border-b-0 border-b-container;
 }

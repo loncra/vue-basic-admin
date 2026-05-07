@@ -9,7 +9,7 @@ interface MenuClickInfo {
 }
 
 defineOptions({
-  name: 'DProfileButton',
+  name: 'LProfileButton',
 })
 
 const globalProperties =

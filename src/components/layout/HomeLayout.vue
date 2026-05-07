@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import DVerticalLayout from '@/components/layout/home/VerticalLayout.vue'
+import LVerticalLayout from '@/components/layout/home/VerticalLayout.vue'
 </script>
 
 <template>
-  <d-vertical-layout />
+  <l-vertical-layout />
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 defineOptions({
-  name: 'DLayoutContent',
+  name: 'LLayoutContent',
 })
 
 </script>

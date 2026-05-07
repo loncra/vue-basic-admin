@@ -26,6 +26,7 @@ export interface MenuData {
    * 所属应用名称
    */
   applicationName: string
+
 }
 
 /**
@@ -36,7 +37,7 @@ export interface ResourceData extends MenuData {
   /**
    * 主键 id
    */
-  id: string
+  id: number
 
   /**
    * 权限名称
@@ -61,7 +62,7 @@ export interface ResourceData extends MenuData {
   /**
    * 父类 id
    */
-  parentId?: string
+  parentId?: number
 
   /**
    * 顺序值
@@ -72,4 +73,12 @@ export interface ResourceData extends MenuData {
    * 备注
    */
   remark: string
+  /**
+   * 路由页面
+   */
+  page:string
+  /**
+   * 子节点
+   */
+  children?: ResourceData[]
 }

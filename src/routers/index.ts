@@ -5,6 +5,7 @@ import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
 import Workbench from '@/views/commons/Workbench.vue'
 import Setting from '@/views/commons/Setting.vue'
+import type {PrepareData} from "@/types";
 
 /**
  * 首页的子路由配置
@@ -81,6 +82,26 @@ const router = createRouter({
 const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   // 获取认证状态
   const principalStore = usePrincipalStore()
+  if (to.name === import.meta.env.VITE_APP_AUTH_PAGE_NAME) {
+    // 如果为登录链接，执行登出并清除路由
+    await principalStore.logout()
+    return // 继续导航
+  }
+
+  if (!principalStore.isAuthenticated) {
+    const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
+    const accessToken = localStorage.getItem(accessTokenStorageName)
+    if (accessToken !== null) {
+      await principalStore.prepare();
+    } else {
+      sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME, to.fullPath)
+      return {
+        name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
+        query: { authenticationType: principalStore.state.type },
+      }
+    }
+  }
+
   const requiresAuth = (to.meta.requiresAuth || false) && !principalStore.isAuthenticated
   const requiresFullyAuth =
     (to.meta.requiresFullyAuth || false) && !principalStore.isFullyAuthenticated

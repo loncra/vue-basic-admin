@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import DAuthLayoutRight, {
+import LAuthLayoutRight, {
   type AuthLayoutRightProps,
 } from '@/components/layout/auth/LayoutRight.vue'
-import DAuthLayoutLeft, {type AuthLayoutLeftProps} from '@/components/layout/auth/LayoutLeft.vue'
+import LAuthLayoutLeft, {type AuthLayoutLeftProps} from '@/components/layout/auth/LayoutLeft.vue'
 
 defineOptions({
-  name: 'DAuthLayout',
+  name: 'LAuthLayout',
 })
 
 export interface AuthLayoutProp {
@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<AuthLayoutProp>(), {
         :xxl="16"
         class="h-full auth-background"
       >
-        <d-auth-layout-left
+        <l-auth-layout-left
           :title="props.left.title || $t('auth.title')"
           :sub-title="props.left.subTitle || $t('auth.subTitle')"
           :logo="props.left.logo"
@@ -46,7 +46,7 @@ const props = withDefaults(defineProps<AuthLayoutProp>(), {
         :xxl="8"
         class="h-full bg-container shadow-ter border-l border-l-border-secondary border-solid"
       >
-        <d-auth-layout-right
+        <l-auth-layout-right
           :title="props.left.title || $t('auth.welcomeTitle')"
           :sub-title="props.left.subTitle || $t('auth.welcomeSubTitle')"
           :logo="props.left.logo"

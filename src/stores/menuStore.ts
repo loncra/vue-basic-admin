@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { STORE } from '@/constants/systemConstant.ts'
-import type { MenuData, ResourceData, ResourceType } from '@/types'
+import type { ResourceData, ResourceType } from '@/types'
 import { AuthService } from '@/apis'
 import { isResultSuccess } from '@/requests'
 
@@ -42,6 +42,9 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     types: ResourceType[],
     mergeTree: boolean = true,
   ): Promise<ResourceData[]> {
+    if (state.value.length > 0) {
+      return state.value;
+    }
     const result = await AuthService.principalResources(types, mergeTree)
     if (!isResultSuccess(result)) {
       return []

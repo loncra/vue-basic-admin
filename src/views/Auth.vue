@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import DAuthLayout from '@/components/layout/AuthLayout.vue'
+import LAuthLayout from '@/components/layout/AuthLayout.vue'
 
 defineOptions({
-  name: 'DAuth',
+  name: 'LAuth',
 })
 </script>
 
 <template>
-  <d-auth-layout />
+  <l-auth-layout />
 </template>

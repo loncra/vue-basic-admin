@@ -6,7 +6,7 @@ import type { FormInstance } from 'antdv-next'
 const configProviderStore = useConfigProviderStore()
 
 defineOptions({
-  name: 'DForm',
+  name: 'LForm',
 })
 
 export interface FormProp {

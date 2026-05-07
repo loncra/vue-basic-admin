@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import banner from '@/assets/信息服务.svg'
-import DLogo, { type LogoProps } from '@/components/Logo.vue'
+import LLogo, { type LogoProps } from '@/components/Logo.vue'
 import LayoutFooter from '@/components/layout/LayoutFooter.vue'
 
 defineOptions({
-  name: 'DAuthLayoutRight',
+  name: 'LAuthLayoutRight',
 })
 
 export interface AuthLayoutLeftProps {
@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<AuthLayoutLeftProps>(), {
 <template>
   <a-flex vertical class="h-full">
     <div class="p-lg">
-      <d-logo :icon="props.logo.icon" :text="props.logo.text" />
+      <l-logo :icon="props.logo.icon" :text="props.logo.text" />
     </div>
     <a-flex vertical justify="center" align="center" flex="1">
       <a-image

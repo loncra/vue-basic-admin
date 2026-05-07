@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import DLayoutHeader from '@/components/layout/home/support/LayoutHeader.vue'
-import DLayoutContent from '@/components/layout/home/support/LayoutContent.vue'
-import DLayoutSider from '@/components/layout/home/support/LayoutSider.vue'
+import LLayoutHeader from '@/components/layout/home/support/LayoutHeader.vue'
+import LLayoutContent from '@/components/layout/home/support/LayoutContent.vue'
+import LLayoutSider from '@/components/layout/home/support/LayoutSider.vue'
 
 defineOptions({
-  name: 'DVerticalLayout',
+  name: 'LVerticalLayout',
 })
 </script>
 
 <template>
   <div class="h-screen">
     <a-layout class="h-full">
-      <d-layout-sider />
+      <l-layout-sider />
       <a-layout class="h-full">
-        <d-layout-header />
+        <l-layout-header />
 
-        <d-layout-content />
+        <l-layout-content />
       </a-layout>
     </a-layout>
   </div>

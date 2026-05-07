@@ -2,7 +2,7 @@
 import HomeLayout from '@/components/layout/HomeLayout.vue'
 import { onMounted, onUnmounted } from 'vue'
 defineOptions({
-  name: 'DHome',
+  name: 'LHome',
 })
 
 </script>

@@ -16,7 +16,7 @@ export interface LogoProps {
 }
 
 defineOptions({
-  name: 'DLogo',
+  name: 'LLogo',
 })
 
 const props = withDefaults(defineProps<LogoProps>(), {

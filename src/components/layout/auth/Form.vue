@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DForm from '@/components/Form.vue'
+import LForm from '@/components/Form.vue'
 import { type ComponentInternalInstance, getCurrentInstance, ref } from 'vue'
 import type { AuthCredentials } from '@/types'
 import { usePrincipalStore } from '@/stores/principalStore'
@@ -7,7 +7,7 @@ import { AUTHENTICATION_TYPE, LOGIN_TYPE } from '@/constants/authConstant.js'
 import { requireNonNullOrUndefined } from '@/utils'
 
 defineOptions({
-  name: 'DAuthForm',
+  name: 'LAuthForm',
 })
 
 export interface AuthFormProp {
@@ -47,7 +47,7 @@ const doAuth = async (): Promise<void> => {
 </script>
 
 <template>
-  <d-form id="authForm" ref="formRef" @finish="onAuth" :model="authFormProps" class="pb-lg pt-lg">
+  <l-form id="authForm" ref="formRef" @finish="onAuth" :model="authFormProps" class="pb-lg pt-lg">
     <a-form-item name="username" :label="$t('auth.accountLabel')" required>
       <a-input autocomplete="current-username" v-model:value="authFormProps.username" />
     </a-form-item>
@@ -64,7 +64,7 @@ const doAuth = async (): Promise<void> => {
       </template>
       {{ $t('auth.login') }}
     </a-button>
-  </d-form>
+  </l-form>
   <a-space-compact block v-if="props.enablePhoneAuth || props.enableQrCodeAuth">
     <a-button block v-if="props.enablePhoneAuth">
       <template #icon>

@@ -3,7 +3,7 @@ import { useConfigProviderStore } from '@/stores/configProviderStore.ts'
 import { usePrincipalStore } from '@/stores/principalStore.ts'
 
 defineOptions({
-  name: 'DWorkbench',
+  name: 'LWorkbench',
 })
 
 const configProviderStore = useConfigProviderStore()

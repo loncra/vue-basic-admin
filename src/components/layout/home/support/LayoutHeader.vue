@@ -3,10 +3,10 @@ import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import {type ComponentInternalInstance, getCurrentInstance} from 'vue'
 import {requireNonNullOrUndefined} from '@/utils'
 import {RESOURCE_TYPE} from '@/constants/systemConstant.ts'
-import DProfileButton from '@/components/config/ProfilesButton.vue'
+import LProfileButton from '@/components/config/ProfilesButton.vue'
 
 defineOptions({
-  name: 'DLayoutHeader',
+  name: 'LLayoutHeader',
 })
 
 const menuPrincipalStore = useMenuPrincipalStore()
@@ -54,8 +54,26 @@ const globalProperties =
 <template>
   <a-layout-header class="layout-header">
     <a-flex justify="space-between" class="h-full" align="center">
+      <a-breadcrumb>
+<!--        <a-breadcrumb-item v-for="(breadcrumb, index) in currentBreadcrumbs" :key="breadcrumb.name">
+          <a-space>
+            <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'" />
+            <a-typography-link
+              v-if="index != currentBreadcrumbs.length - 1 && breadcrumb.value"
+              :href="menuPrincipalStore.replaceValue(breadcrumb)"
+            >
+              <a-typography-text type="secondary">
+                {{ breadcrumb.name }}
+              </a-typography-text>
+            </a-typography-link>
+            <a-typography-text v-else strong>
+              {{ breadcrumb.name }}
+            </a-typography-text>
+          </a-space>
+        </a-breadcrumb-item>-->
+      </a-breadcrumb>
       <a-space align="center">
-        <template
+<!--        <template
           v-for="tool in menuPrincipalStore.state.filter((s) =>
             [RESOURCE_TYPE.TOOL].includes(s.type),
           )"
@@ -70,8 +88,8 @@ const globalProperties =
               <icon-font :type="tool.icon" />
             </template>
           </a-button>
-        </template>
-        <d-profile-button />
+        </template>-->
+        <l-profile-button />
       </a-space>
     </a-flex>
   </a-layout-header>
