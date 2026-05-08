@@ -142,8 +142,7 @@
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
-  @apply bg-container;
-  z-index: 1;
+  @apply bg-(--ant-color-fill-secondary);
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:active,
@@ -154,7 +153,6 @@
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
   @apply bg-container;
-  z-index: 1;
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
@@ -167,9 +165,11 @@
     transition: none;
   }
 }
+
 .layout-content-operation .tool-bar .ant-tabs-nav {
   @apply mb-0;
 }
+
 .layout-content-operation .tool-bar .ant-tabs .ant-tabs-nav-wrap {
   @apply  rounded-lg;
 }
