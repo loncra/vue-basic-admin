@@ -13,6 +13,8 @@ export const RESOURCE_TYPE = {
   SECURITY: 'security',
   /** 工具栏 */
   TOOL: 'tool',
+  /** 个人中心 */
+  PROFILE: 'profile',
 } as const
 
 /**

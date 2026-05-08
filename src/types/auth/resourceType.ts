@@ -8,6 +8,7 @@ export type ResourceType =
   | typeof RESOURCE_TYPE.MENU
   | typeof RESOURCE_TYPE.DIRECTORY
   | typeof RESOURCE_TYPE.SECURITY
+  | typeof RESOURCE_TYPE.PROFILE
 
 export interface MenuData {
   /**

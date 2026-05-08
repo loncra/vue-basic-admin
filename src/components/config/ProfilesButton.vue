@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { type ComponentInternalInstance, getCurrentInstance, ref } from 'vue'
+import { type ComponentInternalInstance, getCurrentInstance, onMounted, ref } from 'vue'
 import type { MenuItemType } from 'antdv-next'
 import { createIcon, requireNonNullOrUndefined } from '@/utils'
+import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
+import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
+
+const menuPrincipalStore = useMenuPrincipalStore()
 
 /** 菜单点击事件参数 */
 interface MenuClickInfo {
@@ -18,16 +22,6 @@ const globalProperties =
 
 const operateItems = ref<MenuItemType[]>([
   {
-    key: 'setting',
-    label: globalProperties.$t('profile.setting'),
-    icon: () => createIcon('icon-conditions'),
-  },
-  {
-    key: 'account',
-    label: globalProperties.$t('profile.account'),
-    icon: () => createIcon('icon-security'),
-  },
-  {
     type: 'divider',
   },
   {
@@ -37,13 +31,22 @@ const operateItems = ref<MenuItemType[]>([
   },
 ])
 
-const onOperateClickItem = (e: MenuClickInfo) => {
+function onOperateClickItem (e: MenuClickInfo) {
   if (e.key === 'logout') {
     globalProperties.$router.push({ name: import.meta.env.VITE_APP_AUTH_PAGE_NAME })
   } else if (e.key === 'setting') {
     globalProperties.$router.push({ name: 'setting' })
   }
 }
+
+function mounted() {
+  const data = menuPrincipalStore.state
+  .filter(r => r.type.value === RESOURCE_TYPE.PROFILE)
+  .map(r => ({key:r.id, label:r.name, icon:createIcon(r.icon || 'icon-survey')}));
+  operateItems.value.unshift(...data)
+}
+
+onMounted(mounted)
 </script>
 
 <template>

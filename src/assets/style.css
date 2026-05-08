@@ -103,7 +103,7 @@
   }
 
   .icon.align {
-    @apply mb-1;
+    @apply  mb-[3px];
   }
 
   .ant-btn-lg .icon {

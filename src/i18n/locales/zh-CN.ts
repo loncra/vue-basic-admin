@@ -29,8 +29,6 @@ const locale: LanguagePack = {
   },
   profile: {
     logout: '退出登录',
-    setting: '系统设置',
-    account: '账户设置',
   },
   auth: {
     title: '开箱即用的开发基础',

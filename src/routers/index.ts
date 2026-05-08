@@ -5,7 +5,6 @@ import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
 import Workbench from '@/views/commons/Workbench.vue'
 import Setting from '@/views/commons/Setting.vue'
-import type {PrepareData} from "@/types";
 import type {ResourceData} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";  
@@ -22,10 +21,8 @@ const childrenRoutes: RouteRecordRaw[] = [
     meta: {
       applicationName: 'commons',
       requiresAuth: true,
-      title: '工作台',
       fixed: true,
       sort: 0,
-      icon: 'icon-sign-board',
     },
   },
   {
@@ -34,9 +31,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     component: Setting,
     meta: {
       applicationName: 'commons',
-      requiresAuth: true,
-      title: '系统设置',
-      icon: 'icon-setting',
+      requiresAuth: true
     },
   },
 ]
@@ -105,7 +100,7 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
     }
   }
   const menuPrincipalStore = useMenuPrincipalStore()
-  const result:ResourceData[] = await menuPrincipalStore.getPrincipalResources([RESOURCE_TYPE.MENU, RESOURCE_TYPE.ROOT, RESOURCE_TYPE.DIRECTORY, RESOURCE_TYPE.TOOL])
+  await menuPrincipalStore.getPrincipalResources([RESOURCE_TYPE.MENU, RESOURCE_TYPE.ROOT, RESOURCE_TYPE.DIRECTORY, RESOURCE_TYPE.TOOL, RESOURCE_TYPE.PROFILE])
 
   const requiresAuth = (to.meta.requiresAuth || false) && !principalStore.isAuthenticated
   const requiresFullyAuth =

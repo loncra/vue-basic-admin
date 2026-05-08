@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {ResourceData} from "@/types";
-import {type ComponentInternalInstance, getCurrentInstance, h, onMounted, ref, watch} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, onMounted, ref, resolveComponent, watch} from "vue";
 import type {RouteLocationNormalizedLoaded} from "vue-router";
 import {createIcon, filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
@@ -74,7 +74,16 @@ function labelRender(item: ResourceData) {
 }
 
 function iconRender(item: ResourceData) {
-  return createIcon(item.icon || 'icon-survey')
+  const icon = createIcon(item.icon || 'icon-survey')
+  if (!props.hideLabel) {
+    return icon
+  }
+  const Tooltip = resolveComponent('ATooltip')
+  return h(
+    Tooltip,
+    { title: String(item.name ?? '') },
+    { default: () => icon },
+  )
 }
 
 onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
