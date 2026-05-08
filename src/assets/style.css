@@ -9,6 +9,11 @@
     fadeInFloat 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards,
     smoothFloat 4s ease-in-out 1.2s infinite;
 
+  --animate-layout-content-fullscreen-in:
+    layout-content-fullscreen-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  --animate-layout-content-fullscreen-out:
+    layout-content-fullscreen-out 0.4s cubic-bezier(0.55, 0.09, 0.68, 0.53) forwards;
+
   @keyframes fadeInFloat {
     0% {
       opacity: 0;
@@ -27,6 +32,28 @@
     }
     50% {
       transform: translateY(-15px) scale(1.02);
+    }
+  }
+
+  @keyframes layout-content-fullscreen-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes layout-content-fullscreen-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.92);
     }
   }
 }
@@ -87,15 +114,15 @@
   }
 
   /* ========== 左边菜单栏 ========== */
-
   .layout-sider {
-    @apply h-full border-r border-r-border-secondary border-solid bg-container ;
+    @apply h-full border-r border-solid border-r-border-secondary bg-container;
   }
 
   .layout-sider .ant-menu-inline,
-  .ant-menu-horizontal {
-    @apply border-e-0 border-b-0;
+  .layout-sider .ant-menu-horizontal {
+    @apply border-b-0 border-e-0;
   }
+
   .layout-sider .ant-menu-sub {
     @apply bg-container;
   }
@@ -139,11 +166,11 @@
   }
 
   .layout-content-operation .tool-bar .ant-tabs .ant-tabs-tab + .ant-tabs-tab {
-    @apply -ms-0.5 m-0;
+    @apply m-0 -ms-0.5;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list {
-    @apply rounded-lg bg-layout!
+    @apply rounded-lg bg-layout!;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
@@ -159,13 +186,21 @@
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
-  .layout-content-operation .tool-bar .ant-tabs-nav-list, .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
+  .layout-content-operation
+    .tool-bar
+    .ant-tabs-nav-list
+    .ant-tabs-tab
+    .ant-tabs-tab-remove:focus:not(:focus-visible) {
     @apply bg-(--ant-color-fill-secondary);
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:active,
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
-  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
+  .layout-content-operation
+    .tool-bar
+    .ant-tabs-nav-list
+    .ant-tabs-tab
+    .ant-tabs-tab-remove:focus:not(:focus-visible) {
     @apply bg-(--ant-color-fill) text-main;
   }
 
@@ -188,36 +223,13 @@
   .layout-content-operation .tool-bar .ant-tabs-nav::before {
     @apply border-none;
   }
-  /* ========== 内容区域全屏 ========== */
+
+  /* ========== 内容区域全屏（animationName 须与 LayoutContent.vue 中监听一致） ========== */
   .layout-content-fullscreen {
-    @apply fixed inset-0 z-(--ant-z-index-popup-base) bg-layout;
-    transform-origin: center center;
-    animation: layout-content-fullscreen-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    @apply fixed inset-0 z-(--ant-z-index-popup-base) origin-center animate-layout-content-fullscreen-in bg-layout;
   }
 
   .layout-content-fullscreen-exit {
-    animation: layout-content-fullscreen-out 0.4s cubic-bezier(0.55, 0.09, 0.68, 0.53) forwards;
-  }
-
-  @keyframes layout-content-fullscreen-in {
-    from {
-      opacity: 0;
-      transform: scale(0.92);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @keyframes layout-content-fullscreen-out {
-    from {
-      opacity: 1;
-      transform: scale(1);
-    }
-    to {
-      opacity: 0;
-      transform: scale(0.92);
-    }
+    @apply animate-layout-content-fullscreen-out;
   }
 }
