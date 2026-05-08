@@ -3,177 +3,175 @@
 @import "tailwindcss";
 @import "@antdv-next/tailwind/theme.css";
 
-.ant-app {
-  @apply bg-layout min-h-screen;
-}
+/* 主题级动画：keyframes 内不能使用 @apply，需保留原生属性 */
+@theme {
+  --animate-auth-banner:
+    fadeInFloat 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    smoothFloat 4s ease-in-out 1.2s infinite;
 
-.fade-transform-enter-from,
-.fade-transform-leave-to {
-  @apply translate-y-5 opacity-0;
-}
-
-.fade-transform-enter-to,
-.fade-transform-leave-from {
-  @apply opacity-100;
-}
-
-.fade-transform-enter-active {
-  @apply transition-all duration-500 ease-in-out;
-}
-
-.fade-transform-leave-active {
-  @apply transition-all duration-500;
-}
-
-/* ========== 认证页面背景 ========== */
-.auth-background {
-  @apply relative;
-}
-
-.auth-background::before {
-  @apply absolute inset-0 opacity-30 blur-[100px] z-0 pointer-events-none content-[''] bg-[linear-gradient(154deg,rgba(7,7,9,0.08235)_30%,var(--ant-color-primary)_48%,rgba(7,7,9,0.08235)_64%)];
-}
-
-.auth-background > * {
-  @apply relative z-10;
-}
-
-/* ========== Icon 图标样式 ========== */
-.icon {
-  @apply align-middle;
-  font-size: calc(var(--text-lg) * 1px);
-}
-
-.icon.align {
-  @apply mb-1;
-}
-
-.ant-btn-lg .icon {
-  font-size: calc(var(--text-h3) * 1px);
-}
-
-/* ========== 登录页 Banner 动画 ========== */
-/* 淡入 + 质感上下浮动动画 */
-.auth-banner-animate {
-  @apply animate-[fadeInFloat_1.2s_cubic-bezier(0.4,0,0.2,1)_forwards,smoothFloat_4s_ease-in-out_1.2s_infinite];
-}
-
-@keyframes fadeInFloat {
-  0% {
-    opacity: 0;
-    transform: translateY(40px) scale(0.95);
+  @keyframes fadeInFloat {
+    0% {
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+
+  @keyframes smoothFloat {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-15px) scale(1.02);
+    }
   }
 }
 
-@keyframes smoothFloat {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
+@layer components {
+  .ant-app {
+    @apply bg-layout min-h-screen;
   }
-  50% {
-    transform: translateY(-15px) scale(1.02);
+
+  .fade-transform-enter-from,
+  .fade-transform-leave-to {
+    @apply translate-y-5 opacity-0;
   }
-}
 
-/* ========== 顶部工具栏 ========== */
+  .fade-transform-enter-to,
+  .fade-transform-leave-from {
+    @apply opacity-100;
+  }
 
-.layout-header {
-  @apply bg-container px-0 pl-lg pr-lg border-b border-b-border-secondary border-solid;
-}
+  .fade-transform-enter-active {
+    @apply transition-all duration-500 ease-in-out;
+  }
 
-.layout-header .ant-menu-item:hover::after,
-.layout-header .ant-menu-submenu:hover::after,
-.layout-header .ant-menu-item-active::after,
-.layout-header .ant-menu-submenu-active::after,
-.layout-header .ant-menu-item-open::after,
-.layout-header .ant-menu-submenu-open::after,
-.layout-header .ant-menu-item-selected::after,
-.layout-header .ant-menu-submenu-selected::after {
-  @apply border-b-0 border-b-container;
-}
+  .fade-transform-leave-active {
+    @apply transition-all duration-500;
+  }
 
+  /* ========== 认证页面背景 ========== */
+  .auth-background {
+    @apply relative;
+  }
 
-/* ========== 内容操作区域 ========== */
-.layout-content-operation {
-  @apply sticky top-0 z-(--ant-z-index-popup-base) mb-lg pr-md pl-md min-w-0 max-w-full;
-}
+  .auth-background::before {
+    @apply pointer-events-none absolute inset-0 z-0 opacity-30 blur-[100px] content-['']
+      bg-[linear-gradient(154deg,rgba(7,7,9,0.08235)_30%,var(--ant-color-primary)_48%,rgba(7,7,9,0.08235)_64%)];
+  }
 
-.layout-content-operation::after {
-  @apply absolute inset-x-0 top-0 h-full -z-[1] content-[''] bg-repeat backdrop-blur-[10px];
-  mask: linear-gradient(black, black 40%, transparent 100%);
-}
+  .auth-background > * {
+    @apply relative z-10;
+  }
 
-.layout-content-operation .ant-tabs-nav-wrap {
-  @apply overflow-hidden!;
-}
+  /* ========== Icon 图标样式 ========== */
+  .icon {
+    @apply align-middle text-[calc(var(--text-lg)*1px)];
+  }
 
-.layout-content-operation .tool-bar {
-  @apply bg-container p-sm rounded-b-lg border-l border-r border-b border-border-secondary border-solid min-w-0 max-w-full
-}
+  .icon.align {
+    @apply mb-1;
+  }
 
-.layout-content-operation .tool-bar .ant-tabs .ant-tabs-ink-bar {
-  @apply bg-transparent text-main
-}
+  .ant-btn-lg .icon {
+    @apply text-[calc(var(--text-h3)*1px)];
+  }
 
-/* 相邻 tab 各有一圈 border 时，接缝处会变成「双边宽度」；用 1px 边框 + 负外边距让边框重叠，中间只留下 1px */
-.layout-content-operation .tool-bar .ant-tabs .ant-tabs-tab + .ant-tabs-tab {
-  margin-inline-start: -2px;
-}
+  /* ========== 登录页 Banner 动画 ========== */
+  .auth-banner-animate {
+    @apply animate-auth-banner;
+  }
 
-.layout-content-operation .tool-bar .ant-tabs-nav-list {
-  @apply bg-layout rounded-lg ;
-}
+  /* ========== 顶部工具栏 ========== */
+  .layout-header {
+    @apply border-b border-solid border-b-border-secondary bg-container px-0 pl-lg pr-lg;
+  }
 
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
-  @apply border-2 pr-md pl-md pt-0 pb-0 border-solid rounded-lg border-layout bg-layout text-main relative z-0;
-  transition: color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out),
-  background-color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
-}
+  .layout-header .ant-menu-item:hover::after,
+  .layout-header .ant-menu-submenu:hover::after,
+  .layout-header .ant-menu-item-active::after,
+  .layout-header .ant-menu-submenu-active::after,
+  .layout-header .ant-menu-item-open::after,
+  .layout-header .ant-menu-submenu-open::after,
+  .layout-header .ant-menu-item-selected::after,
+  .layout-header .ant-menu-submenu-selected::after {
+    @apply border-b-0 border-b-container;
+  }
 
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn {
-  transition: color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out),
-  background-color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
-}
+  /* ========== 内容操作区域 ========== */
+  .layout-content-operation {
+    @apply sticky top-0 z-(--ant-z-index-popup-base) mb-lg min-w-0 max-w-full pl-md pr-md;
+  }
 
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
-  @apply bg-(--ant-color-fill-secondary);
-}
+  .layout-content-operation::after {
+    @apply absolute inset-x-0 top-0 z-[-1] h-full bg-repeat content-[''] backdrop-blur-[10px]
+      mask-[linear-gradient(black,black_40%,transparent_100%)];
+  }
 
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:active,
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
-  @apply text-main bg-(--ant-color-fill);
-}
+  .layout-content-operation .ant-tabs-nav-wrap {
+    @apply overflow-hidden!;
+  }
 
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
-  @apply bg-container;
-}
+  .layout-content-operation .tool-bar {
+    @apply min-w-0 max-w-full rounded-b-lg border border-border-secondary border-solid border-t-0 bg-container p-sm;
+  }
 
-.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-  @apply text-main;
-}
+  .layout-content-operation .tool-bar .ant-tabs .ant-tabs-ink-bar {
+    @apply bg-transparent text-main;
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab,
+  .layout-content-operation .tool-bar .ant-tabs .ant-tabs-tab + .ant-tabs-tab {
+    @apply -ms-0.5 m-0;
+  }
+
+  .layout-content-operation .tool-bar .ant-tabs-nav-list {
+    @apply rounded-lg bg-layout!
+  }
+
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
+    @apply relative z-0 rounded-lg border-2 border-solid border-layout bg-layout pl-md pr-md pb-0 pt-0 text-main
+      transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
+      motion-reduce:transition-none;
+  }
+
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn {
-    transition: none;
+    @apply transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
+      motion-reduce:transition-none;
   }
-}
 
-.layout-content-operation .tool-bar .ant-tabs-nav {
-  @apply mb-0;
-}
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
+  .layout-content-operation .tool-bar .ant-tabs-nav-list, .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
+    @apply bg-(--ant-color-fill-secondary);
+  }
 
-.layout-content-operation .tool-bar .ant-tabs .ant-tabs-nav-wrap {
-  @apply  rounded-lg;
-}
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:active,
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
+    @apply bg-(--ant-color-fill) text-main;
+  }
 
-.layout-content-operation .tool-bar .ant-tabs-nav::before {
-  @apply border-none;
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
+    @apply bg-container;
+  }
+
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    @apply text-main;
+  }
+
+  .layout-content-operation .tool-bar .ant-tabs-nav {
+    @apply mb-0;
+  }
+
+  .layout-content-operation .tool-bar .ant-tabs .ant-tabs-nav-wrap {
+    @apply rounded-lg;
+  }
+
+  .layout-content-operation .tool-bar .ant-tabs-nav::before {
+    @apply border-none;
+  }
 }
