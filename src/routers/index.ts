@@ -6,6 +6,9 @@ import Home from '@/views/Home.vue'
 import Workbench from '@/views/commons/Workbench.vue'
 import Setting from '@/views/commons/Setting.vue'
 import type {PrepareData} from "@/types";
+import type {ResourceData} from "@/types";
+import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
+import {useMenuPrincipalStore} from "@/stores/menuStore.ts";  
 
 /**
  * 首页的子路由配置
@@ -101,6 +104,8 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
       }
     }
   }
+  const menuPrincipalStore = useMenuPrincipalStore()
+  const result:ResourceData[] = await menuPrincipalStore.getPrincipalResources([RESOURCE_TYPE.MENU, RESOURCE_TYPE.ROOT, RESOURCE_TYPE.DIRECTORY, RESOURCE_TYPE.TOOL])
 
   const requiresAuth = (to.meta.requiresAuth || false) && !principalStore.isAuthenticated
   const requiresFullyAuth =

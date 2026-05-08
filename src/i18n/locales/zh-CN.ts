@@ -19,6 +19,9 @@ const locale: LanguagePack = {
   layoutContent: {
     pin: '固定',
     unpin: '解除固定',
+    reload: '刷新',
+    fullscreen: '进入全屏',
+    exitFullscreen: '退出全屏',
     close: {
       others: '关闭其他标签页',
       right: '关闭右侧标签页',
@@ -27,6 +30,7 @@ const locale: LanguagePack = {
   profile: {
     logout: '退出登录',
     setting: '系统设置',
+    account: '账户设置',
   },
   auth: {
     title: '开箱即用的开发基础',

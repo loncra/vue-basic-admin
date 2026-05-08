@@ -3,7 +3,9 @@ import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
+import LMenu from '@/components/layout/Menu.vue'
 import type {MenuData} from "@/types";
+import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {
   RouteLocationNormalized,
   RouteMeta,
@@ -79,22 +81,7 @@ const currentBreadcrumbs = computed((): MenuData[] => {
         </a-breadcrumb-item>
       </a-breadcrumb>
       <a-space align="center">
-<!--        <template
-          v-for="tool in menuPrincipalStore.state.filter((s) =>
-            [RESOURCE_TYPE.TOOL].includes(s.type),
-          )"
-          :key="tool.id"
-        >
-          <a-button
-            type="text"
-            shape="circle"
-            @click="globalProperties.$router.push({ name: tool.id })"
-          >
-            <template #icon>
-              <icon-font :type="tool.icon" />
-            </template>
-          </a-button>
-        </template>-->
+        <l-menu :menu-types="[RESOURCE_TYPE.TOOL]" :hide-label="true" mode="horizontal" />
         <l-profile-button />
       </a-space>
     </a-flex>

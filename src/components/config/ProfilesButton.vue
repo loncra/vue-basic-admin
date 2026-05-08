@@ -18,14 +18,22 @@ const globalProperties =
 
 const operateItems = ref<MenuItemType[]>([
   {
-    key: 'logout',
-    label: globalProperties.$t('profile.logout'),
-    icon: () => createIcon('icon-shut-down'),
-  },
-  {
     key: 'setting',
     label: globalProperties.$t('profile.setting'),
     icon: () => createIcon('icon-conditions'),
+  },
+  {
+    key: 'account',
+    label: globalProperties.$t('profile.account'),
+    icon: () => createIcon('icon-security'),
+  },
+  {
+    type: 'divider',
+  },
+  {
+    key: 'logout',
+    label: globalProperties.$t('profile.logout'),
+    icon: () => createIcon('icon-shut-down'),
   },
 ])
 

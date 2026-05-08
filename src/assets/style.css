@@ -70,7 +70,7 @@
 
   /* ========== Icon 图标样式 ========== */
   .icon {
-    @apply align-middle text-[calc(var(--text-lg)*1px)];
+    @apply align-middle text-lg;
   }
 
   .icon.align {
@@ -78,12 +78,26 @@
   }
 
   .ant-btn-lg .icon {
-    @apply text-[calc(var(--text-h3)*1px)];
+    @apply text-h3;
   }
 
   /* ========== 登录页 Banner 动画 ========== */
   .auth-banner-animate {
     @apply animate-auth-banner;
+  }
+
+  /* ========== 左边菜单栏 ========== */
+
+  .layout-sider {
+    @apply h-full border-r border-r-border-secondary border-solid bg-container ;
+  }
+
+  .layout-sider .ant-menu-inline,
+  .ant-menu-horizontal {
+    @apply border-e-0 border-b-0;
+  }
+  .layout-sider .ant-menu-sub {
+    @apply bg-container;
   }
 
   /* ========== 顶部工具栏 ========== */
@@ -173,5 +187,37 @@
 
   .layout-content-operation .tool-bar .ant-tabs-nav::before {
     @apply border-none;
+  }
+  /* ========== 内容区域全屏 ========== */
+  .layout-content-fullscreen {
+    @apply fixed inset-0 z-(--ant-z-index-popup-base) bg-layout;
+    transform-origin: center center;
+    animation: layout-content-fullscreen-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .layout-content-fullscreen-exit {
+    animation: layout-content-fullscreen-out 0.4s cubic-bezier(0.55, 0.09, 0.68, 0.53) forwards;
+  }
+
+  @keyframes layout-content-fullscreen-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes layout-content-fullscreen-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.92);
+    }
   }
 }
