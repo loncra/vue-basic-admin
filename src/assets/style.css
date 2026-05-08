@@ -45,7 +45,7 @@
 }
 
 .icon.align {
-  @apply mb-3;
+  @apply mb-1;
 }
 
 .ant-btn-lg .icon {
@@ -94,4 +94,82 @@
 .layout-header .ant-menu-item-selected::after,
 .layout-header .ant-menu-submenu-selected::after {
   @apply border-b-0 border-b-container;
+}
+
+
+/* ========== 内容操作区域 ========== */
+.layout-content-operation {
+  @apply sticky top-0 z-(--ant-z-index-popup-base) mb-lg pr-md pl-md w-full min-w-0 max-w-full;
+}
+
+.layout-content-operation::after {
+  @apply absolute inset-x-0 top-0 h-full -z-[1] content-[''] bg-repeat backdrop-blur-[10px];
+  mask: linear-gradient(black, black 40%, transparent 100%);
+}
+
+.layout-content-operation .ant-tabs-nav-wrap {
+  @apply overflow-hidden!;
+}
+
+.layout-content-operation .tool-bar {
+  @apply bg-container p-sm rounded-b-lg border-l border-r border-b border-border-secondary border-solid w-full min-w-0 max-w-full
+}
+
+.layout-content-operation .tool-bar .ant-tabs .ant-tabs-ink-bar {
+  @apply bg-transparent
+}
+.layout-content-operation .tool-bar .ant-tabs .ant-tabs-tab+.ant-tabs-tab {
+  @apply m-0;
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav-list {
+  @apply bg-layout rounded-lg ;
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
+  @apply pr-md pl-md pt-0 pb-0 border-solid border-2 rounded-lg border-layout;
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
+.layout-content-operation
+  .tool-bar
+  .ant-tabs-nav-list
+  .ant-tabs-tab
+  .ant-tabs-tab-btn:focus:not(:focus-visible),
+.layout-content-operation
+  .tool-bar
+  .ant-tabs-nav-list
+  .ant-tabs-tab
+  .ant-tabs-tab-remove:focus:not(:focus-visible),
+.layout-content-operation
+  .tool-bar
+  .ant-tabs-nav-list
+  .ant-tabs-tab
+  .ant-tabs-tab-btn:active,
+.layout-content-operation
+  .tool-bar
+  .ant-tabs-nav-list
+  .ant-tabs-tab
+  .ant-tabs-tab-remove:active {
+  @apply text-main bg-container;
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
+  @apply bg-container;
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  @apply text-main;
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav {
+  @apply mb-0 max-w-full min-w-0;
+}
+
+.layout-content-operation .tool-bar .ant-tabs .ant-tabs-nav-wrap {
+  @apply min-w-0 max-w-full overflow-x-auto;
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav::before {
+  @apply border-none;
 }

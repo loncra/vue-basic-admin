@@ -1,5 +1,5 @@
 import type { NameValueEnumMetadata } from '@/types/common'
-import { RESOURCE_TYPE } from '@/constants/systemConstant.ts'
+import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 
 /** 资源类型：根/目录/菜单/安全/工具 */
 export type ResourceType =
@@ -15,10 +15,6 @@ export interface MenuData {
    */
   name: string
   /**
-   * 链接值
-   */
-  value: string
-  /**
    * 图标
    */
   icon: string
@@ -26,6 +22,10 @@ export interface MenuData {
    * 所属应用名称
    */
   applicationName: string
+  /**
+   * 路由页面
+   */
+  page:string
 
 }
 
@@ -34,6 +34,7 @@ export interface MenuData {
  * @author maurice.chen
  */
 export interface ResourceData extends MenuData {
+  key: string,
   /**
    * 主键 id
    */
@@ -47,7 +48,7 @@ export interface ResourceData extends MenuData {
   /**
    * 类型:MENU.菜单类型、SECURITY.安全类型
    */
-  type: ResourceType
+  type: NameValueEnumMetadata<string>
 
   /**
    * 来源
@@ -73,10 +74,6 @@ export interface ResourceData extends MenuData {
    * 备注
    */
   remark: string
-  /**
-   * 路由页面
-   */
-  page:string
   /**
    * 子节点
    */

@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(), Components({ resolvers: [AntdvNextResolver()] })
     ],
     server: {
-      host: '0.0.0.0', // Tauri iOS 真机调试用 TAURI_DEV_HOST
+      host: '0.0.0.0',
       port: 5173,
       strictPort: true,
       proxy: {

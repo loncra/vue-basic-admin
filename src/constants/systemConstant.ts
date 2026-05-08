@@ -1,17 +1,6 @@
 export const APP_RELOAD_PROVIDE_KEY = 'reload'
 
 /**
- * 资源类型相关
- */
-export const RESOURCE_TYPE = {
-  ROOT: 'root',
-  DIRECTORY: 'directory',
-  MENU: 'menu',
-  SECURITY: 'security',
-  TOOL: 'tool',
-}
-
-/**
  * 系统所有 store 的 id
  */
 export const STORE = {

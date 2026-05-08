@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
-import {type ComponentInternalInstance, getCurrentInstance} from 'vue'
-import {requireNonNullOrUndefined} from '@/utils'
-import {RESOURCE_TYPE} from '@/constants/systemConstant.ts'
+import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
+import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
+import type {MenuData} from "@/types";
+import type {
+  RouteLocationNormalized,
+  RouteMeta,
+  RouteRecordNormalized,
+  RouteRecordRaw
+} from "vue-router";
 
 defineOptions({
   name: 'LLayoutHeader',
@@ -15,7 +21,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-/*const currentBreadcrumbs = computed((): MenuData[] => {
+const currentBreadcrumbs = computed((): MenuData[] => {
   const result: MenuData[] = []
 
   const route: RouteLocationNormalized = globalProperties.$route
@@ -28,7 +34,7 @@ const globalProperties =
       .find((r: RouteRecordRaw) => r.name === meta.parent)
     if (parentRoute) {
       const data = filterTreeDeep<MenuData>(
-        (r: MenuData) => menuPrincipalStore.replaceValue(r) === parentRoute.path,
+        (r: MenuData) => r.page === parentRoute.path,
         menuPrincipalStore.state,
       )
       result.push(...unmergeTree<MenuData>(data))
@@ -41,26 +47,26 @@ const globalProperties =
     })
   } else {
     const data = filterTreeDeep<MenuData>(
-      (r: MenuData) => menuPrincipalStore.replaceValue(r) === route.path,
+      (r: MenuData) => r.page === route.path,
       menuPrincipalStore.state,
     )
     result.push(...unmergeTree<MenuData>(data))
   }
 
   return result
-})*/
+})
 </script>
 
 <template>
   <a-layout-header class="layout-header">
     <a-flex justify="space-between" class="h-full" align="center">
       <a-breadcrumb>
-<!--        <a-breadcrumb-item v-for="(breadcrumb, index) in currentBreadcrumbs" :key="breadcrumb.name">
+        <a-breadcrumb-item v-for="(breadcrumb, index) in currentBreadcrumbs" :key="breadcrumb.name">
           <a-space>
             <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'" />
             <a-typography-link
-              v-if="index != currentBreadcrumbs.length - 1 && breadcrumb.value"
-              :href="menuPrincipalStore.replaceValue(breadcrumb)"
+              v-if="index != currentBreadcrumbs.length - 1 && breadcrumb.page"
+              :href="breadcrumb.page"
             >
               <a-typography-text type="secondary">
                 {{ breadcrumb.name }}
@@ -70,7 +76,7 @@ const globalProperties =
               {{ breadcrumb.name }}
             </a-typography-text>
           </a-space>
-        </a-breadcrumb-item>-->
+        </a-breadcrumb-item>
       </a-breadcrumb>
       <a-space align="center">
 <!--        <template
