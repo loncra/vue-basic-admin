@@ -18,6 +18,7 @@ const principalStore = usePrincipalStore()
           <template #extra>
             <icon-font class="icon" type="icon-quick" />
           </template>
+          <a-empty />
         </a-card>
 
         <a-card>
@@ -71,6 +72,8 @@ const principalStore = usePrincipalStore()
           <template #extra>
             <icon-font class="icon" type="icon-time" />
           </template>
+
+          <a-empty />
         </a-card>
       </a-flex>
     </a-col>

@@ -41,7 +41,7 @@
 /* ========== Icon 图标样式 ========== */
 .icon {
   @apply align-middle;
-  font-size: calc(var(--text-lg) * 1px) ;
+  font-size: calc(var(--text-lg) * 1px);
 }
 
 .icon.align {
@@ -99,7 +99,7 @@
 
 /* ========== 内容操作区域 ========== */
 .layout-content-operation {
-  @apply sticky top-0 z-(--ant-z-index-popup-base) mb-lg pr-md pl-md w-full min-w-0 max-w-full;
+  @apply sticky top-0 z-(--ant-z-index-popup-base) mb-lg pr-md pl-md min-w-0 max-w-full;
 }
 
 .layout-content-operation::after {
@@ -112,14 +112,16 @@
 }
 
 .layout-content-operation .tool-bar {
-  @apply bg-container p-sm rounded-b-lg border-l border-r border-b border-border-secondary border-solid w-full min-w-0 max-w-full
+  @apply bg-container p-sm rounded-b-lg border-l border-r border-b border-border-secondary border-solid min-w-0 max-w-full
 }
 
 .layout-content-operation .tool-bar .ant-tabs .ant-tabs-ink-bar {
-  @apply bg-transparent
+  @apply bg-transparent text-main
 }
-.layout-content-operation .tool-bar .ant-tabs .ant-tabs-tab+.ant-tabs-tab {
-  @apply m-0;
+
+/* 相邻 tab 各有一圈 border 时，接缝处会变成「双边宽度」；用 1px 边框 + 负外边距让边框重叠，中间只留下 1px */
+.layout-content-operation .tool-bar .ant-tabs .ant-tabs-tab + .ant-tabs-tab {
+  margin-inline-start: -2px;
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list {
@@ -127,44 +129,32 @@
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
-  @apply pr-md pl-md pt-0 pb-0 border-solid border-2 rounded-lg border-layout;
-  transition:
-    color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out),
-    background-color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
+  @apply border-2 pr-md pl-md pt-0 pb-0 border-solid rounded-lg border-layout bg-layout text-main relative z-0;
+  transition: color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out),
+  background-color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn {
-  transition:
-    color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out),
-    background-color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
+  transition: color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out),
+  background-color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
-.layout-content-operation
-  .tool-bar
-  .ant-tabs-nav-list
-  .ant-tabs-tab
-  .ant-tabs-tab-btn:focus:not(:focus-visible),
-.layout-content-operation
-  .tool-bar
-  .ant-tabs-nav-list
-  .ant-tabs-tab
-  .ant-tabs-tab-remove:focus:not(:focus-visible),
-.layout-content-operation
-  .tool-bar
-  .ant-tabs-nav-list
-  .ant-tabs-tab
-  .ant-tabs-tab-btn:active,
-.layout-content-operation
-  .tool-bar
-  .ant-tabs-nav-list
-  .ant-tabs-tab
-  .ant-tabs-tab-remove:active {
-  @apply text-main bg-container;
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
+  @apply bg-container;
+  z-index: 1;
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:active,
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-remove:focus:not(:focus-visible) {
+  @apply text-main bg-(--ant-color-fill);
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
   @apply bg-container;
+  z-index: 1;
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
@@ -177,13 +167,11 @@
     transition: none;
   }
 }
-
 .layout-content-operation .tool-bar .ant-tabs-nav {
-  @apply mb-0 max-w-full min-w-0;
+  @apply mb-0;
 }
-
 .layout-content-operation .tool-bar .ant-tabs .ant-tabs-nav-wrap {
-  @apply min-w-0 max-w-full overflow-x-auto;
+  @apply  rounded-lg;
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav::before {

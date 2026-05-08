@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {type RouteLocationNormalizedLoaded, useRouter} from "vue-router";
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type { MenuItemType,  } from 'antdv-next'
 import { requireNonNullOrUndefined } from '@/utils'
 import { createIcon } from '@/utils'
@@ -18,81 +18,7 @@ const router = useRouter()
 
 const isRouterAlive = ref(true)
 const routeCacheVersions = ref<Record<string, number>>({})
-const tabItems = ref<Record<string, undefined>[]>([{
-  key: '1',
-  label: 'Tab 1',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '2',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '3',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '4',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '5',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '6',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '7',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '8',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '9',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '10',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '11',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '12',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '13',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '14',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-},
-{
-  key: '15',
-  label: 'Tab 2',
-  icon: () => createIcon('icon-home'),
-}])
+const tabItems = ref<Record<string, undefined>[]>([])
 
 const operateItems = ref<MenuItemType[]>([
   {
@@ -111,6 +37,17 @@ function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
   const version = routeCacheVersions.value[route.fullPath] || 0
   return `${route.fullPath}-v${version}`
 }
+
+function mounted() {
+  for (let i = 0; i < 3; i++){
+    tabItems.value.push({
+      key: String(i),
+      label: "TAB " + i
+    })
+  }
+}
+
+onMounted(mounted)
 </script>
 
 <template>
@@ -121,7 +58,7 @@ function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
       <!-- 顶部操作区：左侧预留按钮，右侧分段器充当标签导航 -->
       <a-flex align="center" justify="center" class="layout-content-operation">
         <div class="tool-bar ">
-          <a-tabs class="min-w-0 max-w-full w-full" :items="tabItems">
+          <a-tabs :items="tabItems" type="editable-card" hide-add>
             <template #leftExtra>
               <a-button type="text">
                 <template #icon>
