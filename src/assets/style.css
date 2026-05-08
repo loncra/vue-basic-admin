@@ -128,6 +128,15 @@
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
   @apply pr-md pl-md pt-0 pb-0 border-solid border-2 rounded-lg border-layout;
+  transition:
+    color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out),
+    background-color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
+}
+
+.layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn {
+  transition:
+    color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out),
+    background-color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
@@ -160,6 +169,13 @@
 
 .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
   @apply text-main;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab,
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn {
+    transition: none;
+  }
 }
 
 .layout-content-operation .tool-bar .ant-tabs-nav {
