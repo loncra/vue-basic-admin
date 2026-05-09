@@ -10,21 +10,20 @@ import type {
 } from '@/types'
 
 /**
- * 认证服务类
- * 提供用户登录、登出和应用数据初始化等认证相关的 API 调用
+ * 认证管理公共服务
  *
  * @author maurice.chen
  */
-export class AuthService {
+export class AuthServerService {
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/auth-server' : '')
   /** 登录接口 URL */
-  static readonly LOGIN_URL: string = AuthService.BASE_URL + '/login'
+  static readonly LOGIN_URL: string = AuthServerService.BASE_URL + '/login'
   /** 登出接口 URL */
-  static readonly LOGOUT_URL: string = AuthService.BASE_URL + '/logout'
+  static readonly LOGOUT_URL: string = AuthServerService.BASE_URL + '/logout'
   /** 应用数据初始化接口 URL */
-  static readonly PREPARE_URL: string = AuthService.BASE_URL + '/prepare'
+  static readonly PREPARE_URL: string = AuthServerService.BASE_URL + '/prepare'
   /** 获取用户资源的接口路径 */
-  static readonly PRINCIPAL_RESOURCES_URL = AuthService.BASE_URL + '/principalResources'
+  static readonly PRINCIPAL_RESOURCES_URL = AuthServerService.BASE_URL + '/principalResources'
 
   /**
    * 用户登录
@@ -36,7 +35,7 @@ export class AuthService {
    *
    * @example
    * ```typescript
-   * const result = await AuthService.login(
+   * const result = await ResourceServerService.login(
    *   { username: 'admin', password: '123456', loginType: 'USERNAME_PASSWORD' },
    *   'CONSOLE'
    * );
@@ -47,7 +46,7 @@ export class AuthService {
     authenticationType: AuthenticationType,
   ): Promise<RestResult<AuthenticationInfo>> {
     // 将凭据转换为表单编码格式并发送 POST 请求
-    return axios.post(AuthService.LOGIN_URL, formUrlEncoded(credentials), {
+    return axios.post(AuthServerService.LOGIN_URL, formUrlEncoded(credentials), {
       headers: {
         // 在请求头中指定认证类型
         [import.meta.env.VITE_APP_HEADER_AUTHENTICATION_TYPE_NAME]: authenticationType,
@@ -63,11 +62,11 @@ export class AuthService {
    *
    * @example
    * ```typescript
-   * await AuthService.logout();
+   * await ResourceServerService.logout();
    * ```
    */
   static logout(): Promise<RestResult<Record<string, unknown>>> {
-    return axios.post(AuthService.LOGOUT_URL)
+    return axios.post(AuthServerService.LOGOUT_URL)
   }
 
   /**
@@ -79,13 +78,13 @@ export class AuthService {
    *
    * @example
    * ```typescript
-   * const data = await AuthService.prepare();
+   * const data = await ResourceServerService.prepare();
    * console.log(data.pluginServices); // ['auth-server', ...]
    * console.log(data.deviceIdentified); // 设备标识
    * ```
    */
   static prepare(): Promise<RestResult<PrepareData>> {
-    return axios.get(AuthService.PREPARE_URL)
+    return axios.get(AuthServerService.PREPARE_URL)
   }
 
   /**
@@ -102,7 +101,7 @@ export class AuthService {
   ): Promise<RestResult<ResourceEntity[]>> {
     // 将参数转换为 URLSearchParams 格式
     const params = formUrlEncoded({types: resourceTypes, mergeTree})
-    return axios.get(AuthService.PRINCIPAL_RESOURCES_URL, {
+    return axios.get(AuthServerService.PRINCIPAL_RESOURCES_URL, {
       params,
     })
   }

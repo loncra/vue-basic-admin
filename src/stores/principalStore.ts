@@ -1,6 +1,6 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
-import {AuthService} from '../apis/auth-server'
+import {AuthServerService} from '../apis/auth-server'
 import {
   type AuthCredentials,
   type AuthenticationInfo,
@@ -98,7 +98,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     credentials: AuthCredentials,
     authenticationType: AuthenticationType = AUTHENTICATION_TYPE.CONSOLE,
   ): Promise<AuthenticationInfo> {
-    const result = await AuthService.login(credentials, authenticationType)
+    const result = await AuthServerService.login(credentials, authenticationType)
 
     // 使用统一的响应检查函数
     if (!isResultSuccess(result)) {
@@ -114,7 +114,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    * 登出
    */
   async function logout(): Promise<AuthenticationInfo> {
-    await AuthService.logout()
+    await AuthServerService.logout()
     $reset()
     return state.value
   }
@@ -123,7 +123,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    * 准备（初始化）应用数据
    */
   async function prepare(): Promise<PrepareData> {
-    const result = await AuthService.prepare()
+    const result = await AuthServerService.prepare()
 
     // 使用统一的响应检查函数
     if (!isResultSuccess(result)) {

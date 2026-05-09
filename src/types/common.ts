@@ -45,9 +45,9 @@ export interface IdNameMetadata extends BasicIdMetadata<string> {
  *
  * @template T - 值的类型
  */
-export interface IdValueMetadata<T>  extends BasicIdMetadata<string> {
+export interface IdValueMetadata<I, V>  extends BasicIdMetadata<I> {
   /** 实际值 */
-  value: T,
+  value: V,
   /** 元数据 */
   metadata?: Record<string, unknown>
 }

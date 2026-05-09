@@ -83,8 +83,7 @@ export interface Details {
 /**
  * 主体信息
  */
-export interface Principal {
-  id: string
+export interface Principal extends BasicIdMetadata<string>{
   username: string
 }
 
