@@ -27,13 +27,6 @@ export class AuthService {
   static readonly PRINCIPAL_RESOURCES_URL = AuthService.BASE_URL + '/principalResources'
 
   /**
-   * 构造函数
-   * 注意：此类主要为静态方法，通常不需要实例化
-   */
-  constructor() {
-  }
-
-  /**
    * 用户登录
    * 向服务端发送登录请求，验证用户凭据并获取认证信息
    *

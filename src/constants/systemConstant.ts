@@ -1,5 +1,9 @@
 export const APP_RELOAD_PROVIDE_KEY = 'reload'
 
+export const SYSTEM_CONSTANT = {
+  ID_NAME: 'id'
+} as const
+
 /**
  * 系统所有 store 的 id
  */
@@ -8,7 +12,7 @@ export const STORE = {
   PRINCIPAL_ID: 'principal',
   SOCKET_ID: 'socket',
   MENU_ID: 'menu',
-}
+} as const
 
 /**
  * socket 事件相关
@@ -22,7 +26,7 @@ export const SOCKET_EVENT_TYPE = {
   CLIENT_DISCONNECT: 'client_disconnect',
   /** 服务端推送的执行系统命令事件，payload 为 RestResult<string> */
   RUN_COMMAND: 'run_command',
-}
+} as const
 
 /**
  * 主题模式类型

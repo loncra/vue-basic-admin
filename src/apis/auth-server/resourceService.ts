@@ -1,5 +1,6 @@
 import type {ResourceEntity, RestResult} from '@/types'
 import axios from '@/requests/http.ts'
+import {formUrlEncoded} from "@/utils";
 
 /**
  * 资源服务类
@@ -26,7 +27,7 @@ export class ResourceService {
    * ```
    */
   static find(filter: Record<string, unknown>): Promise<RestResult<ResourceEntity[]>> {
-    return axios.get(ResourceService.SERVICE_URL, filter)
+    return axios.post(ResourceService.SERVICE_URL,  formUrlEncoded(filter))
   }
 
   /**

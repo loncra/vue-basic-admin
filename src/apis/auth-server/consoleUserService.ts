@@ -1,18 +1,18 @@
-import axios from '@/requests'
-import {formUrlEncoded} from '@/utils'
-
+import type {ConsoleUserEntity} from '@/types/auth-server/consoleUserType'
+import {BasicRestfulCrudService} from '@/apis/basicRestfulCurdService'
 
 /**
- * 认证服务类
- * 提供用户登录、登出和应用数据初始化等认证相关的 API 调用
+ * 控制台用户服务
  *
  * @author maurice.chen
  */
-export class ConsoleUserService {
+export class ConsoleUserService extends BasicRestfulCrudService<ConsoleUserEntity> {
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/auth-server' : '')
 
   /** 服务基础 URL */
   static readonly SERVICE_URL = ConsoleUserService.BASE_URL + '/console/user'
 
-  
+  constructor() {
+    super(ConsoleUserService.SERVICE_URL)
+  }
 }

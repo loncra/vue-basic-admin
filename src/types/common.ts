@@ -1,4 +1,4 @@
-import {CONFIG_PROVIDER_THEME, TIME_UNIT_TYPE} from '@/constants/systemConstant.ts'
+import {CONFIG_PROVIDER_THEME, SYSTEM_CONSTANT, TIME_UNIT_TYPE} from '@/constants/systemConstant.ts'
 
 /**
  * 服务器响应数据结构
@@ -158,7 +158,12 @@ export interface PageRequest {
   /**
    * 排序信息
    */
-  sort?: IdNameMetadata[]
+  sort?: IdNameMetadata[],
+
+  /**
+   * 附加内容
+   */
+  [key: string]: unknown
 }
 
 /**
@@ -204,6 +209,42 @@ export interface TotalPage<T> extends PageResult<T> {
   totalCount: number
   /** 总页数 */
   totalPages: number
+}
+
+/**
+ * 标准 CRUD「列表」返回形态：分页包装（含 {@link ScrollPageResult} 及其子类型如 {@link PageResult}）或纯数组
+ *
+ * @template T - 列表元素类型，须带主键元数据
+ */
+export type CrudListResult<T> = ScrollPageResult<T> | T[]
+
+/**
+ * 实体 CRUD 契约（服务层 / API 适配层均可实现此接口）
+ *
+ * - 实体 {@link TEntity} 必须含 {@link BasicIdMetadata} 所要求的 `id`
+ * - {@link TId} 默认取实体上的 `id` 字段类型，与 {@link BasicIdMetadata} 的泛型参数一致
+ *
+ * @template TEntity - 业务实体类型
+ * @template TId - 主键类型，等于 `BasicIdMetadata<TId>['id']`
+ */
+export interface BasicCrudService<TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> {
+  /**
+   * 获取全部（或当前查询条件下的全量/分页列表）
+   * 返回须为 {@link ScrollPageResult}（或其扩展结构）或实体数组
+   */
+  fetchAll(filter: PageRequest): Promise<RestResult<CrudListResult<TEntity>>>
+
+  /** 获取单条明细 */
+  fetchById(id: TId): Promise<RestResult<TEntity>>
+
+  /** 保存（新增或整对象更新），提交完整实体数据 */
+  save(entity: TEntity): Promise<RestResult<TId>>
+
+  /**
+   * 删除数据
+   * @param ids - 主键集合，元素类型与 {@link BasicIdMetadata} 的 `id` 一致
+   */
+  deleteByIds(ids: TId[]): Promise<RestResult<void>>
 }
 
 /**
