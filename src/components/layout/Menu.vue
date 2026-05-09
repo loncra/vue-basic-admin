@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
-import type {ResourceData} from "@/types";
+import type {ResourceEntity} from "@/types";
 import {
   type ComponentInternalInstance,
+  type VNode,
   getCurrentInstance,
   h,
   onMounted,
@@ -45,14 +46,14 @@ const menuOptions = ref<MenuState>({
 })
 
 const collapsedAndSelectedMenu = (route: RouteLocationNormalizedLoaded) => {
-  const data: ResourceData[] = filterTreeDeep<ResourceData>(
+  const data: ResourceEntity[] = filterTreeDeep<ResourceEntity>(
     (r) => r.page === route.path,
     menuPrincipalStore.state,
   )
   if (data.length <= 0) {
     return
   }
-  const unmergeData: ResourceData[] = unmergeTree<ResourceData>(data)
+  const unmergeData: ResourceEntity[] = unmergeTree<ResourceEntity>(data)
   const values: string[] = unmergeData.map(d => d.key)
   if (values.length <= 0) {
     return
@@ -69,7 +70,7 @@ watch(
   {deep: true},
 )
 
-function labelRender(item: ResourceData) {
+function labelRender(item: ResourceEntity) {
 
   if (item == null || typeof item !== 'object') {
     return
@@ -85,16 +86,29 @@ function labelRender(item: ResourceData) {
   }
 }
 
-function iconRender(item: ResourceData) {
-  const icon = createIcon(item.icon || 'icon-survey')
-  if (!props.hideLabel) {
+function wrapIconWithMenuRoute(item: ResourceEntity, icon: VNode) {
+  const page = item.page?.trim()
+  if (!page) {
     return icon
+  }
+  return h(
+    RouterLink,
+    {to: page},
+    () => icon,
+  )
+}
+
+function iconRender(item: ResourceEntity) {
+  const icon = createIcon(item.icon || 'icon-survey')
+  const linkedIcon = wrapIconWithMenuRoute(item, icon)
+  if (!props.hideLabel) {
+    return linkedIcon
   }
   const Tooltip = resolveComponent('ATooltip')
   return h(
     Tooltip,
     {title: String(item.name ?? '')},
-    {default: () => icon},
+    {default: () => linkedIcon},
   )
 }
 

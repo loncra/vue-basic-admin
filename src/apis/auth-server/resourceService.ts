@@ -1,4 +1,4 @@
-import type {ResourceData, RestResult} from '@/types'
+import type {ResourceEntity, RestResult} from '@/types'
 import axios from '@/requests/http.ts'
 
 /**
@@ -13,9 +13,6 @@ export class ResourceService {
   /** 资源服务基础 URL */
   static readonly SERVICE_URL = ResourceService.BASE_URL + '/resource'
 
-  /** 获取用户资源的接口路径 */
-  static readonly PRINCIPAL_RESOURCES_URL = ResourceService.BASE_URL + '/principalResources'
-
   /**
    * 获取资源集合
    * 根据过滤条件查询资源列表
@@ -28,7 +25,7 @@ export class ResourceService {
    * const result = await ResourceService.find({ type: 'MENU', status: 'active' });
    * ```
    */
-  static find(filter: Record<string, unknown>): Promise<RestResult<ResourceData[]>> {
+  static find(filter: Record<string, unknown>): Promise<RestResult<ResourceEntity[]>> {
     return axios.get(ResourceService.SERVICE_URL, filter)
   }
 
@@ -43,7 +40,7 @@ export class ResourceService {
    * const result = await ResourceService.get('123');
    * ```
    */
-  static get(id: string): Promise<RestResult<ResourceData>> {
+  static get(id: string): Promise<RestResult<ResourceEntity>> {
     return axios.get(ResourceService.SERVICE_URL + '/' + id)
   }
 

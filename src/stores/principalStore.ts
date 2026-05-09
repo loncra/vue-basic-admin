@@ -1,12 +1,12 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
-import {AuthService} from '@/apis/auth'
+import {AuthService} from '../apis/auth-server'
 import {
   type AuthCredentials,
   type AuthenticationInfo,
   type AuthenticationType,
   type PrepareData
-} from '@/types/auth'
+} from '../types/auth-server'
 import {isResultSuccess} from '@/requests'
 import {AUTHENTICATION_TYPE} from '@/constants/authConstant'
 import {STORE} from '@/constants/systemConstant'

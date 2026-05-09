@@ -4,7 +4,7 @@ import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
 import LMenu from '@/components/layout/Menu.vue'
-import type {MenuData} from "@/types";
+import type {ResourceMetadata} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {
   RouteLocationNormalized,
@@ -23,8 +23,8 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const currentBreadcrumbs = computed((): MenuData[] => {
-  const result: MenuData[] = []
+const currentBreadcrumbs = computed((): ResourceMetadata[] => {
+  const result: ResourceMetadata[] = []
 
   const route: RouteLocationNormalized = globalProperties.$route
   const meta = requireNonNullOrUndefined<RouteMeta>(route.meta)
@@ -35,24 +35,24 @@ const currentBreadcrumbs = computed((): MenuData[] => {
       .getRoutes()
       .find((r: RouteRecordRaw) => r.name === meta.parent)
     if (parentRoute) {
-      const data = filterTreeDeep<MenuData>(
-        (r: MenuData) => r.page === parentRoute.path,
+      const data = filterTreeDeep<ResourceMetadata>(
+        (r: ResourceMetadata) => r.page === parentRoute.path,
         menuPrincipalStore.state,
       )
-      result.push(...unmergeTree<MenuData>(data))
+      result.push(...unmergeTree<ResourceMetadata>(data))
     }
 
-    result.push(<MenuData>{
+    result.push(<ResourceMetadata>{
       icon: meta.icon,
       name: meta.title,
       applicationName: meta.applicationName,
     })
   } else {
-    const data = filterTreeDeep<MenuData>(
-      (r: MenuData) => r.page === route.path,
+    const data = filterTreeDeep<ResourceMetadata>(
+      (r: ResourceMetadata) => r.page === route.path,
       menuPrincipalStore.state,
     )
-    result.push(...unmergeTree<MenuData>(data))
+    result.push(...unmergeTree<ResourceMetadata>(data))
   }
 
   return result

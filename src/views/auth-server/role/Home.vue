@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import LMenuTitleCard from '@/components/baisc/MenuTitleCard.vue'
-import LConsoleUserTableTable from "@/components/auth-server/ConsoleUserTable.vue";
 
 defineOptions({
   name: 'LAuthServerConsoleUserHome',
@@ -10,8 +9,6 @@ defineOptions({
 
 <template>
   <div>
-    <l-menu-title-card>
-      <l-console-user-table-table />
-    </l-menu-title-card>
+    <l-menu-title-card/>
   </div>
 </template>

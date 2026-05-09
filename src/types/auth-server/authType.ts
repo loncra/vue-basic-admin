@@ -1,4 +1,9 @@
-import type {NameValueEnumMetadata, TimeProperties} from '@/types/common'
+import type {
+  BasicIdMetadata,
+  NameValueEnumMetadata,
+  TimeProperties,
+  VersionEntityMetadata
+} from '@/types/common'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.ts'
 
 /**
@@ -45,7 +50,6 @@ export interface UserMetadata {
   phoneNumberVerified?: NameValueEnumMetadata<number>
   gender?: NameValueEnumMetadata<number>
   realName?: string
-
   [key: string]: unknown
 }
 
@@ -106,4 +110,62 @@ export interface PrepareData extends AuthenticationInfo {
   pluginServices: string[]
   deviceIdentified: string
   runtimeMode: string
+}
+
+/**
+ * 基础系统用户信息
+ */
+export interface BasicSystemUser extends BasicIdMetadata<number>{
+  /**
+   * 登录智囊胡
+   */
+  username: string
+  /**
+   * 状态:1.启用、2.禁用、3.锁定
+   */
+  status: NameValueEnumMetadata<number>
+
+}
+
+/**
+ * 平台用户信息
+ */
+export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMetadata {
+  /**
+   * 邮箱
+   */
+  email:string
+  /**
+   * 是否验证邮件
+   */
+  emailVerified: NameValueEnumMetadata<number>
+
+  /**
+   * 拥有角色
+   */
+  roleIds:Set<number>
+
+  /**
+   * 拥有资源
+   */
+  resourceIds:Set<number>
+
+  /**
+   * 最后登录时间
+   */
+  lastAuthenticationTime: number
+
+  /**
+   * 用户类型
+   */
+  type: NameValueEnumMetadata<String>
+
+}
+
+/**
+ * 用户初始化元数据
+ */
+export interface UserInitializationMetadata {
+  randomPassword: NameValueEnumMetadata<number>,
+  randomUsername: NameValueEnumMetadata<string>,
 }

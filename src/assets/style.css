@@ -100,7 +100,7 @@
   }
 
   .icon.align {
-    @apply mb-[3px];
+    @apply mb-0.75;
   }
 
   .ant-btn-lg .icon {
@@ -120,6 +120,10 @@
   .layout-sider .ant-menu-inline,
   .layout-sider .ant-menu-horizontal {
     @apply border-b-0 border-e-0;
+  }
+
+  .layout-sider .ant-menu-horizontal .ant-menu-item::after {
+    @apply border-none;
   }
 
   .layout-sider .ant-menu-sub {

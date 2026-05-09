@@ -21,29 +21,22 @@ export interface RestResult<T = unknown> {
   message: string
 }
 
-/**
- * 名称-值对结构（带值类型）
- * 用于表示带有显示名称和具体数值的键值对
- * 常用于枚举类型的数据展示
- *
- * @template T - 值的类型
- */
-export interface NameValueEnumMetadata<T> {
-  /** 显示名称 */
-  name: string
-  /** 实际值 */
-  value: T
+export interface BasicIdMetadata<T> {
+  id: T
+}
+
+export interface VersionEntityMetadata extends BasicIdMetadata<number> {
+  creationTime: number,
+  versin: number,
 }
 
 /**
  * ID-名称元数据结构
  * 常用于下拉选项、显示标签等场景
  */
-export interface IdNameMetadata {
+export interface IdNameMetadata extends BasicIdMetadata<string> {
   /** 显示名称 */
   name: string
-  /** 唯一标识 ID */
-  id: string
 }
 
 /**
@@ -52,9 +45,7 @@ export interface IdNameMetadata {
  *
  * @template T - 值的类型
  */
-export interface IdValueMetadata<T> {
-  /** 唯一标识 ID */
-  id: string
+export interface IdValueMetadata<T>  extends BasicIdMetadata<string> {
   /** 实际值 */
   value: T,
   /** 元数据 */
@@ -69,6 +60,18 @@ export interface IdValueMetadata<T> {
 export interface NameEnumMetadata {
   /** 显示名称 */
   name: string
+}
+
+/**
+ * 名称-值对结构（带值类型）
+ * 用于表示带有显示名称和具体数值的键值对
+ * 常用于枚举类型的数据展示
+ *
+ * @template T - 值的类型
+ */
+export interface NameValueEnumMetadata<T> extends NameEnumMetadata {
+  /** 实际值 */
+  value: T
 }
 
 /**
@@ -152,6 +155,10 @@ export interface PageRequest {
   number: number
   /** 每页条数 */
   size: number
+  /**
+   * 排序信息
+   */
+  sort?: IdNameMetadata[]
 }
 
 /**
@@ -224,3 +231,4 @@ export interface TimeProperties {
    */
   unit: TimeUnitType
 }
+

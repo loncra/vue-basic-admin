@@ -1,7 +1,7 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants/systemConstant.ts'
-import type {ResourceData, ResourceType} from '@/types'
+import type {ResourceEntity, ResourceType} from '@/types'
 import {AuthService} from '@/apis'
 import {isResultSuccess} from '@/requests'
 
@@ -9,7 +9,7 @@ import {isResultSuccess} from '@/requests'
  * 重置状态常量
  * 菜单存储的初始空状态
  */
-const RESET: ResourceData[] = []
+const RESET: ResourceEntity[] = []
 
 /**
  * 菜单状态管理 Store
@@ -17,7 +17,7 @@ const RESET: ResourceData[] = []
  */
 export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   /** 菜单资源数据状态 */
-  const state = ref<ResourceData[]>(RESET)
+  const state = ref<ResourceEntity[]>(RESET)
 
   /**
    * 重置菜单状态
@@ -25,7 +25,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    *
    * @returns 重置后的空菜单数组
    */
-  function $reset(): ResourceData[] {
+  function $reset(): ResourceEntity[] {
     state.value = [...RESET]
     return state.value
   }
@@ -42,7 +42,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   async function getPrincipalResources(
     types: ResourceType[],
     mergeTree: boolean = true,
-  ): Promise<ResourceData[]> {
+  ): Promise<ResourceEntity[]> {
     if (state.value.length > 0) {
       return state.value;
     }

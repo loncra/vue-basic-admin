@@ -5,7 +5,7 @@ import type {
   AuthenticationInfo,
   AuthenticationType,
   PrepareData,
-  ResourceData,
+  ResourceEntity,
   RestResult
 } from '@/types'
 
@@ -106,7 +106,7 @@ export class AuthService {
   static principalResources(
     resourceTypes?: string[],
     mergeTree: boolean = true,
-  ): Promise<RestResult<ResourceData[]>> {
+  ): Promise<RestResult<ResourceEntity[]>> {
     // 将参数转换为 URLSearchParams 格式
     const params = formUrlEncoded({types: resourceTypes, mergeTree})
     return axios.get(AuthService.PRINCIPAL_RESOURCES_URL, {

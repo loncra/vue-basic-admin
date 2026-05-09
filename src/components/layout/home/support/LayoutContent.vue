@@ -7,13 +7,13 @@ import {
   nextTick,
   onMounted,
   provide,
-  ref
+  ref, watch
 } from 'vue'
 import type {MenuItemType} from 'antdv-next'
 import {createIcon, filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
 import {APP_RELOAD_PROVIDE_KEY} from '@/constants/systemConstant'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import type {MenuData} from '@/types'
+import type {ResourceMetadata} from '@/types'
 
 defineOptions({
   name: 'LLayoutContent',
@@ -98,11 +98,11 @@ function activateSegmented(route: RouteLocationNormalizedLoaded) {
 }
 
 function addPane(route: RouteLocationNormalizedLoaded): void {
-  const data = filterTreeDeep<MenuData>(
-    (r: MenuData) => r.page === route.path,
+  const data = filterTreeDeep<ResourceMetadata>(
+    (r: ResourceMetadata) => r.page === route.path,
     menuPrincipalStore.state,
   )
-  const unmergeData = unmergeTree<MenuData>(data)
+  const unmergeData = unmergeTree<ResourceMetadata>(data)
   const last = unmergeData.at(-1)
   if (last) {
     route.meta.title = last.name
@@ -305,6 +305,12 @@ function onRemoveTab(value: string, action: string) {
   }
   panes.value = panes.value.filter((p) => p.name !== value)
 }
+
+watch(
+  () => globalProperties.$route,
+  () => activateSegmented(globalProperties.$route),
+  { deep: true },
+)
 
 onMounted(mounted)
 </script>

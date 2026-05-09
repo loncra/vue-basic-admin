@@ -2,7 +2,7 @@
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import {type ComponentInternalInstance, computed, getCurrentInstance, useSlots} from 'vue'
 import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
-import type {MenuData} from '@/types'
+import type {ResourceMetadata} from '@/types'
 
 defineOptions({
   name: 'LMenuTitleCard',
@@ -30,12 +30,12 @@ const globalProperties =
 const hasCustomTitle = computed(() => Boolean(slots.title))
 
 const detail = computed(() => {
-  const data = filterTreeDeep<MenuData>(
-    (r: MenuData) => r.page === globalProperties.$route.path,
+  const data = filterTreeDeep<ResourceMetadata>(
+    (r: ResourceMetadata) => r.page === globalProperties.$route.path,
     menuPrincipalStore.state,
   )
 
-  const menu = unmergeTree<MenuData>(data).at(-1);
+  const menu = unmergeTree<ResourceMetadata>(data).at(-1);
   if (menu) {
     return {
       title: menu?.name || props.title,
@@ -61,6 +61,9 @@ const detail = computed(() => {
         <icon-font class="icon align" :type="detail.icon"/>
         <span>{{ detail.title }}</span>
       </a-space>
+    </template>
+    <template #extra>
+      <slot name="extra" />
     </template>
     <slot/>
   </a-card>

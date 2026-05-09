@@ -10,12 +10,12 @@ import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
 import Workbench from '@/views/commons/Workbench.vue'
 import Setting from '@/views/commons/Setting.vue'
-import type {ResourceData} from "@/types";
+import type {ResourceEntity} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {ref} from 'vue'
 import {findFirstTreeNode, requireNonNullOrUndefined} from '@/utils'
-import type {PrepareData} from '@/types/auth'
+import type {PrepareData} from '../types/auth-server'
 
 const initialState = ref<boolean>(false)
 
@@ -107,13 +107,13 @@ const clearRoute = (): void => {
   routes.forEach((r) => router.addRoute(r))
 }
 
-const loadPluginServiceRoutes = async (pluginServices: string[]): Promise<RouteRecordRaw[]> => {
+const loadServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
   const promises = []
 
   // 遍历所有路由模块
   for (const key in modules) {
     // 检查模块是否属于指定的插件服务
-    if (pluginServices.length > 0 && !pluginServices.some(path => key.includes(path))) {
+    if (serviceName.length > 0 && !serviceName.some(path => key.includes(path))) {
       continue
     }
 
@@ -149,9 +149,9 @@ const loadPluginServiceRoutes = async (pluginServices: string[]): Promise<RouteR
  */
 const applyRouteMetaToMenu = (
   route: RouteRecordRaw,
-  menus: ResourceData[],
+  menus: ResourceEntity[],
 ) => {
-  const menuData = findFirstTreeNode<ResourceData>(
+  const menuData = findFirstTreeNode<ResourceEntity>(
     m => route.path === m.page,
     menus,
   )
@@ -171,7 +171,7 @@ const applyRouteMetaToMenu = (
 }
 
 const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
-  const importRoutes: RouteRecordRaw[] = await loadPluginServiceRoutes(serviceName)
+  const importRoutes: RouteRecordRaw[] = await loadServiceRoutes(serviceName)
 
   const menuPrincipalStore = useMenuPrincipalStore()
   const menus = await menuPrincipalStore.getPrincipalResources([
