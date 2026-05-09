@@ -96,20 +96,20 @@ watch(
             v-bind="column.search.props"
             v-model:value="query[column.search.queryName]"
           />
-          <a-space>
-            <a-button type="primary" @click="search(column, confirm)">
+          <a-space-compact block>
+            <a-button block type="primary" @click="search(column, confirm)">
               <template #icon>
                 <icon-font class="icon align" type="icon-confirm"/>
               </template>
               <span>搜索</span>
             </a-button>
-            <a-button @click="resetField(column, clearFilters)">
+            <a-button block @click="resetField(column, clearFilters)">
               <template #icon>
                 <icon-font class="icon align" type="icon-error"/>
               </template>
               <span>重置</span>
             </a-button>
-          </a-space>
+          </a-space-compact>
         </a-space>
       </div>
     </template>

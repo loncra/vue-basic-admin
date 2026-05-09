@@ -3,7 +3,7 @@ import LAuthorityOperateTable, {
   type SearchableColumnType
 } from '@/components/baisc/AuthorityOperateTable.vue'
 import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
-import {onMounted, ref} from 'vue'
+import {markRaw, onMounted, ref} from 'vue'
 import type {ConsoleUserEntity} from '@/types/auth-server/consoleUserType.ts'
 import {DateRangePicker, InputNumber, InputSearch, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
@@ -23,7 +23,7 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: 'realName',
     key: 'real_name',
     search:{
-      component: InputSearch,
+      component: markRaw(InputSearch),
       props:{},
       expression:'like'
     },
@@ -33,8 +33,8 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: 'gender',
     key: 'gender',
     search:{
-      component: Select,
-      props:{},
+      component: markRaw(Select),
+      props:{fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
       expression:'eq'
     },
   },
@@ -43,7 +43,7 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: 'username',
     key: 'username',
     search:{
-      component: InputSearch,
+      component: markRaw(InputSearch),
       props:{},
       expression:'like'
     },
@@ -53,8 +53,8 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: 'status',
     key: 'status',
     search: {
-      component: Select,
-      props: {},
+      component: markRaw(Select),
+      props: {fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
       expression: 'eq',
     },
   },
@@ -63,7 +63,7 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: 'email',
     key: 'email',
     search:{
-      component: InputSearch,
+      component: markRaw(InputSearch),
       props:{
 
       },
@@ -75,8 +75,8 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: 'phoneNumber',
     key: 'phone_number',
     search:{
-      component: InputNumber,
-      props:{},
+      component: markRaw(InputNumber),
+      props:{ classes:{root:'w-full'}},
       expression:'eq'
     },
   },
@@ -85,7 +85,7 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: 'lastAuthenticationTime',
     key: 'last_authentication_time',
     search:{
-      component: DateRangePicker,
+      component: markRaw(DateRangePicker),
       props:{},
       expression:'betwent'
     },
@@ -99,12 +99,12 @@ async function mounted() {
   if (enums.data) {
     const genderCol = columns.value[columns.value.findIndex(s => s.dataIndex === "gender")];
     if (genderCol && genderCol.search) {
-      genderCol.search.props = {options : enums.data["resource-server"]?.GenderEnum, fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false}
+      genderCol.search.props.options = enums.data["resource-server"]?.GenderEnum
     }
 
     const statusCol = columns.value.find(s => s.dataIndex === "status");
     if (statusCol && statusCol.search) {
-      statusCol.search.props = {options : enums.data["resource-server"]?.UserStatus, fieldNames:{label:'name'}, classes:{root:'w-full'}}
+      statusCol.search.props.options = enums.data["resource-server"]?.UserStatus
     }
   }
 
