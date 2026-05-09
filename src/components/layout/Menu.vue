@@ -25,22 +25,20 @@ const globalProperties =
 
 const menuPrincipalStore = useMenuPrincipalStore()
 
-interface MenuState {
-  selectedKeys: string[],
-  openKeys: string[]
-}
-
-interface MenuProps {
+const props = withDefaults(defineProps<{
   menuTypes: string[],
   hideLabel?: boolean
-}
-
-const props = withDefaults(defineProps<MenuProps>(), {
+}>(), {
   menuTypes: () => [],
   inlineCollapsed: false
 })
 
-const menuOptions = ref<MenuState>({
+const menuOptions = ref<
+  {
+    selectedKeys: string[],
+    openKeys: string[]
+  }
+>({
   selectedKeys: [],
   openKeys: []
 })

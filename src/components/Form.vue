@@ -9,11 +9,9 @@ defineOptions({
   name: 'LForm',
 })
 
-export interface FormProp {
+const props = defineProps<{
   layout?: string
-}
-
-const props = defineProps<FormProp>()
+}>()
 const formRef = ref<FormInstance>()
 
 defineExpose({
