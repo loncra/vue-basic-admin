@@ -3,5 +3,5 @@ import LVerticalLayout from '@/components/layout/home/VerticalLayout.vue'
 </script>
 
 <template>
-  <l-vertical-layout />
+  <l-vertical-layout/>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { useConfigProviderStore } from '@/stores/configProviderStore'
+import {useConfigProviderStore} from '@/stores/configProviderStore'
 // 获取配置提供者 Store，用于管理主题和国际化配置
 const configProviderStore = useConfigProviderStore()
 </script>
@@ -18,7 +18,7 @@ const configProviderStore = useConfigProviderStore()
           <!-- fade-transform: 淡入淡出 + 变换效果 -->
           <!-- out-in: 先退出旧组件，再进入新组件 -->
           <transition name="fade-transform" mode="out-in">
-            <component :is="Component" />
+            <component :is="Component"/>
           </transition>
         </router-view>
       </a-app>

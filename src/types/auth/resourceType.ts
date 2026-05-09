@@ -1,4 +1,4 @@
-import type { NameValueEnumMetadata } from '@/types/common'
+import type {NameValueEnumMetadata} from '@/types/common'
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 
 /** 资源类型：根/目录/菜单/安全/工具 */
@@ -26,7 +26,7 @@ export interface MenuData {
   /**
    * 路由页面
    */
-  page:string
+  page: string
 
 }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HomeLayout from '@/components/layout/HomeLayout.vue'
-import { onMounted, onUnmounted } from 'vue'
+
 defineOptions({
   name: 'LHome',
 })
@@ -9,6 +9,6 @@ defineOptions({
 
 <template>
   <div>
-    <home-layout />
+    <home-layout/>
   </div>
 </template>

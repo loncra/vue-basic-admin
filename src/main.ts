@@ -1,5 +1,5 @@
-import { createApp, createVNode } from 'vue'
-import { createPinia } from 'pinia'
+import {createApp, createVNode} from 'vue'
+import {createPinia} from 'pinia'
 
 import App from '@/App.vue'
 import router from '@/routers'
@@ -8,13 +8,12 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import i18n from '@/i18n'
 // 导入 Ant Design Vue Next 组件和图标（antdv-next 无 List 组件，Chat.vue 中已用 div 替代）
-import { createFromIconfontCN, ExclamationCircleOutlined } from '@antdv-next/icons'
-import { message, Modal, notification } from 'antdv-next'
-
-dayjs.extend(relativeTime)
-
+import {createFromIconfontCN, ExclamationCircleOutlined} from '@antdv-next/icons'
+import {message, Modal, notification} from 'antdv-next'
 // 导入全局样式
 import '@/assets/style.css'
+
+dayjs.extend(relativeTime)
 
 /**
  * 创建自定义图标字体组件

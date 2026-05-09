@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useConfigProviderStore } from '@/stores/configProviderStore.js'
-import { ref } from 'vue'
-import type { FormInstance } from 'antdv-next'
+import {useConfigProviderStore} from '@/stores/configProviderStore.js'
+import {ref} from 'vue'
+import type {FormInstance} from 'antdv-next'
 
 const configProviderStore = useConfigProviderStore()
 

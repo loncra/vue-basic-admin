@@ -1,4 +1,4 @@
-import { CONFIG_PROVIDER_THEME, TIME_UNIT_TYPE } from '@/constants/systemConstant.ts'
+import {CONFIG_PROVIDER_THEME, TIME_UNIT_TYPE} from '@/constants/systemConstant.ts'
 
 /**
  * 服务器响应数据结构

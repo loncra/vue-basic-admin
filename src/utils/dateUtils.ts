@@ -1,4 +1,4 @@
-import dayjs, { type Dayjs } from 'dayjs'
+import dayjs, {type Dayjs} from 'dayjs'
 
 /**
  * 格式化日期时间（通用函数）

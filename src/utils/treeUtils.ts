@@ -1,4 +1,4 @@
-import type { TreeLike } from '@/types'
+import type {TreeLike} from '@/types'
 
 /**
  * 树形节点条件判断函数类型
@@ -119,7 +119,7 @@ export function unmergeTree<T>(data: TreeLike<T>[] = []): T[] {
   for (const d of data) {
     // 添加当前节点（不包含 children 属性）
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { children, ...nodeWithoutChildren } = d
+    const {children, ...nodeWithoutChildren} = d
     result.push(nodeWithoutChildren as T)
     // 如果有子节点，递归处理子节点
     if (hasTreeChildren(d)) {
@@ -176,7 +176,7 @@ export function findAllTreeNodes<T>(predicate: Predicate<T>, data: TreeLike<T>[]
       // children 变量本身不会被使用，它的作用只是"告诉"解构赋值："请把这个属性分离出去"
       // nodeWithoutChildren 将包含除了 children 之外的所有属性（id、name、type 等）
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { children, ...nodeWithoutChildren } = node
+      const {children, ...nodeWithoutChildren} = node
       // 将不包含 children 的节点添加到结果中（扁平化结果不需要 children 属性）
       result.push(nodeWithoutChildren as T)
     }
@@ -246,13 +246,13 @@ export function filterTreeDeep<T>(predicate: Predicate<T>, data: TreeLike<T>[]):
 
       // 如果有过滤后的子节点，保留当前节点并包含过滤后的子节点
       if (filteredChildren.length > 0) {
-        return { ...node, children: filteredChildren }
+        return {...node, children: filteredChildren}
       }
     }
 
     // 如果当前节点本身满足过滤条件，返回节点（不包含子节点）
     if (predicate(node)) {
-      return { ...node }
+      return {...node}
     }
 
     // 如果当前节点及其子节点都不满足条件，返回 null 表示丢弃

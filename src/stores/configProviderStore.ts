@@ -10,9 +10,9 @@
  * @author maurice.chen
  */
 
-import { computed, type ComputedRef, onMounted, onUnmounted, type Ref, ref } from 'vue'
-import { defineStore } from 'pinia'
-import { theme } from 'antdv-next'
+import {computed, type ComputedRef, onMounted, onUnmounted, type Ref, ref} from 'vue'
+import {defineStore} from 'pinia'
+import {theme} from 'antdv-next'
 import {
   CONFIG_PROVIDER,
   CONFIG_PROVIDER_THEME,
@@ -21,9 +21,9 @@ import {
   STORE
 } from '@/constants/systemConstant'
 
-import i18n, { type LanguagePack } from '@/i18n'
-import type { NameValueEnumMetadata, ThemeMode, ThemeValue } from '@/types'
-import type { ComposerTranslation } from 'vue-i18n'
+import i18n, {type LanguagePack} from '@/i18n'
+import type {NameValueEnumMetadata, ThemeMode, ThemeValue} from '@/types'
+import type {ComposerTranslation} from 'vue-i18n'
 import dayjs from 'dayjs'
 
 /**
@@ -65,8 +65,8 @@ interface ConfigProviderState extends StoredStateValue {
  */
 export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () => {
   // 获取 Ant Design Vue 的 theme token，用于访问设计系统的值
-  const { useToken } = theme
-  const { token } = useToken()
+  const {useToken} = theme
+  const {token} = useToken()
 
   // 从 localStorage 读取已保存的配置
   const storedValue = localStorage.getItem(
@@ -100,17 +100,17 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     // 定义屏幕断点，按从大到小排序
     // 使用 Ant Design Vue 的 token 值，如果没有则使用默认值
     const breakpoints: NameValueEnumMetadata<number>[] = [
-      { name: SCREEN_BREAKPOINT.SCREEN_XXXL, value: currentToken.screenXXXL || 2000 },
-      { name: SCREEN_BREAKPOINT.SCREEN_XXL, value: currentToken.screenXXL || 1600 },
-      { name: SCREEN_BREAKPOINT.SCREEN_XL, value: currentToken.screenXL || 1200 },
-      { name: SCREEN_BREAKPOINT.SCREEN_LG, value: currentToken.screenLG || 992 },
-      { name: SCREEN_BREAKPOINT.SCREEN_MD, value: currentToken.screenMD || 768 },
-      { name: SCREEN_BREAKPOINT.SCREEN_SM, value: currentToken.screenSM || 576 },
-      { name: SCREEN_BREAKPOINT.SCREEN_XS, value: currentToken.screenXS || 480 },
+      {name: SCREEN_BREAKPOINT.SCREEN_XXXL, value: currentToken.screenXXXL || 2000},
+      {name: SCREEN_BREAKPOINT.SCREEN_XXL, value: currentToken.screenXXL || 1600},
+      {name: SCREEN_BREAKPOINT.SCREEN_XL, value: currentToken.screenXL || 1200},
+      {name: SCREEN_BREAKPOINT.SCREEN_LG, value: currentToken.screenLG || 992},
+      {name: SCREEN_BREAKPOINT.SCREEN_MD, value: currentToken.screenMD || 768},
+      {name: SCREEN_BREAKPOINT.SCREEN_SM, value: currentToken.screenSM || 576},
+      {name: SCREEN_BREAKPOINT.SCREEN_XS, value: currentToken.screenXS || 480},
     ]
 
     // 兜底返回 screenXS（理论上不会执行到这里）
-    const result: NameValueEnumMetadata<number> = { name: SCREEN_BREAKPOINT.SCREEN_XS, value: 480 }
+    const result: NameValueEnumMetadata<number> = {name: SCREEN_BREAKPOINT.SCREEN_XS, value: 480}
     // 找到第一个小于等于当前宽度的断点
     // 例如：宽度为 1200px 时，会匹配到 screenXL（1200）
     for (const breakpoint of breakpoints) {
@@ -151,7 +151,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     const initialState = {
       algorithm: null,
       ...(storedValue ? JSON.parse(storedValue) : CONFIG_PROVIDER.STORED_STATE_VALUE),
-      ...{ locale: navigator.language },
+      ...{locale: navigator.language},
     }
 
     // 初始化 screen 属性
@@ -286,7 +286,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
       if (!locale) {
         continue
       }
-      result.push({ name: locale.name, value: locale.value })
+      result.push({name: locale.name, value: locale.value})
     }
     return result
   }

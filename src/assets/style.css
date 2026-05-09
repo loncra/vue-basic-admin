@@ -5,15 +5,12 @@
 
 /* 主题级动画：keyframes 内不能使用 @apply，需保留原生属性 */
 @theme {
-  --animate-auth-banner:
-    fadeInFloat 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-    smoothFloat 4s ease-in-out 1.2s infinite;
+  --animate-auth-banner: fadeInFloat 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+  smoothFloat 4s ease-in-out 1.2s infinite;
 
-  --animate-layout-content-fullscreen-in:
-    layout-content-fullscreen-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  --animate-layout-content-fullscreen-in: layout-content-fullscreen-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   /* 退出要比进入更短，否则「缩完再等嵌回布局」体感拖沓 */
-  --animate-layout-content-fullscreen-out:
-    layout-content-fullscreen-out 0.18s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  --animate-layout-content-fullscreen-out: layout-content-fullscreen-out 0.18s cubic-bezier(0.4, 0, 0.6, 1) forwards;
 
   @keyframes fadeInFloat {
     0% {
@@ -90,7 +87,7 @@
 
   .auth-background::before {
     @apply pointer-events-none absolute inset-0 z-0 opacity-30 blur-[100px] content-['']
-      bg-[linear-gradient(154deg,rgba(7,7,9,0.08235)_30%,var(--ant-color-primary)_48%,rgba(7,7,9,0.08235)_64%)];
+    bg-[linear-gradient(154deg,rgba(7,7,9,0.08235)_30%,var(--ant-color-primary)_48%,rgba(7,7,9,0.08235)_64%)];
   }
 
   .auth-background > * {
@@ -103,7 +100,7 @@
   }
 
   .icon.align {
-    @apply  mb-[3px];
+    @apply mb-[3px];
   }
 
   .ant-btn-lg .icon {
@@ -151,8 +148,9 @@
   }
 
   .layout-content-operation::after {
-    @apply absolute inset-x-0 top-0 z-[-1] h-full bg-repeat content-[''] backdrop-blur-[10px]
-      mask-[linear-gradient(black,black_40%,transparent_100%)];
+    @apply absolute inset-x-0 top-0 z-[-1] h-full bg-repeat content-[''] backdrop-blur-[10px];
+    mask-image: linear-gradient(black, black 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(black, black 40%, transparent 100%);
   }
 
   .layout-content-operation .ant-tabs-nav-wrap {
@@ -177,32 +175,32 @@
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
     @apply relative z-0 rounded-lg border-2 border-solid border-layout bg-layout pl-md pr-md pb-0 pt-0 text-main
-      transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
-      motion-reduce:transition-none;
+    transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
+    motion-reduce:transition-none;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn {
     @apply transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
-      motion-reduce:transition-none;
+    motion-reduce:transition-none;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
   .layout-content-operation
-    .tool-bar
-    .ant-tabs-nav-list
-    .ant-tabs-tab
-    .ant-tabs-tab-remove:focus:not(:focus-visible) {
+  .tool-bar
+  .ant-tabs-nav-list
+  .ant-tabs-tab
+  .ant-tabs-tab-remove:focus:not(:focus-visible) {
     @apply bg-(--ant-color-fill-secondary);
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:active,
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
   .layout-content-operation
-    .tool-bar
-    .ant-tabs-nav-list
-    .ant-tabs-tab
-    .ant-tabs-tab-remove:focus:not(:focus-visible) {
+  .tool-bar
+  .ant-tabs-nav-list
+  .ant-tabs-tab
+  .ant-tabs-tab-remove:focus:not(:focus-visible) {
     @apply bg-(--ant-color-fill) text-main;
   }
 

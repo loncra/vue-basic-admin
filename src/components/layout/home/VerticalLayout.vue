@@ -11,11 +11,11 @@ defineOptions({
 <template>
   <div class="h-screen">
     <a-layout class="h-full">
-      <l-layout-sider />
+      <l-layout-sider/>
       <a-layout class="h-full">
-        <l-layout-header />
+        <l-layout-header/>
 
-        <l-layout-content />
+        <l-layout-content/>
       </a-layout>
     </a-layout>
   </div>

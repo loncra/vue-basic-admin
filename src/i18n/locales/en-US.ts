@@ -1,5 +1,5 @@
 import enUS from 'antdv-next/locale/en_US'
-import type { LanguagePack } from '@/i18n'
+import type {LanguagePack} from '@/i18n'
 import 'dayjs/locale/en'
 
 const locale: LanguagePack = {

@@ -1,8 +1,8 @@
-import { message } from 'antdv-next'
-import type { Router } from 'vue-router'
+import {message} from 'antdv-next'
+import type {Router} from 'vue-router'
 
 import dayjs from 'dayjs'
-import { dayjsFormat } from './dateUtils'
+import {dayjsFormat} from './dateUtils'
 
 /**
  * 值转换函数类型
@@ -34,7 +34,7 @@ export function toExportView(data: ExportViewData, router: Router): void {
   // 显示成功消息
   message.success(data.message).then(() => ({}))
   // 跳转到导出视图
-  router.push({ name: import.meta.env.VITE_APP_EXPORT_VIEW_NAME as string }).then(() => ({}))
+  router.push({name: import.meta.env.VITE_APP_EXPORT_VIEW_NAME as string}).then(() => ({}))
 }
 
 /**

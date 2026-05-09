@@ -1,8 +1,8 @@
-import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
+import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig} from 'axios'
 import router from '@/routers'
-import { message } from 'antdv-next'
-import { HTTP } from '@/constants/systemConstant.ts'
-import { BusinessError, type RestResult } from '@/types'
+import {message} from 'antdv-next'
+import {HTTP} from '@/constants/systemConstant.ts'
+import {BusinessError, type RestResult} from '@/types'
 
 /** 不弹出错误提示的 HTTP 状态码 */
 const ignoreErrorStatus: number[] = [404]
@@ -145,7 +145,8 @@ async function responseError<T = unknown>(
   // 统一处理 401 未授权错误
   if (status === 401) {
     message.error('登录已过期，请重新登录')
-    router.push({ name: import.meta.env.VITE_APP_AUTH_PAGE_NAME }).catch(() => {})
+    router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME}).catch(() => {
+    })
     return Promise.reject(
       new BusinessError(result?.executeCode || '401', status, serverMessage, result?.data),
     )
@@ -156,7 +157,8 @@ async function responseError<T = unknown>(
   const errorRoute = router.getRoutes().find((r) => r.name === statusStr)
   if (errorRoute) {
     sessionStorage.setItem(statusStr, JSON.stringify(result?.data || []))
-    router.push({ name: statusStr }).catch(() => {})
+    router.push({name: statusStr}).catch(() => {
+    })
     return Promise.reject(
       new BusinessError(result?.executeCode || statusStr, status, serverMessage, result?.data),
     )

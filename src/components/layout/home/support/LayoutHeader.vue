@@ -65,7 +65,7 @@ const currentBreadcrumbs = computed((): MenuData[] => {
       <a-breadcrumb>
         <a-breadcrumb-item v-for="(breadcrumb, index) in currentBreadcrumbs" :key="breadcrumb.name">
           <a-space>
-            <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'" />
+            <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'"/>
             <a-typography-link
               v-if="index != currentBreadcrumbs.length - 1 && breadcrumb.page"
               :href="breadcrumb.page"
@@ -81,8 +81,8 @@ const currentBreadcrumbs = computed((): MenuData[] => {
         </a-breadcrumb-item>
       </a-breadcrumb>
       <a-space align="center">
-        <l-menu :menu-types="[RESOURCE_TYPE.TOOL]" :hide-label="true" mode="horizontal" />
-        <l-profile-button />
+        <l-menu :menu-types="[RESOURCE_TYPE.TOOL]" :hide-label="true" mode="horizontal"/>
+        <l-profile-button/>
       </a-space>
     </a-flex>
   </a-layout-header>

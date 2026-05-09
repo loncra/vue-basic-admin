@@ -3,8 +3,8 @@
  * 负责初始化 vue-i18n，动态加载所有语言包，并配置默认语言
  */
 
-import { createI18n } from 'vue-i18n'
-import type { NameValueEnumMetadata } from '@/types'
+import {createI18n} from 'vue-i18n'
+import type {NameValueEnumMetadata} from '@/types'
 
 /** 语言包接口：扩展名称-值对，包含 Ant Design 国际化配置 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,6 +19,7 @@ export interface LanguagePack extends NameValueEnumMetadata<string> {
   fallbackLocale: boolean
   /** Ant Design 组件的国际化配置 */
   antDesign: Locale
+
   [key: string]: unknown
 }
 

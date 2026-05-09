@@ -1,5 +1,5 @@
 import zhCN from 'antdv-next/locale/zh_CN'
-import type { LanguagePack } from '@/i18n'
+import type {LanguagePack} from '@/i18n'
 import 'dayjs/locale/zh-cn'
 
 const locale: LanguagePack = {

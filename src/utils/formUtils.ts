@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { dayjsFormat } from './dateUtils'
+import {dayjsFormat} from './dateUtils'
 
 /**
  * 值转换函数类型

@@ -7,5 +7,5 @@ defineOptions({
 </script>
 
 <template>
-  <l-auth-layout />
+  <l-auth-layout/>
 </template>

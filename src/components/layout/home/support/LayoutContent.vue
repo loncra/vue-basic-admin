@@ -1,13 +1,19 @@
 <script setup lang="ts">
 
-import { type RouteLocationNormalizedLoaded, useRouter } from 'vue-router'
-import { type ComponentInternalInstance, getCurrentInstance, nextTick, onMounted, provide, ref } from 'vue'
-import type { MenuItemType } from 'antdv-next'
-import { filterTreeDeep, requireNonNullOrUndefined, unmergeTree } from '@/utils'
-import { createIcon } from '@/utils'
-import { APP_RELOAD_PROVIDE_KEY } from '@/constants/systemConstant'
+import {type RouteLocationNormalizedLoaded, useRouter} from 'vue-router'
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  nextTick,
+  onMounted,
+  provide,
+  ref
+} from 'vue'
+import type {MenuItemType} from 'antdv-next'
+import {createIcon, filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
+import {APP_RELOAD_PROVIDE_KEY} from '@/constants/systemConstant'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import type { MenuData } from '@/types'
+import type {MenuData} from '@/types'
 
 defineOptions({
   name: 'LLayoutContent',
@@ -61,7 +67,7 @@ function getFixedRoutesFromRouter(): RouteLocationNormalizedLoaded[] {
     .filter((r) => r.name && (r.meta?.fixed as boolean))
     .sort((a, b) => ((a.meta?.sort as number) ?? 0) - ((b.meta?.sort as number) ?? 0))
   return fixed
-    .map((r) => router.resolve({ name: r.name as string }) as RouteLocationNormalizedLoaded)
+    .map((r) => router.resolve({name: r.name as string}) as RouteLocationNormalizedLoaded)
     .filter((loc) => loc.name)
 }
 
@@ -73,6 +79,7 @@ function loadPinnedFromStorage(): string[] {
     return []
   }
 }
+
 function activateSegmented(route: RouteLocationNormalizedLoaded) {
   const current = panes.value.find((p) => p.name === route.name)
 
@@ -82,10 +89,6 @@ function activateSegmented(route: RouteLocationNormalizedLoaded) {
       globalProperties.$router.push(current.fullPath)
     }
   } else {
-    const data = filterTreeDeep<MenuData>(
-      (r: MenuData) => r.page === route.path,
-      menuPrincipalStore.state,
-    )
     addPane(route);
     activeKey.value = route.name as string
     if (!(route.fullPath in routeCacheVersions.value)) {
@@ -94,14 +97,14 @@ function activateSegmented(route: RouteLocationNormalizedLoaded) {
   }
 }
 
-function addPane(route: RouteLocationNormalizedLoaded): RouteLocationNormalizedLoaded {
+function addPane(route: RouteLocationNormalizedLoaded): void {
   const data = filterTreeDeep<MenuData>(
     (r: MenuData) => r.page === route.path,
     menuPrincipalStore.state,
   )
   const unmergeData = unmergeTree<MenuData>(data)
-  if (unmergeData.length > 0) {
-    const last = unmergeData[unmergeData.length - 1];
+  const last = unmergeData.at(-1)
+  if (last) {
     route.meta.title = last.name
     route.meta.icon = createIcon(last.icon || 'icon-survey', 'align')
   }
@@ -131,7 +134,7 @@ function mounted(): void {
   }
   for (const name of pinnedNames) {
     try {
-      const loc = router.resolve({ name }) as RouteLocationNormalizedLoaded
+      const loc = router.resolve({name}) as RouteLocationNormalizedLoaded
       if (loc.name) {
         initialPanes.push(loc)
       }
@@ -302,6 +305,7 @@ function onRemoveTab(value: string, action: string) {
   }
   panes.value = panes.value.filter((p) => p.name !== value)
 }
+
 onMounted(mounted)
 </script>
 
@@ -333,7 +337,7 @@ onMounted(mounted)
               <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
                 <a-button type="text" @click="reload">
                   <template #icon>
-                    <icon-font class="icon align" type="icon-change" />
+                    <icon-font class="icon align" type="icon-change"/>
                   </template>
                 </a-button>
               </a-tooltip>
@@ -361,7 +365,7 @@ onMounted(mounted)
               >
                 <a-button type="text">
                   <template #icon>
-                    <icon-font class="icon align" type="icon-more" />
+                    <icon-font class="icon align" type="icon-more"/>
                   </template>
                 </a-button>
               </a-dropdown>
@@ -377,12 +381,12 @@ onMounted(mounted)
             <!-- 当关闭标签页时，版本号会增加，key 改变，keep-alive 会销毁旧实例并创建新实例 -->
             <!-- 无 Component 时不渲染 keep-alive，避免空白（如路由未解析完） -->
             <keep-alive v-if="Component">
-              <component :is="Component" :key="getRouteCacheKey(route)" />
+              <component :is="Component" :key="getRouteCacheKey(route)"/>
             </keep-alive>
           </transition>
         </router-view>
       </a-flex>
-      <layout-footer />
+      <layout-footer/>
     </a-flex>
   </a-layout-content>
 </template>

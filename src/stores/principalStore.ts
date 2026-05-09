@@ -1,10 +1,15 @@
-import { computed, ref, type Ref } from 'vue'
-import { defineStore } from 'pinia'
-import { AuthService } from '@/apis/auth'
-import { type AuthCredentials, type AuthenticationInfo, type AuthenticationType, type PrepareData } from '@/types/auth'
-import { isResultSuccess } from '@/requests'
-import { AUTHENTICATION_TYPE } from '@/constants/authConstant'
-import { STORE } from '@/constants/systemConstant'
+import {computed, ref, type Ref} from 'vue'
+import {defineStore} from 'pinia'
+import {AuthService} from '@/apis/auth'
+import {
+  type AuthCredentials,
+  type AuthenticationInfo,
+  type AuthenticationType,
+  type PrepareData
+} from '@/types/auth'
+import {isResultSuccess} from '@/requests'
+import {AUTHENTICATION_TYPE} from '@/constants/authConstant'
+import {STORE} from '@/constants/systemConstant'
 
 /**
  * 重置状态常量
@@ -147,7 +152,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     if (!data) {
       return
     }
-    state.value = { ...state.value, ...data }
+    state.value = {...state.value, ...data}
     // 保存 accessToken
     const accessTokenName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
     let accessToken: string | null = localStorage.getItem(accessTokenName)
@@ -162,7 +167,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    * 重置状态
    */
   function $reset(): void {
-    state.value = { ...RESET }
+    state.value = {...RESET}
   }
 
   /**

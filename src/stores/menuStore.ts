@@ -1,9 +1,9 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import { STORE } from '@/constants/systemConstant.ts'
-import type { ResourceData, ResourceType } from '@/types'
-import { AuthService } from '@/apis'
-import { isResultSuccess } from '@/requests'
+import {ref} from 'vue'
+import {defineStore} from 'pinia'
+import {STORE} from '@/constants/systemConstant.ts'
+import type {ResourceData, ResourceType} from '@/types'
+import {AuthService} from '@/apis'
+import {isResultSuccess} from '@/requests'
 
 /**
  * 重置状态常量
@@ -18,6 +18,7 @@ const RESET: ResourceData[] = []
 export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   /** 菜单资源数据状态 */
   const state = ref<ResourceData[]>(RESET)
+
   /**
    * 重置菜单状态
    * 将菜单数据重置为空数组

@@ -29,10 +29,11 @@ const props = withDefaults(defineProps<LogoProps>(), {
 <template>
   <a-space size="small">
     <slot name="icon">
-      <icon-font class="icon text-h1!" :type="props.icon" />
+      <icon-font class="icon text-h1!" :type="props.icon"/>
     </slot>
     <a-typography-title class="mb-0" v-if="!props.hideText" :level="4">{{
-      props.text
-    }}</a-typography-title>
+        props.text
+      }}
+    </a-typography-title>
   </a-space>
 </template>

@@ -1,8 +1,12 @@
 import axios from '@/requests'
-import { formUrlEncoded } from '@/utils'
+import {formUrlEncoded} from '@/utils'
 import type {
-  AuthCredentials, AuthenticationInfo, AuthenticationType, PrepareData,
-  ResourceData, RestResult
+  AuthCredentials,
+  AuthenticationInfo,
+  AuthenticationType,
+  PrepareData,
+  ResourceData,
+  RestResult
 } from '@/types'
 
 /**
@@ -26,7 +30,8 @@ export class AuthService {
    * 构造函数
    * 注意：此类主要为静态方法，通常不需要实例化
    */
-  constructor() {}
+  constructor() {
+  }
 
   /**
    * 用户登录
@@ -103,7 +108,7 @@ export class AuthService {
     mergeTree: boolean = true,
   ): Promise<RestResult<ResourceData[]>> {
     // 将参数转换为 URLSearchParams 格式
-    const params = formUrlEncoded({ types: resourceTypes, mergeTree })
+    const params = formUrlEncoded({types: resourceTypes, mergeTree})
     return axios.get(AuthService.PRINCIPAL_RESOURCES_URL, {
       params,
     })

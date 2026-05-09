@@ -1,5 +1,5 @@
-import type { NameValueEnumMetadata, TimeProperties } from '@/types/common'
-import { AUTHENTICATION_TYPE, LOGIN_TYPE } from '@/constants/authConstant.ts'
+import type {NameValueEnumMetadata, TimeProperties} from '@/types/common'
+import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.ts'
 
 /**
  * 账户认证类型
@@ -21,6 +21,7 @@ export interface AuthCredentials {
   username: string
   password: string
   loginType: LoginType
+
   [key: string]: unknown
 }
 
@@ -44,6 +45,7 @@ export interface UserMetadata {
   phoneNumberVerified?: NameValueEnumMetadata<number>
   gender?: NameValueEnumMetadata<number>
   realName?: string
+
   [key: string]: unknown
 }
 
@@ -70,6 +72,7 @@ export interface AccessToken {
 export interface Details {
   metadata: UserMetadata
   token?: AccessToken
+
   [key: string]: unknown
 }
 

@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {ResourceData} from "@/types";
-import {type ComponentInternalInstance, getCurrentInstance, h, onMounted, ref, resolveComponent, watch} from "vue";
-import type {RouteLocationNormalizedLoaded} from "vue-router";
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  h,
+  onMounted,
+  ref,
+  resolveComponent,
+  watch
+} from "vue";
+import {type RouteLocationNormalizedLoaded, RouterLink} from "vue-router";
 import {createIcon, filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 
@@ -17,8 +25,8 @@ const globalProperties =
 const menuPrincipalStore = useMenuPrincipalStore()
 
 interface MenuState {
-  selectedKeys:string[],
-  openKeys:string[]
+  selectedKeys: string[],
+  openKeys: string[]
 }
 
 interface MenuProps {
@@ -58,19 +66,23 @@ const collapsedAndSelectedMenu = (route: RouteLocationNormalizedLoaded) => {
 watch(
   () => globalProperties.$route,
   () => collapsedAndSelectedMenu(globalProperties.$route),
-  { deep: true },
+  {deep: true},
 )
 
 function labelRender(item: ResourceData) {
 
-    if (item == null || typeof item !== 'object') {
-        return
+  if (item == null || typeof item !== 'object') {
+    return
+  }
+  if (item.type.value === RESOURCE_TYPE.MENU) {
+    const page = item.page?.trim()
+    if (!page) {
+      return h('span', {}, String(item.name))
     }
-    if (item.type.value === RESOURCE_TYPE.MENU) {
-        return h('a', {"href":item.page || 'javascript:;'}, String(item.name))
-    } else {
-        return h('span', {}, String(item.name))
-    }
+    return h(RouterLink, {to: page}, () => String(item.name))
+  } else {
+    return h('span', {}, String(item.name))
+  }
 }
 
 function iconRender(item: ResourceData) {
@@ -81,8 +93,8 @@ function iconRender(item: ResourceData) {
   const Tooltip = resolveComponent('ATooltip')
   return h(
     Tooltip,
-    { title: String(item.name ?? '') },
-    { default: () => icon },
+    {title: String(item.name ?? '')},
+    {default: () => icon},
   )
 }
 
@@ -90,15 +102,15 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
 </script>
 
 <template>
-    <a-menu
-        root-class="border-e-0"
-        :classes="{itemContent: props.hideLabel ? 'm-0' : ''}"
-        v-model:open-keys="menuOptions.openKeys"
-        v-model:selected-keys="menuOptions.selectedKeys"
-        :items="menuPrincipalStore.state.filter((s) => props.menuTypes.includes(s.type.value))"
-        :label-render="props.hideLabel ? undefined : labelRender"
-        :icon-render="iconRender"
-        v-bind="$attrs"
-    >
-    </a-menu>
+  <a-menu
+    root-class="border-e-0"
+    :classes="{itemContent: props.hideLabel ? 'm-0' : ''}"
+    v-model:open-keys="menuOptions.openKeys"
+    v-model:selected-keys="menuOptions.selectedKeys"
+    :items="menuPrincipalStore.state.filter((s) => props.menuTypes.includes(s.type.value))"
+    :label-render="props.hideLabel ? undefined : labelRender"
+    :icon-render="iconRender"
+    v-bind="$attrs"
+  >
+  </a-menu>
 </template>
