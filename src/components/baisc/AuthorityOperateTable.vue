@@ -6,8 +6,10 @@ import type {
   FindCurdService,
   PageCurdService,
   PageRequest,
+  PageResult,
   RestResult,
   ScrollPageResult,
+  TotalPage,
 } from '@/types'
 import {type Component, computed, onMounted, ref, useSlots, watch} from 'vue'
 import type {ColumnType} from "antdv-next/dist/table/interface";
@@ -106,14 +108,20 @@ async function fetchDataSource() {
   if (typeof (props.service as PageCurdService<TEntity, TPage>).page === 'function') {
     const result:RestResult<TPage> = await (props.service as PageCurdService<TEntity, TPage>).page(query.value as PageRequest);
     data.push(...(result.data?.elements || []))
-    options.value.pagination = (props.pagination || {}) as TableProps['pagination'];
-    options.value.pagination.pageSize = result.data?.size || 10 ;
-    if (result?.data?.number) {
-      options.value.pagination.current = result.data.number;
+    const pagination:TableProps['pagination']  = (props.pagination || {});
+    pagination.pageSize = result.data?.size || 10 ;
+
+    const pageResult = result.data as unknown as PageResult<TEntity>
+    if (pageResult.number) {
+      pagination.current = pageResult.number;
     }
-    if (result?.data?.totalCount) {
-      options.value.pagination.total = result.data.totalCount;
+
+    const totalPage = result.data as unknown as TotalPage<TEntity>
+    if (typeof totalPage.totalCount) {
+      pagination.total = totalPage.totalCount;
     }
+
+    options.value.pagination = pagination;
 
   } else if (typeof (props.service as FindCurdService<TEntity>).find === 'function') {
     const result:RestResult<TEntity[]> = await (props.service as FindCurdService<TEntity>).find(query.value as FilterRequest);
