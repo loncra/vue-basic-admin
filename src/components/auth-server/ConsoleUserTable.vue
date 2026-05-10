@@ -15,6 +15,12 @@ defineOptions({
   name: 'LConsoleUserTableTable',
 })
 
+const props = withDefaults(defineProps<{
+  preview?: boolean
+}>(), {
+  preview: false,
+})
+
 const consoleUserService = new ConsoleUserService()
 const resourceServerService = new ResourceServerService()
 
@@ -23,6 +29,7 @@ const columns = ref<SearchableColumnType[]>([
     title: '真实姓名',
     dataIndex: 'realName',
     key: 'real_name',
+    width: 150,
     search:{
       component: markRaw(InputSearch),
       props:{},
@@ -33,6 +40,7 @@ const columns = ref<SearchableColumnType[]>([
     title: '性别',
     dataIndex: 'gender',
     key: 'gender',
+    width: 150,
     search:{
       component: markRaw(Select),
       props:{fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
@@ -42,6 +50,7 @@ const columns = ref<SearchableColumnType[]>([
   {
     title: '登录账户',
     dataIndex: 'username',
+    width: 300,
     key: 'username',
     search:{
       component: markRaw(InputSearch),
@@ -53,6 +62,7 @@ const columns = ref<SearchableColumnType[]>([
     title: '状态',
     dataIndex: 'status',
     key: 'status',
+    width: 150,
     search: {
       component: markRaw(Select),
       props: {fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
@@ -63,6 +73,7 @@ const columns = ref<SearchableColumnType[]>([
     title: '电子邮箱',
     dataIndex: 'email',
     key: 'email',
+    width: 150,
     search:{
       component: markRaw(InputSearch),
       props:{
@@ -75,6 +86,7 @@ const columns = ref<SearchableColumnType[]>([
     title: '手机号码',
     dataIndex: 'phoneNumber',
     key: 'phone_number',
+    width: 150,
     search:{
       component: markRaw(InputNumber),
       props:{ classes:{root:'w-full'}},
@@ -85,6 +97,7 @@ const columns = ref<SearchableColumnType[]>([
     title: '最后登录时间',
     dataIndex: 'lastAuthenticationTime',
     key: 'last_authentication_time',
+    width: 210,
     search:{
       component: markRaw(DateRangePicker),
       props:{},
@@ -122,6 +135,10 @@ onMounted(mounted)
       v-model:data-source="dataSource"
       :service="consoleUserService"
       :columns="columns"
+      :enabled-actions="!props.preview"
+      :authority="{save:'perms[auth_server_console_user:save]',detail:'perms[auth_server_console_user:get]', delete:'perms[auth_server_console_user:delete]', view:'perms[auth_server_console_user:page]'}"
+      :scroll="{x:columns.reduce((sum: number, c: SearchableColumnType) => sum + ((c.width || 0) as number), 0)}"
+      :row-selection="props.preview ? undefined : {type: 'checkbox'}"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'gender'">

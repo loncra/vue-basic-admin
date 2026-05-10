@@ -39,3 +39,6 @@ __screenshots__/
 *.timestamp-*-*.mjs
 components.d.ts
 /package-lock.json
+/.agents/
+/.cursor/
+/skills-lock.json
