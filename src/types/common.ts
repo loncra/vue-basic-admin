@@ -147,14 +147,8 @@ export interface ServerSentEvent<T> {
   data?: T | string
 }
 
-/**
- * 分页请求参数
- */
-export interface PageRequest {
-  /** 当前页码（从 1 开始） */
-  number: number
-  /** 每页条数 */
-  size: number
+export interface FilterRequest {
+
   /**
    * 排序信息
    */
@@ -164,6 +158,16 @@ export interface PageRequest {
    * 附加内容
    */
   [key: string]: unknown
+}
+
+/**
+ * 分页请求参数
+ */
+export interface PageRequest extends FilterRequest{
+  /** 当前页码（从 1 开始） */
+  number: number
+  /** 每页条数 */
+  size: number
 }
 
 /**
@@ -211,12 +215,6 @@ export interface TotalPage<T> extends PageResult<T> {
   totalPages: number
 }
 
-/**
- * 标准 CRUD「列表」返回形态：分页包装（含 {@link ScrollPageResult} 及其子类型如 {@link PageResult}）或纯数组
- *
- * @template T - 列表元素类型，须带主键元数据
- */
-export type CrudListResult<T> = ScrollPageResult<T> | T[]
 
 /**
  * 实体 CRUD 契约（服务层 / API 适配层均可实现此接口）
@@ -228,23 +226,42 @@ export type CrudListResult<T> = ScrollPageResult<T> | T[]
  * @template TId - 主键类型，等于 `BasicIdMetadata<TId>['id']`
  */
 export interface BasicCrudService<TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> {
+
   /**
-   * 获取全部（或当前查询条件下的全量/分页列表）
-   * 返回须为 {@link ScrollPageResult}（或其扩展结构）或实体数组
+   * 获取数据
+   *
+   * @param id 主键
    */
-  fetchAll(filter: PageRequest): Promise<RestResult<CrudListResult<TEntity>>>
+  get(id: TId): Promise<RestResult<TEntity>>
 
-  /** 获取单条明细 */
-  fetchById(id: TId): Promise<RestResult<TEntity>>
-
-  /** 保存（新增或整对象更新），提交完整实体数据 */
+  /**
+   * 保存数据
+   *
+   * @param entity
+   */
   save(entity: TEntity): Promise<RestResult<TId>>
 
   /**
    * 删除数据
-   * @param ids - 主键集合，元素类型与 {@link BasicIdMetadata} 的 `id` 一致
+   * @param ids - 主键集合
    */
-  deleteByIds(ids: TId[]): Promise<RestResult<void>>
+  delete(ids: TId[]): Promise<RestResult<void>>
+}
+
+export interface PageCurdService<TEntity extends BasicIdMetadata<TId>,  TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> extends BasicCrudService<TEntity, TId> {
+
+  /**
+   * 获取分页内容
+   *
+   * @param request 分页请求体
+   */
+  page(request: PageRequest): Promise<RestResult<TPage>>
+
+}
+
+export interface FindCurdService<TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> extends BasicCrudService<TEntity, TId> {
+
+  find(filter:FilterRequest) : Promise<RestResult<TEntity[]>>
 }
 
 /**

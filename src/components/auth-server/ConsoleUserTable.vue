@@ -9,6 +9,7 @@ import {DateRangePicker, InputNumber, InputSearch, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {RestResult} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
+import {dateTimeFormat} from "@/utils";
 
 defineOptions({
   name: 'LConsoleUserTableTable',
@@ -98,13 +99,15 @@ async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
   if (enums.data) {
     const genderCol = columns.value[columns.value.findIndex(s => s.dataIndex === "gender")];
-    if (genderCol && genderCol.search) {
-      genderCol.search.props.options = enums.data["resource-server"]?.GenderEnum
+    if (genderCol?.search) {
+      genderCol.search.props = genderCol.search.props ?? {}
+      genderCol.search.props.options = enums.data['resource-server']?.GenderEnum
     }
 
-    const statusCol = columns.value.find(s => s.dataIndex === "status");
-    if (statusCol && statusCol.search) {
-      statusCol.search.props.options = enums.data["resource-server"]?.UserStatus
+    const statusCol = columns.value.find((s) => s.dataIndex === 'status')
+    if (statusCol?.search) {
+      statusCol.search.props = statusCol.search.props ?? {}
+      statusCol.search.props.options = enums.data['resource-server']?.UserStatus
     }
   }
 
@@ -119,7 +122,18 @@ onMounted(mounted)
       v-model:data-source="dataSource"
       :service="consoleUserService"
       :columns="columns"
-    />
-
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.dataIndex === 'gender'">
+          {{ record.gender.name }}
+        </template>
+        <template v-if="column.dataIndex === 'lastAuthenticationTime'">
+          {{ dateTimeFormat(record.lastAuthenticationTime) }}
+        </template>
+        <template v-if="column.dataIndex === 'status'">
+          {{ record.status.name }}
+        </template>
+      </template>
+    </l-authority-operate-table>
   </div>
 </template>

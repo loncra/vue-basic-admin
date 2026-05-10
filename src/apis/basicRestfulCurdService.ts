@@ -3,9 +3,9 @@ import {formUrlEncoded} from '@/utils'
 import type {
   BasicCrudService,
   BasicIdMetadata,
-  CrudListResult,
+  FilterRequest,
   PageRequest,
-  RestResult,
+  RestResult, ScrollPageResult,
 } from '@/types'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 
@@ -25,11 +25,7 @@ export class BasicRestfulCrudService<
   ) {
   }
 
-  fetchAll(filter: PageRequest): Promise<RestResult<CrudListResult<TEntity>>> {
-    return axios.post(this.baseUrl, formUrlEncoded(filter as Record<string, unknown>))
-  }
-
-  fetchById(id: TId): Promise<RestResult<TEntity>> {
+  get(id: TId): Promise<RestResult<TEntity>> {
     return axios.get(this.baseUrl + id)
   }
 
@@ -37,7 +33,7 @@ export class BasicRestfulCrudService<
     return axios.put(this.baseUrl, entity)
   }
 
-  deleteByIds(ids: TId[]): Promise<RestResult<void>> {
+  delete(ids: TId[]): Promise<RestResult<void>> {
     return axios.delete(this.baseUrl, {params: {ids}})
   }
 }
