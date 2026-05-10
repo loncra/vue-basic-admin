@@ -6,7 +6,7 @@ import type {
   ScrollPageResult,
 } from '@/types'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
-import {BasicRestfulCrudService} from "@/apis/basicRestfulCurdService.ts";
+import {BasicRestfulCrudService} from "@/apis/basicRestfulCrudService.ts";
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
 

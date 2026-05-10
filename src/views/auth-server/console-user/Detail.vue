@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LMenuTitleCard from '@/components/baisc/MenuTitleCard.vue'
+import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
 
 defineOptions({
   name: 'LAuthServerConsoleUserDetail',

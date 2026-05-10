@@ -133,6 +133,7 @@ function resetField(
 
 function rebuildAuthorityMeta() {
   options.value.columns = []
+  options.value.actionItems = []
   const cols = props.columns ?? []
   for (const col of cols) {
     const optionsCol: SearchableColumnType = {...col};
@@ -153,7 +154,6 @@ function rebuildAuthorityMeta() {
       width: 80,
       fixed: 'right'
     })
-    options.value.actionItems = []
     if (principalStore.hasAnyPermission([props.authority?.save || '', props.authority?.detail || ''])) {
       options.value.actionItems.push({
         key: 'edit',
@@ -202,7 +202,7 @@ async function fetchDataSource() {
   if (typeof (props.service as PageCurdService<TEntity, TPage>).page === 'function') {
     const result:RestResult<TPage> = await (props.service as PageCurdService<TEntity, TPage>).page(query.value as PageRequest);
     data.push(...(result.data?.elements || []))
-    const pagination:TableProps['pagination']  = (props.pagination || {});
+    const pagination:TableProps['pagination']  = { ...(props.pagination || {})};
     pagination.pageSize = result.data?.size || 10 ;
 
     const pageResult = result.data as unknown as PageResult<TEntity>
@@ -211,7 +211,7 @@ async function fetchDataSource() {
     }
 
     const totalPage = result.data as unknown as TotalPage<TEntity>
-    if (typeof totalPage.totalCount) {
+    if (totalPage.totalCount) {
       pagination.total = totalPage.totalCount;
     }
 
@@ -227,11 +227,22 @@ async function fetchDataSource() {
 }
 
 function remove(records: TEntity[]) {
+  if (records.length === 0) {
+    return 
+  }
+  let content = '确定要删除该记录吗？'
+  if (records.length > 1) {
+    content = `确定要删除 ${records.length} 条记录吗？`
+  }
   modal.confirm({
     title: '删除确认',
-    content: '确定要删除该记录吗？',
+    content: content,
     onOk() {
-      return props.service.delete(records.map(r => r.id)).then(r => message.success(r.message)).catch(e => message.error(e.message))
+      return props.service
+      .delete(records.map(r => r.id))
+      .then(r => message.success(r.message))
+      .then(() => fetchDataSource())
+      .catch(e => message.error(e.message))
     },
   })
 }

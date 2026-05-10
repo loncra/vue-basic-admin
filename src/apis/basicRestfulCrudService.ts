@@ -34,6 +34,6 @@ export class BasicRestfulCrudService<
   }
 
   delete(ids: TId[]): Promise<RestResult<void>> {
-    return axios.delete(this.baseUrl, {params: {ids}})
+    return axios.delete(this.baseUrl, {params: formUrlEncoded({ids})})
   }
 }

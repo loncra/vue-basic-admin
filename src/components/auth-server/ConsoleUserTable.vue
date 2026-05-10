@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LAuthorityOperateTable, {
   type SearchableColumnType
-} from '@/components/baisc/AuthorityOperateTable.vue'
+} from '@/components/basic/AuthorityOperateTable.vue'
 import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
 import {markRaw, onMounted, ref} from 'vue'
 import type {ConsoleUserEntity} from '@/types/auth-server/consoleUserType.ts'

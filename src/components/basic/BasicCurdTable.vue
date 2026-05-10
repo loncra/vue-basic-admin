@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import LMenuTitleCard from "@/components/baisc/MenuTitleCard.vue";
+import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {ref} from "vue";
 import type {MenuItemType} from "antdv-next";
 import {createIcon} from "@/utils";

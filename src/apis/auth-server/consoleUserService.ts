@@ -1,5 +1,5 @@
 import type {ConsoleUserEntity} from '@/types/auth-server/consoleUserType'
-import {PageRestfulCrudService} from "@/apis/pageRestfulCurdService.ts";
+import {PageRestfulCrudService} from "@/apis/pageRestfulCrudService.ts";
 import type {TotalPage} from "@/types";
 
 /**
