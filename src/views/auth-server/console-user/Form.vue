@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
-import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import {useI18n} from 'vue-i18n'
 import type {ConsoleUserEntity} from "@/types/auth-server/consoleUserType.ts";
-import type {IdValueMetadata, NameValueEnumMetadata, RestResult} from "@/types";
+import type {NameValueEnumMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ConsoleUserService, ResourceServerService} from "@/apis";

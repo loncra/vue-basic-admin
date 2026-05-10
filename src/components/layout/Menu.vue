@@ -3,12 +3,12 @@ import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {ResourceEntity} from "@/types";
 import {
   type ComponentInternalInstance,
-  type VNode,
   getCurrentInstance,
   h,
   onMounted,
   ref,
   resolveComponent,
+  type VNode,
   watch
 } from "vue";
 import {type RouteLocationNormalizedLoaded, RouterLink} from "vue-router";

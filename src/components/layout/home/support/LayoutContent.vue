@@ -7,7 +7,8 @@ import {
   nextTick,
   onMounted,
   provide,
-  ref, watch
+  ref,
+  watch
 } from 'vue'
 import type {MenuItemType} from 'antdv-next'
 import {createIcon, filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'

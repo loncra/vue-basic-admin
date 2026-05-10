@@ -1,7 +1,8 @@
 <script setup lang="ts" generic="TEntity extends BasicIdMetadata<TId>, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 import type {
   BasicCrudService,
-  BasicIdMetadata, CurdAuthorityProps,
+  BasicIdMetadata,
+  CurdAuthorityProps,
   FilterRequest,
   FindCurdService,
   PageCurdService,
@@ -15,11 +16,12 @@ import {type Component, computed, onMounted, ref, useSlots, watch} from 'vue'
 import type {ColumnType} from "antdv-next/dist/table/interface";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {MenuProps, TableProps} from "antdv-next";
-import { usePrincipalStore } from '@/stores/principalStore'
-import { createIcon } from '@/utils'
-import { App } from 'antdv-next'
-import type { MenuInfo } from '@v-c/menu'
-import { useI18n } from 'vue-i18n'
+import {App} from 'antdv-next'
+import {usePrincipalStore} from '@/stores/principalStore'
+import {createIcon} from '@/utils'
+import type {MenuInfo} from '@v-c/menu'
+import {useI18n} from 'vue-i18n'
+
 /** 列定义上挂载的查询区配置（非 antdv 内置字段） */
 export interface ColumnSearchConfig {
   component?: Component

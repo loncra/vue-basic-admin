@@ -1,12 +1,6 @@
 import axios from '@/requests'
 import {formUrlEncoded} from '@/utils'
-import type {
-  BasicCrudService,
-  BasicIdMetadata,
-  FilterRequest,
-  PageRequest,
-  RestResult, ScrollPageResult,
-} from '@/types'
+import type {BasicCrudService, BasicIdMetadata, RestResult,} from '@/types'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 
 /**
