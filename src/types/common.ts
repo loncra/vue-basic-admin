@@ -215,6 +215,13 @@ export interface TotalPage<T> extends PageResult<T> {
   totalPages: number
 }
 
+export interface CurdAuthorityProps {
+  save?:string
+  detail?:string
+  delete?:string
+  view?:string
+  export?:string
+}
 
 /**
  * 实体 CRUD 契约（服务层 / API 适配层均可实现此接口）

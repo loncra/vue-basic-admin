@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="TEntity extends BasicIdMetadata<TId>, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 import type {
   BasicCrudService,
-  BasicIdMetadata,
+  BasicIdMetadata, CurdAuthorityProps,
   FilterRequest,
   FindCurdService,
   PageCurdService,
@@ -31,18 +31,9 @@ export type SearchableColumnType<RecordType = Record<string, unknown>> = ColumnT
   search?: ColumnSearchConfig
 }
 
-export interface CurdAuthorityProps {
-  save?:string
-  detail?:string
-  delete?:string
-  view?:string
-  export?:string
-}
-
 defineOptions({
   name: 'LAuthorityOperateTable',
 })
-
 
 const principalStore = usePrincipalStore()
 const slots = useSlots()
@@ -57,17 +48,20 @@ const props = withDefaults(
     pagination?: TableProps['pagination']
     columns: SearchableColumnType[]
     authority?: CurdAuthorityProps
+    actionItems: NonNullable<MenuProps['items']>
   }>(),
   {
     immediate: true,
     columns: () => [],
-    enabledActions: true
+    enabledActions: true,
+    actionItems: () => []
   },
 )
 
 const emit = defineEmits<{
   edit: [record: TEntity]
   detail: [record: TEntity]
+  actionItemClick: [e:MenuInfo, record: TEntity]
 }>()
 
 const dataSource = defineModel<TEntity[]>('dataSource', {default: () => []})
@@ -154,26 +148,32 @@ function rebuildAuthorityMeta() {
       width: 80,
       fixed: 'right'
     })
+    const actionItems = [];
     if (principalStore.hasAnyPermission([props.authority?.save || '', props.authority?.detail || ''])) {
-      options.value.actionItems.push({
+      actionItems.push({
         key: 'edit',
         label: '编辑',
         icon: () => createIcon('icon-edit'),
       })
     }
     if (principalStore.hasPermission(props.authority?.detail || '')) {
-      options.value.actionItems.push({
+      actionItems.push({
         key: 'detail',
         label: '详情',
         icon: () => createIcon('icon-order-inspection'),
       })
     }
     if (principalStore.hasPermission(props.authority?.delete || '')) {
-      options.value.actionItems.push({
+      actionItems.push({
         key: 'delete',
         label: '删除',
         icon: () => createIcon('icon-delete'),
       })
+    }
+    options.value.actionItems.push(...actionItems)
+    if (props.actionItems.length > 0) {
+      options.value.actionItems.push({type:'divider'});
+      options.value.actionItems.push(...props.actionItems)
     }
   }
 
@@ -228,7 +228,7 @@ async function fetchDataSource() {
 
 function remove(records: TEntity[]) {
   if (records.length === 0) {
-    return 
+    return
   }
   let content = '确定要删除该记录吗？'
   if (records.length > 1) {
@@ -254,10 +254,12 @@ function handleActionClick(e: MenuInfo, record: TEntity) {
     emit('detail', record)
   } else if (e.key === 'delete') {
     remove([record])
+  } else {
+    emit('actionItemClick', e, record)
   }
 }
 
-function mounted() {  
+function mounted() {
   if (props.immediate) {
     fetchDataSource();
   }
@@ -283,11 +285,14 @@ onMounted(mounted)
     :loading="loading"
     bordered
   >
-    <template v-if="hasBodyCell" #bodyCell="{ text, record, index, column}">
-      <slot name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
+    <template #bodyCell="{ text, record, index, column}">
+      <slot v-if="hasBodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
       <template v-if="column.dataIndex === 'action'">
-        <a-dropdown :menu="{ items: options.actionItems, onClick: (e: MenuInfo) => handleActionClick(e, record) }" placement="bottomRight">
-          <a-button>
+        <a-dropdown
+          :trigger="['click']"
+          :menu="{ items: options.actionItems, onClick: (e: MenuInfo) => handleActionClick(e, record) }"
+          placement="bottomRight">
+          <a-button size="small">
             <template #icon>
               <icon-font class="icon" type="icon-more"/>
             </template>
