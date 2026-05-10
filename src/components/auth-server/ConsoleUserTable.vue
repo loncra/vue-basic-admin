@@ -5,7 +5,7 @@ import LAuthorityOperateTable, {
 import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import type {ConsoleUserEntity} from '@/types/auth-server/consoleUserType.ts'
-import {DateRangePicker, InputNumber, InputSearch, Select} from 'antdv-next'
+import {DateRangePicker, InputNumber, Input, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {RestResult} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
@@ -35,8 +35,8 @@ const columns = ref<SearchableColumnType[]>([
     key: 'real_name',
     width: 150,
     search:{
-      component: markRaw(InputSearch),
-      props:{},
+      component: markRaw(Input),
+      props:{placeholder: globalProperties.$t('common.searchPlaceholder')},
       expression:'like'
     },
   },
@@ -57,8 +57,8 @@ const columns = ref<SearchableColumnType[]>([
     width: 300,
     key: 'username',
     search:{
-      component: markRaw(InputSearch),
-      props:{},
+      component: markRaw(Input),
+      props:{placeholder: globalProperties.$t('common.searchPlaceholder')},
       expression:'like'
     },
   },
@@ -79,10 +79,8 @@ const columns = ref<SearchableColumnType[]>([
     key: 'email',
     width: 150,
     search:{
-      component: markRaw(InputSearch),
-      props:{
-
-      },
+      component: markRaw(Input),
+      props:{placeholder: globalProperties.$t('common.searchPlaceholder')},
       expression:'eq'
     },
   },
@@ -93,7 +91,7 @@ const columns = ref<SearchableColumnType[]>([
     width: 150,
     search:{
       component: markRaw(InputNumber),
-      props:{ classes:{root:'w-full'}},
+      props:{ classes:{root:'w-full'}, placeholder: globalProperties.$t('common.searchPlaceholder')},
       expression:'eq'
     },
   },

@@ -122,7 +122,7 @@ export interface BasicSystemUser extends BasicIdMetadata<number>{
   /**
    * 状态:1.启用、2.禁用、3.锁定
    */
-  status: NameValueEnumMetadata<number>
+  status: NameValueEnumMetadata<number> | number
 
 }
 
@@ -137,7 +137,7 @@ export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMeta
   /**
    * 是否验证邮件
    */
-  emailVerified?: NameValueEnumMetadata<number>
+  emailVerified?: NameValueEnumMetadata<number> | number
 
   /**
    * 拥有角色

@@ -10,9 +10,9 @@ import type {
  */
 export interface ConsoleUserEntity extends AbstractPlatformUser {
   realName:string,
-  gender:NameValueEnumMetadata<number>
+  gender:NameValueEnumMetadata<number> | number
   phoneNumber:string
-  phoneNumberVerified?:NameValueEnumMetadata<number>
+  phoneNumberVerified?:NameValueEnumMetadata<number> | number
   initialization?: UserInitializationMetadata
   remark: string
 }

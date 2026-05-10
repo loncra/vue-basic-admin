@@ -6,6 +6,7 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicCrudService, BasicIdMetadata, CurdAuthorityProps, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
+import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
 defineOptions({
   name: 'LBasicForm',
@@ -14,6 +15,7 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+const configProviderStore = useConfigProviderStore()
 
 const props = withDefaults(
   defineProps<{
@@ -53,6 +55,9 @@ onMounted(mounted)
     <l-menu-title-card>
       <l-form id="form" ref="formRef" @finish="onFinish" :model="entity">
         <a-spin :spinning="spinning">
+          <a-row :gutter="[configProviderStore.getToken().marginMD]">
+            <slot name="rowLayout"></slot>
+          </a-row>
           <slot></slot>
           <a-divider />
           <a-space>
@@ -60,14 +65,14 @@ onMounted(mounted)
               <template #icon>
                 <icon-font class="icon" type="icon-save" />
               </template>
-              <span>保存</span>
+              <span>{{ globalProperties.$t('common.save') }}</span>
             </a-button>
 
-            <a-button>
+            <a-button html-type="reset">
               <template #icon>
                 <icon-font class="icon" type="icon-time-history" />
               </template>
-              <span>重置</span>
+              <span>{{ globalProperties.$t('common.reset') }}</span>
             </a-button>
           </a-space>
         </a-spin>

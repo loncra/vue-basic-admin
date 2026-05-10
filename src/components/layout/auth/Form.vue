@@ -48,10 +48,10 @@ const doAuth = async (): Promise<void> => {
 
 <template>
   <l-form id="authForm" ref="formRef" @finish="onAuth" :model="authFormProps" class="pb-lg pt-lg">
-    <a-form-item name="username" :label="$t('auth.accountLabel')" required>
+    <a-form-item name="username" :label="$t('auth.account')" :rules="[{required: true}]">
       <a-input autocomplete="current-username" v-model:value="authFormProps.username"/>
     </a-form-item>
-    <a-form-item name="password" :label="$t('auth.passwordLabel')" required>
+    <a-form-item name="password" :label="$t('auth.password')" :rules="[{required: true}]">
       <a-input-password autocomplete="current-password" v-model:value="authFormProps.password"/>
     </a-form-item>
     <a-flex justify="space-between" align="center">

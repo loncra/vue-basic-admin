@@ -19,6 +19,7 @@ import { usePrincipalStore } from '@/stores/principalStore'
 import { createIcon } from '@/utils'
 import { App } from 'antdv-next'
 import type { MenuInfo } from '@v-c/menu'
+import { useI18n } from 'vue-i18n'
 /** 列定义上挂载的查询区配置（非 antdv 内置字段） */
 export interface ColumnSearchConfig {
   component?: Component
@@ -37,7 +38,8 @@ defineOptions({
 
 const principalStore = usePrincipalStore()
 const slots = useSlots()
-const { message, modal } = App.useApp();
+const { message, modal } = App.useApp()
+const { t, locale } = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -141,7 +143,7 @@ function rebuildAuthorityMeta() {
 
   if (props.enabledActions && principalStore.hasAnyPermission([props.authority?.save || '', props.authority?.detail || '', props.authority?.delete || ''])) {
     options.value.columns.push({
-      title: '操作',
+      title: t('common.operation'),
       dataIndex: 'action',
       key: 'action',
       align: 'center',
@@ -152,21 +154,21 @@ function rebuildAuthorityMeta() {
     if (principalStore.hasAnyPermission([props.authority?.save || '', props.authority?.detail || ''])) {
       actionItems.push({
         key: 'edit',
-        label: '编辑',
+        label: t('common.edit'),
         icon: () => createIcon('icon-edit'),
       })
     }
     if (principalStore.hasPermission(props.authority?.detail || '')) {
       actionItems.push({
         key: 'detail',
-        label: '详情',
+        label: t('common.detail'),
         icon: () => createIcon('icon-order-inspection'),
       })
     }
     if (principalStore.hasPermission(props.authority?.delete || '')) {
       actionItems.push({
         key: 'delete',
-        label: '删除',
+        label: t('common.delete'),
         icon: () => createIcon('icon-delete'),
       })
     }
@@ -240,13 +242,13 @@ function remove(records: TEntity[]) {
   if (records.length === 0) {
     return
   }
-  let content = '确定要删除该记录吗？'
-  if (records.length > 1) {
-    content = `确定要删除 ${records.length} 条记录吗？`
-  }
+  const content =
+    records.length === 1
+      ? t('common.deleteConfirmSingle')
+      : t('common.deleteConfirmBatch', {count: records.length})
   modal.confirm({
-    title: '删除确认',
-    content: content,
+    title: t('common.deleteConfirmTitle'),
+    content,
     onOk() {
       return props.service
       .delete(records.map(r => r.id))
@@ -276,8 +278,15 @@ function mounted() {
 }
 
 watch(
-  () => [props.columns, props.authority, props.rowSelection, principalStore.state.grantedAuthorities] as const,
-  () =>rebuildAuthorityMeta(),
+  () =>
+    [
+      props.columns,
+      props.authority,
+      props.rowSelection,
+      principalStore.state.grantedAuthorities,
+      locale.value,
+    ] as const,
+  () => rebuildAuthorityMeta(),
   {immediate: true, deep: true},
 )
 
@@ -331,13 +340,13 @@ defineExpose({
               <template #icon>
                 <icon-font class="icon align" type="icon-confirm"/>
               </template>
-              <span>搜索</span>
+              <span>{{ t('common.search') }}</span>
             </a-button>
             <a-button block @click="resetField(column, setSelectedKeys, confirm)">
               <template #icon>
                 <icon-font class="icon align" type="icon-error"/>
               </template>
-              <span>重置</span>
+              <span>{{ t('common.reset') }}</span>
             </a-button>
           </a-space-compact>
         </a-space>
