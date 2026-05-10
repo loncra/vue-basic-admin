@@ -1,6 +1,7 @@
 import type {
-  AbstractPlatformUser, NameValueEnumMetadata,
-  UserInitializationMetadata, VersionEntityMetadata
+  AbstractPlatformUser,
+  NameValueEnumMetadata,
+  UserInitializationMetadata
 } from "@/types";
 
 /**
@@ -11,7 +12,7 @@ export interface ConsoleUserEntity extends AbstractPlatformUser {
   realName:string,
   gender:NameValueEnumMetadata<number>
   phoneNumber:string
-  phoneNumberVerified:NameValueEnumMetadata<number>
-  initialization: UserInitializationMetadata
+  phoneNumberVerified?:NameValueEnumMetadata<number>
+  initialization?: UserInitializationMetadata
   remark: string
 }

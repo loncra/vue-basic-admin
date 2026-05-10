@@ -137,27 +137,27 @@ export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMeta
   /**
    * 是否验证邮件
    */
-  emailVerified: NameValueEnumMetadata<number>
+  emailVerified?: NameValueEnumMetadata<number>
 
   /**
    * 拥有角色
    */
-  roleIds:Set<number>
+  roleIds?:Set<number>
 
   /**
    * 拥有资源
    */
-  resourceIds:Set<number>
+  resourceIds?:Set<number>
 
   /**
    * 最后登录时间
    */
-  lastAuthenticationTime: number
+  lastAuthenticationTime?: number
 
   /**
    * 用户类型
    */
-  type: NameValueEnumMetadata<String>
+  type?: NameValueEnumMetadata<String>
 
 }
 

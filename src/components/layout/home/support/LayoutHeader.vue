@@ -33,7 +33,7 @@ const currentBreadcrumbs = computed((): ResourceMetadata[] => {
   if (meta.parent) {
     const parentRoute: RouteRecordNormalized | undefined = globalProperties.$router
       .getRoutes()
-      .find((r: RouteRecordRaw) => r.name === meta.parent)
+      .find((r: RouteRecordRaw) => r.path === meta.parent)
     if (parentRoute) {
       const data = filterTreeDeep<ResourceMetadata>(
         (r: ResourceMetadata) => r.page === parentRoute.path,
@@ -66,14 +66,14 @@ const currentBreadcrumbs = computed((): ResourceMetadata[] => {
         <a-breadcrumb-item v-for="(breadcrumb, index) in currentBreadcrumbs" :key="breadcrumb.name">
           <a-space>
             <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'"/>
-            <a-typography-link
+            <router-link 
+              :to="breadcrumb.page"
               v-if="index != currentBreadcrumbs.length - 1 && breadcrumb.page"
-              :href="breadcrumb.page"
             >
               <a-typography-text type="secondary">
                 {{ breadcrumb.name }}
               </a-typography-text>
-            </a-typography-link>
+            </router-link>
             <a-typography-text v-else strong>
               {{ breadcrumb.name }}
             </a-typography-text>

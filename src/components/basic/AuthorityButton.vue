@@ -25,7 +25,10 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  menuClick: [info: MenuInfo]
+  add: []
+  delete: []
+  export: []
+  actionItemClick: [e:MenuInfo]
 }>()
 
 const options = ref<{
@@ -34,8 +37,16 @@ const options = ref<{
   actionItems: [],
 })
 
-function onMenuClick(info: MenuInfo) {
-  emit('menuClick', info)
+function handleActionClick(e: MenuInfo) {
+  if (e.key === 'add') {
+    emit('add')
+  } else if (e.key === 'delete') {
+    emit('delete')
+  }else if (e.key === 'export') {
+    emit('export')
+  } else {
+    emit('actionItemClick', e)
+  }
 }
 
 function mounted() {
@@ -81,7 +92,7 @@ onMounted(mounted)
   <a-dropdown
     :trigger="['click']"
     placement="bottomRight"
-    :menu="{ items: options.actionItems, onClick: onMenuClick }"
+    :menu="{ items: options.actionItems, onClick: handleActionClick }"
   >
     <a-button>
       <template #icon>

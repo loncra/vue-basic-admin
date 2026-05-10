@@ -3,17 +3,21 @@ import LAuthorityOperateTable, {
   type SearchableColumnType
 } from '@/components/basic/AuthorityOperateTable.vue'
 import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
-import {markRaw, onMounted, ref} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import type {ConsoleUserEntity} from '@/types/auth-server/consoleUserType.ts'
 import {DateRangePicker, InputNumber, InputSearch, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {RestResult} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
-import {dateTimeFormat} from "@/utils";
+import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 
 defineOptions({
   name: 'LConsoleUserTableTable',
 })
+
+const globalProperties =
+  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
+    .globalProperties
 
 const props = withDefaults(defineProps<{
   preview?: boolean
@@ -107,6 +111,12 @@ const columns = ref<SearchableColumnType[]>([
 ])
 /** 与表格双向绑定，可直接参与计算属性、导出、批量操作等 */
 const dataSource = ref<ConsoleUserEntity[]>([])
+const selectedRows = ref<ConsoleUserEntity[]>([])
+const authorityOperateTable = ref();
+
+function removeSelected() {
+  authorityOperateTable.value.remove(selectedRows.value);
+}
 
 async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
@@ -125,6 +135,9 @@ async function mounted() {
   }
 
 }
+defineExpose({
+  removeSelected
+})
 
 onMounted(mounted)
 </script>
@@ -132,13 +145,17 @@ onMounted(mounted)
 <template>
   <div>
     <l-authority-operate-table
+      ref="authorityOperateTable"
       v-model:data-source="dataSource"
+      v-model:selected-rows="selectedRows"
       :service="consoleUserService"
       :columns="columns"
       :enabled-actions="!props.preview"
       :authority="{save:'perms[auth_server_console_user:save]',detail:'perms[auth_server_console_user:get]', delete:'perms[auth_server_console_user:delete]', view:'perms[auth_server_console_user:page]'}"
       :scroll="{x:columns.reduce((sum: number, c: SearchableColumnType) => sum + ((c.width || 0) as number), 0)}"
       :row-selection="props.preview ? undefined : {type: 'checkbox'}"
+      @detail="r => globalProperties.$router.push({name:'auth_server_console_user_detail', query:{id:String(r.id)}})"
+      @edit="r => globalProperties.$router.push({name:'auth_server_console_user_edit', query:{id:String(r.id)}})"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'gender'">

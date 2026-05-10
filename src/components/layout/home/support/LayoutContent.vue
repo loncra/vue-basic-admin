@@ -107,6 +107,8 @@ function addPane(route: RouteLocationNormalizedLoaded): void {
   if (last) {
     route.meta.title = last.name
     route.meta.icon = createIcon(last.icon || 'icon-survey', 'align')
+  } else {
+    route.meta.icon = createIcon(route?.meta?.icon as string || 'icon-survey', 'align')
   }
   panes.value.push(route)
 }

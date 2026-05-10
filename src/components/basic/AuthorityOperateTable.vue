@@ -48,7 +48,7 @@ const props = withDefaults(
     pagination?: TableProps['pagination']
     columns: SearchableColumnType[]
     authority?: CurdAuthorityProps
-    actionItems: NonNullable<MenuProps['items']>
+    actionItems?: NonNullable<MenuProps['items']>
   }>(),
   {
     immediate: true,
@@ -208,6 +208,16 @@ async function fetchDataSource() {
     const pageResult = result.data as unknown as PageResult<TEntity>
     if (pageResult.number) {
       pagination.current = pageResult.number;
+      const n =
+        typeof pageResult.number === 'number' && Number.isFinite(pageResult.number)
+          ? pageResult.number
+          : ((query.value as PageRequest).number ?? 1)
+      const rowCount = data.length
+      if (pageResult.last) {
+        pagination.total = (n - 1) * pageResult.size + rowCount
+      } else {
+        pagination.total = n * pageResult.size + 1
+      }
     }
 
     const totalPage = result.data as unknown as TotalPage<TEntity>
@@ -272,6 +282,11 @@ watch(
 )
 
 onMounted(mounted)
+
+defineExpose({
+  fetchDataSource,
+  remove
+})
 
 </script>
 

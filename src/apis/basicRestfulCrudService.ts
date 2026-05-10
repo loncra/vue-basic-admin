@@ -26,7 +26,7 @@ export class BasicRestfulCrudService<
   }
 
   get(id: TId): Promise<RestResult<TEntity>> {
-    return axios.get(this.baseUrl + id)
+    return axios.get(this.baseUrl + "/" + id)
   }
 
   save(entity: TEntity): Promise<RestResult<TId>> {

@@ -1,14 +1,93 @@
 <script setup lang="ts">
 import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
+import LForm from "@/components/Form.vue";
+import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
+import type {ConsoleUserEntity} from "@/types/auth-server/consoleUserType.ts";
+import type {IdValueMetadata, NameValueEnumMetadata, RestResult} from "@/types";
+import {requireNonNullOrUndefined} from "@/utils";
+import LBasicForm from "@/components/basic/BasicForm.vue";
+import {ConsoleUserService, ResourceServerService} from "@/apis";
+import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
 
 defineOptions({
   name: 'LAuthServerConsoleUserForm',
 })
 
+const globalProperties =
+  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
+    .globalProperties
+
+const consoleUserService = new ConsoleUserService()
+const resourceServerService = new ResourceServerService()
+
+const options = ref<{
+  entity:ConsoleUserEntity,
+  genderOptions:NameValueEnumMetadata<number | string>[],
+  statusOptions:NameValueEnumMetadata<number | string>[],
+  spinning:boolean,
+}>({
+  spinning: false,
+  entity: {
+    realName: "",
+    gender: {
+      name: '未设置性别',
+      value: 30
+    },
+    phoneNumber: "",
+    remark: "",
+    email: "",
+    lastAuthenticationTime: 0,
+    username: "",
+    status: {
+      name: '启用',
+      value: 1
+    }
+  },
+  genderOptions:[],
+  statusOptions:[],
+})
+
+async function mounted() {
+  options.value.spinning = true
+  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
+  if (enums.data) {
+    const responseBody: EnumBucketsResponseBody = enums.data
+    const resourceServer = responseBody['resource-server'] ?? {}
+
+    options.value.genderOptions = resourceServer.GenderEnum ?? []
+    options.value.statusOptions = resourceServer.UserStatus ?? []
+  }
+
+  options.value.spinning = false
+}
+
+onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-menu-title-card/>
+    <l-basic-form :service="consoleUserService" :entity="options.entity" :spinning="options.spinning">
+      <a-form-item name="realName" :label="$t('authServerConsoleUser.realName')" :rules="[{required: true}]">
+        <a-input v-model:value="options.entity.realName" />
+      </a-form-item>
+      <a-form-item name="username" :label="$t('authServerConsoleUser.username')" :rules="[{required: true}]">
+        <a-input v-model:value="options.entity.username" />
+      </a-form-item>
+      <a-form-item name="email" :label="$t('authServerConsoleUser.email')" :rules="[{type:'email'}]">
+        <a-input v-model:value="options.entity.email" />
+      </a-form-item>
+      <a-form-item name="phoneNumber" :label="$t('authServerConsoleUser.phoneNumber')" :rules="[{type:'phone'}]">
+        <a-input v-model:value="options.entity.phoneNumber" />
+      </a-form-item>
+      <a-form-item name="gender" :label="$t('authServerConsoleUser.gender')">
+        <a-select v-model:value="options.entity.gender" :options="options.genderOptions" :field-names="{label:'name'}" />
+      </a-form-item>
+      <a-form-item name="status" :label="$t('authServerConsoleUser.status')">
+        <a-select v-model:value="options.entity.status" :options="options.statusOptions" :field-names="{label:'name'}" />
+      </a-form-item>
+      <a-form-item name="remark" :label="$t('authServerConsoleUser.remark')">
+        <a-input v-model:value="options.entity.remark" />
+      </a-form-item>
+    </l-basic-form>
   </div>
 </template>
