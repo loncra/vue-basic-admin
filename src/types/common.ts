@@ -218,14 +218,13 @@ export interface TotalPage<T> extends PageResult<T> {
 export interface BasicAuthorityProps {
   detail?:string
   delete?:string
-  view?:string
 }
 
 export interface TableAuthorityProps extends BasicAuthorityProps{
   edit?:string
 }
 
-export interface BttonAuthorityProps extends BasicAuthorityProps {
+export interface ButtonAuthorityProps extends BasicAuthorityProps {
   export?:string
   add?:string
 }

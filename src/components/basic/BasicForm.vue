@@ -4,12 +4,13 @@ import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
-import type {BasicCrudService, BasicIdMetadata, CurdAuthorityProps, RestResult} from "@/types";
+import type {BasicAuthorityProps, BasicCrudService, BasicIdMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {message} from "antdv-next";
 import {isResultSuccess} from "@/requests/http";
 import type {RouteLocationRaw} from "vue-router";
+
 defineOptions({
   name: 'LBasicForm',
 })
@@ -22,7 +23,7 @@ const configProviderStore = useConfigProviderStore()
 const props = withDefaults(
   defineProps<{
     service: BasicCrudService<TBody,TEntity>
-    authority?: CurdAuthorityProps
+    authority?: BasicAuthorityProps
     redirect?: RouteLocationRaw
   }>(),
   {},
@@ -80,7 +81,6 @@ onMounted(mounted)
             <slot name="rowLayout"></slot>
           </a-row>
           <slot></slot>
-          <a-divider />
           <a-space>
             <a-button type="primary" html-type="submit">
               <template #icon>

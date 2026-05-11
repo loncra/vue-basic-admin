@@ -3,6 +3,7 @@ import type {Router} from 'vue-router'
 
 import dayjs from 'dayjs'
 import {dayjsFormat} from './dateUtils'
+import type {NameValueEnumMetadata} from '@/types'
 
 /**
  * 值转换函数类型
@@ -292,4 +293,31 @@ export function convertObject<TSource extends Record<string, unknown>, TTarget e
   return result
 }
 
-
+/**
+ * 判断是否为「名称 + 值」枚举元数据（与裸 TValue 区分，避免把 number/string 误判为对象）。
+ */
+export function isNameValueEnumMetadata<TValue>(
+  value: NameValueEnumMetadata<TValue> | TValue,
+): value is NameValueEnumMetadata<TValue> {
+  if (value === null || value === undefined) {
+    return false
+  }
+  if (typeof value !== 'object') {
+    return false
+  }
+  return 'value' in value && 'name' in value
+}
+/** 从元数据取业务值，否则原样返回裸枚举值 */
+export function getEnumValue<TValue>(value: NameValueEnumMetadata<TValue> | TValue): TValue {
+  if (isNameValueEnumMetadata(value)) {
+    return value.value
+  }
+  return value as TValue
+}
+/** 从元数据取展示名，裸值则转成字符串 */
+export function getEnumName<TValue>(value: NameValueEnumMetadata<TValue> | TValue): string {
+  if (isNameValueEnumMetadata(value)) {
+    return value.name
+  }
+  return String(value)
+}

@@ -1,17 +1,15 @@
 <script setup lang="ts">
 
 
-import type {BttonAuthorityProps} from "@/types";
-import {computed} from "vue";
+import type {ButtonAuthorityProps} from "@/types";
+import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
 import type {MenuProps} from "antdv-next";
-import {createIcon} from "@/utils";
+import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {MenuInfo} from '@v-c/menu'
-import {requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 
 export interface AuthorityButtonProps {
-  authority?: BttonAuthorityProps
+  authority?: ButtonAuthorityProps
   actionItems?: NonNullable<MenuProps['items']>
 }
 
@@ -92,7 +90,7 @@ function handleActionClick(e: MenuInfo) {
 
 <template>
   <a-dropdown
-    :trigger="['click']"
+    v-if="menuItems.length > 0"
     placement="bottomRight"
     :menu="{ items: menuItems, onClick: handleActionClick }"
   >

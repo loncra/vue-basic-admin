@@ -12,7 +12,13 @@ import {
   watch
 } from "vue";
 import {type RouteLocationNormalizedLoaded, RouterLink} from "vue-router";
-import {createIcon, filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from "@/utils";
+import {
+  createIcon,
+  filterTreeDeep,
+  getEnumValue,
+  requireNonNullOrUndefined,
+  unmergeTree
+} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 
 defineOptions({
@@ -73,7 +79,7 @@ function labelRender(item: ResourceEntity) {
   if (item == null || typeof item !== 'object') {
     return
   }
-  if (item.type.value === RESOURCE_TYPE.MENU) {
+  if (getEnumValue(item.type) === RESOURCE_TYPE.MENU) {
     const page = item.page?.trim()
     if (!page) {
       return h('span', {}, String(item.name))
@@ -119,7 +125,7 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
     :classes="{itemContent: props.hideLabel ? 'm-0' : ''}"
     v-model:open-keys="menuOptions.openKeys"
     v-model:selected-keys="menuOptions.selectedKeys"
-    :items="menuPrincipalStore.state.filter((s) => props.menuTypes.includes(s.type.value))"
+    :items="menuPrincipalStore.state.filter(s => props.menuTypes.includes(getEnumValue(s.type)))"
     :label-render="props.hideLabel ? undefined : labelRender"
     :icon-render="iconRender"
     v-bind="$attrs"

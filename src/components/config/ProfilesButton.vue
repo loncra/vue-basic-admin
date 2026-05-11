@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import type {MenuItemType} from 'antdv-next'
-import {createIcon, requireNonNullOrUndefined} from '@/utils'
+import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 
@@ -41,8 +41,8 @@ function onOperateClickItem(e: MenuClickInfo) {
 
 function mounted() {
   const data = menuPrincipalStore.state
-    .filter(r => r.type.value === RESOURCE_TYPE.PROFILE)
-    .map(r => ({key: r.id, label: r.name, icon: createIcon(r.icon || 'icon-survey')}));
+    .filter(r => getEnumValue(r.type) === RESOURCE_TYPE.PROFILE)
+    .map(r => ({key: String(r.id), label: r.name, icon: createIcon(r.icon || 'icon-survey')}));
   operateItems.value.unshift(...data)
 }
 
@@ -51,16 +51,13 @@ onMounted(mounted)
 
 <template>
   <a-dropdown
-    :trigger="['click']"
     :menu="{ items: operateItems }"
     @menu-click="onOperateClickItem"
   >
     <a-badge :classes="{root: 'hover:cursor-pointer flex'}" :status="'success'" dot show-zero>
-      <!-- <div class="hover:cursor-pointer"> -->
       <a-avatar>
         M
       </a-avatar>
-      <!-- </div> -->
     </a-badge>
   </a-dropdown>
 </template>

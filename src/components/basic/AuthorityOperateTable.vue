@@ -2,7 +2,6 @@
 import type {
   BasicCrudService,
   BasicIdMetadata,
-  TableAuthorityProps,
   FilterRequest,
   FindCurdService,
   PageCurdService,
@@ -10,18 +9,26 @@ import type {
   PageResult,
   RestResult,
   ScrollPageResult,
+  TableAuthorityProps,
   TotalPage,
 } from '@/types'
-import {type Component, computed, onMounted, ref, useSlots, watch} from 'vue'
+import {
+  type Component,
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  onMounted,
+  ref,
+  useSlots,
+  watch
+} from 'vue'
 import type {ColumnType} from "antdv-next/dist/table/interface";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {MenuProps, TableProps} from "antdv-next";
 import {App} from 'antdv-next'
 import {usePrincipalStore} from '@/stores/principalStore'
-import {createIcon} from '@/utils'
+import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import type {MenuInfo} from '@v-c/menu'
-import {requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 
 /** 列定义上挂载的查询区配置（非 antdv 内置字段） */
 export interface ColumnSearchConfig {
@@ -97,19 +104,6 @@ const options = ref<{
   actionItems: [],
 })
 
-function syncColumnFilteredValue(column: SearchableColumnType) {
-  if (!column.search?.queryName) return
-  const raw = query.value[column.search.queryName]
-  const active =
-    raw !== undefined &&
-    raw !== null &&
-    raw !== '' &&
-    !(Array.isArray(raw) && raw.length === 0) // 若有过数组条件再微调
-  const col = options.value.columns.find((c) => c.key === column.key)
-  if (!col) return
-  col.filteredValue = active ? [String(raw)] : null
-}
-
 function search(
   column: SearchableColumnType,
   setSelectedKeys: (strings: string[]) => void,
@@ -119,7 +113,6 @@ function search(
     const value = query.value[column.search.queryName] ?? ''
     const keys = value !== '' && value != null ? [String(value)] : []
     setSelectedKeys(keys)
-    syncColumnFilteredValue(column)
   }
   confirm()
   fetchDataSource()
@@ -132,12 +125,12 @@ function resetField(
 ) {
   if (column.search && column.search.queryName) {
     query.value[column.search.queryName] = '';
-    syncColumnFilteredValue(column)
   }
   setSelectedKeys([])
   confirm();
   fetchDataSource();
 }
+
 
 function rebuildAuthorityMeta() {
   options.value.columns = []
@@ -146,7 +139,7 @@ function rebuildAuthorityMeta() {
   for (const col of cols) {
     const optionsCol: SearchableColumnType = {...col};
     options.value.columns.push(optionsCol)
-    if (!optionsCol.search || !optionsCol.search.component ||!principalStore.hasPermission(props.authority?.view || '')) {
+    if (!optionsCol.search || !optionsCol.search.component) {
       continue
     }
     optionsCol.filterDropdown = () => null;
@@ -208,9 +201,7 @@ function rebuildAuthorityMeta() {
 }
 
 async function fetchDataSource() {
-  if (!principalStore.hasPermission(props.authority?.view || '')) {
-    return
-  }
+
   loading.value = true;
   const data:TEntity[] = [];
   if (typeof (props.service as PageCurdService<TBody,TEntity, TPage>).page === 'function') {
@@ -244,6 +235,7 @@ async function fetchDataSource() {
   } else if (typeof (props.service as FindCurdService<TBody, TEntity>).find === 'function') {
     const result:RestResult<TEntity[]> = await (props.service as FindCurdService<TBody, TEntity>).find(query.value as FilterRequest);
     data.push(...(result.data || []))
+    options.value.pagination = false;
   }
 
   dataSource.value = data;
@@ -284,6 +276,7 @@ function handleActionClick(e: MenuInfo, record: TEntity) {
 }
 
 function mounted() {
+  options.value.pagination = props.pagination === false ? false : { ...(props.pagination || {})};
   if (props.immediate) {
     fetchDataSource();
   }
@@ -293,9 +286,7 @@ watch(
   () =>
     [
       props.columns,
-      props.authority,
       props.actionItems,
-      props.rowSelection,
       principalStore.state.grantedAuthorities,
     ] as const,
   () => rebuildAuthorityMeta(),
@@ -325,7 +316,6 @@ defineExpose({
       <slot v-if="hasBodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
       <template v-if="column.dataIndex === 'action'">
         <a-dropdown
-          :trigger="['click']"
           :menu="{ items: options.actionItems, onClick: (e: MenuInfo) => handleActionClick(e, record) }"
           placement="bottomRight">
           <a-button size="small">
@@ -336,10 +326,10 @@ defineExpose({
         </a-dropdown>
       </template>
     </template>
-    <template #filterIcon="{filtered}" v-if="principalStore.hasPermission(props.authority?.view || '')">
+    <template #filterIcon="{filtered}">
       <icon-font :class="'icon' + (filtered ? ' text-primary' : '')" type="icon-search"/>
     </template>
-    <template #filterDropdown="{column, setSelectedKeys, confirm}" v-if="principalStore.hasPermission(props.authority?.view || '')">
+    <template #filterDropdown="{column, setSelectedKeys, confirm}" >
       <div class="p-md" @keydown.stop>
         <a-space orientation="vertical">
           <component
@@ -352,7 +342,7 @@ defineExpose({
               <template #icon>
                 <icon-font class="icon align" type="icon-confirm"/>
               </template>
-              <span>{{ globalProperties.$t('common.search') }}</span>
+              <span>{{ globalProperties.$t('search.text') }}</span>
             </a-button>
             <a-button block @click="resetField(column, setSelectedKeys, confirm)">
               <template #icon>

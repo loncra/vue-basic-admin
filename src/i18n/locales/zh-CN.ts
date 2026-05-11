@@ -17,16 +17,30 @@ const locale: LanguagePack = {
     detail: '详情',
     deleteSelected: '删除选中',
     operation: '操作',
-    search: '搜索',
     reset: '重置',
-    searching: '搜索中...',
     deleteConfirm: '确定要删除 [{name}] 记录吗？',
     deleteConfirmTitle: '删除确认',
     deleteConfirmSingle: '确定要删除该记录吗？',
     deleteConfirmBatch: '确定要删除 {count} 条记录吗？',
-    searchPlaceholder: '输入内容进行查询',
     serverError: '服务器异常，请稍后在试。',
     confirmPassword:'确认密码',
+    email: '电子邮箱',
+    phoneNumber: '手机号码',
+    status: '状态',
+    gender: '性别',
+    remark: '备注',
+    realName: '真实姓名',
+    name:'名称',
+    enabled: '启用',
+    type:'类型',
+    category:'类别'
+  },
+  search:{
+    text:'搜索',
+    placeholder:{
+      input:'输入内容进行查询',
+      select:'选择内容进行查询'
+    }
   },
   layoutContent: {
     pin: '固定',
@@ -56,19 +70,11 @@ const locale: LanguagePack = {
     qrCodeLogin: '扫码登录',
     noAccount: '没有账户？',
     createAccount: '创建账户',
+    lastAuthenticationTime: '最后登录时间'
   },
   workbench: {
     personalActivity: '个人动态',
     quickAccess: '快速入口',
-  },
-  authServerConsoleUser: {
-    realName: '真实姓名',
-    username: '登录账户',
-    email: '电子邮箱',
-    phoneNumber: '手机号码',
-    gender: '性别',
-    status: '状态',
-    remark: '备注',
   },
   ai: {
     greeting: '嗨! {name} 今天有什么可以帮您？',
@@ -91,6 +97,20 @@ const locale: LanguagePack = {
       completion: '应答词元数: {value}',
     },
   },
+  authServer:{
+    authority:'权限值',
+    source: '资源来源',
+    userRole: '用户角色',
+    userResource: '独立资源',
+    resource:{
+      applicationName: '应用名称',
+      page:'路由页面'
+    },
+    role:{
+      removable:'是否可删除',
+      modifiable:'是否可修改'
+    }
+  }
 }
 
 export default locale

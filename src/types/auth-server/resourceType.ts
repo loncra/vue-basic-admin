@@ -30,12 +30,16 @@ export interface ResourceMetadata {
 
 }
 
-/**
- * 资源数据类型
- * @author maurice.chen
- */
-export interface ResourceEntity extends ResourceMetadata, VersionEntityMetadata {
-  key: string,
+export interface ResourceSavePayload extends ResourceMetadata, VersionEntityMetadata {
+  /**
+   * 顺序值
+   */
+  sort: number
+
+  /**
+   * 备注
+   */
+  remark?: string
 
   /**
    * 权限名称
@@ -45,12 +49,20 @@ export interface ResourceEntity extends ResourceMetadata, VersionEntityMetadata 
   /**
    * 类型:MENU.菜单类型、SECURITY.安全类型
    */
-  type: NameValueEnumMetadata<string>
+  type: NameValueEnumMetadata<string> | string
 
   /**
    * 来源
    */
-  sources: NameValueEnumMetadata<string>[]
+  sources: NameValueEnumMetadata<string>[] | string[]
+}
+
+/**
+ * 资源数据类型
+ * @author maurice.chen
+ */
+export interface ResourceEntity extends ResourceSavePayload {
+  key: string,
 
   /**
    * 版本号
@@ -63,14 +75,10 @@ export interface ResourceEntity extends ResourceMetadata, VersionEntityMetadata 
   parentId?: number
 
   /**
-   * 顺序值
+   * 类别
    */
-  sort: number
+  category: NameValueEnumMetadata<string>
 
-  /**
-   * 备注
-   */
-  remark: string
   /**
    * 子节点
    */

@@ -107,9 +107,7 @@ function addPane(route: RouteLocationNormalizedLoaded): void {
   const last = unmergeData.at(-1)
   if (last) {
     route.meta.title = last.name
-    route.meta.icon = createIcon(last.icon || 'icon-survey', 'align')
-  } else {
-    route.meta.icon = createIcon(route?.meta?.icon as string || 'icon-survey', 'align')
+    route.meta.icon = last.icon
   }
   panes.value.push(route)
 }
@@ -336,12 +334,18 @@ onMounted(mounted)
         <div class="tool-bar ">
           <a-tabs
             @change="changeTab"
-            :items="panes.map((p) => ({ label: p.meta?.title, icon: p.meta?.icon, key: p.name, closable: !pinnedRouteNames.has(p.name as string) && !fixedRouteNames.has(p.name as string) }))"
+            :items="panes.map((p) => ({ label: p.meta?.title, iconString: p.meta?.icon, key: p.name, closable: !pinnedRouteNames.has(p.name as string) && !fixedRouteNames.has(p.name as string) }))"
             type="editable-card"
             :active-key="activeKey"
             hide-add
             @edit="onRemoveTab"
           >
+            <template #labelRender="{ item }">
+              <a-space>
+                <icon-font class="icon align" :type="item.iconString || 'icon-survey'"/>
+                <span>{{item.label}}</span>
+              </a-space>
+            </template>
             <template #leftExtra>
               <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
                 <a-button type="text" @click="reload">

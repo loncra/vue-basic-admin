@@ -30,73 +30,79 @@ const resourceServerService = new ResourceServerService()
 
 const columns = ref<SearchableColumnType[]>([
   {
-    title: '真实姓名',
+    title: globalProperties.$t('common.realName'),
     dataIndex: 'realName',
     key: 'real_name',
     width: 150,
+    ellipsis:true,
     search:{
       component: markRaw(Input),
-      props:{placeholder: globalProperties.$t('common.searchPlaceholder')},
+      props:{placeholder: globalProperties.$t('search.placeholder.input')},
       expression:'like'
     },
   },
   {
-    title: '性别',
+    title: globalProperties.$t('common.gender'),
     dataIndex: 'gender',
     key: 'gender',
     width: 150,
+    ellipsis:true,
     search:{
       component: markRaw(Select),
-      props:{fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
+      props:{placeholder: globalProperties.$t('search.placeholder.select'), fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false, },
       expression:'eq'
     },
   },
   {
-    title: '登录账户',
+    title: globalProperties.$t('auth.account'),
     dataIndex: 'username',
     width: 300,
+    ellipsis:true,
     key: 'username',
     search:{
       component: markRaw(Input),
-      props:{placeholder: globalProperties.$t('common.searchPlaceholder')},
+      props:{placeholder: globalProperties.$t('search.placeholder.input')},
       expression:'like'
     },
   },
   {
-    title: '状态',
+    title: globalProperties.$t('common.status'),
     dataIndex: 'status',
     key: 'status',
     width: 150,
+    ellipsis:true,
     search: {
       component: markRaw(Select),
-      props: {fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
+      props: {placeholder: globalProperties.$t('search.placeholder.select'), fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
       expression: 'eq',
     },
   },
   {
-    title: '电子邮箱',
+    title: globalProperties.$t('common.email'),
     dataIndex: 'email',
     key: 'email',
     width: 150,
+    ellipsis:true,
     search:{
       component: markRaw(Input),
-      props:{placeholder: globalProperties.$t('common.searchPlaceholder')},
+      props:{placeholder: globalProperties.$t('search.placeholder.input')},
       expression:'eq'
     },
   },
   {
-    title: '手机号码',
+    title: globalProperties.$t('common.phoneNumber'),
     dataIndex: 'phoneNumber',
     key: 'phone_number',
     width: 150,
+    ellipsis:true,
     search:{
       component: markRaw(InputNumber),
-      props:{ classes:{root:'w-full'}, placeholder: globalProperties.$t('common.searchPlaceholder')},
+      props:{ classes:{root:'w-full'}, placeholder: globalProperties.$t('search.placeholder.input')},
       expression:'eq'
     },
   },
   {
-    title: '最后登录时间',
+    title: globalProperties.$t('auth.lastAuthenticationTime'),
     dataIndex: 'lastAuthenticationTime',
     key: 'last_authentication_time',
     width: 210,
@@ -107,7 +113,7 @@ const columns = ref<SearchableColumnType[]>([
     },
   },
 ])
-/** 与表格双向绑定，可直接参与计算属性、导出、批量操作等 */
+
 const dataSource = ref<ConsoleUserEntity[]>([])
 const selectedRows = ref<ConsoleUserEntity[]>([])
 const authorityOperateTable = ref();
@@ -149,8 +155,8 @@ onMounted(mounted)
       :service="consoleUserService"
       :columns="columns"
       :enabled-actions="!props.preview"
-      :authority="{save:'perms[auth_server_console_user:save]',detail:'perms[auth_server_console_user:get]', delete:'perms[auth_server_console_user:delete]', view:'perms[auth_server_console_user:page]'}"
-      :scroll="{x:columns.reduce((sum: number, c: SearchableColumnType) => sum + ((c.width || 0) as number), 0)}"
+      :authority="{edit:'perms[auth_server_console_user:save]',detail:'perms[auth_server_console_user:get]', delete:'perms[auth_server_console_user:delete]'}"
+      :scroll="{x:'max-content'}"
       :row-selection="props.preview ? undefined : {type: 'checkbox'}"
       @detail="r => globalProperties.$router.push({name:'auth_server_console_user_detail', query:{id:String(r.id)}})"
       @edit="r => globalProperties.$router.push({name:'auth_server_console_user_edit', query:{id:String(r.id)}})"

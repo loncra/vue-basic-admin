@@ -13,7 +13,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const userTable = ref();
+const table = ref();
 
 </script>
 
@@ -23,15 +23,15 @@ const userTable = ref();
       <template #extra>
         <l-authority-button
           :authority="{
-            save:'perms[auth_server_console_user:save]',
+            add:'perms[auth_server_console_user:save]',
             delete:'perms[auth_server_console_user:delete]',
             export:'perms[auth_server_console_user:export]'
           }"
-          @delete="userTable.removeSelected()"
+          @delete="table.removeSelected()"
           @add="globalProperties.$router.push({name:'auth_server_console_user_edit'})"
         />
       </template>
-      <l-console-user-table ref="userTable" />
+      <l-console-user-table ref="table" />
     </l-menu-title-card>
   </div>
 </template>

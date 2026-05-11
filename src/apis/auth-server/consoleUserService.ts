@@ -3,7 +3,7 @@ import {PageRestfulCrudService} from "@/apis/pageRestfulCrudService.ts";
 import type {TotalPage} from "@/types";
 
 /**
- * 控制台用户服务
+ * 后台用户服务
  *
  * @author maurice.chen
  */

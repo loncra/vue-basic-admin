@@ -34,7 +34,6 @@ const operateItems = ref<MenuItemType[]>([
     <l-menu-title-card>
       <template #extra>
         <a-dropdown
-          :trigger="['click']"
           placement="bottomRight"
           :menu="{ items: operateItems }"
         >
