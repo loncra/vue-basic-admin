@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {ConsoleUserEntity} from "@/types/auth-server/consoleUserType.ts";
+import type {ConsoleUserRequestBody} from "@/types/auth-server/consoleUserType.ts";
 import type {NameValueEnumMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
@@ -19,7 +19,7 @@ const consoleUserService = new ConsoleUserService()
 const resourceServerService = new ResourceServerService()
 
 const options = ref<{
-  entity:ConsoleUserEntity,
+  entity:ConsoleUserRequestBody,
   genderOptions:NameValueEnumMetadata<number | string>[],
   statusOptions:NameValueEnumMetadata<number | string>[],
   spinning:boolean,
