@@ -8,6 +8,9 @@ import {ConsoleUserService, ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
+import type { RoleEntity } from "@/types/auth-server/roleType.ts";
+import type { ResourceEntity } from "@/types/auth-server/resourceType.ts";
+import type {TableProps} from "antdv-next"
 
 defineOptions({
   name: 'LAuthServerConsoleUserForm',
@@ -53,6 +56,17 @@ async function mounted() {
 
   options.value.spinning = false
 }
+
+const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = (
+  _selectedRowKeys,
+  selectedRows,
+  _info,
+) => {
+  const rows = selectedRows as RoleEntity[]
+  options.value.entity.resourceIds = rows.flatMap((r) => r.resourceIds ?? [])
+  options.value.entity.roleIds = rows.flatMap((r) => (r.id != null ? [r.id] : []))
+}
+
 
 onMounted(mounted)
 </script>
@@ -101,7 +115,7 @@ onMounted(mounted)
         </a-space>
       </a-divider>
 
-      <l-role-table :preview="true" root-class="mb-md" />
+      <l-role-table :preview="true" root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':'CONSOLE'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
@@ -110,7 +124,7 @@ onMounted(mounted)
         </a-space>
       </a-divider>
 
-      <l-resource-table :preview="true" root-class="mb-md" />
+      <l-resource-table :preview="true" root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':'CONSOLE'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds}"/>
 
       <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
         <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />

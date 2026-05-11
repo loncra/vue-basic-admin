@@ -138,12 +138,12 @@ export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMeta
   /**
    * 拥有角色
    */
-  roleIds?:Set<number>
+  roleIds?:number[]
 
   /**
    * 拥有资源
    */
-  resourceIds?:Set<number>
+  resourceIds?:number[]
 
 }
 

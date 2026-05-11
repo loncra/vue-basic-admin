@@ -8,6 +8,8 @@ import {ResourceServerService, ResourceService} from "@/apis";
 import type {NameValueEnumMetadata, ResourceEntity, RestResult} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
 import {getEnumName, requireNonNullOrUndefined} from "@/utils";
+import type {FilterRequest} from '@/types/common';
+import type { TableProps } from 'antdv-next';
 
 defineOptions({
   name: 'LResourceTable',
@@ -18,9 +20,13 @@ const globalProperties =
     .globalProperties
 
 const props = withDefaults(defineProps<{
-  preview?: boolean
+  preview?: boolean,
+  query?:FilterRequest,
+  rowSelection?:TableProps["rowSelection"],
 }>(), {
   preview: false,
+  filter: () => ({}),
+  rowSelection:() => ({type: 'checkbox'})
 })
 
 const service = new ResourceService()
@@ -69,9 +75,9 @@ const columns = ref<SearchableColumnType[]>([
     ellipsis:true,
     key: 'sources',
     search:{
-      component: markRaw(Input),
-      props:{placeholder: globalProperties.$t('search.placeholder.input')},
-      expression:'like'
+      component: markRaw(Select),
+      props:{mode:"multiple", placeholder: globalProperties.$t('search.placeholder.select'),fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
+      expression:'jin'
     },
   },
   {
@@ -113,14 +119,29 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 const dataSource = ref<ResourceEntity[]>([])
-const selectedRows = ref<ResourceEntity[]>([])
 const authorityOperateTable = ref();
 
+const selectedRecords = defineModel<ResourceEntity[]>('selectedRecordsRows', {default: () => []})
+
 function removeSelected() {
-  authorityOperateTable.value.remove(selectedRows.value);
+  authorityOperateTable.value.remove(selectedRecords.value);
 }
 
 async function mounted() {
+  if (!props.preview) {
+    columns.value.splice(2, 0, {
+      title: globalProperties.$t('authServer.source'),
+      dataIndex: 'sources',
+      width: 300,
+      ellipsis:true,
+      key: 'sources',
+      search:{
+        component: markRaw(Select),
+        props:{mode:"multiple", placeholder: globalProperties.$t('search.placeholder.select'),fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
+        expression:'jin'
+      },
+    });
+  }
   const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"}],"auth-server":[{id:"ResourceTypeEnum"},{id:'ResourceCategoryEnum'}]})
   if (enums.data) {
     const typeCol = columns.value[columns.value.findIndex(s => s.dataIndex === "type")];
@@ -148,6 +169,7 @@ function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
   return sources.map(s => getEnumName(s)).join(",")
 }
 
+
 defineExpose({
   removeSelected
 })
@@ -160,14 +182,15 @@ onMounted(mounted)
     <l-authority-operate-table
       v-bind="$attrs"
       ref="authorityOperateTable"
+      :query="query"
       v-model:data-source="dataSource"
-      v-model:selected-rows="selectedRows"
+      v-model:selected-rows="selectedRecords"
       :service="service"
       :columns="columns"
       :enabled-actions="!props.preview"
       :authority="{edit:'perms[auth_server_authority_resource:save]',detail:'perms[auth_server_authority_resource:get]', delete:'perms[auth_server_authority_resource:delete]'}"
       :scroll="{x:'max-content', y: 350}"
-      :row-selection="props.preview ? undefined : {type: 'checkbox'}"
+      :row-selection="rowSelection"
       @detail="r => globalProperties.$router.push({name:'auth_server_authority_resource_detail', query:{id:String(r.id)}})"
       @edit="r => globalProperties.$router.push({name:'auth_server_authority_resource_edit', query:{id:String(r.id)}})"
     >

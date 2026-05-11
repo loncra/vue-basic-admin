@@ -131,7 +131,6 @@ function resetField(
   fetchDataSource();
 }
 
-
 function rebuildAuthorityMeta() {
   options.value.columns = []
   options.value.actionItems = []
@@ -308,6 +307,7 @@ defineExpose({
     :pagination="options.pagination"
     :row-selection="options.rowSelection"
     v-bind="$attrs"
+    :row-key="SYSTEM_CONSTANT.ID_NAME"
     :data-source="dataSource"
     :loading="loading"
     bordered

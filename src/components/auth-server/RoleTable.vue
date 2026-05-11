@@ -11,6 +11,8 @@ import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {NameValueEnumMetadata} from "@/types/common.ts";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {RoleEntity} from "@/types/auth-server/roleType.ts";
+import type { FilterRequest } from '@/types/common';
+import type { TableProps } from 'antdv-next';
 
 defineOptions({
   name: 'LRoleTable',
@@ -22,8 +24,12 @@ const globalProperties =
 
 const props = withDefaults(defineProps<{
   preview?: boolean
+  query?:FilterRequest,
+  rowSelection?:TableProps["rowSelection"]
 }>(), {
   preview: false,
+  filter: () => ({}),
+  rowSelection: () => ({type: 'checkbox'})
 })
 
 const service = new RoleService()
@@ -48,18 +54,6 @@ const columns = ref<SearchableColumnType[]>([
     key: 'authority',
     width: 150,
     ellipsis:true,
-    search:{
-      component: markRaw(Input),
-      props:{placeholder: globalProperties.$t('search.placeholder.input')},
-      expression:'like'
-    },
-  },
-  {
-    title: globalProperties.$t('authServer.source'),
-    dataIndex: 'sources',
-    width: 300,
-    ellipsis:true,
-    key: 'sources',
     search:{
       component: markRaw(Input),
       props:{placeholder: globalProperties.$t('search.placeholder.input')},
@@ -105,15 +99,30 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 const dataSource = ref<RoleEntity[]>([])
-const selectedRows = ref<RoleEntity[]>([])
 const authorityOperateTable = ref();
 const yesOrNoFields = ["modifiable", "enabled", "removable"];
 
+const selectedRecords = defineModel<RoleEntity[]>('selectedRows', {default: () => []})
+
 function removeSelected() {
-  authorityOperateTable.value.remove(selectedRows.value);
+  authorityOperateTable.value.remove(selectedRecords.value);
 }
 
 async function mounted() {
+  if (!props.preview) {
+    columns.value.splice(2, 0, {
+      title: globalProperties.$t('authServer.source'),
+      dataIndex: 'sources',
+      width: 300,
+      ellipsis:true,
+      key: 'sources',
+      search:{
+        component: markRaw(Select),
+        props:{mode:"multiple", placeholder: globalProperties.$t('search.placeholder.select'),fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
+        expression:'jin'
+      },
+    });
+  }
   const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
   if (enums.data) {
     for (const dataIndex of yesOrNoFields){
@@ -149,14 +158,15 @@ onMounted(mounted)
     <l-authority-operate-table
       v-bind="$attrs"
       ref="authorityOperateTable"
+      :query="query"
       v-model:data-source="dataSource"
-      v-model:selected-rows="selectedRows"
+      v-model:selected-rows="selectedRecords"
       :service="service"
       :columns="columns"
       :enabled-actions="!props.preview"
       :authority="{edit:'perms[auth_server_role:save]',detail:'perms[auth_server_role:get]', delete:'perms[auth_server_role:delete]'}"
       :scroll="{x:'max-content'}"
-      :row-selection="props.preview ? undefined : {type: 'checkbox'}"
+      :row-selection="rowSelection"
       @detail="r => globalProperties.$router.push({name:'auth_server_role_detail', query:{id:String(r.id)}})"
       @edit="r => globalProperties.$router.push({name:'auth_server_role_edit', query:{id:String(r.id)}})"
     >
