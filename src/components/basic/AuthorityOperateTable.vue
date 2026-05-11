@@ -2,7 +2,7 @@
 import type {
   BasicCrudService,
   BasicIdMetadata,
-  CurdAuthorityProps,
+  TableAuthorityProps,
   FilterRequest,
   FindCurdService,
   PageCurdService,
@@ -20,7 +20,8 @@ import {App} from 'antdv-next'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {createIcon} from '@/utils'
 import type {MenuInfo} from '@v-c/menu'
-import {useI18n} from 'vue-i18n'
+import {requireNonNullOrUndefined} from "@/utils";
+import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 
 /** 列定义上挂载的查询区配置（非 antdv 内置字段） */
 export interface ColumnSearchConfig {
@@ -34,31 +35,40 @@ export type SearchableColumnType<RecordType = Record<string, unknown>> = ColumnT
   search?: ColumnSearchConfig
 }
 
+export interface AuthorityOperateTableProps<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
+> {
+  service: BasicCrudService<TBody, TEntity>
+  immediate?: boolean
+  enabledActions?: boolean
+  rowSelection?: TableProps['rowSelection']
+  pagination?: TableProps['pagination']
+  columns: SearchableColumnType[]
+  authority?: TableAuthorityProps
+  actionItems?: NonNullable<MenuProps['items']>
+}
+
 defineOptions({
   name: 'LAuthorityOperateTable',
 })
 
+const globalProperties =
+  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
+    .globalProperties
+
 const principalStore = usePrincipalStore()
 const slots = useSlots()
 const { message, modal } = App.useApp()
-const { t, locale } = useI18n()
 
 const props = withDefaults(
-  defineProps<{
-    service: BasicCrudService<TBody, TEntity>
-    immediate?: boolean,
-    enabledActions?: boolean,
-    rowSelection?: TableProps['rowSelection'],
-    pagination?: TableProps['pagination']
-    columns: SearchableColumnType[]
-    authority?: CurdAuthorityProps
-    actionItems?: NonNullable<MenuProps['items']>
-  }>(),
+  defineProps<AuthorityOperateTableProps<TBody, TEntity, TId>>(),
   {
     immediate: true,
     columns: () => [],
     enabledActions: true,
-    actionItems: () => []
+    actionItems: () => [],
   },
 )
 
@@ -143,9 +153,9 @@ function rebuildAuthorityMeta() {
     optionsCol.search.queryName = `filter_[${col.key}_${optionsCol.search.expression || 'eq'}]`
   }
 
-  if (props.enabledActions && principalStore.hasAnyPermission([props.authority?.save || '', props.authority?.detail || '', props.authority?.delete || ''])) {
+  if (props.enabledActions && principalStore.hasAnyPermission([props.authority?.edit || '', props.authority?.detail || '', props.authority?.delete || ''])) {
     options.value.columns.push({
-      title: t('common.operation'),
+      title: globalProperties.$t('common.operation'),
       dataIndex: 'action',
       key: 'action',
       align: 'center',
@@ -153,24 +163,24 @@ function rebuildAuthorityMeta() {
       fixed: 'right'
     })
     const actionItems = [];
-    if (principalStore.hasAnyPermission([props.authority?.save || '', props.authority?.detail || ''])) {
+    if (principalStore.hasAnyPermission([props.authority?.edit || '', props.authority?.detail || ''])) {
       actionItems.push({
         key: 'edit',
-        label: t('common.edit'),
+        label: globalProperties.$t('common.edit'),
         icon: () => createIcon('icon-edit'),
       })
     }
     if (principalStore.hasPermission(props.authority?.detail || '')) {
       actionItems.push({
         key: 'detail',
-        label: t('common.detail'),
+        label: globalProperties.$t('common.detail'),
         icon: () => createIcon('icon-order-inspection'),
       })
     }
     if (principalStore.hasPermission(props.authority?.delete || '')) {
       actionItems.push({
         key: 'delete',
-        label: t('common.delete'),
+        label: globalProperties.$t('common.delete'),
         icon: () => createIcon('icon-delete'),
       })
     }
@@ -246,10 +256,10 @@ function remove(records: TEntity[]) {
   }
   const content =
     records.length === 1
-      ? t('common.deleteConfirmSingle')
-      : t('common.deleteConfirmBatch', {count: records.length})
+      ? globalProperties.$t('common.deleteConfirmSingle')
+      : globalProperties.$t('common.deleteConfirmBatch', {count: records.length})
   modal.confirm({
-    title: t('common.deleteConfirmTitle'),
+    title: globalProperties.$t('common.deleteConfirmTitle'),
     content,
     onOk() {
       return props.service
@@ -284,9 +294,9 @@ watch(
     [
       props.columns,
       props.authority,
+      props.actionItems,
       props.rowSelection,
       principalStore.state.grantedAuthorities,
-      locale.value,
     ] as const,
   () => rebuildAuthorityMeta(),
   {immediate: true, deep: true},
@@ -342,13 +352,13 @@ defineExpose({
               <template #icon>
                 <icon-font class="icon align" type="icon-confirm"/>
               </template>
-              <span>{{ t('common.search') }}</span>
+              <span>{{ globalProperties.$t('common.search') }}</span>
             </a-button>
             <a-button block @click="resetField(column, setSelectedKeys, confirm)">
               <template #icon>
                 <icon-font class="icon align" type="icon-error"/>
               </template>
-              <span>{{ t('common.reset') }}</span>
+              <span>{{ globalProperties.$t('common.reset') }}</span>
             </a-button>
           </a-space-compact>
         </a-space>

@@ -215,12 +215,19 @@ export interface TotalPage<T> extends PageResult<T> {
   totalPages: number
 }
 
-export interface CurdAuthorityProps {
-  save?:string
+export interface BasicAuthorityProps {
   detail?:string
   delete?:string
   view?:string
+}
+
+export interface TableAuthorityProps extends BasicAuthorityProps{
+  edit?:string
+}
+
+export interface BttonAuthorityProps extends BasicAuthorityProps {
   export?:string
+  add?:string
 }
 
 /**

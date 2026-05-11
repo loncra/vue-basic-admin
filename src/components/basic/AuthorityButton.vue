@@ -1,28 +1,34 @@
 <script setup lang="ts">
 
 
-import type {CurdAuthorityProps} from "@/types";
+import type {BttonAuthorityProps} from "@/types";
 import {computed} from "vue";
 import type {MenuProps} from "antdv-next";
 import {createIcon} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {MenuInfo} from '@v-c/menu'
-import {useI18n} from 'vue-i18n'
+import {requireNonNullOrUndefined} from "@/utils";
+import {type ComponentInternalInstance, getCurrentInstance} from "vue";
+
+export interface AuthorityButtonProps {
+  authority?: BttonAuthorityProps
+  actionItems?: NonNullable<MenuProps['items']>
+}
 
 defineOptions({
   name: 'LAuthorityButton',
 })
 
+const globalProperties =
+  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
+    .globalProperties
+
 const principalStore = usePrincipalStore()
-const {t, locale} = useI18n()
 
 const props = withDefaults(
-  defineProps<{
-    authority?: CurdAuthorityProps,
-    actionItems?: NonNullable<MenuProps['items']>
-  }>(),
+  defineProps<AuthorityButtonProps>(),
   {
-    actionItems:() => []
+    actionItems: () => [],
   },
 )
 
@@ -34,31 +40,30 @@ const emit = defineEmits<{
 }>()
 
 const menuItems = computed<NonNullable<MenuProps['items']>>(() => {
-  locale.value
   const items: NonNullable<MenuProps['items']> = []
 
-  if (!principalStore.hasAnyPermission([props.authority?.save || '', props.authority?.export || '', props.authority?.delete || ''])) {
+  if (!principalStore.hasAnyPermission([props.authority?.add || '', props.authority?.export || '', props.authority?.delete || ''])) {
     return items
   }
 
-  if (principalStore.hasPermission(props.authority?.save || '')) {
+  if (principalStore.hasPermission(props.authority?.add || '')) {
     items.push({
       key: 'add',
-      label: t('common.add'),
+      label: globalProperties.$t('common.add'),
       icon: () => createIcon('icon-add', 'align'),
     })
   }
   if (principalStore.hasPermission(props.authority?.export || '')) {
     items.push({
       key: 'export',
-      label: t('common.export'),
+      label: globalProperties.$t('common.export'),
       icon: () => createIcon('icon-goods-start-to-ship', 'align'),
     })
   }
   if (principalStore.hasPermission(props.authority?.delete || '')) {
     items.push({
       key: 'delete',
-      label: t('common.deleteSelected'),
+      label: globalProperties.$t('common.deleteSelected'),
       icon: () => createIcon('icon-delete', 'align'),
     })
   }
