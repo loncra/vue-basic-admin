@@ -102,7 +102,7 @@ const columns = ref<SearchableColumnType[]>([
     },
   },
   {
-    title: globalProperties.$t('auth.lastAuthenticationTime'),
+    title: globalProperties.$t('authServer.lastAuthenticationTime'),
     dataIndex: 'lastAuthenticationTime',
     key: 'last_authentication_time',
     width: 210,

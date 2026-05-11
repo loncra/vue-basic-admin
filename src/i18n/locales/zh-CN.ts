@@ -9,6 +9,7 @@ const locale: LanguagePack = {
   dayjs: 'zh-CN',
   antDesign: zhCN,
   common: {
+    id: '主键',
     save: '保存',
     add: '添加',
     edit: '编辑',
@@ -33,7 +34,23 @@ const locale: LanguagePack = {
     name:'名称',
     enabled: '启用',
     type:'类型',
-    category:'类别'
+    category:'类别',
+    back: '返回',
+    home: '首页'
+  },
+  error:{
+    errorMessage:'错误信息',
+    code:'错误代码',
+    field:'字段信息',
+    badRequest:{
+      title:'您提交的参数错误',
+    },
+    forbidden:{
+      title:'您没有权限访问,请联系管理员开通权限',
+    },
+    notFound:{
+      title:'找不到你想访问的页面'
+    }
   },
   search:{
     text:'搜索',
@@ -70,7 +87,7 @@ const locale: LanguagePack = {
     qrCodeLogin: '扫码登录',
     noAccount: '没有账户？',
     createAccount: '创建账户',
-    lastAuthenticationTime: '最后登录时间'
+    reLogin:'重新登录',
   },
   workbench: {
     personalActivity: '个人动态',
@@ -98,6 +115,9 @@ const locale: LanguagePack = {
     },
   },
   authServer:{
+    randomPassword: '是否随机密码',
+    randomUsername: '是否随机登录账户',
+    lastAuthenticationTime:'最后登录时间',
     authority:'权限值',
     source: '资源来源',
     userRole: '用户角色',

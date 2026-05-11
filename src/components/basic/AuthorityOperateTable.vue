@@ -50,7 +50,6 @@ export interface AuthorityOperateTableProps<
   service: BasicCrudService<TBody, TEntity>
   immediate?: boolean
   enabledActions?: boolean
-  rowSelection?: TableProps['rowSelection']
   pagination?: TableProps['pagination']
   columns: SearchableColumnType[]
   authority?: TableAuthorityProps
@@ -89,14 +88,12 @@ const dataSource = defineModel<TEntity[]>('dataSource', {default: () => []})
 const loading = defineModel('loading', {default: () => false})
 
 const query = defineModel<FilterRequest | PageRequest>('query', {default: () => ({})})
-const selectedRecords = defineModel<TEntity[]>('selectedRows', {default: () => []})
 
 const hasBodyCell = computed(() => Boolean(slots.bodyCell))
 
 const options = ref<{
   columns: SearchableColumnType[]
   pagination?: TableProps['pagination']
-  rowSelection?: TableProps['rowSelection']
   actionItems: NonNullable<MenuProps['items']>
 }>({
   columns: [],
@@ -181,21 +178,6 @@ function rebuildAuthorityMeta() {
       options.value.actionItems.push({type:'divider'});
       options.value.actionItems.push(...props.actionItems)
     }
-  }
-
-  if (principalStore.hasPermission(props.authority?.delete || '')) {
-    const userOnChange = props.rowSelection?.onChange
-    options.value.rowSelection = {
-      ...props.rowSelection,
-      type: 'checkbox',
-      onChange: (selectedRowKeys, selectedRows, info) => {
-        selectedRecords.value = selectedRows as TEntity[]
-        userOnChange?.(selectedRowKeys, selectedRows, info)
-      },
-    }
-  } else {
-    options.value.rowSelection = undefined
-    selectedRecords.value = []
   }
 }
 
@@ -305,7 +287,6 @@ defineExpose({
   <a-table
     :columns="options.columns"
     :pagination="options.pagination"
-    :row-selection="options.rowSelection"
     v-bind="$attrs"
     :row-key="SYSTEM_CONSTANT.ID_NAME"
     :data-source="dataSource"

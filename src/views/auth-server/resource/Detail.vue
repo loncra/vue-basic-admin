@@ -9,6 +9,8 @@ defineOptions({
 
 <template>
   <div>
-    <l-menu-title-card/>
+    <l-menu-title-card>
+
+    </l-menu-title-card>
   </div>
 </template>

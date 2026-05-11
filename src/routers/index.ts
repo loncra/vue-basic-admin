@@ -6,16 +6,19 @@ import type {
 } from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import Auth from '@/views/Auth.vue'
-import Home from '@/views/Home.vue'
-import Workbench from '@/views/commons/Workbench.vue'
-import Setting from '@/views/commons/Setting.vue'
-import type {ResourceEntity} from "@/types";
+import type {PrepareData, ResourceEntity} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {ref} from 'vue'
 import {findFirstTreeNode, requireNonNullOrUndefined} from '@/utils'
-import type {PrepareData} from '../types/auth-server'
+
+import Auth from '@/views/Auth.vue'
+import Home from '@/views/Home.vue'
+import Workbench from '@/views/commons/Workbench.vue'
+import Setting from '@/views/commons/Setting.vue'
+import NotFound from '@/views/error/NotFound.vue';
+import Forbidden from '@/views/error/Forbidden.vue';
+import BadRequest from '@/views/error/BadRequest.vue';
 
 const initialState = ref<boolean>(false)
 
@@ -24,6 +27,22 @@ const initialState = ref<boolean>(false)
  * 这些路由会作为 Home 组件的子路由显示
  */
 const childrenRoutes: RouteRecordRaw[] = [
+  {
+    path: '403',
+    name: '403',
+    component: Forbidden,
+    meta: {
+      title: "没有权限访问"
+    }
+  },
+  {
+    path: '400',
+    name: '400',
+    component: BadRequest,
+    meta: {
+      title: "参数提交错误"
+    }
+  },
   {
     path: '/commons/workbench',
     name: import.meta.env.VITE_APP_HOME_ROUTE_PAGE_NAME,
@@ -67,6 +86,14 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/404',
+    name: '404',
+    component: NotFound,
+    meta: {
+      title: "找不到页面"
+    }
+  },
+  {
     // 首页路由，包含子路由
     path: '/' + import.meta.env.VITE_APP_HOME_PAGE_NAME,
     name: import.meta.env.VITE_APP_HOME_PAGE_NAME,
@@ -76,6 +103,11 @@ const routes: RouteRecordRaw[] = [
       title: '首页',
     },
   },
+  {
+    path: "/:pathMatch(.*)*",
+    name: 'NotFound',
+    redirect: "/404"
+  }
 ]
 
 /**

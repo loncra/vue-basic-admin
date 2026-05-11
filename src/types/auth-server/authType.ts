@@ -152,5 +152,5 @@ export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMeta
  */
 export interface UserInitializationMetadata {
   randomPassword: NameValueEnumMetadata<number>,
-  randomUsername: NameValueEnumMetadata<string>,
+  randomUsername: NameValueEnumMetadata<number>,
 }

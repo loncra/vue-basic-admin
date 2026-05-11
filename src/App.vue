@@ -12,7 +12,7 @@ const configProviderStore = useConfigProviderStore()
       :locale="(configProviderStore.localeMessage as { antDesign?: object }).antDesign"
       :theme="{ algorithm: configProviderStore.state.algorithm }"
     >
-      <a-app>
+      <a-app >
         <router-view v-slot="{ Component }">
           <!-- 页面过渡动画 -->
           <!-- fade-transform: 淡入淡出 + 变换效果 -->

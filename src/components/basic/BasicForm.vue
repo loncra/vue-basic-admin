@@ -64,7 +64,7 @@ async function mounted() {
   const id = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] as TId
   if (id) {
     const result:RestResult<TEntity> = await props.service.get(id);
-    entity.value = {...result?.data || {}, ...entity.value};
+    entity.value = {...entity.value, ...result?.data || {}}
   }
 }
 
@@ -74,7 +74,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-menu-title-card>
+    <l-menu-title-card >
       <l-form id="form" ref="formRef" @finish="onFinish" :model="entity">
         <a-spin :spinning="spinning">
           <a-row :gutter="[configProviderStore.getToken().marginMD]">
@@ -82,7 +82,7 @@ onMounted(mounted)
           </a-row>
           <slot></slot>
           <a-space>
-            <a-button type="primary" html-type="submit">
+            <a-button type="primary" html-type="submit" :loading="spinning">
               <template #icon>
                 <icon-font class="icon" type="icon-save" />
               </template>

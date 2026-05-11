@@ -51,7 +51,7 @@ const menuOptions = ref<
 
 const collapsedAndSelectedMenu = (route: RouteLocationNormalizedLoaded) => {
   const data: ResourceEntity[] = filterTreeDeep<ResourceEntity>(
-    (r) => r.page === route.path,
+    (r) => r.page === route.path || r.page === (route?.meta?.parent || ''),
     menuPrincipalStore.state,
   )
   if (data.length <= 0) {
@@ -64,7 +64,7 @@ const collapsedAndSelectedMenu = (route: RouteLocationNormalizedLoaded) => {
   }
   const leafKey = values[values.length - 1] as string
   menuOptions.value.selectedKeys = [leafKey]
-  menuOptions.value.openKeys = values.slice(0, -1).map((v) => v)
+  menuOptions.value.openKeys = [...new Set([...menuOptions.value.openKeys, ...values.slice(0, -1).map((v) => v)])]
 }
 
 // 监听路由变化：路由变化 => 对应分段激活或追加

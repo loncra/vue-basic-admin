@@ -55,5 +55,5 @@ export interface ConsoleUserEntity extends ConsoleUserRequestBody {
   /**
    * 用户类型
    */
-  type: NameValueEnumMetadata<String>
+  type: NameValueEnumMetadata<string>
 }

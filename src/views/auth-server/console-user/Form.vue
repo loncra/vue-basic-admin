@@ -8,8 +8,7 @@ import {ConsoleUserService, ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import type { RoleEntity } from "@/types/auth-server/roleType.ts";
-import type { ResourceEntity } from "@/types/auth-server/resourceType.ts";
+import type {RoleEntity} from "@/types/auth-server/roleType.ts";
 import type {TableProps} from "antdv-next"
 
 defineOptions({
@@ -73,7 +72,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-basic-form :service="consoleUserService" :entity="options.entity" :spinning="options.spinning">
+    <l-basic-form :redirect="{name:'auth_server_user_console'}" :service="consoleUserService" :entity="options.entity" :spinning="options.spinning">
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="realName" :label="globalProperties.$t('common.realName')" :rules="[{required: true}]">
