@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
+<script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
 import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
@@ -7,7 +7,9 @@ import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicCrudService, BasicIdMetadata, CurdAuthorityProps, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-
+import {message} from "antdv-next";
+import {isResultSuccess} from "@/requests/http";
+import type {RouteLocationRaw} from "vue-router";
 defineOptions({
   name: 'LBasicForm',
 })
@@ -19,22 +21,41 @@ const configProviderStore = useConfigProviderStore()
 
 const props = withDefaults(
   defineProps<{
-    service: BasicCrudService<TEntity>
+    service: BasicCrudService<TBody,TEntity>
     authority?: CurdAuthorityProps
+    redirect?: RouteLocationRaw
   }>(),
-  {
-  },
+  {},
 )
 
 const formRef = ref()
 const spinning = defineModel<boolean>("spinning", {default: false})
-const entity = defineModel<TEntity>("entity", {default: () => {}})
+const entity = defineModel<TBody>("entity", {default: () => {}})
 
-function doSubmit() : void {
-
+async function doSubmit() {
+  spinning.value = true
+  try {
+    const result = await props.service.save(entity.value)
+    if(!isResultSuccess(result)) {
+      message.warning(result.message)
+      return ;
+    }
+    if(result.status === 200) {
+      message.success(result.message)
+      if (props.redirect) {
+        globalProperties.$router.push(props.redirect)
+      }
+    } else {
+      message.error(result.message)
+    }
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : String(error))
+  } finally {
+    spinning.value = false
+  }
 }
 
-function onFinish (): void {
+function onFinish () {
   formRef.value.validate().then(() => doSubmit())
 }
 
@@ -42,7 +63,7 @@ async function mounted() {
   const id = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] as TId
   if (id) {
     const result:RestResult<TEntity> = await props.service.get(id);
-    entity.value = {...result?.data, ...entity.value};
+    entity.value = {...result?.data || {}, ...entity.value};
   }
 }
 

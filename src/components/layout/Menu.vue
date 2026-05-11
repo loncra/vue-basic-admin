@@ -115,7 +115,7 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
 
 <template>
   <a-menu
-    root-class="border-e-0"
+    root-class="border-none"
     :classes="{itemContent: props.hideLabel ? 'm-0' : ''}"
     v-model:open-keys="menuOptions.openKeys"
     v-model:selected-keys="menuOptions.selectedKeys"

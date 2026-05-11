@@ -232,7 +232,7 @@ export interface CurdAuthorityProps {
  * @template TEntity - 业务实体类型
  * @template TId - 主键类型，等于 `BasicIdMetadata<TId>['id']`
  */
-export interface BasicCrudService<TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> {
+export interface BasicCrudService<TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> {
 
   /**
    * 获取数据
@@ -246,7 +246,7 @@ export interface BasicCrudService<TEntity extends BasicIdMetadata<TId>, TId = TE
    *
    * @param entity
    */
-  save(entity: TEntity): Promise<RestResult<TId>>
+  save(entity: TBody): Promise<RestResult<TId>>
 
   /**
    * 删除数据
@@ -255,7 +255,7 @@ export interface BasicCrudService<TEntity extends BasicIdMetadata<TId>, TId = TE
   delete(ids: TId[]): Promise<RestResult<void>>
 }
 
-export interface PageCurdService<TEntity extends BasicIdMetadata<TId>,  TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> extends BasicCrudService<TEntity, TId> {
+export interface PageCurdService<TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> extends BasicCrudService<TBody,TEntity, TId> {
 
   /**
    * 获取分页内容
@@ -266,7 +266,7 @@ export interface PageCurdService<TEntity extends BasicIdMetadata<TId>,  TPage ex
 
 }
 
-export interface FindCurdService<TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> extends BasicCrudService<TEntity, TId> {
+export interface FindCurdService<TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> extends BasicCrudService<TBody, TEntity, TId> {
 
   find(filter:FilterRequest) : Promise<RestResult<TEntity[]>>
 }

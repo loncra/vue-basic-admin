@@ -16,10 +16,11 @@ import axios from '@/requests'
  * @template TEntity - 实体类型，须含主键字段 `id`（键名由 {@link SYSTEM_CONSTANT.ID_NAME} 约定）
  */
 export class PageRestfulCrudService<
-  TEntity extends BasicIdMetadata<TId>,
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody,
   TPage extends ScrollPageResult<TEntity>,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
-> extends BasicRestfulCrudService<TEntity, TId> implements PageCurdService<TEntity, TPage, TId>
+> extends BasicRestfulCrudService<TBody, TEntity, TId> implements PageCurdService<TBody, TEntity, TPage, TId>
 {
   static readonly PAGE_URL = '/page'
 

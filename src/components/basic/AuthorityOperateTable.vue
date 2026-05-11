@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TEntity extends BasicIdMetadata<TId>, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
+<script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 import type {
   BasicCrudService,
   BasicIdMetadata,
@@ -45,7 +45,7 @@ const { t, locale } = useI18n()
 
 const props = withDefaults(
   defineProps<{
-    service: BasicCrudService<TEntity>
+    service: BasicCrudService<TBody, TEntity>
     immediate?: boolean,
     enabledActions?: boolean,
     rowSelection?: TableProps['rowSelection'],
@@ -203,8 +203,8 @@ async function fetchDataSource() {
   }
   loading.value = true;
   const data:TEntity[] = [];
-  if (typeof (props.service as PageCurdService<TEntity, TPage>).page === 'function') {
-    const result:RestResult<TPage> = await (props.service as PageCurdService<TEntity, TPage>).page(query.value as PageRequest);
+  if (typeof (props.service as PageCurdService<TBody,TEntity, TPage>).page === 'function') {
+    const result:RestResult<TPage> = await (props.service as PageCurdService<TBody, TEntity, TPage>).page(query.value as PageRequest);
     data.push(...(result.data?.elements || []))
     const pagination:TableProps['pagination']  = { ...(props.pagination || {})};
     pagination.pageSize = result.data?.size || 10 ;
@@ -231,8 +231,8 @@ async function fetchDataSource() {
 
     options.value.pagination = pagination;
 
-  } else if (typeof (props.service as FindCurdService<TEntity>).find === 'function') {
-    const result:RestResult<TEntity[]> = await (props.service as FindCurdService<TEntity>).find(query.value as FilterRequest);
+  } else if (typeof (props.service as FindCurdService<TBody, TEntity>).find === 'function') {
+    const result:RestResult<TEntity[]> = await (props.service as FindCurdService<TBody, TEntity>).find(query.value as FilterRequest);
     data.push(...(result.data || []))
   }
 

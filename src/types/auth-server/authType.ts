@@ -133,11 +133,7 @@ export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMeta
   /**
    * 邮箱
    */
-  email:string
-  /**
-   * 是否验证邮件
-   */
-  emailVerified?: NameValueEnumMetadata<number> | number
+  email?:string
 
   /**
    * 拥有角色
@@ -148,16 +144,6 @@ export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMeta
    * 拥有资源
    */
   resourceIds?:Set<number>
-
-  /**
-   * 最后登录时间
-   */
-  lastAuthenticationTime?: number
-
-  /**
-   * 用户类型
-   */
-  type?: NameValueEnumMetadata<String>
 
 }
 

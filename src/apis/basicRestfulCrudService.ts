@@ -9,9 +9,10 @@ import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
  * @template TEntity - 实体类型，须含主键字段 `id`（键名由 {@link SYSTEM_CONSTANT.ID_NAME} 约定）
  */
 export class BasicRestfulCrudService<
-  TEntity extends BasicIdMetadata<TId>,
+  TBody extends BasicIdMetadata<TId>, 
+  TEntity extends TBody,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
-> implements BasicCrudService<TEntity, TId>
+> implements BasicCrudService<TBody, TEntity, TId>
 {
 
   constructor(
@@ -23,7 +24,7 @@ export class BasicRestfulCrudService<
     return axios.get(this.baseUrl + "/" + id)
   }
 
-  save(entity: TEntity): Promise<RestResult<TId>> {
+  save(entity: TBody): Promise<RestResult<TId>> {
     return axios.put(this.baseUrl, entity)
   }
 
