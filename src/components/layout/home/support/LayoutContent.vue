@@ -11,10 +11,10 @@ import {
   watch
 } from 'vue'
 import type {MenuItemType} from 'antdv-next'
-import {createIcon, filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
+import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import {APP_RELOAD_PROVIDE_KEY} from '@/constants/systemConstant'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import type {ResourceMetadata} from '@/types'
+import type {RouteResourceMetadata} from '@/types'
 
 defineOptions({
   name: 'LLayoutContent',
@@ -32,10 +32,10 @@ const isRouterAlive = ref(true)
 const isFullscreen = ref(false)
 const isFullscreenExiting = ref(false)
 const routeCacheVersions = ref<Record<string, number>>({})
-const panes = ref<RouteLocationNormalizedLoaded[]>([])
+const panes = ref<RouteResourceMetadata[]>([])
 
 /** 用户手动固定的标签页（路由 name 集合），持久化到 localStorage */
-const pinnedRouteNames = ref<Set<string>>(new Set())
+const pinnedRouteNames = ref<RouteResourceMetadata[]>([])
 const fixedRouteNames = ref<Set<string>>(new Set())
 
 const operateItems = ref<MenuItemType[]>([
@@ -59,7 +59,7 @@ function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
 }
 
 
-function getFixedRoutesFromRouter(): RouteLocationNormalizedLoaded[] {
+function getFixedRoutesFromRouter(): RouteResourceMetadata[] {
   const homeRoute = router.getRoutes().find((r) => r.name === import.meta.env.VITE_APP_HOME_PAGE_NAME)
   if (!homeRoute?.children?.length) {
     return []
@@ -68,52 +68,39 @@ function getFixedRoutesFromRouter(): RouteLocationNormalizedLoaded[] {
     .filter((r) => r.name && (r.meta?.fixed as boolean))
     .sort((a, b) => ((a.meta?.sort as number) ?? 0) - ((b.meta?.sort as number) ?? 0))
   return fixed
-    .map((r) => router.resolve({name: r.name as string}) as RouteLocationNormalizedLoaded)
+    .map((r) => router.resolve({name: r.name as string}))
     .filter((loc) => loc.name)
+    .map((loc) => menuPrincipalStore.toResourceRouteMetadata(loc as RouteLocationNormalizedLoaded))
 }
 
-function loadPinnedFromStorage(): string[] {
+function loadPinnedFromStorage(): RouteResourceMetadata[] {
   try {
     const raw = localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_FIXED_TABS_NAME)
-    return raw ? (JSON.parse(raw) as string[]) : []
+    return raw ? (JSON.parse(raw) as RouteResourceMetadata[]) : []
   } catch {
     return []
   }
 }
 
-function activateSegmented(route: RouteLocationNormalizedLoaded) {
-  const current = panes.value.find((p) => p.name === route.name)
+function activateSegmented(route: RouteResourceMetadata) {
+  const current = panes.value.find(p => p.page === route.page)
 
   if (current) {
-    activeKey.value = current.name as string
-    if (globalProperties.$route.fullPath !== current.fullPath) {
-      globalProperties.$router.push(current.fullPath)
-    }
+    globalProperties.$router.push(current.page)
   } else {
-    addPane(route);
-    activeKey.value = route.name as string
-    if (!(route.fullPath in routeCacheVersions.value)) {
-      routeCacheVersions.value[route.fullPath] = 0
+    const temp = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
+    if (temp) {
+      panes.value.push(temp)
+      if (!(route.page in routeCacheVersions.value)) {
+        routeCacheVersions.value[route.page] = 0
+      }
     }
   }
-}
-
-function addPane(route: RouteLocationNormalizedLoaded): void {
-  const data = filterTreeDeep<ResourceMetadata>(
-    (r: ResourceMetadata) => r.page === route.path,
-    menuPrincipalStore.state,
-  )
-  const unmergeData = unmergeTree<ResourceMetadata>(data)
-  const last = unmergeData.at(-1)
-  if (last) {
-    route.meta.title = last.name
-    route.meta.icon = last.icon
-  }
-  panes.value.push(route)
+  activeKey.value = route.page as string
 }
 
 function changeTab(value: string | number) {
-  const current = panes.value.find((p) => p.name === value)
+  const current = panes.value.find(p => p.page === value)
   if (!current) {
     return
   }
@@ -123,28 +110,18 @@ function changeTab(value: string | number) {
 function mounted(): void {
   const route = globalProperties.$route
   const fixedRoutes = getFixedRoutesFromRouter()
-  const pinnedNames = loadPinnedFromStorage()
-  pinnedRouteNames.value = new Set(pinnedNames)
-  const initialPanes: RouteLocationNormalizedLoaded[] = []
-  for (const r of fixedRoutes) {
-    const name = r.name as string
+  pinnedRouteNames.value = loadPinnedFromStorage()
+  const initialPanes: RouteResourceMetadata[] = []
+  for (const r of [...fixedRoutes, ...pinnedRouteNames.value]) {
+    const name = r.page as string
     if (!fixedRouteNames.value.has(name)) {
       initialPanes.push(r)
       fixedRouteNames.value.add(name)
     }
   }
-  for (const name of pinnedNames) {
-    try {
-      const loc = router.resolve({name}) as RouteLocationNormalizedLoaded
-      if (loc.name) {
-        initialPanes.push(loc)
-      }
-    } catch {
-      // 路由可能尚未注册（如插件未加载），忽略
-    }
-  }
-  initialPanes.map(r => addPane(r))
-  activateSegmented(route)
+
+  initialPanes.map(r => panes.value.push(r))
+  activateSegmented(menuPrincipalStore.toResourceRouteMetadata(route))
   if (!(route.fullPath in routeCacheVersions.value)) {
     routeCacheVersions.value[route.fullPath] = 0
   }
@@ -184,8 +161,8 @@ function toggleFullscreen() {
 }
 
 /** 判断标签页是否为固定（路由 meta.fixed 或用户手动固定） */
-function isPaneFixed(pane: RouteLocationNormalizedLoaded): boolean {
-  return (pane.meta?.fixed as boolean) || pinnedRouteNames.value.has(pane.name as string)
+function isPaneFixed(pane: RouteResourceMetadata): boolean {
+  return pane.fixed || pinnedRouteNames.value.some(p => p.page === pane.page)
 }
 
 function savePinnedToStorage() {
@@ -197,52 +174,45 @@ function savePinnedToStorage() {
 
 /** 取消固定 */
 function onUnpin() {
-  const route = globalProperties.$route
-  const name = route.name as string
-  if (!name) {
-    return
-  }
-  pinnedRouteNames.value.delete(name)
+  pinnedRouteNames.value = pinnedRouteNames.value.filter(p => p.page !== activeKey.value)
   savePinnedToStorage()
 }
 
 /** 固定当前标签页 */
 function onPin() {
-  const route = globalProperties.$route
-  const name = route.name as string
-  if (!name) {
+  if (pinnedRouteNames.value.some(p => p.page === activeKey.value)) {
     return
   }
-  pinnedRouteNames.value.add(name)
-  pinnedRouteNames.value = new Set(pinnedRouteNames.value)
+  const route = panes.value.find(p => p.page === activeKey.value)
+  if (!route) {
+    return
+  }
+  pinnedRouteNames.value.push(route)
   savePinnedToStorage()
 }
 
 /** 关闭其他标签页：保留当前标签页和所有 fixed 标签页 */
 function onCloseOthers() {
-  const currentRoute = globalProperties.$route
-  const toKeep = (p: RouteLocationNormalizedLoaded) =>
-    isPaneFixed(p) || p.name === currentRoute.name
-  const toRemove = panes.value.filter((p) => !toKeep(p))
+  const toRemove = panes.value.filter((p) => p.page !== activeKey.value && !isPaneFixed(p))
   toRemove.forEach((p) => {
-    const v = routeCacheVersions.value[p.fullPath] || 0
-    routeCacheVersions.value[p.fullPath] = v + 1
+    const v = routeCacheVersions.value[p.page] || 0
+    routeCacheVersions.value[p.page] = v + 1
   })
-  panes.value = panes.value.filter(toKeep)
-  activeKey.value = currentRoute.name as string
+  const removedPages = toRemove.map(p => p.page);
+  panes.value = panes.value.filter(p => !removedPages.includes(p.page))
 }
 
 /** 关闭右侧标签页 */
 function onCloseRight() {
-  const currentRoute = globalProperties.$route
-  const idx = panes.value.findIndex((p) => p.name === currentRoute.name)
+  //const currentRoute = globalProperties.$route
+  const idx = panes.value.findIndex((p) => p.page === activeKey.value)
   if (idx < 0) {
     return
   }
   const toRemove = panes.value.slice(idx + 1).filter((p) => !isPaneFixed(p))
   toRemove.forEach((p) => {
-    const v = routeCacheVersions.value[p.fullPath] || 0
-    routeCacheVersions.value[p.fullPath] = v + 1
+    const v = routeCacheVersions.value[p.page] || 0
+    routeCacheVersions.value[p.page] = v + 1
   })
   panes.value = panes.value.filter((p, i) => i <= idx || isPaneFixed(p))
 }
@@ -271,7 +241,7 @@ function onOpenOperateChange(open: boolean) {
   if (fixedRouteNames.value.has(name)) {
     return
   }
-  if (pinnedRouteNames.value.has(name)) {
+  if (pinnedRouteNames.value.some(p => p.page === name)) {
     operateItems.value.unshift({
       key: 'unpin',
       label: globalProperties.$t('layoutContent.unpin'),
@@ -290,27 +260,26 @@ function onRemoveTab(value: string, action: string) {
   if (action !== 'remove') {
     return
   }
-  const pane = panes.value.find((p) => p.name === value)
+  const pane = panes.value.find((p) => p.page === value)
   if (!pane || isPaneFixed(pane)) {
     return
   }
-  const index = panes.value.findIndex((p) => p.name === value)
+  const index = panes.value.findIndex((p) => p.page === value)
   const targetRoute = panes.value[index]
   if (targetRoute) {
-    const currentVersion = routeCacheVersions.value[targetRoute.fullPath] || 0
-    routeCacheVersions.value[targetRoute.fullPath] = currentVersion + 1
+    const currentVersion = routeCacheVersions.value[targetRoute.page] || 0
+    routeCacheVersions.value[targetRoute.page] = currentVersion + 1
   }
   const change = panes.value[index - 1]
   if (change) {
     activateSegmented(change)
   }
-  panes.value = panes.value.filter((p) => p.name !== value)
+  panes.value = panes.value.filter((p) => p.page !== value)
 }
 
 watch(
-  () => globalProperties.$route,
-  () => activateSegmented(globalProperties.$route),
-  { deep: true },
+  () => globalProperties.$route.fullPath,
+  () => activateSegmented(menuPrincipalStore.toResourceRouteMetadata(globalProperties.$route)),
 )
 
 onMounted(mounted)
@@ -334,7 +303,7 @@ onMounted(mounted)
         <div class="tool-bar ">
           <a-tabs
             @change="changeTab"
-            :items="panes.map((p) => ({ label: p.meta?.title, iconString: p.meta?.icon, key: p.name, closable: !pinnedRouteNames.has(p.name as string) && !fixedRouteNames.has(p.name as string) }))"
+            :items="panes.map(p => ({ label: p.name, iconString: p.icon, key: p.page, closable: !pinnedRouteNames.some(_p => _p.page === p.page) && !fixedRouteNames.has(p.page) }))"
             type="editable-card"
             :active-key="activeKey"
             hide-add

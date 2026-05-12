@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
-import {type ComponentInternalInstance, computed, getCurrentInstance, useSlots} from 'vue'
-import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
-import type {ResourceMetadata} from '@/types'
+import {computed, useSlots} from 'vue'
 
 defineOptions({
   name: 'LMenuTitleCard',
@@ -23,31 +21,7 @@ const props = withDefaults(defineProps<MenuTitleCardProps>(), {
 const slots = useSlots()
 const menuPrincipalStore = useMenuPrincipalStore()
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
 const hasCustomTitle = computed(() => Boolean(slots.title))
-
-const detail = computed(() => {
-  const data = filterTreeDeep<ResourceMetadata>(
-    (r: ResourceMetadata) => r.page === globalProperties.$route.path,
-    menuPrincipalStore.state,
-  )
-
-  const menu = unmergeTree<ResourceMetadata>(data).at(-1);
-  if (menu) {
-    return {
-      title: menu?.name || props.title,
-      icon: menu?.icon || props.icon,
-    }
-  } else {
-    return {
-      title: globalProperties.$route?.meta?.title || props.title,
-      icon: globalProperties.$route?.meta?.icon || props.icon,
-    }
-  }
-})
 
 </script>
 
@@ -58,8 +32,8 @@ const detail = computed(() => {
     </template>
     <template v-else #title>
       <a-space>
-        <icon-font class="icon align" :type="detail.icon"/>
-        <span>{{ detail.title }}</span>
+        <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'icon-survey'"/>
+        <span>{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</span>
       </a-space>
     </template>
     <template #extra>

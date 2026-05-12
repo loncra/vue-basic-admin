@@ -9,11 +9,8 @@ import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import type {RoleEntity, RoleSavePayload} from "@/types/auth-server/roleType.ts";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {FilterRequest} from "@/types/common.ts";
-import type { OptionProps } from "antdv-next/dist/mentions/index";
-import type {
-  ConsoleUserEntity,
-  ConsoleUserRequestBody
-} from "@/types/auth-server/consoleUserType.ts";
+import type {OptionProps} from "antdv-next/dist/mentions/index";
+import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 
 defineOptions({
   name: 'LAuthServerConsoleUserForm',
@@ -23,6 +20,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
+const menuPrincipalStore = useMenuPrincipalStore()
 const service = new RoleService()
 const resourceServerService = new ResourceServerService()
 
@@ -77,8 +75,8 @@ function sourceChange(value: string, _options: OptionProps[]) {
   resourceTableRef.value?.fetchDataSource()
 }
 
-function postGet(result: RestResult<RoleEntity>, entity:RoleSavePayload) {
-  globalProperties.$route.meta.title = globalProperties.$route.meta.title + " (" + entity.name + ")";
+function setPageTitle(title:string, entity: RoleEntity) {
+  return title + ' (' + (entity as RoleEntity).name + ')'
 }
 
 onMounted(mounted)
@@ -86,7 +84,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-basic-form @post-get="postGet" :redirect="{name:'auth_server_role'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
+    <l-basic-form :title-text="setPageTitle" :redirect="{name:'auth_server_role'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="[{required: true}]">

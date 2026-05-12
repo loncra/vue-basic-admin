@@ -41,6 +41,7 @@ function onOperateClickItem(e: MenuClickInfo) {
 
 function mounted() {
   const data = menuPrincipalStore.state
+    .menu
     .filter(r => getEnumValue(r.type) === RESOURCE_TYPE.PROFILE)
     .map(r => ({key: String(r.id), label: r.name, icon: createIcon(r.icon || 'icon-survey')}));
   operateItems.value.unshift(...data)

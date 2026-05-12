@@ -2,7 +2,7 @@
 
 import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, onActivated, onMounted, ref} from "vue";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicAuthorityProps, BasicCrudService, BasicIdMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -10,6 +10,7 @@ import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {message} from "antdv-next";
 import {isResultSuccess} from "@/requests/http";
 import type {RouteLocationRaw} from "vue-router";
+import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 
 defineOptions({
   name: 'LBasicForm',
@@ -19,14 +20,18 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 const configProviderStore = useConfigProviderStore()
+const menuPrincipalStore = useMenuPrincipalStore()
 
 const props = withDefaults(
   defineProps<{
     service: BasicCrudService<TBody,TEntity>
     authority?: BasicAuthorityProps
     redirect?: RouteLocationRaw
+    titleText?: (title:string, entity: TEntity) => string
   }>(),
-  {},
+  {
+    titleText: (title:string, entity: TEntity) => title,
+  },
 )
 
 const formRef = ref()
@@ -73,9 +78,25 @@ async function mounted() {
     const result:RestResult<TEntity> = await props.service.get(id);
     const value = {...entity.value, ...result?.data || {}}
     emit('postGet', result, value)
+    updateTitle(value as TEntity)
     entity.value = value
   }
 }
+
+function updateTitle(entity: TEntity) {
+  if (!entity.id) {
+    return ;
+  }
+  const title = props.titleText(globalProperties.$route.meta.title as string, entity as TEntity)
+  const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
+  const last = currentBreadcrumbs.at(-1)
+  if (last) {
+    last.name = title;
+  }
+  menuPrincipalStore.setCurrentBreadcrumbs(currentBreadcrumbs);
+}
+
+onActivated(() => updateTitle(entity.value as TEntity))
 
 onMounted(mounted)
 

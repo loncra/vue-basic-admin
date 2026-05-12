@@ -14,6 +14,7 @@ import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import type {RoleEntity} from "@/types/auth-server/roleType.ts";
 import type {TableProps} from "antdv-next"
 import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
+import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 
 defineOptions({
   name: 'LAuthServerConsoleUserForm',
@@ -23,6 +24,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
+const menuPrincipalStore = useMenuPrincipalStore()
 const service = new ConsoleUserService()
 const resourceServerService = new ResourceServerService()
 
@@ -70,8 +72,8 @@ const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = 
   options.value.entity.roleIds = rows.flatMap((r) => (r.id != null ? [r.id] : []))
 }
 
-function postGet(result: RestResult<ConsoleUserEntity>, entity:ConsoleUserRequestBody) {
-  globalProperties.$route.meta.title = globalProperties.$route.meta.title + " (" + entity.realName + ")";
+function setPageTitle(title:string, entity: ConsoleUserEntity) {
+  return title + ' (' + (entity as ConsoleUserEntity).realName + ')'
 }
 
 onMounted(mounted)
@@ -79,7 +81,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-basic-form @post-get="postGet" :redirect="{name:'auth_server_user_console'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
+    <l-basic-form :title-text="setPageTitle" :redirect="{name:'auth_server_user_console'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="realName" :label="globalProperties.$t('common.realName')" :rules="[{required: true}]">

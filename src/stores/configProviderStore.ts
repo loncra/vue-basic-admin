@@ -22,7 +22,7 @@ import {
 } from '@/constants/systemConstant'
 
 import i18n, {type LanguagePack} from '@/i18n'
-import type {NameValueEnumMetadata, ThemeMode, ThemeValue} from '@/types'
+import type {NameValueEnumMetadata, ThemeMode, ThemeValue,} from '@/types'
 import type {ComposerTranslation} from 'vue-i18n'
 import dayjs from 'dayjs'
 
@@ -30,7 +30,7 @@ import dayjs from 'dayjs'
  * 存储在 localStorage 中的状态值
  * 这些值会被持久化保存
  */
-interface StoredStateValue {
+export interface ConfigProviderStoredState {
   /** 主题模式：深色/浅色/系统 */
   mode: ThemeMode
   /** 当前主题值 */
@@ -51,7 +51,7 @@ interface StoredStateValue {
  * 配置提供者状态接口
  * 扩展了 StoredStateValue，添加了运行时状态
  */
-interface ConfigProviderState extends StoredStateValue {
+interface ConfigProviderState extends ConfigProviderStoredState {
   /** Ant Design Vue 主题算法（深色/浅色） */
   algorithm: typeof theme.darkAlgorithm | typeof theme.defaultAlgorithm | null
   /** 当前屏幕断点信息，根据窗口宽度自动计算 */
@@ -248,7 +248,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    * 只保存 StoredStateValue 中定义的字段，不保存运行时状态（如 algorithm、screen）
    */
   function saveLocalStorage(): void {
-    const storedValue: StoredStateValue = {
+    const storedValue: ConfigProviderStoredState = {
       mode: state.value.mode,
       theme: state.value.theme,
       homeCollapsedWidth: state.value.homeCollapsedWidth,

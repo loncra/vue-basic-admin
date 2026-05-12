@@ -30,6 +30,11 @@ export interface ResourceMetadata {
 
 }
 
+export interface RouteResourceMetadata extends ResourceMetadata {
+  path: string,
+  fixed: boolean
+}
+
 export interface ResourceSavePayload extends ResourceMetadata, VersionEntityMetadata {
   /**
    * 顺序值

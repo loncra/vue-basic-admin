@@ -1,16 +1,11 @@
-import type {
-  NavigationGuardWithThis,
-  RouteLocationNormalized,
-  RouteMeta,
-  RouteRecordRaw
-} from 'vue-router'
+import type {NavigationGuardWithThis, RouteLocationNormalized, RouteRecordRaw} from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {PrepareData, ResourceEntity} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {ref} from 'vue'
-import {findFirstTreeNode, requireNonNullOrUndefined} from '@/utils'
+import {unmergeTree} from '@/utils'
 
 import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
@@ -183,23 +178,14 @@ const applyRouteMetaToMenu = (
   route: RouteRecordRaw,
   menus: ResourceEntity[],
 ) => {
-  const menuData = findFirstTreeNode<ResourceEntity>(
-    m => route.path === m.page,
-    menus,
-  )
+  const menuData = menus.find(m => route.path === m.page)
   if (!menuData) {
     return
   }
-  const meta = requireNonNullOrUndefined<RouteMeta>(route.meta)
-  if (!meta.title) {
-    meta.title = menuData.name
-  }
-  if (!meta.applicationName) {
-    meta.applicationName = menuData.applicationName
-  }
-  if (meta.icon) {
-    menuData.icon = meta.icon as string
-  }
+  const meta = route.meta || {}
+  meta.title = menuData.name
+  meta.applicationName = menuData.applicationName
+  meta.icon = menuData.icon
 }
 
 const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
@@ -213,9 +199,10 @@ const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
     RESOURCE_TYPE.TOOL,
     RESOURCE_TYPE.PROFILE
   ])
+  const unmergeMenus = unmergeTree(menus);
   const menuRoutes = [...childrenRoutes, ...importRoutes]
   for (const route of menuRoutes) {
-    applyRouteMetaToMenu(route, menus)
+    applyRouteMetaToMenu(route, unmergeMenus)
   }
 
   importRoutes.forEach((route) => router.addRoute(import.meta.env.VITE_APP_HOME_PAGE_NAME, route))
@@ -276,7 +263,8 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
  * 当前暂未实现具体逻辑，预留用于后续扩展（如页面访问统计、埋点等）
  */
 const onAfterEach = (to: RouteLocationNormalized) => {
-  // TODO: 实现路由后置处理逻辑
+  const menuPrincipalStore = useMenuPrincipalStore()
+  menuPrincipalStore.resetCurrentBreadcrumbs(to, router);
 }
 
 /**

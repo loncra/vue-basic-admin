@@ -1,17 +1,8 @@
 <script setup lang="ts">
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
-import {type ComponentInternalInstance, computed, getCurrentInstance, watch} from 'vue'
-import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
 import LMenu from '@/components/layout/Menu.vue'
-import type {ResourceMetadata} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
-import type {
-  RouteLocationNormalized,
-  RouteMeta,
-  RouteRecordNormalized,
-  RouteRecordRaw
-} from "vue-router";
 
 defineOptions({
   name: 'LLayoutHeader',
@@ -19,57 +10,18 @@ defineOptions({
 
 const menuPrincipalStore = useMenuPrincipalStore()
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const currentBreadcrumbs = computed((): ResourceMetadata[] => {
-  const result: ResourceMetadata[] = []
-
-  const route: RouteLocationNormalized = globalProperties.$route
-  const meta = requireNonNullOrUndefined<RouteMeta>(route.meta)
-
-  // 如果存在父路由，先查找并添加父路由信息
-  if (meta.parent) {
-    const parentRoute: RouteRecordNormalized | undefined = globalProperties.$router
-      .getRoutes()
-      .find((r: RouteRecordRaw) => r.path === meta.parent)
-    if (parentRoute) {
-      const data = filterTreeDeep<ResourceMetadata>(
-        (r: ResourceMetadata) => r.page === parentRoute.path,
-        menuPrincipalStore.state,
-      )
-      result.push(...unmergeTree<ResourceMetadata>(data))
-    }
-
-    result.push(<ResourceMetadata>{
-      icon: meta.icon,
-      name: meta.title,
-      applicationName: meta.applicationName,
-    })
-  } else {
-    const data = filterTreeDeep<ResourceMetadata>(
-      (r: ResourceMetadata) => r.page === route.path,
-      menuPrincipalStore.state,
-    )
-    result.push(...unmergeTree<ResourceMetadata>(data))
-  }
-
-  return result
-})
-
 </script>
 
 <template>
   <a-layout-header class="layout-header">
     <a-flex justify="space-between" class="h-full" align="center">
       <a-breadcrumb>
-        <a-breadcrumb-item v-for="(breadcrumb, index) in currentBreadcrumbs" :key="breadcrumb.name">
+        <a-breadcrumb-item v-for="(breadcrumb, index) in menuPrincipalStore.state.currentBreadcrumbs" :key="breadcrumb.name">
           <a-space>
             <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'"/>
             <router-link
               :to="breadcrumb.page"
-              v-if="index != currentBreadcrumbs.length - 1 && breadcrumb.page"
+              v-if="index != menuPrincipalStore.state.currentBreadcrumbs.length - 1 && breadcrumb.page"
             >
               <a-typography-text type="secondary">
                 {{ breadcrumb.name }}

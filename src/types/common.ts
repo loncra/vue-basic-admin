@@ -303,3 +303,24 @@ export interface TimeProperties {
   unit: TimeUnitType
 }
 
+/**
+ * 存储在 localStorage 中的状态值
+ * 这些值会被持久化保存
+ */
+export interface ConfigProviderState {
+  /** 主题模式：深色/浅色/系统 */
+  mode: ThemeMode
+  /** 当前主题值 */
+  theme: ThemeValue
+  /** 首页侧边栏折叠时的宽度 */
+  homeCollapsedWidth: number
+  /** 首页侧边栏是否可折叠 */
+  homeCollapsible: boolean
+  /** 表单布局方式 */
+  formLayout: string
+  /** 首页侧边栏宽度 */
+  homeSiderWidth: number
+  /** 当前语言环境 */
+  locale: string
+}
+

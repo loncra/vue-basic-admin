@@ -1,15 +1,32 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants/systemConstant.ts'
-import type {ResourceEntity, ResourceType} from '@/types'
+import type {ResourceEntity, ResourceMetadata, ResourceType, RouteResourceMetadata} from '@/types'
 import {AuthServerService} from '@/apis'
 import {isResultSuccess} from '@/requests'
+import {
+  type RouteLocationNormalized,
+  type RouteMeta,
+  type Router,
+  type RouteRecordNormalized
+} from "vue-router";
+import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 
 /**
  * 重置状态常量
  * 菜单存储的初始空状态
  */
-const RESET: ResourceEntity[] = []
+const RESET: MenuState = {
+  menu: [],
+  currentBreadcrumbs: [],
+}
+
+
+export interface MenuState  {
+  menu: ResourceEntity[]
+  currentBreadcrumbs: RouteResourceMetadata[]
+}
+
 
 /**
  * 菜单状态管理 Store
@@ -17,7 +34,7 @@ const RESET: ResourceEntity[] = []
  */
 export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   /** 菜单资源数据状态 */
-  const state = ref<ResourceEntity[]>(RESET)
+  const state = ref<MenuState>(RESET)
 
   /**
    * 重置菜单状态
@@ -25,8 +42,8 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    *
    * @returns 重置后的空菜单数组
    */
-  function $reset(): ResourceEntity[] {
-    state.value = [...RESET]
+  function $reset(): MenuState {
+    state.value = {...RESET}
     return state.value
   }
 
@@ -43,21 +60,76 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     types: ResourceType[],
     mergeTree: boolean = true,
   ): Promise<ResourceEntity[]> {
-    if (state.value.length > 0) {
-      return state.value;
+    if (state.value.menu.length > 0) {
+      return state.value.menu;
     }
     const result = await AuthServerService.principalResources(types, mergeTree)
     if (!isResultSuccess(result)) {
       return []
     }
     // 更新状态并返回数据
-    state.value = result.data
-    return state.value
+    state.value.menu = result.data
+    return state.value.menu
   }
+
+  function setCurrentBreadcrumbs(currentBreadcrumbs:RouteResourceMetadata[]) {
+    state.value.currentBreadcrumbs = currentBreadcrumbs;
+  }
+
+  function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
+    return {
+      icon: route.meta?.icon as string,
+      name: route.meta?.title as string,
+      page: route.fullPath || route.path,
+      applicationName: route.meta?.applicationName as string,
+      path: route.path,
+      fixed: route.meta?.fixed as boolean,
+    }
+  }
+
+  function createResourceRouteMetadata(resource: ResourceMetadata): RouteResourceMetadata {
+    return {...resource, fixed: false, path: resource.page as string};
+  }
+
+  function resetCurrentBreadcrumbs(route: RouteLocationNormalized, router: Router) {
+    const result: RouteResourceMetadata[] = []
+    const meta = requireNonNullOrUndefined<RouteMeta>(route.meta)
+
+    // 如果存在父路由，先查找并添加父路由信息
+    if (meta.parent) {
+      const parentRoute: RouteRecordNormalized | undefined = router.getRoutes()
+      .find((r: RouteRecordNormalized) => r.path === meta.parent as string)
+      if (parentRoute) {
+        const data = filterTreeDeep<ResourceMetadata>(
+          (r: ResourceMetadata) => r.page === parentRoute.path,
+          state.value.menu,
+        )
+
+        const parentRoutes = unmergeTree<ResourceMetadata>(data).map(createResourceRouteMetadata)
+
+        result.push(...parentRoutes)
+      }
+
+      result.push(toResourceRouteMetadata(route))
+    } else {
+      const data = filterTreeDeep<ResourceMetadata>(
+        (r: ResourceMetadata) => r.page === route.path,
+        state.value.menu,
+      )
+      const routes = unmergeTree<ResourceMetadata>(data).map(createResourceRouteMetadata)
+      result.push(...routes)
+    }
+    state.value.currentBreadcrumbs = result;
+  }
+
+  //watch(globalProperties.$route, computedBreadcrumb)
 
   return {
     state,
     getPrincipalResources,
+    setCurrentBreadcrumbs,
+    resetCurrentBreadcrumbs,
+    toResourceRouteMetadata,
     $reset,
   }
 })
