@@ -17,9 +17,11 @@ import {
   filterTreeDeep,
   getEnumValue,
   requireNonNullOrUndefined,
-  unmergeTree
+  unmergeTree,
+  findFirstTreeNode
 } from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
+import type { MenuInfo } from '@v-c/menu'
 
 defineOptions({
   name: 'LMenu',
@@ -75,29 +77,10 @@ watch(
 )
 
 function labelRender(item: ResourceEntity) {
-
   if (item == null || typeof item !== 'object') {
     return
   }
-  if (getEnumValue(item.type) === RESOURCE_TYPE.MENU) {
-    return h(
-        'span',
-        {
-          onClick: (e: MouseEvent) => {
-            const page = item.page?.trim()
-            if (!page) {
-              return
-            }
-            e.preventDefault()
-            e.stopPropagation()
-            globalProperties.$router.push(page)
-          }
-        },
-        String(item.name)
-      )
-  } else {
-    return h('span', {}, String(item.name))
-  }
+  return h('span', {}, String(item.name))
 }
 
 function wrapIconWithMenuRoute(item: ResourceEntity, icon: VNode) {
@@ -119,16 +102,27 @@ function wrapIconWithMenuRoute(item: ResourceEntity, icon: VNode) {
 
 function iconRender(item: ResourceEntity) {
   const icon = createIcon(item.icon || 'icon-survey')
-  const linkedIcon = wrapIconWithMenuRoute(item, icon)
-  if (!props.hideLabel) {
-    return linkedIcon
-  }
   const Tooltip = resolveComponent('ATooltip')
   return h(
     Tooltip,
     {title: String(item.name ?? '')},
-    {default: () => linkedIcon},
+    {default: () => icon},
   )
+}
+
+function handleClick(e: MenuInfo) {
+  const item: ResourceEntity | undefined = findFirstTreeNode<ResourceEntity>(
+    (r) => r.key === e.key,
+    menuPrincipalStore.state.menu,
+  )
+  if (item == null || typeof item !== 'object') {
+    return
+  }
+  const page = item.page?.trim()
+  if (!page) {
+    return
+  }
+  globalProperties.$router.push(page)
 }
 
 onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
@@ -136,6 +130,7 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
 
 <template>
   <a-menu
+    @click="handleClick"
     root-class="border-none"
     :classes="{itemContent: props.hideLabel ? 'm-0' : ''}"
     v-model:open-keys="menuOptions.openKeys"
