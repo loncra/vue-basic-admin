@@ -12,7 +12,7 @@ import {
 } from 'vue'
 import type {MenuItemType} from 'antdv-next'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
-import {APP_RELOAD_PROVIDE_KEY} from '@/constants/systemConstant'
+import {APP_RELOAD_PROVIDE_KEY, LAYOUT_CONTENT_CLOSE_TAB_KEY} from '@/constants/systemConstant'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {RouteResourceMetadata} from '@/types'
 
@@ -52,12 +52,12 @@ const operateItems = ref<MenuItemType[]>([
 ])
 
 provide(APP_RELOAD_PROVIDE_KEY, reload)
+provide(LAYOUT_CONTENT_CLOSE_TAB_KEY, removePaneByPage)
 
 function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
   const version = routeCacheVersions.value[route.fullPath] || 0
   return `${route.fullPath}-v${version}`
 }
-
 
 function getFixedRoutesFromRouter(): RouteResourceMetadata[] {
   const homeRoute = router.getRoutes().find((r) => r.name === import.meta.env.VITE_APP_HOME_PAGE_NAME)
@@ -128,6 +128,27 @@ function mounted(): void {
   activateSegmented(menuPrincipalStore.toResourceRouteMetadata(route))
   if (!(route.fullPath in routeCacheVersions.value)) {
     routeCacheVersions.value[route.fullPath] = 0
+  }
+}
+
+function removePaneByPage(page: string, activatePane:boolean = true): void {
+  const pane = panes.value.find((p) => p.page === page)
+  if (!pane) {
+    return
+  }
+  const index = panes.value.findIndex((p) => p.page === page)
+  const targetRoute = panes.value[index]
+  if (targetRoute) {
+    const currentVersion = routeCacheVersions.value[targetRoute.page] || 0
+    routeCacheVersions.value[targetRoute.page] = currentVersion + 1
+  }
+  panes.value = panes.value.filter((p) => p.page !== page)
+  if (!activatePane) {
+    return 
+  }
+  const change = panes.value[index - 1]
+  if (change) {
+    activateSegmented(change)
   }
 }
 

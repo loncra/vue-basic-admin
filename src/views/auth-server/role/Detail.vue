@@ -15,6 +15,8 @@ const globalProperties =
 
 const service = new RoleService()
 const entity = ref<RoleEntity>({
+  resourceIds: [],
+  versin: 0,
   enabled: 0,
   sources: [],
   removable: 0,
@@ -29,7 +31,7 @@ const entity = ref<RoleEntity>({
 
 <template>
   <div>
-    <l-basic-detail :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'" :service="service" :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity">
+    <l-basic-detail :redirect="{name:'auth_server_role'}" :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'" :service="service" :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity">
       <a-descriptions-item :label="globalProperties.$t('common.id')">
         {{entity.id}}
       </a-descriptions-item>

@@ -53,7 +53,12 @@ const locale: LanguagePack = {
     },
     notFound:{
       title:'找不到你想访问的页面'
-    }
+    },
+    /** 编辑页激活时远端记录已不存在（如他处已删除） */
+    staleEntityForm: {
+      title: '页面内容已失效',
+      subTitle: '找不到这条信息。若刚在别处删除过，请从列表重新进入。',
+    },
   },
   search:{
     text:'搜索',

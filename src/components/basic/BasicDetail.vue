@@ -3,13 +3,26 @@
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicCrudService, BasicIdMetadata, RestResult} from "@/types";
-import {type ComponentInternalInstance, getCurrentInstance, onActivated, onMounted} from "vue";
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  inject,
+  onActivated,
+  onMounted
+} from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
+import {App} from "antdv-next";
+import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
+import type {RouteLocationRaw} from "vue-router";
+
+const { modal } = App.useApp()
 
 defineOptions({
   name: 'LBasicDetail',
 })
+
+const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -17,6 +30,7 @@ const globalProperties =
 const menuPrincipalStore = useMenuPrincipalStore()
 const props = withDefaults(
   defineProps<{
+    redirect: RouteLocationRaw
     service: BasicCrudService<TBody,TEntity>
     titleText?: (title:string, entity: TEntity) => string
   }>(),
@@ -24,7 +38,6 @@ const props = withDefaults(
     titleText: (title:string, entity: TEntity) => title,
   },
 )
-
 
 const loading = defineModel<boolean>("loading", {default: false})
 const entity = defineModel<TEntity>("entity", {default: () => {}})
@@ -49,9 +62,6 @@ async function mounted() {
 
 
 function updateTitle(entity: TEntity) {
-  if (!entity.id) {
-    return ;
-  }
   const title = props.titleText(globalProperties.$route.meta.title as string, entity as TEntity)
   const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
   const last = currentBreadcrumbs.at(-1)
@@ -61,7 +71,28 @@ function updateTitle(entity: TEntity) {
   menuPrincipalStore.setCurrentBreadcrumbs(currentBreadcrumbs);
 }
 
-onActivated(() => updateTitle(entity.value as TEntity))
+async function activated() {
+  if (!entity.value.id) {
+    return ;
+  }
+  updateTitle(entity.value as TEntity)
+  const result:RestResult<TEntity> = await props.service.get(entity.value.id);
+  if (result.data) {
+    return ;
+  }
+
+  modal.warning({
+    title: globalProperties.$t('error.staleEntityForm.title'),
+    content: globalProperties.$t('error.staleEntityForm.subTitle'),
+    onOk: () => {
+      closeLayoutTab?.(globalProperties.$route.fullPath, false);
+      globalProperties.$router.push(props.redirect)
+
+    }
+  })
+}
+
+onActivated(activated)
 
 onMounted(mounted)
 

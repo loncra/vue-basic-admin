@@ -51,6 +51,12 @@ const locale: LanguagePack = {
     notFound: {
       title: "The page you're looking for doesn't exist",
     },
+    /** Edit tab activated but record no longer exists (e.g. deleted elsewhere) */
+    staleEntityForm: {
+      title: 'This page is no longer valid',
+      subTitle:
+        'This record could not be found. It may have been deleted elsewhere. Please open it again from the list.',
+    },
   },
   search: {
     text: 'Search',

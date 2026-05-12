@@ -15,6 +15,7 @@ const globalProperties =
 
 const service = new ConsoleUserService()
 const entity = ref<ConsoleUserEntity>({
+  versin: 0,
   emailVerified: {
     value:0,
     name:'否'
@@ -57,7 +58,7 @@ const entity = ref<ConsoleUserEntity>({
 
 <template>
   <div>
-    <l-basic-detail :title-text="(title:string, _entity:ConsoleUserEntity) => title + ' (' + _entity.realName + ')'" :service="service" :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity">
+    <l-basic-detail :redirect="{name:'auth_server_user_console'}" :title-text="(title:string, _entity:ConsoleUserEntity) => title + ' (' + _entity.realName + ')'" :service="service" :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity">
       <a-descriptions-item :label="globalProperties.$t('common.id')">
         {{entity.id}}
       </a-descriptions-item>
