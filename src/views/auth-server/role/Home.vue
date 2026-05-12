@@ -28,7 +28,7 @@ const table = ref();
             export:'perms[auth_server_role:export]'
           }"
           @delete="table.removeSelected()"
-          @add="globalProperties.$router.push({name:'auth_server_role_edit'})"
+          @add="globalProperties.$router.push({name:'auth_server_role_add'})"
         />
       </template>
       <l-role-table ref="table" />

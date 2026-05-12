@@ -122,7 +122,7 @@ const locale: LanguagePack = {
     authority: 'Permission code',
     source: 'Resource source',
     userRole: 'User roles',
-    userResource: 'Standalone resources',
+    standaloneResource: 'Standalone resources',
     resource: {
       applicationName: 'Application name',
       page: 'Route path',

@@ -28,7 +28,7 @@ const table = ref();
             export:'perms[auth_server_authority_resource:export]'
           }"
           @delete="table.removeSelected()"
-          @add="globalProperties.$router.push({name:'auth_server_authority_resource_edit'})"
+          @add="globalProperties.$router.push({name:'auth_server_authority_resource_add'})"
         />
       </template>
       <l-resource-table ref="table" />

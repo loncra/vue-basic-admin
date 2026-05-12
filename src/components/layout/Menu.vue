@@ -58,13 +58,14 @@ const collapsedAndSelectedMenu = (route: RouteLocationNormalizedLoaded) => {
     return
   }
   const unmergeData: ResourceEntity[] = unmergeTree<ResourceEntity>(data)
-  const values: string[] = unmergeData.map(d => d.key)
-  if (values.length <= 0) {
+  if (unmergeData.length <= 0) {
     return
   }
-  const leafKey = values[values.length - 1] as string
-  menuOptions.value.selectedKeys = [leafKey]
-  menuOptions.value.openKeys = [...new Set([...menuOptions.value.openKeys, ...values.slice(0, -1).map((v) => v)])]
+
+  menuOptions.value.selectedKeys = unmergeData.filter(m => [RESOURCE_TYPE.MENU, RESOURCE_TYPE.TOOL].includes(getEnumValue(m.type) as 'menu' | 'tool')).map(m => m.id).map(String)
+
+  const openKeys = unmergeData.filter(m => [RESOURCE_TYPE.ROOT, RESOURCE_TYPE.DIRECTORY].includes(getEnumValue(m.type) as 'root' | 'directory')).map(m => m.id).map(String)
+  menuOptions.value.openKeys = [...new Set([...menuOptions.value.openKeys, ...openKeys])]
 }
 
 // 监听路由变化：路由变化 => 对应分段激活或追加

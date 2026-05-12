@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
-import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance, watch} from 'vue'
 import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
 import LMenu from '@/components/layout/Menu.vue'
@@ -57,6 +57,7 @@ const currentBreadcrumbs = computed((): ResourceMetadata[] => {
 
   return result
 })
+
 </script>
 
 <template>
@@ -66,7 +67,7 @@ const currentBreadcrumbs = computed((): ResourceMetadata[] => {
         <a-breadcrumb-item v-for="(breadcrumb, index) in currentBreadcrumbs" :key="breadcrumb.name">
           <a-space>
             <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'"/>
-            <router-link 
+            <router-link
               :to="breadcrumb.page"
               v-if="index != currentBreadcrumbs.length - 1 && breadcrumb.page"
             >

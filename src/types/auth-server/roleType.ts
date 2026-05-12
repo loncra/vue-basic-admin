@@ -7,9 +7,19 @@ import type {NameValueEnumMetadata, VersionEntityMetadata,} from "@/types";
  */
 export interface RoleSavePayload extends VersionEntityMetadata {
   /**
+   * 角色名称
+   */
+  name:string
+
+  /**
+   * 权限值
+   */
+  authority:string
+
+  /**
    * 是否禁用
    */
-  enabled:NameValueEnumMetadata<number> | number;
+  enabled:NameValueEnumMetadata<number> | number
 
   /**
    * 角色来源
@@ -19,28 +29,28 @@ export interface RoleSavePayload extends VersionEntityMetadata {
   /**
    * 资源 id 集合
    */
-  resourceIds?:number[];
+  resourceIds?:number[]
 
 
   /**
    * 父类 id
    */
-  parentId?:number;
+  parentId?:number
 
   /**
    * 是否可删除:0.否、1.是
    */
-  removable:NameValueEnumMetadata<number> | number;
+  removable:NameValueEnumMetadata<number> | number
 
   /**
    * 是否可修改:0.否、1.是
    */
-  modifiable:NameValueEnumMetadata<number> | number;
+  modifiable:NameValueEnumMetadata<number> | number
 
   /**
    * 备注
    */
-  remark?:string;
+  remark?:string
 }
 
 /**

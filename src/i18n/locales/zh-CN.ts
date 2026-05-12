@@ -42,6 +42,9 @@ const locale: LanguagePack = {
     errorMessage:'错误信息',
     code:'错误代码',
     field:'字段信息',
+    valid:{
+      phoneNumber:'手机号码格式不正确',
+    },
     badRequest:{
       title:'您提交的参数错误',
     },
@@ -121,7 +124,7 @@ const locale: LanguagePack = {
     authority:'权限值',
     source: '资源来源',
     userRole: '用户角色',
-    userResource: '独立资源',
+    standaloneResource: '独立资源',
     resource:{
       applicationName: '应用名称',
       page:'路由页面'

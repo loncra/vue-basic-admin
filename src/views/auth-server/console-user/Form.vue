@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {ConsoleUserRequestBody} from "@/types/auth-server/consoleUserType.ts";
+import type {
+  ConsoleUserEntity,
+  ConsoleUserRequestBody
+} from "@/types/auth-server/consoleUserType.ts";
 import type {NameValueEnumMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
@@ -10,6 +13,7 @@ import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import type {RoleEntity} from "@/types/auth-server/roleType.ts";
 import type {TableProps} from "antdv-next"
+import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
 
 defineOptions({
   name: 'LAuthServerConsoleUserForm',
@@ -19,7 +23,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const consoleUserService = new ConsoleUserService()
+const service = new ConsoleUserService()
 const resourceServerService = new ResourceServerService()
 
 const options = ref<{
@@ -66,13 +70,16 @@ const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = 
   options.value.entity.roleIds = rows.flatMap((r) => (r.id != null ? [r.id] : []))
 }
 
+function postGet(result: RestResult<ConsoleUserEntity>, entity:ConsoleUserRequestBody) {
+  globalProperties.$route.meta.title = globalProperties.$route.meta.title + " (" + entity.realName + ")";
+}
 
 onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-basic-form :redirect="{name:'auth_server_user_console'}" :service="consoleUserService" :entity="options.entity" :spinning="options.spinning">
+    <l-basic-form @post-get="postGet" :redirect="{name:'auth_server_user_console'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="realName" :label="globalProperties.$t('common.realName')" :rules="[{required: true}]">
@@ -81,18 +88,18 @@ onMounted(mounted)
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="username" :label="globalProperties.$t('auth.account')" :rules="[{required: true}]">
-            <a-input v-model:value="options.entity.username" />
+            <a-input v-model:value="options.entity.username" :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined"  />
           </a-form-item>
         </a-col>
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="email" :label="globalProperties.$t('common.email')" :rules="[{type:'email'}]">
-            <a-input v-model:value="options.entity.email" />
+          <a-form-item name="email" :label="globalProperties.$t('common.email')" :rules="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] ? undefined : [{type:'email'}]">
+            <a-input v-model:value="options.entity.email" :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined" />
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="phoneNumber" :label="globalProperties.$t('common.phoneNumber')" :rules="[{type:'phone'}]">
-            <a-input v-model:value="options.entity.phoneNumber" />
+          <a-form-item name="phoneNumber" :label="globalProperties.$t('common.phoneNumber')" :rules="[{type: 'string', pattern:VALID_REGX.phoneNumber, message: globalProperties.$t('error.valid.phoneNumber')}]">
+            <a-input v-model:value="options.entity.phoneNumber" :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined" />
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
@@ -119,7 +126,7 @@ onMounted(mounted)
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
           <icon-font class="icon" type="icon-template-success" />
-          {{ globalProperties.$t('authServer.userResource') }}
+          {{ globalProperties.$t('authServer.standaloneResource') }}
         </a-space>
       </a-divider>
 

@@ -102,12 +102,12 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '首页',
     },
-  },
+  }/*,
   {
     path: "/:pathMatch(.*)*",
     name: 'NotFound',
     redirect: "/404"
-  }
+  }*/
 ]
 
 /**

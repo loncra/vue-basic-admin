@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LAuthForm from '@/components/layout/auth/Form.vue'
+import LAuthForm from '@/components/layout/auth/AuthForm.vue'
 import LLogo, {type LogoProps} from '@/components/Logo.vue'
 
 defineOptions({

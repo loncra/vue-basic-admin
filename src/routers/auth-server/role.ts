@@ -24,6 +24,18 @@ const router: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/auth-server/role/add',
+    component: () => import('@/views/auth-server/role/Form.vue'),
+    name: 'auth_server_role_add',
+    meta: {
+      applicationName: 'auth-server',
+      title: '添加角色',
+      icon: 'icon-add',
+      parent: '/auth-server/role',
+      requiresFullyAuth: true,
+    },
+  },
+  {
     path: '/auth-server/role/detail',
     component: () => import('@/views/auth-server/role/Detail.vue'),
     name: 'auth_server_role_detail',

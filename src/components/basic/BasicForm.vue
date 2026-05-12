@@ -33,6 +33,11 @@ const formRef = ref()
 const spinning = defineModel<boolean>("spinning", {default: false})
 const entity = defineModel<TBody>("entity", {default: () => {}})
 
+const emit = defineEmits<{
+  (e: 'success', data: RestResult<TId>): void
+  (e: 'postGet', data: RestResult<TEntity>, entity:TBody): void
+}>()
+
 async function doSubmit() {
   spinning.value = true
   try {
@@ -45,6 +50,8 @@ async function doSubmit() {
       message.success(result.message)
       if (props.redirect) {
         globalProperties.$router.push(props.redirect)
+      } else {
+        emit('success', result)
       }
     } else {
       message.error(result.message)
@@ -64,7 +71,9 @@ async function mounted() {
   const id = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] as TId
   if (id) {
     const result:RestResult<TEntity> = await props.service.get(id);
-    entity.value = {...entity.value, ...result?.data || {}}
+    const value = {...entity.value, ...result?.data || {}}
+    emit('postGet', result, value)
+    entity.value = value
   }
 }
 

@@ -169,9 +169,18 @@ function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
   return sources.map(s => getEnumName(s)).join(",")
 }
 
+function clearDataSource() {
+  dataSource.value = []
+}
+
+function fetchDataSource() {
+  authorityOperateTable.value.fetchDataSource()
+}
 
 defineExpose({
-  removeSelected
+  removeSelected,
+  clearDataSource,
+  fetchDataSource
 })
 
 onMounted(mounted)
