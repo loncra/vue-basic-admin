@@ -83,23 +83,6 @@ function labelRender(item: ResourceEntity) {
   return h('span', {}, String(item.name))
 }
 
-function wrapIconWithMenuRoute(item: ResourceEntity, icon: VNode) {
-  return h(
-    icon,
-    {
-      onClick: (e: MouseEvent) => {
-        const page = item.page?.trim()
-        if (!page) {
-          return
-        }
-        e.preventDefault()
-        e.stopPropagation()
-        globalProperties.$router.push(page)
-      }
-    }
-  )
-}
-
 function iconRender(item: ResourceEntity) {
   const icon = createIcon(item.icon || 'icon-survey')
   const Tooltip = resolveComponent('ATooltip')
