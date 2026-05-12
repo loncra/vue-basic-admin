@@ -1,7 +1,8 @@
 import type {
   AbstractPlatformUser,
   NameValueEnumMetadata,
-  UserInitializationMetadata
+  UserInitializationMetadata,
+  VersionEntityMetadata
 } from "@/types";
 
 /**
@@ -9,7 +10,7 @@ import type {
  *
  * maurice.chen
  */
-export interface ConsoleUserRequestBody extends AbstractPlatformUser {
+export interface ConsoleUserRequestBody extends AbstractPlatformUser, VersionEntityMetadata {
   /**
    * 真实姓名
    */

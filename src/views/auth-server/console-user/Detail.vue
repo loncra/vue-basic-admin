@@ -13,7 +13,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const consoleUserService = new ConsoleUserService()
+const service = new ConsoleUserService()
 const entity = ref<ConsoleUserEntity>({
   emailVerified: {
     value:0,
@@ -57,7 +57,7 @@ const entity = ref<ConsoleUserEntity>({
 
 <template>
   <div>
-    <l-basic-detail :service="consoleUserService" :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity">
+    <l-basic-detail :title-text="(title:string, _entity:ConsoleUserEntity) => title + ' (' + _entity.realName + ')'" :service="service" :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity">
       <a-descriptions-item :label="globalProperties.$t('common.id')">
         {{entity.id}}
       </a-descriptions-item>

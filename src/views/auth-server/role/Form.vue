@@ -10,7 +10,7 @@ import type {RoleEntity, RoleSavePayload} from "@/types/auth-server/roleType.ts"
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {FilterRequest} from "@/types/common.ts";
 import type {OptionProps} from "antdv-next/dist/mentions/index";
-import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
+import {getEnumValue} from "@/utils/commonUtils.ts";
 
 defineOptions({
   name: 'LAuthServerConsoleUserForm',
@@ -20,7 +20,6 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const menuPrincipalStore = useMenuPrincipalStore()
 const service = new RoleService()
 const resourceServerService = new ResourceServerService()
 
@@ -35,12 +34,16 @@ const options = ref<{
 }>({
   spinning: false,
   entity: {
+    id:null as unknown as number,
+    versin:null as unknown as number,
     enabled: 0,
     sources: [],
+    resourceIds: [],
     removable: 0,
     modifiable: 0,
     name: "",
-    authority: ""
+    authority: "",
+    remark: ""
   },
   modifiableOptions:[],
   enabledOptions:[],
@@ -60,7 +63,6 @@ async function mounted() {
     options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
     options.value.removableOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
     options.value.sourceOptions = enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]
-
   }
 
   options.value.spinning = false
@@ -79,12 +81,17 @@ function setPageTitle(title:string, entity: RoleEntity) {
   return title + ' (' + (entity as RoleEntity).name + ')'
 }
 
+function postGet(result: RestResult<RoleEntity>, _entity: RoleSavePayload) {
+  options.value.query['filter_[sources_jin]'] = _entity.sources.map(getEnumValue);
+  resourceTableRef.value?.fetchDataSource()
+}
+
 onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-basic-form :title-text="setPageTitle" :redirect="{name:'auth_server_role'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
+    <l-basic-form @post-get="postGet" :title-text="setPageTitle" :redirect="{name:'auth_server_role'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="[{required: true}]">
@@ -126,7 +133,14 @@ onMounted(mounted)
         </a-space>
       </a-divider>
 
-      <l-resource-table ref="resourceTableRef" :immediate="false" :preview="true" root-class="mb-md" :query="options.query" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds}"/>
+      <l-resource-table
+        ref="resourceTableRef"
+        :immediate="false"
+        :preview="true"
+        root-class="mb-md"
+        :query="options.query"
+        :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds, onChange: (_keys) => options.entity.resourceIds = _keys as number[]}"
+      />
 
       <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
         <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />

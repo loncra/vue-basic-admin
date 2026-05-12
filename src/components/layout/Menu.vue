@@ -11,7 +11,7 @@ import {
   type VNode,
   watch
 } from "vue";
-import {type RouteLocationNormalizedLoaded, RouterLink} from "vue-router";
+import {type RouteLocationNormalizedLoaded} from "vue-router";
 import {
   createIcon,
   filterTreeDeep,
@@ -70,9 +70,8 @@ const collapsedAndSelectedMenu = (route: RouteLocationNormalizedLoaded) => {
 
 // 监听路由变化：路由变化 => 对应分段激活或追加
 watch(
-  () => globalProperties.$route,
-  () => collapsedAndSelectedMenu(globalProperties.$route),
-  {deep: true},
+  () => globalProperties.$route.fullPath,
+  () => collapsedAndSelectedMenu(globalProperties.$route)
 )
 
 function labelRender(item: ResourceEntity) {
@@ -81,25 +80,40 @@ function labelRender(item: ResourceEntity) {
     return
   }
   if (getEnumValue(item.type) === RESOURCE_TYPE.MENU) {
-    const page = item.page?.trim()
-    if (!page) {
-      return h('span', {}, String(item.name))
-    }
-    return h(RouterLink, {to: page}, () => String(item.name))
+    return h(
+        'span',
+        {
+          onClick: (e: MouseEvent) => {
+            const page = item.page?.trim()
+            if (!page) {
+              return
+            }
+            e.preventDefault()
+            e.stopPropagation()
+            globalProperties.$router.push(page)
+          }
+        },
+        String(item.name)
+      )
   } else {
     return h('span', {}, String(item.name))
   }
 }
 
 function wrapIconWithMenuRoute(item: ResourceEntity, icon: VNode) {
-  const page = item.page?.trim()
-  if (!page) {
-    return icon
-  }
   return h(
-    RouterLink,
-    {to: page},
-    () => icon,
+    icon,
+    {
+      onClick: (e: MouseEvent) => {
+        const page = item.page?.trim()
+        if (!page) {
+          return
+        }
+        e.preventDefault()
+        e.stopPropagation()
+        globalProperties.$router.push(page)
+      }
+    }
   )
 }
 

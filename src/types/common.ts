@@ -22,12 +22,12 @@ export interface RestResult<T = unknown> {
 }
 
 export interface BasicIdMetadata<T> {
-  id?: T
+  id: T
 }
 
 export interface VersionEntityMetadata extends BasicIdMetadata<number> {
   creationTime?: number,
-  versin?: number,
+  versin: number,
 }
 
 /**

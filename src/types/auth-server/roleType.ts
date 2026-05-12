@@ -29,7 +29,7 @@ export interface RoleSavePayload extends VersionEntityMetadata {
   /**
    * 资源 id 集合
    */
-  resourceIds?:number[]
+  resourceIds:number[]
 
 
   /**

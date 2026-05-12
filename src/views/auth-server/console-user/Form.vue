@@ -14,7 +14,6 @@ import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import type {RoleEntity} from "@/types/auth-server/roleType.ts";
 import type {TableProps} from "antdv-next"
 import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
-import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 
 defineOptions({
   name: 'LAuthServerConsoleUserForm',
@@ -24,7 +23,6 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const menuPrincipalStore = useMenuPrincipalStore()
 const service = new ConsoleUserService()
 const resourceServerService = new ResourceServerService()
 
@@ -36,6 +34,8 @@ const options = ref<{
 }>({
   spinning: false,
   entity: {
+    id:null as unknown as number,
+    versin:null as unknown as number,
     realName: "",
     gender: 30,
     phoneNumber: "",

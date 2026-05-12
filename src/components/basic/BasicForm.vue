@@ -77,9 +77,14 @@ async function mounted() {
   if (id) {
     const result:RestResult<TEntity> = await props.service.get(id);
     const value = {...entity.value, ...result?.data || {}}
-    emit('postGet', result, value)
-    updateTitle(value as TEntity)
-    entity.value = value
+    for (const key in entity.value) {
+      if (value[key] === undefined) {
+        continue;
+      }
+      entity.value[key] = value[key]
+    }
+    emit('postGet', result, entity.value)
+    updateTitle(entity.value as TEntity)
   }
 }
 
