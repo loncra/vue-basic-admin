@@ -4,6 +4,8 @@ import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import LAuthorityButton from "@/components/basic/AuthorityButton.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
+import type { ResourceEntity } from '@/types/auth-server/resourceType';
+import type {TableProps} from "antdv-next";
 
 defineOptions({
   name: 'LAuthServerResourceHome',
@@ -14,6 +16,15 @@ const globalProperties =
     .globalProperties
 
 const table = ref();
+
+const selectedRows = ref<ResourceEntity[]>([]);
+
+const onRowSelectionChange: NonNullable<TableProps["rowSelection"]>["onChange"] = (
+  _keys,
+  rows,
+) => {
+  selectedRows.value = rows as ResourceEntity[]
+}
 
 </script>
 
@@ -27,11 +38,11 @@ const table = ref();
             delete:'perms[auth_server_authority_resource:delete]',
             export:'perms[auth_server_authority_resource:export]'
           }"
-          @delete="table.removeSelected()"
+          @delete="table.removeSelected(selectedRows)"
           @add="globalProperties.$router.push({name:'auth_server_authority_resource_add'})"
         />
       </template>
-      <l-resource-table ref="table" />
+      <l-resource-table ref="table" :row-selection="{type: 'checkbox', onChange: onRowSelectionChange}" />
     </l-menu-title-card>
   </div>
 </template>

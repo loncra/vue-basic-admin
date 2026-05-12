@@ -121,10 +121,8 @@ const columns = ref<SearchableColumnType[]>([
 const dataSource = ref<ResourceEntity[]>([])
 const authorityOperateTable = ref();
 
-const selectedRecords = defineModel<ResourceEntity[]>('selectedRecordsRows', {default: () => []})
-
-function removeSelected() {
-  authorityOperateTable.value.remove(selectedRecords.value);
+function removeSelected(selectedRows: ResourceEntity[]) {
+  authorityOperateTable.value.remove(selectedRows);
 }
 
 async function mounted() {
@@ -193,7 +191,6 @@ onMounted(mounted)
       ref="authorityOperateTable"
       :query="query"
       v-model:data-source="dataSource"
-      v-model:selected-rows="selectedRecords"
       :service="service"
       :columns="columns"
       :enabled-actions="!props.preview"

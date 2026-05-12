@@ -38,6 +38,13 @@ const locale: LanguagePack = {
     back: 'Back',
     home: 'Home',
   },
+  form: {
+    createSuccess: {
+      title: 'Saved successfully',
+      okReturnList: 'Back to list',
+      addAnother: 'Add another',
+    }
+  },
   error: {
     errorMessage: 'Error message',
     code: 'Error code',
@@ -51,7 +58,6 @@ const locale: LanguagePack = {
     notFound: {
       title: "The page you're looking for doesn't exist",
     },
-    /** Edit tab activated but record no longer exists (e.g. deleted elsewhere) */
     staleEntityForm: {
       title: 'This page is no longer valid',
       subTitle:

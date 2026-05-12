@@ -102,10 +102,8 @@ const dataSource = ref<RoleEntity[]>([])
 const authorityOperateTable = ref();
 const yesOrNoFields = ["modifiable", "enabled", "removable"];
 
-const selectedRecords = defineModel<RoleEntity[]>('selectedRows', {default: () => []})
-
-function removeSelected() {
-  authorityOperateTable.value.remove(selectedRecords.value);
+function removeSelected(selectedRows: RoleEntity[]) {
+  authorityOperateTable.value.remove(selectedRows);
 }
 
 async function mounted() {
@@ -160,7 +158,6 @@ onMounted(mounted)
       ref="authorityOperateTable"
       :query="query"
       v-model:data-source="dataSource"
-      v-model:selected-rows="selectedRecords"
       :service="service"
       :columns="columns"
       :enabled-actions="!props.preview"

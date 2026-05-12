@@ -115,11 +115,10 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 const dataSource = ref<ConsoleUserEntity[]>([])
-const selectedRows = ref<ConsoleUserEntity[]>([])
 const authorityOperateTable = ref();
 
-function removeSelected() {
-  authorityOperateTable.value.remove(selectedRows.value);
+function removeSelected(selectedRows: ConsoleUserEntity[]) {
+  authorityOperateTable.value.remove(selectedRows);
 }
 
 async function mounted() {
@@ -151,7 +150,6 @@ onMounted(mounted)
     <l-authority-operate-table
       ref="authorityOperateTable"
       v-model:data-source="dataSource"
-      v-model:selected-rows="selectedRows"
       :service="consoleUserService"
       :columns="columns"
       :enabled-actions="!props.preview"

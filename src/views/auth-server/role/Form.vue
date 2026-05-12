@@ -86,12 +86,16 @@ function postGet(result: RestResult<RoleEntity>, _entity: RoleSavePayload) {
   resourceTableRef.value?.fetchDataSource()
 }
 
+function resetFields() {
+  options.value.entity.resourceIds = []
+}
+
 onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-basic-form @post-get="postGet" :title-text="setPageTitle" :redirect="{name:'auth_server_role'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
+    <l-basic-form @resetFields="resetFields" @post-get="postGet" :title-text="setPageTitle" :redirect="{name:'auth_server_role'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="[{required: true}]">

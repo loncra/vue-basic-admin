@@ -36,7 +36,14 @@ const locale: LanguagePack = {
     type:'类型',
     category:'类别',
     back: '返回',
-    home: '首页'
+    home: '首页',
+  },
+  form: {
+    createSuccess: {
+      title: '保存成功',
+      okReturnList: '返回列表',
+      addAnother: '继续添加',
+    }
   },
   error:{
     errorMessage:'错误信息',
@@ -54,7 +61,6 @@ const locale: LanguagePack = {
     notFound:{
       title:'找不到你想访问的页面'
     },
-    /** 编辑页激活时远端记录已不存在（如他处已删除） */
     staleEntityForm: {
       title: '页面内容已失效',
       subTitle: '找不到这条信息。若刚在别处删除过，请从列表重新进入。',

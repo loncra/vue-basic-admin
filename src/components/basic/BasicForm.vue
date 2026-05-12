@@ -53,6 +53,7 @@ const entity = defineModel<TBody>("entity", {default: () => {}})
 const emit = defineEmits<{
   (e: 'success', data: RestResult<TId>): void
   (e: 'postGet', data: RestResult<TEntity>, entity:TBody): void
+  (e: 'resetFields'): void
 }>()
 
 async function doSubmit() {
@@ -67,16 +68,17 @@ async function doSubmit() {
       emit('success', result)
       if (!entity.value.id) {
         modal.confirm({
-          title: "跳转提示",
-          content: result.message,
-          okText: "继续操作",
-          cancelText: "返回列表页",
+          title: globalProperties.$t('form.createSuccess.title'),
+          content:result.message,
+          okText: globalProperties.$t('form.createSuccess.okReturnList'),
+          cancelText: globalProperties.$t('form.createSuccess.addAnother'),
           onOk: () => {
-            formRef.value.resetFields();
+            globalProperties.$router.push(props.redirect)
           },
           onCancel: () => {
-            globalProperties.$router.push(props.redirect)
-          }
+            formRef.value?.resetFields?.()
+            emit('resetFields')
+          },
         })
       } else {
         message.success(result.message)
