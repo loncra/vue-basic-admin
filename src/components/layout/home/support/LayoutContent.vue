@@ -112,12 +112,16 @@ function mounted(): void {
   const fixedRoutes = getFixedRoutesFromRouter()
   pinnedRouteNames.value = loadPinnedFromStorage()
   const initialPanes: RouteResourceMetadata[] = []
-  for (const r of [...fixedRoutes, ...pinnedRouteNames.value]) {
+  for (const r of fixedRoutes) {
     const name = r.page as string
-    if (!fixedRouteNames.value.has(name)) {
-      initialPanes.push(r)
-      fixedRouteNames.value.add(name)
+    if (fixedRouteNames.value.has(name)) {
+      continue;
     }
+    fixedRouteNames.value.add(name)
+  }
+
+  for (const r of [...fixedRoutes, ...pinnedRouteNames.value]) {
+    initialPanes.push(r)
   }
 
   initialPanes.map(r => panes.value.push(r))
@@ -236,12 +240,10 @@ function onOpenOperateChange(open: boolean) {
   operateItems.value = operateItems.value.filter(
     (v) => v?.key != null && !['unpin', 'pin'].includes(String(v.key)),
   )
-  const route = globalProperties.$route
-  const name = route.name as string
-  if (fixedRouteNames.value.has(name)) {
+  if (fixedRouteNames.value.has(activeKey.value)) {
     return
   }
-  if (pinnedRouteNames.value.some(p => p.page === name)) {
+  if (pinnedRouteNames.value.some(p => p.page === activeKey.value)) {
     operateItems.value.unshift({
       key: 'unpin',
       label: globalProperties.$t('layoutContent.unpin'),
