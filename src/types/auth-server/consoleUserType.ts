@@ -10,7 +10,7 @@ import type {
  *
  * maurice.chen
  */
-export interface ConsoleUserRequestBody extends AbstractPlatformUser, VersionEntityMetadata {
+export interface ConsoleUserSavePayload extends AbstractPlatformUser, VersionEntityMetadata {
   /**
    * 真实姓名
    */
@@ -33,7 +33,7 @@ export interface ConsoleUserRequestBody extends AbstractPlatformUser, VersionEnt
  * 后台用户数据类型
  * @author maurice.chen
  */
-export interface ConsoleUserEntity extends ConsoleUserRequestBody {
+export interface ConsoleUserEntity extends ConsoleUserSavePayload {
 
   /**
    * 手机号码是否认证

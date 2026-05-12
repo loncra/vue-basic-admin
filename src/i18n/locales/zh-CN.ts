@@ -37,6 +37,7 @@ const locale: LanguagePack = {
     category:'类别',
     back: '返回',
     home: '首页',
+    parent:'父类'
   },
   form: {
     createSuccess: {

@@ -140,7 +140,7 @@ async function mounted() {
       },
     });
   }
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"}],"auth-server":[{id:"ResourceTypeEnum"},{id:'ResourceCategoryEnum'}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"}],"auth-server":[{"id":"ResourceTypeEnum"},{"id":'ResourceCategoryEnum'}]})
   if (enums.data) {
     const typeCol = columns.value[columns.value.findIndex(s => s.dataIndex === "type")];
     if (typeCol?.search) {

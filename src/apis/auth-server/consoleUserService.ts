@@ -1,4 +1,4 @@
-import type {ConsoleUserEntity, ConsoleUserRequestBody} from '@/types/auth-server/consoleUserType'
+import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@/types/auth-server/consoleUserType'
 import {PageRestfulCrudService} from "@/apis/pageRestfulCrudService.ts";
 import type {TotalPage} from "@/types";
 
@@ -7,7 +7,7 @@ import type {TotalPage} from "@/types";
  *
  * @author maurice.chen
  */
-export class ConsoleUserService extends PageRestfulCrudService<ConsoleUserRequestBody, ConsoleUserEntity, TotalPage<ConsoleUserEntity>> {
+export class ConsoleUserService extends PageRestfulCrudService<ConsoleUserSavePayload, ConsoleUserEntity, TotalPage<ConsoleUserEntity>> {
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/auth-server' : '')
 
   /** 服务基础 URL */

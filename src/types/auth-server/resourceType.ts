@@ -60,6 +60,21 @@ export interface ResourceSavePayload extends ResourceMetadata, VersionEntityMeta
    * 来源
    */
   sources: NameValueEnumMetadata<string>[] | string[]
+
+  /**
+   * 类别
+   */
+  category: NameValueEnumMetadata<number> | number
+
+  /**
+   * 是否启用
+   */
+  enabled: NameValueEnumMetadata<number> | number
+
+  /**
+   * 父类 id
+   */
+  parentId?: number
 }
 
 /**
@@ -68,21 +83,6 @@ export interface ResourceSavePayload extends ResourceMetadata, VersionEntityMeta
  */
 export interface ResourceEntity extends ResourceSavePayload {
   key: string,
-
-  /**
-   * 版本号
-   */
-  version: string
-
-  /**
-   * 父类 id
-   */
-  parentId?: number
-
-  /**
-   * 类别
-   */
-  category: NameValueEnumMetadata<string>
 
   /**
    * 子节点

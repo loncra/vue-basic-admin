@@ -2,7 +2,7 @@
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {
   ConsoleUserEntity,
-  ConsoleUserRequestBody
+  ConsoleUserSavePayload
 } from "@/types/auth-server/consoleUserType.ts";
 import type {NameValueEnumMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -27,10 +27,10 @@ const service = new ConsoleUserService()
 const resourceServerService = new ResourceServerService()
 
 const options = ref<{
-  entity:ConsoleUserRequestBody,
-  genderOptions:NameValueEnumMetadata<number | string>[],
-  statusOptions:NameValueEnumMetadata<number | string>[],
-  spinning:boolean,
+  entity:ConsoleUserSavePayload
+  genderOptions:NameValueEnumMetadata<number | string>[]
+  statusOptions:NameValueEnumMetadata<number | string>[]
+  spinning:boolean
 }>({
   spinning: false,
   entity: {
@@ -64,8 +64,7 @@ async function mounted() {
 
 const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = (
   _selectedRowKeys,
-  selectedRows,
-  _info,
+  selectedRows
 ) => {
   const rows = selectedRows as RoleEntity[]
   options.value.entity.resourceIds = rows.flatMap((r) => r.resourceIds ?? [])
@@ -73,7 +72,7 @@ const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = 
 }
 
 function setPageTitle(title:string, entity: ConsoleUserEntity) {
-  return title + ' (' + (entity as ConsoleUserEntity).realName + ')'
+  return title + ' (' + entity.realName + ')'
 }
 
 function resetFields() {

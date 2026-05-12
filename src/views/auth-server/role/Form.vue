@@ -24,23 +24,25 @@ const service = new RoleService()
 const resourceServerService = new ResourceServerService()
 
 const options = ref<{
-  entity:RoleSavePayload,
-  modifiableOptions:NameValueEnumMetadata<number>[],
-  enabledOptions:NameValueEnumMetadata<number>[],
-  removableOptions:NameValueEnumMetadata<number>[],
-  sourceOptions:NameValueEnumMetadata<string>[],
-  spinning:boolean,
+  entity:RoleSavePayload
+  modifiableOptions:NameValueEnumMetadata<number>[]
+  enabledOptions:NameValueEnumMetadata<number>[]
+  removableOptions:NameValueEnumMetadata<number>[]
+  sourceOptions:NameValueEnumMetadata<string>[]
+  parentOptions:RoleEntity[]
+  spinning:boolean
   query:FilterRequest
 }>({
   spinning: false,
   entity: {
     id:null as unknown as number,
     versin:null as unknown as number,
-    enabled: 0,
+    enabled: 1,
     sources: [],
     resourceIds: [],
-    removable: 0,
-    modifiable: 0,
+    removable: 1,
+    modifiable: 1,
+    parentId:null as unknown as number,
     name: "",
     authority: "",
     remark: ""
@@ -49,6 +51,7 @@ const options = ref<{
   enabledOptions:[],
   removableOptions:[],
   sourceOptions:[],
+  parentOptions:[],
   query:{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':[]}
 })
 
@@ -65,6 +68,12 @@ async function mounted() {
     options.value.sourceOptions = enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]
   }
 
+  const query:FilterRequest = {};
+  if (globalProperties.$route.query.id) {
+    query["filter_[id_ne]"] = globalProperties.$route.query.id;
+  }
+  const result:RestResult<RoleEntity[]> = await service.find(query)
+  options.value.parentOptions = result?.data || [];
   options.value.spinning = false
 }
 
@@ -78,7 +87,7 @@ function sourceChange(value: string, _options: OptionProps[]) {
 }
 
 function setPageTitle(title:string, entity: RoleEntity) {
-  return title + ' (' + (entity as RoleEntity).name + ')'
+  return title + ' (' + entity.name + ')'
 }
 
 function postGet(result: RestResult<RoleEntity>, _entity: RoleSavePayload) {
@@ -129,6 +138,10 @@ onMounted(mounted)
           </a-form-item>
         </a-col>
       </template>
+
+      <a-form-item v-if="options.parentOptions.length > 0" name="parentId" :label="globalProperties.$t('common.parent')">
+        <a-select v-model:value="options.entity.parentId" :options="options.parentOptions" :field-names="{label:'name'}" />
+      </a-form-item>
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
