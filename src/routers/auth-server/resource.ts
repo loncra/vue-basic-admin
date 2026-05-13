@@ -12,6 +12,18 @@ const router: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/auth-server/resource/addChild',
+    component: () => import('@/views/auth-server/resource/Form.vue'),
+    name: 'auth_server_resource_addChild',
+    meta: {
+      applicationName: 'auth-server',
+      title: '添加权限子级',
+      icon: 'icon-editor-add-cell',
+      parent: '/auth-server/resource',
+      requiresFullyAuth: true,
+    },
+  },
+  {
     path: '/auth-server/resource/edit',
     component: () => import('@/views/auth-server/resource/Form.vue'),
     name: 'auth_server_resource_edit',

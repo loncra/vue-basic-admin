@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {
   ConsoleUserEntity,
   ConsoleUserSavePayload
@@ -72,7 +72,10 @@ const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = 
 }
 
 function setPageTitle(title:string, entity: ConsoleUserEntity) {
-  return title + ' (' + entity.realName + ')'
+  if (entity.id) {
+    return title + ' (' + entity.realName + ')'
+  }
+  return title
 }
 
 function resetFields() {
@@ -80,12 +83,19 @@ function resetFields() {
   options.value.entity.roleIds = []
 }
 
-onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-basic-form @resetFields="resetFields" :title-text="setPageTitle" :redirect="{name:'auth_server_user_console'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
+    <l-basic-form
+      @resetFields="resetFields"
+      :pre-mounted="mounted"
+      :title-text="setPageTitle"
+      :redirect="{name:'auth_server_user_console'}"
+      :service="service"
+      v-model:entity="options.entity"
+      :spinning="options.spinning"
+    >
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="realName" :label="globalProperties.$t('common.realName')" :rules="[{required: true}]">

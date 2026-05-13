@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {NameValueEnumMetadata, ResourceEntity, ResourceSavePayload, RestResult} from "@/types";
+import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import type {
+  IconfontJson,
+  NameValueEnumMetadata,
+  ResourceEntity,
+  ResourceSavePayload,
+  RestResult
+} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
-import type {FilterRequest} from "@/types/common.ts";
+import {loadIcon} from "@/utils/resourceUtils";
+import {getEnumValue} from "@/utils/commonUtils";
 
 defineOptions({
   name: 'LAuthServerConsoleUserForm',
@@ -22,10 +29,10 @@ const options = ref<{
   entity:ResourceSavePayload
   enabledOptions:NameValueEnumMetadata<number>[]
   typeOptions:NameValueEnumMetadata<string>[]
-  categoryOptions:NameValueEnumMetadata<number>[]
   sourceOptions:NameValueEnumMetadata<string>[]
-  parentOptions:ResourceEntity[]
-  query:FilterRequest
+  parent?:ResourceEntity
+  icons:string[]
+  iconOptions: IconfontJson[]
   spinning:boolean
 }>({
   spinning: false,
@@ -37,6 +44,7 @@ const options = ref<{
     sources: [],
     name: "",
     icon: "",
+    parentId: null as unknown as number,
     applicationName: "",
     page: "",
     id: null as unknown as number,
@@ -44,43 +52,56 @@ const options = ref<{
     category: 20
   },
   typeOptions:[],
-  categoryOptions:[],
   enabledOptions:[],
   sourceOptions:[],
-  parentOptions:[],
-  query:{}
+  icons:["/font_system_icon/iconfont.json","/font_xiaojiage/iconfont.json"],
+  iconOptions:[],
 })
 
 async function mounted() {
-  options.value.spinning = true
 
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"},{"id":"YesOrNo"}],"auth-server":[{"id":"ResourceTypeEnum"},{"id":'ResourceCategoryEnum'}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"},{"id":"YesOrNo"}],"auth-server":[{"id":"ResourceTypeEnum"}]})
   if (enums.data) {
     options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
     options.value.sourceOptions = enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]
-    options.value.categoryOptions = enums.data['auth-server']?.ResourceCategoryEnum as NameValueEnumMetadata<number>[]
     options.value.typeOptions = enums.data['auth-server']?.ResourceTypeEnum as NameValueEnumMetadata<string>[]
   }
-
-  const query:FilterRequest = {};
-  if (globalProperties.$route.query.id) {
-    options.value.query["filter_[id_ne]"] = globalProperties.$route.query.id;
+  if (globalProperties.$route.query.parentId) {
+    const result:RestResult<ResourceEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)
+    if (result.data) {
+      options.value.parent = result.data
+      options.value.entity.parentId = options.value.parent.id
+    }
   }
-  const result:RestResult<ResourceEntity[]> = await service.find(query)
-  options.value.parentOptions = result?.data || [];
-  options.value.spinning = false
+
+  for (const icon of options.value.icons) {
+    const iconData:IconfontJson = await loadIcon(import.meta.env.VITE_APP_SITE_URL + icon)
+    options.value.iconOptions.push(iconData)
+  }
+  console.log(options.value.iconOptions)
 }
 
 function setPageTitle(title:string, entity: ResourceEntity) {
-  return title + ' (' + entity.name + ')'
+  if (options.value.parent) {
+    return title + ' (' + options.value.parent.name + ')'
+  } else if (entity.id) {
+    return title + ' (' + entity.name + ')'
+  }
+  return title
 }
 
-onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-basic-form :title-text="setPageTitle" :redirect="{name:'auth_server_resource'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
+    <l-basic-form
+      :pre-mounted="mounted"
+      :title-text="setPageTitle"
+      :redirect="{name:'auth_server_resource'}"
+      :service="service"
+      v-model:entity="options.entity"
+      :spinning="options.spinning"
+    >
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="[{required: true}]">
@@ -89,36 +110,46 @@ onMounted(mounted)
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="authority" :label="globalProperties.$t('authServer.authority')" :rules="[{required: true}]">
-            <a-input v-model:value="options.entity.authority" />
+            <a-input v-model:value="options.entity.authority" :disabled="options.entity.id && getEnumValue(options.entity.category) === 10" />
           </a-form-item>
         </a-col>
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="sources" :label="globalProperties.$t('authServer.source')" :rules="[{required: true, trigger: 'change', type: 'array'}]">
-            <a-select mode="multiple" v-model:value="options.entity.sources" :options="options.sourceOptions" :field-names="{label:'name'}" />
+            <a-select mode="multiple" :disabled="options.entity.id && getEnumValue(options.entity.category) === 10" v-model:value="options.entity.sources" :options="options.sourceOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>
+
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="type" :label="globalProperties.$t('common.type')">
-            <a-select v-model:value="options.entity.type" :options="options.typeOptions" :field-names="{label:'name'}" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="modifiable" :label="globalProperties.$t('common.type')">
-            <a-select v-model:value="options.entity.category" :options="options.categoryOptions" :field-names="{label:'name'}" />
+            <a-select :disabled="options.entity.id && getEnumValue(options.entity.category) === 10" v-model:value="options.entity.type" :options="options.typeOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="enabled" :label="globalProperties.$t('common.enabled')">
-            <a-select v-model:value="options.entity.enabled" :options="options.enabledOptions" :field-names="{label:'name'}" />
+            <a-select :disabled="options.entity.id && getEnumValue(options.entity.category) === 10" v-model:value="options.entity.enabled" :options="options.enabledOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>
+
+        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+          <a-form-item name="page" :label="globalProperties.$t('authServer.resource.page')" >
+            <a-input v-model:value="options.entity.page" />
+          </a-form-item>
+        </a-col>
+
       </template>
 
-      <a-form-item v-if="options.parentOptions.length > 0" name="parentId" :label="globalProperties.$t('common.parent')">
-        <a-select v-model:value="options.entity.parentId" :options="options.parentOptions" :field-names="{label:'name'}" />
+      <a-form-item name="icon" :label="globalProperties.$t('authServer.resource.icon')">
+        <a-tabs :items="options.iconOptions.map(icon => ({key: icon.name, label: icon.name, icons: icon.glyphs.map(glyph => ({key: glyph.icon_id, value: icon.css_prefix_text + glyph.font_class}))}))">
+          <template #contentRender="{item}">
+            <a-space wrap>
+              <a-button @click="() => options.entity.icon = glyph.value" :type="options.entity.icon === glyph.value ? 'primary' : 'default'"  v-for="glyph in item.icons" :key="glyph.key">
+                <icon-font class="icon" :type="glyph.value"/>
+              </a-button>
+            </a-space>
+          </template>
+        </a-tabs>
       </a-form-item>
-
       <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
         <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />
       </a-form-item>

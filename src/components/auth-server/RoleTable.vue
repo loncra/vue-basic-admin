@@ -3,16 +3,17 @@ import LAuthorityOperateTable, {
   type SearchableColumnType
 } from '@/components/basic/AuthorityOperateTable.vue'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
+import type {MenuItemType, TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {RestResult} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
-import {getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {NameValueEnumMetadata} from "@/types/common.ts";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {RoleEntity} from "@/types/auth-server/roleType.ts";
-import type { FilterRequest } from '@/types/common';
-import type { TableProps } from 'antdv-next';
+import type {FilterRequest} from '@/types/common';
+import type {MenuInfo} from '@v-c/menu';
 
 defineOptions({
   name: 'LRoleTable',
@@ -34,6 +35,14 @@ const props = withDefaults(defineProps<{
 
 const service = new RoleService()
 const resourceServerService = new ResourceServerService()
+
+const actionItems = ref<MenuItemType[]>([
+  {
+    key: 'addChild',
+    label: globalProperties.$t('common.addChild'),
+    icon: () => createIcon('icon-editor-add-cell'),
+  },
+])
 
 const columns = ref<SearchableColumnType[]>([
   {
@@ -144,6 +153,12 @@ function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
   return sources.map(s => getEnumName(s)).join(",")
 }
 
+function onActionItemClick(e: MenuInfo, record: RoleEntity) {
+  if (e.key === 'addChild') {
+    globalProperties.$router.push({name:'auth_server_role_addChild', query:{parentId:String(record.id)}})
+  }
+}
+
 defineExpose({
   removeSelected
 })
@@ -160,10 +175,12 @@ onMounted(mounted)
       v-model:data-source="dataSource"
       :service="service"
       :columns="columns"
+      :action-items="actionItems"
       :enabled-actions="!props.preview"
       :authority="{edit:'perms[auth_server_role:save]',detail:'perms[auth_server_role:get]', delete:'perms[auth_server_role:delete]'}"
       :scroll="{x:'max-content'}"
       :row-selection="rowSelection"
+      @actionItemClick="onActionItemClick"
       @detail="r => globalProperties.$router.push({name:'auth_server_role_detail', query:{id:String(r.id)}})"
       @edit="r => globalProperties.$router.push({name:'auth_server_role_edit', query:{id:String(r.id)}})"
     >

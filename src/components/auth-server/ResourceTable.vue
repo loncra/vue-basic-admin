@@ -3,13 +3,14 @@ import LAuthorityOperateTable, {
   type SearchableColumnType
 } from '@/components/basic/AuthorityOperateTable.vue'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
+import type {MenuItemType, TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {NameValueEnumMetadata, ResourceEntity, RestResult} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
-import {getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/common';
-import type { TableProps } from 'antdv-next';
+import type {MenuInfo} from '@v-c/menu';
 
 defineOptions({
   name: 'LResourceTable',
@@ -121,6 +122,14 @@ const columns = ref<SearchableColumnType[]>([
 const dataSource = ref<ResourceEntity[]>([])
 const authorityOperateTable = ref();
 
+const actionItems = ref<MenuItemType[]>([
+  {
+    key: 'addChild',
+    label: globalProperties.$t('common.addChild'),
+    icon: () => createIcon('icon-editor-add-cell'),
+  },
+])
+
 function removeSelected(selectedRows: ResourceEntity[]) {
   authorityOperateTable.value.remove(selectedRows);
 }
@@ -175,6 +184,12 @@ function fetchDataSource() {
   authorityOperateTable.value.fetchDataSource()
 }
 
+function onActionItemClick(e: MenuInfo, record: ResourceEntity) {
+  if (e.key === 'addChild') {
+    globalProperties.$router.push({name:'auth_server_resource_addChild', query:{parentId:String(record.id)}})
+  }
+}
+
 defineExpose({
   removeSelected,
   clearDataSource,
@@ -193,12 +208,14 @@ onMounted(mounted)
       v-model:data-source="dataSource"
       :service="service"
       :columns="columns"
+      :action-items="actionItems"
       :enabled-actions="!props.preview"
       :authority="{edit:'perms[auth_server_authority_resource:save]',detail:'perms[auth_server_authority_resource:get]', delete:'perms[auth_server_authority_resource:delete]'}"
       :scroll="{x:'max-content', y: 350}"
       :row-selection="rowSelection"
-      @detail="r => globalProperties.$router.push({name:'auth_server_authority_resource_detail', query:{id:String(r.id)}})"
-      @edit="r => globalProperties.$router.push({name:'auth_server_authority_resource_edit', query:{id:String(r.id)}})"
+      @actionItemClick="onActionItemClick"
+      @detail="r => globalProperties.$router.push({name:'auth_server_resource_detail', query:{id:String(r.id)}})"
+      @edit="r => globalProperties.$router.push({name:'auth_server_resource_edit', query:{id:String(r.id)}})"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'name'">

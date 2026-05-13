@@ -37,11 +37,13 @@ const locale: LanguagePack = {
     category:'类别',
     back: '返回',
     home: '首页',
-    parent:'父类'
+    parent:'父类',
+    addChild:'添加子级'
   },
   form: {
     createSuccess: {
-      title: '保存成功',
+      title: '新增成功',
+      subTitle: '请点击以下按钮进行后续操作',
       okReturnList: '返回列表',
       addAnother: '继续添加',
     }
@@ -139,7 +141,8 @@ const locale: LanguagePack = {
     standaloneResource: '独立资源',
     resource:{
       applicationName: '应用名称',
-      page:'路由页面'
+      page:'路由页面',
+      icon:'图标'
     },
     role:{
       removable:'是否可删除',

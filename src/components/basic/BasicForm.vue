@@ -6,6 +6,7 @@ import {
   type ComponentInternalInstance,
   getCurrentInstance,
   inject,
+  nextTick,
   onActivated,
   onMounted,
   ref
@@ -38,6 +39,8 @@ const props = withDefaults(
   defineProps<{
     service: BasicCrudService<TBody,TEntity>
     authority?: BasicAuthorityProps
+    preMounted?: () => void | Promise<void>
+    postMounted?: () => void | Promise<void>
     redirect: RouteLocationRaw
     titleText?: (title:string, entity: TEntity) => string
   }>(),
@@ -69,7 +72,7 @@ async function doSubmit() {
       if (!entity.value.id) {
         modal.confirm({
           title: globalProperties.$t('form.createSuccess.title'),
-          content:result.message,
+          content:result.message + ' ' + globalProperties.$t('form.createSuccess.subTitle'),
           okText: globalProperties.$t('form.createSuccess.okReturnList'),
           cancelText: globalProperties.$t('form.createSuccess.addAnother'),
           onOk: () => {
@@ -99,6 +102,10 @@ function onFinish () {
 }
 
 async function mounted() {
+  spinning.value = true
+  if (props.preMounted) {
+    await props.preMounted()
+  }
   const id = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] as TId
   if (id) {
     const result:RestResult<TEntity> = await props.service.get(id);
@@ -110,14 +117,19 @@ async function mounted() {
       entity.value[key] = value[key]
     }
     emit('postGet', result, entity.value)
-    updateTitle(entity.value as TEntity)
+  }
+  spinning.value = false
+  nextTick(postMounted)
+}
+
+async function postMounted() {
+  updateTitle(entity.value as TEntity)
+  if (props.postMounted) {
+    await props.postMounted()
   }
 }
 
 function updateTitle(entity: TEntity) {
-  if (!entity.id) {
-    return ;
-  }
   const title = props.titleText(globalProperties.$route.meta.title as string, entity as TEntity)
   const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
   const last = currentBreadcrumbs.at(-1)
@@ -128,10 +140,10 @@ function updateTitle(entity: TEntity) {
 }
 
 async function activated() {
+  updateTitle(entity.value as TEntity)
   if (!entity.value.id) {
     return ;
   }
-  updateTitle(entity.value as TEntity)
   const result:RestResult<TEntity> = await props.service.get(entity.value.id);
   if (result.data) {
     return ;
@@ -170,7 +182,7 @@ onMounted(mounted)
               <span>{{ globalProperties.$t('common.save') }}</span>
             </a-button>
 
-            <a-button html-type="reset">
+            <a-button html-type="reset" :disabled="spinning">
               <template #icon>
                 <icon-font class="icon" type="icon-time-history" />
               </template>

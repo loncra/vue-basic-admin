@@ -37,13 +37,16 @@ const locale: LanguagePack = {
     category: 'Category',
     back: 'Back',
     home: 'Home',
+    parent: 'Parent',
+    addChild: 'Add child',
   },
   form: {
     createSuccess: {
-      title: 'Saved successfully',
+      title: 'Created successfully',
+      subTitle: 'Choose an action below to continue.',
       okReturnList: 'Back to list',
       addAnother: 'Add another',
-    }
+    },
   },
   error: {
     errorMessage: 'Error message',
@@ -138,6 +141,7 @@ const locale: LanguagePack = {
     resource: {
       applicationName: 'Application name',
       page: 'Route path',
+      icon: 'Icon',
     },
     role: {
       removable: 'Can delete',

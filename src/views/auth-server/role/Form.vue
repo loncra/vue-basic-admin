@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {NameValueEnumMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
@@ -29,9 +29,9 @@ const options = ref<{
   enabledOptions:NameValueEnumMetadata<number>[]
   removableOptions:NameValueEnumMetadata<number>[]
   sourceOptions:NameValueEnumMetadata<string>[]
-  parentOptions:RoleEntity[]
   spinning:boolean
-  query:FilterRequest
+  resourceQuery:FilterRequest,
+  parent?:RoleEntity
 }>({
   spinning: false,
   entity: {
@@ -51,14 +51,12 @@ const options = ref<{
   enabledOptions:[],
   removableOptions:[],
   sourceOptions:[],
-  parentOptions:[],
-  query:{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':[]}
+  resourceQuery:{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':[]}
 })
 
 const resourceTableRef = ref<InstanceType<typeof LResourceTable>>()
 
 async function mounted() {
-  options.value.spinning = true
 
   const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
   if (enums.data) {
@@ -67,14 +65,13 @@ async function mounted() {
     options.value.removableOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
     options.value.sourceOptions = enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]
   }
-
-  const query:FilterRequest = {};
-  if (globalProperties.$route.query.id) {
-    query["filter_[id_ne]"] = globalProperties.$route.query.id;
+  if (globalProperties.$route.query.parentId) {
+    const result:RestResult<RoleEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)
+    if (result.data) {
+      options.value.parent = result.data
+      options.value.entity.parentId = options.value.parent.id
+    }
   }
-  const result:RestResult<RoleEntity[]> = await service.find(query)
-  options.value.parentOptions = result?.data || [];
-  options.value.spinning = false
 }
 
 function sourceChange(value: string, _options: OptionProps[]) {
@@ -82,16 +79,21 @@ function sourceChange(value: string, _options: OptionProps[]) {
     resourceTableRef.value?.clearDataSource()
     return;
   }
-  options.value.query['filter_[sources_jin]'] = _options.map((o: OptionProps) => o.value);
+  options.value.resourceQuery['filter_[sources_jin]'] = _options.map((o: OptionProps) => o.value);
   resourceTableRef.value?.fetchDataSource()
 }
 
 function setPageTitle(title:string, entity: RoleEntity) {
-  return title + ' (' + entity.name + ')'
+  if (options.value.parent) {
+    return title + ' (' + options.value.parent.name + ')'
+  } else if (entity.id) {
+    return title + ' (' + entity.name + ')'
+  }
+  return title
 }
 
 function postGet(result: RestResult<RoleEntity>, _entity: RoleSavePayload) {
-  options.value.query['filter_[sources_jin]'] = _entity.sources.map(getEnumValue);
+  options.value.resourceQuery['filter_[sources_jin]'] = _entity.sources.map(getEnumValue);
   resourceTableRef.value?.fetchDataSource()
 }
 
@@ -99,12 +101,20 @@ function resetFields() {
   options.value.entity.resourceIds = []
 }
 
-onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-basic-form @resetFields="resetFields" @post-get="postGet" :title-text="setPageTitle" :redirect="{name:'auth_server_role'}" :service="service" v-model:entity="options.entity" :spinning="options.spinning">
+    <l-basic-form
+      @resetFields="resetFields"
+      @post-get="postGet"
+      :pre-mounted="mounted"
+      :title-text="setPageTitle"
+      :redirect="{name:'auth_server_role'}"
+      :service="service"
+      v-model:entity="options.entity"
+      :spinning="options.spinning"
+    >
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="[{required: true}]">
@@ -139,10 +149,6 @@ onMounted(mounted)
         </a-col>
       </template>
 
-      <a-form-item v-if="options.parentOptions.length > 0" name="parentId" :label="globalProperties.$t('common.parent')">
-        <a-select v-model:value="options.entity.parentId" :options="options.parentOptions" :field-names="{label:'name'}" />
-      </a-form-item>
-
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
           <icon-font class="icon" type="icon-template-success" />
@@ -155,7 +161,7 @@ onMounted(mounted)
         :immediate="false"
         :preview="true"
         root-class="mb-md"
-        :query="options.query"
+        :query="options.resourceQuery"
         :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds, onChange: (_keys) => options.entity.resourceIds = _keys as number[]}"
       />
 

@@ -144,7 +144,7 @@ function removePaneByPage(page: string, activatePane:boolean = true): void {
   }
   panes.value = panes.value.filter((p) => p.page !== page)
   if (!activatePane) {
-    return 
+    return
   }
   const change = panes.value[index - 1]
   if (change) {
@@ -294,7 +294,7 @@ function onRemoveTab(value: string, action: string) {
     routeCacheVersions.value[targetRoute.page] = currentVersion + 1
   }
   const change = panes.value[index - 1]
-  if (change) {
+  if (change && activeKey.value === value) {
     activateSegmented(change)
   }
   panes.value = panes.value.filter((p) => p.page !== value)

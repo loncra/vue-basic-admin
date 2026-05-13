@@ -234,14 +234,20 @@ function remove(records: TEntity[]) {
   modal.confirm({
     title: globalProperties.$t('common.deleteConfirmTitle'),
     content,
-    onOk() {
-      return props.service
-      .delete(records.map(r => r.id))
-      .then(r => message.success(r.message))
-      .then(() => fetchDataSource())
-      .catch(e => message.error(e.message))
-    },
+    onOk: () => doDelete(records),
   })
+}
+
+async function doDelete(records: TEntity[]) {
+  try {
+    const result:RestResult<void> = await props.service.delete(records.map(r => r.id))
+    message.success(result.message)
+    fetchDataSource()
+  } catch (e) {
+    message.error(e instanceof Error ? e.message : String(e))
+  } finally {
+    loading.value = false;
+  }
 }
 
 function handleActionClick(e: MenuInfo, record: TEntity) {
