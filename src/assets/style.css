@@ -165,51 +165,65 @@
     @apply min-w-0 max-w-full rounded-b-lg border border-border-secondary border-solid border-t-0 bg-container p-sm;
   }
 
+  /* ant-tabs-card 默认 ink-bar visibility:hidden，但 left/width 仍会随选中项动画；做成 Segmented 拇指，选中底由滑块承担 */
   .layout-content-operation .tool-bar .ant-tabs .ant-tabs-ink-bar {
-    @apply bg-transparent text-main;
+    @apply pointer-events-none visible z-0 rounded-sm bg-elevated shadow-ter !bottom-1 !h-[calc(100%-0.5rem)] !min-h-0;
   }
 
   .layout-content-operation .tool-bar .ant-tabs .ant-tabs-tab + .ant-tabs-tab {
-    @apply m-0 -ms-0.5;
+    @apply m-0;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list {
-    @apply rounded-lg bg-layout!;
+    @apply relative rounded-lg bg-layout! p-xxs;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
-    @apply relative z-0 rounded-lg border-2 border-solid border-layout bg-layout pl-md pr-md pb-0 pt-0 text-main
-    transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
-    motion-reduce:transition-none;
+    @apply relative z-[1] rounded-sm border-0 border-transparent bg-transparent px-md pb-0 pt-0 text-sec
+    transition-[color,background-color,box-shadow] duration-(--ant-motion-duration-mid)
+    ease-(--ant-motion-ease-in-out) motion-reduce:transition-none;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn {
-    @apply transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
+    @apply text-sec transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
     motion-reduce:transition-none;
   }
 
-  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:hover,
-  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:not(.ant-tabs-tab-active):hover,
   .layout-content-operation
   .tool-bar
   .ant-tabs-nav-list
-  .ant-tabs-tab
+  .ant-tabs-tab:not(.ant-tabs-tab-active)
+  .ant-tabs-tab-btn:focus:not(:focus-visible),
+  .layout-content-operation
+  .tool-bar
+  .ant-tabs-nav-list
+  .ant-tabs-tab:not(.ant-tabs-tab-active)
   .ant-tabs-tab-remove:focus:not(:focus-visible) {
-    @apply bg-(--ant-color-fill-secondary);
+    @apply bg-(--ant-color-fill-secondary) text-main;
   }
 
-  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:active,
-  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab .ant-tabs-tab-btn:focus:not(:focus-visible),
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:not(.ant-tabs-tab-active):active,
   .layout-content-operation
   .tool-bar
   .ant-tabs-nav-list
-  .ant-tabs-tab
+  .ant-tabs-tab:not(.ant-tabs-tab-active)
+  .ant-tabs-tab-btn:focus:not(:focus-visible),
+  .layout-content-operation
+  .tool-bar
+  .ant-tabs-nav-list
+  .ant-tabs-tab:not(.ant-tabs-tab-active)
   .ant-tabs-tab-remove:focus:not(:focus-visible) {
     @apply bg-(--ant-color-fill) text-main;
   }
 
+  /* 选中项底纹由 ink-bar 滑动呈现，tab 本身透明叠在上方 */
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active {
-    @apply bg-container;
+    @apply relative z-[1] border-0 bg-transparent text-main shadow-none;
+  }
+
+  .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active:hover {
+    @apply bg-transparent text-main shadow-none;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
