@@ -69,7 +69,18 @@ async function mounted() {
     const result:RestResult<RoleEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)
     if (result.data) {
       options.value.parent = result.data
+
       options.value.entity.parentId = options.value.parent.id
+      options.value.entity.sources = options.value.parent.sources
+      options.value.entity.resourceIds = options.value.parent.resourceIds
+      options.value.entity.removable = options.value.parent.removable
+      options.value.entity.modifiable = options.value.parent.modifiable
+      sourceChange(
+        '',
+        options.value.parent.sources.map((s) => ({
+          value: String(getEnumValue(s)),
+        })),
+      )
     }
   }
 }
