@@ -20,15 +20,11 @@ const globalProperties =
 
 const options = ref<{
   themeOptions:NameValueEnumMetadata<string>[]
-  componentOptions: IdValueMetadata<string, VNode>[]
+  tabItems: IdValueMetadata<string, VNode>[]
   colorOptions:string[]
 }>({
   colorOptions: ['colorPrimary', 'colorError', 'colorSuccess', 'colorWarning'],
-  componentOptions:[
-    {
-      id:globalProperties.$t('setting.componentLayout.text'),
-      value: createIcon('icon-calculator', 'align')
-    },
+  tabItems:[
     {
       id: globalProperties.$t('setting.colorSetting.text'),
       value: createIcon('icon-user-defined', 'align')
@@ -81,20 +77,16 @@ function colorChange(_color: Color, tokenKey: string): void {
             <a-form-item name="name" :label="globalProperties.$t('setting.home.homeCollapsedWidth')">
               <a-space-compact block>
                 <a-input-number class="w-full" @change="(value: number) => configProviderStore.setHomeCollapsedWidth(value)" :value="configProviderStore.state.homeCollapsedWidth" />
-
                 <a-space-addon>
-                  <a-switch size="small" :checked="configProviderStore.state.homeCollapsible" @change="(value: boolean) => configProviderStore.setHomeCollapsible(value)" checked-children="开启" un-checked-children="关闭" />
+                  <a-switch size="small" :checked="configProviderStore.state.homeCollapsible" @change="(value: boolean) => configProviderStore.setHomeCollapsible(value)" :checked-children="globalProperties.$t('common.open')" :un-checked-children="globalProperties.$t('common.close')" />
                 </a-space-addon>
               </a-space-compact>
             </a-form-item>
           </a-col>
         </a-row>
 
-        <a-tabs centered :items="options.componentOptions.map(item => ({key: item.id, label: item.id, icon: item.value}))">
+        <a-tabs centered :items="options.tabItems.map(item => ({key: item.id, label: item.id, icon: item.value}))">
           <template #contentRender="{item}">
-            <template v-if="item.key === globalProperties.$t('setting.componentLayout.text')">
-
-            </template>
             <template v-if="item.key === globalProperties.$t('setting.colorSetting.text')">
               <a-collapse :classes="{header: 'bg-container!'}">
                 <a-collapse-panel :key="id" v-for="id of options.colorOptions">

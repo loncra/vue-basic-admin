@@ -33,15 +33,25 @@ const locale: LanguagePack = {
     realName: '真实姓名',
     name:'名称',
     enabled: '启用',
+    disabled: '禁用',
     type:'类型',
     category:'类别',
     back: '返回',
     home: '首页',
     parent:'父类',
-    addChild:'添加子级'
+    addChild:'添加子级',
+    open:'开启',
+    close:'关闭',
+    border:'边框',
+    size:'尺寸'
   },
   setting: {
     lang: '语言',
+    size:{
+      large:'大',
+      middle:'中',
+      small:'小'
+    },
     theme:{
       text:'主题',
       dark:'暗黑模式',
