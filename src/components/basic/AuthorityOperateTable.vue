@@ -13,6 +13,7 @@ import type {
   TotalPage,
 } from '@/types'
 import {
+  onActivated,
   type Component,
   type ComponentInternalInstance,
   computed,
@@ -262,11 +263,15 @@ function handleActionClick(e: MenuInfo, record: TEntity) {
   }
 }
 
-function mounted() {
-  options.value.pagination = props.pagination === false ? false : { ...(props.pagination || {})};
+function activated() {
   if (props.immediate) {
     fetchDataSource();
   }
+}
+
+function mounted() {
+  options.value.pagination = props.pagination === false ? false : { ...(props.pagination || {})};
+  activated()
 }
 
 watch(
@@ -279,6 +284,8 @@ watch(
   () => rebuildAuthorityMeta(),
   {immediate: true, deep: true},
 )
+
+onActivated(activated)
 
 onMounted(mounted)
 

@@ -4,13 +4,9 @@ import type {MenuItemType} from 'antdv-next'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
+import type {MenuInfo} from '@v-c/menu'
 
 const menuPrincipalStore = useMenuPrincipalStore()
-
-/** 菜单点击事件参数 */
-interface MenuClickInfo {
-  key: string
-}
 
 defineOptions({
   name: 'LProfileButton',
@@ -31,11 +27,15 @@ const operateItems = ref<MenuItemType[]>([
   },
 ])
 
-function onOperateClickItem(e: MenuClickInfo) {
+function onOperateClickItem(e: MenuInfo) {
   if (e.key === 'logout') {
     globalProperties.$router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME})
-  } else if (e.key === 'setting') {
-    globalProperties.$router.push({name: 'setting'})
+  } 
+  const selected = operateItems.value.find(
+    (menuItem) => menuItem != null && menuItem.type !== 'divider' && menuItem.key === e.key,
+  )
+  if (selected && 'page' in selected && typeof selected.page === 'string') {
+    globalProperties.$router.push(selected.page)
   }
 }
 
@@ -43,7 +43,7 @@ function mounted() {
   const data = menuPrincipalStore.state
     .menu
     .filter(r => getEnumValue(r.type) === RESOURCE_TYPE.PROFILE)
-    .map(r => ({key: String(r.id), label: r.name, icon: createIcon(r.icon || 'icon-survey')}));
+    .map(r => ({key: String(r.id), label: r.name, icon: createIcon(r.icon || 'icon-survey'), page: r.page}));
   operateItems.value.unshift(...data)
 }
 
