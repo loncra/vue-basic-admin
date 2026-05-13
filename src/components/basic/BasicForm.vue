@@ -27,6 +27,7 @@ defineOptions({
   name: 'LBasicForm',
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
 
 const globalProperties =
@@ -119,10 +120,10 @@ async function mounted() {
     emit('postGet', result, entity.value)
   }
   spinning.value = false
-  nextTick(postMounted)
+  await nextTick(doPostMounted)
 }
 
-async function postMounted() {
+async function doPostMounted() {
   updateTitle(entity.value as TEntity)
   if (props.postMounted) {
     await props.postMounted()

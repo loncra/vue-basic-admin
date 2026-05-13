@@ -40,6 +40,64 @@ const locale: LanguagePack = {
     parent: 'Parent',
     addChild: 'Add child',
   },
+  setting: {
+    lang: 'Language',
+    theme: {
+      text: 'Theme',
+      dark: 'Dark mode',
+      light: 'Light mode',
+      system: 'Follow system',
+    },
+    componentLayout: {
+      text: 'Control layout',
+    },
+    colorSetting: {
+      text: 'Color settings',
+      colorPrimary: 'Brand color',
+      colorSuccess: 'Success color',
+      colorError: 'Error color',
+      colorWarning: 'Warning color',
+      active: {
+        title: 'Active',
+        subTitle:
+          'In this color ramp, used for selected or pressed emphasis on dark or high-contrast surfaces.',
+      },
+      bg: {
+        title: 'Soft background',
+        subTitle:
+          'Light tint in the same palette, often for weaker hierarchy or low-emphasis selection.',
+      },
+      bgHover: {
+        title: 'Soft background (hover)',
+        subTitle: 'Hover color paired with the soft background for interactive feedback.',
+      },
+      border: {
+        title: 'Border',
+        subTitle: 'Outline color in this ramp for sliders, inputs, and similar strokes.',
+      },
+      borderHover: {
+        title: 'Border (hover)',
+        subTitle: 'Border color on hover for buttons, sliders, and similar outlines.',
+      },
+      hover: {
+        title: 'Hover',
+        subTitle:
+          'General hover accent in this ramp for surfaces or icons (not dedicated text color).',
+      },
+      colorText: {
+        title: 'Text color',
+        subTitle: 'Primary color for body text, secondary copy, and icons in this ramp.',
+      },
+      colorTextActive: {
+        title: 'Text (active)',
+        subTitle: 'Text or link color when active or selected.',
+      },
+      colorTextHover: {
+        title: 'Text (hover)',
+        subTitle: 'Text or link color on hover.',
+      },
+    },
+  },
   form: {
     createSuccess: {
       title: 'Created successfully',
@@ -52,6 +110,9 @@ const locale: LanguagePack = {
     errorMessage: 'Error message',
     code: 'Error code',
     field: 'Field information',
+    valid: {
+      phoneNumber: 'Invalid phone number format',
+    },
     badRequest: {
       title: 'Invalid parameters submitted',
     },
@@ -75,6 +136,7 @@ const locale: LanguagePack = {
     },
   },
   layoutContent: {
+    loading: 'Loading…',
     pin: 'Pin',
     unpin: 'Unpin',
     reload: 'Reload',

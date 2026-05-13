@@ -40,6 +40,65 @@ const locale: LanguagePack = {
     parent:'父类',
     addChild:'添加子级'
   },
+  setting: {
+    lang: '语言',
+    theme:{
+      text:'主题',
+      dark:'暗黑模式',
+      light:'白昼模式',
+      system:'跟随系统',
+    },
+    home: {
+      homeSiderWidth:'首页侧边栏宽度',
+      homeCollapsedWidth:'首页侧边栏折叠宽度',
+    },
+    componentLayout:{
+      text:'控件布局',
+    },
+    colorSetting:{
+      text:'颜色设置',
+      colorPrimary:'品牌色',
+      colorSuccess:'成功色',
+      colorError:'错误色',
+      colorWarning:'警告色',
+      active: {
+        title: '激活态',
+        subTitle: '在该色梯度下，用于深色或高对比场景中的选中、按下等强调。',
+      },
+      bg: {
+        title: '浅背景',
+        subTitle: '同色系浅色底，多用于层级较弱的背景或弱化选中。',
+      },
+      bgHover: {
+        title: '浅背景（悬停）',
+        subTitle: '与浅背景成对的悬停色，用于可交互区域的 Hover 反馈。',
+      },
+      border: {
+        title: '描边',
+        subTitle: '该梯度下的轮廓色，常用于 Slider、输入框等描边。',
+      },
+      borderHover: {
+        title: '描边（悬停）',
+        subTitle: '描边在悬停时变化，用于 Button、Slider 等边框 Hover。',
+      },
+      hover: {
+        title: '悬停态',
+        subTitle: '该梯度下用于一般控件面或图标的悬停强调（非专用文本色）。',
+      },
+      colorText: {
+        title: '文本色',
+        subTitle: '该梯度下正文、辅助文案及图标的主用色。',
+      },
+      colorTextActive: {
+        title: '文本（激活）',
+        subTitle: '文本或链接在激活、选中状态下的颜色。',
+      },
+      colorTextHover: {
+        title: '文本（悬停）',
+        subTitle: '文本或链接在鼠标悬停时的颜色。',
+      },
+    }
+  },
   form: {
     createSuccess: {
       title: '新增成功',

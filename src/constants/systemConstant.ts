@@ -50,10 +50,11 @@ export const CONFIG_PROVIDER = {
   MATCH_MEDIA_QUERY: '(prefers-color-scheme: dark)',
   STORED_STATE_VALUE: {
     mode: CONFIG_PROVIDER_THEME.SYSTEM,
-    collapsedWidth: 84,
+    homeCollapsedWidth: 84,
     collapsible: false,
     formLayout: 'vertical',
     homeSiderWidth: 260,
+    token:{},
   },
 } as const
 

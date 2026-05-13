@@ -45,6 +45,8 @@ export interface ConfigProviderStoredState {
   homeSiderWidth: number
   /** 当前语言环境 */
   locale: string
+  /** 主题 token */
+  token: Record<string, unknown>
 }
 
 /**
@@ -172,6 +174,42 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     return token.value
   })
 
+  function getTokenValue (key: string):string {
+    if (state.value.token && state.value.token[key]) {
+      return state.value.token[key] as unknown as string;
+    }
+    return token.value[key as keyof typeof token.value] as string
+  }
+
+  function isScalarTokenValue(v: unknown): v is string | number {
+    return typeof v === 'string' || typeof v === 'number'
+  }
+
+  /**
+   * 按 key 写入 theme token（仅允许覆盖当前即为 string | number 的字段；新值也须为 string | number）。
+   * 组件级嵌套对象等字段会被跳过，避免误写坏主题结构。
+   */
+  function setTokenValue(key: string, value: string | number): void {
+    if (!isScalarTokenValue(value)) {
+      return
+    }
+    const tk = token.value as unknown as Record<string, unknown>
+    const current = tk[key]
+    if (!isScalarTokenValue(current)) {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[configProviderStore] setTokenValue skipped: "${key}" is not a scalar token (current type: ${current === undefined ? 'undefined' : typeof current})`,
+        )
+      }
+      return
+    }
+    if (!state.value.token) {
+      state.value.token = {}
+    }
+    state.value.token[key] = value
+    saveLocalStorage()
+  }
+
   /**
    * 设置首页侧边栏宽度
    *
@@ -256,6 +294,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
       homeSiderWidth: state.value.homeSiderWidth,
       formLayout: state.value.formLayout,
       locale: state.value.locale,
+      token:state.value.token,
     }
     localStorage.setItem(
       import.meta.env.VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME,
@@ -373,7 +412,15 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
   const handleResize = (): void => {
     updateScreenBreakpoint()
   }
-
+  /**
+   * 设置首页侧边栏折叠宽度
+   *
+   * @param width 折叠宽度（像素）
+   */
+  function setHomeCollapsedWidth(width: number): void {
+    state.value.homeCollapsedWidth = width
+    saveLocalStorage()
+  }
   /**
    * 组件挂载时的初始化
    *
@@ -402,6 +449,10 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     state,
     /** 获取 Ant Design Vue theme token 的函数 */
     getToken,
+    /** 获取 token 值 */
+    getTokenValue,
+    /** 设置 token 值 */
+    setTokenValue,
     /**
      * 是否小于等于平台宽度
      */
@@ -410,6 +461,8 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     getTheme,
     /** 设置首页侧边栏宽度 */
     setHomeSiderWidth,
+    /** 设置首页侧边栏折叠宽度 */
+    setHomeCollapsedWidth,
     /** 设置首页侧边栏是否可折叠 */
     setHomeCollapsible,
     /** 当前语言环境的翻译消息 */
