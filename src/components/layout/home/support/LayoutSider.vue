@@ -3,14 +3,13 @@ import {useConfigProviderStore} from '@/stores/configProviderStore.js'
 import LLogo from '@/components/Logo.vue'
 import LMenu from '@/components/layout/Menu.vue'
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
-
+import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 
 defineOptions({
   name: 'LLayoutSider',
 })
 
 const configProviderStore = useConfigProviderStore()
-
 </script>
 
 <template>
@@ -29,8 +28,7 @@ const configProviderStore = useConfigProviderStore()
         </a-flex>
       </a-layout-header>
       <div class="h-full overflow-auto bg-container">
-        <l-menu :menu-types="[RESOURCE_TYPE.MENU, RESOURCE_TYPE.ROOT, RESOURCE_TYPE.DIRECTORY]"
-                mode="inline"/>
+        <l-menu :menu-types="[RESOURCE_TYPE.MENU, RESOURCE_TYPE.ROOT, RESOURCE_TYPE.DIRECTORY]" mode="inline"/>
       </div>
     </a-flex>
   </a-layout-sider>

@@ -112,7 +112,15 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
 </script>
 
 <template>
+  <a-spin 
+    :spinning="menuPrincipalStore.state.loading" 
+    v-if="$attrs.mode === 'inline' && menuPrincipalStore.state.loading" 
+    class="flex h-full min-h-0 flex-col"
+  >
+    <a-flex vertical class="h-full min-h-0" />
+  </a-spin>
   <a-menu
+    v-else
     @click="handleClick"
     root-class="border-none"
     :classes="{itemContent: props.hideLabel ? 'm-0' : ''}"

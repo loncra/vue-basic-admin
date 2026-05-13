@@ -18,12 +18,14 @@ import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from "@/utils";
  */
 const RESET: MenuState = {
   menu: [],
+  loading: false,
   currentBreadcrumbs: [],
 }
 
 
 export interface MenuState  {
   menu: ResourceEntity[]
+  loading: boolean,
   currentBreadcrumbs: RouteResourceMetadata[]
 }
 
@@ -63,12 +65,14 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     if (state.value.menu.length > 0) {
       return state.value.menu;
     }
+    state.value.loading = true;
     const result = await AuthServerService.principalResources(types, mergeTree)
     if (!isResultSuccess(result)) {
       return []
     }
     // 更新状态并返回数据
     state.value.menu = result.data
+    state.value.loading = false;
     return state.value.menu
   }
 
