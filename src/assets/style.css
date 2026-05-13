@@ -55,6 +55,7 @@
       transform: scale(0.96);
     }
   }
+
 }
 
 @layer components {
@@ -158,7 +159,7 @@
   }
 
   .layout-content-operation .tool-bar {
-    @apply min-w-0 max-w-full rounded-b-lg border border-border-secondary border-solid border-t-0 bg-container p-sm;
+    @apply relative min-w-0 max-w-full rounded-b-lg border border-border-secondary border-solid border-t-0 bg-container p-sm;
   }
 
   /* ant-tabs-card 默认 ink-bar visibility:hidden，但 left/width 仍会随选中项动画；做成 Segmented 拇指，选中底由滑块承担 */

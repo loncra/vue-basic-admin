@@ -24,7 +24,6 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const router = useRouter()
 const menuPrincipalStore = useMenuPrincipalStore()
 
 const activeKey = ref<string>('')
@@ -51,6 +50,11 @@ const operateItems = ref<MenuItemType[]>([
   },
 ])
 
+function tabIconSpin(itemKey: string | number): boolean {
+  const p = menuPrincipalStore.state.routeEnterPage
+  return Boolean(p?.loading && String(itemKey) === p.fullPath)
+}
+
 provide(APP_RELOAD_PROVIDE_KEY, reload)
 provide(LAYOUT_CONTENT_CLOSE_TAB_KEY, removePaneByPage)
 
@@ -60,7 +64,7 @@ function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
 }
 
 function getFixedRoutesFromRouter(): RouteResourceMetadata[] {
-  const homeRoute = router.getRoutes().find((r) => r.name === import.meta.env.VITE_APP_HOME_PAGE_NAME)
+  const homeRoute = globalProperties.$router.getRoutes().find((r) => r.name === import.meta.env.VITE_APP_HOME_PAGE_NAME)
   if (!homeRoute?.children?.length) {
     return []
   }
@@ -68,7 +72,7 @@ function getFixedRoutesFromRouter(): RouteResourceMetadata[] {
     .filter((r) => r.name && (r.meta?.fixed as boolean))
     .sort((a, b) => ((a.meta?.sort as number) ?? 0) - ((b.meta?.sort as number) ?? 0))
   return fixed
-    .map((r) => router.resolve({name: r.name as string}))
+    .map((r) => globalProperties.$router.resolve({name: r.name as string}))
     .filter((loc) => loc.name)
     .map((loc) => menuPrincipalStore.toResourceRouteMetadata(loc as RouteLocationNormalizedLoaded))
 }
@@ -334,7 +338,17 @@ onMounted(mounted)
           >
             <template #labelRender="{ item }">
               <a-space>
-                <icon-font class="icon align" :type="item.iconString || 'icon-survey'"/>
+                <icon-font
+                  v-if="tabIconSpin(item.key)"
+                  class="icon align"
+                  type="icon-loading"
+                  spin
+                />
+                <icon-font
+                  v-else
+                  class="icon align"
+                  :type="item.iconString || 'icon-survey'"
+                />
                 <span>{{item.label}}</span>
               </a-space>
             </template>

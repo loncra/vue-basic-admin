@@ -4,7 +4,7 @@ import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {PrepareData, ResourceEntity} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {ref} from 'vue'
+import {nextTick, ref} from 'vue'
 import {unmergeTree} from '@/utils'
 
 import Auth from '@/views/Auth.vue'
@@ -254,17 +254,22 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
       query: {authenticationType: principalStore.state.type},
     }
   }
+
+  useMenuPrincipalStore().setRouteEnterLoading(to.fullPath, true)
   // 默认继续导航
   return true
 }
 
 /**
- * 路由导航后置守卫
- * 当前暂未实现具体逻辑，预留用于后续扩展（如页面访问统计、埋点等）
+ * 路由导航后置守卫：面包屑、路由进入 loading 清理
  */
-const onAfterEach = (to: RouteLocationNormalized) => {
+const onAfterEach = (to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
   const menuPrincipalStore = useMenuPrincipalStore()
-  menuPrincipalStore.resetCurrentBreadcrumbs(to, router);
+  menuPrincipalStore.resetCurrentBreadcrumbs(to, router)
+  // 推迟一帧再清 loading，避免与 beforeEach 同一宏任务内立刻清掉，界面来不及绘制 tab 图标 spin
+  nextTick(() => {
+    menuPrincipalStore.setRouteEnterLoading(to.fullPath, false)
+  })
 }
 
 /**

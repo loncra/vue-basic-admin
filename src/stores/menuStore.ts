@@ -10,7 +10,13 @@ import {
   type Router,
   type RouteRecordNormalized
 } from "vue-router";
-import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from "@/utils";
+import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
+
+/** 路由进入中：仅用于 tab 图标 spin（与 useRoute() 解耦，对齐 beforeEach 的 to.fullPath） */
+export interface RouteEnterPage {
+  loading: boolean
+  fullPath: string
+}
 
 /**
  * 重置状态常量
@@ -18,15 +24,17 @@ import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from "@/utils";
  */
 const RESET: MenuState = {
   menu: [],
-  loading: false,
+  laoding: false,
   currentBreadcrumbs: [],
+  routeEnterPage: null,
 }
 
 
 export interface MenuState  {
   menu: ResourceEntity[]
-  loading: boolean,
+  laoding: boolean
   currentBreadcrumbs: RouteResourceMetadata[]
+  routeEnterPage: RouteEnterPage | null
 }
 
 
@@ -36,7 +44,7 @@ export interface MenuState  {
  */
 export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   /** 菜单资源数据状态 */
-  const state = ref<MenuState>(RESET)
+  const state = ref<MenuState>({...RESET})
 
   /**
    * 重置菜单状态
@@ -45,8 +53,27 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    * @returns 重置后的空菜单数组
    */
   function $reset(): MenuState {
-    state.value = {...RESET}
+    state.value = {
+      menu: [],
+      laoding: false,
+      currentBreadcrumbs: [],
+      routeEnterPage: null,
+    }
     return state.value
+  }
+
+  function setRouteEnterLoading(pathKey: string, value: boolean) {
+    if (!pathKey) {
+      return
+    }
+    if (value) {
+      state.value.routeEnterPage = {loading: true, fullPath: pathKey}
+    } else {
+      if (state.value.routeEnterPage?.fullPath !== pathKey) {
+        return
+      }
+      state.value.routeEnterPage = null
+    }
   }
 
   /**
@@ -65,14 +92,14 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     if (state.value.menu.length > 0) {
       return state.value.menu;
     }
-    state.value.loading = true;
+    state.value.laoding = true;
     const result = await AuthServerService.principalResources(types, mergeTree)
     if (!isResultSuccess(result)) {
       return []
     }
     // 更新状态并返回数据
     state.value.menu = result.data
-    state.value.loading = false;
+    state.value.laoding = false;
     return state.value.menu
   }
 
@@ -133,6 +160,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     getPrincipalResources,
     setCurrentBreadcrumbs,
     resetCurrentBreadcrumbs,
+    setRouteEnterLoading,
     toResourceRouteMetadata,
     $reset,
   }

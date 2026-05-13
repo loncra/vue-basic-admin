@@ -113,8 +113,8 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
 
 <template>
   <a-spin 
-    :spinning="menuPrincipalStore.state.loading" 
-    v-if="$attrs.mode === 'inline' && menuPrincipalStore.state.loading" 
+    :spinning="menuPrincipalStore.state.laoding"
+    v-if="$attrs.mode === 'inline' && menuPrincipalStore.state.laoding"
     class="flex h-full min-h-0 flex-col"
   >
     <a-flex vertical class="h-full min-h-0" />
