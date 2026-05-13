@@ -15,7 +15,7 @@ const globalProperties =
 
 const service = new ConsoleUserService()
 const entity = ref<ConsoleUserEntity>({
-  versin: 0,
+  version: 0,
   emailVerified: {
     value:0,
     name:'否'

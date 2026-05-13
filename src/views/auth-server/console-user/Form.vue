@@ -35,7 +35,7 @@ const options = ref<{
   spinning: false,
   entity: {
     id:null as unknown as number,
-    versin:null as unknown as number,
+    version:null as unknown as number,
     realName: "",
     gender: 30,
     phoneNumber: "",

@@ -27,7 +27,7 @@ export interface BasicIdMetadata<T> {
 
 export interface VersionEntityMetadata extends BasicIdMetadata<number> {
   creationTime?: number,
-  versin: number,
+  version: number,
 }
 
 /**

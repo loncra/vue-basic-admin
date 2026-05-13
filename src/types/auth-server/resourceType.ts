@@ -1,4 +1,4 @@
-import type {NameValueEnumMetadata, VersionEntityMetadata} from '@/types/common'
+import type {BasicIdMetadata, NameValueEnumMetadata} from '@/types/common'
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 
 /** 资源类型：根/目录/菜单/安全/工具 */
@@ -35,7 +35,11 @@ export interface RouteResourceMetadata extends ResourceMetadata {
   fixed: boolean
 }
 
-export interface ResourceSavePayload extends ResourceMetadata, VersionEntityMetadata {
+export interface ResourceSavePayload extends ResourceMetadata, BasicIdMetadata<number> {
+  /**
+   * 版本号
+   */
+  version:string
   /**
    * 顺序值
    */

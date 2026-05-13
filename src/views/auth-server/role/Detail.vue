@@ -16,7 +16,7 @@ const globalProperties =
 const service = new RoleService()
 const entity = ref<RoleEntity>({
   resourceIds: [],
-  versin: 0,
+  version: 0,
   enabled: 0,
   sources: [],
   removable: 0,

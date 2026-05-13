@@ -8,20 +8,19 @@ import {
   onMounted,
   ref,
   resolveComponent,
-  type VNode,
   watch
 } from "vue";
 import {type RouteLocationNormalizedLoaded} from "vue-router";
 import {
   createIcon,
   filterTreeDeep,
+  findFirstTreeNode,
   getEnumValue,
   requireNonNullOrUndefined,
-  unmergeTree,
-  findFirstTreeNode
+  unmergeTree
 } from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import type { MenuInfo } from '@v-c/menu'
+import type {MenuInfo} from '@v-c/menu'
 
 defineOptions({
   name: 'LMenu',
@@ -112,7 +111,7 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
 </script>
 
 <template>
-  <a-spin 
+  <a-spin
     :spinning="menuPrincipalStore.state.laoding"
     v-if="$attrs.mode === 'inline' && menuPrincipalStore.state.laoding"
     class="flex h-full min-h-0 flex-col"

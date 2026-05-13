@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import {useConfigProviderStore} from '@/stores/configProviderStore'
+
 const configProviderStore = useConfigProviderStore()
 </script>
 

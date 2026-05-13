@@ -5,7 +5,7 @@ import LAuthorityButton from "@/components/basic/AuthorityButton.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {TableProps} from "antdv-next";
 import {requireNonNullOrUndefined} from "@/utils";
-import type { RoleEntity } from '@/types/auth-server/roleType';
+import type {RoleEntity} from '@/types/auth-server/roleType';
 
 defineOptions({
   name: 'LAuthServerRoleHome',

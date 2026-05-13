@@ -48,7 +48,7 @@ const options = ref<{
     applicationName: "",
     page: "",
     id: null as unknown as number,
-    versin: null as unknown as number,
+    version: null as unknown as string,
     category: 20
   },
   typeOptions:[],

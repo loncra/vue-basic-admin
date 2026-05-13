@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {type RouteLocationNormalizedLoaded, useRouter} from 'vue-router'
+import {type RouteLocationNormalizedLoaded} from 'vue-router'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -393,17 +393,18 @@ onMounted(mounted)
         </div>
       </a-flex>
       <a-flex vertical flex="1" class="pr-md pl-md">
-
-        <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
-          <transition name="fade-transform" mode="out-in">
-            <!-- 使用 key 来清除缓存：key = fullPath + 版本号 -->
-            <!-- 当关闭标签页时，版本号会增加，key 改变，keep-alive 会销毁旧实例并创建新实例 -->
-            <!-- 无 Component 时不渲染 keep-alive，避免空白（如路由未解析完） -->
-            <keep-alive v-if="Component">
-              <component :is="Component" :key="getRouteCacheKey(route)"/>
-            </keep-alive>
-          </transition>
-        </router-view>
+        <a-spin :spinning="tabIconSpin(globalProperties.$route.fullPath)" :tip="globalProperties.$t('layoutContent.loading')">
+          <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
+            <transition name="fade-transform" mode="out-in">
+              <!-- 使用 key 来清除缓存：key = fullPath + 版本号 -->
+              <!-- 当关闭标签页时，版本号会增加，key 改变，keep-alive 会销毁旧实例并创建新实例 -->
+              <!-- 无 Component 时不渲染 keep-alive，避免空白（如路由未解析完） -->
+              <keep-alive v-if="Component">
+                <component :is="Component" :key="getRouteCacheKey(route)"/>
+              </keep-alive>
+            </transition>
+          </router-view>
+        </a-spin>
       </a-flex>
       <layout-footer/>
     </a-flex>

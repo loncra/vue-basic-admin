@@ -77,6 +77,7 @@ const locale: LanguagePack = {
     }
   },
   layoutContent: {
+    loading: '加载中...',
     pin: '固定',
     unpin: '解除固定',
     reload: '刷新',
