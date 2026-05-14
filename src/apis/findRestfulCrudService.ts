@@ -10,10 +10,14 @@ import axios from '@/requests'
  * @template TEntity - 实体类型，须含主键字段 `id`（键名由 {@link SYSTEM_CONSTANT.ID_NAME} 约定）
  */
 export class FindRestfulCrudService<
-TBody extends BasicIdMetadata<TId>, 
+TBody extends BasicIdMetadata<TId>,
 TEntity extends TBody,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
-> extends BasicRestfulCrudService<TBody,TEntity, TId> implements FindCurdService<TBody, TEntity, TId>
+> extends BasicRestfulCrudService<
+  TBody,
+  TEntity,
+  TId
+> implements FindCurdService<TBody, TEntity, TId>
 {
 
   static readonly FIND_URL = '/find'

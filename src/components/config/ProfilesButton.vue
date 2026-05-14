@@ -30,7 +30,7 @@ const operateItems = ref<MenuItemType[]>([
 function onOperateClickItem(e: MenuInfo) {
   if (e.key === 'logout') {
     globalProperties.$router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME})
-  } 
+  }
   const selected = operateItems.value.find(
     (menuItem) => menuItem != null && menuItem.type !== 'divider' && menuItem.key === e.key,
   )

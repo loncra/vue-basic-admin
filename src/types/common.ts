@@ -171,7 +171,7 @@ export interface FilterRequest {
 /**
  * 分页请求参数
  */
-export interface PageRequest extends FilterRequest{
+export interface PageRequest extends FilterRequest {
   /** 当前页码（从 1 开始） */
   number: number
   /** 每页条数 */
@@ -237,23 +237,56 @@ export interface ButtonAuthorityProps extends BasicAuthorityProps {
   add?:string
 }
 
-/**
- * 实体 CRUD 契约（服务层 / API 适配层均可实现此接口）
- *
- * - 实体 {@link TEntity} 必须含 {@link BasicIdMetadata} 所要求的 `id`
- * - {@link TId} 默认取实体上的 `id` 字段类型，与 {@link BasicIdMetadata} 的泛型参数一致
- *
- * @template TEntity - 业务实体类型
- * @template TId - 主键类型，等于 `BasicIdMetadata<TId>['id']`
- */
-export interface BasicCrudService<TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> {
-
+export interface DetailSearchService<
+  TEntity extends BasicIdMetadata<TId>,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
+> {
   /**
    * 获取数据
    *
    * @param id 主键
    */
   get(id: TId): Promise<RestResult<TEntity>>
+}
+
+export interface FindSearchService<
+  TEntity extends BasicIdMetadata<TId>,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
+> extends DetailSearchService<
+  TEntity,
+  TId
+> {
+  /**
+   * 根据查询条件查找内容
+   *
+   * @param request 过滤条件
+   */
+  find(request: FilterRequest): Promise<RestResult<TEntity[]>>
+}
+
+export interface PageSearchService<
+  TEntity extends BasicIdMetadata<TId>,
+  TPage extends ScrollPageResult<TEntity>,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
+> extends DetailSearchService<
+  TEntity,
+  TId
+> {
+  /**
+   * 获取分页内容
+   *
+   * @param request 分页请求体
+   */
+  page(request: PageRequest): Promise<RestResult<TPage>>
+}
+
+export interface BasicCrudService<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
+> extends DetailSearchService<
+  TEntity
+>{
 
   /**
    * 保存数据
@@ -269,20 +302,29 @@ export interface BasicCrudService<TBody extends BasicIdMetadata<TId>, TEntity ex
   delete(ids: TId[]): Promise<RestResult<void>>
 }
 
-export interface PageCurdService<TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> extends BasicCrudService<TBody,TEntity, TId> {
-
-  /**
-   * 获取分页内容
-   *
-   * @param request 分页请求体
-   */
-  page(request: PageRequest): Promise<RestResult<TPage>>
+export interface PageCurdService<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody,
+  TPage extends ScrollPageResult<TEntity>,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
+> extends BasicCrudService<
+  TBody,
+  TEntity,
+  TId
+>, PageSearchService<TEntity, TPage> {
 
 }
 
-export interface FindCurdService<TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> extends BasicCrudService<TBody, TEntity, TId> {
+export interface FindCurdService<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
+> extends BasicCrudService<
+  TBody,
+  TEntity,
+  TId
+>, FindSearchService<TEntity> {
 
-  find(filter:FilterRequest) : Promise<RestResult<TEntity[]>>
 }
 
 /**

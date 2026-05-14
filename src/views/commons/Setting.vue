@@ -499,7 +499,6 @@ function colorChange(_color: Color, tokenKey: string): void {
                     </a-flex>
                   </a-space>
                 </a-collapse-panel>
-
               </a-collapse>
             </template>
           </template>

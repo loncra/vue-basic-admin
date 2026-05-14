@@ -1,50 +1,56 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
-import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import {ref} from "vue";
-import type {MenuItemType} from "antdv-next";
-import {createIcon} from "@/utils";
+import type {MenuTitleCardProps} from '@/components/basic/MenuTitleCard.vue'
+import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
+import type {AuthorityButtonProps} from '@/components/basic/AuthorityButton.vue'
+import LAuthorityButton from '@/components/basic/AuthorityButton.vue'
+import type {AuthorityOperateTableProps} from '@/components/basic/AuthorityOperateTable.vue'
+import LAuthorityOperateTable from '@/components/basic/AuthorityOperateTable.vue'
+import type {BasicCrudService, BasicIdMetadata, ScrollPageResult} from '@/types'
+import {computed} from 'vue'
+import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 
+export interface BasicOperateTableProps<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
+> {
+  service: BasicCrudService<TBody, TEntity>
+  /** MenuTitleCard 与落在内部 a-card 上的 attrs（如 class、bodyStyle） */
+  menuTitleCard?: Partial<MenuTitleCardProps> & Record<string, unknown>
+  /** AuthorityButton */
+  button?: Partial<AuthorityButtonProps> & Record<string, unknown>
+  /** AuthorityOperateTable；不含 service，由本组件统一传入 */
+  table?: Partial<Omit<AuthorityOperateTableProps<TBody, TEntity, TId>, 'service'>> & Record<string, unknown>
+}
 defineOptions({
   name: 'LBasicCurdTable',
 })
 
-const operateItems = ref<MenuItemType[]>([
-  {
-    key: 'add',
-    label: '添加',
-    icon: () => createIcon('icon-add'),
-  },
-  {
-    key: 'export',
-    label: '导出',
-    icon: () => createIcon('icon-goods-start-to-ship'),
-  },
-  {
-    key: 'delete',
-    label: '删除选中',
-    icon: () => createIcon('icon-delete'),
-  },
-])
+const props = withDefaults(defineProps<BasicOperateTableProps<TBody, TEntity, TId>>(), {
+  menuTitleCard: () => ({}),
+  button: () => ({}),
+  table: () => ({}),
+})
+
+/** service 与 table 透传合并；经 unknown 断言为完整 props，满足 v-bind 校验且避免 no-explicit-any */
+const authorityOperateTableBind = computed(
+  (): AuthorityOperateTableProps<TBody, TEntity, TId> =>
+    ({
+      ...props.table,
+      service: props.service,
+    }) as unknown as AuthorityOperateTableProps<TBody, TEntity, TId>,
+)
 
 </script>
 
 <template>
   <div>
-    <l-menu-title-card>
+    <l-menu-title-card v-bind="props.menuTitleCard">
       <template #extra>
-        <a-dropdown
-          placement="bottomRight"
-          :menu="{ items: operateItems }"
-        >
-          <a-button type="text">
-            <icon-font class="icon" type="icon-more"></icon-font>
-          </a-button>
-        </a-dropdown>
+        <l-authority-button v-bind="props.button" />
       </template>
-      <a-table v-bind="$attrs">
-
-      </a-table>
+      <l-authority-operate-table v-bind="authorityOperateTableBind" />
     </l-menu-title-card>
   </div>
 </template>

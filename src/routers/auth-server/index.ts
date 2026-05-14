@@ -1,2 +1,2 @@
-export * from './console-user'
+export * from './consoleUser'
 export * from './role'

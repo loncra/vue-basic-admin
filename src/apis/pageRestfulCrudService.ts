@@ -20,7 +20,11 @@ export class PageRestfulCrudService<
   TEntity extends TBody,
   TPage extends ScrollPageResult<TEntity>,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
-> extends BasicRestfulCrudService<TBody, TEntity, TId> implements PageCurdService<TBody, TEntity, TPage, TId>
+> extends BasicRestfulCrudService<
+  TBody,
+  TEntity,
+  TId
+> implements PageCurdService<TBody, TEntity, TPage, TId>
 {
   static readonly PAGE_URL = '/page'
 

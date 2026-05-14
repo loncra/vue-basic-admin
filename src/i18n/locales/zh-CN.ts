@@ -228,6 +228,7 @@ const locale: LanguagePack = {
     reLogin:'重新登录',
   },
   workbench: {
+    basicInformation: '基础信息',
     personalActivity: '个人动态',
     quickAccess: '快速入口',
   },

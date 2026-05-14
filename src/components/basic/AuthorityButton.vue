@@ -8,6 +8,22 @@ import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {MenuInfo} from '@v-c/menu'
 
+type MenuItemEntry = NonNullable<MenuProps["items"]>[number]
+
+/** 仅用于本组件 push 的扁平菜单项（含 icon / label），与 antdv ItemType 并集区分 */
+type LoneActionMenuRow = {
+  key?: string
+  label?: unknown
+  icon?: (() => unknown) | unknown
+}
+
+function toLoneActionMenuRow(item: MenuItemEntry | undefined): LoneActionMenuRow | null {
+  if (!item || item.type === "divider" || !("icon" in item) || !("label" in item) || item.icon == null) {
+    return null
+  }
+  return item as LoneActionMenuRow
+}
+
 export interface AuthorityButtonProps {
   authority?: ButtonAuthorityProps
   actionItems?: NonNullable<MenuProps['items']>
@@ -67,30 +83,44 @@ const menuItems = computed<NonNullable<MenuProps['items']>>(() => {
   }
 
   if (props.actionItems.length > 0) {
-    items.push({type: 'divider'})
+    if (items.length > 0) {
+      items.push({type: 'divider'})
+    }
     items.push(...props.actionItems)
   }
 
   return items
 })
 
-function handleActionClick(e: MenuInfo) {
-  if (e.key === 'add') {
+const loneMenuItem = computed(() => {
+  const list = menuItems.value
+  if (list.length !== 1) {
+    return null
+  }
+  return toLoneActionMenuRow(list[0])
+})
+
+function dispatchMenuKey(key: string, e?: MenuInfo) {
+  if (key === 'add') {
     emit('add')
-  } else if (e.key === 'delete') {
+  } else if (key === 'delete') {
     emit('delete')
-  }else if (e.key === 'export') {
+  } else if (key === 'export') {
     emit('export')
-  } else {
+  } else if (e != null) {
     emit('actionItemClick', e)
   }
+}
+
+function handleActionClick(e: MenuInfo) {
+  dispatchMenuKey(e.key, e)
 }
 
 </script>
 
 <template>
   <a-dropdown
-    v-if="menuItems.length > 0"
+    v-if="menuItems.length > 1"
     placement="bottomRight"
     :menu="{ items: menuItems, onClick: handleActionClick }"
   >
@@ -100,4 +130,16 @@ function handleActionClick(e: MenuInfo) {
       </template>
     </a-button>
   </a-dropdown>
+  <template v-else-if="menuItems.length === 1">
+    <a-button @click="dispatchMenuKey(loneMenuItem?.key ?? '')">
+      <template #icon>
+        <component
+          :is="typeof loneMenuItem?.icon === 'function' ? loneMenuItem.icon() : loneMenuItem?.icon"
+        />
+      </template>
+      <span>
+        {{ loneMenuItem?.label }}
+      </span>
+    </a-button>
+  </template>
 </template>

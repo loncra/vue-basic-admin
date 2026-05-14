@@ -233,6 +233,7 @@ const locale: LanguagePack = {
     reLogin: 'Sign in again',
   },
   workbench: {
+    basicInformation: 'Basic information',
     personalActivity: 'Personal activity',
     quickAccess: 'Quick access',
   },
