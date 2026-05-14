@@ -4,14 +4,14 @@
  */
 import type {AuditEventEntity} from "@/types/auth-server/auditEntityType.ts";
 import {PageSearchRestfulService} from "@/apis/pageSearchRestfulService.ts";
-import type {PageResult} from "@/types";
+import type {PageResult, TotalPage} from "@/types";
 
 /**
  * 认证审计事件：`/api[/auth-server]/audit/event/authentication`
  *
  * @author maurice.chen
  */
-export class AuthenticationAuditEventService extends PageSearchRestfulService<AuditEventEntity, PageResult<AuditEventEntity>> {
+export class AuthenticationAuditEventService extends PageSearchRestfulService<AuditEventEntity, TotalPage<AuditEventEntity>> {
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/auth-server' : '')
 
   static readonly SERVICE_URL = AuthenticationAuditEventService.BASE_URL + '/audit/event/authentication'

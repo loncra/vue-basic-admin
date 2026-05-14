@@ -104,18 +104,18 @@ function setPageTitle(title:string, entity: ResourceEntity) {
     >
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="[{required: true}]">
+          <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="getEnumValue(options.entity.category) === 10 ? undefined : [{required: true}]">
             <a-input v-model:value="options.entity.name" />
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="authority" :label="globalProperties.$t('authServer.authority')" :rules="[{required: true}]">
+          <a-form-item name="authority" :label="globalProperties.$t('authServer.authority')" :rules="getEnumValue(options.entity.category) === 10 ? undefined : [{required: true}]">
             <a-input v-model:value="options.entity.authority" :disabled="options.entity.id && getEnumValue(options.entity.category) === 10" />
           </a-form-item>
         </a-col>
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="sources" :label="globalProperties.$t('authServer.source')" :rules="[{required: true, trigger: 'change', type: 'array'}]">
+          <a-form-item name="sources" :label="globalProperties.$t('authServer.source')" :rules="getEnumValue(options.entity.category) === 10 ? undefined : [{required: true, trigger: 'change', type: 'array'}]">
             <a-select mode="multiple" :disabled="options.entity.id && getEnumValue(options.entity.category) === 10" v-model:value="options.entity.sources" :options="options.sourceOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>

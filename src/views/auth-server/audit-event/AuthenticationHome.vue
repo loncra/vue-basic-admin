@@ -21,7 +21,7 @@ const columns = ref<SearchableColumnType[]>([
     width: 210,
     search:{
       component: markRaw(DatePicker),
-      props:{placeholder: globalProperties.$t('search.placeholder.input'), showTime: true},
+      props:{allowClear:false, placeholder: globalProperties.$t('search.placeholder.input'), showTime: true},
       queryName:'after',
       defaultValue: globalProperties.$dayjs().startOf('d')
     },
@@ -53,12 +53,12 @@ const columns = ref<SearchableColumnType[]>([
   >
     <template #tableBodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'creationTime'">
-          {{ dateTimeFormat(record.timestamp) }}
-        </template>
+        {{ dateTimeFormat(record.timestamp) }}
+      </template>
 
-        <template v-if="column.dataIndex === 'principal'">
-          {{ record.data?.details?.metadata?.realName || record.principal}}
-        </template>
+      <template v-if="column.dataIndex === 'principal'">
+        {{ record.data?.details?.metadata?.realName || record.principal}}
+      </template>
     </template>
   </l-basic-crud-table>
 </template>
