@@ -19,7 +19,6 @@ const locale: LanguagePack = {
     deleteSelected: '删除选中',
     operation: '操作',
     reset: '重置',
-    deleteConfirm: '确定要删除 [{name}] 记录吗？',
     deleteConfirmTitle: '删除确认',
     deleteConfirmSingle: '确定要删除该记录吗？',
     deleteConfirmBatch: '确定要删除 {count} 条记录吗？',
@@ -43,14 +42,27 @@ const locale: LanguagePack = {
     open:'开启',
     close:'关闭',
     border:'边框',
-    size:'尺寸'
+    size:'尺寸',
+    lang: '语言',
+    style:'风格',
+    other:'其他',
+    rememberOperate:'记住我的操作',
   },
   setting: {
-    lang: '语言',
+    componentSize:'组件默认大小设置',
+    wireframe:'边框化',
+    compact:'紧奏型',
     size:{
       large:'大',
       middle:'中',
-      small:'小'
+      small:'小',
+      lg:'大尺寸',
+      md:'中大尺寸',
+      sm:'中小尺寸',
+      xl:'超大尺寸',
+      xs:'小尺寸',
+      xxl:'最大尺寸',
+      xxs:'最小尺寸'
     },
     theme:{
       text:'主题',
@@ -62,15 +74,27 @@ const locale: LanguagePack = {
       homeSiderWidth:'首页侧边栏宽度',
       homeCollapsedWidth:'首页侧边栏折叠宽度',
     },
-    componentLayout:{
-      text:'控件布局',
-    },
     colorSetting:{
-      text:'颜色设置',
+      text:'颜色',
       colorPrimary:'品牌色',
       colorSuccess:'成功色',
       colorError:'错误色',
       colorWarning:'警告色',
+      other:{
+        blue:'蓝色',
+        purple:'紫色',
+        cyan:'青蓝色',
+        red:'红色',
+        orange: '橙色',
+        yellow: '黄色',
+        green: '绿色',
+        magenta: '品红色',
+        pink:'粉色',
+        volcano:'火山色',
+        geekblue:'极客蓝',
+        lime:'酸橙色',
+        gold:'金色'
+      },
       active: {
         title: '激活态',
         subTitle: '在该色梯度下，用于深色或高对比场景中的选中、按下等强调。',

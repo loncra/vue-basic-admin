@@ -1,4 +1,9 @@
-import {CONFIG_PROVIDER_THEME, SYSTEM_CONSTANT, TIME_UNIT_TYPE} from '@/constants/systemConstant.ts'
+import {
+  CONFIG_PROVIDER,
+  CONFIG_PROVIDER_THEME,
+  SYSTEM_CONSTANT,
+  TIME_UNIT_TYPE
+} from '@/constants/systemConstant.ts'
 
 /**
  * 服务器响应数据结构
@@ -109,6 +114,9 @@ export type ThemeMode =
  * 不包含 system，因为 system 需要转换为具体的 dark 或 light
  */
 export type ThemeValue = typeof CONFIG_PROVIDER_THEME.DARK | typeof CONFIG_PROVIDER_THEME.LIGHT
+
+
+export type CreateSuccessBackValue = typeof CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT | typeof CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME
 
 /**
  * 树形节点接口

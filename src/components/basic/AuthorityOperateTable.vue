@@ -13,11 +13,11 @@ import type {
   TotalPage,
 } from '@/types'
 import {
-  onActivated,
   type Component,
   type ComponentInternalInstance,
   computed,
   getCurrentInstance,
+  onActivated,
   onMounted,
   ref,
   useSlots,
@@ -55,6 +55,7 @@ export interface AuthorityOperateTableProps<
   columns: SearchableColumnType[]
   authority?: TableAuthorityProps
   actionItems?: NonNullable<MenuProps['items']>
+  renderActionItems?: (record: TEntity, actionItems: NonNullable<MenuProps['items']>) => NonNullable<MenuProps['items']>
 }
 
 defineOptions({
@@ -76,6 +77,7 @@ const props = withDefaults(
     columns: () => [],
     enabledActions: true,
     actionItems: () => [],
+    renderActionItems: (record: TEntity, actionItems: NonNullable<MenuProps['items']>) => actionItems,
   },
 )
 
@@ -310,7 +312,7 @@ defineExpose({
       <slot v-if="hasBodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
       <template v-if="column.dataIndex === 'action'">
         <a-dropdown
-          :menu="{ items: options.actionItems, onClick: (e: MenuInfo) => handleActionClick(e, record) }"
+          :menu="{ items: props.renderActionItems(record, options.actionItems), onClick: (e: MenuInfo) => handleActionClick(e, record) }"
           placement="bottomRight">
           <a-button size="small">
             <template #icon>

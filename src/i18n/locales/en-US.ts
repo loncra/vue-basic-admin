@@ -19,7 +19,6 @@ const locale: LanguagePack = {
     deleteSelected: 'Delete selected',
     operation: 'Actions',
     reset: 'Reset',
-    deleteConfirm: 'Are you sure you want to delete the record [{name}]?',
     deleteConfirmTitle: 'Confirm deletion',
     deleteConfirmSingle: 'Are you sure you want to delete this record?',
     deleteConfirmBatch: 'Are you sure you want to delete {count} record(s)?',
@@ -61,9 +60,6 @@ const locale: LanguagePack = {
     home: {
       homeSiderWidth: 'Home sidebar width',
       homeCollapsedWidth: 'Home sidebar collapsed width',
-    },
-    componentLayout: {
-      text: 'Control layout',
     },
     colorSetting: {
       text: 'Color settings',

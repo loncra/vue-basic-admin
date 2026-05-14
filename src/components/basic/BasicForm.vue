@@ -5,17 +5,18 @@ import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
+  h,
   inject,
   nextTick,
   onActivated,
   onMounted,
   ref
 } from "vue";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {CONFIG_PROVIDER, SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicAuthorityProps, BasicCrudService, BasicIdMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {App} from "antdv-next";
+import {App, Checkbox} from "antdv-next";
 import {isResultSuccess} from "@/requests/http";
 import type {RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
@@ -35,6 +36,7 @@ const globalProperties =
     .globalProperties
 const configProviderStore = useConfigProviderStore()
 const menuPrincipalStore = useMenuPrincipalStore()
+const rememberMe = ref(false)
 
 const props = withDefaults(
   defineProps<{
@@ -71,19 +73,7 @@ async function doSubmit() {
     if(result.status === 200) {
       emit('success', result)
       if (!entity.value.id) {
-        modal.confirm({
-          title: globalProperties.$t('form.createSuccess.title'),
-          content:result.message + ' ' + globalProperties.$t('form.createSuccess.subTitle'),
-          okText: globalProperties.$t('form.createSuccess.okReturnList'),
-          cancelText: globalProperties.$t('form.createSuccess.addAnother'),
-          onOk: () => {
-            globalProperties.$router.push(props.redirect)
-          },
-          onCancel: () => {
-            formRef.value?.resetFields?.()
-            emit('resetFields')
-          },
-        })
+        createdAfterSetting(result)
       } else {
         message.success(result.message)
         globalProperties.$router.push(props.redirect)
@@ -98,11 +88,58 @@ async function doSubmit() {
   }
 }
 
+function createdAfterSetting(result:RestResult<TId>) {
+  if (!configProviderStore.state.createSuccessBack) {
+    modal.confirm({
+      title: globalProperties.$t('form.createSuccess.title'),
+      content: result.message + ' ' + globalProperties.$t('form.createSuccess.subTitle'),
+      okText: globalProperties.$t('form.createSuccess.okReturnList'),
+      cancelText: globalProperties.$t('form.createSuccess.addAnother'),
+      onOk: () => {
+        globalProperties.$router.push(props.redirect)
+        if (rememberMe.value) {
+          configProviderStore.setCreateSuccessBack(CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME)
+        }
+        closeLayoutTab?.(globalProperties.$route.fullPath, false);
+      },
+      onCancel: () => {
+        formRef.value?.resetFields?.()
+        emit('resetFields')
+        if (rememberMe.value) {
+          configProviderStore.setCreateSuccessBack(CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT)
+        }
+      },
+      footer: ({ extra }: any) => {
+        return [
+          h(Checkbox, {
+            checked:rememberMe.value,
+            'onUpdate:checked': (v: boolean) => rememberMe.value = v,
+            class: 'mr',
+          }, { default: () => '记住我的操作' }),
+          h(extra.OkBtn),
+          h(extra.CancelBtn)
+        ]
+      }
+    })
+    return ;
+  }
+
+  message.success(result.message)
+  formRef.value?.resetFields?.()
+  emit('resetFields')
+
+  if (configProviderStore.state.createSuccessBack === CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME) {
+    globalProperties.$router.push(props.redirect)
+  }
+
+}
+
 function onFinish () {
   formRef.value.validate().then(() => doSubmit())
 }
 
 async function mounted() {
+
   spinning.value = true
   if (props.preMounted) {
     await props.preMounted()
@@ -168,6 +205,7 @@ onMounted(mounted)
 
 <template>
   <div>
+
     <l-menu-title-card >
       <l-form id="form" ref="formRef" @finish="onFinish" :model="entity">
         <a-spin :spinning="spinning">

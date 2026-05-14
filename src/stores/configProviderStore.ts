@@ -22,7 +22,7 @@ import {
 } from '@/constants/systemConstant'
 
 import i18n, {type LanguagePack} from '@/i18n'
-import type {NameValueEnumMetadata, ThemeMode, ThemeValue,} from '@/types'
+import type {CreateSuccessBackValue, NameValueEnumMetadata, ThemeMode, ThemeValue,} from '@/types'
 import type {ComposerTranslation} from 'vue-i18n'
 import dayjs from 'dayjs'
 
@@ -47,6 +47,14 @@ export interface ConfigProviderStoredState {
   locale: string
   /** 主题 token */
   token: Record<string, unknown>
+  /** 组件默认大小 */
+  componentSize:string
+  /** 紧凑型 */
+  compact:boolean
+  /**
+   * 创建成功后的跳转位置
+   */
+  createSuccessBack?:CreateSuccessBackValue
 }
 
 /**
@@ -181,15 +189,19 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     return token.value[key as keyof typeof token.value] as string
   }
 
+  function getAlgorithm() {
+    return state.value.compact ? [state.value.algorithm, theme.compactAlgorithm] : state.value.algorithm;
+  }
+
   function isScalarTokenValue(v: unknown): v is string | number {
-    return typeof v === 'string' || typeof v === 'number'
+    return typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'
   }
 
   /**
    * 按 key 写入 theme token（仅允许覆盖当前即为 string | number 的字段；新值也须为 string | number）。
    * 组件级嵌套对象等字段会被跳过，避免误写坏主题结构。
    */
-  function setTokenValue(key: string, value: string | number): void {
+  function setTokenValue(key: string, value: string | number | boolean): void {
     if (!isScalarTokenValue(value)) {
       return
     }
@@ -230,6 +242,16 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     saveLocalStorage()
   }
 
+  function setComponentSize(size: string): void {
+    state.value.componentSize = size
+    saveLocalStorage()
+  }
+
+  function setCompact(compact: boolean): void {
+    state.value.compact = compact
+    saveLocalStorage()
+  }
+
   /**
    * 设置主题算法
    *
@@ -239,6 +261,11 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     algorithm: typeof theme.darkAlgorithm | typeof theme.defaultAlgorithm | null,
   ): void {
     state.value.algorithm = algorithm
+    saveLocalStorage()
+  }
+
+  function setCreateSuccessBack(value:CreateSuccessBackValue) {
+    state.value.createSuccessBack = value
     saveLocalStorage()
   }
 
@@ -295,6 +322,9 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
       formLayout: state.value.formLayout,
       locale: state.value.locale,
       token:state.value.token,
+      componentSize:'middle',
+      compact:false,
+      createSuccessBack: state.value.createSuccessBack
     }
     localStorage.setItem(
       import.meta.env.VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME,
@@ -461,10 +491,14 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     getTheme,
     /** 设置首页侧边栏宽度 */
     setHomeSiderWidth,
+    setCompact,
+    setComponentSize,
+    setCreateSuccessBack,
     /** 设置首页侧边栏折叠宽度 */
     setHomeCollapsedWidth,
     /** 设置首页侧边栏是否可折叠 */
     setHomeCollapsible,
+    getAlgorithm,
     /** 当前语言环境的翻译消息 */
     localeMessage,
     /** 获取所有可用的语言环境列表 */

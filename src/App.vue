@@ -10,7 +10,8 @@ const configProviderStore = useConfigProviderStore()
     <a-config-provider
       :key="configProviderStore.state.locale"
       :locale="(configProviderStore.localeMessage as { antDesign?: object }).antDesign"
-      :theme="{ algorithm: configProviderStore.state.algorithm, token: configProviderStore.state.token }"
+      :component-size="configProviderStore.state.componentSize"
+      :theme="{ algorithm: configProviderStore.getAlgorithm(), token: configProviderStore.state.token }"
     >
       <a-app >
         <router-view v-slot="{ Component }">

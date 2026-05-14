@@ -40,7 +40,7 @@ export const CONFIG_PROVIDER_THEME = {
     system: 'icon-setting',
     dark: 'icon-dark',
     light: 'icon-light',
-  },
+  }
 } as const
 
 /**
@@ -55,7 +55,13 @@ export const CONFIG_PROVIDER = {
     formLayout: 'vertical',
     homeSiderWidth: 260,
     token:{},
+    componentSize:'middle',
+    compact: false,
   },
+  CREATE_SUCCESS_BACK: {
+    CURRENT:'current',
+    HOME:'home'
+  }
 } as const
 
 /**
