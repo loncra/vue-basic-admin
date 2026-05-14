@@ -47,12 +47,31 @@ const locale: LanguagePack = {
     style:'风格',
     other:'其他',
     rememberOperate:'记住我的操作',
+    default:'默认'
   },
   setting: {
     componentSize:'组件默认大小设置',
     wireframe:'边框化',
-    compact:'紧奏型',
+    compact:'紧凑型',
+    createSuccessBack:'创建记录成功后操作',
+    borderRadius:'圆角',
+    boxShadow:{
+      text:'阴影',
+      secondary:'2 级元素阴影',
+      tertiary:'3 级元素阴影'
+    },
+    font:{
+      text:'字号',
+      heading:'{number} 级标题字号'
+    },
+    lineHeight: {
+      text:'行高',
+      heading:'{number} 级字号标签行高'
+    },
+    margin:'外间距',
+    padding:'内间距',
     size:{
+      common: '通用尺寸',
       large:'大',
       middle:'中',
       small:'小',
@@ -74,8 +93,16 @@ const locale: LanguagePack = {
       homeSiderWidth:'首页侧边栏宽度',
       homeCollapsedWidth:'首页侧边栏折叠宽度',
     },
+    other: {
+      transparency:{
+        text: '透明度',
+        loading:'加载状态的透明度',
+        image:'图片不透明度'
+      }
+    },
     colorSetting:{
       text:'颜色',
+      prepare:'预设颜色',
       colorPrimary:'品牌色',
       colorSuccess:'成功色',
       colorError:'错误色',

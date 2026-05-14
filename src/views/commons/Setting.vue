@@ -5,8 +5,13 @@ import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {VNode} from "vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import {CONFIG_PROVIDER_THEME} from "@/constants/systemConstant.ts";
-import type {IdValueMetadata, NameValueEnumMetadata, ThemeMode} from "@/types";
+import {CONFIG_PROVIDER, CONFIG_PROVIDER_THEME} from "@/constants/systemConstant.ts";
+import type {
+  CreateSuccessBackValue,
+  IdValueMetadata,
+  NameValueEnumMetadata,
+  ThemeMode
+} from "@/types";
 import type {Color} from 'antdv-next'
 
 defineOptions({
@@ -22,9 +27,20 @@ const options = ref<{
   themeOptions:NameValueEnumMetadata<string>[]
   tabItems: IdValueMetadata<string, VNode>[]
   sizeOptions: NameValueEnumMetadata<string>[]
+  createSuccessOptions: NameValueEnumMetadata<string>[]
   colorOptions:string[]
 }>({
   colorOptions: ['colorPrimary', 'colorError', 'colorSuccess', 'colorWarning'],
+  createSuccessOptions:[
+    {
+      name: globalProperties.$t('form.createSuccess.okReturnList'),
+      value: CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME
+    },
+    {
+      name: globalProperties.$t('form.createSuccess.addAnother'),
+      value: CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT
+    }
+  ],
   sizeOptions:[
     {
       name: globalProperties.$t('setting.size.large'),
@@ -139,10 +155,17 @@ function colorChange(_color: Color, tokenKey: string): void {
                   <a-switch :checked="configProviderStore.getTokenValue('wireframe')" @change="(value: boolean) =>  configProviderStore.setTokenValue('wireframe', value)" :checked-children="globalProperties.$t('common.open')" :un-checked-children="globalProperties.$t('common.close')" />
                 </a-flex>
 
+                <a-flex justify="space-between" align="center" >
+                  <a-typography-text strong>
+                    {{ globalProperties.$t('setting.createSuccessBack') }}
+                  </a-typography-text>
+                  <a-select @change="(value: string) => configProviderStore.setCreateSuccessBack(value as CreateSuccessBackValue)" :value="configProviderStore.state.createSuccessBack" :options="options.createSuccessOptions" :field-names="{label:'name'}"/>
+                </a-flex>
+
                 <a-collapse :classes="{header: 'bg-container!'}">
                   <a-collapse-panel>
                     <template #header>
-                      预设颜色
+                      {{ globalProperties.$t('setting.colorSetting.prepare') }}
                     </template>
                     <template #extra>
                       <icon-font class="icon" type="icon-user-defined" />
@@ -158,7 +181,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                   </a-collapse-panel>
                   <a-collapse-panel>
                     <template #header>
-                      透明度
+                      {{globalProperties.$t('setting.other.transparency.text')}}
                     </template>
                     <template #extra>
                       <icon-font class="icon" type="icon-editor-background" />
@@ -166,13 +189,13 @@ function colorChange(_color: Color, tokenKey: string): void {
                     <a-space orientation="vertical" class="w-full">
                       <a-flex justify="space-between" align="center" >
                         <a-typography-text strong>
-                          加载状态的透明度
+                          {{globalProperties.$t('setting.other.transparency.loading')}}
                         </a-typography-text>
                         <a-input-number @change="(value:number) => configProviderStore.setTokenValue('opacityLoading', value)" :value="configProviderStore.getTokenValue('opacityLoading')"/>
                       </a-flex>
                       <a-flex justify="space-between" align="center">
                         <a-typography-text strong>
-                          图片不透明度
+                          {{globalProperties.$t('setting.other.transparency.image')}}
                         </a-typography-text>
                         <a-input-number @change="(value:number) => configProviderStore.setTokenValue('opacityImage', value)" :value="configProviderStore.getTokenValue('opacityImage')"/>
                       </a-flex>
@@ -185,29 +208,29 @@ function colorChange(_color: Color, tokenKey: string): void {
               <a-collapse :classes="{header: 'bg-container!'}">
                 <a-collapse-panel>
                   <template #header>
-                    圆角
+                    {{globalProperties.$t('setting.borderRadius')}}
                   </template>
                   <template #extra>
                     <icon-font class="icon" type="icon-editor-under-line" />
                   </template>
                   <a-space orientation="vertical" class="w-full">
-                    <a-flex justify="space-between" align="center" :key="size" v-for="size in ['sm','lg','xs']">
-                      <a-typography-text strong>
-                        圆角，{{globalProperties.$t('setting.size.' + size)}}
-                      </a-typography-text>
-                      <a-input-number @change="(value:number) => configProviderStore.setTokenValue('borderRadius' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('borderRadius' + size.toUpperCase())"/>
-                    </a-flex>
                     <a-flex justify="space-between" align="center">
                       <a-typography-text strong>
-                        默认圆角
+                        {{globalProperties.$t('common.default')}}{{globalProperties.$t('setting.borderRadius')}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('borderRadius', value)" :value="configProviderStore.getTokenValue('borderRadius')"/>
+                    </a-flex>
+                    <a-flex justify="space-between" align="center" :key="size" v-for="size in ['sm','lg','xs']">
+                      <a-typography-text strong>
+                        {{globalProperties.$t('setting.borderRadius')}}，{{globalProperties.$t('setting.size.' + size)}}
+                      </a-typography-text>
+                      <a-input-number @change="(value:number) => configProviderStore.setTokenValue('borderRadius' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('borderRadius' + size.toUpperCase())"/>
                     </a-flex>
                   </a-space>
                 </a-collapse-panel>
                 <a-collapse-panel>
                   <template #header>
-                    阴影
+                    {{globalProperties.$t('setting.boxShadow.text')}}
                   </template>
                   <template #extra>
                     <icon-font class="icon" type="icon-editor-tag-subscript" />
@@ -215,19 +238,19 @@ function colorChange(_color: Color, tokenKey: string): void {
                   <a-space orientation="vertical" class="w-full" >
                     <a-flex justify="space-between" align="center" >
                       <a-typography-text strong>
-                        默认元素阴影
+                        {{globalProperties.$t('common.default')}}{{globalProperties.$t('setting.boxShadow.text')}}
                       </a-typography-text>
                       <a-input class="w-100" @change="(value:number) => configProviderStore.setTokenValue('boxShadow', value)" :value="configProviderStore.getTokenValue('boxShadow')"/>
                     </a-flex>
                     <a-flex justify="space-between" align="center" >
                       <a-typography-text strong>
-                        2 级元素阴影
+                        {{globalProperties.$t('setting.boxShadow.secondary')}}
                       </a-typography-text>
                       <a-input class="w-100" @change="(value:number) => configProviderStore.setTokenValue('boxShadowSecondary', value)" :value="configProviderStore.getTokenValue('boxShadowSecondary')"/>
                     </a-flex>
                     <a-flex justify="space-between" align="center" >
                       <a-typography-text strong>
-                        3 级元素阴影
+                        {{globalProperties.$t('setting.boxShadow.tertiary')}}
                       </a-typography-text>
                       <a-input class="w-100" @change="(value:number) => configProviderStore.setTokenValue('boxShadowTertiary', value)" :value="configProviderStore.getTokenValue('boxShadowTertiary')"/>
                     </a-flex>
@@ -240,7 +263,7 @@ function colorChange(_color: Color, tokenKey: string): void {
               <a-collapse :classes="{header: 'bg-container!'}">
                 <a-collapse-panel>
                   <template #header>
-                    通用尺寸
+                    {{globalProperties.$t('setting.size.common')}}
                   </template>
                   <template #extra>
                     <icon-font class="icon" type="icon-editor-subscript" />
@@ -248,7 +271,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                   <a-space orientation="vertical" class="w-full" >
                     <a-flex justify="space-between">
                       <a-typography-text strong>
-                        默认尺寸
+                        {{globalProperties.$t('common.default')}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('size', value)" :value="configProviderStore.getTokenValue('size')" />
                     </a-flex>
@@ -263,7 +286,7 @@ function colorChange(_color: Color, tokenKey: string): void {
 
                 <a-collapse-panel>
                   <template #header>
-                    字号
+                    {{globalProperties.$t('setting.font.text')}}
                   </template>
                   <template #extra>
                     <icon-font class="icon" type="icon-editor-subscript" />
@@ -271,19 +294,19 @@ function colorChange(_color: Color, tokenKey: string): void {
                   <a-space orientation="vertical" class="w-full" >
                     <a-flex justify="space-between" align="center">
                       <a-typography-text strong>
-                        默认字体
+                        {{globalProperties.$t('common.default')}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('fontSize', value)" :value="configProviderStore.getTokenValue('fontSize')" />
                     </a-flex>
                     <a-flex justify="space-between" align="center" :key="size" v-for="size in ['sm','lg','xl']">
                       <a-typography-text strong>
-                        字体，{{globalProperties.$t('setting.size.' + size)}}
+                        {{globalProperties.$t('setting.font.text')}}，{{globalProperties.$t('setting.size.' + size)}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('fontSize' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('fontSize' + size.toUpperCase())" />
                     </a-flex>
                     <a-flex justify="space-between" align="center" v-for="number in 5" :key="number">
                       <a-typography-text strong>
-                        {{number}} 级标题字号
+                        {{globalProperties.$t('setting.font.heading',{number})}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('fontSizeHeading' + number, value)" :value="configProviderStore.getTokenValue('fontSizeHeading' + number)"/>
                     </a-flex>
@@ -291,7 +314,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-collapse-panel>
                 <a-collapse-panel>
                   <template #header>
-                    行高
+                    {{globalProperties.$t('setting.lineHeight.text')}}
                   </template>
                   <template #extra>
                     <icon-font class="icon" type="icon-editor-text" />
@@ -299,19 +322,19 @@ function colorChange(_color: Color, tokenKey: string): void {
                   <a-space orientation="vertical" class="w-full" >
                     <a-flex justify="space-between" align="center">
                       <a-typography-text strong>
-                        默认行高
+                        {{globalProperties.$t('common.default')}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('lineHeight', value)" :value="configProviderStore.getTokenValue('lineHeight')"/>
                     </a-flex>
                     <a-flex justify="space-between" align="center" v-for="number in 5" :key="number">
                       <a-typography-text strong>
-                        {{number}} 级字号标签行高
+                        {{globalProperties.$t('setting.lineHeight.heading',{number})}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('lineHeightHeading' + number, value)" :value="configProviderStore.getTokenValue('lineHeightHeading' + number)"/>
                     </a-flex>
                     <a-flex justify="space-between" align="center" :key="size" v-for="size in ['sm','lg']">
                       <a-typography-text strong>
-                        行高，{{globalProperties.$t('setting.size.' + size)}}
+                        {{globalProperties.$t('setting.lineHeight.text')}}，{{globalProperties.$t('setting.size.' + size)}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('lineHeight' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('lineHeight' + size.toUpperCase())"/>
                     </a-flex>
@@ -319,45 +342,45 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-collapse-panel>
                 <a-collapse-panel>
                   <template #header>
-                    外间距
+                    {{globalProperties.$t('setting.margin')}}
                   </template>
                   <template #extra>
                     <icon-font class="icon" type="icon-gallery" />
                   </template>
                   <a-space orientation="vertical" class="w-full" >
-                    <a-flex justify="space-between" align="center" :key="size" v-for="size in ['lg', 'md', 'sm', 'xl', 'xs', 'xxl', 'xxs']">
-                      <a-typography-text strong>
-                        元素外边距，{{globalProperties.$t('setting.size.' + size)}}
-                      </a-typography-text>
-                      <a-input-number @change="(value:number) => configProviderStore.setTokenValue('margin' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('margin' + size.toUpperCase())"/>
-                    </a-flex>
                     <a-flex justify="space-between" align="center">
                       <a-typography-text strong>
-                        元素外边距
+                        {{globalProperties.$t('common.default')}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('margin', value)" :value="configProviderStore.getTokenValue('margin')"/>
+                    </a-flex>
+                    <a-flex justify="space-between" align="center" :key="size" v-for="size in ['lg', 'md', 'sm', 'xl', 'xs', 'xxl', 'xxs']">
+                      <a-typography-text strong>
+                       {{globalProperties.$t('setting.size.' + size)}}
+                      </a-typography-text>
+                      <a-input-number @change="(value:number) => configProviderStore.setTokenValue('margin' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('margin' + size.toUpperCase())"/>
                     </a-flex>
                   </a-space>
                 </a-collapse-panel>
                 <a-collapse-panel>
                   <template #header>
-                    内间距
+                    {{globalProperties.$t('setting.padding')}}
                   </template>
                   <template #extra>
                     <icon-font class="icon" type="icon-gallery" />
                   </template>
                   <a-space orientation="vertical" class="w-full" >
-                    <a-flex justify="space-between" align="center" :key="size" v-for="size in ['lg', 'md', 'sm', 'xl', 'xs', 'xxs']">
-                      <a-typography-text strong>
-                        元素内边距，{{globalProperties.$t('setting.size.' + size)}}
-                      </a-typography-text>
-                      <a-input-number @change="(value:number) => configProviderStore.setTokenValue('padding' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('padding' + size.toUpperCase())"/>
-                    </a-flex>
                     <a-flex justify="space-between" align="center">
                       <a-typography-text strong>
-                        元素内边距
+                        {{globalProperties.$t('common.default')}}
                       </a-typography-text>
                       <a-input-number @change="(value:number) => configProviderStore.setTokenValue('padding', value)" :value="configProviderStore.getTokenValue('padding')"/>
+                    </a-flex>
+                    <a-flex justify="space-between" align="center" :key="size" v-for="size in ['lg', 'md', 'sm', 'xl', 'xs', 'xxs']">
+                      <a-typography-text strong>
+                        {{globalProperties.$t('setting.size.' + size)}}
+                      </a-typography-text>
+                      <a-input-number @change="(value:number) => configProviderStore.setTokenValue('padding' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('padding' + size.toUpperCase())"/>
                     </a-flex>
                   </a-space>
                 </a-collapse-panel>
