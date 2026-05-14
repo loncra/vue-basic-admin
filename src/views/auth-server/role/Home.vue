@@ -3,10 +3,9 @@ import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LAuthorityButton from "@/components/basic/AuthorityButton.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {TableProps} from "antdv-next";
+import type {MenuProps, TableProps} from "antdv-next";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import type {RoleEntity} from '@/types/auth-server/roleType';
-import type {AuthorityOperateTableProps} from "@/components/basic/AuthorityOperateTable.vue";
 
 defineOptions({
   name: 'LAuthServerRoleHome',
@@ -32,11 +31,18 @@ const getCheckboxProps: NonNullable<TableProps["rowSelection"]>["getCheckboxProp
   }
 }
 
-const renderActionItems: AuthorityOperateTableProps<RoleEntity, RoleEntity, number>["renderActionItems"] = (record, actionItems) => {
+const renderActionItems = (
+  record: RoleEntity,
+  actionItems: NonNullable<MenuProps['items']>
+) => {
+  const filterItems:string[] = [];
   if (getEnumValue(record.modifiable) === 0) {
-    return actionItems.filter((item) => item && item.key !== 'edit')
+    filterItems.push('edit');
   }
-  return actionItems
+  if (getEnumValue(record.removable) === 0) {
+    filterItems.push('delete');
+  }
+  return actionItems.filter((item) => !filterItems.includes(item?.key as string))
 }
 
 </script>
@@ -55,7 +61,11 @@ const renderActionItems: AuthorityOperateTableProps<RoleEntity, RoleEntity, numb
           @add="globalProperties.$router.push({name:'auth_server_role_add'})"
         />
       </template>
-      <l-role-table :render-action-items="renderActionItems" ref="table" :row-selection="{type: 'checkbox', onChange: onRowSelectionChange, getCheckboxProps: getCheckboxProps}" />
+      <l-role-table
+        :render-action-items="renderActionItems"
+        ref="table"
+        :row-selection="{type: 'checkbox', onChange: onRowSelectionChange, getCheckboxProps: getCheckboxProps}"
+      />
     </l-menu-title-card>
   </div>
 </template>

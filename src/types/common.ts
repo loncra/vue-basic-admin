@@ -6,6 +6,35 @@ import {
 } from '@/constants/systemConstant.ts'
 
 /**
+ * 通用类型与「数据访问服务」契约（接口层）
+ *
+ * ## 服务接口继承关系（能力由少到多）
+ *
+ * ```
+ * DetailSearchService<TEntity>           // get(id)：按主键取详情
+ *     │
+ *     ├─► FindSearchService              // + find(FilterRequest)：条件列表
+ *     │
+ *     └─► PageSearchService              // + page(PageRequest)：分页列表
+ *
+ * DetailSearchService<TEntity>
+ *     │
+ *     └─► BasicCrudService               // + save(TBody)、delete(ids)：写操作
+ *             │
+ *             ├─► FindCurdService       // BasicCrud + FindSearch（详情 + 列表 + 写）
+ *             │
+ *             └─► PageCurdService         // BasicCrud + PageSearch（详情 + 分页 + 写）
+ * ```
+ *
+ * 实现侧（`src/apis`）用 **类单继承** 拼出上述能力：`BasicRestfulCrudService` 在「详情」之上挂 `save/delete`，
+ * `FindRestfulCrudService` / `PageRestfulCrudService` 再分别挂 `find` / `page`；只读搜索则用
+ * `FindSearchRestfulService` / `PageSearchRestfulService` 直接从 `DetailSearchRestfulService` 分叉，避免带上写接口。
+ *
+ * @see {@link DetailSearchService} {@link FindSearchService} {@link PageSearchService}
+ * @see {@link BasicCrudService} {@link FindCurdService} {@link PageCurdService}
+ */
+
+/**
  * 服务器响应数据结构
  * 统一的 REST API 响应格式，包含数据、状态码、消息等信息
  *
@@ -26,10 +55,12 @@ export interface RestResult<T = unknown> {
   message: string
 }
 
+/** 带主键 `id` 的最小实体形状（主键字段名由 {@link SYSTEM_CONSTANT.ID_NAME} 与具体实体约定） */
 export interface BasicIdMetadata<T> {
   id: T
 }
 
+/** 带乐观锁版本号的实体元数据（常见于服务端返回的审计字段） */
 export interface VersionEntityMetadata extends BasicIdMetadata<number> {
   creationTime?: number,
   version: number,
@@ -129,7 +160,7 @@ export type TreeLike<T> = T & {
 }
 
 /**
- * 命令执行结果 data 结构（
+ * 命令执行结果中的 data 结构（标准输出 / 错误 / 退出码）
  */
 export interface RunCommandData {
   stdout: string
@@ -155,6 +186,11 @@ export interface ServerSentEvent<T> {
   data?: T | string
 }
 
+/**
+ * 列表 / 搜索通用过滤体
+ * - 固定字段：`sort` 等
+ * - 其余查询条件通过索引签名扩展（与后端 query 字段对齐）
+ */
 export interface FilterRequest {
 
   /**
@@ -223,20 +259,35 @@ export interface TotalPage<T> extends PageResult<T> {
   totalPages: number
 }
 
+/**
+ * 通用权限码：详情、删除（列表行内与详情页可共用）
+ */
 export interface BasicAuthorityProps {
   detail?:string
   delete?:string
 }
 
+/**
+ * 表格行级权限：在 {@link BasicAuthorityProps} 基础上增加「编辑」
+ */
 export interface TableAuthorityProps extends BasicAuthorityProps{
   edit?:string
 }
 
+/**
+ * 工具栏按钮权限：在 {@link BasicAuthorityProps} 基础上增加「导出」「新增」
+ */
 export interface ButtonAuthorityProps extends BasicAuthorityProps {
   export?:string
   add?:string
 }
 
+/**
+ * 只读详情契约：按主键拉取单条实体
+ *
+ * @typeParam TEntity - 实体类型，须含主键
+ * @typeParam TId - 主键类型，默认取自 `TEntity[SYSTEM_CONSTANT.ID_NAME]`
+ */
 export interface DetailSearchService<
   TEntity extends BasicIdMetadata<TId>,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
@@ -249,6 +300,10 @@ export interface DetailSearchService<
   get(id: TId): Promise<RestResult<TEntity>>
 }
 
+/**
+ * 只读「条件列表」契约：在 {@link DetailSearchService} 上增加 `find`
+ * 与 {@link BasicCrudService} 无写操作组合，用于纯查询列表页
+ */
 export interface FindSearchService<
   TEntity extends BasicIdMetadata<TId>,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
@@ -264,6 +319,9 @@ export interface FindSearchService<
   find(request: FilterRequest): Promise<RestResult<TEntity[]>>
 }
 
+/**
+ * 只读「分页列表」契约：在 {@link DetailSearchService} 上增加 `page`
+ */
 export interface PageSearchService<
   TEntity extends BasicIdMetadata<TId>,
   TPage extends ScrollPageResult<TEntity>,
@@ -280,12 +338,17 @@ export interface PageSearchService<
   page(request: PageRequest): Promise<RestResult<TPage>>
 }
 
+/**
+ * 完整 CRUD 写契约：在 {@link DetailSearchService} 上增加 `save`、`delete`
+ * （不包含列表查询；列表由 {@link FindSearchService} / {@link PageSearchService} 或组合接口提供）
+ */
 export interface BasicCrudService<
   TBody extends BasicIdMetadata<TId>,
   TEntity extends TBody,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
 > extends DetailSearchService<
-  TEntity
+  TEntity,
+  TId
 >{
 
   /**
@@ -302,6 +365,10 @@ export interface BasicCrudService<
   delete(ids: TId[]): Promise<RestResult<void>>
 }
 
+/**
+ * 分页 CRUD：同时满足 {@link BasicCrudService} 与 {@link PageSearchService}
+ * （详情 + 分页列表 + 增删改）
+ */
 export interface PageCurdService<
   TBody extends BasicIdMetadata<TId>,
   TEntity extends TBody,
@@ -311,10 +378,14 @@ export interface PageCurdService<
   TBody,
   TEntity,
   TId
->, PageSearchService<TEntity, TPage> {
+>, PageSearchService<TEntity, TPage, TId> {
 
 }
 
+/**
+ * 条件列表 CRUD：同时满足 {@link BasicCrudService} 与 {@link FindSearchService}
+ * （详情 + 条件列表 + 增删改）
+ */
 export interface FindCurdService<
   TBody extends BasicIdMetadata<TId>,
   TEntity extends TBody,
@@ -323,12 +394,12 @@ export interface FindCurdService<
   TBody,
   TEntity,
   TId
->, FindSearchService<TEntity> {
+>, FindSearchService<TEntity, TId> {
 
 }
 
 /**
- * 登录方式类型
+ * 时间单位类型（与 {@link TIME_UNIT_TYPE} 常量对应）
  */
 export type TimeUnitType =
   | typeof TIME_UNIT_TYPE.HOURS

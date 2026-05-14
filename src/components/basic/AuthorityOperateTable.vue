@@ -3,10 +3,10 @@ import type {
   BasicCrudService,
   BasicIdMetadata,
   FilterRequest,
-  FindCurdService,
-  PageCurdService,
+  FindSearchService,
   PageRequest,
   PageResult,
+  PageSearchService,
   RestResult,
   ScrollPageResult,
   TableAuthorityProps,
@@ -30,13 +30,16 @@ import {App} from 'antdv-next'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import type {MenuInfo} from '@v-c/menu'
+import type {PageSearchRestfulService} from '@/apis/pageSearchRestfulService';
+import type {ItemType, MenuItemType} from "antdv-next/dist/menu/interface";
 
 /** 列定义上挂载的查询区配置（非 antdv 内置字段） */
 export interface ColumnSearchConfig {
   component?: Component
   props?: Record<string, unknown>
   expression?: string,
-  queryName?: string
+  queryName?: string,
+  defaultValue?: unknown
 }
 
 export type SearchableColumnType<RecordType = Record<string, unknown>> = ColumnType<RecordType> & {
@@ -46,9 +49,10 @@ export type SearchableColumnType<RecordType = Record<string, unknown>> = ColumnT
 export interface AuthorityOperateTableProps<
   TBody extends BasicIdMetadata<TId>,
   TEntity extends TBody,
+  TPage extends ScrollPageResult<TEntity>,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
 > {
-  service: BasicCrudService<TBody, TEntity>
+  service: FindSearchService<TEntity, TId> | PageSearchService<TEntity, TPage, TId> | BasicCrudService<TBody, TEntity, TId>
   immediate?: boolean
   enabledActions?: boolean
   pagination?: TableProps['pagination']
@@ -71,7 +75,7 @@ const slots = useSlots()
 const { message, modal } = App.useApp()
 
 const props = withDefaults(
-  defineProps<AuthorityOperateTableProps<TBody, TEntity, TId>>(),
+  defineProps<AuthorityOperateTableProps<TBody, TEntity, TPage, TId>>(),
   {
     immediate: true,
     columns: () => [],
@@ -84,7 +88,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   edit: [record: TEntity]
   detail: [record: TEntity]
-  actionItemClick: [e:MenuInfo, record: TEntity]
+  actionItemClick: [e:string, record: TEntity]
 }>()
 
 const dataSource = defineModel<TEntity[]>('dataSource', {default: () => []})
@@ -142,7 +146,12 @@ function rebuildAuthorityMeta() {
       continue
     }
     optionsCol.filterDropdown = () => null;
-    optionsCol.search.queryName = `filter_[${col.key}_${optionsCol.search.expression || 'eq'}]`
+    if (!optionsCol.search.queryName) {
+      optionsCol.search.queryName = `filter_[${col.key}_${optionsCol.search.expression || 'eq'}]`
+    }
+    if (optionsCol.search.defaultValue) {
+      query.value[optionsCol.search.queryName] = optionsCol.search.defaultValue;
+    }
   }
 
   if (props.enabledActions && principalStore.hasAnyPermission([props.authority?.edit || '', props.authority?.detail || '', props.authority?.delete || ''])) {
@@ -155,7 +164,7 @@ function rebuildAuthorityMeta() {
       fixed: 'right'
     })
     const actionItems = [];
-    if (principalStore.hasAnyPermission([props.authority?.edit || '', props.authority?.detail || ''])) {
+    if (principalStore.hasPermission(props.authority?.edit || '')) {
       actionItems.push({
         key: 'edit',
         label: globalProperties.$t('common.edit'),
@@ -169,7 +178,7 @@ function rebuildAuthorityMeta() {
         icon: () => createIcon('icon-order-inspection'),
       })
     }
-    if (principalStore.hasPermission(props.authority?.delete || '')) {
+    if (principalStore.hasPermission(props.authority?.delete || '') && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
       actionItems.push({
         key: 'delete',
         label: globalProperties.$t('common.delete'),
@@ -188,8 +197,8 @@ async function fetchDataSource() {
 
   loading.value = true;
   const data:TEntity[] = [];
-  if (typeof (props.service as PageCurdService<TBody,TEntity, TPage>).page === 'function') {
-    const result:RestResult<TPage> = await (props.service as PageCurdService<TBody, TEntity, TPage>).page(query.value as PageRequest);
+  if (typeof (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page === 'function') {
+    const result:RestResult<TPage> = await (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page(query.value as PageRequest);
     data.push(...(result.data?.elements || []))
     const pagination:TableProps['pagination']  = { ...(props.pagination || {})};
     pagination.pageSize = result.data?.size || 10 ;
@@ -216,8 +225,8 @@ async function fetchDataSource() {
 
     options.value.pagination = pagination;
 
-  } else if (typeof (props.service as FindCurdService<TBody, TEntity>).find === 'function') {
-    const result:RestResult<TEntity[]> = await (props.service as FindCurdService<TBody, TEntity>).find(query.value as FilterRequest);
+  } else if (typeof (props.service as FindSearchService<TEntity, TId>).find === 'function') {
+    const result:RestResult<TEntity[]> = await (props.service as FindSearchService<TEntity, TId>).find(query.value as FilterRequest);
     data.push(...(result.data || []))
     options.value.pagination = false;
   }
@@ -242,8 +251,11 @@ function remove(records: TEntity[]) {
 }
 
 async function doDelete(records: TEntity[]) {
+  if (typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete !== 'function') {
+    return ;
+  }
   try {
-    const result:RestResult<void> = await props.service.delete(records.map(r => r.id))
+    const result:RestResult<void> = await (props.service as BasicCrudService<TBody, TEntity, TId>).delete(records.map(r => r.id))
     message.success(result.message)
     fetchDataSource()
   } catch (e) {
@@ -253,16 +265,38 @@ async function doDelete(records: TEntity[]) {
   }
 }
 
-function handleActionClick(e: MenuInfo, record: TEntity) {
-  if (e.key === 'edit') {
+function toLoneFlatMenuItem(item: ItemType | undefined): MenuItemType | null {
+  if (!item || item.type === "divider" || !("icon" in item) || !("label" in item) || item.icon == null) {
+    return null
+  }
+  if ("children" in item) {
+    return null
+  }
+  return item as MenuItemType
+}
+
+const loneMenuItem = computed<MenuItemType | null>(() => {
+  const list = options.value.actionItems;
+  if (list.length !== 1) {
+    return null
+  }
+  return toLoneFlatMenuItem(list[0])
+})
+
+function dispatchMenuKey(key: string, record: TEntity) {
+  if (key === 'edit') {
     emit('edit', record)
-  } else if (e.key === 'detail') {
+  } else if (key === 'detail') {
     emit('detail', record)
-  } else if (e.key === 'delete') {
+  } else if (key === 'delete') {
     remove([record])
   } else {
-    emit('actionItemClick', e, record)
+    emit('actionItemClick', key, record)
   }
+}
+
+function handleActionClick(e: MenuInfo, record: TEntity) {
+  dispatchMenuKey(e.key, record)
 }
 
 function activated() {
@@ -273,12 +307,12 @@ function activated() {
 
 function mounted() {
   options.value.pagination = props.pagination === false ? false : { ...(props.pagination || {})};
-  activated()
 }
 
 watch(
   () =>
     [
+      props.service,
       props.columns,
       props.actionItems,
       principalStore.state.grantedAuthorities,
@@ -312,6 +346,7 @@ defineExpose({
       <slot v-if="hasBodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
       <template v-if="column.dataIndex === 'action'">
         <a-dropdown
+          v-if="options.actionItems.length > 1"
           :menu="{ items: props.renderActionItems(record, options.actionItems), onClick: (e: MenuInfo) => handleActionClick(e, record) }"
           placement="bottomRight">
           <a-button size="small">
@@ -320,6 +355,21 @@ defineExpose({
             </template>
           </a-button>
         </a-dropdown>
+        <a-button
+          v-else-if="options.actionItems.length === 1"
+          size="small"
+          @click="dispatchMenuKey(String(loneMenuItem?.key ?? ''), record)"
+        >
+          <template #icon>
+            <component
+              class="icon align"
+              :is="typeof loneMenuItem?.icon === 'function' ? loneMenuItem?.icon() : loneMenuItem?.icon"
+            />
+          </template>
+          <span>
+            {{ loneMenuItem?.label }}
+          </span>
+        </a-button>
       </template>
     </template>
     <template #filterIcon="{filtered}">

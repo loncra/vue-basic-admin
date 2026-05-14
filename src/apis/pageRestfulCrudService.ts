@@ -1,3 +1,8 @@
+/**
+ * @file 分页列表 + 完整 CRUD
+ * @description 在 {@link BasicRestfulCrudService} 上增加 `page`，实现 {@link PageCurdService}。
+ * `POST {baseUrl}/page`，请求体为 `application/x-www-form-urlencoded` 编码的分页请求。
+ */
 import type {
   BasicIdMetadata,
   PageCurdService,
@@ -11,9 +16,12 @@ import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
 
 /**
- * 约定式 REST CRUD：列表 POST + `application/x-www-form-urlencoded`，详情/删除走 query（或可切换为路径详情）
+ * 实现 {@link PageCurdService}：详情 + 分页列表 + 保存 + 删除。
  *
- * @template TEntity - 实体类型，须含主键字段 `id`（键名由 {@link SYSTEM_CONSTANT.ID_NAME} 约定）
+ * @typeParam TBody - 保存请求体
+ * @typeParam TEntity - 实体类型
+ * @typeParam TPage - 分页结果类型（须扩展 {@link ScrollPageResult}&lt;TEntity&gt;）
+ * @typeParam TId - 主键类型
  */
 export class PageRestfulCrudService<
   TBody extends BasicIdMetadata<TId>,
@@ -28,6 +36,7 @@ export class PageRestfulCrudService<
 {
   static readonly PAGE_URL = '/page'
 
+  /** `POST {baseUrl}/page` */
   page(request: PageRequest): Promise<RestResult<TPage>> {
     return axios.post(this.baseUrl + PageRestfulCrudService.PAGE_URL, formUrlEncoded(request as Record<string, unknown>))
   }

@@ -10,7 +10,6 @@ import type {NameValueEnumMetadata, ResourceEntity, RestResult} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/common';
-import type {MenuInfo} from '@v-c/menu';
 
 defineOptions({
   name: 'LResourceTable',
@@ -184,8 +183,8 @@ function fetchDataSource() {
   authorityOperateTable.value.fetchDataSource()
 }
 
-function onActionItemClick(e: MenuInfo, record: ResourceEntity) {
-  if (e.key === 'addChild') {
+function onActionItemClick(key: string, record: ResourceEntity) {
+  if (key === 'addChild') {
     globalProperties.$router.push({name:'auth_server_resource_addChild', query:{parentId:String(record.id)}})
   }
 }

@@ -48,7 +48,10 @@ const getCheckboxProps: NonNullable<TableProps["rowSelection"]>["getCheckboxProp
           @add="globalProperties.$router.push({name:'auth_server_resource_add'})"
         />
       </template>
-      <l-resource-table ref="table" :row-selection="{type: 'checkbox', onChange: onRowSelectionChange, getCheckboxProps: getCheckboxProps}" />
+      <l-resource-table 
+        ref="table"
+        :row-selection="{type: 'checkbox', onChange: onRowSelectionChange, getCheckboxProps: getCheckboxProps}"
+      />
     </l-menu-title-card>
   </div>
 </template>

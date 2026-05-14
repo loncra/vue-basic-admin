@@ -13,7 +13,6 @@ import type {NameValueEnumMetadata} from "@/types/common.ts";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {RoleEntity} from "@/types/auth-server/roleType.ts";
 import type {FilterRequest} from '@/types/common';
-import type {MenuInfo} from '@v-c/menu';
 
 defineOptions({
   name: 'LRoleTable',
@@ -153,8 +152,8 @@ function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
   return sources.map(s => getEnumName(s)).join(",")
 }
 
-function onActionItemClick(e: MenuInfo, record: RoleEntity) {
-  if (e.key === 'addChild') {
+function onActionItemClick(key: string, record: RoleEntity) {
+  if (key === 'addChild') {
     globalProperties.$router.push({name:'auth_server_role_addChild', query:{parentId:String(record.id)}})
   }
 }

@@ -4,25 +4,11 @@
 import type {ButtonAuthorityProps} from "@/types";
 import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
 import type {MenuProps} from "antdv-next";
+import type {ItemType, MenuItemType} from "antdv-next/dist/menu/interface";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {MenuInfo} from '@v-c/menu'
 
-type MenuItemEntry = NonNullable<MenuProps["items"]>[number]
-
-/** 仅用于本组件 push 的扁平菜单项（含 icon / label），与 antdv ItemType 并集区分 */
-type LoneActionMenuRow = {
-  key?: string
-  label?: unknown
-  icon?: (() => unknown) | unknown
-}
-
-function toLoneActionMenuRow(item: MenuItemEntry | undefined): LoneActionMenuRow | null {
-  if (!item || item.type === "divider" || !("icon" in item) || !("label" in item) || item.icon == null) {
-    return null
-  }
-  return item as LoneActionMenuRow
-}
 
 export interface AuthorityButtonProps {
   authority?: ButtonAuthorityProps
@@ -92,12 +78,22 @@ const menuItems = computed<NonNullable<MenuProps['items']>>(() => {
   return items
 })
 
-const loneMenuItem = computed(() => {
+function toLoneFlatMenuItem(item: ItemType | undefined): MenuItemType | null {
+  if (!item || item.type === "divider" || !("icon" in item) || !("label" in item) || item.icon == null) {
+    return null
+  }
+  if ("children" in item) {
+    return null
+  }
+  return item as MenuItemType
+}
+
+const loneMenuItem = computed<MenuItemType | null>(() => {
   const list = menuItems.value
   if (list.length !== 1) {
     return null
   }
-  return toLoneActionMenuRow(list[0])
+  return toLoneFlatMenuItem(list[0])
 })
 
 function dispatchMenuKey(key: string, e?: MenuInfo) {
@@ -131,10 +127,11 @@ function handleActionClick(e: MenuInfo) {
     </a-button>
   </a-dropdown>
   <template v-else-if="menuItems.length === 1">
-    <a-button @click="dispatchMenuKey(loneMenuItem?.key ?? '')">
+    <a-button @click="dispatchMenuKey(String(loneMenuItem?.key ?? ''))">
       <template #icon>
         <component
-          :is="typeof loneMenuItem?.icon === 'function' ? loneMenuItem.icon() : loneMenuItem?.icon"
+          class="icon align"
+          :is="typeof loneMenuItem?.icon === 'function' ? loneMenuItem?.icon() : loneMenuItem?.icon"
         />
       </template>
       <span>

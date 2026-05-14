@@ -1,3 +1,8 @@
+/**
+ * @file 认证中心 — 会话与初始化静态 API
+ * @description 与「实体 CRUD 类」不同：本类为 **静态方法集合**，封装登录、登出、应用 `prepare`、当前主体资源拉取等；
+ * 不继承 {@link DetailSearchRestfulService} 链路。
+ */
 import axios from '@/requests'
 import {formUrlEncoded} from '@/utils'
 import type {
@@ -10,96 +15,58 @@ import type {
 } from '@/types'
 
 /**
- * 认证管理公共服务
+ * auth-server 认证与初始化入口（无实例状态，仅静态 URL + 请求封装）。
  *
  * @author maurice.chen
  */
 export class AuthServerService {
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/auth-server' : '')
-  /** 登录接口 URL */
+  /** 登录 */
   static readonly LOGIN_URL: string = AuthServerService.BASE_URL + '/login'
-  /** 登出接口 URL */
+  /** 登出 */
   static readonly LOGOUT_URL: string = AuthServerService.BASE_URL + '/logout'
-  /** 应用数据初始化接口 URL */
+  /** 应用启动前准备数据（插件、设备等） */
   static readonly PREPARE_URL: string = AuthServerService.BASE_URL + '/prepare'
-  /** 获取用户资源的接口路径 */
+  /** 当前登录用户资源（可按类型过滤、可选树合并） */
   static readonly PRINCIPAL_RESOURCES_URL = AuthServerService.BASE_URL + '/principalResources'
 
   /**
    * 用户登录
-   * 向服务端发送登录请求，验证用户凭据并获取认证信息
    *
-   * @param credentials - 登录凭据，包含用户名、密码和登录方式等信息
-   * @param authenticationType - 认证类型，例如 'CONSOLE'（控制台用户）或 'MEMBER'（普通会员）
-   * @returns Promise 对象，成功时返回包含用户认证信息的 RestResult
-   *
-   * @example
-   * ```typescript
-   * const result = await ResourceServerService.login(
-   *   { username: 'admin', password: '123456', loginType: 'USERNAME_PASSWORD' },
-   *   'CONSOLE'
-   * );
-   * ```
+   * @param credentials - 登录凭据
+   * @param authenticationType - 认证维度（如控制台用户 / 会员），经请求头传递
    */
   static login(
     credentials: AuthCredentials,
     authenticationType: AuthenticationType,
   ): Promise<RestResult<AuthenticationInfo>> {
-    // 将凭据转换为表单编码格式并发送 POST 请求
     return axios.post(AuthServerService.LOGIN_URL, formUrlEncoded(credentials), {
       headers: {
-        // 在请求头中指定认证类型
         [import.meta.env.VITE_APP_HEADER_AUTHENTICATION_TYPE_NAME]: authenticationType,
       },
     })
   }
 
-  /**
-   * 用户登出
-   * 向服务端发送登出请求，清除用户会话
-   *
-   * @returns Promise 对象，成功时返回空 RestResult
-   *
-   * @example
-   * ```typescript
-   * await ResourceServerService.logout();
-   * ```
-   */
+  /** 用户登出 */
   static logout(): Promise<RestResult<Record<string, unknown>>> {
     return axios.post(AuthServerService.LOGOUT_URL)
   }
 
-  /**
-   * 准备（初始化）应用数据
-   * 获取应用初始化所需的数据，包括插件服务列表和设备标识等
-   * 通常在应用启动时调用，用于初始化路由、菜单等
-   *
-   * @returns Promise 对象，成功时返回包含插件服务和设备标识等信息的 PrepareData
-   *
-   * @example
-   * ```typescript
-   * const data = await ResourceServerService.prepare();
-   * console.log(data.pluginServices); // ['auth-server', ...]
-   * console.log(data.deviceIdentified); // 设备标识
-   * ```
-   */
+  /** 拉取应用初始化数据 */
   static prepare(): Promise<RestResult<PrepareData>> {
     return axios.get(AuthServerService.PREPARE_URL)
   }
 
   /**
-   * 获取当前用户资源类型为 CONSOLE 的资源集合
-   * 从服务端获取当前登录用户的资源列表，支持按类型过滤和树形结构合并
+   * 获取当前用户下指定类型的资源集合
    *
-   * @param resourceTypes - 资源类型数组，过滤条件，仅获取指定类型的资源（如 ['MENU', 'SECURITY']）
-   * @param mergeTree - 是否将资源合并为树形结构，true 表示树形，false 表示扁平列表，默认为 true
-   * @returns Promise 对象，成功时返回资源数据数组
+   * @param resourceTypes - 资源类型过滤
+   * @param mergeTree - 是否合并为树形
    */
   static principalResources(
     resourceTypes?: string[],
     mergeTree: boolean = true,
   ): Promise<RestResult<ResourceEntity[]>> {
-    // 将参数转换为 URLSearchParams 格式
     const params = formUrlEncoded({types: resourceTypes, mergeTree})
     return axios.get(AuthServerService.PRINCIPAL_RESOURCES_URL, {
       params,
