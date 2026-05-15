@@ -194,45 +194,47 @@ function rebuildAuthorityMeta() {
 }
 
 async function fetchDataSource() {
+  try {
+    loading.value = true;
+    const data:TEntity[] = [];
+    if (typeof (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page === 'function') {
+      const result:RestResult<TPage> = await (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page(query.value as PageRequest);
+      data.push(...(result.data?.elements || []))
+      const pagination:TableProps['pagination']  = { ...(props.pagination || {})};
+      pagination.pageSize = result.data?.size || 10 ;
 
-  loading.value = true;
-  const data:TEntity[] = [];
-  if (typeof (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page === 'function') {
-    const result:RestResult<TPage> = await (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page(query.value as PageRequest);
-    data.push(...(result.data?.elements || []))
-    const pagination:TableProps['pagination']  = { ...(props.pagination || {})};
-    pagination.pageSize = result.data?.size || 10 ;
-
-    const pageResult = result.data as unknown as PageResult<TEntity>
-    if (pageResult.number) {
-      pagination.current = pageResult.number;
-      const n =
-        typeof pageResult.number === 'number' && Number.isFinite(pageResult.number)
-          ? pageResult.number
-          : ((query.value as PageRequest).number ?? 1)
-      const rowCount = data.length
-      if (pageResult.last) {
-        pagination.total = (n - 1) * pageResult.size + rowCount
-      } else {
-        pagination.total = n * pageResult.size + 1
+      const pageResult = result.data as unknown as PageResult<TEntity>
+      if (pageResult.number) {
+        pagination.current = pageResult.number;
+        const n =
+          typeof pageResult.number === 'number' && Number.isFinite(pageResult.number)
+            ? pageResult.number
+            : ((query.value as PageRequest).number ?? 1)
+        const rowCount = data.length
+        if (pageResult.last) {
+          pagination.total = (n - 1) * pageResult.size + rowCount
+        } else {
+          pagination.total = n * pageResult.size + 1
+        }
       }
+
+      const totalPage = result.data as unknown as TotalPage<TEntity>
+      if (totalPage.totalCount) {
+        pagination.total = totalPage.totalCount;
+      }
+
+      options.value.pagination = pagination;
+
+    } else if (typeof (props.service as FindSearchService<TEntity, TId>).find === 'function') {
+      const result:RestResult<TEntity[]> = await (props.service as FindSearchService<TEntity, TId>).find(query.value as FilterRequest);
+      data.push(...(result.data || []))
+      options.value.pagination = false;
     }
 
-    const totalPage = result.data as unknown as TotalPage<TEntity>
-    if (totalPage.totalCount) {
-      pagination.total = totalPage.totalCount;
-    }
-
-    options.value.pagination = pagination;
-
-  } else if (typeof (props.service as FindSearchService<TEntity, TId>).find === 'function') {
-    const result:RestResult<TEntity[]> = await (props.service as FindSearchService<TEntity, TId>).find(query.value as FilterRequest);
-    data.push(...(result.data || []))
-    options.value.pagination = false;
+    dataSource.value = data;
+  } finally {
+    loading.value = false;
   }
-
-  dataSource.value = data;
-  loading.value = false;
 }
 
 function remove(records: TEntity[]) {

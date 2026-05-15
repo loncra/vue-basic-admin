@@ -20,9 +20,11 @@ const globalProperties =
 
 const props = withDefaults(defineProps<{
   query?: FilterRequest,
+  detailView?: boolean,
   date?: number,
   rowSelection?: TableProps["rowSelection"]
 }>(), {
+
   filter: () => ({}),
   rowSelection: () => ({type: 'checkbox'})
 })
@@ -40,7 +42,7 @@ const columns = ref<SearchableColumnType[]>([
     search:{
       component: markRaw(Input),
       props:{placeholder: globalProperties.$t('search.placeholder.input')},
-      expression:'like'
+      expression:'eq'
     },
   },
   {
@@ -76,7 +78,7 @@ const columns = ref<SearchableColumnType[]>([
     search:{
       component: markRaw(Input),
       props:{placeholder: globalProperties.$t('search.placeholder.input')},
-      queryName:'filter_[principal_like]_or_[data.details.realName_like]'
+      queryName:'filter_[principal_eq]_or_[data.details.metadata.realName_eq]'
     },
   },
   {
@@ -134,7 +136,9 @@ async function mounted() {
       typeCol.search.props.options = enums.data['resource-server']?.OperationDataType
     }
   }
-
+  if (props.detailView) {
+    columns.value = columns.value.filter(v => v.dataIndex !== "target")
+  }
 }
 onMounted(mounted)
 
@@ -172,7 +176,7 @@ onMounted(mounted)
           {{ record.data.operationDataTrace.remark }}
         </template>
         <template v-if="column.dataIndex === 'principal'">
-          {{ record.data?.details?.realName || record.principal }}
+          {{ record.data?.details?.metadata?.realName || record.principal }}
         </template>
         <template v-if="column.dataIndex === 'type'">
           {{ record.data.operationDataTrace.type.name }}
