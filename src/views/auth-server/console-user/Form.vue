@@ -15,10 +15,6 @@ import type {RoleEntity} from "@/types/auth-server/roleType.ts";
 import type {TableProps} from "antdv-next"
 import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
 
-defineOptions({
-  name: 'LAuthServerConsoleUserForm',
-})
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

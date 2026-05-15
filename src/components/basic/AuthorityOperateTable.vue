@@ -163,7 +163,7 @@ function rebuildAuthorityMeta() {
 
   if (props.enabledActions && principalStore.hasAnyPermission([props.authority?.edit || '', props.authority?.detail || '', props.authority?.delete || ''])) {
     options.value.columns.push({
-      title: globalProperties.$t('common.operation'),
+      title: globalProperties.$t('common.action'),
       dataIndex: 'action',
       key: 'action',
       align: 'center',

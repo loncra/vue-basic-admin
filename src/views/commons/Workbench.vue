@@ -5,10 +5,6 @@ import {requireNonNullOrUndefined} from '@/utils'
 import type {ComponentInternalInstance} from 'vue'
 import {getCurrentInstance} from 'vue'
 
-defineOptions({
-  name: 'LWorkbench',
-})
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -48,7 +44,7 @@ const principalStore = usePrincipalStore()
             <a-divider plain orientation="left" class="text-text-secondary">
               <a-space>
                 <icon-font class="icon" type="icon-suggest"/>
-                {{globalProperties.$t('workbench.basicInformation')}}
+                {{globalProperties.$t('common.basicInformation')}}
               </a-space>
             </a-divider>
             <a-space direction="vertical" class="w-full">

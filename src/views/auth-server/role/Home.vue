@@ -7,9 +7,6 @@ import type {MenuProps, TableProps} from "antdv-next";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import type {RoleEntity} from '@/types/auth-server/roleType';
 
-defineOptions({
-  name: 'LAuthServerRoleHome',
-})
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

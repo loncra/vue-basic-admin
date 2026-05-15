@@ -7,10 +7,6 @@ import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import type {ResourceEntity} from '@/types/auth-server/resourceType';
 import type {TableProps} from "antdv-next";
 
-defineOptions({
-  name: 'LAuthServerResourceHome',
-})
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -48,7 +44,7 @@ const getCheckboxProps: NonNullable<TableProps["rowSelection"]>["getCheckboxProp
           @add="globalProperties.$router.push({name:'auth_server_resource_add'})"
         />
       </template>
-      <l-resource-table 
+      <l-resource-table
         ref="table"
         :row-selection="{type: 'checkbox', onChange: onRowSelectionChange, getCheckboxProps: getCheckboxProps}"
       />

@@ -31,7 +31,7 @@ const resourceServerService = new ResourceServerService()
 
 const columns = ref<SearchableColumnType[]>([
   {
-    title: "审计类型",
+    title: globalProperties.$t('authServer.auditEvent.type'),
     dataIndex: "auditType",
     ellipsis: true,
     width: 200,
@@ -43,7 +43,7 @@ const columns = ref<SearchableColumnType[]>([
     },
   },
   {
-    title: "目标表",
+    title: globalProperties.$t('authServer.auditEvent.target'),
     dataIndex: "target",
     ellipsis: true,
     width: 150,
@@ -55,7 +55,7 @@ const columns = ref<SearchableColumnType[]>([
     },
   },
   {
-    title: "操作时间",
+    title:  globalProperties.$t('operation.time'),
     dataIndex: "creationTime",
     ellipsis: true,
     width: 210,
@@ -67,7 +67,7 @@ const columns = ref<SearchableColumnType[]>([
     },
   },
   {
-    title: "操作用户",
+    title: globalProperties.$t('operation.principal'),
     dataIndex: "principal",
     ellipsis: true,
     width: 150,
@@ -79,7 +79,7 @@ const columns = ref<SearchableColumnType[]>([
     },
   },
   {
-    title: "操作类型",
+    title: globalProperties.$t('operation.type'),
     dataIndex: "type",
     ellipsis: true,
     width: 100,
@@ -91,7 +91,7 @@ const columns = ref<SearchableColumnType[]>([
     },
   },
   {
-    title: "关联业务 id",
+    title: globalProperties.$t('authServer.auditEvent.traceId'),
     dataIndex: "traceId",
     ellipsis: true,
     width: 150,
@@ -103,7 +103,7 @@ const columns = ref<SearchableColumnType[]>([
     },
   },
   {
-    title: "操作说明",
+    title: globalProperties.$t('common.remark'),
     dataIndex: "remark",
     ellipsis: true,
     width: 400

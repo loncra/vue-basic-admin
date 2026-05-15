@@ -16,8 +16,8 @@ const locale: LanguagePack = {
     delete: '删除',
     export: '导出',
     detail: '详情',
+    action: '操作',
     deleteSelected: '删除选中',
-    operation: '操作',
     reset: '重置',
     deleteConfirmTitle: '删除确认',
     deleteConfirmSingle: '确定要删除该记录吗？',
@@ -47,7 +47,13 @@ const locale: LanguagePack = {
     style:'风格',
     other:'其他',
     rememberOperate:'记住我的操作',
-    default:'默认'
+    default:'默认',
+    basicInformation: '基础信息',
+  },
+  operation:{
+    time:'操作时间',
+    principal:'操作账户',
+    type:'操作类型',
   },
   setting: {
     componentSize:'组件默认大小设置',
@@ -229,7 +235,6 @@ const locale: LanguagePack = {
     reLogin:'重新登录',
   },
   workbench: {
-    basicInformation: '基础信息',
     personalActivity: '个人动态',
     quickAccess: '快速入口',
   },
@@ -266,6 +271,11 @@ const locale: LanguagePack = {
       applicationName: '应用名称',
       page:'路由页面',
       icon:'图标'
+    },
+    auditEvent:{
+      type:'审计类型',
+      target:'审计目标',
+      traceId:'关联业务 id'
     },
     role:{
       removable:'是否可删除',

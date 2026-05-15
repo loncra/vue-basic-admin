@@ -14,10 +14,6 @@ import type {
 } from "@/types";
 import type {Color} from 'antdv-next'
 
-defineOptions({
-  name: 'LSetting',
-})
-
 const configProviderStore = useConfigProviderStore()
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

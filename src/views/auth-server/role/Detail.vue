@@ -5,10 +5,6 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {RoleEntity} from "@/types/auth-server/roleType.ts";
 
-defineOptions({
-  name: 'LAuthServerConsoleUserDetail',
-})
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -31,11 +27,11 @@ const entity = ref<RoleEntity>({
 
 <template>
   <div>
-    <l-basic-detail 
+    <l-basic-detail
       operationDataTraceTarget="tb_role"
-      :redirect="{name:'auth_server_role'}" 
-      :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'" 
-      :service="service" 
+      :redirect="{name:'auth_server_role'}"
+      :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'"
+      :service="service"
       :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity"
     >
       <a-descriptions-item :label="globalProperties.$t('common.id')">

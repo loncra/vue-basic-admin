@@ -14,9 +14,6 @@ import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
 
-defineOptions({
-  name: 'LAuthServerConsoleUserForm',
-})
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

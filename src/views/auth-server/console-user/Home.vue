@@ -7,10 +7,6 @@ import type {TableProps} from "antdv-next";
 import {requireNonNullOrUndefined} from "@/utils";
 import type {ConsoleUserEntity} from '@/types/auth-server/consoleUserType';
 
-defineOptions({
-  name: 'LAuthServerConsoleUserHome',
-})
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

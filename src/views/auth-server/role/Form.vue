@@ -12,10 +12,6 @@ import type {FilterRequest} from "@/types/common.ts";
 import type {OptionProps} from "antdv-next/dist/mentions/index";
 import {getEnumValue} from "@/utils/commonUtils.ts";
 
-defineOptions({
-  name: 'LAuthServerConsoleUserForm',
-})
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

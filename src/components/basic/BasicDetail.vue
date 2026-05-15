@@ -13,7 +13,7 @@ import {
 } from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {App} from "antdv-next";
+import {App, type MenuProps} from "antdv-next";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
 import type {RouteLocationRaw} from "vue-router";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
@@ -32,7 +32,8 @@ const globalProperties =
 const menuPrincipalStore = useMenuPrincipalStore()
 const props = withDefaults(
   defineProps<{
-    operationDataTraceTarget:string,
+    actionItems?: NonNullable<MenuProps['items']>
+    operationDataTraceTarget?:string,
     redirect: RouteLocationRaw
     service: DetailSearchService<TEntity>
     titleText?: (title:string, entity: TEntity) => string
@@ -108,11 +109,14 @@ onMounted(mounted)
 <template>
   <div>
     <l-menu-title-card :loading="loading">
-      <a-descriptions bordered v-bind="$attrs">
+      <a-descriptions bordered v-bind="$attrs" :title="globalProperties.$t('common.basicInformation')">
+        <template #extra>
+
+        </template>
         <slot></slot>
       </a-descriptions>
 
-      <div v-if="entity.id && creationTime" class="mb-md">
+      <div v-if="entity.id && creationTime && operationDataTraceTarget" class="mb-md">
         <a-divider orientation="left" plain>
           <a-space>
             <icon-font class="icon" type="icon-time-response" />
