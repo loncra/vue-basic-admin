@@ -34,7 +34,7 @@ function logout() {
 
             <a-button type="primary" @click="logout" >
               <icon-font type="icon-sign-out"/>
-              <span class="hidden-md hidden-sm hidden-xs">{{ globalProperties.$t('auth.reLogin') }}</span>
+              <span >{{ globalProperties.$t('auth.reLogin') }}</span>
             </a-button>
           </a-space>
         </div>

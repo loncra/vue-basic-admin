@@ -5,7 +5,7 @@ import LAuthorityOperateTable, {
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import {DatePicker, Input, InputNumber, Select} from 'antdv-next';
 import {OperationDataTraceAuditEventService, ResourceServerService} from "@/apis";
-import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest, RestResult} from '@/types/common';
 import type {AuditEventEntity} from "@/types/auth-server/auditEntityType.ts";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
@@ -155,7 +155,7 @@ onMounted(mounted)
       :columns="columns"
       :authority="{detail:'perms[auth_server_audit_event:get]'}"
       :scroll="{x:'max-content'}"
-      @detail="r => globalProperties.$router.push({name:'auth_server_role_detail', query:{id:String(r.id)}})"
+      @detail="r => globalProperties.$router.push({name:'auth_server_audit_event_operation_data_trace_detail', query:{id:String(r.id),after:postTimestampFormat(r.timestamp)}})"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'creationTime'">

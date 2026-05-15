@@ -54,6 +54,7 @@ const locale: LanguagePack = {
     time:'操作时间',
     principal:'操作账户',
     type:'操作类型',
+    data:'操作数据'
   },
   setting: {
     componentSize:'组件默认大小设置',
@@ -176,6 +177,7 @@ const locale: LanguagePack = {
     }
   },
   error:{
+    notNull:'{field} 不能为空',
     errorMessage:'错误信息',
     code:'错误代码',
     field:'字段信息',

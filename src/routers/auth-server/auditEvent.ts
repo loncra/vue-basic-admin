@@ -40,7 +40,7 @@ const router: RouteRecordRaw[] = [
       applicationName: 'auth-server',
       title: '操作日志明细',
       icon: 'icon-order-inspection',
-      parent: '/auth-server/audit/event/authentication',
+      parent: '/auth-server/audit/event/operationDataTrace',
       requiresFullyAuth: true,
     },
   },

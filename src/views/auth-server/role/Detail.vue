@@ -32,7 +32,8 @@ const entity = ref<RoleEntity>({
       :redirect="{name:'auth_server_role'}"
       :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'"
       :service="service"
-      :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity"
+      :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"
+      v-model:entity="entity"
     >
       <a-descriptions-item :label="globalProperties.$t('common.id')">
         {{entity.id}}

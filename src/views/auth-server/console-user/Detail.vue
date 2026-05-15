@@ -59,7 +59,8 @@ const entity = ref<ConsoleUserEntity>({
       :redirect="{name:'auth_server_user_console'}"
       :title-text="(title:string, _entity:ConsoleUserEntity) => title + ' (' + _entity.realName + ')'"
       :service="service"
-      :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}" v-model:entity="entity"
+      :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"
+      v-model:entity="entity"
     >
       <a-descriptions-item :label="globalProperties.$t('common.id')">
         {{entity.id}}
