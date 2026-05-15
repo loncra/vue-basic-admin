@@ -28,9 +28,7 @@ import type {MenuProps, TableProps} from "antdv-next";
 import {App} from 'antdv-next'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
-import type {MenuInfo} from '@v-c/menu'
 import type {PageSearchRestfulService} from '@/apis/pageSearchRestfulService';
-import type {ItemType, MenuItemType} from "antdv-next/dist/menu/interface";
 import type {
   ColumnType,
   FilterValue,
@@ -38,6 +36,7 @@ import type {
   TableCurrentDataSource,
   TablePaginationConfig,
 } from "antdv-next/dist/table/interface";
+import LActionButton from "@/components/basic/ActionButton.vue";
 
 /** 列定义上挂载的查询区配置（非 antdv 内置字段） */
 export interface ColumnSearchConfig {
@@ -127,6 +126,62 @@ function search(
   }
   confirm()
   fetchDataSource()
+}
+
+function clear(
+  confirm: () => void,
+  setSelectedKeys: (strings: string[]) => void
+) {
+  options.value.columns.filter(c => c.search && c.search.queryName).forEach(c => {
+    query.value[c.search?.queryName ?? ''] = '';
+    c.filteredValue = null
+  })
+  setSelectedKeys([])
+  confirm();
+  fetchDataSource();
+}
+
+
+function isSearchColumnActive(column: SearchableColumnType) {
+  const qn = column.search?.queryName
+  if (!qn) {
+    return false
+  }
+  const v = query.value[qn as keyof typeof query.value]
+  if (v === '' || v == null || v === undefined) {
+    return false
+  }
+  if (Array.isArray(v) && v.length === 0) {
+    return false
+  }
+  return true
+}
+
+function onFilterEnterKey(
+  e: KeyboardEvent,
+  column: SearchableColumnType,
+  setSelectedKeys: (strings: string[]) => void,
+  confirm: () => void,
+) {
+  if (e.key !== 'Enter' || e.shiftKey) {
+    return
+  }
+  const el = e.target as HTMLElement | null
+  if (!el || el.tagName === 'TEXTAREA' || el.isContentEditable) {
+    return
+  }
+  if (el.closest('.ant-select') || el.closest('.ant-picker')) {
+    return
+  }
+  const input = el.closest('input')
+  if (!input) {
+    return
+  }
+  if (['button', 'checkbox', 'radio'].includes(input.type)) {
+    return
+  }
+  e.preventDefault()
+  search(column, setSelectedKeys, confirm)
 }
 
 function resetField(
@@ -268,7 +323,7 @@ async function doDelete(records: TEntity[]) {
   try {
     const result:RestResult<void> = await (props.service as BasicCrudService<TBody, TEntity, TId>).delete(records.map(r => r.id))
     message.success(result.message)
-    fetchDataSource()
+    await fetchDataSource()
   } catch (e) {
     message.error(e instanceof Error ? e.message : String(e))
   } finally {
@@ -276,25 +331,7 @@ async function doDelete(records: TEntity[]) {
   }
 }
 
-function toLoneFlatMenuItem(item: ItemType | undefined): MenuItemType | null {
-  if (!item || item.type === "divider" || !("icon" in item) || !("label" in item) || item.icon == null) {
-    return null
-  }
-  if ("children" in item) {
-    return null
-  }
-  return item as MenuItemType
-}
-
-const loneMenuItem = computed<MenuItemType | null>(() => {
-  const list = options.value.actionItems;
-  if (list.length !== 1) {
-    return null
-  }
-  return toLoneFlatMenuItem(list[0])
-})
-
-function dispatchMenuKey(key: string, record: TEntity) {
+function handleActionClick(key: string, record: TEntity) {
   if (key === 'edit') {
     emit('edit', record)
   } else if (key === 'detail') {
@@ -304,10 +341,6 @@ function dispatchMenuKey(key: string, record: TEntity) {
   } else {
     emit('actionItemClick', key, record)
   }
-}
-
-function handleActionClick(e: MenuInfo, record: TEntity) {
-  dispatchMenuKey(e.key, record)
 }
 
 function onChange(
@@ -377,38 +410,18 @@ defineExpose({
     <template #bodyCell="{ text, record, index, column}">
       <slot v-if="hasBodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
       <template v-if="column.dataIndex === 'action'">
-        <a-dropdown
-          v-if="options.actionItems.length > 1"
-          :menu="{ items: props.renderActionItems(record, options.actionItems), onClick: (e: MenuInfo) => handleActionClick(e, record) }"
-          placement="bottomRight">
-          <a-button size="small">
-            <template #icon>
-              <icon-font class="icon" type="icon-more"/>
-            </template>
-          </a-button>
-        </a-dropdown>
-        <a-button
-          v-else-if="options.actionItems.length === 1"
-          size="small"
-          @click="dispatchMenuKey(String(loneMenuItem?.key ?? ''), record)"
-        >
-          <template #icon>
-            <component
-              class="icon align"
-              :is="typeof loneMenuItem?.icon === 'function' ? loneMenuItem?.icon() : loneMenuItem?.icon"
-            />
-          </template>
-          <span>
-            {{ loneMenuItem?.label }}
-          </span>
-        </a-button>
+        <l-action-button size="small" :action-items="props.renderActionItems(record, options.actionItems)" @action-item-click="(key) => handleActionClick(key, record)" />
       </template>
     </template>
     <template #filterIcon="{filtered}">
       <icon-font :class="'icon' + (filtered ? ' text-primary' : '')" type="icon-search"/>
     </template>
     <template #filterDropdown="{column, setSelectedKeys, confirm}" >
-      <div class="p-md" @keydown.stop>
+      <div 
+        class="p-md" 
+        @keydown.stop
+        @keydown.enter="onFilterEnterKey($event, column as SearchableColumnType, setSelectedKeys, confirm)"
+      >
         <a-space orientation="vertical">
           <component
             :is="column.search.component"
@@ -427,6 +440,12 @@ defineExpose({
                 <icon-font class="icon align" type="icon-error"/>
               </template>
               <span>{{ globalProperties.$t('common.reset') }}</span>
+            </a-button>
+            <a-button block @click="clear(confirm, setSelectedKeys)">
+              <template #icon>
+                <icon-font class="icon align" type="icon-delete"/>
+              </template>
+              <span>清空</span>
             </a-button>
           </a-space-compact>
         </a-space>

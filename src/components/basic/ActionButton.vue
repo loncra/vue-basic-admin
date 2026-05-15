@@ -54,14 +54,14 @@ function handleActionClick(e: MenuInfo) {
     placement="bottomRight"
     :menu="{ items: actionItems, onClick: handleActionClick }"
   >
-    <a-button>
+    <a-button v-bind="$attrs">
       <template #icon>
         <icon-font class="icon" type="icon-more"/>
       </template>
     </a-button>
   </a-dropdown>
   <template v-else-if="actionItems.length === 1">
-    <a-button @click="dispatchMenuKey(String(loneMenuItem?.key ?? ''))">
+    <a-button v-bind="$attrs" @click="dispatchMenuKey(String(loneMenuItem?.key ?? ''))">
       <template #icon>
         <component
           class="icon align"
