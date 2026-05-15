@@ -164,6 +164,7 @@ const locale: LanguagePack = {
     },
   },
   form: {
+    operationDataTrace:"Operation Data",
     createSuccess: {
       title: 'Created successfully',
       subTitle: 'Choose an action below to continue.',

@@ -21,6 +21,7 @@ import {isResultSuccess} from "@/requests/http";
 import type {RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
+import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 
 const { message, modal } = App.useApp()
 
@@ -40,6 +41,7 @@ const rememberMe = ref(false)
 
 const props = withDefaults(
   defineProps<{
+    operationDataTraceTarget:string,
     service: BasicCrudService<TBody,TEntity>
     authority?: BasicAuthorityProps
     preMounted?: () => void | Promise<void>
@@ -53,6 +55,7 @@ const props = withDefaults(
 )
 
 const formRef = ref()
+const creationTime = ref<number>()
 const spinning = defineModel<boolean>("spinning", {default: false})
 const entity = defineModel<TBody>("entity", {default: () => {}})
 
@@ -77,6 +80,7 @@ async function doSubmit() {
       } else {
         message.success(result.message)
         globalProperties.$router.push(props.redirect)
+        getEntity(entity.value.id)
       }
     } else {
       message.error(result.message)
@@ -138,6 +142,23 @@ function onFinish () {
   formRef.value.validate().then(() => doSubmit())
 }
 
+async function getEntity(id: TId) {
+  const result:RestResult<TEntity> = await props.service.get(id);
+  const value = {...entity.value, ...result?.data || {}}
+  for (const key in entity.value) {
+    if (value[key] === undefined) {
+      continue;
+    }
+    entity.value[key] = value[key]
+  }
+  emit('postGet', result, entity.value)
+
+  const ct = (value as { creationTime?: number }).creationTime
+  if (ct != null) {
+    creationTime.value = ct
+  }
+}
+
 async function mounted() {
 
   spinning.value = true
@@ -146,15 +167,7 @@ async function mounted() {
   }
   const id = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] as TId
   if (id) {
-    const result:RestResult<TEntity> = await props.service.get(id);
-    const value = {...entity.value, ...result?.data || {}}
-    for (const key in entity.value) {
-      if (value[key] === undefined) {
-        continue;
-      }
-      entity.value[key] = value[key]
-    }
-    emit('postGet', result, entity.value)
+    await getEntity(id)
   }
   spinning.value = false
   await nextTick(doPostMounted)
@@ -213,6 +226,15 @@ onMounted(mounted)
             <slot name="rowLayout"></slot>
           </a-row>
           <slot></slot>
+          <div v-if="entity.id && creationTime" class="mb-md">
+            <a-divider orientation="left" plain>
+              <a-space>
+                <icon-font class="icon" type="icon-time-response" />
+                <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
+              </a-space>
+            </a-divider>
+            <l-operation-data-trace-table detailView :date="creationTime" :query="{'filter_[data.operationDataTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationDataTrace.entityId_eq]':entity.id}"/>
+          </div>
           <a-space>
             <a-button type="primary" html-type="submit" :loading="spinning">
               <template #icon>

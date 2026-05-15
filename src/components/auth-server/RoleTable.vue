@@ -28,7 +28,6 @@ const props = withDefaults(defineProps<{
   rowSelection?:TableProps["rowSelection"]
 }>(), {
   preview: false,
-  filter: () => ({}),
   rowSelection: () => ({type: 'checkbox'})
 })
 

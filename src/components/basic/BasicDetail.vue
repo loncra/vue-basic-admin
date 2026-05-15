@@ -1,20 +1,22 @@
-<script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
+<script setup lang="ts" generic="TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
-import type {BasicCrudService, BasicIdMetadata, RestResult} from "@/types";
+import type {BasicIdMetadata, DetailSearchService, RestResult} from "@/types";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
   inject,
   onActivated,
-  onMounted
+  onMounted,
+  ref
 } from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {App} from "antdv-next";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
 import type {RouteLocationRaw} from "vue-router";
+import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 
 const { modal } = App.useApp()
 
@@ -30,8 +32,9 @@ const globalProperties =
 const menuPrincipalStore = useMenuPrincipalStore()
 const props = withDefaults(
   defineProps<{
+    operationDataTraceTarget:string,
     redirect: RouteLocationRaw
-    service: BasicCrudService<TBody,TEntity>
+    service: DetailSearchService<TEntity>
     titleText?: (title:string, entity: TEntity) => string
   }>(),
   {
@@ -41,7 +44,7 @@ const props = withDefaults(
 
 const loading = defineModel<boolean>("loading", {default: false})
 const entity = defineModel<TEntity>("entity", {default: () => {}})
-
+const creationTime = ref<number>()
 async function mounted() {
   const id = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] as TId
   const data = [];
@@ -56,6 +59,10 @@ async function mounted() {
   }
   const result:RestResult<TEntity> = await props.service.get(id);
   const value = {...entity.value, ...result?.data || {}};
+  const ct = (value as { creationTime?: number }).creationTime
+  if (ct != null) {
+    creationTime.value = ct
+  }
   entity.value = value
   updateTitle(value)
 }
@@ -104,6 +111,16 @@ onMounted(mounted)
       <a-descriptions bordered v-bind="$attrs">
         <slot></slot>
       </a-descriptions>
+
+      <div v-if="entity.id && creationTime" class="mb-md">
+        <a-divider orientation="left" plain>
+          <a-space>
+            <icon-font class="icon" type="icon-time-response" />
+            <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
+          </a-space>
+        </a-divider>
+        <l-operation-data-trace-table detailView :date="creationTime" :query="{'filter_[data.operationDataTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationDataTrace.entityId_eq]':entity.id}"/>
+      </div>
     </l-menu-title-card>
   </div>
 </template>

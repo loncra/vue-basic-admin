@@ -23,7 +23,6 @@ import {
   useSlots,
   watch
 } from 'vue'
-import type {ColumnType} from "antdv-next/dist/table/interface";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {MenuProps, TableProps} from "antdv-next";
 import {App} from 'antdv-next'
@@ -32,6 +31,13 @@ import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import type {MenuInfo} from '@v-c/menu'
 import type {PageSearchRestfulService} from '@/apis/pageSearchRestfulService';
 import type {ItemType, MenuItemType} from "antdv-next/dist/menu/interface";
+import type {
+  ColumnType,
+  FilterValue,
+  SorterResult,
+  TableCurrentDataSource,
+  TablePaginationConfig,
+} from "antdv-next/dist/table/interface";
 
 /** 列定义上挂载的查询区配置（非 antdv 内置字段） */
 export interface ColumnSearchConfig {
@@ -100,11 +106,12 @@ const hasBodyCell = computed(() => Boolean(slots.bodyCell))
 
 const options = ref<{
   columns: SearchableColumnType[]
+  skipActivatedOnce:boolean,
   pagination?: TableProps['pagination']
-  actionItems: NonNullable<MenuProps['items']>
+  actionItems: NonNullable<MenuProps['items']>,
 }>({
+  skipActivatedOnce:true,
   columns: [],
-  pagination: {},
   actionItems: [],
 })
 
@@ -200,35 +207,37 @@ async function fetchDataSource() {
     if (typeof (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page === 'function') {
       const result:RestResult<TPage> = await (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page(query.value as PageRequest);
       data.push(...(result.data?.elements || []))
-      const pagination:TableProps['pagination']  = { ...(props.pagination || {})};
-      pagination.pageSize = result.data?.size || 10 ;
+      if (options.value.pagination) {
 
-      const pageResult = result.data as unknown as PageResult<TEntity>
-      if (pageResult.number) {
-        pagination.current = pageResult.number;
-        const n =
-          typeof pageResult.number === 'number' && Number.isFinite(pageResult.number)
-            ? pageResult.number
-            : ((query.value as PageRequest).number ?? 1)
-        const rowCount = data.length
-        if (pageResult.last) {
-          pagination.total = (n - 1) * pageResult.size + rowCount
-        } else {
-          pagination.total = n * pageResult.size + 1
+        options.value.pagination.pageSize = result.data?.size || 10 ;
+
+        const pageResult = result.data as unknown as PageResult<TEntity>
+        if (pageResult.number) {
+          options.value.pagination.current = pageResult.number;
+          const n =
+            typeof pageResult.number === 'number' && Number.isFinite(pageResult.number)
+              ? pageResult.number
+              : ((query.value as PageRequest).number ?? 1)
+          const rowCount = data.length
+          if (pageResult.last) {
+            options.value.pagination.total = (n - 1) * pageResult.size + rowCount
+          } else {
+            options.value.pagination.total = n * pageResult.size + 1
+          }
+        }
+
+        const totalPage = result.data as unknown as TotalPage<TEntity>
+        if (totalPage.totalCount) {
+          options.value.pagination.total = totalPage.totalCount;
         }
       }
-
-      const totalPage = result.data as unknown as TotalPage<TEntity>
-      if (totalPage.totalCount) {
-        pagination.total = totalPage.totalCount;
-      }
-
-      options.value.pagination = pagination;
 
     } else if (typeof (props.service as FindSearchService<TEntity, TId>).find === 'function') {
       const result:RestResult<TEntity[]> = await (props.service as FindSearchService<TEntity, TId>).find(query.value as FilterRequest);
       data.push(...(result.data || []))
-      options.value.pagination = false;
+      if (options.value.pagination === undefined) {
+        options.value.pagination = false;
+      }
     }
 
     dataSource.value = data;
@@ -301,14 +310,34 @@ function handleActionClick(e: MenuInfo, record: TEntity) {
   dispatchMenuKey(e.key, record)
 }
 
-function activated() {
-  if (props.immediate) {
-    fetchDataSource();
-  }
+function onChange(
+  pagination: TablePaginationConfig,
+  filters: Record<string, FilterValue | null>,
+  sorter: SorterResult<TEntity> | SorterResult<TEntity>[],
+  extra: TableCurrentDataSource<TEntity>,
+) {
+  query.value.number = pagination.current
+  query.value.size = pagination.pageSize || 10
+  fetchDataSource();
 }
 
-function mounted() {
-  options.value.pagination = props.pagination === false ? false : { ...(props.pagination || {})};
+function activated() {
+  if (options.value.skipActivatedOnce) {
+    return;
+  }
+  fetchDataSource();
+}
+
+async function mounted() {
+  if (!props.pagination) {
+    options.value.pagination = {hideOnSinglePage: true}
+  } else {
+    options.value.pagination = props.pagination
+  }
+  if (props.immediate) {
+    await fetchDataSource();
+    options.value.skipActivatedOnce = false;
+  }
 }
 
 watch(
@@ -342,6 +371,7 @@ defineExpose({
     :row-key="SYSTEM_CONSTANT.ID_NAME"
     :data-source="dataSource"
     :loading="loading"
+    @change="onChange"
     bordered
   >
     <template #bodyCell="{ text, record, index, column}">

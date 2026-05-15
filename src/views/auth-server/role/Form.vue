@@ -118,6 +118,7 @@ function resetFields() {
   <div>
     <l-basic-form
       @resetFields="resetFields"
+      operationDataTraceTarget="tb_role"
       @post-get="postGet"
       :pre-mounted="mounted"
       :title-text="setPageTitle"

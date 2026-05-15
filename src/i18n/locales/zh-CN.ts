@@ -161,6 +161,7 @@ const locale: LanguagePack = {
     }
   },
   form: {
+    operationDataTrace:"操作记录",
     createSuccess: {
       title: '新增成功',
       subTitle: '请点击以下按钮进行后续操作',

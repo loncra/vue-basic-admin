@@ -78,7 +78,6 @@ async function mounted() {
     const iconData:IconfontJson = await loadIcon(import.meta.env.VITE_APP_SITE_URL + icon)
     options.value.iconOptions.push(iconData)
   }
-  console.log(options.value.iconOptions)
 }
 
 function setPageTitle(title:string, entity: ResourceEntity) {
@@ -96,6 +95,7 @@ function setPageTitle(title:string, entity: ResourceEntity) {
   <div>
     <l-basic-form
       :pre-mounted="mounted"
+      operationDataTraceTarget="tb_resource"
       :title-text="setPageTitle"
       :redirect="{name:'auth_server_resource'}"
       :service="service"

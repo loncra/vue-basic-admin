@@ -3,7 +3,7 @@ import LAuthorityOperateTable, {
   type SearchableColumnType
 } from '@/components/basic/AuthorityOperateTable.vue'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
-import {DatePicker, Input, InputNumber, Select, type TableProps} from 'antdv-next';
+import {DatePicker, Input, InputNumber, Select} from 'antdv-next';
 import {OperationDataTraceAuditEventService, ResourceServerService} from "@/apis";
 import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest, RestResult} from '@/types/common';
@@ -21,12 +21,9 @@ const globalProperties =
 const props = withDefaults(defineProps<{
   query?: FilterRequest,
   detailView?: boolean,
-  date?: number,
-  rowSelection?: TableProps["rowSelection"]
+  date?: number
 }>(), {
-
-  filter: () => ({}),
-  rowSelection: () => ({type: 'checkbox'})
+  query: () => ({})
 })
 
 const service = new OperationDataTraceAuditEventService()
@@ -114,7 +111,6 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 const dataSource = ref<AuditEventEntity[]>([])
-const authorityOperateTable = ref();
 const options = ref<{
   query:FilterRequest
 }>({
@@ -122,8 +118,11 @@ const options = ref<{
 })
 
 options.value.query = {...props.query};
+options.value.query.after = props.date;
 
-if (!options.value.query.after) {
+if (props.date) {
+  options.value.query.after = globalProperties.$dayjs(props.date)
+} else {
   options.value.query.after = globalProperties.$dayjs().startOf('d')
 }
 
@@ -137,9 +136,10 @@ async function mounted() {
     }
   }
   if (props.detailView) {
-    columns.value = columns.value.filter(v => v.dataIndex !== "target")
+    columns.value = columns.value.filter(v => !["target", "auditType", "traceId"].includes(v.dataIndex as string))
   }
 }
+
 onMounted(mounted)
 
 </script>
@@ -148,14 +148,13 @@ onMounted(mounted)
   <div>
     <l-authority-operate-table
       v-bind="$attrs"
-      ref="authorityOperateTable"
       :query="options.query"
       v-model:data-source="dataSource"
+      :enabled-actions="!props.detailView"
       :service="service"
       :columns="columns"
       :authority="{detail:'perms[auth_server_audit_event:get]'}"
       :scroll="{x:'max-content'}"
-      :row-selection="props.rowSelection"
       @detail="r => globalProperties.$router.push({name:'auth_server_role_detail', query:{id:String(r.id)}})"
     >
       <template #bodyCell="{ column, record }">
