@@ -48,11 +48,25 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
           <a-divider orientation="left" plain>
             <a-space>
               <icon-font class="icon align" type="icon-customer-bussinessman"/>
-              <span >{{ globalProperties.$t('operation.principal') + globalProperties.$t('common.basicInformation')}}</span>
+              <span >{{ globalProperties.$t('operation.principal') + ' ' + globalProperties.$t('common.basicInformation')}}</span>
             </a-space>
           </a-divider>
           <a-descriptions bordered :column="{ xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 1 }" class="margin-top-lg">
             <a-descriptions-item v-for="(value, key) in entity.data.details" :key="key" :label="key">
+              {{ value }}
+            </a-descriptions-item>
+          </a-descriptions>
+        </template>
+
+        <template v-if="entity?.data?.header">
+          <a-divider orientation="left" plain="">
+            <a-space>
+              <icon-font class="icon align" type="icon-post"/>
+              <span>{{  globalProperties.$t('common.requestHeader') + ' ' + globalProperties.$t('common.basicInformation')}}</span>
+            </a-space>
+          </a-divider>
+          <a-descriptions bordered :column="{ xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 1 }" class="margin-top-lg">
+            <a-descriptions-item v-for="(value, key) in entity.data.header" :key="key" :label="key">
               {{ value }}
             </a-descriptions-item>
           </a-descriptions>

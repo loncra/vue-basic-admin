@@ -331,15 +331,16 @@ async function doDelete(records: TEntity[]) {
   }
 }
 
-function handleActionClick(key: string, record: TEntity) {
-  if (key === 'edit') {
+function handleActionClick(key: string | number, record: TEntity) {
+  const k = String(key)
+  if (k === 'edit') {
     emit('edit', record)
-  } else if (key === 'detail') {
+  } else if (k === 'detail') {
     emit('detail', record)
-  } else if (key === 'delete') {
+  } else if (k === 'delete') {
     remove([record])
   } else {
-    emit('actionItemClick', key, record)
+    emit('actionItemClick', k, record)
   }
 }
 

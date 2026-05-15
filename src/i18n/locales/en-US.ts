@@ -48,6 +48,14 @@ const locale: LanguagePack = {
     other: 'Other',
     rememberOperate: 'Remember my choice',
     default: 'Default',
+    basicInformation: 'Basic information',
+    requestHeader:'Request header',
+  },
+  operation: {
+    time: 'Operation time',
+    principal: 'Operator account',
+    type: 'Operation type',
+    data: 'Operation data',
   },
   setting: {
     componentSize: 'Default component size',
@@ -164,7 +172,7 @@ const locale: LanguagePack = {
     },
   },
   form: {
-    operationDataTrace:"Operation Data",
+    operationDataTrace: 'Operation history',
     createSuccess: {
       title: 'Created successfully',
       subTitle: 'Choose an action below to continue.',
@@ -173,6 +181,7 @@ const locale: LanguagePack = {
     },
   },
   error: {
+    notNull: '{field} is required',
     errorMessage: 'Error message',
     code: 'Error code',
     field: 'Field information',
@@ -234,7 +243,6 @@ const locale: LanguagePack = {
     reLogin: 'Sign in again',
   },
   workbench: {
-    basicInformation: 'Basic information',
     personalActivity: 'Personal activity',
     quickAccess: 'Quick access',
   },
@@ -271,6 +279,11 @@ const locale: LanguagePack = {
       applicationName: 'Application name',
       page: 'Route path',
       icon: 'Icon',
+    },
+    auditEvent: {
+      type: 'Audit type',
+      target: 'Audit target',
+      traceId: 'Related business ID',
     },
     role: {
       removable: 'Can delete',

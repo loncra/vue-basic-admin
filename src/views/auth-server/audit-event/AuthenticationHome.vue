@@ -5,7 +5,8 @@ import {dateTimeFormat, requireNonNullOrUndefined} from '@/utils';
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, ref} from 'vue';
 import type {SearchableColumnType} from '@/components/basic/AuthorityOperateTable.vue';
 import {DatePicker, Input} from 'antdv-next';
-
+import type {AuditEventEntity} from '@/types/auth-server/auditEntityType';
+import {postTimestampFormat} from '@/utils';
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -21,7 +22,7 @@ const columns = ref<SearchableColumnType[]>([
     width: 210,
     search:{
       component: markRaw(DatePicker),
-      props:{allowClear:false, placeholder: globalProperties.$t('search.placeholder.input'), showTime: true},
+      props:{allowClear:false, class:'w-full', placeholder: globalProperties.$t('search.placeholder.input'), showTime: true},
       queryName:'after',
       defaultValue: globalProperties.$dayjs().startOf('d')
     },
@@ -39,16 +40,28 @@ const columns = ref<SearchableColumnType[]>([
   }
 ])
 
+function openAuthenticationDetail(r: AuditEventEntity) {
+  globalProperties.$router.push({
+    name: 'auth_server_audit_event_authentication_detail',
+    query:{id:String(r.id),after:postTimestampFormat(r.timestamp)}
+  })
+}
+
 </script>
 
 <template>
   <l-basic-crud-table
     :service="service"
     :table="{
+      props: {
         columns: columns,
         authority: {
-          detail:'perms[auth_server_audit_event:get]'
-        }
+          detail: 'perms[auth_server_audit_event:get]',
+        },
+      },
+      listeners: {
+        detail: openAuthenticationDetail,
+      },
     }"
   >
     <template #tableBodyCell="{ column, record }">

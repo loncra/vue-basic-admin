@@ -44,7 +44,7 @@ function dispatchMenuKey(key: string) {
 }
 
 function handleActionClick(e: MenuInfo) {
-  dispatchMenuKey(e.key)
+  dispatchMenuKey(String(e.key ?? ''))
 }
 </script>
 

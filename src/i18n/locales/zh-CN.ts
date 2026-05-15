@@ -49,6 +49,7 @@ const locale: LanguagePack = {
     rememberOperate:'记住我的操作',
     default:'默认',
     basicInformation: '基础信息',
+    requestHeader:'请求头',
   },
   operation:{
     time:'操作时间',
