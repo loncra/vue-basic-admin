@@ -38,7 +38,7 @@ const locale: LanguagePack = {
     back: 'Back',
     home: 'Home',
     parent: 'Parent',
-    addChild: 'Add{name} child',
+    addChild: 'Add{name} child level',
     open: 'On',
     close: 'Off',
     border: 'Border',
@@ -185,7 +185,7 @@ const locale: LanguagePack = {
     },
   },
   error: {
-    notNull: 'required',
+    notNull: 'Cannot be empty',
     errorMessage: 'Error message',
     code: 'Error code',
     field: 'Field information',
@@ -277,8 +277,8 @@ const locale: LanguagePack = {
     },
   },
   authServer: {
-    randomPassword: 'Random password',
-    randomUsername: 'Random username',
+    randomPassword: 'Use random password',
+    randomUsername: 'Use random username',
     lastAuthenticationTime: 'Last sign-in time',
     authority: 'Permission code',
     source: 'Resource source',

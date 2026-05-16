@@ -158,10 +158,11 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    * @returns 初始化后的 ConfigProviderState
    */
   function reset(): ConfigProviderState {
+
     const initialState = {
       algorithm: null,
-      ...(storedValue ? JSON.parse(storedValue) : CONFIG_PROVIDER.STORED_STATE_VALUE),
       ...{locale: navigator.language},
+      ...(storedValue ? JSON.parse(storedValue) : CONFIG_PROVIDER.STORED_STATE_VALUE),
     }
 
     // 初始化 screen 属性
