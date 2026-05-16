@@ -57,7 +57,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       applicationName: 'resource-server',
       title: i18n.global.t('common.detail', {name:i18n.global.t('resourceServer.dataDictionary.routePage') + ' '}),
-      icon: 'icon-add',
+      icon: 'icon-order-inspection',
       parent: '/resource-server/dictionary',
       requiresFullyAuth: true,
     },

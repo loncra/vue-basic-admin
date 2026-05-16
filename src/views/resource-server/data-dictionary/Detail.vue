@@ -44,13 +44,13 @@ const entity = ref<DataDictionaryEntity>({
       <a-descriptions-item :label="globalProperties.$t('resourceServer.code')">
         {{entity.code}}
       </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('resource.dataDictionary.valueType')">
+      <a-descriptions-item :label="globalProperties.$t('resourceServer.dataDictionary.valueType')">
         {{getEnumName(entity.valueType)}}
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.enabled')">
         {{ getEnumName(entity.enabled)}}
       </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('resource.dataDictionary.level')">
+      <a-descriptions-item :label="globalProperties.$t('resourceServer.dataDictionary.level')">
         {{entity.level}}
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.sort')">
