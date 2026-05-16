@@ -118,7 +118,6 @@ export function unmergeTree<T>(data: TreeLike<T>[] = []): T[] {
   const result: T[] = []
   for (const d of data) {
     // 添加当前节点（不包含 children 属性）
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {children, ...nodeWithoutChildren} = d
     result.push(nodeWithoutChildren as T)
     // 如果有子节点，递归处理子节点
