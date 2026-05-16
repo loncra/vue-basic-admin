@@ -1,8 +1,6 @@
 import type {RouteRecordRaw} from 'vue-router'
 
-import i18n from '@/i18n'
-
-/** 权限相关路由 */
+/** 数据字典相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/dictionary',
@@ -20,7 +18,6 @@ const router: RouteRecordRaw[] = [
     name: 'resource_server_data_dictionary_addChild',
     meta: {
       applicationName: 'resource-server',
-      title: i18n.global.t('common.addChild', {name:' ' + i18n.global.t('resourceServer.dataDictionary.routePage') + ' '}),
       icon: 'icon-editor-add-cell',
       parent: '/resource-server/dictionary',
       requiresFullyAuth: true,
@@ -32,7 +29,6 @@ const router: RouteRecordRaw[] = [
     name: 'resource_server_data_dictionary_edit',
     meta: {
       applicationName: 'resource-server',
-      title: i18n.global.t('common.edit', {name:' ' + i18n.global.t('resourceServer.dataDictionary.routePage')}),
       icon: 'icon-edit',
       parent: '/resource-server/dictionary',
       requiresFullyAuth: true,
@@ -44,7 +40,6 @@ const router: RouteRecordRaw[] = [
     name: 'resource_server_data_dictionary_add',
     meta: {
       applicationName: 'resource-server',
-      title: i18n.global.t('common.add', {name:' ' + i18n.global.t('resourceServer.dataDictionary.routePage')}),
       icon: 'icon-add',
       parent: '/resource-server/dictionary',
       requiresFullyAuth: true,
@@ -56,7 +51,6 @@ const router: RouteRecordRaw[] = [
     name: 'resource_server_data_dictionary_detail',
     meta: {
       applicationName: 'resource-server',
-      title: i18n.global.t('common.detail', {name:i18n.global.t('resourceServer.dataDictionary.routePage') + ' '}),
       icon: 'icon-order-inspection',
       parent: '/resource-server/dictionary',
       requiresFullyAuth: true,

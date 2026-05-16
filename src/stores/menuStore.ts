@@ -12,6 +12,7 @@ import {
 } from "vue-router";
 import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
 import i18n from '@/i18n'
+import {resolveRouteTitleByName} from '@/routers/i18n'
 
 /** 路由进入中：仅用于 tab 图标 spin（与 useRoute() 解耦，对齐 beforeEach 的 to.fullPath） */
 export interface RouteEnterPage {
@@ -111,7 +112,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
     return {
       icon: (route.meta?.icon || 'icon-survey') as string,
-      name: (route.meta?.title || i18n.global.t('common.unname')) as string,
+      name: resolveRouteTitleByName(route),
       page: route.path,
       deactivatedClose: (route.meta?.deactivatedClose || false) as boolean,
       applicationName: route.meta?.applicationName as string,

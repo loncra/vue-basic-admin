@@ -4,7 +4,7 @@ import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {PrepareData, ResourceEntity} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {nextTick, ref} from 'vue'
+import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@/utils'
 
 import Auth from '@/views/Auth.vue'
@@ -28,7 +28,6 @@ const childrenRoutes: RouteRecordRaw[] = [
     name: '403',
     component: Forbidden,
     meta: {
-      title: i18n.global.t('error.forbidden.page'),
       deactivatedClose: true,
       applicationName: 'system',
       icon: 'icon-warning',
@@ -39,7 +38,6 @@ const childrenRoutes: RouteRecordRaw[] = [
     name: '400',
     component: BadRequest,
     meta: {
-      title: i18n.global.t('error.badRequest.page'),
       applicationName: 'system',
       icon: 'icon-cry',
       deactivatedClose: true,
@@ -82,34 +80,25 @@ const routes: RouteRecordRaw[] = [
     // 认证页面路由
     path: '/' + import.meta.env.VITE_APP_AUTH_PAGE_NAME,
     name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
-    component: Auth,
-    meta: {
-      title: i18n.global.t('auth.page'),
-    },
+    component: Auth
   },
   {
     path: '/error/404',
     name: '404',
-    component: NotFound,
-    meta: {
-      title: i18n.global.t('error.notFound.page')
-    }
+    component: NotFound
   },
   {
     // 首页路由，包含子路由
     path: '/' + import.meta.env.VITE_APP_HOME_PAGE_NAME,
     name: import.meta.env.VITE_APP_HOME_PAGE_NAME,
     component: Home,
-    children: childrenRoutes,
-    meta: {
-      title: i18n.global.t('common.home')
-    },
-  }/*,
+    children: childrenRoutes
+  },
   {
     path: "/:pathMatch(.*)*",
     name: 'NotFound',
-    redirect: "/404"
-  }*/
+    redirect: "/error/404"
+  }
 ]
 
 /**
@@ -146,6 +135,9 @@ const loadServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[
 
   // 遍历所有路由模块
   for (const key in modules) {
+    if (key.includes('.titles.ts') || key.includes('/routers/i18n/')) {
+      continue
+    }
     // 检查模块是否属于指定的插件服务
     if (serviceName.length > 0 && !serviceName.some(path => key.includes(path))) {
       continue
@@ -286,5 +278,16 @@ router.beforeEach(onBeforeEach)
  * 注册路由后置守卫
  */
 router.afterEach(onAfterEach)
+
+watch(
+  () => i18n.global.locale.value,
+  () => {
+    if (!initialState.value) {
+      return
+    }
+    const menuPrincipalStore = useMenuPrincipalStore()
+    menuPrincipalStore.resetCurrentBreadcrumbs(router.currentRoute.value, router)
+  },
+)
 
 export default router

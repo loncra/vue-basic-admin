@@ -20,6 +20,7 @@ import {App, Checkbox} from "antdv-next";
 import {isResultSuccess} from "@/requests/http";
 import type {RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
+import {resolveRouteTitleByName} from "@/routers/i18n";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 
@@ -180,8 +181,12 @@ async function doPostMounted() {
   spinning.value = false
 }
 
+function getRouteBaseTitle(): string {
+  return resolveRouteTitleByName(globalProperties.$route)
+}
+
 function updateTitle(entity: TEntity) {
-  const title = props.titleText(globalProperties.$route.meta.title as string, entity as TEntity)
+  const title = props.titleText(getRouteBaseTitle(), entity as TEntity)
   const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
   const last = currentBreadcrumbs.at(-1)
   if (last) {

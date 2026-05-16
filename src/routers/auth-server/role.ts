@@ -1,5 +1,4 @@
 import type {RouteRecordRaw} from 'vue-router'
-import i18n from "@/i18n";
 
 /** 角色相关路由 */
 const router: RouteRecordRaw[] = [
@@ -18,7 +17,6 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_role_addChild',
     meta: {
       applicationName: 'auth-server',
-      title: i18n.global.t('common.addChild', {name:' ' + i18n.global.t('authServer.role.routePage') + ' '}),
       icon: 'icon-editor-add-cell',
       parent: '/auth-server/role',
       requiresFullyAuth: true,
@@ -30,7 +28,6 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_role_edit',
     meta: {
       applicationName: 'auth-server',
-      title: i18n.global.t('common.edit', {name:' ' + i18n.global.t('authServer.role.routePage')}),
       icon: 'icon-edit',
       parent: '/auth-server/role',
       requiresFullyAuth: true,
@@ -42,7 +39,6 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_role_add',
     meta: {
       applicationName: 'auth-server',
-      title: i18n.global.t('common.edit', {name:' ' + i18n.global.t('authServer.role.routePage')}),
       icon: 'icon-add',
       parent: '/auth-server/role',
       requiresFullyAuth: true,
@@ -54,7 +50,6 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_role_detail',
     meta: {
       applicationName: 'auth-server',
-      title: i18n.global.t('common.detail', {name:i18n.global.t('authServer.role.routePage') + ' '}),
       icon: 'icon-order-inspection',
       parent: '/auth-server/role',
       requiresFullyAuth: true,

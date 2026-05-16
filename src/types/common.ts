@@ -437,3 +437,11 @@ export interface IconfontJson {
   description:string
   glyphs: IconfontGlyph[]
 }
+
+export type RouteTitleParams = Record<string, string>
+
+export type RouteTitleSpec = readonly [string, RouteTitleParams?]
+
+export type RouteTitleGetter = () => RouteTitleSpec
+
+export type RouteTitleMap = Record<string, RouteTitleGetter>

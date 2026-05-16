@@ -243,7 +243,7 @@ const locale: LanguagePack = {
     rememberMe: 'Remember me',
     forgotPassword: 'Forgot password?',
     login: 'Sign in',
-    log: 'Sign-in log',
+    log: ' Sign-in log ',
     phoneLogin: 'Sign in with phone',
     qrCodeLogin: 'QR code sign-in',
     noAccount: "Don't have an account?",
@@ -288,7 +288,7 @@ const locale: LanguagePack = {
       applicationName: 'Application name',
       page: 'Route path',
       icon: 'Icon',
-      routePage: 'Permissions',
+      routePage: ' Permissions ',
     },
     auditEvent: {
       type: 'Audit type',
@@ -296,10 +296,10 @@ const locale: LanguagePack = {
       traceId: 'Related business ID',
     },
     consoleUser: {
-      routePage: 'Employees',
+      routePage: ' Employees ',
     },
     role: {
-      routePage: 'Roles',
+      routePage: ' Roles ',
       removable: 'Can delete',
       modifiable: 'Can edit',
     },
@@ -309,11 +309,11 @@ const locale: LanguagePack = {
     dataDictionary: {
       valueType: 'Value type',
       level: 'Level',
-      routePage: 'Dictionary entries',
+      routePage: ' Dictionary Data ',
       editPage: 'Type: {typeName}, Name: {dataName}',
     },
     dictionaryType: {
-      routePage: 'Dictionary types',
+      routePage: ' Dictionary types ',
     },
   },
 }

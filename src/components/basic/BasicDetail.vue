@@ -13,6 +13,7 @@ import {
 } from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
+import {resolveRouteTitleByName} from "@/routers/i18n";
 import {App, type MenuProps} from "antdv-next";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
 import type {RouteLocationRaw} from "vue-router";
@@ -81,8 +82,12 @@ async function mounted() {
 }
 
 
+function getRouteBaseTitle(): string {
+  return resolveRouteTitleByName(globalProperties.$route)
+}
+
 function updateTitle(entity: TEntity) {
-  const title = props.titleText(globalProperties.$route.meta.title as string, entity as TEntity)
+  const title = props.titleText(getRouteBaseTitle(), entity as TEntity)
   const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
   const last = currentBreadcrumbs.at(-1)
   if (last) {
