@@ -1,23 +1,26 @@
 <script setup lang="ts" generic="TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {LAYOUT_PANE_TITLE_KEY, SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicIdMetadata, DetailSearchService, RestResult} from "@/types";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
   inject,
+  nextTick,
   onActivated,
   onMounted,
-  ref
+  ref,
+  watch
 } from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {resolveRouteTitleByName} from "@/routers/i18n";
+import {getRouteTitle} from "@/routers";
 import {App, type MenuProps} from "antdv-next";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
-import type {RouteLocationRaw} from "vue-router";
+import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
+import i18n from "@/i18n";
 
 const { modal } = App.useApp()
 
@@ -26,6 +29,7 @@ defineOptions({
 })
 
 const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
+const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_KEY)
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -50,12 +54,14 @@ const props = withDefaults(
 const loading = defineModel<boolean>("loading", {default: false})
 const entity = defineModel<TEntity>("entity", {default: () => {}})
 const creationTime = ref<number>()
+const route = ref<RouteLocationNormalizedLoaded>()
 
 function fetchDetail(id: TId): Promise<RestResult<TEntity>> {
   return props.getDetail != null ? props.getDetail(id) : props.service.get(id)
 }
 
 async function mounted() {
+  loading.value = true;
   const id = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] as TId
 
   const data:Record<string, string>[] = [];
@@ -78,16 +84,22 @@ async function mounted() {
     creationTime.value = ct
   }
   entity.value = value
-  updateTitle(value)
+  route.value = globalProperties.$route;
+  await nextTick(() =>updateTitle(value));
+  loading.value = false;
 }
 
+function updateTitle(entity: TEntity, updateCurrentBreadcrumbs:boolean = true) {
 
-function getRouteBaseTitle(): string {
-  return resolveRouteTitleByName(globalProperties.$route)
-}
+  if(!route.value) {
+    return ;
+  }
 
-function updateTitle(entity: TEntity) {
-  const title = props.titleText(getRouteBaseTitle(), entity as TEntity)
+  const title = props.titleText(getRouteTitle(route.value.name), entity as TEntity)
+  setPaneName?.(route.value.fullPath as string,title)
+  if (!updateCurrentBreadcrumbs) {
+    return ;
+  }
   const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
   const last = currentBreadcrumbs.at(-1)
   if (last) {
@@ -119,6 +131,15 @@ async function activated() {
 onActivated(activated)
 
 onMounted(mounted)
+
+watch(
+  () => i18n.global.locale.value,
+  () => {
+    if (entity.value) {
+      updateTitle(entity.value)
+    }
+  },
+)
 
 </script>
 

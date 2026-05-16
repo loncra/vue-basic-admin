@@ -67,7 +67,7 @@ const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = 
   options.value.entity.roleIds = rows.flatMap((r) => (r.id != null ? [r.id] : []))
 }
 
-function setPageTitle(title:string, entity: ConsoleUserEntity) {
+function setPageTitle(title:string, entity: ConsoleUserEntity | ConsoleUserSavePayload) {
   if (entity.id) {
     return title + ' (' + entity.realName + ')'
   }

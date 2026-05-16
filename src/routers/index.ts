@@ -1,7 +1,18 @@
-import type {NavigationGuardWithThis, RouteLocationNormalized, RouteRecordRaw} from 'vue-router'
+import type {
+  NavigationGuardWithThis,
+  RouteLocationNormalized,
+  RouteRecordName,
+  RouteRecordRaw
+} from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import type {PrepareData, ResourceEntity} from "@/types";
+import type {
+  PrepareData,
+  ResourceEntity,
+  RouteTitleGetter,
+  RouteTitleMap,
+  RouteTitleParams
+} from "@/types";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
@@ -15,8 +26,6 @@ import NotFound from '@/views/error/NotFound.vue';
 import Forbidden from '@/views/error/Forbidden.vue';
 import BadRequest from '@/views/error/BadRequest.vue';
 import i18n from '@/i18n'
-
-const initialState = ref<boolean>(false)
 
 /**
  * 首页的子路由配置
@@ -93,22 +102,29 @@ const routes: RouteRecordRaw[] = [
     name: import.meta.env.VITE_APP_HOME_PAGE_NAME,
     component: Home,
     children: childrenRoutes
-  },
+  }/*,
   {
     path: "/:pathMatch(.*)*",
     name: 'NotFound',
     redirect: "/error/404"
-  }
+  }*/
 ]
 
 /**
- * 使用 Vite 的 glob 功能动态导入所有视图目录下的路由配置文件
- * 这些路由文件会在运行时按需加载
+ * 使用 Vite 的 glob 功能动态导入目录下的路由配置文件
  */
 const modules = import.meta.glob('@/routers/**/*.ts') as Record<
   string,
   () => Promise<{ default: RouteRecordRaw[] }>
 >
+const i18nModules = import.meta.glob<RouteTitleMap>('@/routers/**/*.i18n.ts', {
+  eager: true,
+  import: 'default',
+})
+
+const initialState = ref<boolean>(false)
+
+export const routeI18n: RouteTitleMap = Object.assign({}, ...Object.values(i18nModules))
 
 /**
  * 创建 Vue Router 实例
@@ -119,6 +135,47 @@ const router = createRouter({
   routes: routes,
 })
 
+function resolveParamValue(value: string): string {
+  return i18n.global.te(value) ? i18n.global.t(value) : value
+}
+
+function resolveParams(params?: RouteTitleParams): Record<string, string> | undefined {
+  if (!params) {
+    return undefined
+  }
+  const resolved: Record<string, string> = {}
+  for (const [key, value] of Object.entries(params)) {
+    resolved[key] = resolveParamValue(value)
+  }
+  return resolved
+}
+
+export function resolveRouteTitle(getter: RouteTitleGetter): string {
+  const [key, params] = getter()
+  const resolvedParams = resolveParams(params)
+  if (resolvedParams) {
+    return i18n.global.t(key, resolvedParams)
+  }
+  return i18n.global.t(key)
+}
+
+export function getRouteTitle(name: RouteRecordName): string {
+  if (name as string in routeI18n) {
+    const getter = routeI18n[name as string]
+    if (getter) {
+      return resolveRouteTitle(getter)
+    }
+  }
+  const route = router.getRoutes().find(r => r.name === name)
+  if (!route) {
+    return i18n.global.t('common.unname')
+  }
+  const metaTitle = route.meta?.title
+  if (typeof metaTitle === 'string' && metaTitle !== '') {
+    return metaTitle
+  }
+  return i18n.global.t('common.unname')
+}
 
 /**
  * 清除所有路由并重新添加基础路由
@@ -135,7 +192,7 @@ const loadServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[
 
   // 遍历所有路由模块
   for (const key in modules) {
-    if (key.includes('.titles.ts') || key.includes('/routers/i18n/')) {
+    if (key.includes('.i18n.ts') || key.includes('/routers/i18n/')) {
       continue
     }
     // 检查模块是否属于指定的插件服务

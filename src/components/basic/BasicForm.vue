@@ -10,7 +10,8 @@ import {
   nextTick,
   onActivated,
   onMounted,
-  ref
+  ref,
+  watch
 } from "vue";
 import {CONFIG_PROVIDER, SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicAuthorityProps, BasicCrudService, BasicIdMetadata, RestResult} from "@/types";
@@ -18,11 +19,12 @@ import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {App, Checkbox} from "antdv-next";
 import {isResultSuccess} from "@/requests/http";
-import type {RouteLocationRaw} from "vue-router";
+import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {resolveRouteTitleByName} from "@/routers/i18n";
-import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
+import {getRouteTitle} from "@/routers";
+import {LAYOUT_CONTENT_CLOSE_TAB_KEY, LAYOUT_PANE_TITLE_KEY} from "@/constants/systemConstant";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
+import i18n from "@/i18n";
 
 defineOptions({
   name: 'LBasicForm',
@@ -30,6 +32,7 @@ defineOptions({
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
+const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_KEY)
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -48,10 +51,10 @@ const props = withDefaults(
     preMounted?: () => void | Promise<void>
     postMounted?: () => void | Promise<void>
     redirect: RouteLocationRaw
-    titleText?: (title:string, entity: TEntity) => string
+    titleText?: (title:string, entity: TEntity | TBody) => string
   }>(),
   {
-    titleText: (title:string, entity: TEntity) => title,
+    titleText: (title:string, entity: TEntity | TBody) => title,
   },
 )
 
@@ -59,6 +62,7 @@ const formRef = ref()
 const creationTime = ref<number>()
 const spinning = defineModel<boolean>("spinning", {default: false})
 const entity = defineModel<TBody>("entity", {default: () => {}})
+const currentRoute = ref<RouteLocationNormalizedLoaded>()
 
 const emit = defineEmits<{
   (e: 'success', data: RestResult<TId>): void
@@ -170,6 +174,7 @@ async function mounted() {
   if (id) {
     await getEntity(id)
   }
+  currentRoute.value = globalProperties.$route;
   await nextTick(doPostMounted)
 }
 
@@ -181,18 +186,21 @@ async function doPostMounted() {
   spinning.value = false
 }
 
-function getRouteBaseTitle(): string {
-  return resolveRouteTitleByName(globalProperties.$route)
-}
-
-function updateTitle(entity: TEntity) {
-  const title = props.titleText(getRouteBaseTitle(), entity as TEntity)
-  const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
-  const last = currentBreadcrumbs.at(-1)
-  if (last) {
-    last.name = title;
+function updateTitle(entity: TEntity | TBody, updateCurrentBreadcrumbs:boolean = true) {
+  if(!currentRoute.value) {
+    return ;
   }
-  menuPrincipalStore.setCurrentBreadcrumbs(currentBreadcrumbs);
+
+  const title = props.titleText(getRouteTitle(currentRoute.value.name), entity as TEntity)
+  if (updateCurrentBreadcrumbs) {
+    const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
+    const last = currentBreadcrumbs.at(-1)
+    if (last) {
+      last.name = title;
+    }
+    menuPrincipalStore.setCurrentBreadcrumbs(currentBreadcrumbs);
+  }
+  setPaneName?.(currentRoute.value.fullPath as string, title)
 }
 
 async function activated() {
@@ -218,6 +226,15 @@ async function activated() {
 onActivated(activated)
 
 onMounted(mounted)
+
+watch(
+  () => i18n.global.locale.value,
+  () => {
+    if (entity.value) {
+      updateTitle(entity.value, false)
+    }
+  },
+)
 
 </script>
 

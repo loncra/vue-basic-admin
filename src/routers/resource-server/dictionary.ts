@@ -28,6 +28,7 @@ const router: RouteRecordRaw[] = [
     component: () => import('@/views/resource-server/data-dictionary/Form.vue'),
     name: 'resource_server_data_dictionary_edit',
     meta: {
+      dynamicTitle: true,
       applicationName: 'resource-server',
       icon: 'icon-edit',
       parent: '/resource-server/dictionary',
@@ -50,6 +51,7 @@ const router: RouteRecordRaw[] = [
     component: () => import('@/views/resource-server/data-dictionary/Detail.vue'),
     name: 'resource_server_data_dictionary_detail',
     meta: {
+      dynamicTitle: true,
       applicationName: 'resource-server',
       icon: 'icon-order-inspection',
       parent: '/resource-server/dictionary',

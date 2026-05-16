@@ -16,6 +16,7 @@ const router: RouteRecordRaw[] = [
     component: () => import('@/views/auth-server/console-user/Form.vue'),
     name: 'auth_server_console_user_edit',
     meta: {
+      dynamicTitle: true,
       applicationName: 'auth-server',
       icon: 'icon-edit',
       parent: '/auth-server/user/console',
@@ -38,6 +39,7 @@ const router: RouteRecordRaw[] = [
     component: () => import('@/views/auth-server/console-user/Detail.vue'),
     name: 'auth_server_console_user_detail',
     meta: {
+      dynamicTitle: true,
       applicationName: 'auth-server',
       icon: 'icon-order-inspection',
       parent: '/auth-server/user/console',

@@ -8,7 +8,6 @@ const configProviderStore = useConfigProviderStore()
 <template>
   <a-style-provider layer>
     <a-config-provider
-      :key="configProviderStore.state.locale"
       :locale="(configProviderStore.localeMessage as { antDesign?: object }).antDesign"
       :component-size="configProviderStore.state.componentSize"
       :theme="{ algorithm: configProviderStore.getAlgorithm(), token: configProviderStore.state.token }"

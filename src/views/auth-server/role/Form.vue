@@ -11,8 +11,8 @@ import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {FilterRequest} from "@/types/common.ts";
 import type {OptionProps} from "antdv-next/dist/mentions/index";
 import {getEnumValue} from "@/utils/commonUtils.ts";
-import type { TableProps } from 'antdv-next'
-import type { RowSelectMethod } from 'antdv-next/dist/table/interface'
+import type {TableProps} from 'antdv-next'
+import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -94,7 +94,7 @@ function sourceChange(value: string, _options: OptionProps[]) {
   resourceTableRef.value?.fetchDataSource()
 }
 
-function setPageTitle(title:string, entity: RoleEntity) {
+function setPageTitle(title:string, entity: RoleEntity | RoleSavePayload) {
   if (options.value.parent) {
     return title + ' (' + options.value.parent.name + ')'
   } else if (entity.id) {

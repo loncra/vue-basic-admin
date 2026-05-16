@@ -1,5 +1,6 @@
 export const APP_RELOAD_PROVIDE_KEY = 'reload'
 export const LAYOUT_CONTENT_CLOSE_TAB_KEY = "closeContentTab"
+export const LAYOUT_PANE_TITLE_KEY = "paneTitle"
 
 export const SYSTEM_CONSTANT = {
   ID_NAME: 'id'

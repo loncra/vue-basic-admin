@@ -77,7 +77,7 @@ async function mounted() {
   }
 }
 
-function setPageTitle(title:string, entity: ResourceEntity) {
+function setPageTitle(title:string, entity: ResourceEntity | ResourceSavePayload) {
   if (options.value.parent) {
     return title + ' (' + options.value.parent.name + ')'
   } else if (entity.id) {

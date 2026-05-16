@@ -12,9 +12,15 @@ import {
 } from 'vue'
 import type {MenuItemType} from 'antdv-next'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
-import {APP_RELOAD_PROVIDE_KEY, LAYOUT_CONTENT_CLOSE_TAB_KEY} from '@/constants/systemConstant'
+import {
+  APP_RELOAD_PROVIDE_KEY,
+  LAYOUT_CONTENT_CLOSE_TAB_KEY,
+  LAYOUT_PANE_TITLE_KEY
+} from '@/constants/systemConstant'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {RouteResourceMetadata} from '@/types'
+import i18n from "@/i18n";
+import {getRouteTitle} from '@/routers'
 
 defineOptions({
   name: 'LLayoutContent',
@@ -56,6 +62,12 @@ function tabIconSpin(itemKey: string | number): boolean {
 
 provide(APP_RELOAD_PROVIDE_KEY, reload)
 provide(LAYOUT_CONTENT_CLOSE_TAB_KEY, removePaneByPage)
+provide(LAYOUT_PANE_TITLE_KEY, setPaneName)
+
+function setPaneName(fullPath: string, name: string) {
+  const pane = panes.value.find((p) => p.path === fullPath)
+  if (pane) pane.name = name
+}
 
 function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
   const version = routeCacheVersions.value[route.fullPath] || 0
@@ -92,13 +104,14 @@ function activateTab(route: RouteResourceMetadata) {
   if (current) {
     globalProperties.$router.push(current.path)
   } else {
-    const temp = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
+    /*const temp = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
     if (temp) {
       panes.value.push(temp)
       if (!(route.page in routeCacheVersions.value)) {
         routeCacheVersions.value[route.path] = 0
       }
-    }
+    }*/
+    panes.value.push(route);
   }
   activeKey.value = route.path as string
   if (route.single) {
@@ -325,6 +338,16 @@ watch(
   () => activateTab(menuPrincipalStore.toResourceRouteMetadata(globalProperties.$route)),
 )
 
+watch(
+  () => i18n.global.locale.value,
+  () => panes.value.forEach((p) =>  {
+    if (p.dynamicTitle) {
+      return
+    }
+    p.name = getRouteTitle(p.route)
+  })
+)
+
 onMounted(mounted)
 </script>
 
@@ -369,41 +392,43 @@ onMounted(mounted)
               </a-space>
             </template>
             <template #leftExtra>
-              <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
-                <a-button type="text" @click="reload">
-                  <template #icon>
-                    <icon-font class="icon align" type="icon-change"/>
-                  </template>
-                </a-button>
-              </a-tooltip>
-              <a-tooltip
-                :title="
-                  isFullscreen
-                    ? globalProperties.$t('layoutContent.exitFullscreen')
-                    : globalProperties.$t('layoutContent.fullscreen')
-                "
-              >
-                <a-button type="text" @click="toggleFullscreen">
-                  <template #icon>
-                    <icon-font
-                      class="icon align"
-                      :type="isFullscreen ? 'icon-reduce' : 'icon-move'"
-                      :rotate="isFullscreen ? 0 : 45"
-                    />
-                  </template>
-                </a-button>
-              </a-tooltip>
-              <a-dropdown
-                :menu="{ items: operateItems }"
-                @menu-click="onOperateMenuClick"
-                @open-change="onOpenOperateChange"
-              >
-                <a-button type="text">
-                  <template #icon>
-                    <icon-font class="icon align" type="icon-more"/>
-                  </template>
-                </a-button>
-              </a-dropdown>
+              <div class="mr-xs">
+                <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
+                  <a-button type="text" @click="reload">
+                    <template #icon>
+                      <icon-font class="icon align" type="icon-change"/>
+                    </template>
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip
+                  :title="
+                    isFullscreen
+                      ? globalProperties.$t('layoutContent.exitFullscreen')
+                      : globalProperties.$t('layoutContent.fullscreen')
+                  "
+                >
+                  <a-button type="text" @click="toggleFullscreen">
+                    <template #icon>
+                      <icon-font
+                        class="icon align"
+                        :type="isFullscreen ? 'icon-reduce' : 'icon-move'"
+                        :rotate="isFullscreen ? 0 : 45"
+                      />
+                    </template>
+                  </a-button>
+                </a-tooltip>
+                <a-dropdown
+                  :menu="{ items: operateItems }"
+                  @menu-click="onOperateMenuClick"
+                  @open-change="onOpenOperateChange"
+                >
+                  <a-button type="text">
+                    <template #icon>
+                      <icon-font class="icon align" type="icon-more"/>
+                    </template>
+                  </a-button>
+                </a-dropdown>
+              </div>
             </template>
           </a-tabs>
         </div>

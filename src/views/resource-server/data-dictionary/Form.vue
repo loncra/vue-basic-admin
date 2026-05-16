@@ -87,7 +87,7 @@ async function postMounted() {
   }
 }
 
-function setPageTitle(title:string, entity: DataDictionaryEntity) {
+function setPageTitle(title:string, entity: DataDictionaryEntity | DataDictionarySavePayload) {
   if (options.value.parent) {
     return title + ' (' + options.value.parent.name + ')'
   } else if (entity.id) {
@@ -95,7 +95,6 @@ function setPageTitle(title:string, entity: DataDictionaryEntity) {
   }
   return title
 }
-
 
 </script>
 

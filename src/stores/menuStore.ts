@@ -11,8 +11,7 @@ import {
   type RouteRecordNormalized
 } from "vue-router";
 import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
-import i18n from '@/i18n'
-import {resolveRouteTitleByName} from '@/routers/i18n'
+import {getRouteTitle} from '@/routers'
 
 /** 路由进入中：仅用于 tab 图标 spin（与 useRoute() 解耦，对齐 beforeEach 的 to.fullPath） */
 export interface RouteEnterPage {
@@ -31,14 +30,12 @@ const RESET: MenuState = {
   routeEnterPage: null,
 }
 
-
 export interface MenuState  {
   menu: ResourceEntity[]
   laoding: boolean
   currentBreadcrumbs: RouteResourceMetadata[]
   routeEnterPage: RouteEnterPage | null
 }
-
 
 /**
  * 菜单状态管理 Store
@@ -112,13 +109,15 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
     return {
       icon: (route.meta?.icon || 'icon-survey') as string,
-      name: resolveRouteTitleByName(route),
+      name: getRouteTitle(route.name),
+      route: route.name,
       page: route.path,
       deactivatedClose: (route.meta?.deactivatedClose || false) as boolean,
       applicationName: route.meta?.applicationName as string,
       path: route.fullPath,
       fixed: route.meta?.fixed as boolean,
       single: (route.meta?.single || false) as boolean,
+      dynamicTitle: (route.meta?.dynamicTitle || false) as boolean,
     }
   }
 
@@ -130,7 +129,15 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     if (route.path === resource.page) {
       path = route.fullPath || route.path
     }
-    return {...resource, fixed: false, path: path, deactivatedClose:false, single: false};
+    return {
+      ...resource,
+      route:route.name,
+      fixed: false,
+      path: path,
+      deactivatedClose:false,
+      single: false,
+      dynamicTitle: (route.meta?.dynamicTitle || false) as boolean,
+    };
   }
 
   function resetCurrentBreadcrumbs(route: RouteLocationNormalized, router: Router) {
