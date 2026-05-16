@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {AuthenticationAuditEventService} from '@/apis';
 import LBasicCrudTable from '@/components/basic/BasicCrudTable.vue'
-import {dateTimeFormat, requireNonNullOrUndefined} from '@/utils';
+import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/utils';
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, ref} from 'vue';
 import type {SearchableColumnType} from '@/components/basic/AuthorityOperateTable.vue';
 import {DatePicker, Input} from 'antdv-next';
-import type {AuditEventEntity} from '@/types/auth-server/auditEntityType';
-import {postTimestampFormat} from '@/utils';
+import type {AuditEventEntity} from '@/types/auth-server/auditDomain';
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

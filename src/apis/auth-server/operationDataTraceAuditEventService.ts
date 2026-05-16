@@ -3,9 +3,9 @@
  * @description 继承 {@link FindSearchRestfulService}（无 save/delete），仅 `get` + `find`。
  */
 import {FindSearchRestfulService} from "@/apis/findSearchRestfulService.ts";
-import type {AuditEventEntity} from "@/types/auth-server/auditEntityType.ts";
+import type {AuditEventEntity} from "../../types/auth-server/auditDomain.ts";
 import {PageSearchRestfulService} from "@/apis/pageSearchRestfulService.ts";
-import type {PageResult, TotalPage} from "@/types";
+import type {TotalPage} from "@/types";
 
 /**
  * 操作数据轨迹审计事件：`/api[/auth-server]/audit/event/operationDataTrace`

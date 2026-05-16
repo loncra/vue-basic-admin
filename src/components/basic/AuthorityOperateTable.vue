@@ -60,6 +60,7 @@ export interface AuthorityOperateTableProps<
   service: FindSearchService<TEntity, TId> | PageSearchService<TEntity, TPage, TId> | BasicCrudService<TBody, TEntity, TId>
   immediate?: boolean
   enabledActions?: boolean
+  bordered?: boolean
   pagination?: TableProps['pagination']
   columns: SearchableColumnType[]
   authority?: TableAuthorityProps
@@ -82,6 +83,8 @@ const { message, modal } = App.useApp()
 const props = withDefaults(
   defineProps<AuthorityOperateTableProps<TBody, TEntity, TPage, TId>>(),
   {
+    pagination:undefined,
+    bordered:true,
     immediate: true,
     columns: () => [],
     enabledActions: true,
@@ -102,6 +105,7 @@ const loading = defineModel('loading', {default: () => false})
 const query = defineModel<FilterRequest | PageRequest>('query', {default: () => ({})})
 
 const hasBodyCell = computed(() => Boolean(slots.bodyCell))
+const hasTitle = computed(() => Boolean(slots.title))
 
 const options = ref<{
   columns: SearchableColumnType[]
@@ -139,22 +143,6 @@ function clear(
   setSelectedKeys([])
   confirm();
   fetchDataSource();
-}
-
-
-function isSearchColumnActive(column: SearchableColumnType) {
-  const qn = column.search?.queryName
-  if (!qn) {
-    return false
-  }
-  const v = query.value[qn as keyof typeof query.value]
-  if (v === '' || v == null || v === undefined) {
-    return false
-  }
-  if (Array.isArray(v) && v.length === 0) {
-    return false
-  }
-  return true
 }
 
 function onFilterEnterKey(
@@ -229,14 +217,14 @@ function rebuildAuthorityMeta() {
     if (principalStore.hasPermission(props.authority?.edit || '')) {
       actionItems.push({
         key: 'edit',
-        label: globalProperties.$t('common.edit'),
+        label: globalProperties.$t('common.edit',{name:''}),
         icon: () => createIcon('icon-edit'),
       })
     }
     if (principalStore.hasPermission(props.authority?.detail || '')) {
       actionItems.push({
         key: 'detail',
-        label: globalProperties.$t('common.detail'),
+        label: globalProperties.$t('common.detail',{name:''}),
         icon: () => createIcon('icon-order-inspection'),
       })
     }
@@ -363,8 +351,8 @@ function activated() {
 }
 
 async function mounted() {
-  if (!props.pagination) {
-    options.value.pagination = {hideOnSinglePage: true}
+  if (props.pagination === undefined) {
+    options.value.pagination = {hideOnSinglePage: true, placement: ['bottomCenter']}
   } else {
     options.value.pagination = props.pagination
   }
@@ -406,8 +394,11 @@ defineExpose({
     :data-source="dataSource"
     :loading="loading"
     @change="onChange"
-    bordered
+    :bordered="props.bordered"
   >
+    <template v-if="hasTitle" #title>
+      <slot name="title"/>
+    </template>
     <template #bodyCell="{ text, record, index, column}">
       <slot v-if="hasBodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
       <template v-if="column.dataIndex === 'action'">
@@ -418,8 +409,8 @@ defineExpose({
       <icon-font :class="'icon' + (filtered ? ' text-primary' : '')" type="icon-search"/>
     </template>
     <template #filterDropdown="{column, setSelectedKeys, confirm}" >
-      <div 
-        class="p-md" 
+      <div
+        class="p-md"
         @keydown.stop
         @keydown.enter="onFilterEnterKey($event, column as SearchableColumnType, setSelectedKeys, confirm)"
       >
@@ -446,7 +437,7 @@ defineExpose({
               <template #icon>
                 <icon-font class="icon align" type="icon-delete"/>
               </template>
-              <span>清空</span>
+              <span>{{globalProperties.$t('common.clear')}}</span>
             </a-button>
           </a-space-compact>
         </a-space>

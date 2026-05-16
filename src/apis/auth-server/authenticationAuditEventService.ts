@@ -2,9 +2,9 @@
  * @file 登录认证审计事件 — 只读查询客户端
  * @description 继承 {@link FindSearchRestfulService}（无 save/delete），仅 `get` + `find`。
  */
-import type {AuditEventEntity} from "@/types/auth-server/auditEntityType.ts";
+import type {AuditEventEntity} from "../../types/auth-server/auditDomain.ts";
 import {PageSearchRestfulService} from "@/apis/pageSearchRestfulService.ts";
-import type {PageResult, TotalPage} from "@/types";
+import type {TotalPage} from "@/types";
 
 /**
  * 认证审计事件：`/api[/auth-server]/audit/event/authentication`

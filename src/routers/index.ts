@@ -14,6 +14,7 @@ import Setting from '@/views/commons/Setting.vue'
 import NotFound from '@/views/error/NotFound.vue';
 import Forbidden from '@/views/error/Forbidden.vue';
 import BadRequest from '@/views/error/BadRequest.vue';
+import i18n from '@/i18n'
 
 const initialState = ref<boolean>(false)
 
@@ -23,19 +24,25 @@ const initialState = ref<boolean>(false)
  */
 const childrenRoutes: RouteRecordRaw[] = [
   {
-    path: '403',
+    path: '/error/403',
     name: '403',
     component: Forbidden,
     meta: {
-      title: "没有权限访问"
+      title: i18n.global.t('error.forbidden.page'),
+      deactivatedClose: true,
+      applicationName: 'system',
+      icon: 'icon-warning',
     }
   },
   {
-    path: '400',
+    path: '/error/400',
     name: '400',
     component: BadRequest,
     meta: {
-      title: "参数提交错误"
+      title: i18n.global.t('error.badRequest.page'),
+      applicationName: 'system',
+      icon: 'icon-cry',
+      deactivatedClose: true,
     }
   },
   {
@@ -77,15 +84,15 @@ const routes: RouteRecordRaw[] = [
     name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
     component: Auth,
     meta: {
-      title: '用户认证登录',
+      title: i18n.global.t('auth.page'),
     },
   },
   {
-    path: '/404',
+    path: '/error/404',
     name: '404',
     component: NotFound,
     meta: {
-      title: "找不到页面"
+      title: i18n.global.t('error.notFound.page')
     }
   },
   {
@@ -95,7 +102,7 @@ const routes: RouteRecordRaw[] = [
     component: Home,
     children: childrenRoutes,
     meta: {
-      title: '首页',
+      title: i18n.global.t('common.home')
     },
   }/*,
   {
@@ -267,9 +274,7 @@ const onAfterEach = (to: RouteLocationNormalized, _from: RouteLocationNormalized
   const menuPrincipalStore = useMenuPrincipalStore()
   menuPrincipalStore.resetCurrentBreadcrumbs(to, router)
   // 推迟一帧再清 loading，避免与 beforeEach 同一宏任务内立刻清掉，界面来不及绘制 tab 图标 spin
-  nextTick(() => {
-    menuPrincipalStore.setRouteEnterLoading(to.fullPath, false)
-  })
+  nextTick(() => menuPrincipalStore.setRouteEnterLoading(to.fullPath, false))
 }
 
 /**

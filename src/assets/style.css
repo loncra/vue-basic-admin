@@ -233,4 +233,13 @@
   .layout-content-fullscreen-exit {
     @apply animate-layout-content-fullscreen-out;
   }
+
+  .layout-content-route-spin.ant-spin {
+    @apply h-full min-h-0;
+  }
+  
+  
+  .layout-content-route-spin .ant-spin-container {
+    @apply h-full min-h-0 flex flex-col;
+  }
 }

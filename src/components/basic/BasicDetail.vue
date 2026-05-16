@@ -40,7 +40,7 @@ const props = withDefaults(
     service: DetailSearchService<TEntity>
     titleText?: (title:string, entity: TEntity) => string
   }>(),
-  { 
+  {
     queryFields: () => ['id'],
     titleText: (title:string, entity: TEntity) => title,
   },
@@ -67,6 +67,7 @@ async function mounted() {
   if (data.length > 0) {
     sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_BAD_REQUEST_NAME, JSON.stringify(data));
     globalProperties.$router.push({name:"400"});
+    closeLayoutTab?.(globalProperties.$route.fullPath, false);
     return ;
   }
   const result:RestResult<TEntity> = await fetchDetail(id);
@@ -106,7 +107,6 @@ async function activated() {
     onOk: () => {
       closeLayoutTab?.(globalProperties.$route.fullPath, false);
       globalProperties.$router.push(props.redirect)
-
     }
   })
 }

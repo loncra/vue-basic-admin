@@ -13,7 +13,7 @@ const globalProperties = instance.appContext.config.globalProperties;
 
 function logout() {
   const type = principalStore.state.type
-  globalProperties.$router.push("/login?authenticationType=" + type);
+  globalProperties.$router.push("/auth?authenticationType=" + type);
 }
 </script>
 
@@ -28,12 +28,16 @@ function logout() {
         <div class="text-center">
           <a-space>
             <a-button @click="globalProperties.$router.go(-1);">
-              <icon-font class="icon" type="icon-left-arrow"/>
+              <template #icon>
+                <icon-font class="icon align" type="icon-return"/>
+              </template>
               <span>{{ globalProperties.$t('common.back') }}</span>
             </a-button>
 
             <a-button type="primary" @click="logout" >
-              <icon-font type="icon-sign-out"/>
+              <template #icon>
+                <icon-font class="icon align" type="icon-shut-down"/>
+              </template>
               <span >{{ globalProperties.$t('auth.reLogin') }}</span>
             </a-button>
           </a-space>

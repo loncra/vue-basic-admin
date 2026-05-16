@@ -10,7 +10,7 @@ import type {
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ResourceServerService, ResourceService} from "@/apis";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
+import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
 

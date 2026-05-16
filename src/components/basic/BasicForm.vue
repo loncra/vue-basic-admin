@@ -23,8 +23,6 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 
-const { message, modal } = App.useApp()
-
 defineOptions({
   name: 'LBasicForm',
 })
@@ -38,6 +36,8 @@ const globalProperties =
 const configProviderStore = useConfigProviderStore()
 const menuPrincipalStore = useMenuPrincipalStore()
 const rememberMe = ref(false)
+
+const { message, modal } = App.useApp()
 
 const props = withDefaults(
   defineProps<{
@@ -79,8 +79,8 @@ async function doSubmit() {
         createdAfterSetting(result)
       } else {
         message.success(result.message)
+        await getEntity(entity.value.id)
         globalProperties.$router.push(props.redirect)
-        getEntity(entity.value.id)
       }
     } else {
       message.error(result.message)
@@ -169,15 +169,15 @@ async function mounted() {
   if (id) {
     await getEntity(id)
   }
-  spinning.value = false
   await nextTick(doPostMounted)
 }
 
 async function doPostMounted() {
-  updateTitle(entity.value as TEntity)
   if (props.postMounted) {
     await props.postMounted()
   }
+  updateTitle(entity.value as TEntity)
+  spinning.value = false
 }
 
 function updateTitle(entity: TEntity) {

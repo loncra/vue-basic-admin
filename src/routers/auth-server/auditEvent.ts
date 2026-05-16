@@ -1,4 +1,5 @@
 import type {RouteRecordRaw} from 'vue-router'
+import i18n from '@/i18n'
 
 /** 权限相关路由 */
 const router: RouteRecordRaw[] = [
@@ -26,7 +27,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_audit_event_authentication_detail',
     meta: {
       applicationName: 'auth-server',
-      title: '登录日志明细',
+      title: i18n.global.t('common.detail', {name:i18n.global.t('auth.log')}),
       icon: 'icon-order-inspection',
       parent: '/auth-server/audit/event/authentication',
       requiresFullyAuth: true,
@@ -38,7 +39,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_audit_event_operation_data_trace_detail',
     meta: {
       applicationName: 'auth-server',
-      title: '操作日志明细',
+      title: i18n.global.t('common.detail', {name:i18n.global.t('form.operationDataTrace')}),
       icon: 'icon-order-inspection',
       parent: '/auth-server/audit/event/operationDataTrace',
       requiresFullyAuth: true,

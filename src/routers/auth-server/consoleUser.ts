@@ -1,4 +1,5 @@
 import type {RouteRecordRaw} from 'vue-router'
+import i18n from "@/i18n";
 
 /** 控制台用户管理相关路由 */
 const router: RouteRecordRaw[] = [
@@ -17,7 +18,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_console_user_edit',
     meta: {
       applicationName: 'auth-server',
-      title: '编辑员工',
+      title: i18n.global.t('common.edit', {name:' ' + i18n.global.t('authServer.consoleUser.routePage')}),
       icon: 'icon-edit',
       parent: '/auth-server/user/console',
       requiresFullyAuth: true,
@@ -29,7 +30,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_console_user_add',
     meta: {
       applicationName: 'auth-server',
-      title: '添加员工',
+      title: i18n.global.t('common.add', {name:' ' + i18n.global.t('authServer.consoleUser.routePage')}),
       icon: 'icon-add',
       parent: '/auth-server/user/console',
       requiresFullyAuth: true,
@@ -41,7 +42,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_console_user_detail',
     meta: {
       applicationName: 'auth-server',
-      title: '员工明细',
+      title: i18n.global.t('common.detail', {name:i18n.global.t('authServer.consoleUser.routePage') + ' '}),
       icon: 'icon-order-inspection',
       parent: '/auth-server/user/console',
       requiresFullyAuth: true,

@@ -3,15 +3,15 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {
   ConsoleUserEntity,
   ConsoleUserSavePayload
-} from "@/types/auth-server/consoleUserType.ts";
+} from "@/types/auth-server/consoleUserDomain.js";
 import type {NameValueEnumMetadata, RestResult} from "@/types";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ConsoleUserService, ResourceServerService} from "@/apis";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
+import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import type {RoleEntity} from "@/types/auth-server/roleType.ts";
+import type {RoleEntity} from "@/types/auth-server/roleDomain.js";
 import type {TableProps} from "antdv-next"
 import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
 

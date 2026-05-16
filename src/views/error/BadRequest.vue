@@ -1,12 +1,16 @@
 
 
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, inject, onMounted, ref} from 'vue'
 import imageSrc from '@/assets/400.svg'
 import {requireNonNullOrUndefined} from "@/utils";
+import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant.ts";
 
 const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
 const globalProperties = instance.appContext.config.globalProperties;
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
 
 const options = ref({
   dataSource: [],
@@ -25,7 +29,7 @@ const options = ref({
     },
     {
       title: globalProperties.$t('error.errorMessage'),
-      dataIndex: "errorMessage",
+      dataIndex: "defaultMessage",
       ellipsis: true,
       width: 300
     }
@@ -64,7 +68,7 @@ onMounted(mounted)
         </a-table>
         <div class="text-center mt-lg">
           <a-button @click="globalProperties.$router.go(-1);">
-            <icon-font class="icon" type="icon-left-arrow"/>
+            <icon-font class="icon align" type="icon-return"/>
             <span>{{ globalProperties.$t('common.back') }}</span>
           </a-button>
         </div>

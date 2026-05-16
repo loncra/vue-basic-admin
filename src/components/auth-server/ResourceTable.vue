@@ -7,9 +7,10 @@ import type {MenuItemType, TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {NameValueEnumMetadata, ResourceEntity, RestResult} from "@/types";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
+import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/common';
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'LResourceTable',
@@ -18,6 +19,7 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+const principalStore = usePrincipalStore()
 
 const props = withDefaults(defineProps<{
   preview?: boolean,
@@ -120,13 +122,7 @@ const columns = ref<SearchableColumnType[]>([
 const dataSource = ref<ResourceEntity[]>([])
 const authorityOperateTable = ref();
 
-const actionItems = ref<MenuItemType[]>([
-  {
-    key: 'addChild',
-    label: globalProperties.$t('common.addChild'),
-    icon: () => createIcon('icon-editor-add-cell'),
-  },
-])
+const actionItems = ref<MenuItemType[]>([])
 
 function removeSelected(selectedRows: ResourceEntity[]) {
   authorityOperateTable.value.remove(selectedRows);
@@ -167,7 +163,15 @@ async function mounted() {
       statusCol.search.props.options = enums.data['resource-server']?.ResourceSourceEnum
     }
   }
-
+  if (principalStore.hasPermission('perms[resource_server_data_dictionary:save]')) {
+    actionItems.value.push(
+      {
+        key: 'addChild',
+        label: globalProperties.$t('common.addChild', {name:''}),
+        icon: () => createIcon('icon-editor-add-cell'),
+      }
+    )
+  }
 }
 
 function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {

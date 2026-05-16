@@ -33,6 +33,8 @@ export interface ResourceMetadata {
 export interface RouteResourceMetadata extends ResourceMetadata {
   path: string,
   fixed: boolean
+  deactivatedClose: boolean
+  single: boolean
 }
 
 export interface ResourceSavePayload extends ResourceMetadata, BasicIdMetadata<number> {

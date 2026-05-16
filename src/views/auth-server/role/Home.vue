@@ -5,7 +5,7 @@ import LAuthorityButton from "@/components/basic/AuthorityButton.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {MenuProps, TableProps} from "antdv-next";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import type {RoleEntity} from '@/types/auth-server/roleType';
+import type {RoleEntity} from '@/types/auth-server/roleDomain';
 
 
 const globalProperties =

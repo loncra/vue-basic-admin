@@ -7,8 +7,8 @@ import {DatePicker, Input, InputNumber, Select} from 'antdv-next';
 import {OperationDataTraceAuditEventService, ResourceServerService} from "@/apis";
 import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest, RestResult} from '@/types/common';
-import type {AuditEventEntity} from "@/types/auth-server/auditEntityType.ts";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
+import type {AuditEventEntity} from "@/types/auth-server/auditDomain.js";
+import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
 
 defineOptions({
   name: 'LOperationDataTraceTable',

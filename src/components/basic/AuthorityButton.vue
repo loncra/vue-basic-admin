@@ -48,7 +48,7 @@ const menuItems = computed<NonNullable<MenuProps['items']>>(() => {
   if (principalStore.hasPermission(props.authority?.add || '')) {
     items.push({
       key: 'add',
-      label: globalProperties.$t('common.add'),
+      label: globalProperties.$t('common.add',{name:''}),
       icon: () => createIcon('icon-add', 'align'),
     })
   }
@@ -92,5 +92,5 @@ function handleActionClick(key: string) {
 </script>
 
 <template>
-  <l-action-button :action-items="menuItems" @action-item-click="handleActionClick"/>
+  <l-action-button v-bind="$attrs" :action-items="menuItems" @action-item-click="handleActionClick"/>
 </template>

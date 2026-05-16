@@ -11,11 +11,11 @@ const locale: LanguagePack = {
   common: {
     id: '主键',
     save: '保存',
-    add: '添加',
-    edit: '编辑',
+    add: '添加{name}',
+    edit: '编辑{name}',
     delete: '删除',
     export: '导出',
-    detail: '详情',
+    detail: '{name}详情',
     action: '操作',
     deleteSelected: '删除选中',
     reset: '重置',
@@ -38,7 +38,7 @@ const locale: LanguagePack = {
     back: '返回',
     home: '首页',
     parent:'父类',
-    addChild:'添加子级',
+    addChild:'添加{name}子级',
     open:'开启',
     close:'关闭',
     border:'边框',
@@ -50,6 +50,10 @@ const locale: LanguagePack = {
     default:'默认',
     basicInformation: '基础信息',
     requestHeader:'请求头',
+    sort:'排序值',
+    value: '值',
+    unname:'未命名',
+    clear:'清空',
   },
   operation:{
     time:'操作时间',
@@ -178,7 +182,7 @@ const locale: LanguagePack = {
     }
   },
   error:{
-    notNull:'{field} 不能为空',
+    notNull:'不能为空',
     errorMessage:'错误信息',
     code:'错误代码',
     field:'字段信息',
@@ -186,12 +190,15 @@ const locale: LanguagePack = {
       phoneNumber:'手机号码格式不正确',
     },
     badRequest:{
+      page:'参数错误',
       title:'您提交的参数错误',
     },
     forbidden:{
+      page:'没有权限访问',
       title:'您没有权限访问,请联系管理员开通权限',
     },
     notFound:{
+      page:'找不到页面',
       title:'找不到你想访问的页面'
     },
     staleEntityForm: {
@@ -231,11 +238,13 @@ const locale: LanguagePack = {
     rememberMe: '记住我',
     forgotPassword: '忘记密码?',
     login: '登录',
+    log:'登录日志',
     phoneLogin: '手机号码登录',
     qrCodeLogin: '扫码登录',
     noAccount: '没有账户？',
     createAccount: '创建账户',
     reLogin:'重新登录',
+    page:'用户登录'
   },
   workbench: {
     personalActivity: '个人动态',
@@ -273,16 +282,33 @@ const locale: LanguagePack = {
     resource:{
       applicationName: '应用名称',
       page:'路由页面',
-      icon:'图标'
+      icon:'图标',
+      routePage:'权限',
     },
     auditEvent:{
       type:'审计类型',
       target:'审计目标',
       traceId:'关联业务 id'
     },
+    consoleUser: {
+      routePage:'员工'
+    },
     role:{
+      routePage:'角色',
       removable:'是否可删除',
       modifiable:'是否可修改'
+    }
+  },
+  resourceServer:{
+    code:'代码',
+    dataDictionary:{
+      valueType:'值类型',
+      level:'等级',
+      routePage:'字典数据',
+      editPage:'类型: {typeName}, 名称: {dataName}'
+    },
+    dictionaryType:{
+      routePage:'字典类型'
     }
   }
 }

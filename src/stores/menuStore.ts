@@ -11,6 +11,7 @@ import {
   type RouteRecordNormalized
 } from "vue-router";
 import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
+import i18n from '@/i18n'
 
 /** 路由进入中：仅用于 tab 图标 spin（与 useRoute() 解耦，对齐 beforeEach 的 to.fullPath） */
 export interface RouteEnterPage {
@@ -109,17 +110,26 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
   function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
     return {
-      icon: route.meta?.icon as string,
-      name: route.meta?.title as string,
-      page: route.fullPath || route.path,
+      icon: (route.meta?.icon || 'icon-survey') as string,
+      name: (route.meta?.title || i18n.global.t('common.unname')) as string,
+      page: route.path,
+      deactivatedClose: (route.meta?.deactivatedClose || false) as boolean,
       applicationName: route.meta?.applicationName as string,
-      path: route.path,
+      path: route.fullPath,
       fixed: route.meta?.fixed as boolean,
+      single: (route.meta?.single || false) as boolean,
     }
   }
 
-  function createResourceRouteMetadata(resource: ResourceMetadata): RouteResourceMetadata {
-    return {...resource, fixed: false, path: resource.page as string};
+  function createResourceRouteMetadata(
+    resource: ResourceMetadata,
+    route: RouteLocationNormalized
+  ): RouteResourceMetadata {
+    let path:string = resource.page
+    if (route.path === resource.page) {
+      path = route.fullPath || route.path
+    }
+    return {...resource, fixed: false, path: path, deactivatedClose:false, single: false};
   }
 
   function resetCurrentBreadcrumbs(route: RouteLocationNormalized, router: Router) {
@@ -136,7 +146,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
           state.value.menu,
         )
 
-        const parentRoutes = unmergeTree<ResourceMetadata>(data).map(createResourceRouteMetadata)
+        const parentRoutes = unmergeTree<ResourceMetadata>(data).map(d => createResourceRouteMetadata(d, route))
 
         result.push(...parentRoutes)
       }
@@ -147,13 +157,15 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
         (r: ResourceMetadata) => r.page === route.path,
         state.value.menu,
       )
-      const routes = unmergeTree<ResourceMetadata>(data).map(createResourceRouteMetadata)
-      result.push(...routes)
+      const routes = unmergeTree<ResourceMetadata>(data).map(d => createResourceRouteMetadata(d, route))
+      if (routes.length <= 0) {
+        result.push(toResourceRouteMetadata(route))
+      } else{
+        result.push(...routes)
+      }
     }
     state.value.currentBreadcrumbs = result;
   }
-
-  //watch(globalProperties.$route, computedBreadcrumb)
 
   return {
     state,

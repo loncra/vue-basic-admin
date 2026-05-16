@@ -17,12 +17,16 @@ const globalProperties = instance.appContext.config.globalProperties
       <div class="text-center">
         <a-space>
           <a-button @click="globalProperties.$router.go(-1)">
-            <icon-font class="icon" type="icon-left-arrow" />
+            <template #icon>
+              <icon-font class="icon align" type="icon-return" />
+            </template>
             <span>{{ globalProperties.$t('common.back') }}</span>
           </a-button>
 
           <a-button type="primary" @click="globalProperties.$router.push({ path: '/' })">
-            <icon-font class="icon" type="icon-home" />
+            <template #icon>
+              <icon-font class="icon align" type="icon-home" />
+            </template>
             <span>{{ globalProperties.$t('common.home') }}</span>
           </a-button>
         </a-space>

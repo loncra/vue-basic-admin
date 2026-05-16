@@ -85,29 +85,46 @@ function loadPinnedFromStorage(): RouteResourceMetadata[] {
   }
 }
 
-function activateSegmented(route: RouteResourceMetadata) {
-  const current = panes.value.find(p => p.page === route.page)
+function activateTab(route: RouteResourceMetadata) {
+  panes.value = panes.value.filter(p => !p.deactivatedClose)
+  const current = panes.value.find(p => p.path === route.path)
 
   if (current) {
-    globalProperties.$router.push(current.page)
+    globalProperties.$router.push(current.path)
   } else {
     const temp = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
     if (temp) {
       panes.value.push(temp)
       if (!(route.page in routeCacheVersions.value)) {
-        routeCacheVersions.value[route.page] = 0
+        routeCacheVersions.value[route.path] = 0
       }
     }
   }
-  activeKey.value = route.page as string
+  activeKey.value = route.path as string
+  if (route.single) {
+    const keepPath = route.path
+    const pageKey = route.page
+    const toRemove = panes.value.filter(
+      (p) => p.page === pageKey && p.path !== keepPath && !isPaneFixed(p),
+    )
+    toRemove.forEach((p) => {
+      const v = routeCacheVersions.value[p.path] || 0
+      routeCacheVersions.value[p.path] = v + 1
+    })
+    panes.value = panes.value.filter(
+      (p) => !(p.page === pageKey && p.path !== keepPath) || isPaneFixed(p),
+    )
+  }
 }
 
 function changeTab(value: string | number) {
-  const current = panes.value.find(p => p.page === value)
+  const current = panes.value.find(p => p.path === value)
   if (!current) {
     return
   }
-  activateSegmented(current)
+  activateTab(current)
+
+  panes.value = panes.value.filter(p => !p.deactivatedClose)
 }
 
 function mounted(): void {
@@ -116,7 +133,7 @@ function mounted(): void {
   pinnedRouteNames.value = loadPinnedFromStorage()
   const initialPanes: RouteResourceMetadata[] = []
   for (const r of fixedRoutes) {
-    const name = r.page as string
+    const name = r.path as string
     if (fixedRouteNames.value.has(name)) {
       continue;
     }
@@ -128,30 +145,30 @@ function mounted(): void {
   }
 
   initialPanes.map(r => panes.value.push(r))
-  activateSegmented(menuPrincipalStore.toResourceRouteMetadata(route))
+  activateTab(menuPrincipalStore.toResourceRouteMetadata(route))
   if (!(route.fullPath in routeCacheVersions.value)) {
     routeCacheVersions.value[route.fullPath] = 0
   }
 }
 
 function removePaneByPage(page: string, activatePane:boolean = true): void {
-  const pane = panes.value.find((p) => p.page === page)
+  const pane = panes.value.find((p) => p.path === page)
   if (!pane) {
     return
   }
-  const index = panes.value.findIndex((p) => p.page === page)
+  const index = panes.value.findIndex((p) => p.path === page)
   const targetRoute = panes.value[index]
   if (targetRoute) {
-    const currentVersion = routeCacheVersions.value[targetRoute.page] || 0
-    routeCacheVersions.value[targetRoute.page] = currentVersion + 1
+    const currentVersion = routeCacheVersions.value[targetRoute.path] || 0
+    routeCacheVersions.value[targetRoute.path] = currentVersion + 1
   }
-  panes.value = panes.value.filter((p) => p.page !== page)
+  panes.value = panes.value.filter((p) => p.path !== page)
   if (!activatePane) {
     return
   }
   const change = panes.value[index - 1]
   if (change) {
-    activateSegmented(change)
+    activateTab(change)
   }
 }
 
@@ -190,7 +207,7 @@ function toggleFullscreen() {
 
 /** 判断标签页是否为固定（路由 meta.fixed 或用户手动固定） */
 function isPaneFixed(pane: RouteResourceMetadata): boolean {
-  return pane.fixed || pinnedRouteNames.value.some(p => p.page === pane.page)
+  return pane.fixed || pinnedRouteNames.value.some(p => p.path === pane.path)
 }
 
 function savePinnedToStorage() {
@@ -202,16 +219,16 @@ function savePinnedToStorage() {
 
 /** 取消固定 */
 function onUnpin() {
-  pinnedRouteNames.value = pinnedRouteNames.value.filter(p => p.page !== activeKey.value)
+  pinnedRouteNames.value = pinnedRouteNames.value.filter(p => p.path !== activeKey.value)
   savePinnedToStorage()
 }
 
 /** 固定当前标签页 */
 function onPin() {
-  if (pinnedRouteNames.value.some(p => p.page === activeKey.value)) {
+  if (pinnedRouteNames.value.some(p => p.path === activeKey.value)) {
     return
   }
-  const route = panes.value.find(p => p.page === activeKey.value)
+  const route = panes.value.find(p => p.path === activeKey.value)
   if (!route) {
     return
   }
@@ -221,26 +238,26 @@ function onPin() {
 
 /** 关闭其他标签页：保留当前标签页和所有 fixed 标签页 */
 function onCloseOthers() {
-  const toRemove = panes.value.filter((p) => p.page !== activeKey.value && !isPaneFixed(p))
+  const toRemove = panes.value.filter((p) => p.path !== activeKey.value && !isPaneFixed(p))
   toRemove.forEach((p) => {
-    const v = routeCacheVersions.value[p.page] || 0
-    routeCacheVersions.value[p.page] = v + 1
+    const v = routeCacheVersions.value[p.path] || 0
+    routeCacheVersions.value[p.path] = v + 1
   })
-  const removedPages = toRemove.map(p => p.page);
-  panes.value = panes.value.filter(p => !removedPages.includes(p.page))
+  const removedPages = toRemove.map(p => p.path);
+  panes.value = panes.value.filter(p => !removedPages.includes(p.path))
 }
 
 /** 关闭右侧标签页 */
 function onCloseRight() {
   //const currentRoute = globalProperties.$route
-  const idx = panes.value.findIndex((p) => p.page === activeKey.value)
+  const idx = panes.value.findIndex((p) => p.path === activeKey.value)
   if (idx < 0) {
     return
   }
   const toRemove = panes.value.slice(idx + 1).filter((p) => !isPaneFixed(p))
   toRemove.forEach((p) => {
-    const v = routeCacheVersions.value[p.page] || 0
-    routeCacheVersions.value[p.page] = v + 1
+    const v = routeCacheVersions.value[p.path] || 0
+    routeCacheVersions.value[p.path] = v + 1
   })
   panes.value = panes.value.filter((p, i) => i <= idx || isPaneFixed(p))
 }
@@ -267,7 +284,7 @@ function onOpenOperateChange(open: boolean) {
   if (fixedRouteNames.value.has(activeKey.value)) {
     return
   }
-  if (pinnedRouteNames.value.some(p => p.page === activeKey.value)) {
+  if (pinnedRouteNames.value.some(p => p.path === activeKey.value)) {
     operateItems.value.unshift({
       key: 'unpin',
       label: globalProperties.$t('layoutContent.unpin'),
@@ -286,26 +303,26 @@ function onRemoveTab(value: string, action: string) {
   if (action !== 'remove') {
     return
   }
-  const pane = panes.value.find((p) => p.page === value)
+  const pane = panes.value.find((p) => p.path === value)
   if (!pane || isPaneFixed(pane)) {
     return
   }
-  const index = panes.value.findIndex((p) => p.page === value)
+  const index = panes.value.findIndex((p) => p.path === value)
   const targetRoute = panes.value[index]
   if (targetRoute) {
-    const currentVersion = routeCacheVersions.value[targetRoute.page] || 0
-    routeCacheVersions.value[targetRoute.page] = currentVersion + 1
+    const currentVersion = routeCacheVersions.value[targetRoute.path] || 0
+    routeCacheVersions.value[targetRoute.path] = currentVersion + 1
   }
   const change = panes.value[index - 1]
   if (change && activeKey.value === value) {
-    activateSegmented(change)
+    activateTab(change)
   }
-  panes.value = panes.value.filter((p) => p.page !== value)
+  panes.value = panes.value.filter((p) => p.path !== value)
 }
 
 watch(
   () => globalProperties.$route.fullPath,
-  () => activateSegmented(menuPrincipalStore.toResourceRouteMetadata(globalProperties.$route)),
+  () => activateTab(menuPrincipalStore.toResourceRouteMetadata(globalProperties.$route)),
 )
 
 onMounted(mounted)
@@ -329,7 +346,7 @@ onMounted(mounted)
         <div class="tool-bar ">
           <a-tabs
             @change="changeTab"
-            :items="panes.map(p => ({ label: p.name, iconString: p.icon, key: p.page, closable: !pinnedRouteNames.some(_p => _p.page === p.page) && !fixedRouteNames.has(p.page) }))"
+            :items="panes.map(p => ({ label: p.name, iconString: p.icon, key: p.path, closable: !pinnedRouteNames.some(_p => _p.path === p.path) && !fixedRouteNames.has(p.path) }))"
             type="editable-card"
             :active-key="activeKey"
             hide-add
@@ -392,18 +409,18 @@ onMounted(mounted)
         </div>
       </a-flex>
       <a-flex vertical flex="1" class="pr-md pl-md">
-          <a-spin :spinning="tabIconSpin(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
-            <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
-              <transition name="fade-transform" mode="out-in">
-                <!-- 使用 key 来清除缓存：key = fullPath + 版本号 -->
-                <!-- 当关闭标签页时，版本号会增加，key 改变，keep-alive 会销毁旧实例并创建新实例 -->
-                <!-- 无 Component 时不渲染 keep-alive，避免空白（如路由未解析完） -->
-                <keep-alive v-if="Component">
-                  <component :is="Component" :key="getRouteCacheKey(route)"/>
-                </keep-alive>
-              </transition>
-            </router-view>
-          </a-spin>
+        <a-spin class="layout-content-route-spin" :spinning="tabIconSpin(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
+          <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
+            <transition name="fade-transform" mode="out-in">
+              <!-- 使用 key 来清除缓存：key = fullPath + 版本号 -->
+              <!-- 当关闭标签页时，版本号会增加，key 改变，keep-alive 会销毁旧实例并创建新实例 -->
+              <!-- 无 Component 时不渲染 keep-alive，避免空白（如路由未解析完） -->
+              <keep-alive v-if="Component">
+                <component :is="Component" :key="getRouteCacheKey(route)"/>
+              </keep-alive>
+            </transition>
+          </router-view>
+        </a-spin>
       </a-flex>
       <layout-footer/>
     </a-flex>

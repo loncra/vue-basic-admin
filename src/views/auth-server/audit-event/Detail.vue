@@ -4,7 +4,7 @@ import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 
 import {AuditEventService} from "@/apis/auth-server/auditEventService.ts";
-import type {AuditEventEntity} from "@/types/auth-server/auditEntityType.ts";
+import type {AuditEventEntity} from "@/types/auth-server/auditDomain.js";
 import type {RestResult} from "@/types";
 
 const globalProperties =

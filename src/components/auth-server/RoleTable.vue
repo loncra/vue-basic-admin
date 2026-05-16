@@ -7,12 +7,13 @@ import type {MenuItemType, TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {RestResult} from "@/types";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceType.ts";
+import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {NameValueEnumMetadata} from "@/types/common.ts";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
-import type {RoleEntity} from "@/types/auth-server/roleType.ts";
+import type {RoleEntity} from "@/types/auth-server/roleDomain.js";
 import type {FilterRequest} from '@/types/common';
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'LRoleTable',
@@ -21,6 +22,7 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+const principalStore = usePrincipalStore()
 
 const props = withDefaults(defineProps<{
   preview?: boolean
@@ -34,13 +36,7 @@ const props = withDefaults(defineProps<{
 const service = new RoleService()
 const resourceServerService = new ResourceServerService()
 
-const actionItems = ref<MenuItemType[]>([
-  {
-    key: 'addChild',
-    label: globalProperties.$t('common.addChild'),
-    icon: () => createIcon('icon-editor-add-cell'),
-  },
-])
+const actionItems = ref<MenuItemType[]>([])
 
 const columns = ref<SearchableColumnType[]>([
   {
@@ -144,7 +140,15 @@ async function mounted() {
       statusCol.search.props.options = enums.data['resource-server']?.ResourceSourceEnum
     }
   }
-
+  if (principalStore.hasPermission('perms[resource_server_data_dictionary:save]')) {
+    actionItems.value.push(
+      {
+        key: 'addChild',
+        label: globalProperties.$t('common.addChild', {name:''}),
+        icon: () => createIcon('icon-editor-add-cell'),
+      }
+    )
+  }
 }
 
 function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {

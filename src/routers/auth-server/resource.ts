@@ -1,4 +1,5 @@
 import type {RouteRecordRaw} from 'vue-router'
+import i18n from "@/i18n";
 
 /** 权限相关路由 */
 const router: RouteRecordRaw[] = [
@@ -17,7 +18,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_resource_addChild',
     meta: {
       applicationName: 'auth-server',
-      title: '添加权限子级',
+      title: i18n.global.t('common.addChild', {name:' ' + i18n.global.t('authServer.resource.routePage') + ' '}),
       icon: 'icon-editor-add-cell',
       parent: '/auth-server/resource',
       requiresFullyAuth: true,
@@ -29,7 +30,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_resource_edit',
     meta: {
       applicationName: 'auth-server',
-      title: '编辑权限',
+      title: i18n.global.t('common.edit', {name:' ' + i18n.global.t('authServer.resource.routePage')}),
       icon: 'icon-edit',
       parent: '/auth-server/resource',
       requiresFullyAuth: true,
@@ -41,7 +42,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_resource_add',
     meta: {
       applicationName: 'auth-server',
-      title: '添加权限',
+      title: i18n.global.t('common.add', {name:' ' + i18n.global.t('authServer.resource.routePage')}),
       icon: 'icon-add',
       parent: '/auth-server/resource',
       requiresFullyAuth: true,
@@ -53,7 +54,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_resource_detail',
     meta: {
       applicationName: 'auth-server',
-      title: '权限明细',
+      title: i18n.global.t('common.detail', {name:i18n.global.t('authServer.resource.routePage') + ' '}),
       icon: 'icon-order-inspection',
       parent: '/auth-server/resource',
       requiresFullyAuth: true,

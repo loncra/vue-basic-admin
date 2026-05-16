@@ -11,13 +11,13 @@ const locale: LanguagePack = {
   common: {
     id: 'ID',
     save: 'Save',
-    add: 'Add',
-    edit: 'Edit',
+    add: 'Add{name}',
+    edit: 'Edit{name}',
     delete: 'Delete',
     export: 'Export',
-    detail: 'Details',
+    detail: '{name} details',
+    action: 'Actions',
     deleteSelected: 'Delete selected',
-    operation: 'Actions',
     reset: 'Reset',
     deleteConfirmTitle: 'Confirm deletion',
     deleteConfirmSingle: 'Are you sure you want to delete this record?',
@@ -38,7 +38,7 @@ const locale: LanguagePack = {
     back: 'Back',
     home: 'Home',
     parent: 'Parent',
-    addChild: 'Add child',
+    addChild: 'Add{name} child',
     open: 'On',
     close: 'Off',
     border: 'Border',
@@ -49,7 +49,11 @@ const locale: LanguagePack = {
     rememberOperate: 'Remember my choice',
     default: 'Default',
     basicInformation: 'Basic information',
-    requestHeader:'Request header',
+    requestHeader: 'Request header',
+    sort: 'Sort order',
+    value: 'Value',
+    unname: 'Untitled',
+    clear: 'Clear',
   },
   operation: {
     time: 'Operation time',
@@ -181,7 +185,7 @@ const locale: LanguagePack = {
     },
   },
   error: {
-    notNull: '{field} is required',
+    notNull: 'required',
     errorMessage: 'Error message',
     code: 'Error code',
     field: 'Field information',
@@ -189,12 +193,15 @@ const locale: LanguagePack = {
       phoneNumber: 'Invalid phone number format',
     },
     badRequest: {
-      title: 'Invalid parameters submitted',
+      page: 'Invalid parameters',
+      title: 'The parameters you submitted are invalid',
     },
     forbidden: {
+      page: 'Access denied',
       title: "You don't have permission to access this resource. Please contact an administrator.",
     },
     notFound: {
+      page: 'Page not found',
       title: "The page you're looking for doesn't exist",
     },
     staleEntityForm: {
@@ -236,11 +243,13 @@ const locale: LanguagePack = {
     rememberMe: 'Remember me',
     forgotPassword: 'Forgot password?',
     login: 'Sign in',
+    log: 'Sign-in log',
     phoneLogin: 'Sign in with phone',
     qrCodeLogin: 'QR code sign-in',
     noAccount: "Don't have an account?",
     createAccount: 'Create account',
     reLogin: 'Sign in again',
+    page: 'Sign in',
   },
   workbench: {
     personalActivity: 'Personal activity',
@@ -279,15 +288,32 @@ const locale: LanguagePack = {
       applicationName: 'Application name',
       page: 'Route path',
       icon: 'Icon',
+      routePage: 'Permissions',
     },
     auditEvent: {
       type: 'Audit type',
       target: 'Audit target',
       traceId: 'Related business ID',
     },
+    consoleUser: {
+      routePage: 'Employees',
+    },
     role: {
+      routePage: 'Roles',
       removable: 'Can delete',
       modifiable: 'Can edit',
+    },
+  },
+  resourceServer: {
+    code: 'Code',
+    dataDictionary: {
+      valueType: 'Value type',
+      level: 'Level',
+      routePage: 'Dictionary entries',
+      editPage: 'Type: {typeName}, Name: {dataName}',
+    },
+    dictionaryType: {
+      routePage: 'Dictionary types',
     },
   },
 }
