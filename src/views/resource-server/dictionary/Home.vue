@@ -329,10 +329,12 @@ onMounted(mounted)
             :columns="options.dataDictionary.columns"
             :authority="{
               edit:'perms[resource_server_data_dictionary:save]',
-              delete:'perms[resource_server_data_dictionary:delete]'
+              delete:'perms[resource_server_data_dictionary:delete]',
+              detail:'perms[resource_server_data_dictionary:get]'
             }"
             :scroll="{x:'max-content'}"
             :row-selection="{type: 'checkbox', onChange:(_keys:number[],rows:DataDictionaryEntity[]) => options.dataDictionary.selectedRows = rows}"
+            @detail="r => globalProperties.$router.push({name:'resource_server_data_dictionary_detail', query:{id:String(r.id)}})"
             @edit="r => globalProperties.$router.push({name:'resource_server_data_dictionary_edit', query:{id:String(r.id)}})"
           >
             <template #title>
@@ -347,7 +349,7 @@ onMounted(mounted)
                   size="small"
                   :authority="{
                     add:'perms[resource_server_data_dictionary:save]',
-                    delete:'perms[resource_server_data_dictionary:delete]',
+                    delete:'perms[resource_server_data_dictionary:delete]'
                   }"
                   @delete="dataDictionaryTable.remove(options.dataDictionary.selectedRows)"
                   @add="globalProperties.$router.push({name:'resource_server_data_dictionary_add',query:{typeId: selectedDictionaryType.id}})"

@@ -53,7 +53,7 @@ const entity = ref<RoleEntity>({
       <a-descriptions-item :label="globalProperties.$t('authServer.source')">
         {{ entity.sources.map(getEnumName).join(',') }}
       </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.status')">
+      <a-descriptions-item :label="globalProperties.$t('common.enabled')">
         {{ getEnumName(entity.enabled)}}
       </a-descriptions-item>
 

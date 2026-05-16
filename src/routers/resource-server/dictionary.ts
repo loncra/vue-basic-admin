@@ -50,6 +50,18 @@ const router: RouteRecordRaw[] = [
       requiresFullyAuth: true,
     },
   },
+  {
+    path: '/resource-server/dictionary/detail',
+    component: () => import('@/views/resource-server/data-dictionary/Detail.vue'),
+    name: 'resource_server_data_dictionary_detail',
+    meta: {
+      applicationName: 'resource-server',
+      title: i18n.global.t('common.detail', {name:i18n.global.t('resourceServer.dataDictionary.routePage') + ' '}),
+      icon: 'icon-add',
+      parent: '/resource-server/dictionary',
+      requiresFullyAuth: true,
+    },
+  },
 ]
 
 export default router
