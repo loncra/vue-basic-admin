@@ -15,7 +15,7 @@ import {
 } from "vue";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
-import {App, Input, InputNumber, type MenuProps, Select} from "antdv-next";
+import {App, Input, type MenuProps, Select, type TableProps} from "antdv-next";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import type {PageRequest, RestResult, TreeSortMetadata} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.ts";
@@ -155,13 +155,12 @@ const dataDictionaryTable = ref()
 const dictionaryTypeTable = ref()
 const dictionaryTypeForm = ref()
 
-function onDictionaryTypeRow(record: DictionaryTypeEntity) {
+const onDictionaryTypeRow: NonNullable<TableProps['onRow']> = (record) => {
+  const row = record as DictionaryTypeEntity
   return {
     onClick: (e: MouseEvent) => {
       const el = e.target as HTMLElement | null
-      if (!el) {
-        return
-      }
+      if (!el) return
       if (
         el.closest(
           'button, a, input, textarea, select, label, .ant-checkbox, .ant-checkbox-wrapper, [role="button"]',
@@ -169,9 +168,9 @@ function onDictionaryTypeRow(record: DictionaryTypeEntity) {
       ) {
         return
       }
-      selectedDictionaryType.value = record
-      options.value.dataDictionary.query["filter_[type_id_eq]"] = record.id;
-      dataDictionaryTable.value.fetchDataSource();
+      selectedDictionaryType.value = row
+      options.value.dataDictionary.query['filter_[type_id_eq]'] = row.id
+      dataDictionaryTable.value.fetchDataSource()
     },
   }
 }

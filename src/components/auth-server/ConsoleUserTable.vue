@@ -121,6 +121,10 @@ function removeSelected(selectedRows: ConsoleUserEntity[]) {
   authorityOperateTable.value.remove(selectedRows);
 }
 
+function exportData(selectedRows: ConsoleUserEntity[]) {
+  authorityOperateTable.value.exportData(selectedRows);
+}
+
 async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
   if (enums.data) {
@@ -139,7 +143,8 @@ async function mounted() {
 
 }
 defineExpose({
-  removeSelected
+  removeSelected,
+  exportData
 })
 
 onMounted(mounted)

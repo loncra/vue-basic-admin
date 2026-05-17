@@ -41,25 +41,21 @@ const emit = defineEmits<{
 const menuItems = computed<NonNullable<MenuProps['items']>>(() => {
   const items: NonNullable<MenuProps['items']> = []
 
-  if (!principalStore.hasAnyPermission([props.authority?.add || '', props.authority?.export || '', props.authority?.delete || ''])) {
-    return items
-  }
-
-  if (principalStore.hasPermission(props.authority?.add || '')) {
+  if (principalStore.hasPermission((props.authority?.add || '') as string) || props.authority?.add) {
     items.push({
       key: 'add',
       label: globalProperties.$t('common.add',{name:''}),
       icon: () => createIcon('icon-add', 'align'),
     })
   }
-  if (principalStore.hasPermission(props.authority?.export || '')) {
+  if (principalStore.hasPermission((props.authority?.export || '') as string) || props.authority?.export) {
     items.push({
       key: 'export',
       label: globalProperties.$t('common.export'),
       icon: () => createIcon('icon-goods-start-to-ship', 'align'),
     })
   }
-  if (principalStore.hasPermission(props.authority?.delete || '')) {
+  if (principalStore.hasPermission((props.authority?.delete || '') as string) || props.authority?.delete) {
     items.push({
       key: 'delete',
       label: globalProperties.$t('common.deleteSelected'),

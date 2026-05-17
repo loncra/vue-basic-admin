@@ -21,10 +21,10 @@ import {
   onActivated,
   onMounted,
   ref,
+  type UnwrapRef,
   useAttrs,
   useSlots,
   watch,
-  type UnwrapRef,
 } from 'vue'
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {MenuProps, TableProps} from "antdv-next";
@@ -44,13 +44,7 @@ import {
   type TreePlacement,
 } from '@/utils/treeUtils'
 import type {PageSearchRestfulService} from '@/apis/pageSearchRestfulService';
-import type {
-  ColumnType,
-  FilterValue,
-  SorterResult,
-  TableCurrentDataSource,
-  TablePaginationConfig,
-} from "antdv-next/dist/table/interface";
+import type {ColumnType, TablePaginationConfig,} from "antdv-next/dist/table/interface";
 import LActionButton from "@/components/basic/ActionButton.vue";
 
 /** 列定义上挂载的查询区配置（非 antdv 内置字段） */
@@ -99,6 +93,13 @@ const principalStore = usePrincipalStore()
 const slots = useSlots()
 const attrs = useAttrs()
 const { message, modal } = App.useApp()
+
+const DRAG_ROW_CLASS = {
+  invalid: 'drag-row-invalid',
+  before: 'drag-row-before',
+  after: 'drag-row-after',
+  inner: 'drag-row-inner',
+} as const
 
 /** 透传给 a-table 的 attrs（排除 onRow，避免覆盖合并后的行事件） */
 const tableAttrs = computed(() => {
@@ -246,7 +247,39 @@ function rebuildAuthorityMeta() {
     }
   }
 
-  if (props.enabledActions && principalStore.hasAnyPermission([props.authority?.edit || '', props.authority?.detail || '', props.authority?.delete || ''])) {
+  if (props.enabledActions) {
+
+    const actionItems = [];
+    if (principalStore.hasPermission(props.authority?.edit as string) || props.authority?.edit) {
+      actionItems.push({
+        key: 'edit',
+        label: globalProperties.$t('common.edit',{name:''}),
+        icon: () => createIcon('icon-edit'),
+      })
+    }
+    if (principalStore.hasPermission(props.authority?.detail as string) || props.authority?.detail) {
+      actionItems.push({
+        key: 'detail',
+        label: globalProperties.$t('common.detail',{name:''}),
+        icon: () => createIcon('icon-order-inspection'),
+      })
+    }
+    if ((principalStore.hasPermission(props.authority?.delete as string) || props.authority?.delete) && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
+      actionItems.push({
+        key: 'delete',
+        label: globalProperties.$t('common.delete'),
+        icon: () => createIcon('icon-delete'),
+      })
+    }
+    options.value.actionItems.push(...actionItems)
+    if (props.actionItems.length > 0 && actionItems.length > 0) {
+      options.value.actionItems.push({type:'divider'});
+    }
+
+    options.value.actionItems.push(...props.actionItems || [])
+  }
+
+  if (options.value.actionItems.length > 0) {
     options.value.columns.push({
       title: globalProperties.$t('common.action'),
       dataIndex: 'action',
@@ -255,33 +288,6 @@ function rebuildAuthorityMeta() {
       width: 80,
       fixed: 'right'
     })
-    const actionItems = [];
-    if (principalStore.hasPermission(props.authority?.edit || '')) {
-      actionItems.push({
-        key: 'edit',
-        label: globalProperties.$t('common.edit',{name:''}),
-        icon: () => createIcon('icon-edit'),
-      })
-    }
-    if (principalStore.hasPermission(props.authority?.detail || '')) {
-      actionItems.push({
-        key: 'detail',
-        label: globalProperties.$t('common.detail',{name:''}),
-        icon: () => createIcon('icon-order-inspection'),
-      })
-    }
-    if (principalStore.hasPermission(props.authority?.delete || '') && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
-      actionItems.push({
-        key: 'delete',
-        label: globalProperties.$t('common.delete'),
-        icon: () => createIcon('icon-delete'),
-      })
-    }
-    options.value.actionItems.push(...actionItems)
-    if (props.actionItems.length > 0) {
-      options.value.actionItems.push({type:'divider'});
-      options.value.actionItems.push(...props.actionItems)
-    }
   }
 
   if (props.drag) {
@@ -294,7 +300,7 @@ async function fetchDataSource() {
   try {
     loading.value = true;
     const data:TEntity[] = [];
-    if (typeof (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page === 'function') {
+    if (typeof (props.service as PageSearchService<TEntity, TPage, TId>).page === 'function') {
       const result:RestResult<TPage> = await (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page(query.value as PageRequest);
       data.push(...(result.data?.elements || []))
       if (options.value.pagination) {
@@ -359,6 +365,19 @@ function remove(records: TEntity[]) {
   })
 }
 
+async function exportData(records: TEntity[]) {
+  let result:RestResult<void>;
+  if (records.length === 0) {
+    const filter:FilterRequest = {}
+    filter["filter_[" + SYSTEM_CONSTANT.ID_NAME + "_in]"] = records.map(r => r.id);
+    result = await props.service.exportData(filter);
+  } else {
+    result = await props.service.exportData(query.value);
+  }
+  message.success(result.message);
+  globalProperties.$router.push({name:'user_export'})
+}
+
 async function doDelete(records: TEntity[]) {
   if (typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete !== 'function') {
     return ;
@@ -386,13 +405,6 @@ function handleActionClick(key: string | number, record: TEntity) {
     emit('actionItemClick', k, record)
   }
 }
-
-const DRAG_ROW_CLASS = {
-  invalid: 'drag-row-invalid',
-  before: 'drag-row-before',
-  after: 'drag-row-after',
-  inner: 'drag-row-inner',
-} as const
 
 let dragGhostEl: HTMLElement | null = null
 
@@ -628,10 +640,7 @@ const tableOnRow = computed((): TableProps['onRow'] | undefined => {
 })
 
 function onChange(
-  pagination: TablePaginationConfig,
-  filters: Record<string, FilterValue | null>,
-  sorter: SorterResult<TEntity> | SorterResult<TEntity>[],
-  extra: TableCurrentDataSource<TEntity>,
+  pagination: TablePaginationConfig
 ) {
   query.value.number = pagination.current
   query.value.size = pagination.pageSize || 10
@@ -692,6 +701,7 @@ onMounted(mounted)
 
 defineExpose({
   fetchDataSource,
+  exportData,
   remove
 })
 

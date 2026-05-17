@@ -21,6 +21,7 @@ import {unmergeTree} from '@/utils'
 import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
 import Workbench from '@/views/commons/Workbench.vue'
+import UserExport from "@/views/commons/UserExport.vue";
 import Setting from '@/views/commons/Setting.vue'
 import NotFound from '@/views/error/NotFound.vue';
 import Forbidden from '@/views/error/Forbidden.vue';
@@ -64,12 +65,21 @@ const childrenRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/commons/user/export',
+    name: "user_export",
+    component: UserExport,
+    meta: {
+      applicationName: 'commons',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/commons/setting',
     name: 'setting',
     component: Setting,
     meta: {
       applicationName: 'commons',
-      requiresAuth: true
+      requiresAuth: true,
     },
   },
 ]

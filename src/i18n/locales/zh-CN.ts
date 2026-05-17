@@ -10,6 +10,7 @@ const locale: LanguagePack = {
   antDesign: zhCN,
   common: {
     id: '主键',
+    creationTime:'创建时间',
     save: '保存',
     add: '添加{name}',
     edit: '编辑{name}',
@@ -42,7 +43,7 @@ const locale: LanguagePack = {
     open:'开启',
     close:'关闭',
     border:'边框',
-    size:'尺寸',
+    size:'大小',
     lang: '语言',
     style:'风格',
     other:'其他',
@@ -54,6 +55,13 @@ const locale: LanguagePack = {
     value: '值',
     unname:'未命名',
     clear:'清空',
+    executeStatus:'执行状态',
+    successTime:'成功时间',
+    expiresTime:'过期时间',
+    download:{
+      text:'下载',
+      selected:'下载选中'
+    },
   },
   operation:{
     time:'操作时间',
@@ -309,6 +317,9 @@ const locale: LanguagePack = {
     },
     dictionaryType:{
       routePage:'字典类型'
+    },
+    attachment: {
+      filename:'文件名称'
     }
   }
 }

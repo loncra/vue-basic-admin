@@ -14,7 +14,6 @@ import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDoma
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
 
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -140,8 +139,8 @@ function setPageTitle(title:string, entity: ResourceEntity | ResourceSavePayload
         <a-tabs :items="options.iconOptions.map(icon => ({key: icon.name, label: icon.name, icons: icon.glyphs.map(glyph => ({key: glyph.icon_id, value: icon.css_prefix_text + glyph.font_class}))}))">
           <template #contentRender="{item}">
             <a-space wrap>
-              <a-button @click="() => options.entity.icon = glyph.value" :type="options.entity.icon === glyph.value ? 'primary' : 'default'"  v-for="glyph in item.icons" :key="glyph.key">
-                <icon-font class="icon" :type="glyph.value"/>
+              <a-button size="large" @click="() => options.entity.icon = glyph.value" :type="options.entity.icon === glyph.value ? 'primary' : 'default'"  v-for="glyph in item.icons" :key="glyph.key">
+                <icon-font class="icon text-2xl" :type="glyph.value"/>
               </a-button>
             </a-space>
           </template>

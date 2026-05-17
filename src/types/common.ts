@@ -263,23 +263,23 @@ export interface TotalPage<T> extends PageResult<T> {
  * 通用权限码：详情、删除（列表行内与详情页可共用）
  */
 export interface BasicAuthorityProps {
-  detail?:string
-  delete?:string
+  detail?:string | boolean
+  delete?:string | boolean
 }
 
 /**
  * 表格行级权限：在 {@link BasicAuthorityProps} 基础上增加「编辑」
  */
 export interface TableAuthorityProps extends BasicAuthorityProps{
-  edit?:string
+  edit?:string | boolean
 }
 
 /**
  * 工具栏按钮权限：在 {@link BasicAuthorityProps} 基础上增加「导出」「新增」
  */
 export interface ButtonAuthorityProps extends BasicAuthorityProps {
-  export?:string
-  add?:string
+  export?:string | boolean
+  add?:string | boolean
 }
 
 /**
@@ -298,6 +298,13 @@ export interface DetailSearchService<
    * @param id 主键
    */
   get(id: TId): Promise<RestResult<TEntity>>
+
+  /**
+   * 导出数据
+   *
+   * @param filter 过滤条件
+   */
+  exportData(filter:FilterRequest): Promise<RestResult<void>>
 }
 
 /**
@@ -450,4 +457,73 @@ export interface TreeSortMetadata<T> {
   id:T
   parentId?:T
   sort:number
+}
+
+
+export interface ExportDataMetadata {
+  /**
+   * 主键 id
+   */
+  id: string
+
+  /**
+   * 创建时间
+   */
+  creationTime: number;
+
+  /**
+   * 文件名称
+   */
+  filename: string;
+
+  /**
+   * 状态
+   */
+  executeStatus: NameValueEnumMetadata<number>;
+
+  /**
+   * 异常信息
+   */
+  exception: string;
+
+  /**
+   * 成功时间
+   */
+  successTime: number;
+
+  /**
+   * 最后导出时间
+   */
+  retryTime: number;
+
+  /**
+   * 重试次数
+   */
+  retryCount: number;
+
+  /**
+   * 最大重试次数
+   */
+  maxRetryCount: number;
+
+  /**
+   * 导出类型
+   */
+  type: NameValueEnumMetadata<number>;
+
+  /**
+   * 文件大小
+   */
+  size: number;
+
+  /**
+   * 元数据信息
+   */
+  metadata: Record<string, unknown>;
+}
+
+export interface FileObject {
+  bucketName:string
+  objectName:string
+  extraHeaders?: Record<string, string>
 }

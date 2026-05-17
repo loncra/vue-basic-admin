@@ -39,6 +39,6 @@ const hasCustomTitle = computed(() => Boolean(slots.title))
     <template #extra>
       <slot name="extra" />
     </template>
-    <slot/>
+    <slot />
   </a-card>
 </template>

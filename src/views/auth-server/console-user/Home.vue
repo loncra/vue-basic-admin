@@ -33,6 +33,7 @@ const onRowSelectionChange: NonNullable<TableProps["rowSelection"]>["onChange"] 
             export:'perms[auth_server_console_user:export]'
           }"
           @delete="table.removeSelected(selectedRows)"
+          @export="table.exportData(selectedRows)"
           @add="globalProperties.$router.push({name:'auth_server_console_user_add'})"
         />
       </template>
