@@ -23,10 +23,12 @@ const principalStore = usePrincipalStore()
 
 const props = withDefaults(defineProps<{
   preview?: boolean,
+  drag?:boolean,
   query?:FilterRequest,
   rowSelection?:TableProps["rowSelection"],
 }>(), {
   preview: false,
+  drag:true,
   rowSelection:() => ({type: 'checkbox'})
 })
 
@@ -192,6 +194,10 @@ function onActionItemClick(key: string, record: ResourceEntity) {
   }
 }
 
+function onDrop(record: ResourceEntity, fromIndex: number, toIndex: number) {
+  console.log(record, fromIndex, toIndex)
+}
+
 defineExpose({
   removeSelected,
   clearDataSource,
@@ -205,9 +211,12 @@ onMounted(mounted)
   <div>
     <l-authority-operate-table
       v-bind="$attrs"
+      :drag="drag"
+      @drop="onDrop"
       ref="authorityOperateTable"
       :query="query"
       v-model:data-source="dataSource"
+      :expand-icon-column-index="3"
       :service="service"
       :columns="columns"
       :action-items="actionItems"

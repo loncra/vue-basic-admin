@@ -21,7 +21,8 @@ import {
   onMounted,
   ref,
   useSlots,
-  watch
+  watch,
+  type UnwrapRef,
 } from 'vue'
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {MenuProps, TableProps} from "antdv-next";
@@ -61,6 +62,7 @@ export interface AuthorityOperateTableProps<
   immediate?: boolean
   enabledActions?: boolean
   bordered?: boolean
+  drag?:boolean
   pagination?: TableProps['pagination']
   columns: SearchableColumnType[]
   authority?: TableAuthorityProps
@@ -85,6 +87,7 @@ const props = withDefaults(
   {
     pagination:undefined,
     bordered:true,
+    drag:false,
     immediate: true,
     columns: () => [],
     enabledActions: true,
@@ -97,6 +100,7 @@ const emit = defineEmits<{
   edit: [record: TEntity]
   detail: [record: TEntity]
   actionItemClick: [e:string, record: TEntity]
+  drop: [record: TEntity, fromIndex: number, toIndex: number]
 }>()
 
 const dataSource = defineModel<TEntity[]>('dataSource', {default: () => []})
@@ -112,6 +116,7 @@ const options = ref<{
   skipActivatedOnce:boolean,
   pagination?: TableProps['pagination']
   actionItems: NonNullable<MenuProps['items']>,
+  dragKey?:TId
 }>({
   skipActivatedOnce:true,
   columns: [],
@@ -241,6 +246,11 @@ function rebuildAuthorityMeta() {
       options.value.actionItems.push(...props.actionItems)
     }
   }
+
+  if (props.drag) {
+    options.value.columns.unshift({ title: '', key: 'drag', width: 48 });
+  }
+
 }
 
 async function fetchDataSource() {
@@ -332,6 +342,44 @@ function handleActionClick(key: string | number, record: TEntity) {
   }
 }
 
+function onHandleDragStart(record: TEntity, event: DragEvent) {
+  if (!props.drag) {
+    return ;
+  }
+  const id = record[SYSTEM_CONSTANT.ID_NAME]
+  options.value.dragKey = id as UnwrapRef<TId>
+  event.dataTransfer?.setData('text/plain', String(id))
+}
+
+const onRow: TableProps['onRow'] = record => ({
+  onDragover: (event: DragEvent) => {
+    if (!props.drag) {
+      return ;
+    }
+    event.preventDefault()
+  },
+  onDrop: () => {
+    if (!props.drag) {
+      return ;
+    }
+    if (!options.value.dragKey || options.value.dragKey === record[SYSTEM_CONSTANT.ID_NAME]) {
+      return
+    }
+    const current = [...dataSource.value]
+    const fromIndex = current.findIndex(item => item[SYSTEM_CONSTANT.ID_NAME] === options.value.dragKey)
+    const toIndex = current.findIndex(item => item[SYSTEM_CONSTANT.ID_NAME] === record[SYSTEM_CONSTANT.ID_NAME])
+
+    if (fromIndex === -1 || toIndex === -1) {
+      return
+    }
+    const [moved] = current.splice(fromIndex, 1)
+    current.splice(toIndex, 0, moved!)
+    dataSource.value = current
+    options.value.dragKey = undefined as UnwrapRef<TId>
+    emit("drop", record as TEntity, fromIndex, toIndex)
+  },
+})
+
 function onChange(
   pagination: TablePaginationConfig,
   filters: Record<string, FilterValue | null>,
@@ -395,11 +443,19 @@ defineExpose({
     :loading="loading"
     @change="onChange"
     :bordered="props.bordered"
+    :on-row="onRow"
   >
     <template v-if="hasTitle" #title>
       <slot name="title"/>
     </template>
     <template #bodyCell="{ text, record, index, column}">
+      <template v-if="column.key === 'drag' && props.drag" >
+        <div class="text-center cursor-grab" draggable="true" @dragstart="onHandleDragStart(record, $event)">
+          <a-typography-text type="secondary">
+            ::
+          </a-typography-text>
+        </div>
+      </template>
       <slot v-if="hasBodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
       <template v-if="column.dataIndex === 'action'">
         <l-action-button size="small" :action-items="props.renderActionItems(record, options.actionItems)" @action-item-click="(key) => handleActionClick(key, record)" />

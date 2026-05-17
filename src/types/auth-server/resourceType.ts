@@ -1,4 +1,4 @@
-import type {BasicIdMetadata, NameValueEnumMetadata} from '@/types/common'
+import type {BasicIdMetadata, NameValueEnumMetadata, TreeLike} from '@/types/common'
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {RouteRecordName} from "vue-router";
 
