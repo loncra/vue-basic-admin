@@ -231,6 +231,10 @@ async function mounted() {
   }
 }
 
+function formatDataDictionaryDragPreview(record: DataDictionaryEntity) {
+  return record.name
+}
+
 async function onDrop(
   sorts: TreeSortMetadata<number>[]
 ) {
@@ -321,6 +325,7 @@ onMounted(mounted)
           <l-authority-operate-table
             ref="dataDictionaryTable"
             drag
+            :format-drag-preview="formatDataDictionaryDragPreview"
             @drop="onDrop"
             :expand-icon-column-index="3"
             :bordered="false"

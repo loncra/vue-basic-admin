@@ -38,6 +38,7 @@ import {
   diffTreePlacementIds,
   findFirstTreeNode,
   isTree,
+  isTreeDescendant,
   moveTreeNode,
   type TreeDropPosition,
   type TreePlacement,
@@ -76,6 +77,7 @@ export interface AuthorityOperateTableProps<
   enabledActions?: boolean
   bordered?: boolean
   drag?:boolean
+  formatDragPreview?: (record: TEntity) => string
   onRow?: TableProps['onRow']
   pagination?: TableProps['pagination']
   columns: SearchableColumnType[]
@@ -147,6 +149,8 @@ const options = ref<{
   pagination?: TableProps['pagination']
   actionItems: NonNullable<MenuProps['items']>,
   dragKey?:TId
+  hoverTargetKey?: TId
+  dropInvalid?: boolean
   lastPlacement:Map<number, TreePlacement>
   dropPosition?: TreeDropPosition
 }>({
@@ -337,7 +341,7 @@ function syncTreePlacementBaseline(tree: TEntity[]) {
   if (!props.drag || !isTree(tree)) {
     return
   }
-  options.value.lastTreePlacement = buildTreePlacementMap(tree, SYSTEM_CONSTANT.ID_NAME)
+  options.value.lastPlacement = buildTreePlacementMap(tree, SYSTEM_CONSTANT.ID_NAME)
 }
 
 function remove(records: TEntity[]) {
@@ -383,19 +387,38 @@ function handleActionClick(key: string | number, record: TEntity) {
   }
 }
 
-function onHandleDragStart(record: TEntity, event: DragEvent) {
-  if (!props.drag) {
-    return ;
-  }
-  const id = record[SYSTEM_CONSTANT.ID_NAME]
-  options.value.dragKey = id as UnwrapRef<TId>
-  event.dataTransfer?.setData('text/plain', String(id))
+const DRAG_ROW_CLASS = {
+  invalid: 'drag-row-invalid',
+  before: 'drag-row-before',
+  after: 'drag-row-after',
+  inner: 'drag-row-inner',
+} as const
+
+let dragGhostEl: HTMLElement | null = null
+
+function removeDragGhost() {
+  dragGhostEl?.remove()
+  dragGhostEl = null
 }
 
-function resolveDropPosition(event: DragEvent): TreeDropPosition {
+function isInvalidTreeDrop(dragKey: NonNullable<UnwrapRef<TId>>, target: TEntity): boolean {
+  const idKey = SYSTEM_CONSTANT.ID_NAME
+  if (dragKey === target[idKey]) {
+    return true
+  }
+  if (!isTree(dataSource.value)) {
+    return false
+  }
+  return isTreeDescendant(dragKey, target[idKey], dataSource.value, idKey)
+}
+
+function resolveDropPosition(event: DragEvent, treeMode: boolean): TreeDropPosition {
   const el = event.currentTarget as HTMLElement
   const rect = el.getBoundingClientRect()
   const ratio = (event.clientY - rect.top) / rect.height
+  if (!treeMode) {
+    return ratio < 0.5 ? -1 : 1
+  }
   if (ratio < 0.25) {
     return -1
   }
@@ -405,9 +428,78 @@ function resolveDropPosition(event: DragEvent): TreeDropPosition {
   return 0
 }
 
+function dragRowClass(record: TEntity): string | undefined {
+  const idKey = SYSTEM_CONSTANT.ID_NAME
+  if (options.value.hoverTargetKey !== record[idKey]) {
+    return undefined
+  }
+  if (options.value.dropInvalid) {
+    return DRAG_ROW_CLASS.invalid
+  }
+  const pos = options.value.dropPosition
+  if (pos === -1) {
+    return DRAG_ROW_CLASS.before
+  }
+  if (pos === 1) {
+    return DRAG_ROW_CLASS.after
+  }
+  if (pos === 0 && isTree(dataSource.value)) {
+    return DRAG_ROW_CLASS.inner
+  }
+  return undefined
+}
+
+type RowClassValue = string | Record<string, boolean> | Array<string | Record<string, boolean>>
+
+function mergeRowClass(parentClass: RowClassValue | undefined, dragClass: string | undefined): RowClassValue | undefined {
+  if (!dragClass) {
+    return parentClass
+  }
+  if (!parentClass) {
+    return dragClass
+  }
+  if (typeof parentClass === 'string') {
+    return `${parentClass} ${dragClass}`
+  }
+  if (Array.isArray(parentClass)) {
+    return [...parentClass, dragClass]
+  }
+  return {...parentClass, [dragClass]: true}
+}
+
+function onHandleDragStart(record: TEntity, event: DragEvent) {
+  if (!props.drag) {
+    return
+  }
+  const idKey = SYSTEM_CONSTANT.ID_NAME
+  const id = record[idKey]
+  options.value.dragKey = id as UnwrapRef<TId>
+  event.dataTransfer?.setData('text/plain', String(id))
+
+  removeDragGhost()
+  const label = props.formatDragPreview?.(record) ?? String(id)
+  const ghost = document.createElement('div')
+  ghost.className = 'drag-ghost'
+  ghost.textContent = label
+  const root = document.querySelector('.ant-app') ?? document.body
+  root.appendChild(ghost)
+  dragGhostEl = ghost
+  event.dataTransfer?.setDragImage(ghost, 12, 12)
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+function onHandleDragEnd() {
+  removeDragGhost()
+  clearDragState()
+}
+
 function clearDragState() {
   options.value.dragKey = undefined as UnwrapRef<TId>
+  options.value.hoverTargetKey = undefined as UnwrapRef<TId>
   options.value.dropPosition = undefined
+  options.value.dropInvalid = undefined
 }
 
 function handleTreeRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>) {
@@ -429,7 +521,7 @@ function handleTreeRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>
     return
   }
 
-  const placementBefore = new Map(options.value.lastTreePlacement)
+  const placementBefore = new Map(options.value.lastPlacement)
   const placementAfter = buildTreePlacementMap(newTree, idKey)
   const changedIds = diffTreePlacementIds(placementBefore, placementAfter)
   const sorts =
@@ -440,7 +532,7 @@ function handleTreeRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>
   dataSource.value = newTree
   clearDragState()
   emit('treeDrop', sorts, dragRecord, target, {dropPosition, tree: newTree})
-  options.value.lastTreePlacement = placementAfter
+  options.value.lastPlacement = placementAfter
 }
 
 function handleFlatRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>) {
@@ -453,10 +545,7 @@ function handleFlatRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>
     return
   }
 
-  const placementBefore =
-    options.value.lastTreePlacement.size > 0
-      ? new Map(options.value.lastTreePlacement)
-      : buildFlatPlacementMap(current, idKey)
+  const placementBefore = buildFlatPlacementMap(current, idKey)
 
   const [moved] = current.splice(fromIndex, 1)
   current.splice(toIndex, 0, moved!)
@@ -469,29 +558,39 @@ function handleFlatRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>
       ? (buildTreeSortMetadata(placementAfter, changedIds) as TreeSortMetadata<TId>[])
       : []
 
-  options.value.lastTreePlacement = placementAfter
   clearDragState()
   emit('drop', sorts, target, fromIndex, toIndex)
 }
 
 function buildDragRowProps(record: TEntity) {
+  const idKey = SYSTEM_CONSTANT.ID_NAME
   return {
     onDragover: (event: DragEvent) => {
       if (!props.drag) {
         return
       }
       event.preventDefault()
-      if (isTree(dataSource.value)) {
-        options.value.dropPosition = resolveDropPosition(event)
+      const treeMode = isTree(dataSource.value)
+      options.value.hoverTargetKey = record[idKey] as UnwrapRef<TId>
+      options.value.dropPosition = resolveDropPosition(event, treeMode)
+      const dragKey = options.value.dragKey
+      options.value.dropInvalid =
+        dragKey != null ? isInvalidTreeDrop(dragKey, record) : false
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = options.value.dropInvalid ? 'none' : 'move'
       }
     },
     onDrop: () => {
       if (!props.drag) {
         return
       }
-      const idKey = SYSTEM_CONSTANT.ID_NAME
       const dragKey = options.value.dragKey
       if (!dragKey || dragKey === record[idKey]) {
+        clearDragState()
+        return
+      }
+      if (options.value.dropInvalid) {
+        clearDragState()
         return
       }
       if (isTree(dataSource.value)) {
@@ -512,7 +611,12 @@ function resolveOnRow(record: Parameters<NonNullable<TableProps['onRow']>>[0], i
     return parentProps
   }
 
-  return {...parentProps, ...buildDragRowProps(record as TEntity)}
+  const entity = record as TEntity
+  return {
+    ...parentProps,
+    ...buildDragRowProps(entity),
+    class: mergeRowClass(parentProps.class as RowClassValue | undefined, dragRowClass(entity)),
+  }
 }
 
 /** 无自定义行事件且未开启拖拽时不传 onRow，避免 antdv tableContext 收到非函数值 */
@@ -560,10 +664,10 @@ watch(
       return
     }
     if (tree.length === 0) {
-      options.value.lastTreePlacement = new Map()
+      options.value.lastPlacement = new Map()
       return
     }
-    if (isTree(tree) && options.value.lastTreePlacement.size === 0) {
+    if (isTree(tree) && options.value.lastPlacement.size === 0) {
       syncTreePlacementBaseline(tree)
     }
   },
@@ -610,7 +714,12 @@ defineExpose({
     </template>
     <template #bodyCell="{ text, record, index, column}">
       <template v-if="column.key === 'drag' && props.drag" >
-        <div class="text-center cursor-grab" draggable="true" @dragstart="onHandleDragStart(record, $event)">
+        <div
+          class="text-center cursor-grab"
+          draggable="true"
+          @dragstart="onHandleDragStart(record, $event)"
+          @dragend="onHandleDragEnd"
+        >
           <a-typography-text type="secondary">
             ::
           </a-typography-text>

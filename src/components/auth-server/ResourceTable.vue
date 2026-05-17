@@ -195,6 +195,10 @@ function onActionItemClick(key: string, record: ResourceEntity) {
   }
 }
 
+function formatDragPreview(record: ResourceEntity) {
+  return record.name
+}
+
 async function onTreeDrop(
   sorts: TreeSortMetadata<number>[]
 ) {
@@ -216,6 +220,7 @@ onMounted(mounted)
     <l-authority-operate-table
       v-bind="$attrs"
       :drag="drag"
+      :format-drag-preview="formatDragPreview"
       @tree-drop="onTreeDrop"
       :expand-icon-column-index="3"
       ref="authorityOperateTable"
