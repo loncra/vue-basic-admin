@@ -147,11 +147,11 @@ const options = ref<{
   pagination?: TableProps['pagination']
   actionItems: NonNullable<MenuProps['items']>,
   dragKey?:TId
-  lastTreePlacement:Map<number, TreePlacement>
+  lastPlacement:Map<number, TreePlacement>
   dropPosition?: TreeDropPosition
 }>({
   skipActivatedOnce:true,
-  lastTreePlacement: new Map(),
+  lastPlacement: new Map(),
   columns: [],
   actionItems: [],
 })
