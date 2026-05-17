@@ -445,3 +445,9 @@ export type RouteTitleSpec = readonly [string, RouteTitleParams?]
 export type RouteTitleGetter = () => RouteTitleSpec
 
 export type RouteTitleMap = Record<string, RouteTitleGetter>
+
+export interface TreeSortMetadata<T> {
+  id:T
+  parentId?:T
+  sort:number
+}

@@ -2,8 +2,9 @@
  * @file 资源（菜单 / 权限等）REST 客户端
  * @description 继承 {@link FindRestfulCrudService}，与角色服务同属 RBAC 配置域。
  */
-import type {ResourceEntity, ResourceSavePayload} from '@/types'
+import type {ResourceEntity, ResourceSavePayload, RestResult, TreeSortMetadata} from '@/types'
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
+import axios from "@/requests/http.ts";
 
 /**
  * 资源领域服务：`/api[/auth-server]/resource`
@@ -14,8 +15,13 @@ export class ResourceService extends FindRestfulCrudService<ResourceSavePayload,
 
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/auth-server' : '')
   static readonly SERVICE_URL = ResourceService.BASE_URL + '/resource'
+  static readonly SERVICE_SORT = ResourceService.SERVICE_URL + "/sort"
 
   constructor() {
     super(ResourceService.SERVICE_URL)
+  }
+
+  sort(sorts:TreeSortMetadata<number>[]):Promise<RestResult<void>> {
+    return axios.put(ResourceService.SERVICE_SORT, sorts)
   }
 }

@@ -29,6 +29,12 @@ import type {MenuProps, TableProps} from "antdv-next";
 import {App} from 'antdv-next'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
+import {
+  findFirstTreeNode,
+  isTree,
+  moveTreeNode,
+  type TreeDropPosition,
+} from '@/utils/treeUtils'
 import type {PageSearchRestfulService} from '@/apis/pageSearchRestfulService';
 import type {
   ColumnType,
@@ -101,6 +107,11 @@ const emit = defineEmits<{
   detail: [record: TEntity]
   actionItemClick: [e:string, record: TEntity]
   drop: [record: TEntity, fromIndex: number, toIndex: number]
+  treeDrop: [
+    drag: TEntity,
+    target: TEntity,
+    payload: { dropPosition: TreeDropPosition; tree: TEntity[] },
+  ]
 }>()
 
 const dataSource = defineModel<TEntity[]>('dataSource', {default: () => []})
@@ -117,6 +128,7 @@ const options = ref<{
   pagination?: TableProps['pagination']
   actionItems: NonNullable<MenuProps['items']>,
   dragKey?:TId
+  dropPosition?: TreeDropPosition
 }>({
   skipActivatedOnce:true,
   columns: [],
@@ -351,32 +363,87 @@ function onHandleDragStart(record: TEntity, event: DragEvent) {
   event.dataTransfer?.setData('text/plain', String(id))
 }
 
+function resolveDropPosition(event: DragEvent): TreeDropPosition {
+  const el = event.currentTarget as HTMLElement
+  const rect = el.getBoundingClientRect()
+  const ratio = (event.clientY - rect.top) / rect.height
+  if (ratio < 0.25) {
+    return -1
+  }
+  if (ratio > 0.75) {
+    return 1
+  }
+  return 0
+}
+
+function clearDragState() {
+  options.value.dragKey = undefined as UnwrapRef<TId>
+  options.value.dropPosition = undefined
+}
+
+function handleTreeRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>) {
+  const idKey = SYSTEM_CONSTANT.ID_NAME
+  const dropPosition = options.value.dropPosition ?? 0
+  const dragRecord = findFirstTreeNode(
+    (n) => (n as TEntity)[idKey] === dragKey,
+    dataSource.value,
+  ) as TEntity | undefined
+  const newTree = moveTreeNode(
+    dataSource.value,
+    dragKey,
+    target[idKey],
+    dropPosition,
+    idKey,
+  ) as TEntity[] | null
+  if (!newTree || !dragRecord) {
+    clearDragState()
+    return
+  }
+  dataSource.value = newTree
+  clearDragState()
+  emit('treeDrop', dragRecord, target, {dropPosition, tree: newTree})
+}
+
+function handleFlatRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>) {
+  const idKey = SYSTEM_CONSTANT.ID_NAME
+  const current = [...dataSource.value]
+  const fromIndex = current.findIndex(item => item[idKey] === dragKey)
+  const toIndex = current.findIndex(item => item[idKey] === target[idKey])
+  if (fromIndex === -1 || toIndex === -1) {
+    clearDragState()
+    return
+  }
+  const [moved] = current.splice(fromIndex, 1)
+  current.splice(toIndex, 0, moved!)
+  dataSource.value = current
+  clearDragState()
+  emit('drop', target, fromIndex, toIndex)
+}
+
 const onRow: TableProps['onRow'] = record => ({
   onDragover: (event: DragEvent) => {
     if (!props.drag) {
       return ;
     }
     event.preventDefault()
+    if (isTree(dataSource.value)) {
+      options.value.dropPosition = resolveDropPosition(event)
+    }
   },
   onDrop: () => {
     if (!props.drag) {
       return ;
     }
-    if (!options.value.dragKey || options.value.dragKey === record[SYSTEM_CONSTANT.ID_NAME]) {
+    const idKey = SYSTEM_CONSTANT.ID_NAME
+    const dragKey = options.value.dragKey
+    if (!dragKey || dragKey === record[idKey]) {
       return
     }
-    const current = [...dataSource.value]
-    const fromIndex = current.findIndex(item => item[SYSTEM_CONSTANT.ID_NAME] === options.value.dragKey)
-    const toIndex = current.findIndex(item => item[SYSTEM_CONSTANT.ID_NAME] === record[SYSTEM_CONSTANT.ID_NAME])
-
-    if (fromIndex === -1 || toIndex === -1) {
-      return
+    if (isTree(dataSource.value)) {
+      handleTreeRowDrop(record as TEntity, dragKey)
+    } else {
+      handleFlatRowDrop(record as TEntity, dragKey)
     }
-    const [moved] = current.splice(fromIndex, 1)
-    current.splice(toIndex, 0, moved!)
-    dataSource.value = current
-    options.value.dragKey = undefined as UnwrapRef<TId>
-    emit("drop", record as TEntity, fromIndex, toIndex)
   },
 })
 

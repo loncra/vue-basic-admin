@@ -264,3 +264,218 @@ export function filterTreeDeep<T>(predicate: Predicate<T>, data: TreeLike<T>[]):
     .map(processNode)
     .filter((node) => node !== null)
 }
+
+/** 树形表格拖拽放置位置：目标行上 / 中 / 下 */
+export type TreeDropPosition = -1 | 0 | 1
+
+export interface TreeNodeContext<T> {
+  /** 节点所在的兄弟列表（根层即为整棵树顶层数组） */
+  list: TreeLike<T>[]
+  index: number
+  node: TreeLike<T>
+}
+
+/**
+ * 判断数据是否应按树形处理（任意节点存在 childrenKey 字段即为树形）
+ */
+export function isTree(data: unknown[] = [], childrenKey = 'children'): boolean {
+  for (const node of data) {
+    if (!node || typeof node !== 'object') {
+      continue
+    }
+    const record = node as Record<string, unknown>
+    if (childrenKey in record) {
+      return true
+    }
+    const children = record[childrenKey]
+    if (Array.isArray(children) && isTree(children, childrenKey)) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * 定位节点在其兄弟列表中的位置
+ */
+export function findTreeNodeContext<T>(
+  id: unknown,
+  tree: TreeLike<T>[],
+  idKey: string,
+  childrenKey = 'children',
+): TreeNodeContext<T> | null {
+  function walk(list: TreeLike<T>[]): TreeNodeContext<T> | null {
+    for (let index = 0; index < list.length; index++) {
+      const node = list[index]!
+      if ((node as Record<string, unknown>)[idKey] === id) {
+        return {list, index, node}
+      }
+      const children = (node as Record<string, unknown>)[childrenKey]
+      if (Array.isArray(children) && children.length > 0) {
+        const found = walk(children as TreeLike<T>[])
+        if (found) {
+          return found
+        }
+      }
+    }
+    return null
+  }
+
+  return walk(tree)
+}
+
+/**
+ * 判断 nodeId 是否位于 ancestorId 对应节点的子树中（不含 ancestor 自身）
+ */
+export function isTreeDescendant<T>(
+  ancestorId: unknown,
+  nodeId: unknown,
+  tree: TreeLike<T>[],
+  idKey: string,
+  childrenKey = 'children',
+): boolean {
+  if (ancestorId === nodeId) {
+    return false
+  }
+  const ancestorCtx = findTreeNodeContext(ancestorId, tree, idKey, childrenKey)
+  if (!ancestorCtx) {
+    return false
+  }
+  const children = (ancestorCtx.node as Record<string, unknown>)[childrenKey]
+  if (!Array.isArray(children) || children.length === 0) {
+    return false
+  }
+  return findFirstTreeNode((n) => (n as Record<string, unknown>)[idKey] === nodeId, children as TreeLike<T>[]) !== undefined
+}
+
+/**
+ * 深拷贝树形数据（保留 children 结构）
+ */
+export function cloneTree<T>(data: TreeLike<T>[] = [], childrenKey = 'children'): TreeLike<T>[] {
+  return data.map((node) => {
+    const cloned = {...node} as TreeLike<T>
+    const children = (node as Record<string, unknown>)[childrenKey]
+    if (Array.isArray(children)) {
+      ;(cloned as Record<string, unknown>)[childrenKey] = cloneTree(children as TreeLike<T>[], childrenKey)
+    }
+    return cloned
+  })
+}
+
+function removeNodeFromTree<T>(
+  tree: TreeLike<T>[],
+  id: unknown,
+  idKey: string,
+  childrenKey: string,
+): TreeLike<T> | null {
+  const ctx = findTreeNodeContext(id, tree, idKey, childrenKey)
+  if (!ctx) {
+    return null
+  }
+  const [removed] = ctx.list.splice(ctx.index, 1)
+  return removed ?? null
+}
+
+function insertTreeNode<T>(
+  tree: TreeLike<T>[],
+  targetId: unknown,
+  node: TreeLike<T>,
+  dropPosition: TreeDropPosition,
+  idKey: string,
+  childrenKey: string,
+): boolean {
+  const targetCtx = findTreeNodeContext(targetId, tree, idKey, childrenKey)
+  if (!targetCtx) {
+    return false
+  }
+
+  if (dropPosition === 0) {
+    const targetRecord = targetCtx.node as Record<string, unknown>
+    if (!Array.isArray(targetRecord[childrenKey])) {
+      targetRecord[childrenKey] = []
+    }
+    ;(targetRecord[childrenKey] as TreeLike<T>[]).push(node)
+    return true
+  }
+
+  const insertIndex = targetCtx.index + (dropPosition === 1 ? 1 : 0)
+  targetCtx.list.splice(insertIndex, 0, node)
+  return true
+}
+
+/**
+ * 将 dragId 对应子树移动到 targetId 相对位置，返回新树；非法操作返回 null
+ */
+export function moveTreeNode<T>(
+  tree: TreeLike<T>[],
+  dragId: unknown,
+  targetId: unknown,
+  dropPosition: TreeDropPosition,
+  idKey: string,
+  childrenKey = 'children',
+): TreeLike<T>[] | null {
+  if (dragId === targetId) {
+    return null
+  }
+  if (isTreeDescendant(dragId, targetId, tree, idKey, childrenKey)) {
+    return null
+  }
+
+  const next = cloneTree(tree)
+  const dragNode = removeNodeFromTree(next, dragId, idKey, childrenKey)
+  if (!dragNode) {
+    return null
+  }
+  if (!insertTreeNode(next, targetId, dragNode, dropPosition, idKey, childrenKey)) {
+    return null
+  }
+  return next
+}
+
+/** 节点在树中的父级与同级排序（根节点无 parentId） */
+export interface TreePlacement {
+  parentId?: number
+  sort: number
+}
+
+/**
+ * 按当前树结构生成 id → { parentId, sort }（同级 sort 为 0 起的下标）
+ */
+export function buildTreePlacementMap<T>(
+  tree: TreeLike<T>[] = [],
+  idKey = 'id',
+  childrenKey = 'children',
+): Map<number, TreePlacement> {
+  const map = new Map<number, TreePlacement>()
+
+  function walk(nodes: TreeLike<T>[], parentId?: number) {
+    nodes.forEach((node, sort) => {
+      const id = (node as Record<string, unknown>)[idKey] as number
+      map.set(id, {parentId, sort})
+      const children = (node as Record<string, unknown>)[childrenKey]
+      if (Array.isArray(children) && children.length > 0) {
+        walk(children as TreeLike<T>[], id)
+      }
+    })
+  }
+
+  walk(tree)
+  return map
+}
+
+/**
+ * 对比两次树位置映射，返回 parentId 或 sort 发生变化的节点 id
+ */
+export function diffTreePlacementIds(
+  before: Map<number, TreePlacement>,
+  after: Map<number, TreePlacement>,
+): number[] {
+  const changed: number[] = []
+  for (const [id, next] of after) {
+    const prev = before.get(id)
+    if (!prev || prev.parentId !== next.parentId || prev.sort !== next.sort) {
+      changed.push(id)
+    }
+  }
+  return changed
+}
