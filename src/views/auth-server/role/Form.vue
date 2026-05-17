@@ -239,6 +239,7 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
 
       <l-resource-table
         ref="resourceTableRef"
+        :drag="false"
         :immediate="false"
         :preview="true"
         v-model:data-source="options.resourceDataSource"

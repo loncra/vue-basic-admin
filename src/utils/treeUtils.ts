@@ -1,4 +1,4 @@
-import type {TreeLike} from '@/types'
+import type {TreeLike, TreeSortMetadata} from '@/types'
 
 /**
  * 树形节点条件判断函数类型
@@ -9,6 +9,16 @@ import type {TreeLike} from '@/types'
  * @returns 节点是否满足条件
  */
 type Predicate<T> = (node: T) => boolean
+
+/** 树形表格拖拽放置位置：目标行上 / 中 / 下 */
+export type TreeDropPosition = -1 | 0 | 1
+
+export interface TreeNodeContext<T> {
+  /** 节点所在的兄弟列表（根层即为整棵树顶层数组） */
+  list: TreeLike<T>[]
+  index: number
+  node: TreeLike<T>
+}
 
 /**
  * 检查节点是否有子节点
@@ -265,16 +275,6 @@ export function filterTreeDeep<T>(predicate: Predicate<T>, data: TreeLike<T>[]):
     .filter((node) => node !== null)
 }
 
-/** 树形表格拖拽放置位置：目标行上 / 中 / 下 */
-export type TreeDropPosition = -1 | 0 | 1
-
-export interface TreeNodeContext<T> {
-  /** 节点所在的兄弟列表（根层即为整棵树顶层数组） */
-  list: TreeLike<T>[]
-  index: number
-  node: TreeLike<T>
-}
-
 /**
  * 判断数据是否应按树形处理（任意节点存在 childrenKey 字段即为树形）
  */
@@ -439,6 +439,21 @@ export interface TreePlacement {
 }
 
 /**
+ * 按扁平列表生成 id → { sort }（无 parentId，sort 为 0 起的下标）
+ */
+export function buildFlatPlacementMap<T>(
+  list: T[] = [],
+  idKey = 'id',
+): Map<number, TreePlacement> {
+  const map = new Map<number, TreePlacement>()
+  list.forEach((node, sort) => {
+    const id = (node as Record<string, unknown>)[idKey] as number
+    map.set(id, {sort})
+  })
+  return map
+}
+
+/**
  * 按当前树结构生成 id → { parentId, sort }（同级 sort 为 0 起的下标）
  */
 export function buildTreePlacementMap<T>(
@@ -478,4 +493,26 @@ export function diffTreePlacementIds(
     }
   }
   return changed
+}
+
+/**
+ * 由位置映射生成树排序提交 DTO（默认仅包含 changedIds 对应节点）
+ */
+export function buildTreeSortMetadata<TId extends string | number = number>(
+  placement: Map<number, TreePlacement>,
+  onlyIds?: number[],
+): TreeSortMetadata<TId>[] {
+  const idFilter = onlyIds ? new Set(onlyIds) : null
+  const result: TreeSortMetadata<TId>[] = []
+  for (const [id, place] of placement) {
+    if (idFilter && !idFilter.has(id)) {
+      continue
+    }
+    result.push({
+      id: id as TId,
+      parentId: place.parentId as TId | undefined,
+      sort: place.sort,
+    })
+  }
+  return result
 }

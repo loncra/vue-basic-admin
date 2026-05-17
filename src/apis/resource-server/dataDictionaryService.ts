@@ -5,11 +5,12 @@
  */
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
 import {PageRestfulCrudService} from "@/apis/pageRestfulCrudService.ts";
-import type {TotalPage} from "@/types";
+import type {RestResult, TotalPage, TreeSortMetadata} from "@/types";
 import type {
   DataDictionaryEntity,
   DataDictionarySavePayload
 } from "@/types/resource-server/dataDictionaryDomain.ts";
+import axios from "@/requests/http.ts";
 
 /**
  * 数据字典领域服务：`/api[/resource-server]/data/dictionary`
@@ -21,8 +22,13 @@ export class DataDictionaryService extends PageRestfulCrudService<DataDictionary
 
   /** 本服务相对 {@link BASE_URL} 的路径 */
   static readonly SERVICE_URL = DataDictionaryService.BASE_URL + '/data/dictionary'
+  static readonly SERVICE_SORT = DataDictionaryService.SERVICE_URL + "/sort"
 
   constructor() {
     super(DataDictionaryService.SERVICE_URL)
+  }
+
+  sort(sorts:TreeSortMetadata<number>[]):Promise<RestResult<void>> {
+    return axios.put(DataDictionaryService.SERVICE_SORT, sorts)
   }
 }

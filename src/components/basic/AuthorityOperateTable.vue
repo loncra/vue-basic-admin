@@ -11,6 +11,7 @@ import type {
   ScrollPageResult,
   TableAuthorityProps,
   TotalPage,
+  TreeSortMetadata,
 } from '@/types'
 import {
   type Component,
@@ -20,6 +21,7 @@ import {
   onActivated,
   onMounted,
   ref,
+  useAttrs,
   useSlots,
   watch,
   type UnwrapRef,
@@ -30,10 +32,15 @@ import {App} from 'antdv-next'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import {
+  buildFlatPlacementMap,
+  buildTreePlacementMap,
+  buildTreeSortMetadata,
+  diffTreePlacementIds,
   findFirstTreeNode,
   isTree,
   moveTreeNode,
   type TreeDropPosition,
+  type TreePlacement,
 } from '@/utils/treeUtils'
 import type {PageSearchRestfulService} from '@/apis/pageSearchRestfulService';
 import type {
@@ -69,6 +76,7 @@ export interface AuthorityOperateTableProps<
   enabledActions?: boolean
   bordered?: boolean
   drag?:boolean
+  onRow?: TableProps['onRow']
   pagination?: TableProps['pagination']
   columns: SearchableColumnType[]
   authority?: TableAuthorityProps
@@ -78,6 +86,7 @@ export interface AuthorityOperateTableProps<
 
 defineOptions({
   name: 'LAuthorityOperateTable',
+  inheritAttrs: false,
 })
 
 const globalProperties =
@@ -86,7 +95,16 @@ const globalProperties =
 
 const principalStore = usePrincipalStore()
 const slots = useSlots()
+const attrs = useAttrs()
 const { message, modal } = App.useApp()
+
+/** 透传给 a-table 的 attrs（排除 onRow，避免覆盖合并后的行事件） */
+const tableAttrs = computed(() => {
+  const rest = {...attrs} as Record<string, unknown>
+  delete rest.onRow
+  delete rest['on-row']
+  return rest
+})
 
 const props = withDefaults(
   defineProps<AuthorityOperateTableProps<TBody, TEntity, TPage, TId>>(),
@@ -106,11 +124,12 @@ const emit = defineEmits<{
   edit: [record: TEntity]
   detail: [record: TEntity]
   actionItemClick: [e:string, record: TEntity]
-  drop: [record: TEntity, fromIndex: number, toIndex: number]
+  drop: [sorts: TreeSortMetadata<TId>[], target: TEntity, fromIndex: number, toIndex: number]
   treeDrop: [
+    sorts: TreeSortMetadata<TId>[],
     drag: TEntity,
     target: TEntity,
-    payload: { dropPosition: TreeDropPosition; tree: TEntity[] },
+    payload: { dropPosition: TreeDropPosition; tree: TEntity[] }
   ]
 }>()
 
@@ -128,9 +147,11 @@ const options = ref<{
   pagination?: TableProps['pagination']
   actionItems: NonNullable<MenuProps['items']>,
   dragKey?:TId
+  lastTreePlacement:Map<number, TreePlacement>
   dropPosition?: TreeDropPosition
 }>({
   skipActivatedOnce:true,
+  lastTreePlacement: new Map(),
   columns: [],
   actionItems: [],
 })
@@ -306,9 +327,17 @@ async function fetchDataSource() {
     }
 
     dataSource.value = data;
+    syncTreePlacementBaseline(data);
   } finally {
     loading.value = false;
   }
+}
+
+function syncTreePlacementBaseline(tree: TEntity[]) {
+  if (!props.drag || !isTree(tree)) {
+    return
+  }
+  options.value.lastTreePlacement = buildTreePlacementMap(tree, SYSTEM_CONSTANT.ID_NAME)
 }
 
 function remove(records: TEntity[]) {
@@ -399,9 +428,19 @@ function handleTreeRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>
     clearDragState()
     return
   }
+
+  const placementBefore = new Map(options.value.lastTreePlacement)
+  const placementAfter = buildTreePlacementMap(newTree, idKey)
+  const changedIds = diffTreePlacementIds(placementBefore, placementAfter)
+  const sorts =
+    changedIds.length > 0
+      ? (buildTreeSortMetadata(placementAfter, changedIds) as TreeSortMetadata<TId>[])
+      : []
+
   dataSource.value = newTree
   clearDragState()
-  emit('treeDrop', dragRecord, target, {dropPosition, tree: newTree})
+  emit('treeDrop', sorts, dragRecord, target, {dropPosition, tree: newTree})
+  options.value.lastTreePlacement = placementAfter
 }
 
 function handleFlatRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>) {
@@ -413,38 +452,75 @@ function handleFlatRowDrop(target: TEntity, dragKey: NonNullable<UnwrapRef<TId>>
     clearDragState()
     return
   }
+
+  const placementBefore =
+    options.value.lastTreePlacement.size > 0
+      ? new Map(options.value.lastTreePlacement)
+      : buildFlatPlacementMap(current, idKey)
+
   const [moved] = current.splice(fromIndex, 1)
   current.splice(toIndex, 0, moved!)
   dataSource.value = current
+
+  const placementAfter = buildFlatPlacementMap(current, idKey)
+  const changedIds = diffTreePlacementIds(placementBefore, placementAfter)
+  const sorts =
+    changedIds.length > 0
+      ? (buildTreeSortMetadata(placementAfter, changedIds) as TreeSortMetadata<TId>[])
+      : []
+
+  options.value.lastTreePlacement = placementAfter
   clearDragState()
-  emit('drop', target, fromIndex, toIndex)
+  emit('drop', sorts, target, fromIndex, toIndex)
 }
 
-const onRow: TableProps['onRow'] = record => ({
-  onDragover: (event: DragEvent) => {
-    if (!props.drag) {
-      return ;
-    }
-    event.preventDefault()
-    if (isTree(dataSource.value)) {
-      options.value.dropPosition = resolveDropPosition(event)
-    }
-  },
-  onDrop: () => {
-    if (!props.drag) {
-      return ;
-    }
-    const idKey = SYSTEM_CONSTANT.ID_NAME
-    const dragKey = options.value.dragKey
-    if (!dragKey || dragKey === record[idKey]) {
-      return
-    }
-    if (isTree(dataSource.value)) {
-      handleTreeRowDrop(record as TEntity, dragKey)
-    } else {
-      handleFlatRowDrop(record as TEntity, dragKey)
-    }
-  },
+function buildDragRowProps(record: TEntity) {
+  return {
+    onDragover: (event: DragEvent) => {
+      if (!props.drag) {
+        return
+      }
+      event.preventDefault()
+      if (isTree(dataSource.value)) {
+        options.value.dropPosition = resolveDropPosition(event)
+      }
+    },
+    onDrop: () => {
+      if (!props.drag) {
+        return
+      }
+      const idKey = SYSTEM_CONSTANT.ID_NAME
+      const dragKey = options.value.dragKey
+      if (!dragKey || dragKey === record[idKey]) {
+        return
+      }
+      if (isTree(dataSource.value)) {
+        handleTreeRowDrop(record, dragKey)
+      } else {
+        handleFlatRowDrop(record, dragKey)
+      }
+    },
+  }
+}
+
+function resolveOnRow(record: Parameters<NonNullable<TableProps['onRow']>>[0], index?: number) {
+  const parentOnRow = props.onRow
+  const parentProps =
+    typeof parentOnRow === 'function' ? parentOnRow(record, index) ?? {} : {}
+
+  if (!props.drag) {
+    return parentProps
+  }
+
+  return {...parentProps, ...buildDragRowProps(record as TEntity)}
+}
+
+/** 无自定义行事件且未开启拖拽时不传 onRow，避免 antdv tableContext 收到非函数值 */
+const tableOnRow = computed((): TableProps['onRow'] | undefined => {
+  if (!props.drag && !props.onRow) {
+    return undefined
+  }
+  return resolveOnRow
 })
 
 function onChange(
@@ -478,6 +554,23 @@ async function mounted() {
 }
 
 watch(
+  dataSource,
+  (tree) => {
+    if (!props.drag) {
+      return
+    }
+    if (tree.length === 0) {
+      options.value.lastTreePlacement = new Map()
+      return
+    }
+    if (isTree(tree) && options.value.lastTreePlacement.size === 0) {
+      syncTreePlacementBaseline(tree)
+    }
+  },
+  {deep: true},
+)
+
+watch(
   () =>
     [
       props.service,
@@ -504,13 +597,13 @@ defineExpose({
   <a-table
     :columns="options.columns"
     :pagination="options.pagination"
-    v-bind="$attrs"
+    v-bind="tableAttrs"
     :row-key="SYSTEM_CONSTANT.ID_NAME"
     :data-source="dataSource"
     :loading="loading"
     @change="onChange"
     :bordered="props.bordered"
-    :on-row="onRow"
+    :onRow="tableOnRow"
   >
     <template v-if="hasTitle" #title>
       <slot name="title"/>

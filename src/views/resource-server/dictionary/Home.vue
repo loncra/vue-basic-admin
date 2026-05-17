@@ -15,9 +15,9 @@ import {
 } from "vue";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
-import {Input, InputNumber, type MenuProps, Select} from "antdv-next";
+import {App, Input, InputNumber, type MenuProps, Select} from "antdv-next";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
-import type {PageRequest, RestResult} from "@/types";
+import type {PageRequest, RestResult, TreeSortMetadata} from "@/types";
 import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.ts";
 import {ResourceServerService} from "@/apis";
 import type {
@@ -30,6 +30,7 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LModalForm from "@/components/basic/ModalForm.vue";
 import type {DataDictionaryEntity} from "@/types/resource-server/dataDictionaryDomain.ts";
 
+const { message } = App.useApp()
 const DEFAULT_DICTIONARY_TYPE_DEFAULT = {
   code: "",
   name: "",
@@ -136,16 +137,6 @@ const options = ref<{
           expression:'eq'
         },
       },
-      {
-        title: globalProperties.$t("common.sort"),
-        dataIndex:'sort',
-        key:'sort',
-        search:{
-          component: markRaw(InputNumber),
-          props:{classes:{root:'w-full'}, placeholder: globalProperties.$t('search.placeholder.input')},
-          expression:'eq'
-        },
-      },
     ],
     query:{
       number: 1,
@@ -240,6 +231,13 @@ async function mounted() {
   }
 }
 
+async function onDrop(
+  sorts: TreeSortMetadata<number>[]
+) {
+  const result: RestResult<void> = await dataDictionaryService.sort(sorts)
+  message.success(result.message)
+}
+
 async function activated(typeId:string | number) {
   if (!typeId) {
     return ;
@@ -322,6 +320,9 @@ onMounted(mounted)
         <a-splitter-panel >
           <l-authority-operate-table
             ref="dataDictionaryTable"
+            drag
+            @drop="onDrop"
+            :expand-icon-column-index="3"
             :bordered="false"
             :immediate="false"
             :query="options.dataDictionary.query"
