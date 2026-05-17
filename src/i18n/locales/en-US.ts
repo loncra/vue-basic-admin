@@ -10,6 +10,7 @@ const locale: LanguagePack = {
   antDesign: enUS,
   common: {
     id: 'ID',
+    creationTime: 'Created at',
     save: 'Save',
     add: 'Add{name}',
     edit: 'Edit{name}',
@@ -54,6 +55,13 @@ const locale: LanguagePack = {
     value: 'Value',
     unname: 'Untitled',
     clear: 'Clear',
+    executeStatus: 'Execution status',
+    successTime: 'Success time',
+    expiresTime: 'Expiration time',
+    download: {
+      text: 'Download',
+      selected: 'Download selected',
+    },
   },
   operation: {
     time: 'Operation time',
@@ -313,7 +321,10 @@ const locale: LanguagePack = {
       editPage: 'Type: {typeName}, Name: {dataName}',
     },
     dictionaryType: {
-      routePage: ' Dictionary types ',
+      routePage: 'Dictionary types',
+    },
+    attachment: {
+      filename: 'File name',
     },
   },
 }
