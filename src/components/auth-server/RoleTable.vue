@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {type SearchableColumnType} from '@/components/basic/AuthorityOperateTable.vue'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import type {MenuItemType, TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
@@ -15,6 +14,7 @@ import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/CrudTable.vue";
+import type {SearchableColumnType} from "@/types/composables";
 
 defineOptions({
   name: 'LRoleTable',

@@ -1,16 +1,22 @@
 import type {BasicAuthorityProps} from './common'
-import {type Component, type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import {
+  type Component,
+  type ComponentInternalInstance, type ComputedRef,
+  getCurrentInstance,
+  type Ref,
+  ref
+} from "vue";
 import {App, type MenuProps, type TableProps} from "antdv-next";
 import type {
   BasicCrudService,
   BasicIdMetadata,
   FindSearchService,
   PageSearchService,
-  ScrollPageResult
+  ScrollPageResult, TreeSortMetadata
 } from "@/types/apis";
 import type {ColumnType} from "antdv-next/dist/table/interface";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
-import {requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined, type TreeDropPosition} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 /**
@@ -51,8 +57,8 @@ export interface QueryTableProps<
   enabledTitleActions?:boolean
   titleButtons?: NonNullable<MenuProps['items']>
   pagination?:TableProps['pagination']
+  formatDragPreview?: (record: TEntity) => string
 }
-
 
 export interface CurdTableProps<
   TBody extends BasicIdMetadata<TId>,
@@ -63,4 +69,37 @@ export interface CurdTableProps<
   enabledRecordActions?: boolean
   actionButtons?: NonNullable<MenuProps['items']>
   renderActionItems?: (record: TEntity, actionItems: NonNullable<MenuProps['items']>) => NonNullable<MenuProps['items']>
+}
+
+export interface UseTableRowDragOptions<
+  TEntity extends object,
+  TId = TEntity extends Record<typeof SYSTEM_CONSTANT.ID_NAME, infer K> ? K : never,
+> {
+  drag: Ref<boolean>
+  dataSource: Ref<TEntity[]>
+  idKey?: string  // 默认 SYSTEM_CONSTANT.ID_NAME
+  formatDragPreview?: (record: TEntity) => string
+  onRow?: Ref<TableProps['onRow'] | undefined>
+  onFlatDrop?: (payload: {
+    sorts: TreeSortMetadata<TId>[]
+    target: TEntity
+    fromIndex: number
+    toIndex: number
+  }) => void
+  onTreeDrop?: (payload: {
+    sorts: TreeSortMetadata<TId>[]
+    drag: TEntity
+    target: TEntity
+    dropPosition: TreeDropPosition
+    tree: TEntity[]
+  }) => void
+}
+
+export interface UseTableRowDragReturn<TEntity> {
+  tableOnRow: ComputedRef<TableProps['onRow'] | undefined>
+  applyDragColumn: (columns: SearchableColumnType[]) => SearchableColumnType[]
+  isDragCell: (column: { key?: string | number }) => boolean
+  onDragHandleStart: (record: TEntity, event: DragEvent) => void
+  onDragHandleEnd: () => void
+  syncPlacementBaseline: (tree?: TEntity[]) => void
 }

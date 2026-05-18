@@ -111,17 +111,6 @@ const columns = ref<SearchableColumnType[]>([
   },
 ])
 
-const dataSource = ref<ConsoleUserEntity[]>([])
-const authorityOperateTable = ref();
-
-function removeSelected(selectedRows: ConsoleUserEntity[]) {
-  authorityOperateTable.value.remove(selectedRows);
-}
-
-function exportData(selectedRows: ConsoleUserEntity[]) {
-  authorityOperateTable.value.exportData(selectedRows);
-}
-
 async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
   if (enums.data) {
@@ -139,10 +128,6 @@ async function mounted() {
   }
 
 }
-defineExpose({
-  removeSelected,
-  exportData
-})
 
 onMounted(mounted)
 </script>
@@ -150,7 +135,6 @@ onMounted(mounted)
 <template>
   <l-crud-table
     v-bind="$attrs"
-    v-model:data-source="dataSource"
     :service="consoleUserService"
     :columns="columns"
     :enabled-actions="!props.preview"

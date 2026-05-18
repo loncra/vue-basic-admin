@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {type SearchableColumnType} from '@/components/basic/AuthorityOperateTable.vue'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import {App, Input, type MenuItemType, Select, type TableProps} from 'antdv-next';
 import {ResourceServerService, ResourceService} from "@/apis";
@@ -14,6 +13,7 @@ import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/CrudTable.vue";
+import type {SearchableColumnType} from "@/types/composables";
 
 defineOptions({
   name: 'LResourceTable',
@@ -221,10 +221,10 @@ onMounted(mounted)
 <template>
   <l-crud-table
     v-bind="$attrs"
-    :drag="drag"
+    :drag="props.drag"
     :format-drag-preview="formatDragPreview"
     @tree-drop="onTreeDrop"
-    :expand-icon-column-index="drag ? 3 : 2"
+    :expand-icon-column-index="props.drag ? 3 : 2"
     :pagination="false"
     ref="crudTable"
     :query="query"

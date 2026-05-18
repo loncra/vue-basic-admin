@@ -2,11 +2,12 @@
 
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {
-  type ComponentInternalInstance, computed,
+  type ComponentInternalInstance,
   getCurrentInstance,
   onActivated,
   onMounted,
   ref,
+  toRef,
   useSlots,
   watch
 } from "vue";
@@ -20,9 +21,12 @@ import type {
   PageSearchService,
   RestResult,
   ScrollPageResult,
-  TotalPage
+  TotalPage,
+  TreeSortMetadata,
 } from "@/types/apis";
 import type {QueryTableProps, SearchableColumnType} from "@/types/composables";
+import type {TreeDropPosition} from "@/utils/treeUtils";
+import {useTableRowDrag} from "@/composables/table";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {PageSearchRestfulService} from "@/apis/pageSearchRestfulService.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
@@ -60,7 +64,31 @@ const query = defineModel<FilterRequest | PageRequest>('query', {default: () => 
 const emit = defineEmits<{
   titleButtonAdd:[]
   titleAppendButtonClick:[key:string]
+  drop: [sorts: TreeSortMetadata<TId>[], target: TEntity, fromIndex: number, toIndex: number]
+  treeDrop: [
+    sorts: TreeSortMetadata<TId>[],
+    drag: TEntity,
+    target: TEntity,
+    payload: { dropPosition: TreeDropPosition; tree: TEntity[] },
+  ]
 }>()
+
+const {
+  tableOnRow,
+  applyDragColumn,
+  isDragCell,
+  onDragHandleStart,
+  onDragHandleEnd,
+  syncPlacementBaseline,
+} = useTableRowDrag<TEntity, TId>({
+  drag: toRef(props, 'drag'),
+  dataSource,
+  formatDragPreview: (record) => props.formatDragPreview?.(record) ?? String(record[SYSTEM_CONSTANT.ID_NAME]),
+  onRow: toRef(props, 'onRow'),
+  onFlatDrop: ({sorts, target, fromIndex, toIndex}) => emit('drop', sorts, target, fromIndex, toIndex),
+  onTreeDrop: ({sorts, drag, target, dropPosition, tree}) =>
+    emit('treeDrop', sorts, drag, target, {dropPosition, tree}),
+})
 
 const options = ref<{
   skipActivatedOnce:boolean
@@ -188,6 +216,8 @@ function rebuild() {
   }
 
   options.value.titleButtons.push(...props.titleButtons || [])
+
+  options.value.columns = applyDragColumn(options.value.columns)
 }
 
 async function fetchDataSource() {
@@ -231,6 +261,7 @@ async function fetchDataSource() {
     }
 
     dataSource.value = data;
+    syncPlacementBaseline(data);
   } finally {
     loading.value = false;
   }
@@ -279,10 +310,22 @@ watch(
     [
       props.service,
       props.columns,
-      props.enabledTitleActions
+      props.enabledTitleActions,
+      props.drag,
     ] as const,
   () => rebuild(),
   {immediate: true, deep: true},
+)
+
+watch(
+  dataSource,
+  (tree) => {
+    if (!props.drag) {
+      return
+    }
+    syncPlacementBaseline(tree)
+  },
+  {deep: true},
 )
 
 onActivated(activated)
@@ -306,8 +349,9 @@ defineExpose({
     @change="onChange"
     :loading="loading"
     :bordered="props.bordered"
+    :on-row="tableOnRow"
   >
-    <template #title v-if="!hideTitle">
+    <template #title v-if="!props.hideTitle">
       <template v-if="slots.title" >
         <slot name="title"/>
       </template>
@@ -322,6 +366,18 @@ defineExpose({
       </template>
     </template>
     <template #bodyCell="{ text, record, index, column }">
+      <template v-if="isDragCell(column)">
+        <div
+          class="text-center cursor-grab"
+          draggable="true"
+          @dragstart="onDragHandleStart(record, $event)"
+          @dragend="onDragHandleEnd"
+        >
+          <a-typography-text type="secondary">
+            ::
+          </a-typography-text>
+        </div>
+      </template>
       <slot v-if="slots.bodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
     </template>
     <template #filterIcon="{filtered}">

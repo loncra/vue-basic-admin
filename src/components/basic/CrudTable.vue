@@ -1,17 +1,17 @@
 <script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
-import type {BasicCrudService, BasicIdMetadata, RestResult, ScrollPageResult} from "@/types/apis";
+import type {
+  BasicCrudService,
+  BasicIdMetadata,
+  RestResult,
+  ScrollPageResult,
+  TreeSortMetadata,
+} from "@/types/apis";
+import type {TreeDropPosition} from "@/utils/treeUtils";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {App, type MenuProps} from "antdv-next";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
-import {
-  type ComponentInternalInstance,
-  getCurrentInstance,
-  ref,
-  useAttrs,
-  useSlots,
-  watch
-} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref, useSlots, watch} from "vue";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {CurdTableProps, SearchableColumnType} from "@/types/composables";
@@ -38,6 +38,13 @@ const emit = defineEmits<{
   edit: [record: TEntity]
   detail: [record: TEntity]
   actionButtonClick: [e:string, record: TEntity]
+  drop: [sorts: TreeSortMetadata<TId>[], target: TEntity, fromIndex: number, toIndex: number]
+  treeDrop: [
+    sorts: TreeSortMetadata<TId>[],
+    drag: TEntity,
+    target: TEntity,
+    payload: { dropPosition: TreeDropPosition; tree: TEntity[] },
+  ]
 }>()
 
 const props = withDefaults(
@@ -110,8 +117,6 @@ async function doDelete(records: TEntity[]) {
 }
 
 function rebuildActionItems() {
-  console.log('CrudTable props.pagination', props.pagination)
-  console.log('CrudTable attrs.pagination', useAttrs().pagination)
   options.value.actionButtons = []
   options.value.titleButtons = []
   options.value.columns = []
@@ -200,6 +205,9 @@ defineExpose({
     :titleButtons="options.titleButtons"
     :enabled-title-actions="props.enabledTitleActions"
     :bordered="props.bordered"
+    :drag="props.drag"
+    :format-drag-preview="props.formatDragPreview"
+    :on-row="props.onRow"
     :authority="props.authority"
     :service="props.service"
     :pagination="props.pagination"
@@ -208,6 +216,8 @@ defineExpose({
     v-model:loading="loading"
     @title-button-add="emit('add')"
     @title-append-button-click="(key:string) => emit('titleButtonClick',key)"
+    @drop="(sorts, target, fromIndex, toIndex) => emit('drop', sorts, target, fromIndex, toIndex)"
+    @tree-drop="(sorts, drag, target, payload) => emit('treeDrop', sorts, drag, target, payload)"
   >
     <template #title v-if="slots.title">
       <slot name="title"/>
