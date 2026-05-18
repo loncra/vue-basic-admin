@@ -2,7 +2,7 @@
 
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {
-  type ComponentInternalInstance,
+  type ComponentInternalInstance, computed,
   getCurrentInstance,
   onActivated,
   onMounted,
@@ -49,6 +49,7 @@ const props = withDefaults(
     bordered:true,
     immediate: true,
     enabledTitleActions:true,
+    pagination:() => ({hideOnSinglePage: true, placement: ['bottomCenter']}),
     columns: () => [],
   },
 )
@@ -258,11 +259,7 @@ function handleActionClick(key: string) {
 }
 
 async function mounted() {
-  if (props.pagination === undefined) {
-    options.value.pagination = {hideOnSinglePage: true, placement: ['bottomCenter']}
-  } else {
-    options.value.pagination = props.pagination
-  }
+  options.value.pagination = props.pagination
   if (props.immediate && options.value.skipActivatedOnce) {
     await fetchDataSource();
     options.value.skipActivatedOnce = false;

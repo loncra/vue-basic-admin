@@ -8,7 +8,6 @@ import type {RestResult, EnumBucketsResponseBody, ConsoleUserEntity} from "@/typ
 import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/CrudTable.vue";
-import LAuthorityButton from "@/components/basic/AuthorityButton.vue";
 defineOptions({
   name: 'LConsoleUserTableTable',
 })

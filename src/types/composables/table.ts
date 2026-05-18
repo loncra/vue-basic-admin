@@ -43,8 +43,10 @@ export interface QueryTableProps<
   service: FindSearchService<TEntity, TId> | PageSearchService<TEntity, TPage, TId> | BasicCrudService<TBody, TEntity, TId>
   immediate?: boolean
   bordered?: boolean
+  drag?: boolean
   authority?: TableAuthorityProps
   hideTitle?: boolean
+  onRow?: TableProps['onRow']
   columns:SearchableColumnType[]
   enabledTitleActions?:boolean
   titleButtons?: NonNullable<MenuProps['items']>

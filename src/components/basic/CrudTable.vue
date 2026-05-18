@@ -4,7 +4,14 @@ import type {BasicCrudService, BasicIdMetadata, RestResult, ScrollPageResult} fr
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {App, type MenuProps} from "antdv-next";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance, ref, useSlots, watch} from "vue";
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  ref,
+  useAttrs,
+  useSlots,
+  watch
+} from "vue";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {CurdTableProps, SearchableColumnType} from "@/types/composables";
@@ -40,6 +47,7 @@ const props = withDefaults(
     enabledTitleActions:true,
     bordered:true,
     immediate:true,
+    pagination:() => ({hideOnSinglePage: true, placement: ['bottomCenter']}),
     renderActionItems: (record: TEntity, actionItems: NonNullable<MenuProps['items']>) => actionItems,
   },
 )
@@ -102,6 +110,8 @@ async function doDelete(records: TEntity[]) {
 }
 
 function rebuildActionItems() {
+  console.log('CrudTable props.pagination', props.pagination)
+  console.log('CrudTable attrs.pagination', useAttrs().pagination)
   options.value.actionButtons = []
   options.value.titleButtons = []
   options.value.columns = []
@@ -185,7 +195,6 @@ defineExpose({
 <template>
   <l-query-table
     ref="queryTable"
-    v-bind="$attrs"
     :hide-title="props.hideTitle"
     :columns="options.columns"
     :titleButtons="options.titleButtons"
@@ -193,15 +202,15 @@ defineExpose({
     :bordered="props.bordered"
     :authority="props.authority"
     :service="props.service"
+    :pagination="props.pagination"
     :immediate="props.immediate"
+    v-bind="$attrs"
     v-model:loading="loading"
     @title-button-add="emit('add')"
     @title-append-button-click="(key:string) => emit('titleButtonClick',key)"
   >
-    <template #title v-if="props.hideTitle">
-      <template v-if="slots.title" >
-        <slot name="title"/>
-      </template>
+    <template #title v-if="slots.title">
+      <slot name="title"/>
     </template>
     <template #bodyCell="{ text, record, index, column}">
 

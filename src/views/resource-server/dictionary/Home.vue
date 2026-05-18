@@ -280,7 +280,10 @@ onMounted(mounted)
         <a-splitter-panel default-size="20%" min="15%" max="25%">
           <l-crud-table
             ref="dictionaryTypeTable"
-            :expandable="{expandedRowKeys:options.dictionaryType.openKeys, onExpandedRowsChange:(expandedRows:number[]) => options.dictionaryType.openKeys = expandedRows}"
+            :expandable="{
+              expandedRowKeys:options.dictionaryType.openKeys,
+              onExpandedRowsChange:(expandedRows:number[]) => options.dictionaryType.openKeys = expandedRows
+            }"
             :bordered="false"
             :pagination="false"
             v-model:data-source="options.dictionaryType.dataSource"
@@ -303,7 +306,7 @@ onMounted(mounted)
               <a-flex justify="space-between" align="center">
                 <a-space>
                   <icon-font icon="icon align" type="icon-category" />
-                  <span>{{globalProperties.$t('resourceServer.dictionaryType.routePage')}}</span>
+                  <a-typography-text strong>{{globalProperties.$t('resourceServer.dictionaryType.routePage')}}</a-typography-text>
                 </a-space>
                 <l-authority-button
                   class="mr-md"
@@ -330,9 +333,8 @@ onMounted(mounted)
           <l-crud-table
             ref="dataDictionaryTable"
             drag
-            :enabled-title-actions="selectedDictionaryType !== null"
             :format-drag-preview="formatDataDictionaryDragPreview"
-            @drop="onDrop"
+            :enabled-title-actions="selectedDictionaryType !== null"
             :expand-icon-column-index="3"
             :bordered="false"
             :immediate="false"
@@ -347,6 +349,7 @@ onMounted(mounted)
             }"
             :scroll="{x:'max-content'}"
             :row-selection="{type: 'checkbox', onChange:(_keys:number[],rows:DataDictionaryEntity[]) => options.dataDictionary.selectedRows = rows}"
+            @drop="onDrop"
             @add="globalProperties.$router.push({name:'resource_server_data_dictionary_add',query:{typeId: selectedDictionaryType?.id }})"
             @detail="r => globalProperties.$router.push({name:'resource_server_data_dictionary_detail', query:{id:String(r.id)}})"
             @edit="r => globalProperties.$router.push({name:'resource_server_data_dictionary_edit', query:{id:String(r.id)}})"
@@ -355,19 +358,8 @@ onMounted(mounted)
               <a-flex justify="space-between" align="center">
                 <a-space>
                   <icon-font icon="icon align" type="icon-product-list" />
-                  <span>{{globalProperties.$t('resourceServer.dataDictionary.routePage')}}</span>
+                  <a-typography-text strong>{{globalProperties.$t('resourceServer.dataDictionary.routePage')}}</a-typography-text>
                 </a-space>
-                <l-authority-button
-                  class="mr-md"
-                  v-if="selectedDictionaryType !== null"
-                  size="small"
-                  :authority="{
-                    add:'perms[resource_server_data_dictionary:save]',
-                    delete:'perms[resource_server_data_dictionary:delete]'
-                  }"
-                  @delete="dataDictionaryTable.remove(options.dataDictionary.selectedRows)"
-                  @add="globalProperties.$router.push({name:'resource_server_data_dictionary_add',query:{typeId: selectedDictionaryType.id}})"
-                />
               </a-flex>
             </template>
             <template #bodyCell="{ column, record }">
