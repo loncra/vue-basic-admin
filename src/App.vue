@@ -1,5 +1,9 @@
 <script setup lang="ts">
 
+defineOptions({
+  name: 'App',
+})
+
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 
 const configProviderStore = useConfigProviderStore()

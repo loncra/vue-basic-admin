@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-import {type SearchableColumnType} from "@/components/basic/AuthorityOperateTable.vue";
 import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
 import {
   byteFormat,
@@ -9,10 +8,15 @@ import {
   getEnumName,
   requireNonNullOrUndefined
 } from "@/utils";
-import LBasicCrudTable from "@/components/basic/BasicCrudTable.vue";
 import type {MenuProps} from "antdv-next";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {ExportDataMetadata, FileObject} from "@/types/apis";
+import LCrudTable from "@/components/basic/CrudTable.vue";
+import type {SearchableColumnType} from "@/types/composables";
+
+defineOptions({
+  name: 'CommonUserExport',
+})
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -65,19 +69,19 @@ const columns:SearchableColumnType[] = [{
 const service = new AttachmentService();
 const selectedRows = ref<ExportDataMetadata[]>([]);
 
-const tableActions:NonNullable<MenuProps['items']> = [{
+const recordButtons:NonNullable<MenuProps['items']> = [{
   key: 'download',
   label: globalProperties.$t('common.download.text'),
   icon: () => createIcon('icon-download', 'align'),
 }]
 
-const buttonActions:NonNullable<MenuProps['items']> = [{
+const titleButton:NonNullable<MenuProps['items']> = [{
   key: 'downloadSelected',
   label: globalProperties.$t('common.download.selected'),
   icon: () => createIcon('icon-download', 'align'),
 }]
 
-function actionItemClick(key:string, record:ExportDataMetadata) {
+function actionButtonClick(key:string, record:ExportDataMetadata) {
   if (key === 'download') {
     const data = record?.metadata?.data as FileObject;
     if (!data) {
@@ -89,7 +93,11 @@ function actionItemClick(key:string, record:ExportDataMetadata) {
       return ;
     }
     service.download(bucketName, objectName);
-  } else if (key === 'downloadSelected') {
+  }
+}
+
+function titleButtonClick(key:string) {
+  if (key === 'downloadSelected') {
     const files:FileObject[] = selectedRows.value
       .filter(item => item.executeStatus.value === 1)
       .map(item => item.metadata)
@@ -109,35 +117,20 @@ function onSelectRow(
 </script>
 
 <template>
-  <l-basic-crud-table
+  <l-crud-table
     :service="service"
-    :table="{
-      props: {
-        columns: columns,
-        actionItems: tableActions,
-        scroll:{x:'max-content'},
-        rowSelection:{type: 'checkbox', onSelect:onSelectRow},
-        authority: {
-          delete: true,
-        },
-      },
-      listeners:{
-        actionItemClick:actionItemClick
-      }
+    :columns="columns"
+    :action-buttons="recordButtons"
+    :title-buttons="titleButton"
+    :scroll="{x:'max-content'}"
+    :rowSelection="{type: 'checkbox', onSelect:onSelectRow}"
+    :authority="{
+      delete:true
     }"
-    :button="{
-      props: {
-        actionItems: buttonActions,
-        authority: {
-          delete: true,
-        },
-      },
-      listeners:{
-        actionItemClick:actionItemClick
-      }
-    }"
+    @title-button-click="titleButtonClick"
+    @action-button-click="actionButtonClick"
   >
-    <template #tableBodyCell="{ column, record }">
+    <template #bodyCell="{ column, record }">
 
       <template v-if="column.dataIndex === 'executeStatus'">
         {{getEnumName(record.executeStatus)}}
@@ -162,5 +155,5 @@ function onSelectRow(
         {{ byteFormat(record.size) }}
       </template>
     </template>
-  </l-basic-crud-table>
+  </l-crud-table>
 </template>

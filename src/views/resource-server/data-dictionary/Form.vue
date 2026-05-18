@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from "vue";
 import type {
-  NameValueEnumMetadata, 
-  RestResult, 
   DataDictionaryEntity,
   DataDictionarySavePayload,
   DictionaryTypeEntity,
-  EnumBucketsResponseBody
+  EnumBucketsResponseBody,
+  NameValueEnumMetadata,
+  RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
-import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";;
+import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant.ts";
+
+defineOptions({
+  name: 'ResourceServerDataDictionaryForm',
+})
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -92,9 +96,9 @@ function setPageTitle(title:string, entity: DataDictionaryEntity | DataDictionar
   if (options.value.parent) {
     return title + ' (' + options.value.parent.name + ')'
   } else if (entity.id) {
-    return title + globalProperties.$t('resourceServer.dataDictionary.editPage',{typeName:options.value?.type?.name, dataName:options.value.entity.name})
+    return title + ' (' + globalProperties.$t('resourceServer.dataDictionary.editPage',{typeName:options.value?.type?.name, dataName:options.value.entity.name}) + ')'
   }
-  return title
+  return title + '(' + options.value?.type?.name + ')'
 }
 
 </script>

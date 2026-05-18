@@ -11,9 +11,13 @@ defineOptions({
 const props = withDefaults(
   defineProps<{
     actionItems: NonNullable<MenuProps['items']>
+    size?:string
+    alwaysDropdown?:boolean
   }>(),
   {
     actionItems: () => [],
+    size: 'small',
+    alwaysDropdown:false
   },
 )
 
@@ -50,18 +54,18 @@ function handleActionClick(e: MenuInfo) {
 
 <template>
   <a-dropdown
-    v-if="actionItems.length > 1"
+    v-if="actionItems.length > 1 || alwaysDropdown"
     placement="bottomRight"
     :menu="{ items: actionItems, onClick: handleActionClick }"
   >
-    <a-button v-bind="$attrs">
+    <a-button :size="props.size" v-bind="$attrs">
       <template #icon>
         <icon-font class="icon" type="icon-more"/>
       </template>
     </a-button>
   </a-dropdown>
   <template v-else-if="actionItems.length === 1">
-    <a-button v-bind="$attrs" @click="dispatchMenuKey(String(loneMenuItem?.key ?? ''))">
+    <a-button :size="props.size" v-bind="$attrs" @click="dispatchMenuKey(String(loneMenuItem?.key ?? ''))">
       <template #icon>
         <component
           class="icon align"

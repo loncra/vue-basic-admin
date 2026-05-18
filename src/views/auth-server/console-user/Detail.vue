@@ -5,6 +5,10 @@ import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {ConsoleUserEntity} from "@/types/apis/auth-server/consoleUserDomain";
 
+defineOptions({
+  name: 'AuthServerConsoleUserDetail'
+})
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import LAuthorityOperateTable, {
-  type SearchableColumnType
-} from '@/components/basic/AuthorityOperateTable.vue'
+import {type SearchableColumnType} from '@/components/basic/AuthorityOperateTable.vue'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import type {MenuItemType, TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
-import type {RestResult, EnumBucketsResponseBody, NameValueEnumMetadata, RoleEntity, FilterRequest} from "@/types/apis";
+import type {
+  EnumBucketsResponseBody,
+  FilterRequest,
+  NameValueEnumMetadata,
+  RestResult,
+  RoleEntity
+} from "@/types/apis";
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+import LCrudTable from "@/components/basic/CrudTable.vue";
 
 defineOptions({
   name: 'LRoleTable',
@@ -32,7 +37,7 @@ const props = withDefaults(defineProps<{
 const service = new RoleService()
 const resourceServerService = new ResourceServerService()
 
-const actionItems = ref<MenuItemType[]>([])
+const actionButtons = ref<MenuItemType[]>([])
 
 const columns = ref<SearchableColumnType[]>([
   {
@@ -98,12 +103,7 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 const dataSource = ref<RoleEntity[]>([])
-const authorityOperateTable = ref();
 const yesOrNoFields = ["modifiable", "enabled", "removable"];
-
-function removeSelected(selectedRows: RoleEntity[]) {
-  authorityOperateTable.value.remove(selectedRows);
-}
 
 async function mounted() {
   if (!props.preview) {
@@ -136,8 +136,8 @@ async function mounted() {
       statusCol.search.props.options = enums.data['resource-server']?.ResourceSourceEnum
     }
   }
-  if (principalStore.hasPermission('perms[resource_server_data_dictionary:save]')) {
-    actionItems.value.push(
+  if (principalStore.hasPermission('perms[auth_server_role:save]')) {
+    actionButtons.value.push(
       {
         key: 'addChild',
         label: globalProperties.$t('common.addChild', {name:''}),
@@ -151,45 +151,44 @@ function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
   return sources.map(s => getEnumName(s)).join(",")
 }
 
-function onActionItemClick(key: string, record: RoleEntity) {
+function onActionButtonClick(key: string, record: RoleEntity) {
   if (key === 'addChild') {
     globalProperties.$router.push({name:'auth_server_role_addChild', query:{parentId:String(record.id)}})
   }
 }
 
-defineExpose({
-  removeSelected
-})
-
 onMounted(mounted)
 </script>
 
 <template>
-  <div>
-    <l-authority-operate-table
-      v-bind="$attrs"
-      ref="authorityOperateTable"
-      :query="query"
-      v-model:data-source="dataSource"
-      :service="service"
-      :columns="columns"
-      :action-items="actionItems"
-      :enabled-actions="!props.preview"
-      :authority="{edit:'perms[auth_server_role:save]',detail:'perms[auth_server_role:get]', delete:'perms[auth_server_role:delete]'}"
-      :scroll="{x:'max-content'}"
-      :row-selection="rowSelection"
-      @actionItemClick="onActionItemClick"
-      @detail="r => globalProperties.$router.push({name:'auth_server_role_detail', query:{id:String(r.id)}})"
-      @edit="r => globalProperties.$router.push({name:'auth_server_role_edit', query:{id:String(r.id)}})"
-    >
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.dataIndex === 'sources'">
-          {{ getSourcesName(record.sources) }}
-        </template>
-        <template v-if="yesOrNoFields.includes(column.dataIndex)">
-          {{ record[column.dataIndex]?.name }}
-        </template>
+  <l-crud-table
+    v-bind="$attrs"
+    :query="query"
+    v-model:data-source="dataSource"
+    :service="service"
+    :columns="columns"
+    :action-buttons="actionButtons"
+    :enabled-actions="!props.preview"
+    :authority="{
+      add:'perms[auth_server_role:save]',
+      edit:'perms[auth_server_role:save]',
+      detail:'perms[auth_server_role:get]',
+      delete:'perms[auth_server_role:delete]'
+    }"
+    :scroll="{x:'max-content'}"
+    :row-selection="rowSelection"
+    @action-button-click="onActionButtonClick"
+    @add="globalProperties.$router.push({name:'auth_server_role_add'})"
+    @detail="r => globalProperties.$router.push({name:'auth_server_role_detail', query:{id:String(r.id)}})"
+    @edit="r => globalProperties.$router.push({name:'auth_server_role_edit', query:{id:String(r.id)}})"
+  >
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.dataIndex === 'sources'">
+        {{ getSourcesName(record.sources) }}
       </template>
-    </l-authority-operate-table>
-  </div>
+      <template v-if="yesOrNoFields.includes(column.dataIndex)">
+        {{ record[column.dataIndex]?.name }}
+      </template>
+    </template>
+  </l-crud-table>
 </template>

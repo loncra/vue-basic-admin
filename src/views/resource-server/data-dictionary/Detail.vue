@@ -5,6 +5,10 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 
+defineOptions({
+  name: 'ResourceServerDataDictionaryDetail',
+})
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

@@ -1,10 +1,6 @@
 <script setup lang="ts">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import LAuthorityOperateTable, {
-  type SearchableColumnType
-} from "@/components/basic/AuthorityOperateTable.vue";
-import LAuthorityButton from "@/components/basic/AuthorityButton.vue";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -17,7 +13,7 @@ import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeServic
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 import {App, Input, type MenuProps, Select, type TableProps} from "antdv-next";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
-import type {PageRequest, RestResult, TreeSortMetadata} from "@/types";
+import type {PageRequest, RestResult, TreeSortMetadata} from "@/types/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.ts";
 import {ResourceServerService} from "@/apis";
 import type {
@@ -29,6 +25,8 @@ import {createIcon} from "@/utils/resourceUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LModalForm from "@/components/basic/ModalForm.vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
+import LCrudTable from "@/components/basic/CrudTable.vue";
+import type {SearchableColumnType} from "@/types/composables";
 
 const { message } = App.useApp()
 const DEFAULT_DICTIONARY_TYPE_DEFAULT = {
@@ -46,7 +44,7 @@ interface DictionaryTypeProps {
   formOpen: boolean
   selectedRows: DictionaryTypeEntity[]
   entity: DictionaryTypeSavePayload
-  tableActionItems:NonNullable<MenuProps['items']>
+  actionButtons:NonNullable<MenuProps['items']>
 }
 
 interface DataDictionary {
@@ -54,6 +52,11 @@ interface DataDictionary {
   selectedRows: DataDictionaryEntity[]
   columns: SearchableColumnType[]
 }
+
+defineOptions({
+  name: 'ResourceServerDictionaryHome'
+})
+
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -82,7 +85,7 @@ const options = ref<{
         },
       }
     ],
-    tableActionItems:[]
+    actionButtons:[]
   },
   dataDictionary:{
     selectedRows:[],
@@ -216,7 +219,7 @@ async function mounted() {
     }
   }
   if (principalStore.hasPermission('perms[resource_server_data_dictionary:save]')) {
-    options.value.dictionaryType.tableActionItems.push(
+    options.value.dictionaryType.actionButtons.push(
       {
         key: 'addChild',
         label: globalProperties.$t('common.addChild', {name:''}),
@@ -275,7 +278,7 @@ onMounted(mounted)
 
       <a-splitter >
         <a-splitter-panel default-size="20%" min="15%" max="25%">
-          <l-authority-operate-table
+          <l-crud-table
             ref="dictionaryTypeTable"
             :expandable="{expandedRowKeys:options.dictionaryType.openKeys, onExpandedRowsChange:(expandedRows:number[]) => options.dictionaryType.openKeys = expandedRows}"
             :bordered="false"
@@ -283,15 +286,19 @@ onMounted(mounted)
             v-model:data-source="options.dictionaryType.dataSource"
             :service="dictionaryTypeService"
             :columns="options.dictionaryType.columns"
-            :action-items="options.dictionaryType.tableActionItems"
-            :authority="{edit:'perms[resource_server_dictionary_type:save]', delete:'perms[resource_server_dictionary_type:delete]'}"
+            :action-buttons="options.dictionaryType.actionButtons"
+            :authority="{
+              edit:'perms[resource_server_dictionary_type:save]',
+              add:'perms[resource_server_dictionary_type:save]',
+              delete:'perms[resource_server_dictionary_type:delete]'
+            }"
             :scroll="{x:'max-content'}"
             :row-selection="{type: 'checkbox', onChange:(_keys:number[],rows:DictionaryTypeEntity[]) => options.dictionaryType.selectedRows = rows}"
             :row-class-name="dictionaryTypeRowClassName"
-            @action-item-click="(key, record) => dictionaryTypeTableActionItemClick(key,record)"
+            @action-button-click="(key:string, record:DictionaryTypeEntity) => dictionaryTypeTableActionItemClick(key,record)"
             @edit="r => dictionaryTypeTableActionItemClick('edit', r)"
             :on-row="onDictionaryTypeRow"
-          >
+            >
             <template #title>
               <a-flex justify="space-between" align="center">
                 <a-space>
@@ -317,13 +324,13 @@ onMounted(mounted)
                 </a-tooltip>
               </template>
             </template>
-          </l-authority-operate-table>
-
+          </l-crud-table>
         </a-splitter-panel>
         <a-splitter-panel >
-          <l-authority-operate-table
+          <l-crud-table
             ref="dataDictionaryTable"
             drag
+            :enabled-title-actions="selectedDictionaryType !== null"
             :format-drag-preview="formatDataDictionaryDragPreview"
             @drop="onDrop"
             :expand-icon-column-index="3"
@@ -333,12 +340,14 @@ onMounted(mounted)
             :service="dataDictionaryService"
             :columns="options.dataDictionary.columns"
             :authority="{
+              add:'perms[resource_server_data_dictionary:save]',
               edit:'perms[resource_server_data_dictionary:save]',
               delete:'perms[resource_server_data_dictionary:delete]',
               detail:'perms[resource_server_data_dictionary:get]'
             }"
             :scroll="{x:'max-content'}"
             :row-selection="{type: 'checkbox', onChange:(_keys:number[],rows:DataDictionaryEntity[]) => options.dataDictionary.selectedRows = rows}"
+            @add="globalProperties.$router.push({name:'resource_server_data_dictionary_add',query:{typeId: selectedDictionaryType?.id }})"
             @detail="r => globalProperties.$router.push({name:'resource_server_data_dictionary_detail', query:{id:String(r.id)}})"
             @edit="r => globalProperties.$router.push({name:'resource_server_data_dictionary_edit', query:{id:String(r.id)}})"
           >
@@ -369,7 +378,7 @@ onMounted(mounted)
                 {{ getEnumName(record.enabled) }}
               </template>
             </template>
-          </l-authority-operate-table>
+          </l-crud-table>
         </a-splitter-panel>
       </a-splitter>
     </l-menu-title-card>

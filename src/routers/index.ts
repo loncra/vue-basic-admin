@@ -18,9 +18,9 @@ import {unmergeTree} from '@/utils'
 
 import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
-import Workbench from '@/views/commons/Workbench.vue'
-import UserExport from "@/views/commons/UserExport.vue";
-import Setting from '@/views/commons/Setting.vue'
+import Workbench from '../views/common/Workbench.vue'
+import UserExport from "../views/common/UserExport.vue";
+import Setting from '../views/common/Setting.vue'
 import NotFound from '@/views/error/NotFound.vue';
 import Forbidden from '@/views/error/Forbidden.vue';
 import BadRequest from '@/views/error/BadRequest.vue';

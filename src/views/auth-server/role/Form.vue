@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {
-  NameValueEnumMetadata, 
-  ResourceEntity, 
+  NameValueEnumMetadata,
+  ResourceEntity,
   RestResult,
   EnumBucketsResponseBody,
-  RoleEntity, 
+  RoleEntity,
   RoleSavePayload
 } from "@/types/apis";
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
@@ -17,6 +17,10 @@ import type {FilterRequest} from "@/types/apis/common.js";
 import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
+
+defineOptions({
+  name: 'AuthServerRoleForm'
+})
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -254,9 +258,10 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
 
       <l-resource-table
         ref="resourceTableRef"
-        :drag="false"
         :immediate="false"
-        :preview="true"
+        :drag="false"
+        preview
+        hide-title
         v-model:data-source="options.resourceDataSource"
         root-class="mb-md"
         :query="options.resourceQuery"

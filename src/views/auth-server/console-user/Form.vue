@@ -15,6 +15,10 @@ import type {RoleEntity} from "@/types/apis/auth-server/roleDomain";
 import type {TableProps} from "antdv-next"
 import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
 
+defineOptions({
+  name: 'AuthServerConsoleUserForm'
+})
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -134,7 +138,7 @@ function resetFields() {
         </a-space>
       </a-divider>
 
-      <l-role-table :preview="true" root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':'CONSOLE'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
+      <l-role-table preview hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':'CONSOLE'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
@@ -143,7 +147,14 @@ function resetFields() {
         </a-space>
       </a-divider>
 
-      <l-resource-table :preview="true" root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':'CONSOLE'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds}"/>
+      <l-resource-table
+        :drag="false"
+        preview
+        hide-title
+        root-class="mb-md"
+        :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':'CONSOLE'}"
+        :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds}"
+      />
 
       <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
         <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />

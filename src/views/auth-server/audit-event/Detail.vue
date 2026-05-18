@@ -5,7 +5,11 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 
 import {AuditEventService} from "@/apis/auth-server/auditEventService.ts";
 import type {AuditEventEntity} from "@/types/apis/auth-server/auditDomain";
-import type {RestResult} from "@/types";
+import type {RestResult} from "@/types/apis";
+
+defineOptions({
+  name: 'AuthServerAuditEventDetail',
+})
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

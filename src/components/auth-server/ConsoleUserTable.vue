@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import LAuthorityOperateTable, {
-  type SearchableColumnType
-} from '@/components/basic/AuthorityOperateTable.vue'
+
 import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {RestResult, EnumBucketsResponseBody, ConsoleUserEntity} from "@/types/apis";
 import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
-
+import type {SearchableColumnType} from "@/types/composables";
+import LCrudTable from "@/components/basic/CrudTable.vue";
+import LAuthorityButton from "@/components/basic/AuthorityButton.vue";
 defineOptions({
   name: 'LConsoleUserTableTable',
 })
@@ -149,30 +149,35 @@ onMounted(mounted)
 </script>
 
 <template>
-  <div>
-    <l-authority-operate-table
-      ref="authorityOperateTable"
-      v-model:data-source="dataSource"
-      :service="consoleUserService"
-      :columns="columns"
-      :enabled-actions="!props.preview"
-      :authority="{edit:'perms[auth_server_console_user:save]',detail:'perms[auth_server_console_user:get]', delete:'perms[auth_server_console_user:delete]'}"
-      :scroll="{x:'max-content'}"
-      :row-selection="props.preview ? undefined : {type: 'checkbox'}"
-      @detail="r => globalProperties.$router.push({name:'auth_server_console_user_detail', query:{id:String(r.id)}})"
-      @edit="r => globalProperties.$router.push({name:'auth_server_console_user_edit', query:{id:String(r.id)}})"
-    >
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.dataIndex === 'gender'">
-          {{ record.gender.name }}
-        </template>
-        <template v-if="column.dataIndex === 'lastAuthenticationTime'">
-          {{ dateTimeFormat(record.lastAuthenticationTime) }}
-        </template>
-        <template v-if="column.dataIndex === 'status'">
-          {{ record.status.name }}
-        </template>
+  <l-crud-table
+    v-bind="$attrs"
+    v-model:data-source="dataSource"
+    :service="consoleUserService"
+    :columns="columns"
+    :enabled-actions="!props.preview"
+    :authority="{
+      add:'perms[auth_server_console_user:save]',
+      export:'perms[auth_server_console_user:export]',
+      edit:'perms[auth_server_console_user:save]',
+      detail:'perms[auth_server_console_user:get]',
+      delete:'perms[auth_server_console_user:delete]'
+    }"
+    :scroll="{x:'max-content'}"
+    :row-selection="props.preview ? undefined : {type: 'checkbox'}"
+    @add="globalProperties.$router.push({name:'auth_server_console_user_add'})"
+    @detail="r => globalProperties.$router.push({name:'auth_server_console_user_detail', query:{id:String(r.id)}})"
+    @edit="r => globalProperties.$router.push({name:'auth_server_console_user_edit', query:{id:String(r.id)}})"
+  >
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.dataIndex === 'gender'">
+        {{ record.gender.name }}
       </template>
-    </l-authority-operate-table>
-  </div>
+      <template v-if="column.dataIndex === 'lastAuthenticationTime'">
+        {{ dateTimeFormat(record.lastAuthenticationTime) }}
+      </template>
+      <template v-if="column.dataIndex === 'status'">
+        {{ record.status.name }}
+      </template>
+    </template>
+  </l-crud-table>
 </template>

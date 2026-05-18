@@ -1,31 +1,17 @@
 <script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
-import LQueryTable, {
-  type QueryTableProps,
-  type SearchableColumnType
-} from "@/components/basic/QueryTable.vue";
 import type {BasicCrudService, BasicIdMetadata, RestResult, ScrollPageResult} from "@/types/apis";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {App, type MenuProps} from "antdv-next";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance, ref, watch} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref, useSlots, watch} from "vue";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-
-export interface CurdTableProps<
-  TBody extends BasicIdMetadata<TId>,
-  TEntity extends TBody,
-  TPage extends ScrollPageResult<TEntity>,
-  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
-> extends QueryTableProps<TBody, TEntity, TPage>{
-  enabledActions?: boolean
-  actionButtons?: NonNullable<MenuProps['items']>
-  renderActionItems?: (record: TEntity, actionItems: NonNullable<MenuProps['items']>) => NonNullable<MenuProps['items']>
-}
+import type {CurdTableProps, SearchableColumnType} from "@/types/composables";
+import LQueryTable from "@/components/basic/QueryTable.vue";
 
 defineOptions({
-  name: 'LCrudTable',
-  inheritAttrs: false,
+  name: 'LCrudTable'
 })
 
 const { message, modal } = App.useApp()
@@ -35,25 +21,42 @@ const globalProperties =
 
 const principalStore = usePrincipalStore()
 
-const actionItemsRef = ref<NonNullable<MenuProps['items']>>([])
 const queryTable = ref();
 
 const loading = defineModel<boolean>('loading', {default: () => false})
-const columns = defineModel<SearchableColumnType[]>('columns', {default: () => []})
 
 const emit = defineEmits<{
   add:[]
+  titleButtonClick:[key:string]
   edit: [record: TEntity]
   detail: [record: TEntity]
-  actionItemClick: [e:string, record: TEntity]
+  actionButtonClick: [e:string, record: TEntity]
 }>()
 
 const props = withDefaults(
   defineProps<CurdTableProps<TBody, TEntity, TPage, TId>>(),
   {
-    renderActionItems: (record: TEntity, actionItems: NonNullable<MenuProps['items']>) => actionItems
+    enabledRecordActions:true,
+    enabledTitleActions:true,
+    bordered:true,
+    immediate:true,
+    renderActionItems: (record: TEntity, actionItems: NonNullable<MenuProps['items']>) => actionItems,
   },
 )
+
+const slots = useSlots()
+
+const options = ref<{
+  columns:SearchableColumnType[]
+  titleButtons:NonNullable<MenuProps['items']>
+  actionButtons:NonNullable<MenuProps['items']>
+  selectedRow:TEntity[]
+}>({
+  columns:[],
+  titleButtons:[],
+  actionButtons:[],
+  selectedRow:[]
+})
 
 function handleActionClick(key: string | number, record: TEntity) {
   const k = String(key)
@@ -64,7 +67,7 @@ function handleActionClick(key: string | number, record: TEntity) {
   } else if (k === 'delete') {
     remove([record])
   } else {
-    emit('actionItemClick', k, record)
+    emit('actionButtonClick', k, record)
   }
 }
 
@@ -99,25 +102,28 @@ async function doDelete(records: TEntity[]) {
 }
 
 function rebuildActionItems() {
-  actionItemsRef.value = [];
-  if (props.enabledActions) {
+  options.value.actionButtons = []
+  options.value.titleButtons = []
+  options.value.columns = []
+
+  if (props.enabledRecordActions) {
 
     if (principalStore.hasPermission(props.authority?.edit as string) || props.authority?.edit) {
-      actionItemsRef.value.push({
+      options.value.actionButtons.push({
         key: 'edit',
         label: globalProperties.$t('common.edit',{name:''}),
         icon: () => createIcon('icon-edit'),
       })
     }
     if (principalStore.hasPermission(props.authority?.detail as string) || props.authority?.detail) {
-      actionItemsRef.value.push({
+      options.value.actionButtons.push({
         key: 'detail',
         label: globalProperties.$t('common.detail',{name:''}),
         icon: () => createIcon('icon-order-inspection'),
       })
     }
     if ((principalStore.hasPermission(props.authority?.delete as string) || props.authority?.delete) && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
-      actionItemsRef.value.push({
+      options.value.actionButtons.push({
         key: 'delete',
         label: globalProperties.$t('common.delete'),
         icon: () => createIcon('icon-delete'),
@@ -126,36 +132,83 @@ function rebuildActionItems() {
 
   }
 
-  if (actionItemsRef.value.length > 0) {
-    columns.value.push({
+  if ((principalStore.hasPermission(props.authority?.delete as string) || props.authority?.delete) && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
+    options.value.titleButtons.push({
+      key: 'deleteSelected',
+      label: globalProperties.$t('common.deleteSelected'),
+      icon: () => createIcon('icon-delete'),
+    })
+  }
+
+  options.value.titleButtons.push(...props.titleButtons || [])
+
+  options.value.actionButtons.push(...props.actionButtons || [])
+  options.value.columns.push(...props.columns)
+  if (options.value.actionButtons.length > 0 && props.enabledRecordActions) {
+    options.value.columns.push({
       title: globalProperties.$t('common.action'),
       dataIndex: 'action',
       key: 'action',
       align: 'center',
-      width: 80,
       fixed: 'right'
     })
   }
+
+}
+
+function fetchDataSource() {
+  return queryTable.value.fetchDataSource()
+}
+
+function exportData() {
+  return queryTable.value.exportData()
 }
 
 watch(
   () =>
     [
-      props.enabledActions,
+      props.enabledRecordActions,
       props.actionButtons,
     ] as const,
   () => rebuildActionItems(),
   {immediate: true, deep: true},
 )
 
+defineExpose({
+  fetchDataSource,
+  exportData,
+  remove
+})
 
 </script>
 
 <template>
-  <l-query-table ref="queryTable" :columns="columns" v-bind="$attrs" :service="props.service" v-model:loading="loading">
-    <template #bodyCell="{ record, column}">
+  <l-query-table
+    ref="queryTable"
+    v-bind="$attrs"
+    :hide-title="props.hideTitle"
+    :columns="options.columns"
+    :titleButtons="options.titleButtons"
+    :enabled-title-actions="props.enabledTitleActions"
+    :bordered="props.bordered"
+    :authority="props.authority"
+    :service="props.service"
+    :immediate="props.immediate"
+    v-model:loading="loading"
+    @title-button-add="emit('add')"
+    @title-append-button-click="(key:string) => emit('titleButtonClick',key)"
+  >
+    <template #title v-if="props.hideTitle">
+      <template v-if="slots.title" >
+        <slot name="title"/>
+      </template>
+    </template>
+    <template #bodyCell="{ text, record, index, column}">
+
+      <slot v-if="slots.bodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
+
       <template v-if="column.dataIndex === 'action'">
-        <l-action-button size="small" :action-items="props.renderActionItems(record, actionItemsRef)" @action-item-click="(key) => handleActionClick(key, record)" />
+        <l-action-button size="small" :action-items="props.renderActionItems(record, options.actionButtons)" @action-item-click="(key) => handleActionClick(key, record)" />
       </template>
     </template>
   </l-query-table>

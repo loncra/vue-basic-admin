@@ -5,6 +5,10 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {ResourceService} from "@/apis";
 import type {ResourceEntity} from "@/types/apis";
 
+defineOptions({
+  name: 'AuthServerResourceDetail'
+})
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

@@ -20,7 +20,6 @@ const props = withDefaults(defineProps<AuthFormProp>(), {
   enableQrCodeAuth: true,
 })
 
-
 const formRef = ref()
 const loading = ref(false)
 

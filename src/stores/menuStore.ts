@@ -4,7 +4,6 @@ import {STORE} from '@/constants/systemConstant.ts'
 import type {
   ResourceEntity,
   ResourceMetadata,
-  ResourceDomainType,
   RouteResourceMetadata,
   RestResult
 } from '@/types/apis'
@@ -91,7 +90,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    * @throws {Error} 当获取资源失败时抛出错误
    */
   async function getPrincipalResources(
-    types: ResourceDomainType[],
+    types: string[],
     mergeTree: boolean = true,
   ): Promise<ResourceEntity[]> {
     if (state.value.menu.length > 0) {

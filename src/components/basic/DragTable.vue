@@ -19,8 +19,7 @@ export interface DragTableProps<
 }
 
 defineOptions({
-  name: 'LDragTable',
-  inheritAttrs: false,
+  name: 'LDragTable'
 })
 
 const props = withDefaults(

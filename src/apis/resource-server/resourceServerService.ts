@@ -4,11 +4,11 @@
  * 提供跨服务的枚举桶查询（POST 批量 / GET 单枚举），不纳入 CRUD 继承树。
  */
 import axios from "@/requests/http.ts";
-import type {RestResult} from "@/types";
 import type {
   EnumBucketsRequestBody,
-  EnumBucketsResponseBody
-} from "../../types/apis/resource-server/resourceDomain.ts";
+  EnumBucketsResponseBody,
+  RestResult
+} from "@/types/apis";
 
 /**
  * resource-server 侧通用查询（当前仅封装枚举相关接口）。

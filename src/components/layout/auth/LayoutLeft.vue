@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import banner from '@/assets/信息服务.svg'
-import LLogo, {type LogoProps} from '@/components/Logo.vue'
+import LLogo from '@/components/Logo.vue'
 import LayoutFooter from '@/components/layout/LayoutFooter.vue'
+import type {LogoProps} from "@/types/composables";
 
 defineOptions({
   name: 'LAuthLayoutRight',

@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import {AuthenticationAuditEventService} from '@/apis';
-import LBasicCrudTable from '@/components/basic/BasicCrudTable.vue'
 import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/utils';
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, ref} from 'vue';
-import type {SearchableColumnType} from '@/components/basic/AuthorityOperateTable.vue';
 import {DatePicker, Input} from 'antdv-next';
 import type {AuditEventEntity} from '@/types/apis/auth-server/auditDomain';
+import LCrudTable from "@/components/basic/CrudTable.vue";
+import type {SearchableColumnType} from "@/types/composables";
+
+defineOptions({
+  name: 'AuthServerAuthenticationEventHome'
+})
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -50,21 +54,15 @@ function openAuthenticationDetail(r: AuditEventEntity) {
 </script>
 
 <template>
-  <l-basic-crud-table
+  <l-crud-table
     :service="service"
-    :table="{
-      props: {
-        columns: columns,
-        authority: {
-          detail: 'perms[auth_server_audit_event:get]',
-        },
-      },
-      listeners: {
-        detail: openAuthenticationDetail,
-      },
+    :columns="columns"
+    :authority="{
+      detail: 'perms[auth_server_audit_event:get]',
     }"
+    @detail="openAuthenticationDetail"
   >
-    <template #tableBodyCell="{ column, record }">
+    <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'creationTime'">
         {{ dateTimeFormat(record.timestamp) }}
       </template>
@@ -73,5 +71,6 @@ function openAuthenticationDetail(r: AuditEventEntity) {
         {{ record.data?.details?.metadata?.realName || record.principal}}
       </template>
     </template>
-  </l-basic-crud-table>
+  </l-crud-table>
+
 </template>

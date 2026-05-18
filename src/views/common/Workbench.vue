@@ -5,6 +5,10 @@ import {requireNonNullOrUndefined} from '@/utils'
 import type {ComponentInternalInstance} from 'vue'
 import {getCurrentInstance} from 'vue'
 
+defineOptions({
+  name: 'CommonWorkbench'
+})
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

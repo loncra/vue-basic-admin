@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import LAuthorityOperateTable, {
-  type SearchableColumnType
-} from '@/components/basic/AuthorityOperateTable.vue'
+import {type SearchableColumnType} from '@/components/basic/AuthorityOperateTable.vue'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
-import {App, type MenuItemType, type TableProps} from 'antdv-next';
-import {Input, Select} from 'antdv-next'
+import {App, Input, type MenuItemType, Select, type TableProps} from 'antdv-next';
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {
   EnumBucketsResponseBody,
-  NameValueEnumMetadata, ResourceEntity, RestResult, TreeSortMetadata
+  NameValueEnumMetadata,
+  ResourceEntity,
+  RestResult,
+  TreeSortMetadata
 } from "@/types/apis";
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+import LCrudTable from "@/components/basic/CrudTable.vue";
 
 defineOptions({
   name: 'LResourceTable',
@@ -125,12 +126,12 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 const dataSource = ref<ResourceEntity[]>([])
-const authorityOperateTable = ref()
+const crudTable = ref()
 
-const actionItems = ref<MenuItemType[]>([])
+const actionButtons = ref<MenuItemType[]>([])
 
 function removeSelected(selectedRows: ResourceEntity[]) {
-  authorityOperateTable.value.remove(selectedRows);
+  crudTable.value.remove(selectedRows);
 }
 
 async function mounted() {
@@ -169,7 +170,7 @@ async function mounted() {
     }
   }
   if (principalStore.hasPermission('perms[resource_server_data_dictionary:save]')) {
-    actionItems.value.push(
+    actionButtons.value.push(
       {
         key: 'addChild',
         label: globalProperties.$t('common.addChild', {name:''}),
@@ -188,10 +189,10 @@ function clearDataSource() {
 }
 
 function fetchDataSource() {
-  authorityOperateTable.value.fetchDataSource()
+  crudTable.value.fetchDataSource()
 }
 
-function onActionItemClick(key: string, record: ResourceEntity) {
+function onActionButtonClick(key: string, record: ResourceEntity) {
   if (key === 'addChild') {
     globalProperties.$router.push({name:'auth_server_resource_addChild', query:{parentId:String(record.id)}})
   }
@@ -218,46 +219,51 @@ onMounted(mounted)
 </script>
 
 <template>
-  <div>
-    <l-authority-operate-table
-      v-bind="$attrs"
-      :drag="drag"
-      :format-drag-preview="formatDragPreview"
-      @tree-drop="onTreeDrop"
-      :expand-icon-column-index="3"
-      ref="authorityOperateTable"
-      :query="query"
-      v-model:data-source="dataSource"
-      :service="service"
-      :columns="columns"
-      :action-items="actionItems"
-      :enabled-actions="!props.preview"
-      :authority="{edit:'perms[auth_server_authority_resource:save]',detail:'perms[auth_server_authority_resource:get]', delete:'perms[auth_server_authority_resource:delete]'}"
-      :scroll="{x:'max-content', y: 350}"
-      :row-selection="rowSelection"
-      @actionItemClick="onActionItemClick"
-      @detail="r => globalProperties.$router.push({name:'auth_server_resource_detail', query:{id:String(r.id)}})"
-      @edit="r => globalProperties.$router.push({name:'auth_server_resource_edit', query:{id:String(r.id)}})"
-    >
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.dataIndex === 'name'">
-          <a-space>
-            <icon-font class="icon align" :type="record.icon || 'icon-survey'" />
-            {{ record.name}}
-          </a-space>
-        </template>
-        <template v-if="column.dataIndex === 'sources'">
-          {{ getSourcesName(record.sources) }}
-        </template>
-
-        <template v-if="column.dataIndex === 'type'">
-          {{ record.type.name }}
-        </template>
-
-        <template v-if="column.dataIndex === 'category'">
-          {{ record.category.name }}
-        </template>
+  <l-crud-table
+    v-bind="$attrs"
+    :drag="drag"
+    :format-drag-preview="formatDragPreview"
+    @tree-drop="onTreeDrop"
+    :expand-icon-column-index="drag ? 3 : 2"
+    :pagination="false"
+    ref="crudTable"
+    :query="query"
+    v-model:data-source="dataSource"
+    :service="service"
+    :columns="columns"
+    :action-buttons="actionButtons"
+    :enabled-actions="!props.preview"
+    :authority="{
+      add:'perms[auth_server_authority_resource:save]',
+      edit:'perms[auth_server_authority_resource:save]',
+      detail:'perms[auth_server_authority_resource:get]',
+      delete:'perms[auth_server_authority_resource:delete]'
+    }"
+    :scroll="{x:'max-content', y: 350}"
+    :row-selection="rowSelection"
+    @actionButtonClick="onActionButtonClick"
+    @add="globalProperties.$router.push({name:'auth_server_resource_add'})"
+    @detail="r => globalProperties.$router.push({name:'auth_server_resource_detail', query:{id:String(r.id)}})"
+    @edit="r => globalProperties.$router.push({name:'auth_server_resource_edit', query:{id:String(r.id)}})"
+  >
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.dataIndex === 'name'">
+        <a-space>
+          <icon-font class="icon align" :type="record.icon || 'icon-survey'" />
+          {{ record.name}}
+        </a-space>
       </template>
-    </l-authority-operate-table>
-  </div>
+      <template v-if="column.dataIndex === 'sources'">
+        {{ getSourcesName(record.sources) }}
+      </template>
+
+      <template v-if="column.dataIndex === 'type'">
+        {{ record.type.name }}
+      </template>
+
+      <template v-if="column.dataIndex === 'category'">
+        {{ record.category.name }}
+      </template>
+    </template>
+  </l-crud-table>
 </template>

@@ -5,6 +5,10 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {RoleEntity} from "@/types/apis/auth-server/roleDomain";
 
+defineOptions({
+  name: 'AuthServerRoleHome'
+})
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties

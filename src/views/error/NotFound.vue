@@ -2,7 +2,9 @@
 import imageSrc from '@/assets/404.svg'
 import {type ComponentInternalInstance, getCurrentInstance} from 'vue'
 import {requireNonNullOrUndefined} from '@/utils'
-
+defineOptions({
+  name: 'ErrorNotFound',
+})
 const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
 const globalProperties = instance.appContext.config.globalProperties
 </script>

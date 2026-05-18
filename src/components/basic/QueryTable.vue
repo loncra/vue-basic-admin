@@ -2,7 +2,6 @@
 
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {
-  type Component,
   type ComponentInternalInstance,
   getCurrentInstance,
   onActivated,
@@ -11,10 +10,8 @@ import {
   useSlots,
   watch
 } from "vue";
-import type {ColumnType} from "antdv-next/dist/table/interface";
 import {App, type MenuProps, type TableProps} from "antdv-next";
 import type {
-  BasicCrudService,
   BasicIdMetadata,
   FilterRequest,
   FindSearchService,
@@ -25,43 +22,16 @@ import type {
   ScrollPageResult,
   TotalPage
 } from "@/types/apis";
-import type {TableAuthorityProps} from "@/types/composables";
+import type {QueryTableProps, SearchableColumnType} from "@/types/composables";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {PageSearchRestfulService} from "@/apis/pageSearchRestfulService.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-
-export interface ColumnSearchConfig {
-  component?: Component
-  props?: Record<string, unknown>
-  expression?: string,
-  queryName?: string,
-  defaultValue?: unknown
-}
-
-export type SearchableColumnType<RecordType = Record<string, unknown>> = ColumnType<RecordType> & {
-  search?: ColumnSearchConfig
-}
-
-export interface QueryTableProps<
-  TBody extends BasicIdMetadata<TId>,
-  TEntity extends TBody,
-  TPage extends ScrollPageResult<TEntity>,
-  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
-> {
-  service: FindSearchService<TEntity, TId> | PageSearchService<TEntity, TPage, TId> | BasicCrudService<TBody, TEntity, TId>
-  immediate?: boolean
-  bordered?: boolean
-  authority?: TableAuthorityProps
-  hideTitle?: boolean
-  columns:SearchableColumnType[]
-  titleButtons?: NonNullable<MenuProps['items']>
-}
+import type {TablePaginationConfig} from "antdv-next/dist/table/interface";
 
 defineOptions({
-  name: 'LQueryTable',
-  inheritAttrs: false,
+  name: 'LQueryTable'
 })
 
 const principalStore = usePrincipalStore()
@@ -78,25 +48,29 @@ const props = withDefaults(
     hideTitle:false,
     bordered:true,
     immediate: true,
+    enabledTitleActions:true,
     columns: () => [],
   },
 )
 const dataSource = defineModel<TEntity[]>('dataSource', {default: () => []})
 const loading = defineModel<boolean>('loading', {default: () => false})
-
 const query = defineModel<FilterRequest | PageRequest>('query', {default: () => ({})})
-const pagination = defineModel<TableProps['pagination']>('pagination', {default: () => undefined})
+
+const emit = defineEmits<{
+  titleButtonAdd:[]
+  titleAppendButtonClick:[key:string]
+}>()
 
 const options = ref<{
   skipActivatedOnce:boolean
   titleButtons:NonNullable<MenuProps['items']>
-  columns:SearchableColumnType[]
+  columns:SearchableColumnType[],
+  pagination?:TableProps['pagination']
 }>({
   skipActivatedOnce:true,
   titleButtons:[],
   columns:[]
 })
-
 
 function search(
   column: SearchableColumnType,
@@ -122,6 +96,14 @@ function clear(
   })
   setSelectedKeys([])
   confirm();
+  fetchDataSource();
+}
+
+function onChange(
+  pagination: TablePaginationConfig
+) {
+  query.value.number = pagination.current
+  query.value.size = pagination.pageSize || 10
   fetchDataSource();
 }
 
@@ -184,12 +166,8 @@ function rebuild() {
     }
   }
 
-  if (principalStore.hasPermission(props.authority?.export as string) || props.authority?.export) {
-    options.value.titleButtons.push({
-      key: 'export',
-      label: globalProperties.$t('common.export'),
-      icon: () => createIcon('icon-goods-start-to-ship', 'align'),
-    })
+  if (!props.enabledTitleActions) {
+    return ;
   }
 
   if (principalStore.hasPermission(props.authority?.add as string) || props.authority?.add) {
@@ -197,6 +175,14 @@ function rebuild() {
       key: 'add',
       label: globalProperties.$t('common.add',{name:''}),
       icon: () => createIcon('icon-add', 'align'),
+    })
+  }
+
+  if (principalStore.hasPermission(props.authority?.export as string) || props.authority?.export) {
+    options.value.titleButtons.push({
+      key: 'export',
+      label: globalProperties.$t('common.export'),
+      icon: () => createIcon('icon-goods-start-to-ship', 'align'),
     })
   }
 
@@ -210,36 +196,36 @@ async function fetchDataSource() {
     if (typeof (props.service as PageSearchService<TEntity, TPage, TId>).page === 'function') {
       const result:RestResult<TPage> = await (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page(query.value as PageRequest);
       data.push(...(result.data?.elements || []))
-      if (pagination.value) {
+      if (options.value.pagination) {
 
-        pagination.value.pageSize = result.data?.size || 10 ;
+        options.value.pagination.pageSize = result.data?.size || 10 ;
 
         const pageResult = result.data as unknown as PageResult<TEntity>
         if (pageResult.number) {
-          pagination.value.current = pageResult.number;
+          options.value.pagination.current = pageResult.number;
           const n =
             typeof pageResult.number === 'number' && Number.isFinite(pageResult.number)
               ? pageResult.number
               : ((query.value as PageRequest).number ?? 1)
           const rowCount = data.length
           if (pageResult.last) {
-            pagination.value.total = (n - 1) * pageResult.size + rowCount
+            options.value.pagination.total = (n - 1) * pageResult.size + rowCount
           } else {
-            pagination.value.total = n * pageResult.size + 1
+            options.value.pagination.total = n * pageResult.size + 1
           }
         }
 
         const totalPage = result.data as unknown as TotalPage<TEntity>
         if (totalPage.totalCount) {
-          pagination.value.total = totalPage.totalCount;
+          options.value.pagination.total = totalPage.totalCount;
         }
       }
 
     } else if (typeof (props.service as FindSearchService<TEntity, TId>).find === 'function') {
       const result:RestResult<TEntity[]> = await (props.service as FindSearchService<TEntity, TId>).find(query.value as FilterRequest);
       data.push(...(result.data || []))
-      if (pagination.value === undefined) {
-        pagination.value = false;
+      if (options.value.pagination === undefined) {
+        options.value.pagination = false;
       }
     }
 
@@ -262,9 +248,20 @@ async function exportData(records: TEntity[]) {
   globalProperties.$router.push({name:'user_export'})
 }
 
+function handleActionClick(key: string) {
+  const k = String(key)
+  if (k === 'add') {
+    emit('titleButtonAdd')
+  }  else {
+    emit('titleAppendButtonClick', key)
+  }
+}
+
 async function mounted() {
-  if (pagination.value === undefined) {
-    pagination.value = {hideOnSinglePage: true, placement: ['bottomCenter']}
+  if (props.pagination === undefined) {
+    options.value.pagination = {hideOnSinglePage: true, placement: ['bottomCenter']}
+  } else {
+    options.value.pagination = props.pagination
   }
   if (props.immediate && options.value.skipActivatedOnce) {
     await fetchDataSource();
@@ -285,6 +282,7 @@ watch(
     [
       props.service,
       props.columns,
+      props.enabledTitleActions
     ] as const,
   () => rebuild(),
   {immediate: true, deep: true},
@@ -303,11 +301,12 @@ defineExpose({
 
 <template>
   <a-table
-    :columns="columns"
-    :pagination="pagination"
+    :columns="options.columns"
+    :pagination="options.pagination"
     v-bind="$attrs"
     :row-key="SYSTEM_CONSTANT.ID_NAME"
     :data-source="dataSource"
+    @change="onChange"
     :loading="loading"
     :bordered="props.bordered"
   >
@@ -316,16 +315,16 @@ defineExpose({
         <slot name="title"/>
       </template>
       <template v-else>
-        <a-flex justify="space-between" align="center">
+        <a-flex justify="space-between" class="pr-xs pl-xs" align="center">
           <a-space>
             <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'icon-survey'"/>
-            <span>{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</span>
+            <a-typography-text strong>{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</a-typography-text>
           </a-space>
-          <l-action-button :action-items="options.titleButtons"/>
+          <l-action-button :action-items="options.titleButtons" @action-item-click="(key) => handleActionClick(key)"/>
         </a-flex>
       </template>
     </template>
-    <template #bodyCell="{ text, record, index, column}">
+    <template #bodyCell="{ text, record, index, column }">
       <slot v-if="slots.bodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
     </template>
     <template #filterIcon="{filtered}">

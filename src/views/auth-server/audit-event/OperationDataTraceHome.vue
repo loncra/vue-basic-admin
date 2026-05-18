@@ -1,13 +1,16 @@
 <script setup lang="ts">
 
-import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
+
+defineOptions({
+  name: 'AuthServerOperationDataTraceEventHome'
+})
+
+
 </script>
 
 <template>
   <div>
-    <l-menu-title-card>
-      <l-operation-data-trace-table />
-    </l-menu-title-card>
+    <l-operation-data-trace-table />
   </div>
 </template>

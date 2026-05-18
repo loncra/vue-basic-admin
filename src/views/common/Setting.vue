@@ -13,6 +13,10 @@ import type {
 import type {ThemeMode, CreateSuccessBackValue} from "@/types/composables";
 import type {Color} from 'antdv-next'
 
+defineOptions({
+  name: 'CommonSetting'
+})
+
 const configProviderStore = useConfigProviderStore()
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

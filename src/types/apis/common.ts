@@ -1,6 +1,4 @@
 import {
-  CONFIG_PROVIDER,
-  CONFIG_PROVIDER_THEME,
   SYSTEM_CONSTANT,
   TIME_UNIT_TYPE
 } from '@/constants/systemConstant.ts'

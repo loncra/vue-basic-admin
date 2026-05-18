@@ -1,10 +1,12 @@
-
-
 <script setup lang="ts">
 import imageSrc from '@/assets/403.svg'
 import {usePrincipalStore} from "@/stores/principalStore.js"
 import {type ComponentInternalInstance, getCurrentInstance} from 'vue'
 import {requireNonNullOrUndefined} from "@/utils";
+
+defineOptions({
+  name: 'ErrorForbidden'
+})
 
 const principalStore = usePrincipalStore();
 
