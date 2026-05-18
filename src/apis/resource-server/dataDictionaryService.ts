@@ -9,7 +9,7 @@ import type {RestResult, TotalPage, TreeSortMetadata} from "@/types";
 import type {
   DataDictionaryEntity,
   DataDictionarySavePayload
-} from "@/types/resource-server/dataDictionaryDomain.ts";
+} from "../../types/apis/resource-server/dataDictionaryDomain.ts";
 import axios from "@/requests/http.ts";
 
 /**

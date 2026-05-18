@@ -1,14 +1,4 @@
-/**
- * 视频缩略图结果接口
- * 包含视频缩略图的 Base64 数据和视频 URL
- */
-interface VideoThumbnailResult {
-  /** Base64 编码的缩略图数据 */
-  base64: string
-  /** 视频文件的 URL */
-  videoUrl: string
-}
-
+import type {VideoThumbnailResult} from '@/types/composables/common'
 /**
  * 格式化字节大小为可读的字符串
  * 将字节数转换为合适的单位（bytes、KB、MB、GB 等）

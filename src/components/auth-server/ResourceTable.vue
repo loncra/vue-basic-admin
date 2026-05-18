@@ -6,10 +6,12 @@ import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, 
 import {App, type MenuItemType, type TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService, ResourceService} from "@/apis";
-import type {NameValueEnumMetadata, ResourceEntity, RestResult, TreeSortMetadata} from "@/types";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
+import type {
+  EnumBucketsResponseBody,
+  NameValueEnumMetadata, ResourceEntity, RestResult, TreeSortMetadata
+} from "@/types/apis";
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
-import type {FilterRequest} from '@/types/common';
+import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({

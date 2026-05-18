@@ -12,7 +12,7 @@ import {
 import LBasicCrudTable from "@/components/basic/BasicCrudTable.vue";
 import type {MenuProps} from "antdv-next";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {ExportDataMetadata, FileObject} from "@/types";
+import type {ExportDataMetadata, FileObject} from "@/types/apis";
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

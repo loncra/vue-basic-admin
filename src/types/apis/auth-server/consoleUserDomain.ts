@@ -1,9 +1,11 @@
 import type {
-  AbstractPlatformUser,
   NameValueEnumMetadata,
-  UserInitializationMetadata,
   VersionEntityMetadata
-} from "@/types";
+} from "@/types/apis/common";
+import type{
+  AbstractPlatformUser,
+  UserInitializationMetadata,
+} from './authDomain'
 
 /**
  * 后台用户请求体

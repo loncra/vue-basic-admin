@@ -1,6 +1,6 @@
 // 导入 Ant Design Vue Next 组件和图标（antdv-next 无 List 组件，Chat.vue 中已用 div 替代）
 import {h, resolveComponent} from 'vue'
-import type {IconfontJson} from '@/types/common'
+import type {IconfontJson} from '@/types/composables'
 
 
 export function createIcon(type: string, classes: string = '') {

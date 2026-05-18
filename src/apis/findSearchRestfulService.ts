@@ -4,7 +4,7 @@
  * 不与 {@link BasicRestfulCrudService} 继承链混合，避免「只读列表页」误带 `save`/`delete`。
  * `POST {baseUrl}/find`，请求体为表单编码的 {@link FilterRequest}。
  */
-import type {BasicIdMetadata, FilterRequest, FindSearchService, RestResult,} from '@/types'
+import type {BasicIdMetadata, FilterRequest, FindSearchService, RestResult,} from '@/types/apis'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'

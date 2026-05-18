@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {
-  IconfontJson,
   NameValueEnumMetadata,
   ResourceEntity,
   ResourceSavePayload,
   RestResult
-} from "@/types";
+} from "@/types/apis";
+import type {IconfontJson} from "@/types/composables/common";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ResourceServerService, ResourceService} from "@/apis";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
+import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
 

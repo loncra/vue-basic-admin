@@ -1,15 +1,6 @@
-import type {BasicIdMetadata, NameValueEnumMetadata, TreeLike} from '@/types/common'
+import type {BasicIdMetadata, NameValueEnumMetadata} from '@/types/apis/common'
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {RouteRecordName} from "vue-router";
-
-/** 资源类型：根/目录/菜单/安全/工具 */
-export type ResourceType =
-  | typeof RESOURCE_TYPE.TOOL
-  | typeof RESOURCE_TYPE.ROOT
-  | typeof RESOURCE_TYPE.MENU
-  | typeof RESOURCE_TYPE.DIRECTORY
-  | typeof RESOURCE_TYPE.SECURITY
-  | typeof RESOURCE_TYPE.PROFILE
 
 export interface ResourceMetadata {
   /**

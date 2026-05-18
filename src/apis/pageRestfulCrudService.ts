@@ -9,7 +9,7 @@ import type {
   PageRequest,
   RestResult,
   ScrollPageResult,
-} from '@/types'
+} from '@/types/apis'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 import {BasicRestfulCrudService} from "@/apis/basicRestfulCrudService.ts";
 import {formUrlEncoded} from "@/utils";

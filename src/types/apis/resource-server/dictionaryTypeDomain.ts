@@ -1,4 +1,4 @@
-import type {VersionEntityMetadata,} from "@/types";
+import type {VersionEntityMetadata} from "@/types/apis/common";
 
 /**
  * 字典类型保存请求体

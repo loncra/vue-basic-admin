@@ -2,7 +2,7 @@
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {LAYOUT_PANE_TITLE_KEY, SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
-import type {BasicIdMetadata, DetailSearchService, RestResult} from "@/types";
+import type {BasicIdMetadata, DetailSearchService, RestResult} from "@/types/apis";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,

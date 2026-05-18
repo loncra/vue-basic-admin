@@ -1,4 +1,4 @@
-import type {RouteTitleMap} from '@/types/common'
+import type {RouteTitleMap} from '../../types/apis/common'
 
 export default {
   resource_server_data_dictionary_addChild: () =>

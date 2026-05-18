@@ -4,7 +4,7 @@
  * 作为只读链路的根类；带写操作的 CRUD 与「仅列表搜索」分别在 {@link BasicRestfulCrudService}、
  * {@link FindSearchRestfulService} / {@link PageSearchRestfulService} 中扩展。
  */
-import type {BasicIdMetadata, DetailSearchService, FilterRequest, RestResult,} from '@/types'
+import type {BasicIdMetadata, DetailSearchService, FilterRequest, RestResult,} from '@/types/apis'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 import axios from '@/requests'
 import {formUrlEncoded} from "@/utils";

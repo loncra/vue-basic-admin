@@ -4,7 +4,7 @@
  */
 
 import {createI18n} from 'vue-i18n'
-import type {NameValueEnumMetadata} from '@/types'
+import type {NameValueEnumMetadata} from '@/types/apis'
 
 /** 语言包接口：扩展名称-值对，包含 Ant Design 国际化配置 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

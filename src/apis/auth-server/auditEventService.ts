@@ -1,6 +1,6 @@
 import {DetailSearchRestfulService} from "@/apis/detailSearchRestfulService.ts";
-import type {AuditEventEntity} from "../../types/auth-server/auditDomain.ts";
-import type {RestResult} from "@/types";
+import type {AuditEventEntity} from "../../types/apis/auth-server/auditDomain.ts";
+import type {RestResult} from "@/types/apis";
 import axios from "@/requests/http.ts";
 
 

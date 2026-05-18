@@ -6,13 +6,9 @@ import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, 
 import type {MenuItemType, TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
-import type {RestResult} from "@/types";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
+import type {RestResult, EnumBucketsResponseBody, NameValueEnumMetadata, RoleEntity, FilterRequest} from "@/types/apis";
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
-import type {NameValueEnumMetadata} from "@/types/common.ts";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
-import type {RoleEntity} from "@/types/auth-server/roleDomain.js";
-import type {FilterRequest} from '@/types/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({

@@ -9,10 +9,8 @@ import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {
   PrepareData,
   ResourceEntity,
-  RouteTitleGetter,
-  RouteTitleMap,
-  RouteTitleParams
-} from "@/types";
+} from "@/types/apis";
+import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
@@ -155,7 +153,7 @@ function resolveParams(params?: RouteTitleParams): Record<string, string> | unde
   }
   const resolved: Record<string, string> = {}
   for (const [key, value] of Object.entries(params)) {
-    resolved[key] = resolveParamValue(value)
+    resolved[key] = resolveParamValue(value as string)
   }
   return resolved
 }
@@ -265,7 +263,7 @@ const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
     RESOURCE_TYPE.TOOL,
     RESOURCE_TYPE.PROFILE
   ])
-  const unmergeMenus = unmergeTree(menus);
+  const unmergeMenus = unmergeTree<ResourceEntity>(menus);
   const menuRoutes = [...childrenRoutes, ...importRoutes]
   for (const route of menuRoutes) {
     applyRouteMetaToMenu(route, unmergeMenus)

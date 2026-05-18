@@ -18,17 +18,17 @@ import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeT
 import {App, Input, type MenuProps, Select, type TableProps} from "antdv-next";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import type {PageRequest, RestResult, TreeSortMetadata} from "@/types";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.ts";
+import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.ts";
 import {ResourceServerService} from "@/apis";
 import type {
   DictionaryTypeEntity,
   DictionaryTypeSavePayload
-} from "@/types/resource-server/dictionaryTypeDomain.ts";
+} from "@/types/apis/resource-server/dictionaryTypeDomain.ts";
 import {getEnumName} from "@/utils/commonUtils.ts";
 import {createIcon} from "@/utils/resourceUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LModalForm from "@/components/basic/ModalForm.vue";
-import type {DataDictionaryEntity} from "@/types/resource-server/dataDictionaryDomain.ts";
+import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 
 const { message } = App.useApp()
 const DEFAULT_DICTIONARY_TYPE_DEFAULT = {

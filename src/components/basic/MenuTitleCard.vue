@@ -13,11 +13,6 @@ export interface MenuTitleCardProps {
   icon?: string
 }
 
-const props = withDefaults(defineProps<MenuTitleCardProps>(), {
-  title: '',
-  icon: 'icon-survey',
-})
-
 const slots = useSlots()
 const menuPrincipalStore = useMenuPrincipalStore()
 

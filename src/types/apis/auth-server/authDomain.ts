@@ -3,7 +3,7 @@ import type {
   NameValueEnumMetadata,
   TimeProperties,
   VersionEntityMetadata
-} from '@/types/common'
+} from '@/types/apis/common'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.ts'
 
 /**

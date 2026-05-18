@@ -7,11 +7,10 @@ import type {VNode} from "vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {CONFIG_PROVIDER, CONFIG_PROVIDER_THEME} from "@/constants/systemConstant.ts";
 import type {
-  CreateSuccessBackValue,
   IdValueMetadata,
   NameValueEnumMetadata,
-  ThemeMode
-} from "@/types";
+} from "@/types/apis";
+import type {ThemeMode, CreateSuccessBackValue} from "@/types/composables";
 import type {Color} from 'antdv-next'
 
 const configProviderStore = useConfigProviderStore()

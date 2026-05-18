@@ -10,7 +10,7 @@ import type {
   PageSearchService,
   RestResult,
   ScrollPageResult,
-} from '@/types'
+} from '@/types/apis'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'

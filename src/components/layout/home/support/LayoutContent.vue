@@ -18,7 +18,7 @@ import {
   LAYOUT_PANE_TITLE_KEY
 } from '@/constants/systemConstant'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import type {RouteResourceMetadata} from '@/types'
+import type {RouteResourceMetadata} from '@/types/apis'
 import i18n from "@/i18n";
 import {getRouteTitle} from '@/routers'
 

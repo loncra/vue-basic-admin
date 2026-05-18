@@ -3,7 +3,7 @@ import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {ConsoleUserService} from "@/apis";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {ConsoleUserEntity} from "@/types/auth-server/consoleUserDomain.js";
+import type {ConsoleUserEntity} from "@/types/apis/auth-server/consoleUserDomain";
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

@@ -130,36 +130,6 @@ export class BusinessError extends Error {
 }
 
 /**
- * 主题模式类型
- * 从 CONFIG_PROVIDER_THEME 常量推导的类型
- * 可以是：dark（深色）、light（浅色）或 system（跟随系统）
- */
-export type ThemeMode =
-  | typeof CONFIG_PROVIDER_THEME.DARK
-  | typeof CONFIG_PROVIDER_THEME.LIGHT
-  | typeof CONFIG_PROVIDER_THEME.SYSTEM
-
-/**
- * 主题值类型
- * 实际应用的主题值，仅包含 dark 和 light
- * 不包含 system，因为 system 需要转换为具体的 dark 或 light
- */
-export type ThemeValue = typeof CONFIG_PROVIDER_THEME.DARK | typeof CONFIG_PROVIDER_THEME.LIGHT
-
-
-export type CreateSuccessBackValue = typeof CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT | typeof CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME
-
-/**
- * 树形节点接口
- * 用于表示树形结构的数据节点，支持递归的父子关系
- *
- * @template T - 节点数据类型
- */
-export type TreeLike<T> = T & {
-  children?: TreeLike<T>[]
-}
-
-/**
  * 命令执行结果中的 data 结构（标准输出 / 错误 / 退出码）
  */
 export interface RunCommandData {
@@ -257,29 +227,6 @@ export interface TotalPage<T> extends PageResult<T> {
   totalCount: number
   /** 总页数 */
   totalPages: number
-}
-
-/**
- * 通用权限码：详情、删除（列表行内与详情页可共用）
- */
-export interface BasicAuthorityProps {
-  detail?:string | boolean
-  delete?:string | boolean
-}
-
-/**
- * 表格行级权限：在 {@link BasicAuthorityProps} 基础上增加「编辑」
- */
-export interface TableAuthorityProps extends BasicAuthorityProps{
-  edit?:string | boolean
-}
-
-/**
- * 工具栏按钮权限：在 {@link BasicAuthorityProps} 基础上增加「导出」「新增」
- */
-export interface ButtonAuthorityProps extends BasicAuthorityProps {
-  export?:string | boolean
-  add?:string | boolean
 }
 
 /**
@@ -431,99 +378,9 @@ export interface TimeProperties {
   unit: TimeUnitType
 }
 
-export interface IconfontGlyph {
-  font_class: string
-  name: string
-  icon_id:string
-  unicode:string
-  unicode_decimal:number
-}
-export interface IconfontJson {
-  name: string
-  css_prefix_text: string
-  description:string
-  glyphs: IconfontGlyph[]
-}
-
-export type RouteTitleParams = Record<string, string>
-
-export type RouteTitleSpec = readonly [string, RouteTitleParams?]
-
-export type RouteTitleGetter = () => RouteTitleSpec
-
-export type RouteTitleMap = Record<string, RouteTitleGetter>
 
 export interface TreeSortMetadata<T> {
   id:T
   parentId?:T
   sort:number
-}
-
-
-export interface ExportDataMetadata {
-  /**
-   * 主键 id
-   */
-  id: string
-
-  /**
-   * 创建时间
-   */
-  creationTime: number;
-
-  /**
-   * 文件名称
-   */
-  filename: string;
-
-  /**
-   * 状态
-   */
-  executeStatus: NameValueEnumMetadata<number>;
-
-  /**
-   * 异常信息
-   */
-  exception: string;
-
-  /**
-   * 成功时间
-   */
-  successTime: number;
-
-  /**
-   * 最后导出时间
-   */
-  retryTime: number;
-
-  /**
-   * 重试次数
-   */
-  retryCount: number;
-
-  /**
-   * 最大重试次数
-   */
-  maxRetryCount: number;
-
-  /**
-   * 导出类型
-   */
-  type: NameValueEnumMetadata<number>;
-
-  /**
-   * 文件大小
-   */
-  size: number;
-
-  /**
-   * 元数据信息
-   */
-  metadata: Record<string, unknown>;
-}
-
-export interface FileObject {
-  bucketName:string
-  objectName:string
-  extraHeaders?: Record<string, string>
 }

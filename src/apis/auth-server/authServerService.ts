@@ -12,7 +12,7 @@ import type {
   PrepareData,
   ResourceEntity,
   RestResult
-} from '@/types'
+} from '@/types/apis'
 
 /**
  * auth-server 认证与初始化入口（无实例状态，仅静态 URL + 请求封装）。

@@ -1,13 +1,14 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
-import {AuthServerService} from '../apis/auth-server'
+import {AuthServerService} from '@/apis'
 import {
   type AuthCredentials,
   type AuthenticationInfo,
   type AuthenticationType,
-  type PrepareData
-} from '../types/auth-server'
-import {isResultSuccess} from '@/requests'
+  type PrepareData,
+  type RestResult
+} from '@/types/apis'
+import {isBusinessSuccess} from '@/requests'
 import {AUTHENTICATION_TYPE} from '@/constants/authConstant'
 import {STORE} from '@/constants/systemConstant'
 
@@ -98,14 +99,12 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     credentials: AuthCredentials,
     authenticationType: AuthenticationType = AUTHENTICATION_TYPE.CONSOLE,
   ): Promise<AuthenticationInfo> {
-    const result = await AuthServerService.login(credentials, authenticationType)
+    const result:RestResult<AuthenticationInfo> = await AuthServerService.login(credentials, authenticationType)
 
-    // 使用统一的响应检查函数
-    if (!isResultSuccess(result)) {
-      throw new Error(result?.message || '获取登录响应数据失败')
+    if (!isBusinessSuccess(result) || result.data === undefined) {
+      throw new Error(result.message || '获取登录响应数据失败')
     }
 
-    // 设置认证信息
     setState(result.data)
     return state.value
   }
@@ -123,11 +122,10 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    * 准备（初始化）应用数据
    */
   async function prepare(): Promise<PrepareData> {
-    const result = await AuthServerService.prepare()
+    const result:RestResult<PrepareData> = await AuthServerService.prepare()
 
-    // 使用统一的响应检查函数
-    if (!isResultSuccess(result)) {
-      throw new Error(result?.message || '准备数据失败')
+    if (!isBusinessSuccess(result) || result.data === undefined) {
+      throw new Error(result.message || '准备数据失败')
     }
 
     const data = result.data

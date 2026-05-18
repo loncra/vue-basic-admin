@@ -3,7 +3,7 @@ import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
-import type {RoleEntity} from "@/types/auth-server/roleDomain.js";
+import type {RoleEntity} from "@/types/apis/auth-server/roleDomain";
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

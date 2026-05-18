@@ -8,7 +8,7 @@ import type {RestResult} from "@/types";
 import type {
   EnumBucketsRequestBody,
   EnumBucketsResponseBody
-} from "../../types/resource-server/resourceDomain.ts";
+} from "../../types/apis/resource-server/resourceDomain.ts";
 
 /**
  * resource-server 侧通用查询（当前仅封装枚举相关接口）。

@@ -1,4 +1,5 @@
-import type {TreeLike, TreeSortMetadata} from '@/types'
+import type {TreeLike} from '@/types/composables'
+import type {TreeSortMetadata} from '@/types/apis'
 
 /**
  * 树形节点条件判断函数类型

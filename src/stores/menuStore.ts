@@ -1,7 +1,13 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants/systemConstant.ts'
-import type {ResourceEntity, ResourceMetadata, ResourceType, RouteResourceMetadata} from '@/types'
+import type {
+  ResourceEntity,
+  ResourceMetadata,
+  ResourceDomainType,
+  RouteResourceMetadata,
+  RestResult
+} from '@/types/apis'
 import {AuthServerService} from '@/apis'
 import {isResultSuccess} from '@/requests'
 import {
@@ -25,14 +31,14 @@ export interface RouteEnterPage {
  */
 const RESET: MenuState = {
   menu: [],
-  laoding: false,
+  loading: false,
   currentBreadcrumbs: [],
   routeEnterPage: null,
 }
 
 export interface MenuState  {
   menu: ResourceEntity[]
-  laoding: boolean
+  loading: boolean
   currentBreadcrumbs: RouteResourceMetadata[]
   routeEnterPage: RouteEnterPage | null
 }
@@ -54,7 +60,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   function $reset(): MenuState {
     state.value = {
       menu: [],
-      laoding: false,
+      loading: false,
       currentBreadcrumbs: [],
       routeEnterPage: null,
     }
@@ -85,21 +91,21 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    * @throws {Error} 当获取资源失败时抛出错误
    */
   async function getPrincipalResources(
-    types: ResourceType[],
+    types: ResourceDomainType[],
     mergeTree: boolean = true,
   ): Promise<ResourceEntity[]> {
     if (state.value.menu.length > 0) {
       return state.value.menu;
     }
-    state.value.laoding = true;
-    const result = await AuthServerService.principalResources(types, mergeTree)
+    state.value.loading = true;
+    const result:RestResult<ResourceEntity[]> = await AuthServerService.principalResources(types, mergeTree)
     if (!isResultSuccess(result)) {
       return []
     }
-    // 更新状态并返回数据
-    state.value.menu = result.data
-    state.value.laoding = false;
-    return state.value.menu
+    const menu = result.data ?? []
+    state.value.menu = menu
+    state.value.loading = false
+    return menu
   }
 
   function setCurrentBreadcrumbs(currentBreadcrumbs:RouteResourceMetadata[]) {

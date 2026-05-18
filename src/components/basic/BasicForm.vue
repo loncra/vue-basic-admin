@@ -14,7 +14,8 @@ import {
   watch
 } from "vue";
 import {CONFIG_PROVIDER, SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
-import type {BasicAuthorityProps, BasicCrudService, BasicIdMetadata, RestResult} from "@/types";
+import type {BasicCrudService, BasicIdMetadata, RestResult} from "@/types/apis";
+import type {BasicAuthorityProps} from "@/types/composables";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {App, Checkbox} from "antdv-next";

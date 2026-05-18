@@ -1,4 +1,4 @@
-import type {BasicIdMetadata} from "@/types";
+import type {BasicIdMetadata} from "@/types/apis/common";
 
 /**
  * 审计事件
@@ -7,7 +7,7 @@ import type {BasicIdMetadata} from "@/types";
 export interface AuditEventEntity extends BasicIdMetadata<string> {
   /**
    * 时间戳
-   */ 
+   */
   timestamp: number
   /**
    * 主体

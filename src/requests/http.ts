@@ -2,7 +2,7 @@ import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestCon
 import router from '@/routers'
 import {message} from 'antdv-next'
 import {HTTP} from '@/constants/systemConstant.ts'
-import {BusinessError, type RestResult} from '@/types'
+import {BusinessError, type RestResult} from '@/types/apis'
 
 /** 不弹出错误提示的 HTTP 状态码 */
 const ignoreErrorStatus: number[] = [404]

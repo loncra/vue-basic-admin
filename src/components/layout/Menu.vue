@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
-import type {ResourceEntity} from "@/types";
+import type {ResourceEntity} from "@/types/apis";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -112,8 +112,8 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
 
 <template>
   <a-spin
-    :spinning="menuPrincipalStore.state.laoding"
-    v-if="$attrs.mode === 'inline' && menuPrincipalStore.state.laoding"
+    :spinning="menuPrincipalStore.state.loading"
+    v-if="$attrs.mode === 'inline' && menuPrincipalStore.state.loading"
     class="flex h-full min-h-0 flex-col"
   >
     <a-flex vertical class="h-full min-h-0" />

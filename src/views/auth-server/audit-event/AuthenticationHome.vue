@@ -5,7 +5,7 @@ import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, ref} from 'vue';
 import type {SearchableColumnType} from '@/components/basic/AuthorityOperateTable.vue';
 import {DatePicker, Input} from 'antdv-next';
-import type {AuditEventEntity} from '@/types/auth-server/auditDomain';
+import type {AuditEventEntity} from '@/types/apis/auth-server/auditDomain';
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

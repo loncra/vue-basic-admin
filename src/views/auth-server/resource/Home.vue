@@ -4,7 +4,7 @@ import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import LAuthorityButton from "@/components/basic/AuthorityButton.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import type {ResourceEntity} from '@/types/auth-server/resourceType';
+import type {ResourceEntity} from '@/types/apis/auth-server/resourceDomain';
 import type {TableProps} from "antdv-next";
 
 const globalProperties =

@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {NameValueEnumMetadata, ResourceEntity, RestResult} from "@/types";
+import type {
+  NameValueEnumMetadata, 
+  ResourceEntity, 
+  RestResult,
+  EnumBucketsResponseBody,
+  RoleEntity, 
+  RoleSavePayload
+} from "@/types/apis";
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import type {RoleEntity, RoleSavePayload} from "@/types/auth-server/roleDomain.js";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
-import type {FilterRequest} from "@/types/common.ts";
-import type {OptionProps} from "antdv-next/dist/mentions/index";
-import {getEnumValue} from "@/utils/commonUtils.ts";
+import type {FilterRequest} from "@/types/apis/common.js";
+import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
 
@@ -56,6 +60,22 @@ const options = ref<{
 
 const resourceTableRef = ref<InstanceType<typeof LResourceTable>>()
 
+type SourceChangeOption = { value: string; name: string }
+
+function toSourceSelectOptions(
+  sources: NameValueEnumMetadata<string>[] | string[] | undefined,
+): SourceChangeOption[] {
+  if (!sources?.length) {
+    return []
+  }
+  return sources.map((s) => ({
+    value: String(getEnumValue(s)),
+    name: isNameValueEnumMetadata(s)
+      ? s.name
+      : (options.value.sourceOptions.find((o) => String(getEnumValue(o)) === s)?.name ?? String(s)),
+  }))
+}
+
 async function mounted() {
 
   const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
@@ -70,27 +90,22 @@ async function mounted() {
     if (result.data) {
       options.value.parent = result.data
 
-      options.value.entity.parentId = options.value.parent.id
-      options.value.entity.sources = options.value.parent.sources
-      options.value.entity.resourceIds = options.value.parent.resourceIds
-      options.value.entity.removable = options.value.parent.removable
-      options.value.entity.modifiable = options.value.parent.modifiable
-      sourceChange(
-        '',
-        options.value.parent.sources.map((s) => ({
-          value: String(getEnumValue(s)),
-        })),
-      )
+      options.value.entity.parentId = options.value.parent?.id as number
+      options.value.entity.sources = options.value.parent?.sources as string[]
+      options.value.entity.resourceIds = options.value.parent?.resourceIds as number[]
+      options.value.entity.removable = options.value.parent?.removable as number
+      options.value.entity.modifiable = options.value.parent?.modifiable as number
+      sourceChange('', toSourceSelectOptions(options.value.parent?.sources))
     }
   }
 }
 
-function sourceChange(value: string, _options: OptionProps[]) {
+function sourceChange(_value: string, _options: SourceChangeOption[]) {
   if (_options.length <= 0) {
     resourceTableRef.value?.clearDataSource()
     return;
   }
-  options.value.resourceQuery['filter_[sources_jin]'] = _options.map((o: OptionProps) => o.value);
+  options.value.resourceQuery['filter_[sources_jin]'] = _options.map((o) => o.value);
   resourceTableRef.value?.fetchDataSource()
 }
 

@@ -3,7 +3,7 @@ import type {Router} from 'vue-router'
 
 import dayjs from 'dayjs'
 import {dayjsFormat} from './dateUtils'
-import type {NameValueEnumMetadata} from '@/types'
+import type {NameValueEnumMetadata} from '@/types/apis'
 
 /**
  * 值转换函数类型
@@ -307,6 +307,7 @@ export function isNameValueEnumMetadata<TValue>(
   }
   return 'value' in value && 'name' in value
 }
+
 /** 从元数据取业务值，否则原样返回裸枚举值 */
 export function getEnumValue<TValue>(value: NameValueEnumMetadata<TValue> | TValue): TValue {
   if (isNameValueEnumMetadata(value)) {

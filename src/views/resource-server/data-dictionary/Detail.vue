@@ -2,7 +2,7 @@
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {DataDictionaryEntity} from "@/types/resource-server/dataDictionaryDomain.ts";
+import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 
 const globalProperties =

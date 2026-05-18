@@ -2,12 +2,8 @@
  * @file 控制台用户（Console User）REST 客户端
  * @description 继承 {@link PageRestfulCrudService}，列表走分页接口，分页数据结构为 {@link TotalPage}。
  */
-import type {
-  ConsoleUserEntity,
-  ConsoleUserSavePayload
-} from '../../types/auth-server/consoleUserDomain'
 import {PageRestfulCrudService} from "@/apis/pageRestfulCrudService.ts";
-import type {TotalPage} from "@/types";
+import type {TotalPage, ConsoleUserEntity,ConsoleUserSavePayload } from "@/types/apis";
 
 /**
  * 控制台用户领域服务：`/api[/auth-server]/console/user`

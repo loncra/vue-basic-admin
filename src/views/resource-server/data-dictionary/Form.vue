@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from "vue";
-import type {NameValueEnumMetadata, RestResult} from "@/types";
+import type {
+  NameValueEnumMetadata, 
+  RestResult, 
+  DataDictionaryEntity,
+  DataDictionarySavePayload,
+  DictionaryTypeEntity,
+  EnumBucketsResponseBody
+} from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
-import type {EnumBucketsResponseBody} from "@/types/resource-server/resourceDomain.js";
-import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
-import type {
-  DataDictionaryEntity,
-  DataDictionarySavePayload
-} from "@/types/resource-server/dataDictionaryDomain.ts";
-import type {DictionaryTypeEntity} from "@/types/resource-server/dictionaryTypeDomain.ts";
+import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";;
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
 import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant.ts";
 

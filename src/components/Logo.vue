@@ -1,19 +1,6 @@
 <script setup lang="ts">
 
-export interface LogoProps {
-  /**
-   * logo 标题
-   */
-  text?: string
-  /**
-   * logo icon
-   */
-  icon?: string
-  /**
-   * 是否隐藏 标题
-   */
-  hideText?: boolean
-}
+import type {LogoProps} from '@/types/composables/common'
 
 defineOptions({
   name: 'LLogo',

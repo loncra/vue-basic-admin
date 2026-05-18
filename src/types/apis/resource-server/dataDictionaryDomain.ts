@@ -1,4 +1,4 @@
-import type {NameValueEnumMetadata, VersionEntityMetadata,} from "@/types";
+import type {NameValueEnumMetadata, VersionEntityMetadata,} from "@/types/apis/common";
 
 /**
  * 字典类型保存请求体

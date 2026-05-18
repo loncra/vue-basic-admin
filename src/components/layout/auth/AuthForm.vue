@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LForm from '@/components/Form.vue'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import type {AuthCredentials} from '@/types'
+import type {AuthCredentials} from '@/types/apis'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.js'
 import {requireNonNullOrUndefined} from '@/utils'

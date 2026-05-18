@@ -3,7 +3,7 @@ import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {ResourceService} from "@/apis";
-import type {ResourceEntity} from "@/types";
+import type {ResourceEntity} from "@/types/apis";
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
