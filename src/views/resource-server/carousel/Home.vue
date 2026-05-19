@@ -232,7 +232,7 @@ onMounted(mounted)
                 </div>
               </a-carousel>
 
-              <a-card :title="(item?.label || '') + '数据内容'" >
+              <a-card :title="(item?.label || '') + globalProperties.$t('resourceServer.carousel.dataContent')" >
                 <template #extra>
                   <l-action-button :action-items="options.actionButtons" @action-item-click="(key:string) => onActionItemClick(key, null as unknown as string)"/>
                 </template>

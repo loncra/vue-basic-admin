@@ -324,6 +324,7 @@ const locale: LanguagePack = {
       filename:'文件名称'
     },
     carousel: {
+      dataContent:' 数据内容',
       routePage:'轮播图',
       link:'链接地址',
       showtime:'展示时间'

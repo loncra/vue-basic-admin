@@ -329,7 +329,8 @@ const locale: LanguagePack = {
       filename: 'File name',
     },
     carousel: {
-      routePage: 'Carousel',
+      dataContent:' Data Content',
+      routePage: ' Carousel',
       link:'Link',
       showtime: 'Display time',
     },
