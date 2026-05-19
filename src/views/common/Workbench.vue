@@ -62,14 +62,14 @@ const principalStore = usePrincipalStore()
               <a-flex justify="space-between" align="center">
                 <a-space>
                   <icon-font class="icon" type="icon-email"/>
-                  电子邮箱
+                  {{globalProperties.$t('common.email')}}
                 </a-space>
                 <span>{{ principalStore.state?.details?.metadata.email }}</span>
               </a-flex>
               <a-flex justify="space-between" align="center">
                 <a-space>
                   <icon-font class="icon" type="icon-gender"/>
-                  性别
+                  {{globalProperties.$t('common.gender')}}
                 </a-space>
                 <span>{{ principalStore.state?.details?.metadata?.gender?.name }}</span>
               </a-flex>
