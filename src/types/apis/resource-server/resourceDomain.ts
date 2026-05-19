@@ -75,3 +75,7 @@ export interface FileObject {
   objectName:string
   extraHeaders?: Record<string, string>
 }
+
+export interface ObjectWriteResult extends FileObject{
+  etag:string
+}

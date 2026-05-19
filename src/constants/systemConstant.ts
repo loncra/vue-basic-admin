@@ -230,3 +230,9 @@ export const TIME_UNIT_TYPE = {
    */
   DAYS: "DAYS",
 }
+
+export const DATE_TIME_FORMAT = {
+  POST_DATE_FORMAT: import.meta.env.VITE_APP_POST_DATE_FORMAT,
+  POST_DATETIME_FORMAT: import.meta.env.VITE_APP_POST_DATETIME_FORMAT,
+  POST_TIMESTAMP_FORMAT: import.meta.env.VITE_APP_POST_TIMESTAMP_FORMAT
+} as const

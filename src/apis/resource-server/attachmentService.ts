@@ -1,4 +1,4 @@
-import type {ExportDataMetadata, FileObject} from "@/types";
+import type {ExportDataMetadata, FileObject} from "@/types/apis";
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
 
 /**

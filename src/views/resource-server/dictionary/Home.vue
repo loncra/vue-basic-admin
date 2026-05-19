@@ -308,16 +308,6 @@ onMounted(mounted)
                   <icon-font icon="icon align" type="icon-category" />
                   <a-typography-text strong>{{globalProperties.$t('resourceServer.dictionaryType.routePage')}}</a-typography-text>
                 </a-space>
-                <l-authority-button
-                  class="mr-md"
-                  size="small"
-                  :authority="{
-                    add:'perms[resource_server_dictionary_type:save]',
-                    delete:'perms[resource_server_dictionary_type:delete]',
-                  }"
-                  @delete="dictionaryTypeTable.remove(options.dictionaryType.selectedRows)"
-                  @add="options.dictionaryType.formOpen = true"
-                />
               </a-flex>
             </template>
             <template #bodyCell="{ column, record }">

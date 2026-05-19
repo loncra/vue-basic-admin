@@ -59,7 +59,7 @@ const entity = ref<ConsoleUserEntity>({
 <template>
   <div>
     <l-basic-detail
-      operationDataTraceTarget="tb_console_user"
+      operation-data-trace-target="tb_console_user"
       :redirect="{name:'auth_server_user_console'}"
       :title-text="(title:string, _entity:ConsoleUserEntity) => title + ' (' + _entity.realName + ')'"
       :service="service"

@@ -51,10 +51,12 @@ const props = withDefaults(
     authority?: BasicAuthorityProps
     preMounted?: () => void | Promise<void>
     postMounted?: () => void | Promise<void>
+    postGetEntity?:(entity: TEntity) => TEntity | Promise<TEntity>
     redirect: RouteLocationRaw
     titleText?: (title:string, entity: TEntity | TBody) => string
   }>(),
   {
+    postGetEntity: (entity: TEntity) => entity,
     titleText: (title:string, entity: TEntity | TBody) => title,
   },
 )
@@ -67,7 +69,6 @@ const currentRoute = ref<RouteLocationNormalizedLoaded>()
 
 const emit = defineEmits<{
   (e: 'success', data: RestResult<TId>): void
-  (e: 'postGet', data: RestResult<TEntity>, entity:TBody): void
   (e: 'resetFields'): void
 }>()
 
@@ -151,13 +152,14 @@ function onFinish () {
 async function getEntity(id: TId) {
   const result:RestResult<TEntity> = await props.service.get(id);
   const value = {...entity.value, ...result?.data || {}}
+  const afterValue = await props.postGetEntity(value as TEntity)
+
   for (const key in entity.value) {
     if (value[key] === undefined) {
       continue;
     }
-    entity.value[key] = value[key]
+    entity.value[key] = afterValue[key]
   }
-  emit('postGet', result, entity.value)
 
   const ct = (value as { creationTime?: number }).creationTime
   if (ct != null) {
@@ -256,7 +258,7 @@ watch(
                 <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
               </a-space>
             </a-divider>
-            <l-operation-data-trace-table detailView :date="creationTime" :query="{'filter_[data.operationDataTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationDataTrace.entityId_eq]':entity.id}"/>
+            <l-operation-data-trace-table hide-title detailView :date="creationTime" :query="{'filter_[data.operationDataTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationDataTrace.entityId_eq]':entity.id}"/>
           </div>
           <a-space>
             <a-button type="primary" html-type="submit" :loading="spinning">

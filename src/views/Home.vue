@@ -2,7 +2,7 @@
 import HomeLayout from '@/components/layout/HomeLayout.vue'
 
 defineOptions({
-  name: 'Home',
+  name: 'IndexHome',
 })
 
 </script>

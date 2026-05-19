@@ -1,7 +1,4 @@
-import {
-  SYSTEM_CONSTANT,
-  TIME_UNIT_TYPE
-} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT, TIME_UNIT_TYPE} from '@/constants/systemConstant.ts'
 
 /**
  * 通用类型与「数据访问服务」契约（接口层）
@@ -94,6 +91,7 @@ export interface IdValueMetadata<I, V>  extends BasicIdMetadata<I> {
 export interface NameEnumMetadata {
   /** 显示名称 */
   name: string
+  [key: string]: unknown
 }
 
 /**
@@ -179,7 +177,7 @@ export interface PageRequest extends FilterRequest {
   /** 当前页码（从 1 开始） */
   number: number
   /** 每页条数 */
-  size: number
+  size?: number
 }
 
 /**
@@ -192,7 +190,7 @@ export interface ScrollPageResult<T> {
   /** 当前页数据列表 */
   elements: T[]
   /** 元数据 */
-  metadata: Record<string, unknown>
+  metadata?: Record<string, unknown>
   /** 当前页元素数量 */
   numberOfElements: number
   /** 每页大小 */

@@ -1,4 +1,4 @@
-import type {RouteTitleMap} from '../../types/apis/common'
+import type {RouteTitleMap} from '@/types/composables/common'
 
 export default {
   auth_server_audit_event_authentication_detail: () =>

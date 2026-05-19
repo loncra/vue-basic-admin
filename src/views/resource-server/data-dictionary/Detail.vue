@@ -32,7 +32,7 @@ const entity = ref<DataDictionaryEntity>({
 <template>
   <div>
     <l-basic-detail
-      operationDataTraceTarget="tb_data_dictionary"
+      operation-data-trace-target="tb_data_dictionary"
       :redirect="{name:'resource_server_dictionary'}"
       :title-text="(title:string, _entity:DataDictionaryEntity) => title + ' (' + _entity.name + ')'"
       :service="service"

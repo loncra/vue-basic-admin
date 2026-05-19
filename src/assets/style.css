@@ -158,8 +158,8 @@
     -webkit-mask-image: linear-gradient(black, black 40%, transparent 100%);
   }
 
-  .layout-content-operation .tool-bar {
-    @apply relative min-w-0 max-w-full rounded-b-lg border border-border-secondary border-solid border-t-0 bg-container p-sm;
+  .layout-content-operation > .tool-bar {
+    @apply relative min-w-0 max-w-full rounded-b-lg border border-border-secondary! border-solid border-t-0 bg-container p-sm;
   }
 
   /* ant-tabs-card 默认 ink-bar visibility:hidden，但 left/width 仍会随选中项动画；做成 Segmented 拇指，选中底由滑块承担 */
@@ -261,7 +261,7 @@
   }
 
   .drag-ghost {
-    @apply pointer-events-none fixed -left-[9999px] z-[9999] rounded p-sm text-sm
+    @apply pointer-events-none fixed -left-[9999px] z-[9999] rounded p-xs text-sm
       bg-container text-main shadow-ter border border-dashed;
   }
 }

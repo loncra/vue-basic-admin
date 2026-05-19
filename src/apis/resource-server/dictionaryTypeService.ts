@@ -7,7 +7,7 @@ import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
 import type {
   DictionaryTypeEntity,
   DictionaryTypeSavePayload
-} from "../../types/apis/resource-server/dictionaryTypeDomain.ts";
+} from "@/types/apis/resource-server/dictionaryTypeDomain.ts";
 
 /**
  * 字典类型领域服务：`/api[/resource-server]/dictionary/type`

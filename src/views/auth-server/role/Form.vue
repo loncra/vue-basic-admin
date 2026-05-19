@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {
+  EnumBucketsResponseBody,
   NameValueEnumMetadata,
   ResourceEntity,
   RestResult,
-  EnumBucketsResponseBody,
   RoleEntity,
   RoleSavePayload
 } from "@/types/apis";
@@ -122,9 +122,10 @@ function setPageTitle(title:string, entity: RoleEntity | RoleSavePayload) {
   return title
 }
 
-function postGet(result: RestResult<RoleEntity>, _entity: RoleSavePayload) {
+function postGetEntity(_entity: RoleEntity) {
   options.value.resourceQuery['filter_[sources_jin]'] = _entity.sources.map(getEnumValue);
   resourceTableRef.value?.fetchDataSource()
+  return _entity;
 }
 
 function resetFields() {
@@ -206,8 +207,8 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
   <div>
     <l-basic-form
       @resetFields="resetFields"
-      operationDataTraceTarget="tb_role"
-      @post-get="postGet"
+      operation-data-trace-target="tb_role"
+      :post-get-entity="postGetEntity"
       :pre-mounted="mounted"
       :title-text="setPageTitle"
       :redirect="{name:'auth_server_role'}"

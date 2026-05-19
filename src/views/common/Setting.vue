@@ -3,14 +3,10 @@ import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
 import LForm from "@/components/Form.vue";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
-import type {VNode} from "vue";
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {CONFIG_PROVIDER, CONFIG_PROVIDER_THEME} from "@/constants/systemConstant.ts";
-import type {
-  IdValueMetadata,
-  NameValueEnumMetadata,
-} from "@/types/apis";
-import type {ThemeMode, CreateSuccessBackValue} from "@/types/composables";
+
+import type {CreateSuccessBackValue, ThemeMode} from "@/types/composables";
 import type {Color} from 'antdv-next'
 
 defineOptions({
@@ -22,71 +18,55 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const options = ref<{
-  themeOptions:NameValueEnumMetadata<string>[]
-  tabItems: IdValueMetadata<string, VNode>[]
-  sizeOptions: NameValueEnumMetadata<string>[]
-  createSuccessOptions: NameValueEnumMetadata<string>[]
-  colorOptions:string[]
-}>({
-  colorOptions: ['colorPrimary', 'colorError', 'colorSuccess', 'colorWarning'],
-  createSuccessOptions:[
-    {
-      name: globalProperties.$t('form.createSuccess.okReturnList'),
-      value: CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME
+const colorOptions = ref<string[]>(['colorPrimary', 'colorError', 'colorSuccess', 'colorWarning'])
+
+const createSuccessOptions = computed(() => [
+  { name: globalProperties.$t('form.createSuccess.okReturnList'), value: CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME },
+  { name: globalProperties.$t('form.createSuccess.addAnother'), value: CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT },
+])
+
+const sizeOptions = computed(() => [
+  { name: globalProperties.$t('setting.size.large'), value: 'large' },
+  { name: globalProperties.$t('setting.size.middle'), value: 'middle' },
+  { name: globalProperties.$t('setting.size.small'), value: 'small' },
+])
+
+const tabItems = computed(() => [
+  {
+    metadata: {
+      key:'colorSetting',
     },
-    {
-      name: globalProperties.$t('form.createSuccess.addAnother'),
-      value: CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT
-    }
-  ],
-  sizeOptions:[
-    {
-      name: globalProperties.$t('setting.size.large'),
-      value: 'large'
+    id: globalProperties.$t('setting.colorSetting.text'),
+    value: createIcon('icon-user-defined', 'align')
+  },
+  {
+    metadata: {
+      key:'size',
     },
-    {
-      name: globalProperties.$t('setting.size.middle'),
-      value: 'middle'
+    id: globalProperties.$t('common.size'),
+    value: createIcon('icon-customization', 'align')
+  },
+  {
+    metadata: {
+      key:'style',
     },
-    {
-      name: globalProperties.$t('setting.size.small'),
-      value: 'small'
-    }
-  ],
-  tabItems:[
-    {
-      id: globalProperties.$t('setting.colorSetting.text'),
-      value: createIcon('icon-user-defined', 'align')
+    id: globalProperties.$t('common.style'),
+    value: createIcon('icon-panorama', 'align')
+  },
+  {
+    metadata: {
+      key:'other',
     },
-    {
-      id: globalProperties.$t('common.size'),
-      value: createIcon('icon-customization', 'align')
-    },
-    {
-      id: globalProperties.$t('common.style'),
-      value: createIcon('icon-panorama', 'align')
-    },
-    {
-      id: globalProperties.$t('common.other'),
-      value: createIcon('icon-chengchangzhiyin', 'align')
-    }
-  ],
-  themeOptions:[
-    {
-      name:globalProperties.$t('setting.theme.system'),
-      value: CONFIG_PROVIDER_THEME.DARK
-    },
-    {
-      name: globalProperties.$t('setting.theme.dark'),
-      value: CONFIG_PROVIDER_THEME.DARK
-    },
-    {
-      name: globalProperties.$t('setting.theme.light'),
-      value: CONFIG_PROVIDER_THEME.LIGHT
-    }
-  ]
-})
+    id: globalProperties.$t('common.other'),
+    value: createIcon('icon-chengchangzhiyin', 'align')
+  }
+])
+
+const themeOptions = computed(() => [
+  { name: globalProperties.$t('setting.theme.system'), value: CONFIG_PROVIDER_THEME.SYSTEM },
+  { name: globalProperties.$t('setting.theme.dark'), value: CONFIG_PROVIDER_THEME.DARK },
+  { name: globalProperties.$t('setting.theme.light'), value: CONFIG_PROVIDER_THEME.LIGHT },
+])
 
 function colorChange(_color: Color, tokenKey: string): void {
   configProviderStore.setTokenValue(tokenKey, _color.toHexString())
@@ -107,7 +87,7 @@ function colorChange(_color: Color, tokenKey: string): void {
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <a-form-item name="name" :label="globalProperties.$t('setting.theme.text')">
               <a-space-compact block>
-                <a-select  @change="(value: string) => configProviderStore.setMode(value as ThemeMode)" :value="configProviderStore.state.theme"  :options="options.themeOptions" :field-names="{label:'name'}"></a-select>
+                <a-select  @change="(value: string) => configProviderStore.setMode(value as ThemeMode)" :value="configProviderStore.state.theme"  :options="themeOptions" :field-names="{label:'name'}"></a-select>
                 <a-space-addon>
                   {{ globalProperties.$t('setting.compact') }} :
                 </a-space-addon>
@@ -135,16 +115,16 @@ function colorChange(_color: Color, tokenKey: string): void {
 
         </a-row>
 
-        <a-tabs centered :items="options.tabItems.map(item => ({key: item.id, label: item.id, icon: item.value}))">
+        <a-tabs centered :items="tabItems.map(item => ({key: item.metadata?.key, label: item.id, icon: item.value}))">
           <template #contentRender="{item}">
-            <template v-if="item.key === globalProperties.$t('common.other')">
+            <template v-if="item.key === 'other'">
               <a-space orientation="vertical" class="w-full">
 
                 <a-flex justify="space-between" align="center" >
                   <a-typography-text strong>
                     {{ globalProperties.$t('setting.componentSize') }}
                   </a-typography-text>
-                  <a-select @change="(value: string) => configProviderStore.setComponentSize(value)" :value="configProviderStore.state.componentSize" :options="options.sizeOptions" :field-names="{label:'name'}"/>
+                  <a-select @change="(value: string) => configProviderStore.setComponentSize(value)" :value="configProviderStore.state.componentSize" :options="sizeOptions" :field-names="{label:'name'}"/>
                 </a-flex>
 
                 <a-flex justify="space-between" align="center" >
@@ -158,7 +138,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                   <a-typography-text strong>
                     {{ globalProperties.$t('setting.createSuccessBack') }}
                   </a-typography-text>
-                  <a-select @change="(value: string) => configProviderStore.setCreateSuccessBack(value as CreateSuccessBackValue)" :value="configProviderStore.state.createSuccessBack" :options="options.createSuccessOptions" :field-names="{label:'name'}"/>
+                  <a-select @change="(value: string) => configProviderStore.setCreateSuccessBack(value as CreateSuccessBackValue)" :value="configProviderStore.state.createSuccessBack" :options="createSuccessOptions" :field-names="{label:'name'}"/>
                 </a-flex>
 
                 <a-collapse :classes="{header: 'bg-container!'}">
@@ -203,7 +183,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-collapse>
               </a-space>
             </template>
-            <template v-if="item.key === globalProperties.$t('common.style')">
+            <template v-if="item.key === 'style'">
               <a-collapse :classes="{header: 'bg-container!'}">
                 <a-collapse-panel>
                   <template #header>
@@ -257,7 +237,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-collapse-panel>
               </a-collapse>
             </template>
-            <template v-if="item.key === globalProperties.$t('common.size')">
+            <template v-if="item.key === 'size'">
 
               <a-collapse :classes="{header: 'bg-container!'}">
                 <a-collapse-panel>
@@ -385,9 +365,9 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-collapse-panel>
               </a-collapse>
             </template>
-            <template v-if="item.key === globalProperties.$t('setting.colorSetting.text')">
+            <template v-if="item.key === 'colorSetting'">
               <a-collapse :classes="{header: 'bg-container!'}">
-                <a-collapse-panel :key="id" v-for="id of options.colorOptions">
+                <a-collapse-panel :key="id" v-for="id of colorOptions">
                   <template #header>
                     {{globalProperties.$t('setting.colorSetting.' + id)}}
                   </template>

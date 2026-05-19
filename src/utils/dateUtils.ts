@@ -79,3 +79,39 @@ export function postTimestampFormat(
 ): string {
   return dayjsFormat(value, import.meta.env.VITE_APP_POST_DATETIME_FORMAT)
 }
+
+
+export function disableDate(current: Dayjs, targetTime: Dayjs) {
+  const show = targetTime
+  if (show == null) return false
+  const showTime = dayjs(show)
+  if (!showTime.isValid()) return false
+  return current.isBefore(showTime, 'day')
+}
+
+export function disableTime(current: Dayjs | null, targetTime: Dayjs) {
+  const show = targetTime
+  if (show == null || current == null) return {}
+  const showTime = dayjs(show)
+  if (!showTime.isValid() || !current.isSame(showTime, 'day')) {
+    return {}
+  }
+  const h = showTime.hour()
+  const m = showTime.minute()
+  const s = showTime.second()
+  const before = (end: number) =>
+    Array.from({ length: end }, (_, i) => i)
+  return {
+    disabledHours: () => before(h),
+    disabledMinutes: (hour: number) => {
+      if (hour < h) return before(60)
+      if (hour > h) return []
+      return before(m)
+    },
+    disabledSeconds: (hour: number, minute: number) => {
+      if (hour < h || minute < m) return before(60)
+      if (hour > h || minute > m) return []
+      return before(s)
+    },
+  }
+}

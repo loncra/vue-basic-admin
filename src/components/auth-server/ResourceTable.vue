@@ -194,7 +194,7 @@ function fetchDataSource() {
 
 function onActionButtonClick(key: string, record: ResourceEntity) {
   if (key === 'addChild') {
-    globalProperties.$router.push({name:'auth_server_resource_addChild', query:{parentId:String(record.id)}})
+    globalProperties.$router.push({name:'auth_server_resource_add_child', query:{parentId:String(record.id)}})
   }
 }
 

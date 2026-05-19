@@ -1,7 +1,7 @@
-import type {RouteTitleMap} from '../../types/apis/common'
+import type {RouteTitleMap} from '@/types/composables/common'
 
 export default {
-  auth_server_resource_addChild: () =>
+  auth_server_resource_add_child: () =>
     ['common.addChild', {name: 'authServer.resource.routePage'}] as const,
   auth_server_resource_edit: () =>
     ['common.edit', {name: 'authServer.resource.routePage'}] as const,

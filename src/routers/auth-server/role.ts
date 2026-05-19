@@ -14,7 +14,7 @@ const router: RouteRecordRaw[] = [
   {
     path: '/auth-server/role/addChild',
     component: () => import('@/views/auth-server/role/Form.vue'),
-    name: 'auth_server_role_addChild',
+    name: 'auth_server_role_add_child',
     meta: {
       applicationName: 'auth-server',
       icon: 'icon-editor-add-cell',

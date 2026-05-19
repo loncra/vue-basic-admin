@@ -14,15 +14,17 @@ const locale: LanguagePack = {
     save: '保存',
     add: '添加{name}',
     edit: '编辑{name}',
-    delete: '删除',
     export: '导出',
     detail: '{name}详情',
     action: '操作',
-    deleteSelected: '删除选中',
     reset: '重置',
-    deleteConfirmTitle: '删除确认',
-    deleteConfirmSingle: '确定要删除该记录吗？',
-    deleteConfirmBatch: '确定要删除 {count} 条记录吗？',
+    delete:{
+      text:'删除',
+      selected: '删除选中',
+      confirmTitle: '删除确认',
+      confirmSingle: '确定要删除该记录吗？',
+      confirmBatch: '确定要删除 {count} 条记录吗？',
+    },
     serverError: '服务器异常，请稍后在试。',
     confirmPassword:'确认密码',
     email: '电子邮箱',
@@ -320,6 +322,11 @@ const locale: LanguagePack = {
     },
     attachment: {
       filename:'文件名称'
+    },
+    carousel: {
+      routePage:'轮播图',
+      link:'链接地址',
+      showtime:'展示时间'
     }
   }
 }

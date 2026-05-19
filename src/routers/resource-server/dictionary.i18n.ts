@@ -1,7 +1,7 @@
-import type {RouteTitleMap} from '../../types/apis/common'
+import type {RouteTitleMap} from '@/types/composables/common'
 
 export default {
-  resource_server_data_dictionary_addChild: () =>
+  resource_server_data_dictionary_add_child: () =>
     ['common.addChild', {name: 'resourceServer.dataDictionary.routePage'}] as const,
   resource_server_data_dictionary_edit: () =>
     ['common.edit', {name: 'resourceServer.dataDictionary.routePage'}] as const,

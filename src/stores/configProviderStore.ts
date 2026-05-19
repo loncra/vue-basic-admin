@@ -24,8 +24,11 @@ import {
 import i18n, {type LanguagePack} from '@/i18n'
 import type {NameValueEnumMetadata} from '@/types/apis'
 import type {
-  CreateSuccessBackValue, ThemeMode, ThemeValue, ConfigProviderState,
-  ConfigProviderStoredState
+  ConfigProviderState,
+  ConfigProviderStoredState,
+  CreateSuccessBackValue,
+  ThemeMode,
+  ThemeValue
 } from '@/types/composables'
 import type {ComposerTranslation} from 'vue-i18n'
 import dayjs from 'dayjs'
@@ -331,10 +334,8 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
   function changeLocale(locale: string) {
     state.value.locale = locale
     i18n.global.locale.value = state.value.locale
-    dayjs.locale(
-      (i18n.global.messages.value as Record<string, LanguagePack>)[state.value.locale]
-        ?.dayjs as string,
-    )
+    const dayjsLocale = (i18n.global.messages.value as Record<string, LanguagePack>)[state.value.locale]?.dayjs as string
+    dayjs.locale(dayjsLocale)
     saveLocalStorage()
   }
 

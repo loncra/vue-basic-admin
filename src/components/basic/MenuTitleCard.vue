@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
-import {computed, useSlots} from 'vue'
+import {useSlots} from "vue";
 
 defineOptions({
   name: 'LMenuTitleCard',
@@ -16,13 +16,11 @@ export interface MenuTitleCardProps {
 const slots = useSlots()
 const menuPrincipalStore = useMenuPrincipalStore()
 
-const hasCustomTitle = computed(() => Boolean(slots.title))
-
 </script>
 
 <template>
   <a-card v-bind="$attrs">
-    <template v-if="hasCustomTitle" #title>
+    <template v-if="slots.title" #title>
       <slot name="title"/>
     </template>
     <template v-else #title>

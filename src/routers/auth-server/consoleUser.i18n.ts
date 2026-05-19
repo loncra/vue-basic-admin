@@ -1,4 +1,4 @@
-import type {RouteTitleMap} from '../../types/apis/common'
+import type {RouteTitleMap} from '@/types/composables/common'
 
 export default {
   auth_server_console_user_edit: () =>

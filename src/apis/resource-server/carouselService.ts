@@ -6,8 +6,8 @@
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
 import {PageRestfulCrudService} from "@/apis/pageRestfulCrudService.ts";
 import type {
-  DataDictionaryEntity,
-  DataDictionarySavePayload,
+  CarouselEntity,
+  CarouselSavePayload,
   RestResult,
   TotalPage,
   TreeSortMetadata
@@ -16,22 +16,22 @@ import type {
 import axios from "@/requests/http.ts";
 
 /**
- * 数据字典领域服务：`/api[/resource-server]/data/dictionary`
+ * 轮播图领域服务：`/api[/resource-server]/carousel`
  *
  * @author maurice.chen
  */
-export class DataDictionaryService extends PageRestfulCrudService<DataDictionarySavePayload, DataDictionaryEntity, TotalPage<DataDictionaryEntity>> {
+export class CarouselService extends PageRestfulCrudService<CarouselSavePayload, CarouselEntity, TotalPage<CarouselEntity>> {
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/resource-server' : '')
 
   /** 本服务相对 {@link BASE_URL} 的路径 */
-  static readonly SERVICE_URL = DataDictionaryService.BASE_URL + '/data/dictionary'
-  static readonly SERVICE_SORT = DataDictionaryService.SERVICE_URL + "/sort"
+  static readonly SERVICE_URL = CarouselService.BASE_URL + '/carousel'
+  static readonly SERVICE_SORT = CarouselService.SERVICE_URL + "/sort"
 
   constructor() {
-    super(DataDictionaryService.SERVICE_URL)
+    super(CarouselService.SERVICE_URL)
   }
 
   sort(sorts:TreeSortMetadata<number>[]):Promise<RestResult<void>> {
-    return axios.put(DataDictionaryService.SERVICE_SORT, sorts)
+    return axios.put(CarouselService.SERVICE_SORT, sorts)
   }
 }

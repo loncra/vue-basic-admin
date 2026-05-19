@@ -162,7 +162,7 @@ watch(
             <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
           </a-space>
         </a-divider>
-        <l-operation-data-trace-table detailView :date="creationTime" :query="{'filter_[data.operationDataTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationDataTrace.entityId_eq]':entity.id}"/>
+        <l-operation-data-trace-table hide-title detailView :date="creationTime" :query="{'filter_[data.operationDataTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationDataTrace.entityId_eq]':entity.id}"/>
       </div>
 
       <slot name="afterOperationDataTrace"></slot>

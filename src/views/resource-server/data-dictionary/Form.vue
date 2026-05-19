@@ -106,7 +106,7 @@ function setPageTitle(title:string, entity: DataDictionaryEntity | DataDictionar
 <template>
   <div>
     <l-basic-form
-      operationDataTraceTarget="tb_data_dictionary"
+      operation-data-trace-target="tb_data_dictionary"
       :pre-mounted="preMounted"
       :post-mounted="postMounted"
       :title-text="setPageTitle"

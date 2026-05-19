@@ -95,7 +95,7 @@ function setPageTitle(title:string, entity: ResourceEntity | ResourceSavePayload
   <div>
     <l-basic-form
       :pre-mounted="mounted"
-      operationDataTraceTarget="tb_resource"
+      operation-data-trace-target="tb_resource"
       :title-text="setPageTitle"
       :redirect="{name:'auth_server_resource'}"
       :service="service"

@@ -153,7 +153,7 @@ function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
 
 function onActionButtonClick(key: string, record: RoleEntity) {
   if (key === 'addChild') {
-    globalProperties.$router.push({name:'auth_server_role_addChild', query:{parentId:String(record.id)}})
+    globalProperties.$router.push({name:'auth_server_role_add_child', query:{parentId:String(record.id)}})
   }
 }
 

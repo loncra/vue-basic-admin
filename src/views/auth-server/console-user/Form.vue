@@ -89,7 +89,7 @@ function resetFields() {
   <div>
     <l-basic-form
       @resetFields="resetFields"
-      operationDataTraceTarget="tb_console_user"
+      operation-data-trace-target="tb_console_user"
       :pre-mounted="mounted"
       :title-text="setPageTitle"
       :redirect="{name:'auth_server_user_console'}"

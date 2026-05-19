@@ -92,10 +92,10 @@ function remove(records: TEntity[]) {
   }
   const content =
     records.length === 1
-      ? globalProperties.$t('common.deleteConfirmSingle')
-      : globalProperties.$t('common.deleteConfirmBatch', {count: records.length})
+      ? globalProperties.$t('common.delete.confirmSingle')
+      : globalProperties.$t('common.delete.confirmBatch', {count: records.length})
   modal.confirm({
-    title: globalProperties.$t('common.deleteConfirmTitle'),
+    title: globalProperties.$t('common.delete.confirmTitle'),
     content,
     onOk: () => doDelete(records),
   })
@@ -140,7 +140,7 @@ function rebuildActionItems() {
     if ((principalStore.hasPermission(props.authority?.delete as string) || props.authority?.delete) && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
       options.value.actionButtons.push({
         key: 'delete',
-        label: globalProperties.$t('common.delete'),
+        label: globalProperties.$t('common.delete.text'),
         icon: () => createIcon('icon-delete'),
       })
     }
@@ -150,7 +150,7 @@ function rebuildActionItems() {
   if ((principalStore.hasPermission(props.authority?.delete as string) || props.authority?.delete) && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
     options.value.titleButtons.push({
       key: 'deleteSelected',
-      label: globalProperties.$t('common.deleteSelected'),
+      label: globalProperties.$t('common.delete.selected'),
       icon: () => createIcon('icon-delete'),
     })
   }

@@ -301,7 +301,7 @@ export function useTableRowDrag<
     if (!options.drag.value) {
       return columns
     }
-    return [{title: '', key: 'drag', width: 48}, ...columns]
+    return [{title: '', key: 'drag', width: 40}, ...columns]
   }
 
   const isDragCell = (column: {key?: string | number}) =>

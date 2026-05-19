@@ -32,7 +32,7 @@ const entity = ref<RoleEntity>({
 <template>
   <div>
     <l-basic-detail
-      operationDataTraceTarget="tb_role"
+      operation-data-trace-target="tb_role"
       :redirect="{name:'auth_server_role'}"
       :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'"
       :service="service"

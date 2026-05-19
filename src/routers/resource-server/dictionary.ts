@@ -15,7 +15,7 @@ const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/dictionary/addChild',
     component: () => import('@/views/resource-server/data-dictionary/Form.vue'),
-    name: 'resource_server_data_dictionary_addChild',
+    name: 'resource_server_data_dictionary_add_child',
     meta: {
       applicationName: 'resource-server',
       icon: 'icon-editor-add-cell',

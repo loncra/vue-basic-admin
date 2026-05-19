@@ -21,6 +21,7 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {RouteResourceMetadata} from '@/types/apis'
 import i18n from "@/i18n";
 import {getRouteTitle} from '@/routers'
+import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
 defineOptions({
   name: 'LLayoutContent',
@@ -31,6 +32,8 @@ const globalProperties =
     .globalProperties
 
 const menuPrincipalStore = useMenuPrincipalStore()
+const configProviderStore = useConfigProviderStore()
+
 const activeKey = ref<string>('')
 const isRouterAlive = ref(true)
 const isFullscreen = ref(false)
@@ -55,7 +58,7 @@ const operateItems = ref<MenuItemType[]>([
   },
 ])
 
-function tabIconSpin(itemKey: string | number): boolean {
+function isRoutePageLoading(itemKey: string | number): boolean {
   const p = menuPrincipalStore.state.routeEnterPage
   return Boolean(p?.loading && String(itemKey) === p.fullPath)
 }
@@ -366,7 +369,91 @@ onMounted(mounted)
     >
       <!-- 顶部操作区：左侧预留按钮，右侧分段器充当标签导航 -->
       <a-flex align="center" justify="center" class="layout-content-operation">
-        <div class="tool-bar ">
+        <a-border-beam 
+          v-if="isRoutePageLoading(globalProperties.$route.fullPath)" 
+          :color="[
+            {
+              color: configProviderStore.getToken().colorPrimary,
+              percent: 0
+            },
+            {
+              color: configProviderStore.getToken().colorSuccess,
+              percent: 50
+            },
+            {
+              color: configProviderStore.getToken().colorError,
+              percent: 100
+            }
+          ]"
+        >
+          <div class="tool-bar ">
+            <a-tabs
+              @change="changeTab"
+              :items="panes.map(p => ({ label: p.name, iconString: p.icon, key: p.path, closable: !pinnedRouteNames.some(_p => _p.path === p.path) && !fixedRouteNames.has(p.path) }))"
+              type="editable-card"
+              :active-key="activeKey"
+              hide-add
+              @edit="onRemoveTab"
+            >
+              <template #labelRender="{ item }">
+                <a-space>
+                  <icon-font
+                    v-if="isRoutePageLoading(item.key)"
+                    class="icon align"
+                    type="icon-loading"
+                    spin
+                  />
+                  <icon-font
+                    v-else
+                    class="icon align"
+                    :type="item.iconString || 'icon-survey'"
+                  />
+                  <span>{{item.label}}</span>
+                </a-space>
+              </template>
+              <template #leftExtra>
+                <div class="mr-xs">
+                  <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
+                    <a-button type="text" @click="reload">
+                      <template #icon>
+                        <icon-font class="icon align" type="icon-change"/>
+                      </template>
+                    </a-button>
+                  </a-tooltip>
+                  <a-tooltip
+                    :title="
+                      isFullscreen
+                        ? globalProperties.$t('layoutContent.exitFullscreen')
+                        : globalProperties.$t('layoutContent.fullscreen')
+                    "
+                  >
+                    <a-button type="text" @click="toggleFullscreen">
+                      <template #icon>
+                        <icon-font
+                          class="icon align"
+                          :type="isFullscreen ? 'icon-reduce' : 'icon-move'"
+                          :rotate="isFullscreen ? 0 : 45"
+                        />
+                      </template>
+                    </a-button>
+                  </a-tooltip>
+                  <a-dropdown
+                    :menu="{ items: operateItems }"
+                    @menu-click="onOperateMenuClick"
+                    @open-change="onOpenOperateChange"
+                  >
+                    <a-button type="text">
+                      <template #icon>
+                        <icon-font class="icon align" type="icon-more"/>
+                      </template>
+                    </a-button>
+                  </a-dropdown>
+                </div>
+              </template>
+            </a-tabs>
+          </div>
+        </a-border-beam>
+        <div class="tool-bar " v-else>
           <a-tabs
             @change="changeTab"
             :items="panes.map(p => ({ label: p.name, iconString: p.icon, key: p.path, closable: !pinnedRouteNames.some(_p => _p.path === p.path) && !fixedRouteNames.has(p.path) }))"
@@ -378,7 +465,7 @@ onMounted(mounted)
             <template #labelRender="{ item }">
               <a-space>
                 <icon-font
-                  v-if="tabIconSpin(item.key)"
+                  v-if="isRoutePageLoading(item.key)"
                   class="icon align"
                   type="icon-loading"
                   spin
@@ -434,7 +521,7 @@ onMounted(mounted)
         </div>
       </a-flex>
       <a-flex vertical flex="1" class="pr-md pl-md">
-        <a-spin class="layout-content-route-spin" :spinning="tabIconSpin(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
+        <a-spin class="layout-content-route-spin" :spinning="isRoutePageLoading(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
             <transition name="fade-transform" mode="out-in">
               <!-- 使用 key 来清除缓存：key = fullPath + 版本号 -->

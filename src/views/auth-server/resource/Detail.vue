@@ -35,7 +35,7 @@ const entity = ref<ResourceEntity>({
 <template>
   <div>
     <l-basic-detail
-      operationDataTraceTarget="tb_resource"
+      operation-data-trace-target="tb_resource"
       :redirect="{name:'auth_server_resource'}"
       :title-text="(title:string, _entity:ResourceEntity) => title + ' (' + _entity.name + ')'"
       :service="service"
