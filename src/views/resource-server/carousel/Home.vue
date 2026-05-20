@@ -242,7 +242,7 @@ onMounted(mounted)
                 <a-card-grid
                   @click="onSelect(entity)"
                   v-else
-                  :class="'w-1/5 ' + (options.selectedItem.some(e => e.id === entity.id) ? 'bg-info-active' : '')"
+                  :class="'w-1/5 ' + (options.selectedItem.some(e => e.id === entity.id) ? 'bg-info-bg' : '')"
                   :key="entity.id"
                   v-for="entity of item?.cardPage?.elements || []"
                 >
@@ -254,20 +254,26 @@ onMounted(mounted)
                     <a-tooltip>
                       <template #title>
                         <a-space orientation="vertical">
-                          <span>{{globalProperties.$t('resourceServer.carousel.showtime')}} {{entity.showtime ? dateTimeFormat(entity.showtime) : '立即'}}</span>
-                          <span>{{globalProperties.$t('common.expiresTime')}} {{entity.expirationTime ? dateTimeFormat(entity.expirationTime) : '永久' }}</span>
+                          <span>{{globalProperties.$t('resourceServer.carousel.showtime')}}: {{entity.showtime ? dateTimeFormat(entity.showtime) : globalProperties.$t('resourceServer.carousel.immediately')}}</span>
+                          <span>{{globalProperties.$t('common.expiresTime')}}: {{entity.expirationTime ? dateTimeFormat(entity.expirationTime) : globalProperties.$t('resourceServer.carousel.permanent') }}</span>
                         </a-space>
                       </template>
                       <a-card size="small" :title="entity.name">
                         <template #cover >
                           <a-image
+                            @click.stop
                             :src="attachmentService.query(entity?.cover?.bucketName, entity?.cover?.objectName)"
                             :fallback="notFound"
                           />
                         </template>
 
                         <template #actions>
-                          <a-button @click="onActionItemClick('edit', entity.id)" size="small" type="text" :disabled="!principalStore.hasPermission('perms[resource_server_data_dictionary:save]')">
+                          <a-button
+                            @click.stop="onActionItemClick('edit', entity.id)"
+                            size="small"
+                            type="text"
+                            :disabled="!principalStore.hasPermission('perms[resource_server_data_dictionary:save]')"
+                          >
                             <icon-font class="icon" type="icon-edit"></icon-font>
                           </a-button>
                           <a-button size="small" type="text" :disabled="!principalStore.hasPermission('perms[resource_server_data_dictionary:save]')">
