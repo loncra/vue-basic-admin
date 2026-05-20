@@ -86,7 +86,8 @@ async function doSubmit() {
         createdAfterSetting(result)
       } else {
         message.success(result.message)
-        await getEntity(entity.value.id)
+        entity.value = await getEntity(entity.value.id)
+        updateTitle(entity.value as TEntity)
         globalProperties.$router.push(props.redirect)
       }
     } else {
@@ -149,7 +150,7 @@ function onFinish () {
   formRef.value.validate().then(() => doSubmit())
 }
 
-async function getEntity(id: TId) {
+async function getEntity(id: TId): Promise<TEntity> {
   const result:RestResult<TEntity> = await props.service.get(id);
   const value = {...entity.value, ...result?.data || {}}
   const afterValue = await props.postGetEntity(value as TEntity)
@@ -165,6 +166,7 @@ async function getEntity(id: TId) {
   if (ct != null) {
     creationTime.value = ct
   }
+  return afterValue;
 }
 
 async function mounted() {

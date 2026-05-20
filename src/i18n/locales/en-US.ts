@@ -20,7 +20,7 @@ const locale: LanguagePack = {
     reset: 'Reset',
     delete: {
       text: 'Delete',
-      selected: 'Delete selected',
+      selected: 'Delete ({count}) record(s)',
       confirmTitle: 'Confirm deletion',
       confirmSingle: 'Are you sure you want to delete this record?',
       confirmBatch: 'Are you sure you want to delete {count} record(s)?',
@@ -63,6 +63,20 @@ const locale: LanguagePack = {
     download: {
       text: 'Download',
       selected: 'Download selected',
+    },
+    release: {
+      text: 'Publish',
+      selected: 'Publish ({count}) record(s)',
+      confirmTitle: 'Confirm publish',
+      confirmSingle: 'Are you sure you want to publish this record?',
+      confirmBatch: 'Are you sure you want to publish {count} record(s)?',
+    },
+    revoke: {
+      text: 'Revoke',
+      selected: 'Revoke ({count}) record(s)',
+      confirmTitle: 'Confirm revoke',
+      confirmSingle: 'Are you sure you want to revoke this record?',
+      confirmBatch: 'Are you sure you want to revoke {count} record(s)?',
     },
   },
   operation: {
@@ -323,7 +337,7 @@ const locale: LanguagePack = {
       editPage: 'Type: {typeName}, Name: {dataName}',
     },
     dictionaryType: {
-      routePage: 'Dictionary types',
+      routePage: 'Dictionary Types',
     },
     attachment: {
       filename: 'File name',

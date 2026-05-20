@@ -1,4 +1,4 @@
-import type {TreeLike} from '@/types/composables'
+import type {DropPosition, TreeLike} from '@/types/composables'
 import type {TreeSortMetadata} from '@/types/apis'
 
 /**
@@ -10,9 +10,6 @@ import type {TreeSortMetadata} from '@/types/apis'
  * @returns 节点是否满足条件
  */
 type Predicate<T> = (node: T) => boolean
-
-/** 树形表格拖拽放置位置：目标行上 / 中 / 下 */
-export type TreeDropPosition = -1 | 0 | 1
 
 export interface TreeNodeContext<T> {
   /** 节点所在的兄弟列表（根层即为整棵树顶层数组） */
@@ -381,7 +378,7 @@ function insertTreeNode<T>(
   tree: TreeLike<T>[],
   targetId: unknown,
   node: TreeLike<T>,
-  dropPosition: TreeDropPosition,
+  dropPosition: DropPosition,
   idKey: string,
   childrenKey: string,
 ): boolean {
@@ -411,7 +408,7 @@ export function moveTreeNode<T>(
   tree: TreeLike<T>[],
   dragId: unknown,
   targetId: unknown,
-  dropPosition: TreeDropPosition,
+  dropPosition: DropPosition,
   idKey: string,
   childrenKey = 'children',
 ): TreeLike<T>[] | null {

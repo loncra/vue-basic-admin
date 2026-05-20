@@ -7,14 +7,13 @@ import type {
   ScrollPageResult,
   TreeSortMetadata,
 } from "@/types/apis";
-import type {TreeDropPosition} from "@/utils/treeUtils";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {App, type MenuProps} from "antdv-next";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref, useSlots, watch} from "vue";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {CurdTableProps, SearchableColumnType} from "@/types/composables";
+import type {CurdTableProps, DropPosition, SearchableColumnType} from "@/types/composables";
 import LQueryTable from "@/components/basic/QueryTable.vue";
 
 defineOptions({
@@ -43,7 +42,7 @@ const emit = defineEmits<{
     sorts: TreeSortMetadata<TId>[],
     drag: TEntity,
     target: TEntity,
-    payload: { dropPosition: TreeDropPosition; tree: TEntity[] },
+    payload: { dropPosition: DropPosition; tree: TEntity[] },
   ]
 }>()
 

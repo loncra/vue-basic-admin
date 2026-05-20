@@ -24,8 +24,7 @@ import type {
   TotalPage,
   TreeSortMetadata,
 } from "@/types/apis";
-import type {QueryTableProps, SearchableColumnType} from "@/types/composables";
-import type {TreeDropPosition} from "@/utils/treeUtils";
+import type {DropPosition, QueryTableProps, SearchableColumnType} from "@/types/composables";
 import {useTableRowDrag} from "@/composables/table";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {PageSearchRestfulService} from "@/apis/pageSearchRestfulService.ts";
@@ -69,7 +68,7 @@ const emit = defineEmits<{
     sorts: TreeSortMetadata<TId>[],
     drag: TEntity,
     target: TEntity,
-    payload: { dropPosition: TreeDropPosition; tree: TEntity[] },
+    payload: { dropPosition: DropPosition; tree: TEntity[] },
   ]
 }>()
 

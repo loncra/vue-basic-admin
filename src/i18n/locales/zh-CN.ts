@@ -20,7 +20,7 @@ const locale: LanguagePack = {
     reset: '重置',
     delete:{
       text:'删除',
-      selected: '删除选中',
+      selected: '删除 ({count}) 条记录',
       confirmTitle: '删除确认',
       confirmSingle: '确定要删除该记录吗？',
       confirmBatch: '确定要删除 {count} 条记录吗？',
@@ -63,6 +63,20 @@ const locale: LanguagePack = {
     download:{
       text:'下载',
       selected:'下载选中'
+    },
+    release:{
+      text:'发布',
+      selected: '发布 ({count}) 条记录',
+      confirmTitle:'发布确认',
+      confirmSingle:'确定要发布该记录吗？',
+      confirmBatch:'确定要发布 {count} 条记录吗？',
+    },
+    revoke:{
+      text:'撤销',
+      selected: '撤销 ({count}) 条记录',
+      confirmTitle:'撤销确认',
+      confirmSingle:'确定要撤销该记录吗？',
+      confirmBatch:'确定要撤销 {count} 条记录吗？',
     },
   },
   operation:{

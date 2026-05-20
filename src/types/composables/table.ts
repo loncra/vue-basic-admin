@@ -1,23 +1,18 @@
 import type {BasicAuthorityProps} from './common'
-import {
-  type Component,
-  type ComponentInternalInstance, type ComputedRef,
-  getCurrentInstance,
-  type Ref,
-  ref
-} from "vue";
-import {App, type MenuProps, type TableProps} from "antdv-next";
+import type {DropPosition, UseDragOptions} from './drag'
+import {type Component, type ComputedRef, type Ref,} from "vue";
+import {type MenuProps, type TableProps} from "antdv-next";
 import type {
   BasicCrudService,
   BasicIdMetadata,
   FindSearchService,
+  FlatSortMetadata,
   PageSearchService,
-  ScrollPageResult, TreeSortMetadata
+  ScrollPageResult,
+  TreeSortMetadata
 } from "@/types/apis";
 import type {ColumnType} from "antdv-next/dist/table/interface";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
-import {requireNonNullOrUndefined, type TreeDropPosition} from "@/utils";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 /**
  * 表格行级权限
@@ -74,14 +69,11 @@ export interface CurdTableProps<
 export interface UseTableRowDragOptions<
   TEntity extends object,
   TId = TEntity extends Record<typeof SYSTEM_CONSTANT.ID_NAME, infer K> ? K : never,
-> {
-  drag: Ref<boolean>
+> extends UseDragOptions<TEntity> {
   dataSource: Ref<TEntity[]>
-  idKey?: string  // 默认 SYSTEM_CONSTANT.ID_NAME
-  formatDragPreview?: (record: TEntity) => string
   onRow?: Ref<TableProps['onRow'] | undefined>
   onFlatDrop?: (payload: {
-    sorts: TreeSortMetadata<TId>[]
+    sorts: FlatSortMetadata<TId>[]
     target: TEntity
     fromIndex: number
     toIndex: number
@@ -90,7 +82,7 @@ export interface UseTableRowDragOptions<
     sorts: TreeSortMetadata<TId>[]
     drag: TEntity
     target: TEntity
-    dropPosition: TreeDropPosition
+    dropPosition: DropPosition
     tree: TEntity[]
   }) => void
 }

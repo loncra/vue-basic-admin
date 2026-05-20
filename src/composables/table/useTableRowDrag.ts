@@ -3,12 +3,14 @@ import type {TableProps} from 'antdv-next'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 import type {TreeSortMetadata} from '@/types/apis'
 import type {
+  DropPosition,
   SearchableColumnType,
   UseTableRowDragOptions,
   UseTableRowDragReturn,
-} from '@/types/composables/table'
+} from '@/types/composables'
+import {useDrag} from '@/composables/usrDrag.ts'
+import {reorderFlatList} from '@/composables/useFlatDragDrop.ts'
 import {
-  buildFlatPlacementMap,
   buildTreePlacementMap,
   buildTreeSortMetadata,
   diffTreePlacementIds,
@@ -16,7 +18,6 @@ import {
   isTree,
   isTreeDescendant,
   moveTreeNode,
-  type TreeDropPosition,
   type TreePlacement,
 } from '@/utils/treeUtils'
 
@@ -33,31 +34,26 @@ export function useTableRowDrag<
   TEntity extends object,
   TId = TEntity extends Record<typeof SYSTEM_CONSTANT.ID_NAME, infer K> ? K : never,
 >(options: UseTableRowDragOptions<TEntity, TId>): UseTableRowDragReturn<TEntity> {
-  type EntityRecord = TEntity & Record<string, unknown>
   const idKey = options.idKey ?? SYSTEM_CONSTANT.ID_NAME
 
-  const dragKey = ref<TId | undefined>()
+  const {
+    dragKey,
+    entityId,
+    onDragHandleStart,
+    removeDragGhost,
+    clearDragKey,
+  } = useDrag<TEntity, TId>(options)
+
   const hoverTargetKey = ref<TId | undefined>()
   const dropInvalid = ref<boolean>()
-  const dropPosition = ref<TreeDropPosition>()
+  const dropPosition = ref<DropPosition>()
   const lastPlacement = ref(new Map<number, TreePlacement>())
 
-  let dragGhostEl: HTMLElement | null = null
-
   function clearDragState() {
-    dragKey.value = undefined
+    clearDragKey()
     hoverTargetKey.value = undefined
     dropPosition.value = undefined
     dropInvalid.value = undefined
-  }
-
-  function entityId(record: TEntity): TId {
-    return (record as EntityRecord)[idKey] as TId
-  }
-
-  function removeDragGhost() {
-    dragGhostEl?.remove()
-    dragGhostEl = null
   }
 
   function syncPlacementBaseline(tree: TEntity[] = options.dataSource.value) {
@@ -84,7 +80,7 @@ export function useTableRowDrag<
     return isTreeDescendant(dragId, entityId(target), options.dataSource.value, idKey)
   }
 
-  function resolveDropPosition(event: DragEvent, treeMode: boolean): TreeDropPosition {
+  function resolveDropPosition(event: DragEvent, treeMode: boolean): DropPosition {
     const el = event.currentTarget as HTMLElement
     const rect = el.getBoundingClientRect()
     const ratio = (event.clientY - rect.top) / rect.height
@@ -140,28 +136,20 @@ export function useTableRowDrag<
   }
 
   function handleFlatRowDrop(target: TEntity, dragId: TId) {
-    const current = [...options.dataSource.value]
-    const fromIndex = current.findIndex((item) => entityId(item) === dragId)
-    const toIndex = current.findIndex((item) => entityId(item) === entityId(target))
-    if (fromIndex === -1 || toIndex === -1) {
+    const result = reorderFlatList(options.dataSource.value, dragId, entityId(target), idKey)
+    if (!result) {
       clearDragState()
       return
     }
 
-    const placementBefore = buildFlatPlacementMap(current, idKey)
-    const [moved] = current.splice(fromIndex, 1)
-    current.splice(toIndex, 0, moved!)
-    options.dataSource.value = current
-
-    const placementAfter = buildFlatPlacementMap(current, idKey)
-    const changedIds = diffTreePlacementIds(placementBefore, placementAfter)
-    const sorts =
-      changedIds.length > 0
-        ? (buildTreeSortMetadata(placementAfter, changedIds) as TreeSortMetadata<TId>[])
-        : []
-
+    options.dataSource.value = result.newList
     clearDragState()
-    options.onFlatDrop?.({sorts, target, fromIndex, toIndex})
+    options.onFlatDrop?.({
+      sorts: result.sorts,
+      target,
+      fromIndex: result.fromIndex,
+      toIndex: result.toIndex,
+    })
   }
 
   function handleTreeRowDrop(target: TEntity, dragId: TId) {
@@ -269,28 +257,6 @@ export function useTableRowDrag<
     }
     return resolveOnRow
   })
-
-  function onDragHandleStart(record: TEntity, event: DragEvent) {
-    if (!options.drag.value) {
-      return
-    }
-    const id = entityId(record)
-    dragKey.value = id
-    event.dataTransfer?.setData('text/plain', String(id))
-
-    removeDragGhost()
-    const label = options.formatDragPreview?.(record) ?? String(id)
-    const ghost = document.createElement('div')
-    ghost.className = 'drag-ghost'
-    ghost.textContent = label
-    const root = document.querySelector('.ant-app') ?? document.body
-    root.appendChild(ghost)
-    dragGhostEl = ghost
-    event.dataTransfer?.setDragImage(ghost, 12, 12)
-    if (event.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move'
-    }
-  }
 
   function onDragHandleEnd() {
     removeDragGhost()

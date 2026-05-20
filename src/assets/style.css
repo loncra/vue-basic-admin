@@ -260,6 +260,22 @@
     @apply bg-[color-mix(in_srgb,var(--ant-color-info-bg,var(--ant-color-info-bg))_35%,transparent)];
   }
 
+  .drag-card-before {
+    @apply shadow-[inset_0_2px_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
+  }
+
+  .drag-card-after {
+    @apply shadow-[inset_0_-2px_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
+  }
+
+  .drag-card-left {
+    @apply shadow-[inset_2px_0_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
+  }
+
+  .drag-card-right {
+    @apply shadow-[inset_-2px_0_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
+  }
+
   .drag-ghost {
     @apply pointer-events-none fixed -left-[9999px] z-[9999] rounded p-xs text-sm
       bg-container text-main shadow-ter border border-dashed;

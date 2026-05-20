@@ -3,8 +3,8 @@ import {h, resolveComponent} from 'vue'
 import type {IconfontJson} from '@/types/composables'
 
 
-export function createIcon(type: string, classes: string = '') {
-  return h(resolveComponent('IconFont'), {type, class: 'icon ' + classes})
+export function createIcon(type: string, classes: string = '', spin = false, rotate = 0) {
+  return h(resolveComponent('IconFont'), {type, class: 'icon ' + classes, spin, rotate})
 }
 
 /**

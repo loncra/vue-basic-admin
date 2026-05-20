@@ -14,6 +14,7 @@ import type {
 } from "@/types/apis";
 
 import axios from "@/requests/http.ts";
+import {formUrlEncoded} from "@/utils";
 
 /**
  * 轮播图领域服务：`/api[/resource-server]/carousel`
@@ -25,6 +26,8 @@ export class CarouselService extends PageRestfulCrudService<CarouselSavePayload,
 
   /** 本服务相对 {@link BASE_URL} 的路径 */
   static readonly SERVICE_URL = CarouselService.BASE_URL + '/carousel'
+  static readonly SERVICE_RELEASE = CarouselService.SERVICE_URL + '/release'
+  static readonly SERVICE_REVOKE = CarouselService.SERVICE_URL + '/revoke'
   static readonly SERVICE_SORT = CarouselService.SERVICE_URL + "/sort"
 
   constructor() {
@@ -33,5 +36,13 @@ export class CarouselService extends PageRestfulCrudService<CarouselSavePayload,
 
   sort(sorts:TreeSortMetadata<number>[]):Promise<RestResult<void>> {
     return axios.put(CarouselService.SERVICE_SORT, sorts)
+  }
+
+  release(ids:number[]):Promise<RestResult<void>> {
+    return axios.post(CarouselService.SERVICE_RELEASE, formUrlEncoded({ids}))
+  }
+
+  revoke(ids:number[]):Promise<RestResult<void>> {
+    return axios.post(CarouselService.SERVICE_REVOKE, formUrlEncoded({ids}))
   }
 }

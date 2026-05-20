@@ -374,9 +374,10 @@ export interface TimeProperties {
   unit: TimeUnitType
 }
 
-
-export interface TreeSortMetadata<T> {
-  id:T
-  parentId?:T
+export interface FlatSortMetadata<T> extends BasicIdMetadata<T> {
   sort:number
+}
+
+export interface TreeSortMetadata<T> extends FlatSortMetadata<T>{
+  parentId?:T
 }

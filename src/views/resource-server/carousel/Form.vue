@@ -16,9 +16,7 @@ import LBasicForm from "@/components/basic/BasicForm.vue";
 import type {Dayjs} from "dayjs";
 
 defineOptions({
-
   name: 'ResourceServerCarouseForm',
-
 })
 
 const globalProperties =
@@ -73,8 +71,12 @@ function setPageTitle(title:string, entity: CarouselEntity | CarouselSavePayload
 }
 
 function postGetEntity(_entity:CarouselEntity) {
-  _entity.showtime = globalProperties.$dayjs(_entity.showtime)
-  _entity.expirationTime = globalProperties.$dayjs(_entity.expirationTime)
+  if (_entity.showtime) {
+    _entity.showtime = globalProperties.$dayjs(_entity.showtime)
+  }
+  if (_entity.expirationTime) {
+    _entity.expirationTime = globalProperties.$dayjs(_entity.expirationTime)
+  }
   return _entity;
 }
 

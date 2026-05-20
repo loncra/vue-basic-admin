@@ -1,5 +1,3 @@
-import {CONFIG_PROVIDER, CONFIG_PROVIDER_THEME} from "@/constants/systemConstant.ts";
-
 export interface IconfontGlyph {
   font_class: string
   name: string
