@@ -338,7 +338,7 @@ onMounted(mounted)
               detail:'perms[resource_server_data_dictionary:get]'
             }"
             :scroll="{x:'max-content'}"
-            :row-selection="{type: 'checkbox', onChange:(_keys:number[],rows:DataDictionaryEntity[]) => options.dataDictionary.selectedRows = rows}"
+            :row-selection="{fixed: true, type: 'checkbox', onChange:(_keys:number[],rows:DataDictionaryEntity[]) => options.dataDictionary.selectedRows = rows}"
             @drop="onDrop"
             @add="globalProperties.$router.push({name:'resource_server_data_dictionary_add',query:{typeId: selectedDictionaryType?.id }})"
             @detail="r => globalProperties.$router.push({name:'resource_server_data_dictionary_detail', query:{id:String(r.id)}})"

@@ -194,6 +194,8 @@ function rebuild() {
     }
   }
 
+  options.value.columns = applyDragColumn(options.value.columns)
+
   if (!props.enabledTitleActions) {
     return ;
   }
@@ -216,7 +218,7 @@ function rebuild() {
 
   options.value.titleButtons.push(...props.titleButtons || [])
 
-  options.value.columns = applyDragColumn(options.value.columns)
+
 }
 
 async function fetchDataSource() {
@@ -351,18 +353,14 @@ defineExpose({
     :on-row="tableOnRow"
   >
     <template #title v-if="!props.hideTitle">
-      <template v-if="slots.title" >
-        <slot name="title"/>
-      </template>
-      <template v-else>
-        <a-flex justify="space-between" class="pr-xs pl-xs" align="center">
-          <a-space>
-            <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'icon-survey'"/>
-            <a-typography-text strong>{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</a-typography-text>
-          </a-space>
-          <l-action-button :action-items="options.titleButtons" @action-item-click="(key) => handleActionClick(key)"/>
-        </a-flex>
-      </template>
+      <a-flex justify="space-between" class="pr-xs pl-xs" align="center">
+        <a-space v-if="!slots.title">
+          <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'icon-survey'"/>
+          <a-typography-text strong>{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</a-typography-text>
+        </a-space>
+        <slot v-else name="title" />
+        <l-action-button :action-items="options.titleButtons" @action-item-click="(key) => handleActionClick(key)"/>
+      </a-flex>
     </template>
     <template #bodyCell="{ text, record, index, column }">
       <template v-if="isDragCell(column)">

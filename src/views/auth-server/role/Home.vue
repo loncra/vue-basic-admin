@@ -36,7 +36,7 @@ const renderActionItems = (
     <l-role-table
       :render-action-items="renderActionItems"
       ref="table"
-      :row-selection="{type: 'checkbox', getCheckboxProps: getCheckboxProps}"
+      :row-selection="{fixed: true,type: 'checkbox', getCheckboxProps: getCheckboxProps}"
     />
   </div>
 </template>

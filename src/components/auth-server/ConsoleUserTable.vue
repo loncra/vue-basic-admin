@@ -4,10 +4,11 @@ import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
-import type {RestResult, EnumBucketsResponseBody, ConsoleUserEntity} from "@/types/apis";
+import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
 import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/CrudTable.vue";
+
 defineOptions({
   name: 'LConsoleUserTableTable',
 })
@@ -146,7 +147,7 @@ onMounted(mounted)
       delete:'perms[auth_server_console_user:delete]'
     }"
     :scroll="{x:'max-content'}"
-    :row-selection="props.preview ? undefined : {type: 'checkbox'}"
+    :row-selection="props.preview ? undefined : {fixed: true, type: 'checkbox'}"
     @add="globalProperties.$router.push({name:'auth_server_console_user_add'})"
     @detail="r => globalProperties.$router.push({name:'auth_server_console_user_detail', query:{id:String(r.id)}})"
     @edit="r => globalProperties.$router.push({name:'auth_server_console_user_edit', query:{id:String(r.id)}})"

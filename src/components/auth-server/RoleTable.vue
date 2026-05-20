@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<{
   rowSelection?:TableProps["rowSelection"]
 }>(), {
   preview: false,
-  rowSelection: () => ({type: 'checkbox'})
+  rowSelection: () => ({fixed: true, type: 'checkbox'})
 })
 
 const service = new RoleService()

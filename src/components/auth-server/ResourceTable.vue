@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   preview: false,
   drag:true,
-  rowSelection:() => ({type: 'checkbox'})
+  rowSelection:() => ({fixed: true, type: 'checkbox'})
 })
 const { message } = App.useApp()
 

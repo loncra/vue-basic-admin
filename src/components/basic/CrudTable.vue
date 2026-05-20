@@ -146,12 +146,14 @@ function rebuildActionItems() {
 
   }
 
-  if ((principalStore.hasPermission(props.authority?.delete as string) || props.authority?.delete) && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
-    options.value.titleButtons.push({
-      key: 'deleteSelected',
-      label: globalProperties.$t('common.delete.selected'),
-      icon: () => createIcon('icon-delete'),
-    })
+  if (props.enabledTitleActions) {
+    if ((principalStore.hasPermission(props.authority?.delete as string) || props.authority?.delete) && typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function') {
+      options.value.titleButtons.push({
+        key: 'deleteSelected',
+        label: globalProperties.$t('common.delete.selected'),
+        icon: () => createIcon('icon-delete'),
+      })
+    }
   }
 
   options.value.titleButtons.push(...props.titleButtons || [])

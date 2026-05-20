@@ -42,3 +42,4 @@ components.d.ts
 /.agents/
 /.cursor/
 /skills-lock.json
+/pnpm-lock.yaml
