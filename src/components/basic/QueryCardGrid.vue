@@ -18,21 +18,25 @@ import type {
   FilterRequest,
   FlatSortMetadata,
   PageRequest,
-  RestResult,
   ScrollPageResult,
 } from '@/types/apis'
 import type {
   ActionContext,
-  ActionDefinition,
   ActionPayload,
   CardGridPagination,
   QueryCardGridProps,
 } from '@/types/composables'
 import {ACTION_CONTEXT_KEY} from '@/types/composables'
-import {mergeDefinitions, resolveActions, useActionAuth} from '@/composables/action'
+import {
+  createDefaultToolbarActions,
+  mergeDefinitions,
+  resolveActions,
+  useActionAuth
+} from '@/composables/action'
 import {fetchCollectionData} from '@/composables/data/usePageDataFetch.ts'
+import {exportCollectionData} from '@/composables/data/exportCollectionData.ts'
 import {useFlatDragDrop} from '@/composables'
-import {createIcon, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import LActionButton from '@/components/basic/ActionButton.vue'
 
@@ -101,37 +105,32 @@ const actionContext = computed<ActionContext<TEntity>>(() => ({
 
 provide(ACTION_CONTEXT_KEY, actionContext as unknown as typeof actionContext)
 
-function createDefaultToolbarActions(): ActionDefinition<TEntity>[] {
-  return [
-    {
-      id: 'add',
-      permission: props.authority?.add,
-      visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
-      label: () => globalProperties.$t('common.add', {name: ''}),
-      icon: () => createIcon('icon-add'),
-      run: (ctx) => emit('action', {id: 'add', context: ctx}),
-    },
-    {
-      id: 'export',
-      permission: props.authority?.export,
-      visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
-      label: (ctx) =>
-        ctx.selectedItems.length > 0
-          ? globalProperties.$t('common.export.selected', {count: ctx.selectedItems.length})
-          : globalProperties.$t('common.export.all'),
-      icon: () => createIcon('icon-goods-start-to-ship'),
-      run: (ctx) => exportData(ctx.selectedItems),
-    },
-  ]
-}
+const defaultToolbarActions = computed(() =>
+  createDefaultToolbarActions<TEntity>({
+    authority: props.authority,
+    t: globalProperties.$t.bind(globalProperties),
+    onAdd: (ctx) => emit('action', {id: 'add', context: ctx}),
+    onExport: (ctx) => exportData(ctx.selectedItems),
+  }),
+)
 
 const titleActions = computed(() =>
   resolveActions(
-    mergeDefinitions(createDefaultToolbarActions(), props.actions ?? []),
+    mergeDefinitions(defaultToolbarActions.value, props.actions ?? []),
     actionContext.value,
     auth,
   ),
 )
+
+const paginationBindProps = computed((): PaginationProps => {
+  if (pagination.value === false) {
+    return {}
+  }
+  const {onChange: _onChange, ...rest} = pagination.value as PaginationProps & {
+    onChange?: PaginationProps['onChange']
+  }
+  return rest
+})
 
 function isSelected(record: TEntity) {
   const id = record[SYSTEM_CONSTANT.ID_NAME]
@@ -166,15 +165,11 @@ async function fetchDataSource() {
 }
 
 async function exportData(records: TEntity[]) {
-  let result: RestResult<void>
-  if (records.length > 0) {
-    const filter: FilterRequest = {}
-    filter[`filter_[${SYSTEM_CONSTANT.ID_NAME}_in]`] = records.map((r) => r.id)
-    result = await props.service.exportData(filter)
-  } else {
-    result = await props.service.exportData(query.value)
-  }
-
+  const result = await exportCollectionData({
+    service: props.service,
+    query: query.value,
+    records,
+  })
   message.success(result.message)
   void globalProperties.$router.push({name: 'user_export'})
 }
@@ -271,7 +266,7 @@ defineExpose({
     <a-pagination
       v-if="pagination !== false"
       class="mt-md"
-      v-bind="pagination as PaginationProps"
+      v-bind="paginationBindProps"
       @change="onChangePage"
     />
   </a-card>

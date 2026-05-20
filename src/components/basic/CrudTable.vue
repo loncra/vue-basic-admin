@@ -1,27 +1,29 @@
 <script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
-import type {
-  BasicCrudService,
-  BasicIdMetadata,
-  RestResult,
-  ScrollPageResult,
-  TreeSortMetadata,
-} from "@/types/apis";
+import type {BasicIdMetadata, ScrollPageResult, TreeSortMetadata,} from "@/types/apis";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {App} from "antdv-next";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref, useSlots,} from "vue";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import LQueryTable from "@/components/basic/QueryTable.vue";
 import type {
   ActionContext,
-  ActionDefinition,
   ActionPayload,
   CurdTableProps,
   DropPosition,
   SearchableColumnType,
 } from "@/types/composables";
-import {mergeDefinitions, resolveActions, useActionAuth} from "@/composables/action";
+import {
+  buildItemActionContext,
+  BUILTIN_ITEM_ACTION_IDS,
+  createDefaultBulkActions,
+  createDefaultItemActions,
+  mergeDefinitions,
+  resolveActions,
+  useActionAuth,
+  useCrudDelete,
+} from "@/composables/action";
 
 defineOptions({
   name: 'LCrudTable',
@@ -69,69 +71,41 @@ const props = withDefaults(
 
 const slots = useSlots()
 
-function createDefaultBulkActions(): ActionDefinition<TEntity>[] {
-  return [
-    {
-      id: 'deleteSelected',
-      permission: props.authority?.delete,
-      visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
-      enabled: (ctx) =>
-        ctx.selectedItems.length > 0 &&
-        typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
-      label: (ctx) =>
-        globalProperties.$t('common.delete.selected', {count: ctx.selectedItems.length}),
-      icon: () => createIcon('icon-delete'),
-      run: (ctx) => remove(ctx.selectedItems),
-    },
-  ]
-}
+const t = globalProperties.$t.bind(globalProperties)
 
-function createDefaultRowActions(): ActionDefinition<TEntity>[] {
-  return [
-    {
-      id: 'edit',
-      permission: props.authority?.edit,
-      label: () => globalProperties.$t('common.edit', {name: ''}),
-      icon: () => createIcon('icon-edit'),
-      run: (ctx) => {
-        if (ctx.record) {
-          emit('edit', ctx.record)
-        }
-      },
-    },
-    {
-      id: 'detail',
-      permission: props.authority?.detail,
-      label: () => globalProperties.$t('common.detail', {name: ''}),
-      icon: () => createIcon('icon-order-inspection'),
-      run: (ctx) => {
-        if (ctx.record) {
-          emit('detail', ctx.record)
-        }
-      },
-    },
-    {
-      id: 'delete',
-      permission: props.authority?.delete,
-      enabled: () =>
-        typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
-      label: () => globalProperties.$t('common.delete.text'),
-      icon: () => createIcon('icon-delete'),
-      run: (ctx) => {
-        if (ctx.record) {
-          remove([ctx.record])
-        }
-      },
-    },
-  ]
-}
+const {remove} = useCrudDelete<TBody, TEntity, TId>({
+  service: props.service,
+  t,
+  modal,
+  message,
+  loading,
+  refresh: () => queryTable.value?.fetchDataSource(),
+})
 
 const tableActions = computed(() =>
-  mergeDefinitions(createDefaultBulkActions(), props.actions ?? []),
+  mergeDefinitions(
+    createDefaultBulkActions<TEntity>({
+      authority: props.authority,
+      service: props.service,
+      t,
+      remove,
+    }),
+    props.actions ?? [],
+  ),
 )
 
 const rowActionDefinitions = computed(() =>
-  mergeDefinitions(createDefaultRowActions(), props.rowActions ?? []),
+  mergeDefinitions(
+    createDefaultItemActions<TEntity>({
+      authority: props.authority,
+      service: props.service,
+      t,
+      remove,
+      onEdit: (record) => emit('edit', record),
+      onDetail: (record) => emit('detail', record),
+    }),
+    props.rowActions ?? [],
+  ),
 )
 
 const displayColumns = computed<SearchableColumnType[]>(() => {
@@ -148,24 +122,12 @@ const displayColumns = computed<SearchableColumnType[]>(() => {
   return cols
 })
 
-function getToolbarActionContext(): ActionContext<TEntity> | undefined {
-  const ctx = queryTable.value?.actionContext
-  if (!ctx) {
-    return undefined
-  }
-  return 'value' in ctx ? ctx.value as ActionContext<TEntity> : ctx as ActionContext<TEntity>
-}
-
 function buildRowContext(record: TEntity): ActionContext<TEntity> {
-  const toolbarCtx = getToolbarActionContext()
-  return {
-    scope: 'item',
+  return buildItemActionContext({
     record,
-    items: toolbarCtx?.items ?? [],
-    selectedItems: toolbarCtx?.selectedItems ?? [],
-    query: toolbarCtx?.query,
-    extras: toolbarCtx?.extras ?? props.actionContextExtras ?? {},
-  }
+    toolbarContext: queryTable.value?.actionContext,
+    actionContextExtras: props.actionContextExtras,
+  })
 }
 
 function resolveRowActions(record: TEntity) {
@@ -173,7 +135,7 @@ function resolveRowActions(record: TEntity) {
 }
 
 function onRowAction(id: string, record: TEntity) {
-  if (['edit', 'detail', 'delete'].includes(id)) {
+  if (BUILTIN_ITEM_ACTION_IDS.includes(id as (typeof BUILTIN_ITEM_ACTION_IDS)[number])) {
     return
   }
   emit('action', {id, context: buildRowContext(record)})
@@ -184,36 +146,6 @@ function onTableAction(payload: ActionPayload<TEntity>) {
     emit('add')
   }
   emit('action', payload)
-}
-
-function remove(records: TEntity[]) {
-  if (records.length === 0) {
-    return
-  }
-  const content =
-    records.length === 1
-      ? globalProperties.$t('common.delete.confirmSingle')
-      : globalProperties.$t('common.delete.confirmBatch', {count: records.length})
-  modal.confirm({
-    title: globalProperties.$t('common.delete.confirmTitle'),
-    content,
-    onOk: () => doDelete(records),
-  })
-}
-
-async function doDelete(records: TEntity[]) {
-  if (typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete !== 'function') {
-    return ;
-  }
-  try {
-    const result:RestResult<void> = await (props.service as BasicCrudService<TBody, TEntity, TId>).delete(records.map(r => r.id))
-    message.success(result.message)
-    await queryTable.value?.fetchDataSource()
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  } finally {
-    loading.value = false;
-  }
 }
 
 function fetchDataSource() {

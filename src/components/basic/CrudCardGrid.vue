@@ -1,27 +1,34 @@
 <script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
 import type {
-  BasicCrudService,
   BasicIdMetadata,
   FilterRequest,
   FlatSortMetadata,
   PageRequest,
-  RestResult,
   ScrollPageResult,
 } from '@/types/apis'
 import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 import {App} from 'antdv-next'
-import {createIcon, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref, useSlots} from 'vue'
 import LActionButton from '@/components/basic/ActionButton.vue'
 import LQueryCardGrid from '@/components/basic/QueryCardGrid.vue'
 import type {
   ActionContext,
-  ActionDefinition,
   ActionPayload,
+  CardGridPagination,
   CrudCardGridProps,
 } from '@/types/composables'
-import {mergeDefinitions, resolveActions, useActionAuth} from '@/composables/action'
+import {
+  buildItemActionContext,
+  BUILTIN_ITEM_ACTION_IDS,
+  createDefaultBulkActions,
+  createDefaultItemActions,
+  mergeDefinitions,
+  resolveActions,
+  useActionAuth,
+  useCrudDelete,
+} from '@/composables/action'
 
 defineOptions({
   name: 'LCrudCardGrid',
@@ -43,21 +50,24 @@ const queryCardGrid = ref<{
 const loading = defineModel<boolean>('loading', {default: () => false})
 const query = defineModel<FilterRequest | PageRequest>('query', {default: () => ({})})
 const selectedItems = defineModel<TEntity[]>('selectedItems', {default: () => []})
+const pagination = defineModel<CardGridPagination>('pagination', {
+  default: () => ({hideOnSinglePage: true}),
+})
 
 const emit = defineEmits<{
   action: [payload: ActionPayload<TEntity>]
   add: []
   edit: [record: TEntity]
   detail: [record: TEntity]
+  deleted: [records: TEntity[]]
   drop: [sorts: FlatSortMetadata<TId>[], target: TEntity, fromIndex: number, toIndex: number]
 }>()
 
 const props = withDefaults(
-  defineProps<CrudCardGridProps<TBody, TEntity, TPage, TId>>(),
+  defineProps<Omit<CrudCardGridProps<TBody, TEntity, TPage, TId>, 'pagination'>>(),
   {
     recordActions: true,
     immediate: true,
-    pagination: () => ({hideOnSinglePage: true}),
     dragDirection: 'horizontal',
     gridItemClass: 'w-1/5',
     selectable: true,
@@ -66,89 +76,50 @@ const props = withDefaults(
 
 const slots = useSlots()
 
-function createDefaultBulkActions(): ActionDefinition<TEntity>[] {
-  return [
-    {
-      id: 'deleteSelected',
-      permission: props.authority?.delete,
-      visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
-      enabled: (ctx) =>
-        ctx.selectedItems.length > 0 &&
-        typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
-      label: (ctx) =>
-        globalProperties.$t('common.delete.selected', {count: ctx.selectedItems.length}),
-      icon: () => createIcon('icon-delete'),
-      run: (ctx) => remove(ctx.selectedItems),
-    },
-  ]
-}
+const t = globalProperties.$t.bind(globalProperties)
 
-function createDefaultItemActions(): ActionDefinition<TEntity>[] {
-  return [
-    {
-      id: 'edit',
-      permission: props.authority?.edit,
-      label: () => globalProperties.$t('common.edit', {name: ''}),
-      icon: () => createIcon('icon-edit'),
-      run: (ctx) => {
-        if (ctx.record) {
-          emit('edit', ctx.record)
-        }
-      },
-    },
-    {
-      id: 'detail',
-      permission: props.authority?.detail,
-      label: () => globalProperties.$t('common.detail', {name: ''}),
-      icon: () => createIcon('icon-order-inspection'),
-      run: (ctx) => {
-        if (ctx.record) {
-          emit('detail', ctx.record)
-        }
-      },
-    },
-    {
-      id: 'delete',
-      permission: props.authority?.delete,
-      enabled: () =>
-        typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
-      label: () => globalProperties.$t('common.delete.text'),
-      icon: () => createIcon('icon-delete'),
-      run: (ctx) => {
-        if (ctx.record) {
-          remove([ctx.record])
-        }
-      },
-    },
-  ]
-}
+const {remove} = useCrudDelete<TBody, TEntity, TId>({
+  service: props.service,
+  t,
+  modal,
+  message,
+  loading,
+  onDeleted: (records) => emit('deleted', records),
+  refresh: () => queryCardGrid.value?.fetchDataSource(),
+})
 
 const gridActions = computed(() =>
-  mergeDefinitions(createDefaultBulkActions(), props.actions ?? []),
+  mergeDefinitions(
+    createDefaultBulkActions<TEntity>({
+      authority: props.authority,
+      service: props.service,
+      t,
+      remove,
+    }),
+    props.actions ?? [],
+  ),
 )
 
 const itemActionDefinitions = computed(() =>
-  mergeDefinitions(createDefaultItemActions(), props.itemActions ?? []),
+  mergeDefinitions(
+    createDefaultItemActions<TEntity>({
+      authority: props.authority,
+      service: props.service,
+      t,
+      remove,
+      onEdit: (record) => emit('edit', record),
+      onDetail: (record) => emit('detail', record),
+    }),
+    props.itemActions ?? [],
+  ),
 )
 
-function getToolbarActionContext(): ActionContext<TEntity> | undefined {
-  const ctx = queryCardGrid.value?.actionContext
-  if (!ctx) {
-    return undefined
-  }
-  return 'value' in ctx ? (ctx.value as ActionContext<TEntity>) : (ctx as ActionContext<TEntity>)
-}
-
 function buildItemContext(record: TEntity): ActionContext<TEntity> {
-  const toolbarCtx = getToolbarActionContext()
-  return {
-    scope: 'item',
+  return buildItemActionContext({
     record,
-    items: toolbarCtx?.items ?? [],
-    selectedItems: toolbarCtx?.selectedItems ?? [],
-    query: toolbarCtx?.query,
-    extras: toolbarCtx?.extras ?? props.actionContextExtras ?? {},
-  }
+    toolbarContext: queryCardGrid.value?.actionContext,
+    actionContextExtras: props.actionContextExtras,
+  })
 }
 
 function resolveItemActions(record: TEntity) {
@@ -156,7 +127,7 @@ function resolveItemActions(record: TEntity) {
 }
 
 function onItemAction(id: string, record: TEntity) {
-  if (['edit', 'detail', 'delete'].includes(id)) {
+  if (BUILTIN_ITEM_ACTION_IDS.includes(id as (typeof BUILTIN_ITEM_ACTION_IDS)[number])) {
     return
   }
   emit('action', {id, context: buildItemContext(record)})
@@ -167,38 +138,6 @@ function onGridAction(payload: ActionPayload<TEntity>) {
     emit('add')
   }
   emit('action', payload)
-}
-
-function remove(records: TEntity[]) {
-  if (records.length === 0) {
-    return
-  }
-  const content =
-    records.length === 1
-      ? globalProperties.$t('common.delete.confirmSingle')
-      : globalProperties.$t('common.delete.confirmBatch', {count: records.length})
-  modal.confirm({
-    title: globalProperties.$t('common.delete.confirmTitle'),
-    content,
-    onOk: () => doDelete(records),
-  })
-}
-
-async function doDelete(records: TEntity[]) {
-  if (typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete !== 'function') {
-    return
-  }
-  try {
-    const result: RestResult<void> = await (
-      props.service as BasicCrudService<TBody, TEntity, TId>
-    ).delete(records.map((r) => r.id))
-    message.success(result.message)
-    await queryCardGrid.value?.fetchDataSource()
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  } finally {
-    loading.value = false
-  }
 }
 
 function fetchDataSource() {
@@ -230,10 +169,10 @@ defineExpose({
     :selectable="props.selectable"
     :authority="props.authority"
     :service="props.service"
-    :pagination="props.pagination"
     :immediate="props.immediate"
     v-bind="$attrs"
     v-model:loading="loading"
+    v-model:pagination="pagination"
     v-model:query="query"
     v-model:selected-items="selectedItems"
     @action="onGridAction"

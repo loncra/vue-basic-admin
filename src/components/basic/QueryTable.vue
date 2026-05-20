@@ -4,12 +4,12 @@ import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 
 import {
   type ComponentInternalInstance,
-  type Ref,
   computed,
   getCurrentInstance,
   onActivated,
   onMounted,
   provide,
+  type Ref,
   ref,
   toRef,
   useAttrs,
@@ -21,23 +21,30 @@ import type {
   BasicIdMetadata,
   FilterRequest,
   PageRequest,
-  RestResult,
   ScrollPageResult,
   TreeSortMetadata,
 } from "@/types/apis";
 import type {
   ActionContext,
-  ActionDefinition,
   ActionPayload,
   DropPosition,
   QueryTableProps,
   SearchableColumnType,
 } from "@/types/composables";
 import {ACTION_CONTEXT_KEY} from "@/types/composables";
-import {mergeDefinitions, resolveActions, useActionAuth} from "@/composables/action";
-import {fetchCollectionData, type CollectionPagination} from "@/composables/data/usePageDataFetch.ts";
+import {
+  createDefaultToolbarActions,
+  mergeDefinitions,
+  resolveActions,
+  useActionAuth
+} from "@/composables/action";
+import {
+  type CollectionPagination,
+  fetchCollectionData
+} from "@/composables/data/usePageDataFetch.ts";
+import {exportCollectionData} from "@/composables/data/exportCollectionData.ts";
 import {useMergeRowSelection, useTableRowDrag} from "@/composables/table";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import type {TablePaginationConfig} from "antdv-next/dist/table/interface";
@@ -115,33 +122,19 @@ const actionContext = computed<ActionContext<TEntity>>(() => ({
 
 provide(ACTION_CONTEXT_KEY, actionContext as unknown as typeof actionContext)
 
-function createDefaultTableActions(): ActionDefinition<TEntity>[] {
-  return [
-    {
-      id: 'add',
-      permission: props.authority?.add,
-      visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
-      label: () => globalProperties.$t('common.add', {name: ''}),
-      icon: () => createIcon('icon-add', 'align'),
-      run: (ctx) => emit('action', {id: 'add', context: ctx}),
-    },
-    {
-      id: 'export',
-      permission: props.authority?.export,
-      visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
-      label: (ctx) =>
-        ctx.selectedItems.length > 0
-          ? globalProperties.$t('common.export.selected', {count: ctx.selectedItems.length})
-          : globalProperties.$t('common.export.all'),
-      icon: () => createIcon('icon-goods-start-to-ship', 'align'),
-      run: (ctx) => exportData(ctx.selectedItems),
-    },
-  ]
-}
+const defaultTableActions = computed(() =>
+  createDefaultToolbarActions<TEntity>({
+    authority: props.authority,
+    t: globalProperties.$t.bind(globalProperties),
+    iconClass: 'align',
+    onAdd: (ctx) => emit('action', {id: 'add', context: ctx}),
+    onExport: (ctx) => exportData(ctx.selectedItems),
+  }),
+)
 
 const titleActions = computed(() =>
   resolveActions(
-    mergeDefinitions(createDefaultTableActions(), props.actions ?? []),
+    mergeDefinitions(defaultTableActions.value, props.actions ?? []),
     actionContext.value,
     auth,
   ),
@@ -302,18 +295,13 @@ async function fetchDataSource() {
 }
 
 async function exportData(records: TEntity[]) {
-  let result:RestResult<void>;
-  if (records.length > 0) {
-    const filter:FilterRequest = {}
-    filter["filter_[" + SYSTEM_CONSTANT.ID_NAME + "_in]"] = records.map(r => r.id);
-    result = await props.service.exportData(filter);
-  } else {
-    result = await props.service.exportData(query.value);
-  }
-
-  message.success(result.message);
+  const result = await exportCollectionData({
+    service: props.service,
+    query: query.value,
+    records,
+  })
+  message.success(result.message)
   globalProperties.$router.push({name:'user_export'})
-
 }
 
 async function mounted() {

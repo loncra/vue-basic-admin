@@ -39,7 +39,7 @@ interface TabDataSource {
   key: string
   label: string
   isLoading: boolean
-  loading: boolean
+  previewLoading: boolean
   carouselDataSource: CarouselEntity[]
   selectedItems: CarouselEntity[]
   query: PageRequest
@@ -76,7 +76,6 @@ const options = ref<{
   loading: false,
 })
 
-const loading = ref<boolean>(false);
 const tabActiveKey = ref<string>();
 const tabDataSource = ref<TabDataSource[]>([]);
 
@@ -219,12 +218,28 @@ async function loadCarouselPreview(tab: TabDataSource): Promise<void> {
   }
 }
 
+async function loadCarouselPreviewWithLoading(tab: TabDataSource): Promise<void> {
+  tab.previewLoading = true
+  try {
+    await loadCarouselPreview(tab)
+  } finally {
+    tab.previewLoading = false
+  }
+}
+
 async function loadTabData(tab: TabDataSource): Promise<void> {
-  tab.loading = true
-  await loadCarouselPreview(tab)
+  await loadCarouselPreviewWithLoading(tab)
   await nextTick()
-  await gridRefs.get(tab.key)?.fetchDataSource()
-  tab.loading = false
+  let grid = gridRefs.get(tab.key)
+  if (!grid) {
+    await nextTick()
+    grid = gridRefs.get(tab.key)
+  }
+  if (!grid) {
+    console.warn(`[carousel] grid ref not found for tab: ${tab.key}`)
+  } else {
+    await grid.fetchDataSource()
+  }
 }
 
 function onChangeTab(key: string): void {
@@ -236,11 +251,12 @@ function onChangeTab(key: string): void {
   }
 }
 
-function onEdit(record: CarouselEntity) {
-  void globalProperties.$router.push({
-    name: 'resource_server_carousel_edit',
-    query: {id: String(record.id)},
-  })
+async function onGridDeleted() {
+  const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
+  if (tab) {
+    tab.selectedItems = []
+    await loadTabData(tab)
+  }
 }
 
 async function onCardDrop(sorts: FlatSortMetadata<number>[]) {
@@ -309,7 +325,7 @@ async function doRevoke(ids: number[]) {
 }
 
 async function mounted() {
-  loading.value = true
+  options.value.loading = true
 
   const enums: RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({
     'resource-server': [{id: 'CarouselTypeEnum'}],
@@ -320,7 +336,7 @@ async function mounted() {
       tabDataSource.value.push({
         key: String(item.value),
         label: item.name,
-        loading: false,
+        previewLoading: false,
         carouselDataSource: [],
         isLoading: false,
         selectedItems: [],
@@ -340,7 +356,7 @@ async function mounted() {
     await loadTabData(firstTab)
   }
 
-  loading.value = false
+  options.value.loading = false
 }
 
 function activated() {
@@ -368,7 +384,7 @@ onActivated(activated)
       >
         <template #contentRender="{item}">
           <a-space orientation="vertical" class="w-full" :size="configProviderStore.getToken().sizeMD">
-            <a-spin :spinning="item.loading">
+            <a-spin :spinning="item.previewLoading">
               <template v-if="(item.carouselDataSource || []).length <= 0">
                 <a-empty />
               </template>
@@ -399,8 +415,7 @@ onActivated(activated)
               :authority="carouselAuthority"
               :actions="bulkActions"
               :item-actions="itemActionDefinitions"
-              :loading="item.loading"
-              @edit="onEdit"
+              @deleted="onGridDeleted"
               @drop="onCardDrop"
             >
               <template #title>

@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type {Ref} from 'vue'
 import type {PaginationProps} from 'antdv-next/dist/pagination'
 import type {
   BasicIdMetadata,
@@ -40,6 +40,24 @@ export function syncPaginationFromPageResult<TEntity>(
   }
 }
 
+export function syncPaginationFromFindResult(
+  pagination: PaginationProps,
+  query: FilterRequest | PageRequest,
+  rowCount: number,
+) {
+  const pageSize = pagination.pageSize ?? (query as PageRequest).size ?? 10
+  const current =
+    pagination.current ??
+    (typeof (query as PageRequest).number === 'number' ? (query as PageRequest).number! : 1)
+  pagination.pageSize = pageSize
+  pagination.current = current
+  if (rowCount < pageSize) {
+    pagination.total = (current - 1) * pageSize + rowCount
+  } else {
+    pagination.total = current * pageSize + 1
+  }
+}
+
 export async function fetchCollectionData<
   TBody extends BasicIdMetadata<TId>,
   TEntity extends TBody,
@@ -71,7 +89,11 @@ export async function fetchCollectionData<
       service as FindSearchService<TEntity, TId>
     ).find(query as FilterRequest)
     data.push(...(result.data || []))
-    pagination.value = false
+    if (pagination.value === undefined) {
+      pagination.value = false
+    } else if (pagination.value !== false) {
+      syncPaginationFromFindResult(pagination.value, query, data.length)
+    }
   }
 
   return data
