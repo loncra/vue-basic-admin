@@ -1,42 +1,51 @@
 <script setup lang="ts">
+
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
-import type {MenuProps, TableProps} from "antdv-next";
+
+import type {TableProps} from "antdv-next";
+
 import {getEnumValue} from "@/utils";
+
 import type {RoleEntity} from '@/types/apis/auth-server/roleDomain';
+
+import type {TableActionDefinition} from '@/types/composables';
 
 defineOptions({
   name: 'AuthServerRoleHome'
 })
 
+const getCheckboxProps: NonNullable<TableProps['rowSelection']>['getCheckboxProps'] = (record) => ({
+  disabled: getEnumValue(record.removable) === 0,
+})
 
-const getCheckboxProps: NonNullable<TableProps["rowSelection"]>["getCheckboxProps"] = (record) => {
-  return {
-    disabled: getEnumValue(record.removable) === 0,
-  }
+const rowSelection: NonNullable<TableProps['rowSelection']> = {
+  fixed: true,
+  type: 'checkbox',
+  getCheckboxProps,
 }
 
-const renderActionItems = (
-  record: RoleEntity,
-  actionItems: NonNullable<MenuProps['items']>
-) => {
-  const filterItems:string[] = [];
-  if (getEnumValue(record.modifiable) === 0) {
-    filterItems.push('edit');
-  }
-  if (getEnumValue(record.removable) === 0) {
-    filterItems.push('delete');
-  }
-  return actionItems.filter((item) => !filterItems.includes(item?.key as string))
-}
+const rowActions: TableActionDefinition<RoleEntity>[] = [
+  {
+    id: 'edit',
+    visible: (ctx) => getEnumValue(ctx.record!.modifiable) !== 0,
+  },
+  {
+    id: 'delete',
+    visible: (ctx) => getEnumValue(ctx.record!.removable) !== 0,
+  },
+]
 
 </script>
 
 <template>
+
   <div>
     <l-role-table
-      :render-action-items="renderActionItems"
+      :row-actions="rowActions"
       ref="table"
-      :row-selection="{fixed: true,type: 'checkbox', getCheckboxProps: getCheckboxProps}"
+      :row-selection="rowSelection"
     />
   </div>
+
 </template>
+

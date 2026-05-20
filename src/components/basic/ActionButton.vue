@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import type {ItemType, MenuItemType} from "antdv-next/dist/menu/interface";
 import {computed} from "vue";
 import type {MenuInfo} from "@v-c/menu";
-import type {MenuProps} from "antdv-next";
+import type {ResolvedTableAction} from "@/types/composables";
 
 defineOptions({
   name: 'LActionButton',
@@ -10,53 +9,58 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
-    actionItems: NonNullable<MenuProps['items']>
-    size?:string
-    alwaysDropdown?:boolean
+    actions: ResolvedTableAction[]
+    size?: string
+    alwaysDropdown?: boolean
   }>(),
   {
-    actionItems: () => [],
+    actions: () => [],
     size: 'small',
-    alwaysDropdown:false
+    alwaysDropdown: false,
   },
 )
 
 const emit = defineEmits<{
-  actionItemClick: [string]
+  action: [id: string]
 }>()
 
-function toLoneFlatMenuItem(item: ItemType | undefined): MenuItemType | null {
-  if (!item || item.type === "divider" || !("icon" in item) || !("label" in item) || item.icon == null) {
+const loneAction = computed(() => {
+  if (props.actions.length !== 1) {
     return null
   }
-  if ("children" in item) {
-    return null
-  }
-  return item as MenuItemType
-}
-
-const loneMenuItem = computed<MenuItemType | null>(() => {
-  const list = props.actionItems
-  if (list.length !== 1) {
-    return null
-  }
-  return toLoneFlatMenuItem(list[0])
+  return props.actions[0] ?? null
 })
 
-function dispatchMenuKey(key: string) {
-  emit('actionItemClick', key)
+const menuItems = computed(() =>
+  props.actions.map((action) => ({
+    key: action.id,
+    label: action.label,
+    icon: action.icon ? () => action.icon : undefined,
+    disabled: action.disabled,
+  })),
+)
+
+function dispatchAction(action: ResolvedTableAction) {
+  if (action.disabled) {
+    return
+  }
+  action.run?.()
+  emit('action', action.id)
 }
 
-function handleActionClick(e: MenuInfo) {
-  dispatchMenuKey(String(e.key ?? ''))
+function handleMenuClick(e: MenuInfo) {
+  const action = props.actions.find((item) => item.id === String(e.key ?? ''))
+  if (action) {
+    dispatchAction(action)
+  }
 }
 </script>
 
 <template>
   <a-dropdown
-    v-if="actionItems.length > 1 || alwaysDropdown"
+    v-if="actions.length > 1 || alwaysDropdown"
     placement="bottomRight"
-    :menu="{ items: actionItems, onClick: handleActionClick }"
+    :menu="{ items: menuItems, onClick: handleMenuClick }"
   >
     <a-button :size="props.size" v-bind="$attrs">
       <template #icon>
@@ -64,17 +68,18 @@ function handleActionClick(e: MenuInfo) {
       </template>
     </a-button>
   </a-dropdown>
-  <template v-else-if="actionItems.length === 1">
-    <a-button :size="props.size" v-bind="$attrs" @click="dispatchMenuKey(String(loneMenuItem?.key ?? ''))">
+  <template v-else-if="loneAction">
+    <a-button
+      :size="props.size"
+      v-bind="$attrs"
+      :disabled="loneAction.disabled"
+      :loading="loneAction.loading"
+      @click="dispatchAction(loneAction)"
+    >
       <template #icon>
-        <component
-          class="icon align"
-          :is="typeof loneMenuItem?.icon === 'function' ? loneMenuItem?.icon() : loneMenuItem?.icon"
-        />
+        <component class="icon align" :is="loneAction.icon"/>
       </template>
-      <span>
-        {{ loneMenuItem?.label }}
-      </span>
+      <span>{{ loneAction.label }}</span>
     </a-button>
   </template>
 </template>

@@ -14,7 +14,10 @@ const locale: LanguagePack = {
     save: '保存',
     add: '添加{name}',
     edit: '编辑{name}',
-    export: '导出',
+    export: {
+      all: '导出全部',
+      selected: '导出 ({count}) 条记录',
+    },
     detail: '{name}详情',
     action: '操作',
     reset: '重置',

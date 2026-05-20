@@ -4,7 +4,12 @@ import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, 
 import {DatePicker, Input, InputNumber, Select} from 'antdv-next';
 import {OperationDataTraceAuditEventService, ResourceServerService} from "@/apis";
 import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from "@/utils";
-import type {AuditEventEntity, EnumBucketsResponseBody, FilterRequest, RestResult} from "@/types/apis";
+import type {
+  AuditEventEntity,
+  EnumBucketsResponseBody,
+  FilterRequest,
+  RestResult
+} from "@/types/apis";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/CrudTable.vue";
 
@@ -147,7 +152,7 @@ onMounted(mounted)
     v-bind="$attrs"
     :query="options.query"
     v-model:data-source="dataSource"
-    :enabled-actions="!props.detailView"
+    :record-actions="!props.detailView"
     :service="service"
     :columns="columns"
     :authority="{detail:'perms[auth_server_audit_event:get]'}"

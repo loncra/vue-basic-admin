@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
-import {App, Input, type MenuItemType, Select, type TableProps} from 'antdv-next';
+import {App, Input, Select, type TableProps} from 'antdv-next';
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {
   EnumBucketsResponseBody,
@@ -13,7 +13,7 @@ import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/CrudTable.vue";
-import type {SearchableColumnType} from "@/types/composables";
+import type {SearchableColumnType, TableActionDefinition} from "@/types/composables";
 
 defineOptions({
   name: 'LResourceTable',
@@ -128,7 +128,7 @@ const columns = ref<SearchableColumnType[]>([
 const dataSource = ref<ResourceEntity[]>([])
 const crudTable = ref()
 
-const actionButtons = ref<MenuItemType[]>([])
+const rowActions = ref<TableActionDefinition<ResourceEntity>[]>([])
 
 function removeSelected(selectedRows: ResourceEntity[]) {
   crudTable.value.remove(selectedRows);
@@ -170,11 +170,17 @@ async function mounted() {
     }
   }
   if (principalStore.hasPermission('perms[resource_server_data_dictionary:save]')) {
-    actionButtons.value.push(
+    rowActions.value.push(
       {
-        key: 'addChild',
-        label: globalProperties.$t('common.addChild', {name:''}),
+        id: 'addChild',
+        permission: 'perms[resource_server_data_dictionary:save]',
+        label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('icon-editor-add-cell'),
+        run: (ctx) => {
+          if (ctx.record) {
+            globalProperties.$router.push({name:'auth_server_resource_add_child', query:{parentId:String(ctx.record.id)}})
+          }
+        },
       }
     )
   }
@@ -190,12 +196,6 @@ function clearDataSource() {
 
 function fetchDataSource() {
   crudTable.value.fetchDataSource()
-}
-
-function onActionButtonClick(key: string, record: ResourceEntity) {
-  if (key === 'addChild') {
-    globalProperties.$router.push({name:'auth_server_resource_add_child', query:{parentId:String(record.id)}})
-  }
 }
 
 function formatDragPreview(record: ResourceEntity) {
@@ -231,8 +231,8 @@ onMounted(mounted)
     v-model:data-source="dataSource"
     :service="service"
     :columns="columns"
-    :action-buttons="actionButtons"
-    :enabled-actions="!props.preview"
+    :row-actions="rowActions"
+    :record-actions="!props.preview"
     :authority="{
       add:'perms[auth_server_authority_resource:save]',
       edit:'perms[auth_server_authority_resource:save]',
@@ -240,8 +240,7 @@ onMounted(mounted)
       delete:'perms[auth_server_authority_resource:delete]'
     }"
     :scroll="{x:'max-content', y: 350}"
-    :row-selection="rowSelection"
-    @actionButtonClick="onActionButtonClick"
+    :row-selection="props.rowSelection"
     @add="globalProperties.$router.push({name:'auth_server_resource_add'})"
     @detail="r => globalProperties.$router.push({name:'auth_server_resource_detail', query:{id:String(r.id)}})"
     @edit="r => globalProperties.$router.push({name:'auth_server_resource_edit', query:{id:String(r.id)}})"

@@ -14,7 +14,10 @@ const locale: LanguagePack = {
     save: 'Save',
     add: 'Add{name}',
     edit: 'Edit{name}',
-    export: 'Export',
+    export: {
+      all: 'Export All',
+      selected: 'Export ({count}) selected',
+    },
     detail: '{name} details',
     action: 'Actions',
     reset: 'Reset',

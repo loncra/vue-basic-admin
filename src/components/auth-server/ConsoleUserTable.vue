@@ -138,7 +138,7 @@ onMounted(mounted)
     v-bind="$attrs"
     :service="consoleUserService"
     :columns="columns"
-    :enabled-actions="!props.preview"
+    :record-actions="!props.preview"
     :authority="{
       add:'perms[auth_server_console_user:save]',
       export:'perms[auth_server_console_user:export]',
@@ -147,7 +147,7 @@ onMounted(mounted)
       delete:'perms[auth_server_console_user:delete]'
     }"
     :scroll="{x:'max-content'}"
-    :row-selection="props.preview ? undefined : {fixed: true, type: 'checkbox'}"
+    :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"
     @add="globalProperties.$router.push({name:'auth_server_console_user_add'})"
     @detail="r => globalProperties.$router.push({name:'auth_server_console_user_detail', query:{id:String(r.id)}})"
     @edit="r => globalProperties.$router.push({name:'auth_server_console_user_edit', query:{id:String(r.id)}})"

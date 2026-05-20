@@ -27,12 +27,12 @@ import {
 } from "@/utils";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {MenuProps} from "antdv-next";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
 import notFound from '@/assets/404.svg'
 import {useFlatDragDrop} from '@/composables'
-import type {MenuInfo} from '@v-c/menu'
+import {resolveActions} from '@/composables/table'
+import type {TableActionAuth, TableActionContext, TableActionDefinition,} from '@/types/composables'
 
 interface TabDataSource {
   key:string
@@ -120,78 +120,125 @@ const statusSetting = {
   }
 } as const
 
-function buildTitleButtons(): NonNullable<MenuProps['items']> {
-  const actionButtons:NonNullable<MenuProps['items']> = []
-  if (principalStore.hasPermission('perms[resource_server_carousel:save]')) {
-    actionButtons.push({
-      key: 'add',
-      label: globalProperties.$t('common.add',{name:''}),
+const auth: TableActionAuth = {
+  can: (permission) => {
+    if (permission === undefined || permission === false) {
+      return false
+    }
+    if (permission === true) {
+      return true
+    }
+    return principalStore.hasPermission(permission as string)
+  },
+}
+
+const tableActionContext = computed<TableActionContext<CarouselEntity>>(() => ({
+  scope: 'table',
+  table: {
+    dataSource: currentCardElements.value,
+    selectedRows: options.value.selectedItem,
+    selectedCount: options.value.selectedItem.length,
+    hasSelection: options.value.selectedItem.length > 0,
+    loading: loading.value,
+    query: {},
+  },
+  extras: {},
+}))
+
+function createTitleBulkActions(): TableActionDefinition<CarouselEntity>[] {
+  return [
+    {
+      id: 'add',
+      permission: 'perms[resource_server_carousel:save]',
+      label: () => globalProperties.$t('common.add', {name: ''}),
       icon: () => createIcon('icon-add'),
-    })
-  }
-  if (principalStore.hasPermission('perms[resource_server_carousel:delete]')) {
-    const count = getReleaseSelectedEntities().length;
-    actionButtons.push({
-      key: 'deleteSelect',
-      label: globalProperties.$t('common.delete.selected',{count}),
-      disabled: count === 0,
+      run: () => {
+        void globalProperties.$router.push({name: 'resource_server_carousel_add'})
+      },
+    },
+    {
+      id: 'deleteSelect',
+      permission: 'perms[resource_server_carousel:delete]',
+      enabled: (ctx) => getReleaseSelectedEntities(ctx.table.selectedRows).length > 0,
+      label: (ctx) => globalProperties.$t('common.delete.selected', {count: getReleaseSelectedEntities(ctx.table.selectedRows).length}),
       icon: () => createIcon('icon-delete'),
-    })
-  }
-  if (principalStore.hasPermission('perms[resource_server_carousel:release]')) {
-    const count = getReleaseSelectedEntities().length;
-    actionButtons.push({
-      key: 'releaseSelect',
-      label: globalProperties.$t('common.release.selected',{count}),
-      disabled: count === 0,
+      run: (ctx) => remove(ctx.table.selectedRows.map((e) => Number(e.id))),
+    },
+    {
+      id: 'releaseSelect',
+      permission: 'perms[resource_server_carousel:release]',
+      enabled: (ctx) => getReleaseSelectedEntities(ctx.table.selectedRows).length > 0,
+      label: (ctx) =>
+        globalProperties.$t('common.release.selected', {count: getReleaseSelectedEntities(ctx.table.selectedRows).length}),
       icon: () => createIcon('icon-response'),
-    })
-  }
-  if (principalStore.hasPermission('perms[resource_server_carousel:revoke]')) {
-    const count = getRevokeSelectedEntities().length;
-    actionButtons.push({
-      key: 'revokeSelect',
-      label: globalProperties.$t('common.revoke.selected',{count}),
-      disabled: count === 0,
+      run: (ctx) => release(getReleaseSelectedEntities(ctx.table.selectedRows).map((e) => Number(e.id))),
+    },
+    {
+      id: 'revokeSelect',
+      permission: 'perms[resource_server_carousel:revoke]',
+      enabled: (ctx) => getRevokeSelectedEntities(ctx.table.selectedRows).length > 0,
+      label: (ctx) =>
+        globalProperties.$t('common.revoke.selected', {count: getRevokeSelectedEntities(ctx.table.selectedRows).length}),
       icon: () => createIcon('icon-time-response'),
-    })
+      run: (ctx) => revoke(getRevokeSelectedEntities(ctx.table.selectedRows).map((e) => Number(e.id))),
+    },
+  ]
+}
+
+const titleActions = computed(() =>
+  resolveActions(createTitleBulkActions(), tableActionContext.value, auth),
+)
+
+function createCardActions(): TableActionDefinition<CarouselEntity>[] {
+  return [
+    {
+      id: 'release',
+      permission: 'perms[resource_server_carousel:release]',
+      enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 20,
+      label: () => globalProperties.$t('common.release.text'),
+      icon: () => createIcon('icon-response'),
+      run: (ctx) => release([Number(ctx.record!.id)]),
+    },
+    {
+      id: 'revoke',
+      permission: 'perms[resource_server_carousel:revoke]',
+      enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 30,
+      label: () => globalProperties.$t('common.revoke.text'),
+      icon: () => createIcon('icon-time-response'),
+      run: (ctx) => revoke([Number(ctx.record!.id)]),
+    },
+    {
+      id: 'edit',
+      permission: 'perms[resource_server_carousel:save]',
+      enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 20,
+      label: () => globalProperties.$t('common.edit'),
+      icon: () => createIcon('icon-edit'),
+      run: (ctx) => {
+        void globalProperties.$router.push({
+          name: 'resource_server_carousel_edit',
+          query: {id: String(ctx.record!.id)},
+        })
+      },
+    },
+  ]
+}
+
+function resolveCardActions(entity: CarouselEntity) {
+  const context: TableActionContext<CarouselEntity> = {
+    ...tableActionContext.value,
+    scope: 'row',
+    record: entity,
   }
-  return actionButtons;
+  return resolveActions(createCardActions(), context, auth)
 }
 
 
-function getReleaseSelectedEntities() {
-  return options.value.selectedItem.filter(e => [10, 30].includes(getEnumValue(e.status ?? 0)))
+function getReleaseSelectedEntities(selectedRows: CarouselEntity[] = options.value.selectedItem) {
+  return selectedRows.filter(e => [10, 30].includes(getEnumValue(e.status ?? 0)))
 }
 
-function getRevokeSelectedEntities() {
-  return options.value.selectedItem.filter(e => [20].includes(getEnumValue(e.status ?? 0)))
-}
-
-function buildMenuProps(entity: CarouselEntity): MenuProps {
-  const status = getEnumValue(entity.status ?? 0)
-  return {
-    items: [
-      {
-        key: 'release',
-        label: globalProperties.$t('common.release.text'),
-        icon: () => createIcon('icon-response'),
-        disabled: status === 20,
-      },
-      {
-        key: 'revoke',
-        label: globalProperties.$t('common.revoke.text'),
-        icon: () => createIcon('icon-time-response'),
-        disabled: status === 30,
-      },
-      {
-        key: 'edit',
-        label: globalProperties.$t('common.edit'),
-        icon: () => createIcon('icon-edit'),
-        disabled: status === 20,
-      },
-    ],
-  }
+function getRevokeSelectedEntities(selectedRows: CarouselEntity[] = options.value.selectedItem) {
+  return selectedRows.filter(e => [20].includes(getEnumValue(e.status ?? 0)))
 }
 
 async function loadDataSource(
@@ -231,24 +278,8 @@ function onChangeTab(key:string):void {
   }
 }
 
-function onActionItemClick(key:string, id:string) {
-  if (key === 'add') {
-    globalProperties.$router.push({name:'resource_server_carousel_add'})
-  } else if (key === 'edit') {
-    globalProperties.$router.push({name:'resource_server_carousel_edit', query:{id:id}})
-  } else if (key === 'delete') {
-    remove([Number(id)])
-  } else if (key === 'deleteSelect') {
-    remove(options.value.selectedItem.map(e => Number(e.id)))
-  } else if (key === 'release') {
-    release([Number(id)])
-  } else if (key === 'revoke') {
-    revoke([Number(id)])
-  } else if (key === 'releaseSelect') {
-    release(options.value.selectedItem.map(e => Number(e.id)))
-  } else if (key === 'revokeSelect') {
-    revoke(options.value.selectedItem.map(e => Number(e.id)))
-  }
+function onDeleteEntity(id: string) {
+  remove([Number(id)])
 }
 function release(ids: number[]) {
   if (ids.length === 0) {
@@ -433,7 +464,7 @@ onActivated(activated)
 
               <a-card size="small" :title="(item?.label || '') + globalProperties.$t('resourceServer.carousel.dataContent')" >
                 <template #extra>
-                  <l-action-button size="small" :action-items="buildTitleButtons()" @action-item-click="(key:string) => onActionItemClick(key, null as unknown as string)"/>
+                  <l-action-button size="small" :actions="titleActions"/>
                 </template>
                 <a-empty v-if="(item?.cardPage?.elements || []).length <= 0"/>
 
@@ -471,21 +502,13 @@ onActivated(activated)
                         </template>
 
                         <template #actions>
-                          <a-dropdown
-                            @menu-click="(e: MenuInfo) => onActionItemClick(e.key, entity.id)"
+                          <l-action-button
+                            size="small"
+                            type="text"
+                            always-dropdown
+                            :actions="resolveCardActions(entity)"
                             @click.stop
-                            :menu="buildMenuProps(entity)"
-                            placement="bottomLeft"
-                          >
-                            <a-button
-                              size="small"
-                              type="text"
-                            >
-                              <template #icon>
-                                <icon-font class="icon" type="icon-more" />
-                              </template>
-                            </a-button>
-                          </a-dropdown>
+                          />
                           <div
                             v-if="dragEnabled"
                             class="text-center cursor-grab"
@@ -498,7 +521,7 @@ onActivated(activated)
                               ::
                             </a-typography-text>
                           </div>
-                          <a-button @click.stop="onActionItemClick('delete', entity.id)" size="small" type="text" :disabled="!principalStore.hasPermission('perms[resource_server_data_dictionary:delete]')">
+                          <a-button @click.stop="onDeleteEntity(String(entity.id))" size="small" type="text" :disabled="!principalStore.hasPermission('perms[resource_server_data_dictionary:delete]')">
                             <icon-font class="icon" type="icon-delete"></icon-font>
                           </a-button>
                         </template>

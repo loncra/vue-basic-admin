@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
-import type {MenuItemType, TableProps} from 'antdv-next';
+import type {TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {
@@ -14,7 +14,8 @@ import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/CrudTable.vue";
-import type {SearchableColumnType} from "@/types/composables";
+import type {SearchableColumnType, TableActionDefinition} from "@/types/composables";
+import {mergeDefinitions} from "@/composables/table";
 
 defineOptions({
   name: 'LRoleTable',
@@ -29,6 +30,7 @@ const props = withDefaults(defineProps<{
   preview?: boolean
   query?:FilterRequest,
   rowSelection?:TableProps["rowSelection"]
+  rowActions?: TableActionDefinition<RoleEntity>[]
 }>(), {
   preview: false,
   rowSelection: () => ({fixed: true, type: 'checkbox'})
@@ -37,7 +39,7 @@ const props = withDefaults(defineProps<{
 const service = new RoleService()
 const resourceServerService = new ResourceServerService()
 
-const actionButtons = ref<MenuItemType[]>([])
+const actionButtons = ref<TableActionDefinition<RoleEntity>[]>([])
 
 const columns = ref<SearchableColumnType[]>([
   {
@@ -139,9 +141,15 @@ async function mounted() {
   if (principalStore.hasPermission('perms[auth_server_role:save]')) {
     actionButtons.value.push(
       {
-        key: 'addChild',
-        label: globalProperties.$t('common.addChild', {name:''}),
+        id: 'addChild',
+        permission: 'perms[auth_server_role:save]',
+        label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('icon-editor-add-cell'),
+        run: (ctx) => {
+          if (ctx.record) {
+            globalProperties.$router.push({name:'auth_server_role_add_child', query:{parentId:String(ctx.record.id)}})
+          }
+        },
       }
     )
   }
@@ -149,12 +157,6 @@ async function mounted() {
 
 function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
   return sources.map(s => getEnumName(s)).join(",")
-}
-
-function onActionButtonClick(key: string, record: RoleEntity) {
-  if (key === 'addChild') {
-    globalProperties.$router.push({name:'auth_server_role_add_child', query:{parentId:String(record.id)}})
-  }
 }
 
 onMounted(mounted)
@@ -167,8 +169,8 @@ onMounted(mounted)
     v-model:data-source="dataSource"
     :service="service"
     :columns="columns"
-    :action-buttons="actionButtons"
-    :enabled-actions="!props.preview"
+    :row-actions="mergeDefinitions(actionButtons, props.rowActions ?? [])"
+    :record-actions="!props.preview"
     :authority="{
       add:'perms[auth_server_role:save]',
       edit:'perms[auth_server_role:save]',
@@ -176,8 +178,7 @@ onMounted(mounted)
       delete:'perms[auth_server_role:delete]'
     }"
     :scroll="{x:'max-content'}"
-    :row-selection="rowSelection"
-    @action-button-click="onActionButtonClick"
+    :row-selection="props.rowSelection"
     @add="globalProperties.$router.push({name:'auth_server_role_add'})"
     @detail="r => globalProperties.$router.push({name:'auth_server_role_detail', query:{id:String(r.id)}})"
     @edit="r => globalProperties.$router.push({name:'auth_server_role_edit', query:{id:String(r.id)}})"

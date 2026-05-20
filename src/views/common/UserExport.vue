@@ -8,11 +8,10 @@ import {
   getEnumName,
   requireNonNullOrUndefined
 } from "@/utils";
-import type {MenuProps} from "antdv-next";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {ExportDataMetadata, FileObject} from "@/types/apis";
 import LCrudTable from "@/components/basic/CrudTable.vue";
-import type {SearchableColumnType} from "@/types/composables";
+import type {SearchableColumnType, TableActionDefinition} from "@/types/composables";
 
 defineOptions({
   name: 'CommonUserExport',
@@ -69,49 +68,45 @@ const columns:SearchableColumnType[] = [{
 const service = new AttachmentService();
 const selectedRows = ref<ExportDataMetadata[]>([]);
 
-const recordButtons:NonNullable<MenuProps['items']> = [{
-  key: 'download',
-  label: globalProperties.$t('common.download.text'),
+const rowActions: TableActionDefinition<ExportDataMetadata>[] = [{
+  id: 'download',
+  permission: true,
+  label: () => globalProperties.$t('common.download.text'),
   icon: () => createIcon('icon-download', 'align'),
+  run: (ctx) => {
+    if (!ctx.record) {
+      return
+    }
+    downloadRecord(ctx.record)
+  },
 }]
 
-const titleButton:NonNullable<MenuProps['items']> = [{
-  key: 'downloadSelected',
-  label: globalProperties.$t('common.download.selected'),
+const actions: TableActionDefinition<ExportDataMetadata>[] = [{
+  id: 'downloadSelected',
+  permission: true,
+  label: () => globalProperties.$t('common.download.selected'),
+  enabled: (ctx) => ctx.table.selectedRows.some((item) => item.executeStatus.value === 1),
   icon: () => createIcon('icon-download', 'align'),
+  run: (ctx) => {
+    const files: FileObject[] = ctx.table.selectedRows
+      .filter((item) => item.executeStatus.value === 1)
+      .map((item) => item.metadata)
+      .map((metadata) => metadata.data as FileObject)
+    service.downloads(files)
+  },
 }]
 
-function actionButtonClick(key:string, record:ExportDataMetadata) {
-  if (key === 'download') {
-    const data = record?.metadata?.data as FileObject;
-    if (!data) {
-      return ;
-    }
-    const bucketName = data?.bucketName;
-    const objectName = data?.objectName;
-    if (!objectName || !bucketName) {
-      return ;
-    }
-    service.download(bucketName, objectName);
+function downloadRecord(record: ExportDataMetadata) {
+  const data = record?.metadata?.data as FileObject;
+  if (!data) {
+    return ;
   }
-}
-
-function titleButtonClick(key:string) {
-  if (key === 'downloadSelected') {
-    const files:FileObject[] = selectedRows.value
-      .filter(item => item.executeStatus.value === 1)
-      .map(item => item.metadata)
-      .map(metadata => metadata.data as FileObject);
-    service.downloads(files);
+  const bucketName = data?.bucketName;
+  const objectName = data?.objectName;
+  if (!objectName || !bucketName) {
+    return ;
   }
-}
-
-function onSelectRow(
-  _record:ExportDataMetadata,
-  _selected:boolean,
-  _selectedRows:ExportDataMetadata[]
-) {
-  selectedRows.value = _selectedRows;
+  service.download(bucketName, objectName);
 }
 
 </script>
@@ -120,15 +115,14 @@ function onSelectRow(
   <l-crud-table
     :service="service"
     :columns="columns"
-    :action-buttons="recordButtons"
-    :title-buttons="titleButton"
+    :actions="actions"
+    :row-actions="rowActions"
+    v-model:selected-rows="selectedRows"
     :scroll="{x:'max-content'}"
-    :rowSelection="{type: 'checkbox', onSelect:onSelectRow}"
+    :row-selection="{type: 'checkbox'}"
     :authority="{
       delete:true
     }"
-    @title-button-click="titleButtonClick"
-    @action-button-click="actionButtonClick"
   >
     <template #bodyCell="{ column, record }">
 

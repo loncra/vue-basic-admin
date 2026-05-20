@@ -1,12 +1,14 @@
 import type {BasicAuthorityProps} from './common'
 import type {DropPosition, UseDragOptions} from './drag'
-import {type Component, type ComputedRef, type Ref,} from "vue";
-import {type MenuProps, type TableProps} from "antdv-next";
+import {type Component, type ComputedRef, type InjectionKey, type Ref, type VNode} from "vue";
+import {type TableProps} from "antdv-next";
 import type {
   BasicCrudService,
   BasicIdMetadata,
+  FilterRequest,
   FindSearchService,
   FlatSortMetadata,
+  PageRequest,
   PageSearchService,
   ScrollPageResult,
   TreeSortMetadata
@@ -35,6 +37,50 @@ export type SearchableColumnType<RecordType = Record<string, unknown>> = ColumnT
   search?: ColumnSearchConfig
 }
 
+export type TableActionScope = 'table' | 'row' | 'bulk'
+
+export interface TableActionContext<TEntity = unknown> {
+  scope: TableActionScope
+  record?: TEntity
+  table: {
+    dataSource: TEntity[]
+    selectedRows: TEntity[]
+    query: FilterRequest | PageRequest
+  }
+  extras: Record<string, unknown>
+}
+
+export interface TableActionDefinition<TEntity = unknown> {
+  id: string
+  permission?: string | boolean
+  visible?: (ctx: TableActionContext<TEntity>) => boolean
+  enabled?: (ctx: TableActionContext<TEntity>) => boolean
+  label?: (ctx: TableActionContext<TEntity>) => string
+  icon?: (ctx: TableActionContext<TEntity>) => VNode
+  run?: (ctx: TableActionContext<TEntity>) => void | Promise<void>
+}
+
+export interface ResolvedTableAction {
+  id: string
+  label: string
+  icon?: VNode
+  disabled: boolean
+  loading?: boolean
+  run?: () => void | Promise<void>
+}
+
+export interface TableActionAuth {
+  can: (permission?: string | boolean) => boolean
+}
+
+export interface TableActionPayload<TEntity = unknown> {
+  id: string
+  context: TableActionContext<TEntity>
+}
+
+export const TABLE_ACTION_CONTEXT_KEY: InjectionKey<ComputedRef<TableActionContext<unknown>>> =
+  Symbol('tableActionContext')
+
 export interface QueryTableProps<
   TBody extends BasicIdMetadata<TId>,
   TEntity extends TBody,
@@ -49,8 +95,9 @@ export interface QueryTableProps<
   hideTitle?: boolean
   onRow?: TableProps['onRow']
   columns:SearchableColumnType[]
-  enabledTitleActions?:boolean
-  titleButtons?: NonNullable<MenuProps['items']>
+  actions?: TableActionDefinition<TEntity>[]
+  actionContextExtras?: Record<string, unknown>
+  rowSelection?: TableProps['rowSelection'] | false
   pagination?:TableProps['pagination']
   formatDragPreview?: (record: TEntity) => string
 }
@@ -61,9 +108,8 @@ export interface CurdTableProps<
   TPage extends ScrollPageResult<TEntity>,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
 > extends QueryTableProps<TBody, TEntity, TPage>{
-  enabledRecordActions?: boolean
-  actionButtons?: NonNullable<MenuProps['items']>
-  renderActionItems?: (record: TEntity, actionItems: NonNullable<MenuProps['items']>) => NonNullable<MenuProps['items']>
+  recordActions?: boolean
+  rowActions?: TableActionDefinition<TEntity>[]
 }
 
 export interface UseTableRowDragOptions<
