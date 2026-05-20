@@ -4,6 +4,7 @@ import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 
 import {
   type ComponentInternalInstance,
+  type Ref,
   computed,
   getCurrentInstance,
   onActivated,
@@ -19,17 +20,12 @@ import {App, type TableProps} from "antdv-next";
 import type {
   BasicIdMetadata,
   FilterRequest,
-  FindSearchService,
   PageRequest,
-  PageResult,
-  PageSearchService,
   RestResult,
   ScrollPageResult,
-  TotalPage,
   TreeSortMetadata,
 } from "@/types/apis";
 import type {
-  ActionAuth,
   ActionContext,
   ActionDefinition,
   ActionPayload,
@@ -38,13 +34,12 @@ import type {
   SearchableColumnType,
 } from "@/types/composables";
 import {ACTION_CONTEXT_KEY} from "@/types/composables";
-import {mergeDefinitions, resolveActions} from "@/composables/action";
+import {mergeDefinitions, resolveActions, useActionAuth} from "@/composables/action";
+import {fetchCollectionData, type CollectionPagination} from "@/composables/data/usePageDataFetch.ts";
 import {useMergeRowSelection, useTableRowDrag} from "@/composables/table";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
-import type {PageSearchRestfulService} from "@/apis/pageSearchRestfulService.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import LActionButton from "@/components/basic/ActionButton.vue";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {TablePaginationConfig} from "antdv-next/dist/table/interface";
 
 defineOptions({
@@ -52,7 +47,6 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const principalStore = usePrincipalStore()
 const menuPrincipalStore = useMenuPrincipalStore()
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -109,17 +103,7 @@ const tableColumns = ref<SearchableColumnType[]>([])
 const tablePagination = ref<TableProps['pagination']>()
 const skipActivatedOnce = ref(true)
 
-const auth: ActionAuth = {
-  can: (permission) => {
-    if (permission === undefined || permission === false) {
-      return false
-    }
-    if (permission === true) {
-      return true
-    }
-    return principalStore.hasPermission(permission as string) || !!permission
-  },
-}
+const auth = useActionAuth()
 
 const actionContext = computed<ActionContext<TEntity>>(() => ({
   scope: 'toolbar',
@@ -305,47 +289,15 @@ function rebuildColumns() {
 
 async function fetchDataSource() {
   try {
-    loading.value = true;
-    const data:TEntity[] = [];
-    if (typeof (props.service as PageSearchService<TEntity, TPage, TId>).page === 'function') {
-      const result:RestResult<TPage> = await (props.service as PageSearchRestfulService<TEntity, TPage, TId>).page(query.value as PageRequest);
-      data.push(...(result.data?.elements || []))
-      if (tablePagination.value) {
-        tablePagination.value.pageSize = result.data?.size || 10 ;
-        const pageResult = result.data as unknown as PageResult<TEntity>
-        if (pageResult.number) {
-          tablePagination.value.current = pageResult.number
-          const n =
-            typeof pageResult.number === 'number' && Number.isFinite(pageResult.number)
-              ? pageResult.number
-              : ((query.value as PageRequest).number ?? 1)
-          const rowCount = data.length
-          if (pageResult.last) {
-            tablePagination.value.total = (n - 1) * pageResult.size + rowCount
-          } else {
-            tablePagination.value.total = n * pageResult.size + 1
-          }
-        }
-
-        const totalPage = result.data as unknown as TotalPage<TEntity>
-        if (totalPage.totalCount) {
-          tablePagination.value.total = totalPage.totalCount;
-        }
-      }
-
-    } else if (typeof (props.service as FindSearchService<TEntity, TId>).find === 'function') {
-      const result:RestResult<TEntity[]> = await (props.service as FindSearchService<TEntity, TId>).find(query.value as FilterRequest);
-      data.push(...(result.data || []))
-      if (tablePagination.value === undefined) {
-        tablePagination.value = false;
-      }
-    }
-
-    dataSource.value = data;
-    syncPlacementBaseline(data);
-
+    loading.value = true
+    dataSource.value = await fetchCollectionData({
+      service: props.service,
+      query: query.value,
+      pagination: tablePagination as Ref<CollectionPagination | undefined>,
+    })
+    syncPlacementBaseline(dataSource.value)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 

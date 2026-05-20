@@ -1,10 +1,13 @@
 <script setup lang="ts">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
+import LCrudCardGrid from "@/components/basic/CrudCardGrid.vue";
+import LActionButton from "@/components/basic/ActionButton.vue";
 import {
   type ComponentInternalInstance,
   computed,
   getCurrentInstance,
+  nextTick,
   onActivated,
   onMounted,
   ref
@@ -12,9 +15,10 @@ import {
 import type {
   CarouselEntity,
   EnumBucketsResponseBody,
+  FlatSortMetadata,
   NameValueEnumMetadata,
+  PageRequest,
   RestResult,
-  TotalPage
 } from "@/types/apis";
 import {AttachmentService, ResourceServerService} from "@/apis";
 import {CarouselService} from "@/apis/resource-server/carouselService.ts";
@@ -25,22 +29,20 @@ import {
   getEnumValue,
   requireNonNullOrUndefined
 } from "@/utils";
-import LActionButton from "@/components/basic/ActionButton.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
 import notFound from '@/assets/404.svg'
-import {useFlatDragDrop} from '@/composables'
-import {resolveActions} from '@/composables/action'
-import type {ActionAuth, ActionContext, ActionDefinition} from '@/types/composables'
+import type {ActionDefinition} from '@/types/composables'
 
 interface TabDataSource {
-  key:string
-  label:string
+  key: string
+  label: string
   isLoading: boolean
   loading: boolean
   carouselDataSource: CarouselEntity[]
-  cardPage: TotalPage<CarouselEntity>
+  selectedItems: CarouselEntity[]
+  query: PageRequest
 }
 
 defineOptions({
@@ -49,8 +51,8 @@ defineOptions({
 
 const { modal, message } = useApp();
 
-const principalStore = usePrincipalStore()
 const configProviderStore = useConfigProviderStore()
+const principalStore = usePrincipalStore()
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -59,54 +61,35 @@ const attachmentService = new AttachmentService()
 const resourceServerService = new ResourceServerService()
 const carouselService = new CarouselService()
 
+const carouselAuthority = {
+  add: 'perms[resource_server_carousel:save]',
+  edit: 'perms[resource_server_carousel:save]',
+  delete: 'perms[resource_server_carousel:delete]',
+  detail: false,
+} as const
+
 const options = ref<{
-  typeOptions:NameValueEnumMetadata<number>[]
-  loading:boolean
-  selectedItem:CarouselEntity[]
+  typeOptions: NameValueEnumMetadata<number>[]
+  loading: boolean
 }>({
-  typeOptions:[],
-  loading:false,
-  selectedItem:[]
+  typeOptions: [],
+  loading: false,
 })
 
 const loading = ref<boolean>(false);
 const tabActiveKey = ref<string>();
 const tabDataSource = ref<TabDataSource[]>([]);
 
+interface CarouselGridExposed {
+  fetchDataSource: () => Promise<void | undefined>
+  remove: (records: CarouselEntity[]) => void
+}
+
+const gridRefs = new Map<string, CarouselGridExposed>()
+
 const dragEnabled = computed(() =>
-  principalStore.hasPermission('perms[resource_server_data_dictionary:save]'),
+  principalStore.hasPermission('perms[resource_server_carousel:save]'),
 )
-
-const currentCardElements = computed({
-  get: () =>
-    tabDataSource.value.find((t) => t.key === tabActiveKey.value)?.cardPage.elements ?? [],
-  set: (val) => {
-    const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
-    if (tab) {
-      tab.cardPage.elements = val
-    }
-  },
-})
-
-const {
-  onDragHandleStart,
-  onDragHandleEnd,
-  buildDropZoneProps,
-  dropTargetClass,
-} = useFlatDragDrop<CarouselEntity, number>({
-  drag: dragEnabled,
-  dataSource: currentCardElements,
-  direction: 'horizontal',
-  formatDragPreview: (entity) => entity.name,
-  onFlatDrop: async ({sorts}) => {
-    try {
-      const result = await carouselService.sort(sorts)
-      message.success(result.message)
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  },
-})
 
 const statusSetting = {
   "10": {
@@ -120,30 +103,27 @@ const statusSetting = {
   }
 } as const
 
-const auth: ActionAuth = {
-  can: (permission) => {
-    if (permission === undefined || permission === false) {
-      return false
-    }
-    if (permission === true) {
-      return true
-    }
-    return principalStore.hasPermission(permission as string)
-  },
+function setGridRef(key: string, el: unknown) {
+  if (el) {
+    gridRefs.set(key, el as CarouselGridExposed)
+  } else {
+    gridRefs.delete(key)
+  }
 }
 
-const toolbarActionContext = computed<ActionContext<CarouselEntity>>(() => ({
-  scope: 'toolbar',
-  items: currentCardElements.value,
-  selectedItems: options.value.selectedItem,
-  extras: {},
-}))
+function getReleaseSelectedEntities(selectedRows: CarouselEntity[]) {
+  return selectedRows.filter(e => [10, 30].includes(getEnumValue(e.status ?? 0)))
+}
 
-function createTitleBulkActions(): ActionDefinition<CarouselEntity>[] {
+function getRevokeSelectedEntities(selectedRows: CarouselEntity[]) {
+  return selectedRows.filter(e => [20].includes(getEnumValue(e.status ?? 0)))
+}
+
+function createBulkActions(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'add',
-      permission: 'perms[resource_server_carousel:save]',
+      permission: carouselAuthority.add,
       label: () => globalProperties.$t('common.add', {name: ''}),
       icon: () => createIcon('icon-add'),
       run: () => {
@@ -151,19 +131,29 @@ function createTitleBulkActions(): ActionDefinition<CarouselEntity>[] {
       },
     },
     {
-      id: 'deleteSelect',
-      permission: 'perms[resource_server_carousel:delete]',
+      id: 'deleteSelected',
+      permission: carouselAuthority.delete,
       enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
-      label: (ctx) => globalProperties.$t('common.delete.selected', {count: getReleaseSelectedEntities(ctx.selectedItems).length}),
+      label: (ctx) =>
+        globalProperties.$t('common.delete.selected', {
+          count: getReleaseSelectedEntities(ctx.selectedItems).length,
+        }),
       icon: () => createIcon('icon-delete'),
-      run: (ctx) => remove(ctx.selectedItems.map((e) => Number(e.id))),
+      run: (ctx) => {
+        const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
+        if (tab) {
+          gridRefs.get(tab.key)?.remove(getReleaseSelectedEntities(ctx.selectedItems))
+        }
+      },
     },
     {
       id: 'releaseSelect',
       permission: 'perms[resource_server_carousel:release]',
       enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
-        globalProperties.$t('common.release.selected', {count: getReleaseSelectedEntities(ctx.selectedItems).length}),
+        globalProperties.$t('common.release.selected', {
+          count: getReleaseSelectedEntities(ctx.selectedItems).length,
+        }),
       icon: () => createIcon('icon-response'),
       run: (ctx) => release(getReleaseSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
@@ -172,18 +162,16 @@ function createTitleBulkActions(): ActionDefinition<CarouselEntity>[] {
       permission: 'perms[resource_server_carousel:revoke]',
       enabled: (ctx) => getRevokeSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
-        globalProperties.$t('common.revoke.selected', {count: getRevokeSelectedEntities(ctx.selectedItems).length}),
+        globalProperties.$t('common.revoke.selected', {
+          count: getRevokeSelectedEntities(ctx.selectedItems).length,
+        }),
       icon: () => createIcon('icon-time-response'),
       run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
   ]
 }
 
-const titleActions = computed(() =>
-  resolveActions(createTitleBulkActions(), toolbarActionContext.value, auth),
-)
-
-function createCardActions(): ActionDefinition<CarouselEntity>[] {
+function createItemActions(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'release',
@@ -203,7 +191,7 @@ function createCardActions(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'edit',
-      permission: 'perms[resource_server_carousel:save]',
+      permission: carouselAuthority.edit,
       enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 20,
       label: () => globalProperties.$t('common.edit'),
       icon: () => createIcon('icon-edit'),
@@ -217,74 +205,60 @@ function createCardActions(): ActionDefinition<CarouselEntity>[] {
   ]
 }
 
-function resolveCardActions(entity: CarouselEntity) {
-  const context: ActionContext<CarouselEntity> = {
-    ...toolbarActionContext.value,
-    scope: 'item',
-    record: entity,
-  }
-  return resolveActions(createCardActions(), context, auth)
-}
+const bulkActions = createBulkActions()
+const itemActionDefinitions = createItemActions()
 
-
-function getReleaseSelectedEntities(selectedRows: CarouselEntity[] = options.value.selectedItem) {
-  return selectedRows.filter(e => [10, 30].includes(getEnumValue(e.status ?? 0)))
-}
-
-function getRevokeSelectedEntities(selectedRows: CarouselEntity[] = options.value.selectedItem) {
-  return selectedRows.filter(e => [20].includes(getEnumValue(e.status ?? 0)))
-}
-
-async function loadDataSource(
-  dataSource:TabDataSource,
-  number:number = 1,
-  size:number = 10
-):Promise<void> {
-  if (!dataSource) {
-    return
-  }
-  dataSource.loading = true;
-  const carouselDataSource:RestResult<TotalPage<CarouselEntity>> = await carouselService.page({
-    "number": -1,
-    "filter_[type_eq]":dataSource.key,
-    "filter_[status_eq]":20,
+async function loadCarouselPreview(tab: TabDataSource): Promise<void> {
+  const carouselDataSource: RestResult<{elements: CarouselEntity[]}> = await carouselService.page({
+    number: -1,
+    'filter_[type_eq]': tab.key,
+    'filter_[status_eq]': 20,
   })
   if (carouselDataSource.data) {
-    dataSource.carouselDataSource = carouselDataSource.data.elements;
+    tab.carouselDataSource = carouselDataSource.data.elements
   }
-  const page:RestResult<TotalPage<CarouselEntity>> = await carouselService.page({
-    "number": number,
-    "size": size,
-    "filter_[type_eq]":dataSource.key,
-  })
-  if (page.data) {
-    dataSource.cardPage = page.data;
-  }
-  dataSource.loading = false;
 }
 
-function onChangeTab(key:string):void {
-  tabActiveKey.value = key;
-  const dataSource = tabDataSource.value.find(s => s.key === key);
+async function loadTabData(tab: TabDataSource): Promise<void> {
+  tab.loading = true
+  await loadCarouselPreview(tab)
+  await nextTick()
+  await gridRefs.get(tab.key)?.fetchDataSource()
+  tab.loading = false
+}
+
+function onChangeTab(key: string): void {
+  tabActiveKey.value = key
+  const dataSource = tabDataSource.value.find(s => s.key === key)
   if (dataSource && !dataSource.isLoading) {
-    loadDataSource(dataSource);
-    dataSource.isLoading = true;
+    dataSource.isLoading = true
+    void loadTabData(dataSource)
   }
 }
 
-function onDeleteEntity(id: string) {
-  remove([Number(id)])
+function onEdit(record: CarouselEntity) {
+  void globalProperties.$router.push({
+    name: 'resource_server_carousel_edit',
+    query: {id: String(record.id)},
+  })
 }
+
+async function onCardDrop(sorts: FlatSortMetadata<number>[]) {
+  try {
+    const result = await carouselService.sort(sorts)
+    message.success(result.message)
+  } catch (e) {
+    message.error(e instanceof Error ? e.message : String(e))
+  }
+}
+
 function release(ids: number[]) {
   if (ids.length === 0) {
     return
   }
-  if (ids.length === 0) {
-    return
-  }
   const content = ids.length === 1
-      ? globalProperties.$t('common.release.confirmSingle')
-      : globalProperties.$t('common.release.confirmBatch', {count: ids.length})
+    ? globalProperties.$t('common.release.confirmSingle')
+    : globalProperties.$t('common.release.confirmBatch', {count: ids.length})
   modal.confirm({
     title: globalProperties.$t('common.release.confirmTitle'),
     content,
@@ -294,12 +268,12 @@ function release(ids: number[]) {
 
 async function doRelease(ids: number[]) {
   try {
-    const result:RestResult<void> = await carouselService.release(ids)
+    const result: RestResult<void> = await carouselService.release(ids)
     message.success(result.message)
-    options.value.selectedItem = []
     const dataSource = tabDataSource.value.find(t => t.key === tabActiveKey.value)
-    if (dataSource){
-      await loadDataSource(dataSource)
+    if (dataSource) {
+      dataSource.selectedItems = []
+      await loadTabData(dataSource)
     }
   } catch (e) {
     message.error(e instanceof Error ? e.message : String(e))
@@ -311,8 +285,8 @@ function revoke(ids: number[]) {
     return
   }
   const content = ids.length === 1
-      ? globalProperties.$t('common.revoke.confirmSingle')
-      : globalProperties.$t('common.revoke.confirmBatch', {count: ids.length})
+    ? globalProperties.$t('common.revoke.confirmSingle')
+    : globalProperties.$t('common.revoke.confirmBatch', {count: ids.length})
   modal.confirm({
     title: globalProperties.$t('common.revoke.confirmTitle'),
     content,
@@ -322,85 +296,48 @@ function revoke(ids: number[]) {
 
 async function doRevoke(ids: number[]) {
   try {
-    const result:RestResult<void> = await carouselService.revoke(ids)
+    const result: RestResult<void> = await carouselService.revoke(ids)
     message.success(result.message)
-    options.value.selectedItem = []
     const dataSource = tabDataSource.value.find(t => t.key === tabActiveKey.value)
-    if (dataSource){
-      await loadDataSource(dataSource)
+    if (dataSource) {
+      dataSource.selectedItems = []
+      await loadTabData(dataSource)
     }
   } catch (e) {
     message.error(e instanceof Error ? e.message : String(e))
-  }
-}
-
-function remove(ids: number[]) {
-  if (ids.length === 0) {
-    return
-  }
-  const content = ids.length === 1
-      ? globalProperties.$t('common.delete.confirmSingle')
-      : globalProperties.$t('common.delete.confirmBatch', {count: ids.length})
-  modal.confirm({
-    title: globalProperties.$t('common.delete.confirmTitle'),
-    content,
-    onOk: () => doDelete(ids),
-  })
-}
-
-async function doDelete(ids: number[]) {
-  try {
-    const result:RestResult<void> = await carouselService.delete(ids)
-    message.success(result.message)
-    const dataSource = tabDataSource.value.find(t => t.key === tabActiveKey.value)
-    if (dataSource){
-      await loadDataSource(dataSource)
-    }
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  } finally {
-    loading.value = false;
-  }
-}
-
-function onSelect(entity: CarouselEntity) {
-  if (options.value.selectedItem.some(e => e.id === entity.id)) {
-    options.value.selectedItem = options.value.selectedItem.filter(e => e.id !== entity.id)
-  } else {
-    options.value.selectedItem.push(entity)
   }
 }
 
 async function mounted() {
   loading.value = true
 
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"CarouselTypeEnum"}]})
+  const enums: RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({
+    'resource-server': [{id: 'CarouselTypeEnum'}],
+  })
   if (enums.data) {
     options.value.typeOptions = enums.data['resource-server']?.CarouselTypeEnum as NameValueEnumMetadata<number>[]
     for (const item of options.value.typeOptions) {
       tabDataSource.value.push({
         key: String(item.value),
         label: item.name,
-        loading:false,
+        loading: false,
         carouselDataSource: [],
         isLoading: false,
-        cardPage: {
+        selectedItems: [],
+        query: {
           number: 1,
           size: 10,
-          elements: [],
-          totalPages: 0,
-          totalCount: 0,
-          first: true,
-          numberOfElements: 0,
-          last: true
-        }
+          'filter_[type_eq]': String(item.value),
+        },
       })
     }
   }
 
   if (tabDataSource.value.length > 0) {
-    tabActiveKey.value = tabDataSource.value.at(0)?.key
-    loadDataSource(tabDataSource.value.at(0) as TabDataSource);
+    const firstTab = tabDataSource.value.at(0) as TabDataSource
+    tabActiveKey.value = firstTab.key
+    firstTab.isLoading = true
+    await loadTabData(firstTab)
   }
 
   loading.value = false
@@ -408,15 +345,9 @@ async function mounted() {
 
 function activated() {
   if (tabActiveKey.value) {
-    loadDataSource(tabDataSource.value.find(t => t.key === tabActiveKey.value) as TabDataSource);
-  }
-}
-
-function onChangePage(page: number, pageSize: number) {
-  if (tabActiveKey.value) {
-  const dataSource = tabDataSource.value.find(t => t.key === tabActiveKey.value);
-    if (dataSource) {
-      loadDataSource(dataSource, page, pageSize);
+    const tab = tabDataSource.value.find(t => t.key === tabActiveKey.value)
+    if (tab) {
+      void loadTabData(tab)
     }
   }
 }
@@ -436,8 +367,8 @@ onActivated(activated)
         :items="tabDataSource"
       >
         <template #contentRender="{item}">
-          <a-spin :spinning="item.loading" size="large">
-            <a-space orientation="vertical" class="w-full" :size="configProviderStore.getToken().sizeMD">
+          <a-space orientation="vertical" class="w-full" :size="configProviderStore.getToken().sizeMD">
+            <a-spin :spinning="item.loading">
               <template v-if="(item.carouselDataSource || []).length <= 0">
                 <a-empty />
               </template>
@@ -455,82 +386,75 @@ onActivated(activated)
                   />
                 </div>
               </a-carousel>
+            </a-spin>
 
-              <a-card size="small" :title="(item?.label || '') + globalProperties.$t('resourceServer.carousel.dataContent')" >
-                <template #extra>
-                  <l-action-button size="small" :actions="titleActions"/>
-                </template>
-                <a-empty v-if="(item?.cardPage?.elements || []).length <= 0"/>
-
-                <a-card-grid
-                  v-bind="buildDropZoneProps(entity)"
-                  @click="onSelect(entity)"
-                  v-else
-                  :class="[
-                    'w-1/5',
-                    options.selectedItem.some(e => e.id === entity.id) ? 'bg-info-bg' : '',
-                    dropTargetClass(entity),
-                  ]"
-                  :key="entity.id"
-                  v-for="entity of item?.cardPage?.elements || []"
+            <l-crud-card-grid
+              :ref="(el) => setGridRef(item.key, el)"
+              :key="item.key"
+              :service="carouselService"
+              v-model:query="item.query"
+              v-model:selected-items="item.selectedItems"
+              :immediate="false"
+              :drag="dragEnabled"
+              :authority="carouselAuthority"
+              :actions="bulkActions"
+              :item-actions="itemActionDefinitions"
+              :loading="item.loading"
+              @edit="onEdit"
+              @drop="onCardDrop"
+            >
+              <template #title>
+                {{ item.label }}{{ globalProperties.$t('resourceServer.carousel.dataContent') }}
+              </template>
+              <template #item="{ record, itemActions, dragEnabled: itemDragEnabled, onDragStart, onDragEnd }">
+                <a-badge-ribbon
+                  :text="getEnumName(record.status)"
+                  :color="statusSetting[String(getEnumValue(record.status ?? 0)) as keyof typeof statusSetting]?.color || 'blue'"
                 >
-                  <a-badge-ribbon
-                    :text="getEnumName(entity.status)"
-                    :color="statusSetting[String(entity.status.value) as keyof typeof statusSetting]?.color || 'blue'"
-                  >
-
-                    <a-tooltip>
-                      <template #title>
-                        <a-space orientation="vertical">
-                          <span>{{globalProperties.$t('resourceServer.carousel.showtime')}}: {{entity.showtime ? dateTimeFormat(entity.showtime) : globalProperties.$t('resourceServer.carousel.immediately')}}</span>
-                          <span>{{globalProperties.$t('common.expiresTime')}}: {{entity.expirationTime ? dateTimeFormat(entity.expirationTime) : globalProperties.$t('resourceServer.carousel.permanent') }}</span>
-                        </a-space>
+                  <a-tooltip>
+                    <template #title>
+                      <a-space orientation="vertical">
+                        <span>{{ globalProperties.$t('resourceServer.carousel.showtime') }}: {{ record.showtime ? dateTimeFormat(record.showtime) : globalProperties.$t('resourceServer.carousel.immediately') }}</span>
+                        <span>{{ globalProperties.$t('common.expiresTime') }}: {{ record.expirationTime ? dateTimeFormat(record.expirationTime) : globalProperties.$t('resourceServer.carousel.permanent') }}</span>
+                      </a-space>
+                    </template>
+                    <a-card size="small" :title="record.name">
+                      <template #cover>
+                        <a-image
+                          @click.stop
+                          :src="attachmentService.query(record.cover?.bucketName ?? '', record.cover?.objectName ?? '')"
+                          :fallback="notFound"
+                        />
                       </template>
-                      <a-card size="small" :title="entity.name">
-                        <template #cover >
-                          <a-image
-                            @click.stop
-                            :src="attachmentService.query(entity?.cover?.bucketName, entity?.cover?.objectName)"
-                            :fallback="notFound"
-                          />
-                        </template>
-
-                        <template #actions>
-                          <l-action-button
-                            size="small"
-                            type="text"
-                            always-dropdown
-                            :actions="resolveCardActions(entity)"
-                            @click.stop
-                          />
-                          <div
-                            v-if="dragEnabled"
-                            class="text-center cursor-grab"
-                            draggable="true"
-                            @click.stop
-                            @dragstart="onDragHandleStart(entity, $event)"
-                            @dragend="onDragHandleEnd"
-                          >
-                            <a-typography-text type="secondary">
-                              ::
-                            </a-typography-text>
-                          </div>
-                          <a-button @click.stop="onDeleteEntity(String(entity.id))" size="small" type="text" :disabled="!principalStore.hasPermission('perms[resource_server_data_dictionary:delete]')">
-                            <icon-font class="icon" type="icon-delete"></icon-font>
-                          </a-button>
-                        </template>
-                      </a-card>
-                    </a-tooltip>
-                  </a-badge-ribbon>
-                </a-card-grid>
-              </a-card>
-
-              <a-pagination @change="onChangePage" hide-on-single-page :current="item?.cardPage?.number" :pageSize="item?.cardPage?.size" :total="item?.cardPage?.totalCount" align="center"/>
-            </a-space>
-          </a-spin>
+                      <template #actions>
+                        <l-action-button
+                          size="small"
+                          type="text"
+                          always-dropdown
+                          :actions="itemActions"
+                          @click.stop
+                        />
+                        <div
+                          v-if="itemDragEnabled"
+                          class="text-center cursor-grab"
+                          draggable="true"
+                          @click.stop
+                          @dragstart="onDragStart($event)"
+                          @dragend="onDragEnd"
+                        >
+                          <a-typography-text type="secondary">
+                            ::
+                          </a-typography-text>
+                        </div>
+                      </template>
+                    </a-card>
+                  </a-tooltip>
+                </a-badge-ribbon>
+              </template>
+            </l-crud-card-grid>
+          </a-space>
         </template>
       </a-tabs>
-
     </l-menu-title-card>
   </div>
 </template>

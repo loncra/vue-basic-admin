@@ -1,28 +1,18 @@
 import type {ActionDefinition} from './actionButton'
-import type {BasicAuthorityProps} from './common'
+import type {QueryCollectionProps} from './collection'
 import type {DropPosition, UseDragOptions} from './drag'
 import {type Component, type ComputedRef, type Ref} from "vue";
 import {type TableProps} from "antdv-next";
 import type {
-  BasicCrudService,
   BasicIdMetadata,
-  FindSearchService,
   FlatSortMetadata,
-  PageSearchService,
   ScrollPageResult,
   TreeSortMetadata
 } from "@/types/apis";
 import type {ColumnType} from "antdv-next/dist/table/interface";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 
-/**
- * 表格行级权限
- */
-export interface TableAuthorityProps extends BasicAuthorityProps {
-  edit?:string | boolean
-  export?:string | boolean
-  add?:string | boolean
-}
+export type {AuthorityProps} from './collection'
 
 export interface ColumnSearchConfig {
   component?: Component
@@ -41,20 +31,12 @@ export interface QueryTableProps<
   TEntity extends TBody,
   TPage extends ScrollPageResult<TEntity>,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
-> {
-  service: FindSearchService<TEntity, TId> | PageSearchService<TEntity, TPage, TId> | BasicCrudService<TBody, TEntity, TId>
-  immediate?: boolean
+> extends QueryCollectionProps<TBody, TEntity, TPage, TId> {
   bordered?: boolean
-  drag?: boolean
-  authority?: TableAuthorityProps
-  hideTitle?: boolean
   onRow?: TableProps['onRow']
-  columns:SearchableColumnType[]
-  actions?: ActionDefinition<TEntity>[]
-  actionContextExtras?: Record<string, unknown>
+  columns: SearchableColumnType[]
   rowSelection?: TableProps['rowSelection'] | false
-  pagination?:TableProps['pagination']
-  formatDragPreview?: (record: TEntity) => string
+  pagination?: TableProps['pagination']
 }
 
 export interface CurdTableProps<

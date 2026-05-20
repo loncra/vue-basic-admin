@@ -3,67 +3,64 @@
 import type {
   BasicCrudService,
   BasicIdMetadata,
+  FilterRequest,
+  FlatSortMetadata,
+  PageRequest,
   RestResult,
   ScrollPageResult,
-  TreeSortMetadata,
-} from "@/types/apis";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
-import {App} from "antdv-next";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, computed, getCurrentInstance, ref, useSlots,} from "vue";
-import LActionButton from "@/components/basic/ActionButton.vue";
-import LQueryTable from "@/components/basic/QueryTable.vue";
+} from '@/types/apis'
+import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {App} from 'antdv-next'
+import {createIcon, requireNonNullOrUndefined} from '@/utils'
+import {type ComponentInternalInstance, computed, getCurrentInstance, ref, useSlots} from 'vue'
+import LActionButton from '@/components/basic/ActionButton.vue'
+import LQueryCardGrid from '@/components/basic/QueryCardGrid.vue'
 import type {
   ActionContext,
   ActionDefinition,
   ActionPayload,
-  CurdTableProps,
-  DropPosition,
-  SearchableColumnType,
-} from "@/types/composables";
-import {mergeDefinitions, resolveActions, useActionAuth} from "@/composables/action";
+  CrudCardGridProps,
+} from '@/types/composables'
+import {mergeDefinitions, resolveActions, useActionAuth} from '@/composables/action'
 
 defineOptions({
-  name: 'LCrudTable',
+  name: 'LCrudCardGrid',
 })
 
-const { message, modal } = App.useApp()
+const {message, modal} = App.useApp()
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
 const auth = useActionAuth()
 
-const queryTable = ref<{
+const queryCardGrid = ref<{
   fetchDataSource: () => Promise<void>
   exportData: (records: TEntity[]) => Promise<void>
   actionContext?: ActionContext<TEntity>
 }>()
 
 const loading = defineModel<boolean>('loading', {default: () => false})
-const selectedRows = defineModel<TEntity[]>('selectedRows', {default: () => []})
+const query = defineModel<FilterRequest | PageRequest>('query', {default: () => ({})})
+const selectedItems = defineModel<TEntity[]>('selectedItems', {default: () => []})
 
 const emit = defineEmits<{
   action: [payload: ActionPayload<TEntity>]
-  add:[]
+  add: []
   edit: [record: TEntity]
   detail: [record: TEntity]
-  drop: [sorts: TreeSortMetadata<TId>[], target: TEntity, fromIndex: number, toIndex: number]
-  treeDrop: [
-    sorts: TreeSortMetadata<TId>[],
-    drag: TEntity,
-    target: TEntity,
-    payload: { dropPosition: DropPosition; tree: TEntity[] },
-  ]
+  drop: [sorts: FlatSortMetadata<TId>[], target: TEntity, fromIndex: number, toIndex: number]
 }>()
 
 const props = withDefaults(
-  defineProps<CurdTableProps<TBody, TEntity, TPage, TId>>(),
+  defineProps<CrudCardGridProps<TBody, TEntity, TPage, TId>>(),
   {
     recordActions: true,
-    bordered:true,
-    immediate:true,
-    pagination:() => ({hideOnSinglePage: true, placement: ['bottomCenter']}),
+    immediate: true,
+    pagination: () => ({hideOnSinglePage: true}),
+    dragDirection: 'horizontal',
+    gridItemClass: 'w-1/5',
+    selectable: true,
   },
 )
 
@@ -86,7 +83,7 @@ function createDefaultBulkActions(): ActionDefinition<TEntity>[] {
   ]
 }
 
-function createDefaultRowActions(): ActionDefinition<TEntity>[] {
+function createDefaultItemActions(): ActionDefinition<TEntity>[] {
   return [
     {
       id: 'edit',
@@ -126,37 +123,23 @@ function createDefaultRowActions(): ActionDefinition<TEntity>[] {
   ]
 }
 
-const tableActions = computed(() =>
+const gridActions = computed(() =>
   mergeDefinitions(createDefaultBulkActions(), props.actions ?? []),
 )
 
-const rowActionDefinitions = computed(() =>
-  mergeDefinitions(createDefaultRowActions(), props.rowActions ?? []),
+const itemActionDefinitions = computed(() =>
+  mergeDefinitions(createDefaultItemActions(), props.itemActions ?? []),
 )
 
-const displayColumns = computed<SearchableColumnType[]>(() => {
-  const cols = [...props.columns]
-  if (props.recordActions && rowActionDefinitions.value.some((def) => auth.can(def.permission))) {
-    cols.push({
-      title: globalProperties.$t('common.action'),
-      dataIndex: 'action',
-      key: 'action',
-      align: 'center',
-      fixed: 'right',
-    })
-  }
-  return cols
-})
-
 function getToolbarActionContext(): ActionContext<TEntity> | undefined {
-  const ctx = queryTable.value?.actionContext
+  const ctx = queryCardGrid.value?.actionContext
   if (!ctx) {
     return undefined
   }
-  return 'value' in ctx ? ctx.value as ActionContext<TEntity> : ctx as ActionContext<TEntity>
+  return 'value' in ctx ? (ctx.value as ActionContext<TEntity>) : (ctx as ActionContext<TEntity>)
 }
 
-function buildRowContext(record: TEntity): ActionContext<TEntity> {
+function buildItemContext(record: TEntity): ActionContext<TEntity> {
   const toolbarCtx = getToolbarActionContext()
   return {
     scope: 'item',
@@ -168,18 +151,18 @@ function buildRowContext(record: TEntity): ActionContext<TEntity> {
   }
 }
 
-function resolveRowActions(record: TEntity) {
-  return resolveActions(rowActionDefinitions.value, buildRowContext(record), auth)
+function resolveItemActions(record: TEntity) {
+  return resolveActions(itemActionDefinitions.value, buildItemContext(record), auth)
 }
 
-function onRowAction(id: string, record: TEntity) {
+function onItemAction(id: string, record: TEntity) {
   if (['edit', 'detail', 'delete'].includes(id)) {
     return
   }
-  emit('action', {id, context: buildRowContext(record)})
+  emit('action', {id, context: buildItemContext(record)})
 }
 
-function onTableAction(payload: ActionPayload<TEntity>) {
+function onGridAction(payload: ActionPayload<TEntity>) {
   if (payload.id === 'add') {
     emit('add')
   }
@@ -203,25 +186,27 @@ function remove(records: TEntity[]) {
 
 async function doDelete(records: TEntity[]) {
   if (typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete !== 'function') {
-    return ;
+    return
   }
   try {
-    const result:RestResult<void> = await (props.service as BasicCrudService<TBody, TEntity, TId>).delete(records.map(r => r.id))
+    const result: RestResult<void> = await (
+      props.service as BasicCrudService<TBody, TEntity, TId>
+    ).delete(records.map((r) => r.id))
     message.success(result.message)
-    await queryTable.value?.fetchDataSource()
+    await queryCardGrid.value?.fetchDataSource()
   } catch (e) {
     message.error(e instanceof Error ? e.message : String(e))
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 function fetchDataSource() {
-  return queryTable.value?.fetchDataSource()
+  return queryCardGrid.value?.fetchDataSource()
 }
 
 function exportData() {
-  return queryTable.value?.exportData(selectedRows.value)
+  return queryCardGrid.value?.exportData(selectedItems.value)
 }
 
 defineExpose({
@@ -233,42 +218,82 @@ defineExpose({
 </script>
 
 <template>
-  <l-query-table
-    ref="queryTable"
+  <l-query-card-grid
+    ref="queryCardGrid"
     :hide-title="props.hideTitle"
-    :columns="displayColumns"
-    :actions="tableActions"
+    :actions="gridActions"
     :action-context-extras="props.actionContextExtras"
-    :bordered="props.bordered"
     :drag="props.drag"
     :format-drag-preview="props.formatDragPreview"
-    :on-row="props.onRow"
+    :drag-direction="props.dragDirection"
+    :grid-item-class="props.gridItemClass"
+    :selectable="props.selectable"
     :authority="props.authority"
     :service="props.service"
     :pagination="props.pagination"
     :immediate="props.immediate"
     v-bind="$attrs"
-    :row-selection="props.rowSelection"
     v-model:loading="loading"
-    v-model:selected-rows="selectedRows"
-    @action="onTableAction"
+    v-model:query="query"
+    v-model:selected-items="selectedItems"
+    @action="onGridAction"
     @drop="(sorts, target, fromIndex, toIndex) => emit('drop', sorts, target, fromIndex, toIndex)"
-    @tree-drop="(sorts, drag, target, payload) => emit('treeDrop', sorts, drag, target, payload)"
   >
     <template #title v-if="slots.title">
       <slot name="title"/>
     </template>
-    <template #bodyCell="{ text, record, index, column}">
-
-      <slot v-if="slots.bodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
-
-      <template v-if="column.dataIndex === 'action'">
-        <l-action-button
-          size="small"
-          :actions="resolveRowActions(record as TEntity)"
-          @action="(id) => onRowAction(id, record as TEntity)"
-        />
+    <template #empty v-if="slots.empty">
+      <slot name="empty"/>
+    </template>
+    <template #extra v-if="slots.extra">
+      <slot name="extra"/>
+    </template>
+    <template #item="itemSlot">
+      <slot
+        v-if="slots.item"
+        name="item"
+        v-bind="itemSlot"
+        :item-actions="props.recordActions ? resolveItemActions(itemSlot.record as TEntity) : []"
+      />
+      <template v-else-if="props.recordActions">
+        <slot
+          name="itemActions"
+          :record="itemSlot.record"
+          :index="itemSlot.index"
+          :drag-enabled="itemSlot.dragEnabled"
+          :on-drag-start="itemSlot.onDragStart"
+          :on-drag-end="itemSlot.onDragEnd"
+          :actions="resolveItemActions(itemSlot.record as TEntity)"
+        >
+          <a-card size="small" :title="String((itemSlot.record as TEntity)[SYSTEM_CONSTANT.ID_NAME])">
+            <template #actions>
+              <l-action-button
+                size="small"
+                type="text"
+                always-dropdown
+                :actions="resolveItemActions(itemSlot.record as TEntity)"
+                @click.stop
+                @action="(id) => onItemAction(id, itemSlot.record as TEntity)"
+              />
+              <div
+                v-if="itemSlot.dragEnabled"
+                class="text-center cursor-grab"
+                draggable="true"
+                @click.stop
+                @dragstart="itemSlot.onDragStart($event)"
+                @dragend="itemSlot.onDragEnd"
+              >
+                <a-typography-text type="secondary">
+                  ::
+                </a-typography-text>
+              </div>
+            </template>
+          </a-card>
+        </slot>
       </template>
     </template>
-  </l-query-table>
+    <template v-if="slots.itemActions" #itemActions="itemActionsSlot">
+      <slot name="itemActions" v-bind="itemActionsSlot"/>
+    </template>
+  </l-query-card-grid>
 </template>
