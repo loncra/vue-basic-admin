@@ -1,5 +1,6 @@
 import type {ExportDataMetadata, FileObject} from "@/types/apis";
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
+import axios from '@/requests'
 
 /**
  * 附件领域服务：`/api[/resource-server]/user/export`
@@ -13,6 +14,16 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
   static readonly SERVICE_URL = AttachmentService.BASE_URL + '/user/export'
 
   static readonly MULTI_OBJECT_URL = AttachmentService.BASE_URL + '/multiObject'
+
+  static readonly SINGLE_UPLOAD_URL = AttachmentService.BASE_URL + '/singleUpload'
+
+  static readonly CREATE_MULTIPART_URL = AttachmentService.BASE_URL + '/createMultipartUpload'
+
+  static readonly UPLOAD_MULTIPART = AttachmentService.BASE_URL + "/uploadPart"
+
+  static readonly COMPLETE_MULTIPART_UPLOAD_URL = AttachmentService.BASE_URL + '/completeMultipartUpload'
+
+  static readonly DELETE_ATTACHMENT_URL = AttachmentService.BASE_URL + '/delete'
 
   constructor() {
     super(AttachmentService.SERVICE_URL)
@@ -44,5 +55,26 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
       + '&accessToken='
       + localStorage.getItem(accessTokenStorageName)
     window.open(url);
+  }
+
+  singleUpload(type:string, formData:FormData, config = {}) {
+    return axios.post(AttachmentService.SINGLE_UPLOAD_URL + "/" + type, formData, config);
+  }
+
+  createMultipartUpload = function(type:string, param:URLSearchParams) {
+    return axios.post(AttachmentService.CREATE_MULTIPART_URL + "/" + type, param)
+  }
+
+  uploadMultipart = function (partNumber:number, uploadId:string, formData:FormData, config = {}) {
+    const url = AttachmentService.UPLOAD_MULTIPART + "/" + partNumber + "/" + uploadId
+    return axios.postForm(url, formData, config);
+  }
+
+  completeMultipartUpload = function(data:unknown, config = {}) {
+    return axios.post(AttachmentService.COMPLETE_MULTIPART_UPLOAD_URL, data, config);
+  }
+
+  removeAttachment(fileObjects:FileObject[]) {
+    return axios.put(AttachmentService.DELETE_ATTACHMENT_URL, fileObjects);
   }
 }
