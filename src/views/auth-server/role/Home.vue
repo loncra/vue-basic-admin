@@ -8,7 +8,7 @@ import {getEnumValue} from "@/utils";
 
 import type {RoleEntity} from '@/types/apis/auth-server/roleDomain';
 
-import type {TableActionDefinition} from '@/types/composables';
+import type {ActionDefinition} from '@/types/composables';
 
 defineOptions({
   name: 'AuthServerRoleHome'
@@ -24,7 +24,7 @@ const rowSelection: NonNullable<TableProps['rowSelection']> = {
   getCheckboxProps,
 }
 
-const rowActions: TableActionDefinition<RoleEntity>[] = [
+const rowActions: ActionDefinition<RoleEntity>[] = [
   {
     id: 'edit',
     visible: (ctx) => getEnumValue(ctx.record!.modifiable) !== 0,

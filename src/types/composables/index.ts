@@ -1,3 +1,4 @@
+export * from '@/types/composables/actionButton'
 export * from '@/types/composables/common'
 export * from '@/types/composables/drag'
 export * from '@/types/composables/table'

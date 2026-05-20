@@ -1,14 +1,14 @@
 import type {
-  ResolvedTableAction,
-  TableActionAuth,
-  TableActionContext,
-  TableActionDefinition,
+  ActionAuth,
+  ActionContext,
+  ActionDefinition,
+  ResolvedAction,
 } from '@/types/composables'
 
-export function mergeDefinitions<TEntity>(
-  ...lists: Array<TableActionDefinition<TEntity>[] | undefined>
-): TableActionDefinition<TEntity>[] {
-  const map = new Map<string, TableActionDefinition<TEntity>>()
+export function mergeDefinitions<TItem>(
+  ...lists: Array<ActionDefinition<TItem>[] | undefined>
+): ActionDefinition<TItem>[] {
+  const map = new Map<string, ActionDefinition<TItem>>()
   for (const def of lists.flatMap((list) => list ?? [])) {
     const existing = map.get(def.id)
     map.set(def.id, existing ? {...existing, ...def} : def)
@@ -16,19 +16,19 @@ export function mergeDefinitions<TEntity>(
   return [...map.values()]
 }
 
-export function overrideAction<TEntity>(
-  definitions: TableActionDefinition<TEntity>[],
+export function overrideAction<TItem>(
+  definitions: ActionDefinition<TItem>[],
   id: string,
-  patch: Partial<TableActionDefinition<TEntity>>,
-): TableActionDefinition<TEntity>[] {
+  patch: Partial<ActionDefinition<TItem>>,
+): ActionDefinition<TItem>[] {
   return definitions.map((def) => (def.id === id ? {...def, ...patch} : def))
 }
 
-export function resolveActions<TEntity>(
-  definitions: TableActionDefinition<TEntity>[],
-  context: TableActionContext<TEntity>,
-  auth: TableActionAuth,
-): ResolvedTableAction[] {
+export function resolveActions<TItem>(
+  definitions: ActionDefinition<TItem>[],
+  context: ActionContext<TItem>,
+  auth: ActionAuth,
+): ResolvedAction[] {
   return definitions
     .filter((def) => auth.can(def.permission))
     .filter((def) => def.visible?.(context) ?? true)

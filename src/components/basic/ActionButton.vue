@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import type {MenuInfo} from "@v-c/menu";
-import type {ResolvedTableAction} from "@/types/composables";
+import type {ResolvedAction} from "@/types/composables";
 
 defineOptions({
   name: 'LActionButton',
@@ -9,7 +9,7 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
-    actions: ResolvedTableAction[]
+    actions: ResolvedAction[]
     size?: string
     alwaysDropdown?: boolean
   }>(),
@@ -40,7 +40,7 @@ const menuItems = computed(() =>
   })),
 )
 
-function dispatchAction(action: ResolvedTableAction) {
+function dispatchAction(action: ResolvedAction) {
   if (action.disabled) {
     return
   }

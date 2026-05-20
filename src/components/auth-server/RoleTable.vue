@@ -14,8 +14,8 @@ import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/CrudTable.vue";
-import type {SearchableColumnType, TableActionDefinition} from "@/types/composables";
-import {mergeDefinitions} from "@/composables/table";
+import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
+import {mergeDefinitions} from "@/composables/action";
 
 defineOptions({
   name: 'LRoleTable',
@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<{
   preview?: boolean
   query?:FilterRequest,
   rowSelection?:TableProps["rowSelection"]
-  rowActions?: TableActionDefinition<RoleEntity>[]
+  rowActions?: ActionDefinition<RoleEntity>[]
 }>(), {
   preview: false,
   rowSelection: () => ({fixed: true, type: 'checkbox'})
@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<{
 const service = new RoleService()
 const resourceServerService = new ResourceServerService()
 
-const actionButtons = ref<TableActionDefinition<RoleEntity>[]>([])
+const actionButtons = ref<ActionDefinition<RoleEntity>[]>([])
 
 const columns = ref<SearchableColumnType[]>([
   {

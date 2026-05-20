@@ -11,7 +11,7 @@ import {
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {ExportDataMetadata, FileObject} from "@/types/apis";
 import LCrudTable from "@/components/basic/CrudTable.vue";
-import type {SearchableColumnType, TableActionDefinition} from "@/types/composables";
+import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 
 defineOptions({
   name: 'CommonUserExport',
@@ -68,7 +68,7 @@ const columns:SearchableColumnType[] = [{
 const service = new AttachmentService();
 const selectedRows = ref<ExportDataMetadata[]>([]);
 
-const rowActions: TableActionDefinition<ExportDataMetadata>[] = [{
+const rowActions: ActionDefinition<ExportDataMetadata>[] = [{
   id: 'download',
   permission: true,
   label: () => globalProperties.$t('common.download.text'),
@@ -81,14 +81,14 @@ const rowActions: TableActionDefinition<ExportDataMetadata>[] = [{
   },
 }]
 
-const actions: TableActionDefinition<ExportDataMetadata>[] = [{
+const actions: ActionDefinition<ExportDataMetadata>[] = [{
   id: 'downloadSelected',
   permission: true,
   label: () => globalProperties.$t('common.download.selected'),
-  enabled: (ctx) => ctx.table.selectedRows.some((item) => item.executeStatus.value === 1),
+  enabled: (ctx) => ctx.selectedItems.some((item) => item.executeStatus.value === 1),
   icon: () => createIcon('icon-download', 'align'),
   run: (ctx) => {
-    const files: FileObject[] = ctx.table.selectedRows
+    const files: FileObject[] = ctx.selectedItems
       .filter((item) => item.executeStatus.value === 1)
       .map((item) => item.metadata)
       .map((metadata) => metadata.data as FileObject)

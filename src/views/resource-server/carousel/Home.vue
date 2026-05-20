@@ -31,8 +31,8 @@ import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
 import notFound from '@/assets/404.svg'
 import {useFlatDragDrop} from '@/composables'
-import {resolveActions} from '@/composables/table'
-import type {TableActionAuth, TableActionContext, TableActionDefinition,} from '@/types/composables'
+import {resolveActions} from '@/composables/action'
+import type {ActionAuth, ActionContext, ActionDefinition} from '@/types/composables'
 
 interface TabDataSource {
   key:string
@@ -120,7 +120,7 @@ const statusSetting = {
   }
 } as const
 
-const auth: TableActionAuth = {
+const auth: ActionAuth = {
   can: (permission) => {
     if (permission === undefined || permission === false) {
       return false
@@ -132,20 +132,14 @@ const auth: TableActionAuth = {
   },
 }
 
-const tableActionContext = computed<TableActionContext<CarouselEntity>>(() => ({
-  scope: 'table',
-  table: {
-    dataSource: currentCardElements.value,
-    selectedRows: options.value.selectedItem,
-    selectedCount: options.value.selectedItem.length,
-    hasSelection: options.value.selectedItem.length > 0,
-    loading: loading.value,
-    query: {},
-  },
+const toolbarActionContext = computed<ActionContext<CarouselEntity>>(() => ({
+  scope: 'toolbar',
+  items: currentCardElements.value,
+  selectedItems: options.value.selectedItem,
   extras: {},
 }))
 
-function createTitleBulkActions(): TableActionDefinition<CarouselEntity>[] {
+function createTitleBulkActions(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'add',
@@ -159,37 +153,37 @@ function createTitleBulkActions(): TableActionDefinition<CarouselEntity>[] {
     {
       id: 'deleteSelect',
       permission: 'perms[resource_server_carousel:delete]',
-      enabled: (ctx) => getReleaseSelectedEntities(ctx.table.selectedRows).length > 0,
-      label: (ctx) => globalProperties.$t('common.delete.selected', {count: getReleaseSelectedEntities(ctx.table.selectedRows).length}),
+      enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
+      label: (ctx) => globalProperties.$t('common.delete.selected', {count: getReleaseSelectedEntities(ctx.selectedItems).length}),
       icon: () => createIcon('icon-delete'),
-      run: (ctx) => remove(ctx.table.selectedRows.map((e) => Number(e.id))),
+      run: (ctx) => remove(ctx.selectedItems.map((e) => Number(e.id))),
     },
     {
       id: 'releaseSelect',
       permission: 'perms[resource_server_carousel:release]',
-      enabled: (ctx) => getReleaseSelectedEntities(ctx.table.selectedRows).length > 0,
+      enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
-        globalProperties.$t('common.release.selected', {count: getReleaseSelectedEntities(ctx.table.selectedRows).length}),
+        globalProperties.$t('common.release.selected', {count: getReleaseSelectedEntities(ctx.selectedItems).length}),
       icon: () => createIcon('icon-response'),
-      run: (ctx) => release(getReleaseSelectedEntities(ctx.table.selectedRows).map((e) => Number(e.id))),
+      run: (ctx) => release(getReleaseSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
     {
       id: 'revokeSelect',
       permission: 'perms[resource_server_carousel:revoke]',
-      enabled: (ctx) => getRevokeSelectedEntities(ctx.table.selectedRows).length > 0,
+      enabled: (ctx) => getRevokeSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
-        globalProperties.$t('common.revoke.selected', {count: getRevokeSelectedEntities(ctx.table.selectedRows).length}),
+        globalProperties.$t('common.revoke.selected', {count: getRevokeSelectedEntities(ctx.selectedItems).length}),
       icon: () => createIcon('icon-time-response'),
-      run: (ctx) => revoke(getRevokeSelectedEntities(ctx.table.selectedRows).map((e) => Number(e.id))),
+      run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
   ]
 }
 
 const titleActions = computed(() =>
-  resolveActions(createTitleBulkActions(), tableActionContext.value, auth),
+  resolveActions(createTitleBulkActions(), toolbarActionContext.value, auth),
 )
 
-function createCardActions(): TableActionDefinition<CarouselEntity>[] {
+function createCardActions(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'release',
@@ -224,9 +218,9 @@ function createCardActions(): TableActionDefinition<CarouselEntity>[] {
 }
 
 function resolveCardActions(entity: CarouselEntity) {
-  const context: TableActionContext<CarouselEntity> = {
-    ...tableActionContext.value,
-    scope: 'row',
+  const context: ActionContext<CarouselEntity> = {
+    ...toolbarActionContext.value,
+    scope: 'item',
     record: entity,
   }
   return resolveActions(createCardActions(), context, auth)

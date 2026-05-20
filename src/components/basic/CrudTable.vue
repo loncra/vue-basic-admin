@@ -14,15 +14,15 @@ import {type ComponentInternalInstance, computed, getCurrentInstance, ref, useSl
 import LActionButton from "@/components/basic/ActionButton.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {
+  ActionAuth,
+  ActionContext,
+  ActionDefinition,
+  ActionPayload,
   CurdTableProps,
   DropPosition,
   SearchableColumnType,
-  TableActionAuth,
-  TableActionContext,
-  TableActionDefinition,
-  TableActionPayload,
 } from "@/types/composables";
-import {mergeDefinitions, resolveActions} from "@/composables/table";
+import {mergeDefinitions, resolveActions} from "@/composables/action";
 import LQueryTable from "@/components/basic/QueryTable.vue";
 
 defineOptions({
@@ -39,14 +39,14 @@ const principalStore = usePrincipalStore()
 const queryTable = ref<{
   fetchDataSource: () => Promise<void>
   exportData: (records: TEntity[]) => Promise<void>
-  actionContext?: TableActionContext<TEntity>
+  actionContext?: ActionContext<TEntity>
 }>()
 
 const loading = defineModel<boolean>('loading', {default: () => false})
 const selectedRows = defineModel<TEntity[]>('selectedRows', {default: () => []})
 
 const emit = defineEmits<{
-  action: [payload: TableActionPayload<TEntity>]
+  action: [payload: ActionPayload<TEntity>]
   add:[]
   edit: [record: TEntity]
   detail: [record: TEntity]
@@ -71,7 +71,7 @@ const props = withDefaults(
 
 const slots = useSlots()
 
-const auth: TableActionAuth = {
+const auth: ActionAuth = {
   can: (permission) => {
     if (permission === undefined || permission === false) {
       return false
@@ -83,24 +83,24 @@ const auth: TableActionAuth = {
   },
 }
 
-function createDefaultBulkActions(): TableActionDefinition<TEntity>[] {
+function createDefaultBulkActions(): ActionDefinition<TEntity>[] {
   return [
     {
       id: 'deleteSelected',
       permission: props.authority?.delete,
       visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
       enabled: (ctx) =>
-        ctx.table.selectedRows.length > 0 &&
+        ctx.selectedItems.length > 0 &&
         typeof (props.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
       label: (ctx) =>
-        globalProperties.$t('common.delete.selected', {count: ctx.table.selectedRows.length}),
+        globalProperties.$t('common.delete.selected', {count: ctx.selectedItems.length}),
       icon: () => createIcon('icon-delete'),
-      run: (ctx) => remove(ctx.table.selectedRows),
+      run: (ctx) => remove(ctx.selectedItems),
     },
   ]
 }
 
-function createDefaultRowActions(): TableActionDefinition<TEntity>[] {
+function createDefaultRowActions(): ActionDefinition<TEntity>[] {
   return [
     {
       id: 'edit',
@@ -162,25 +162,23 @@ const displayColumns = computed<SearchableColumnType[]>(() => {
   return cols
 })
 
-function getTableActionContext(): TableActionContext<TEntity> | undefined {
+function getToolbarActionContext(): ActionContext<TEntity> | undefined {
   const ctx = queryTable.value?.actionContext
   if (!ctx) {
     return undefined
   }
-  return 'value' in ctx ? ctx.value as TableActionContext<TEntity> : ctx as TableActionContext<TEntity>
+  return 'value' in ctx ? ctx.value as ActionContext<TEntity> : ctx as ActionContext<TEntity>
 }
 
-function buildRowContext(record: TEntity): TableActionContext<TEntity> {
-  const tableCtx = getTableActionContext()
+function buildRowContext(record: TEntity): ActionContext<TEntity> {
+  const toolbarCtx = getToolbarActionContext()
   return {
-    scope: 'row',
+    scope: 'item',
     record,
-    table: tableCtx?.table ?? {
-      dataSource: [],
-      selectedRows: [],
-      query: {},
-    },
-    extras: tableCtx?.extras ?? props.actionContextExtras ?? {},
+    items: toolbarCtx?.items ?? [],
+    selectedItems: toolbarCtx?.selectedItems ?? [],
+    query: toolbarCtx?.query,
+    extras: toolbarCtx?.extras ?? props.actionContextExtras ?? {},
   }
 }
 
@@ -195,7 +193,7 @@ function onRowAction(id: string, record: TEntity) {
   emit('action', {id, context: buildRowContext(record)})
 }
 
-function onTableAction(payload: TableActionPayload<TEntity>) {
+function onTableAction(payload: ActionPayload<TEntity>) {
   if (payload.id === 'add') {
     emit('add')
   }

@@ -29,21 +29,17 @@ import type {
   TreeSortMetadata,
 } from "@/types/apis";
 import type {
+  ActionAuth,
+  ActionContext,
+  ActionDefinition,
+  ActionPayload,
   DropPosition,
   QueryTableProps,
   SearchableColumnType,
-  TableActionAuth,
-  TableActionContext,
-  TableActionDefinition,
-  TableActionPayload,
 } from "@/types/composables";
-import {TABLE_ACTION_CONTEXT_KEY} from "@/types/composables";
-import {
-  mergeDefinitions,
-  resolveActions,
-  useMergeRowSelection,
-  useTableRowDrag
-} from "@/composables/table";
+import {ACTION_CONTEXT_KEY} from "@/types/composables";
+import {mergeDefinitions, resolveActions} from "@/composables/action";
+import {useMergeRowSelection, useTableRowDrag} from "@/composables/table";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {PageSearchRestfulService} from "@/apis/pageSearchRestfulService.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
@@ -82,7 +78,7 @@ const query = defineModel<FilterRequest | PageRequest>('query', {default: () => 
 const selectedRows = defineModel<TEntity[]>('selectedRows', {default: () => []})
 
 const emit = defineEmits<{
-  action: [payload: TableActionPayload<TEntity>]
+  action: [payload: ActionPayload<TEntity>]
   drop: [sorts: TreeSortMetadata<TId>[], target: TEntity, fromIndex: number, toIndex: number]
   treeDrop: [
     sorts: TreeSortMetadata<TId>[],
@@ -113,7 +109,7 @@ const tableColumns = ref<SearchableColumnType[]>([])
 const tablePagination = ref<TableProps['pagination']>()
 const skipActivatedOnce = ref(true)
 
-const auth: TableActionAuth = {
+const auth: ActionAuth = {
   can: (permission) => {
     if (permission === undefined || permission === false) {
       return false
@@ -125,19 +121,17 @@ const auth: TableActionAuth = {
   },
 }
 
-const actionContext = computed<TableActionContext<TEntity>>(() => ({
-  scope: 'table',
-  table: {
-    dataSource: dataSource.value,
-    selectedRows: selectedRows.value,
-    query: query.value,
-  },
+const actionContext = computed<ActionContext<TEntity>>(() => ({
+  scope: 'toolbar',
+  items: dataSource.value,
+  selectedItems: selectedRows.value,
+  query: query.value,
   extras: props.actionContextExtras ?? {},
 }))
 
-provide(TABLE_ACTION_CONTEXT_KEY, actionContext as unknown as typeof actionContext)
+provide(ACTION_CONTEXT_KEY, actionContext as unknown as typeof actionContext)
 
-function createDefaultTableActions(): TableActionDefinition<TEntity>[] {
+function createDefaultTableActions(): ActionDefinition<TEntity>[] {
   return [
     {
       id: 'add',
@@ -152,11 +146,11 @@ function createDefaultTableActions(): TableActionDefinition<TEntity>[] {
       permission: props.authority?.export,
       visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
       label: (ctx) =>
-        ctx.table.selectedRows.length > 0
-          ? globalProperties.$t('common.export.selected', {count: ctx.table.selectedRows.length})
+        ctx.selectedItems.length > 0
+          ? globalProperties.$t('common.export.selected', {count: ctx.selectedItems.length})
           : globalProperties.$t('common.export.all'),
       icon: () => createIcon('icon-goods-start-to-ship', 'align'),
-      run: (ctx) => exportData(ctx.table.selectedRows),
+      run: (ctx) => exportData(ctx.selectedItems),
     },
   ]
 }
@@ -369,8 +363,6 @@ async function exportData(records: TEntity[]) {
   globalProperties.$router.push({name:'user_export'})
 
 }
-
-
 
 async function mounted() {
   tablePagination.value = props.pagination

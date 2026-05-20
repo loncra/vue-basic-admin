@@ -13,7 +13,7 @@ import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/CrudTable.vue";
-import type {SearchableColumnType, TableActionDefinition} from "@/types/composables";
+import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 
 defineOptions({
   name: 'LResourceTable',
@@ -128,7 +128,7 @@ const columns = ref<SearchableColumnType[]>([
 const dataSource = ref<ResourceEntity[]>([])
 const crudTable = ref()
 
-const rowActions = ref<TableActionDefinition<ResourceEntity>[]>([])
+const rowActions = ref<ActionDefinition<ResourceEntity>[]>([])
 
 function removeSelected(selectedRows: ResourceEntity[]) {
   crudTable.value.remove(selectedRows);
