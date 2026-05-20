@@ -327,7 +327,9 @@ const locale: LanguagePack = {
       dataContent:' 数据内容',
       routePage:'轮播图',
       link:'链接地址',
-      showtime:'展示时间'
+      showtime:'展示时间',
+      immediately:'立即',
+      permanent:'永久',
     }
   }
 }

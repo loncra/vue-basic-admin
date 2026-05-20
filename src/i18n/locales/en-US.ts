@@ -333,6 +333,8 @@ const locale: LanguagePack = {
       routePage: ' Carousel',
       link:'Link',
       showtime: 'Display time',
+      immediately:'Immediately',
+      permanent:'Permanent',
     },
   },
 }
