@@ -51,6 +51,7 @@ const props = withDefaults(
     authority?: BasicAuthorityProps
     preMounted?: () => void | Promise<void>
     postMounted?: () => void | Promise<void>
+    preSubmit?: () => void | Promise<void>
     postGetEntity?:(entity: TEntity) => TEntity | Promise<TEntity>
     redirect: RouteLocationRaw
     titleText?: (title:string, entity: TEntity | TBody) => string
@@ -75,6 +76,9 @@ const emit = defineEmits<{
 async function doSubmit() {
   spinning.value = true
   try {
+    if (props.preSubmit) {
+      await props.preSubmit()
+    }
     const result = await props.service.save(entity.value)
     if(!isResultSuccess(result)) {
       message.warning(result.message)

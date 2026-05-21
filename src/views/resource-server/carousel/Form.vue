@@ -11,9 +11,11 @@ import type {
 import {requireNonNullOrUndefined} from "@/utils";
 import {ResourceServerService} from "@/apis";
 import {CarouselService} from "@/apis/resource-server/carouselService.ts";
+import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
 import {disableDate, disableTime} from "@/utils/dateUtils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import type {Dayjs} from "dayjs";
+import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 
 defineOptions({
   name: 'ResourceServerCarouseForm',
@@ -25,6 +27,7 @@ const globalProperties =
 
 const service = new CarouselService()
 const resourceServerService = new ResourceServerService()
+const attachmentService = new AttachmentService()
 
 const options = ref<{
   entity:CarouselSavePayload
@@ -45,6 +48,7 @@ const options = ref<{
     id: null as unknown as number,
     expirationTime: null as unknown as number,
     showtime: null as unknown as number,
+    cover: [],
   },
   linkOptions:[
     {name: 'http://', value: 'http://'},
@@ -77,12 +81,32 @@ function postGetEntity(_entity:CarouselEntity) {
   if (_entity.expirationTime) {
     _entity.expirationTime = globalProperties.$dayjs(_entity.expirationTime)
   }
+  /*if (_entity.cover) {
+    coverFileList.value = initFileListFromObjectWriteResults(_entity.cover, attachmentService)
+  } else {
+    coverFileList.value = []
+  }*/
   return _entity;
 }
 
+async function preSubmit() {
+  /*await coverUploadRef.value?.upload()
+  const uploaded = coverFileList.value.find((file) => file.objectWriteResult || file.bucketName)
+  if (uploaded?.objectWriteResult) {
+    options.value.entity.cover = uploaded.objectWriteResult
+  } else if (uploaded?.bucketName && uploaded.objectName && uploaded.etag) {
+    options.value.entity.cover = {
+      bucketName: uploaded.bucketName,
+      objectName: uploaded.objectName,
+      etag: uploaded.etag,
+      extraHeaders: uploaded.extraHeaders,
+    }
+  } else if (coverFileList.value.length === 0) {
+    options.value.entity.cover = undefined
+  }*/
+}
+
 </script>
-
-
 
 <template>
   <div>
@@ -90,6 +114,7 @@ function postGetEntity(_entity:CarouselEntity) {
       operation-data-trace-target="tb_carousel"
       :post-get-entity="postGetEntity"
       :pre-mounted="preMounted"
+      :pre-submit="preSubmit"
       :title-text="setPageTitle"
       :redirect="{name:'resource_server_carousel'}"
       :service="service"
@@ -98,6 +123,11 @@ function postGetEntity(_entity:CarouselEntity) {
     >
 
       <template #rowLayout>
+        <a-col :span="24">
+          <a-form-item :label="globalProperties.$t('resourceServer.carousel.image')" name="cover" :rules="[{ required: true, type: 'array', min: 3, trigger: 'change' }]">
+            <l-attachment-upload :max-count="3" mode="picture-card" v-model:value="options.entity.cover" />
+          </a-form-item>
+        </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item :label="globalProperties.$t('common.name')" name="name" :rules="[{ required: true, trigger: 'change'}]">
             <a-input ref="name" v-model:value="options.entity.name"/>
@@ -134,6 +164,7 @@ function postGetEntity(_entity:CarouselEntity) {
       <a-form-item :label="globalProperties.$t('common.remark')" name="remark">
         <a-textarea v-model:value="options.entity.remark" :auto-size="{ minRows: 5, maxRows: 10 }"/>
       </a-form-item>
+
     </l-basic-form>
   </div>
 </template>

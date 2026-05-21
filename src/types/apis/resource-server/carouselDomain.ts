@@ -5,6 +5,7 @@ import type {
   VersionEntityMetadata
 } from "@/types/apis";
 import type {Dayjs} from "dayjs";
+import type {UploadFile} from "antdv-next/dist/upload/interface";
 
 /**
  * 字典类型保存请求体
@@ -46,7 +47,7 @@ export interface CarouselSavePayload extends VersionEntityMetadata {
   /**
    * 封面图片
    */
-  cover?: ObjectWriteResult;
+  cover?: UploadFile[] | ObjectWriteResult[];
 
   /**
    * 备注

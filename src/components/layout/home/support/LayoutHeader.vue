@@ -15,7 +15,7 @@ const menuPrincipalStore = useMenuPrincipalStore()
 <template>
   <a-layout-header class="layout-header">
     <a-flex justify="space-between" class="h-full" align="center">
-      <a-breadcrumb>
+      <a-breadcrumb class="hidden sm:block">
         <a-breadcrumb-item v-for="(breadcrumb, index) in menuPrincipalStore.state.currentBreadcrumbs" :key="breadcrumb.name">
           <a-space>
             <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'"/>
@@ -33,6 +33,7 @@ const menuPrincipalStore = useMenuPrincipalStore()
           </a-space>
         </a-breadcrumb-item>
       </a-breadcrumb>
+      <span />
       <a-space align="center">
         <l-menu :menu-types="[RESOURCE_TYPE.TOOL]" :hide-label="true" mode="horizontal"/>
         <l-profile-button/>

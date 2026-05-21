@@ -1,4 +1,8 @@
 import type {VideoThumbnailResult} from '@/types/composables/common'
+import type {UploadFile, VcFile} from "antdv-next/dist/upload/interface";
+import type {ObjectWriteResult} from "@/types/apis";
+import {AttachmentService} from "@/apis";
+
 /**
  * 格式化字节大小为可读的字符串
  * 将字节数转换为合适的单位（bytes、KB、MB、GB 等）
@@ -53,11 +57,16 @@ export function byteFormat(bytes: number): string {
  *   .catch(err => console.error('读取失败', err));
  * ```
  */
-export function getImageBase64(file: File): Promise<string> {
+export function getImageBase64(file: VcFile | undefined): Promise<string> {
+
   return new Promise((resolve, reject) => {
+    if (!file) {
+      reject('file is undefined')
+      return ;
+    }
     const reader = new FileReader()
     // 读取文件为 Data URL 格式（Base64）
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(file as VcFile)
     // 读取成功
     reader.onload = () => resolve(reader.result as string)
     // 读取失败
@@ -130,4 +139,38 @@ export function getVideoThumbnail(file: File): Promise<VideoThumbnailResult> {
     // 处理视频加载错误
     video.addEventListener('error', reject)
   })
+}
+
+export function isObjectWriteResult(item: unknown): item is ObjectWriteResult {
+  return !!item
+    && typeof item === 'object'
+    && 'bucketName' in item
+    && 'objectName' in item
+}
+
+export function isUploadFile(item: unknown): item is UploadFile {
+  return !!item && typeof item === 'object' && 'uid' in item
+}
+
+export function convertUploadFiles(fileList:ObjectWriteResult[] | UploadFile[], service:AttachmentService):UploadFile[] {
+  const result: UploadFile[] = []
+  for (const file of fileList) {
+    if (isObjectWriteResult(file)) {
+      const contentType = file?.extraHeaders?.['Content-Type'] || ''
+      const url = service.query(file.bucketName, file.objectName)
+      result.push({
+        uid: file.etag,
+        name: file?.extraHeaders?.['x-amz-meta-original-filename'] || file.objectName,
+        url,
+        thumbUrl: contentType.includes('image/') ? url : undefined,
+        type: contentType || undefined,
+        size: Number(file?.extraHeaders?.['Size'] || 0),
+        status: 'done',
+      })
+    } else if (isUploadFile(file)) {
+      result.push(file)
+    }
+  }
+
+  return result
 }

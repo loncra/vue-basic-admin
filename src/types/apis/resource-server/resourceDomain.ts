@@ -1,4 +1,4 @@
-import type {NameValueEnumMetadata} from "@/types/apis/common";
+import type {IdValueMetadata, NameValueEnumMetadata} from "@/types/apis/common";
 
 export type EnumBucketsResponseBody = Record<string, Record<string, NameValueEnumMetadata<number | string>[]>>
 
@@ -78,4 +78,20 @@ export interface FileObject {
 
 export interface ObjectWriteResult extends FileObject{
   etag:string
+}
+
+export interface MultipartUploadInitData {
+  uploadId: string
+  chunk: number
+  uploadBlockSize: number
+}
+
+export interface MultipartUploadPartData {
+  etag: string
+  partNumber: number
+}
+
+export interface CompleteMultipartUploadBody {
+  uploadId: string
+  parts: IdValueMetadata<string, number>[]
 }

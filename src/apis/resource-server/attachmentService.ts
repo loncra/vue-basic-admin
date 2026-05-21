@@ -1,6 +1,15 @@
-import type {ExportDataMetadata, FileObject} from "@/types/apis";
+import type {
+  CompleteMultipartUploadBody,
+  ExportDataMetadata,
+  FileObject,
+  MultipartUploadInitData,
+  MultipartUploadPartData,
+  ObjectWriteResult,
+  RestResult
+} from "@/types/apis";
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
-import axios from '@/requests'
+import axios from '@/requests/http.ts'
+import type {AxiosRequestConfig} from 'axios'
 
 /**
  * 附件领域服务：`/api[/resource-server]/user/export`
@@ -57,24 +66,32 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
     window.open(url);
   }
 
-  singleUpload(type:string, formData:FormData, config = {}) {
-    return axios.post(AttachmentService.SINGLE_UPLOAD_URL + "/" + type, formData, config);
+  singleUpload(type: string, formData: FormData, config: AxiosRequestConfig = {}): Promise<RestResult<ObjectWriteResult>> {
+    return axios.post(AttachmentService.SINGLE_UPLOAD_URL + '/' + type, formData, config)
   }
 
-  createMultipartUpload = function(type:string, param:URLSearchParams) {
-    return axios.post(AttachmentService.CREATE_MULTIPART_URL + "/" + type, param)
+  createMultipartUpload(type: string, param: URLSearchParams): Promise<RestResult<MultipartUploadInitData>> {
+    return axios.post(AttachmentService.CREATE_MULTIPART_URL + '/' + type, param)
   }
 
-  uploadMultipart = function (partNumber:number, uploadId:string, formData:FormData, config = {}) {
-    const url = AttachmentService.UPLOAD_MULTIPART + "/" + partNumber + "/" + uploadId
-    return axios.postForm(url, formData, config);
+  uploadMultipart(
+    partNumber: number,
+    uploadId: string,
+    formData: FormData,
+    config: AxiosRequestConfig = {},
+  ): Promise<RestResult<MultipartUploadPartData>> {
+    const url = AttachmentService.UPLOAD_MULTIPART + '/' + partNumber + '/' + uploadId
+    return axios.postForm(url, formData, config)
   }
 
-  completeMultipartUpload = function(data:unknown, config = {}) {
-    return axios.post(AttachmentService.COMPLETE_MULTIPART_UPLOAD_URL, data, config);
+  completeMultipartUpload(
+    data: CompleteMultipartUploadBody,
+    config: AxiosRequestConfig = {},
+  ): Promise<RestResult<ObjectWriteResult>> {
+    return axios.post(AttachmentService.COMPLETE_MULTIPART_UPLOAD_URL, data, config)
   }
 
-  removeAttachment(fileObjects:FileObject[]) {
-    return axios.put(AttachmentService.DELETE_ATTACHMENT_URL, fileObjects);
+  removeAttachment(fileObjects: FileObject[]): Promise<RestResult<unknown>> {
+    return axios.put(AttachmentService.DELETE_ATTACHMENT_URL, fileObjects)
   }
 }

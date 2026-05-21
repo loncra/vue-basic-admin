@@ -105,12 +105,6 @@ export const PAD_SCREENS: readonly string[] = [
 ]
 
 /**
- * 屏幕断点类型
- * 用于类型检查和自动补全
- */
-export type ScreenBreakpoint = (typeof SCREEN_BREAKPOINT)[keyof typeof SCREEN_BREAKPOINT]
-
-/**
  * HTTP 相关常量
  */
 export const HTTP = {
@@ -235,4 +229,15 @@ export const DATE_TIME_FORMAT = {
   POST_DATE_FORMAT: import.meta.env.VITE_APP_POST_DATE_FORMAT,
   POST_DATETIME_FORMAT: import.meta.env.VITE_APP_POST_DATETIME_FORMAT,
   POST_TIMESTAMP_FORMAT: import.meta.env.VITE_APP_POST_TIMESTAMP_FORMAT
+} as const
+
+
+export const ATTACHMENT_UPLOAD_MODE = {
+  PICTURE_CARD:'picture-card',
+  DRAGGER:'dragger'
+} as const
+
+export const ATTACHMENT_PREVIEW_MODE = {
+  LIST:'list',
+  PICTURE_CARD:'picture-card'
 } as const

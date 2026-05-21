@@ -240,6 +240,13 @@ const locale: LanguagePack = {
       select:'选择内容进行查询'
     }
   },
+  attachment: {
+    uploading: '文件上传中...',
+    dragger:{
+      title:'点击或拖动文件至该区域进行上传',
+      subTitle:'支持单文件或批量上传'
+    }
+  },
   layoutContent: {
     loading: '加载中...',
     pin: '固定',
@@ -341,6 +348,7 @@ const locale: LanguagePack = {
       filename:'文件名称'
     },
     carousel: {
+      image:'图片内容',
       dataContent:' 数据内容',
       routePage:'轮播图',
       link:'链接地址',
