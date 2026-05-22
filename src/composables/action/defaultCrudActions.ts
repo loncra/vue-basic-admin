@@ -13,7 +13,11 @@ export interface DefaultBulkActionsOptions<TEntity> {
   remove: (records: TEntity[]) => void
 }
 
-export function createDefaultBulkActions<TEntity>(
+export function createDefaultBulkActions<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody,
+  TId,
+>(
   options: DefaultBulkActionsOptions<TEntity>,
 ): ActionDefinition<TEntity>[] {
   return [
@@ -23,7 +27,7 @@ export function createDefaultBulkActions<TEntity>(
       visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
       enabled: (ctx) =>
         ctx.selectedItems.length > 0 &&
-        typeof (options.service as BasicCrudService<BasicIdMetadata, TEntity>).delete === 'function',
+        typeof (options.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
       label: (ctx) =>
         options.t('common.delete.selected', {count: ctx.selectedItems.length}),
       icon: () => createIcon('icon-delete'),
@@ -41,7 +45,11 @@ export interface DefaultItemActionsOptions<TEntity> {
   onDetail: (record: TEntity) => void
 }
 
-export function createDefaultItemActions<TEntity>(
+export function createDefaultItemActions<
+TBody extends BasicIdMetadata<TId>,
+TEntity extends TBody,
+TId,
+>(
   options: DefaultItemActionsOptions<TEntity>,
 ): ActionDefinition<TEntity>[] {
   return [
@@ -71,7 +79,7 @@ export function createDefaultItemActions<TEntity>(
       id: 'delete',
       permission: options.authority?.delete,
       enabled: () =>
-        typeof (options.service as BasicCrudService<BasicIdMetadata, TEntity>).delete === 'function',
+        typeof (options.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
       label: () => options.t('common.delete.text'),
       icon: () => createIcon('icon-delete'),
       run: (ctx) => {

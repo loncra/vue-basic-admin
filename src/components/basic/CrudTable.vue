@@ -84,7 +84,7 @@ const {remove} = useCrudDelete<TBody, TEntity, TId>({
 
 const tableActions = computed(() =>
   mergeDefinitions(
-    createDefaultBulkActions<TEntity>({
+    createDefaultBulkActions<TBody, TEntity, TId>({
       authority: props.authority,
       service: props.service,
       t,
@@ -96,7 +96,7 @@ const tableActions = computed(() =>
 
 const rowActionDefinitions = computed(() =>
   mergeDefinitions(
-    createDefaultItemActions<TEntity>({
+    createDefaultItemActions<TBody, TEntity, TId>({
       authority: props.authority,
       service: props.service,
       t,

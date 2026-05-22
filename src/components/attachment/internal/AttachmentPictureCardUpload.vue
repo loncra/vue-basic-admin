@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-import type {UploadFile} from "antdv-next/dist/upload/interface";
+import type {AttachmentFileItem} from "@/types/composables/attachmentUpload.ts";
 import LAttachmentPreview from "@/components/attachment/AttachmentPreview.vue";
 import {ATTACHMENT_PREVIEW_MODE} from "@/constants/systemConstant.ts";
-import type {ObjectWriteResult} from "@/types/apis";
-import {useAttachmentUploadFiles} from "@/composables/useAttachmentUploadFiles.ts";
+import {useAttachmentUploadFiles} from "@/composables/attachment/useAttachmentUploadFiles.js";
+import {useSlots} from "vue";
 
 defineOptions({
   name: 'LAttachmentPictureCardUpload',
@@ -19,8 +19,10 @@ const props = withDefaults(defineProps<{
   preview:false
 })
 
-const fileList = defineModel<UploadFile[] | ObjectWriteResult[]>('fileList', {default:() => []})
+const fileList = defineModel<AttachmentFileItem[]>('fileList', {default:() => []})
 const {uploadFiles} = useAttachmentUploadFiles(fileList)
+
+const slot = useSlots()
 
 </script>
 
@@ -34,7 +36,6 @@ const {uploadFiles} = useAttachmentUploadFiles(fileList)
       <template #pictureCardAfter v-if="!props.maxCount || uploadFiles.length < props.maxCount || props.preview">
         <a-upload
           v-bind="$attrs"
-          class="avatar-uploader"
           list-type="picture-card"
           v-model:file-list="uploadFiles"
           :before-upload="() => false"
@@ -47,11 +48,14 @@ const {uploadFiles} = useAttachmentUploadFiles(fileList)
             <a-typography-text type="secondary">
               <icon-font class="text-3xl" type="icon-add" />
             </a-typography-text>
-            <a-typography-text type="secondary" v-if="props.maxCount">
+            <a-typography-text type="secondary" v-if="props.maxCount && props.maxCount > 1">
               {{ uploadFiles.length }} / {{ props.maxCount }}
             </a-typography-text>
           </a-space>
         </a-upload>
+      </template>
+      <template v-if="slot.itemRender" #itemRender="{file}">
+        <slot name="itemRender" :file="file" />
       </template>
     </l-attachment-preview>
   </div>

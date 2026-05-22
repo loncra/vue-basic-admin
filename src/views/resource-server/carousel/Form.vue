@@ -6,12 +6,12 @@ import type {
   CarouselSavePayload,
   EnumBucketsResponseBody,
   NameValueEnumMetadata,
+  ObjectWriteResult,
   RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import {ResourceServerService} from "@/apis";
 import {CarouselService} from "@/apis/resource-server/carouselService.ts";
-import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
 import {disableDate, disableTime} from "@/utils/dateUtils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import type {Dayjs} from "dayjs";
@@ -27,7 +27,8 @@ const globalProperties =
 
 const service = new CarouselService()
 const resourceServerService = new ResourceServerService()
-const attachmentService = new AttachmentService()
+
+const coverUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
 
 const options = ref<{
   entity:CarouselSavePayload
@@ -43,12 +44,12 @@ const options = ref<{
       id: "http://",
       value: ""
     },
+    cover:null as unknown as ObjectWriteResult,
     remark: "",
     version: null as unknown as number,
     id: null as unknown as number,
     expirationTime: null as unknown as number,
     showtime: null as unknown as number,
-    cover: [],
   },
   linkOptions:[
     {name: 'http://', value: 'http://'},
@@ -64,7 +65,9 @@ async function preMounted() {
   if (enums.data) {
     options.value.typeOptions = enums.data['resource-server']?.CarouselTypeEnum as NameValueEnumMetadata<number>[]
   }
-
+  if (globalProperties.$route.query.type) {
+    options.value.entity.type = Number(globalProperties.$route.query.type)
+  }
 }
 
 function setPageTitle(title:string, entity: CarouselEntity | CarouselSavePayload) {
@@ -81,29 +84,11 @@ function postGetEntity(_entity:CarouselEntity) {
   if (_entity.expirationTime) {
     _entity.expirationTime = globalProperties.$dayjs(_entity.expirationTime)
   }
-  /*if (_entity.cover) {
-    coverFileList.value = initFileListFromObjectWriteResults(_entity.cover, attachmentService)
-  } else {
-    coverFileList.value = []
-  }*/
   return _entity;
 }
 
 async function preSubmit() {
-  /*await coverUploadRef.value?.upload()
-  const uploaded = coverFileList.value.find((file) => file.objectWriteResult || file.bucketName)
-  if (uploaded?.objectWriteResult) {
-    options.value.entity.cover = uploaded.objectWriteResult
-  } else if (uploaded?.bucketName && uploaded.objectName && uploaded.etag) {
-    options.value.entity.cover = {
-      bucketName: uploaded.bucketName,
-      objectName: uploaded.objectName,
-      etag: uploaded.etag,
-      extraHeaders: uploaded.extraHeaders,
-    }
-  } else if (coverFileList.value.length === 0) {
-    options.value.entity.cover = undefined
-  }*/
+  await coverUploadRef.value?.upload()
 }
 
 </script>
@@ -124,8 +109,10 @@ async function preSubmit() {
 
       <template #rowLayout>
         <a-col :span="24">
-          <a-form-item :label="globalProperties.$t('resourceServer.carousel.image')" name="cover" :rules="[{ required: true, type: 'array', min: 3, trigger: 'change' }]">
-            <l-attachment-upload :max-count="3" mode="picture-card" v-model:value="options.entity.cover" />
+          <a-form-item :label="globalProperties.$t('resourceServer.carousel.image')" name="cover" :rules="[{ required: true, trigger: 'change' }]">
+            <l-attachment-upload accept=".jpg,.jpeg,.png" ref="coverUploadRef" :max-count="1" :multiple="false" mode="dragger" v-model:value="options.entity.cover">
+
+            </l-attachment-upload>
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
@@ -168,4 +155,3 @@ async function preSubmit() {
     </l-basic-form>
   </div>
 </template>
-

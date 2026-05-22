@@ -78,6 +78,7 @@ export interface FileObject {
 
 export interface ObjectWriteResult extends FileObject{
   etag:string
+  size:number
 }
 
 export interface MultipartUploadInitData {

@@ -184,7 +184,8 @@ async function mounted() {
     await getEntity(id)
   }
   currentRoute.value = globalProperties.$route;
-  await nextTick(doPostMounted)
+  await nextTick()
+  doPostMounted()
 }
 
 async function doPostMounted() {

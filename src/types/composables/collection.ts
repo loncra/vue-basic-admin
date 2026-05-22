@@ -43,3 +43,9 @@ export interface QueryCollectionProps<
   drag?: boolean
   formatDragPreview?: (record: TEntity) => string
 }
+
+export interface GridExposed<TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]> {
+  fetchDataSource: () => Promise<void | undefined>
+  exportData: () => Promise<void | undefined>
+  remove: (records: TEntity[]) => void
+}

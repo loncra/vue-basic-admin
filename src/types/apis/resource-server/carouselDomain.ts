@@ -1,11 +1,6 @@
-import type {
-  IdValueMetadata,
-  NameValueEnumMetadata,
-  ObjectWriteResult,
-  VersionEntityMetadata
-} from "@/types/apis";
+import type {IdValueMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "@/types/apis";
 import type {Dayjs} from "dayjs";
-import type {UploadFile} from "antdv-next/dist/upload/interface";
+import type {AttachmentFileItem} from "@/types/composables/attachmentUpload.ts";
 
 /**
  * 字典类型保存请求体
@@ -47,7 +42,7 @@ export interface CarouselSavePayload extends VersionEntityMetadata {
   /**
    * 封面图片
    */
-  cover?: UploadFile[] | ObjectWriteResult[];
+  cover?: AttachmentFileItem;
 
   /**
    * 备注

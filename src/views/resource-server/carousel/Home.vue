@@ -10,7 +10,7 @@ import {
   nextTick,
   onActivated,
   onMounted,
-  ref
+  ref,
 } from "vue";
 import type {
   CarouselEntity,
@@ -27,13 +27,14 @@ import {
   dateTimeFormat,
   getEnumName,
   getEnumValue,
+  isObjectWriteResult,
   requireNonNullOrUndefined
 } from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
-import notFound from '@/assets/404.svg'
-import type {ActionDefinition} from '@/types/composables'
+import type {ActionDefinition, GridExposed} from '@/types/composables'
+import LBasicImage from "@/components/basic/BasicImage.vue";
 
 interface TabDataSource {
   key: string
@@ -53,13 +54,21 @@ const { modal, message } = useApp();
 
 const configProviderStore = useConfigProviderStore()
 const principalStore = usePrincipalStore()
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
+
+const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
+const globalProperties = instance.appContext.config
     .globalProperties
 
 const attachmentService = new AttachmentService()
 const resourceServerService = new ResourceServerService()
 const carouselService = new CarouselService()
+
+function getCoverImageSrc(cover: CarouselEntity['cover']) {
+  if (!isObjectWriteResult(cover)) {
+    return ''
+  }
+  return attachmentService.query(cover.bucketName, cover.objectName)
+}
 
 const carouselAuthority = {
   add: 'perms[resource_server_carousel:save]',
@@ -79,46 +88,7 @@ const options = ref<{
 const tabActiveKey = ref<string>();
 const tabDataSource = ref<TabDataSource[]>([]);
 
-interface CarouselGridExposed {
-  fetchDataSource: () => Promise<void | undefined>
-  remove: (records: CarouselEntity[]) => void
-}
-
-const gridRefs = new Map<string, CarouselGridExposed>()
-
-const dragEnabled = computed(() =>
-  principalStore.hasPermission('perms[resource_server_carousel:save]'),
-)
-
-const statusSetting = {
-  "10": {
-    color: "blue"
-  },
-  "30": {
-    color: "yellow"
-  },
-  "20": {
-    color: "green"
-  }
-} as const
-
-function setGridRef(key: string, el: unknown) {
-  if (el) {
-    gridRefs.set(key, el as CarouselGridExposed)
-  } else {
-    gridRefs.delete(key)
-  }
-}
-
-function getReleaseSelectedEntities(selectedRows: CarouselEntity[]) {
-  return selectedRows.filter(e => [10, 30].includes(getEnumValue(e.status ?? 0)))
-}
-
-function getRevokeSelectedEntities(selectedRows: CarouselEntity[]) {
-  return selectedRows.filter(e => [20].includes(getEnumValue(e.status ?? 0)))
-}
-
-function createBulkActions(): ActionDefinition<CarouselEntity>[] {
+const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'add',
@@ -126,7 +96,7 @@ function createBulkActions(): ActionDefinition<CarouselEntity>[] {
       label: () => globalProperties.$t('common.add', {name: ''}),
       icon: () => createIcon('icon-add'),
       run: () => {
-        void globalProperties.$router.push({name: 'resource_server_carousel_add'})
+        void globalProperties.$router.push({name: 'resource_server_carousel_add', query: {type: tabActiveKey.value}})
       },
     },
     {
@@ -141,7 +111,7 @@ function createBulkActions(): ActionDefinition<CarouselEntity>[] {
       run: (ctx) => {
         const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
         if (tab) {
-          gridRefs.get(tab.key)?.remove(getReleaseSelectedEntities(ctx.selectedItems))
+          (instance.refs?.['tab.key'] as GridExposed<CarouselEntity>)?.remove(getReleaseSelectedEntities(ctx.selectedItems))
         }
       },
     },
@@ -169,8 +139,7 @@ function createBulkActions(): ActionDefinition<CarouselEntity>[] {
     },
   ]
 }
-
-function createItemActions(): ActionDefinition<CarouselEntity>[] {
+const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'release',
@@ -183,7 +152,7 @@ function createItemActions(): ActionDefinition<CarouselEntity>[] {
     {
       id: 'revoke',
       permission: 'perms[resource_server_carousel:revoke]',
-      enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 30,
+      enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) === 20,
       label: () => globalProperties.$t('common.revoke.text'),
       icon: () => createIcon('icon-time-response'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
@@ -204,50 +173,60 @@ function createItemActions(): ActionDefinition<CarouselEntity>[] {
   ]
 }
 
-const bulkActions = createBulkActions()
-const itemActionDefinitions = createItemActions()
+const dragEnabled = computed(() =>
+  principalStore.hasPermission('perms[resource_server_carousel:save]'),
+)
 
-async function loadCarouselPreview(tab: TabDataSource): Promise<void> {
-  const carouselDataSource: RestResult<{elements: CarouselEntity[]}> = await carouselService.page({
-    number: -1,
-    'filter_[type_eq]': tab.key,
-    'filter_[status_eq]': 20,
-  })
-  if (carouselDataSource.data) {
-    tab.carouselDataSource = carouselDataSource.data.elements
+const statusSetting = {
+  "10": {
+    color: "blue"
+  },
+  "30": {
+    color: "yellow"
+  },
+  "20": {
+    color: "green"
   }
+} as const
+
+function getReleaseSelectedEntities(selectedRows: CarouselEntity[]) {
+  return selectedRows.filter(e => [10, 30].includes(getEnumValue(e.status ?? 0)))
 }
 
-async function loadCarouselPreviewWithLoading(tab: TabDataSource): Promise<void> {
+function getRevokeSelectedEntities(selectedRows: CarouselEntity[]) {
+  return selectedRows.filter(e => [20].includes(getEnumValue(e.status ?? 0)))
+}
+
+async function loadCarouselPreview(tab: TabDataSource): Promise<void> {
   tab.previewLoading = true
   try {
-    await loadCarouselPreview(tab)
+    const carouselDataSource: RestResult<{elements: CarouselEntity[]}> = await carouselService.page({
+      number: -1,
+      'filter_[type_eq]': tab.key,
+      'filter_[status_eq]': 20,
+    })
+    if (carouselDataSource.data) {
+      tab.carouselDataSource = carouselDataSource.data.elements
+    }
   } finally {
     tab.previewLoading = false
   }
+
 }
 
 async function loadTabData(tab: TabDataSource): Promise<void> {
-  await loadCarouselPreviewWithLoading(tab)
-  await nextTick()
-  let grid = gridRefs.get(tab.key)
-  if (!grid) {
-    await nextTick()
-    grid = gridRefs.get(tab.key)
-  }
-  if (!grid) {
-    console.warn(`[carousel] grid ref not found for tab: ${tab.key}`)
-  } else {
-    await grid.fetchDataSource()
+  await loadCarouselPreview(tab)
+  if (instance.refs?.[tab.key]) {
+    (instance.refs?.[tab.key] as GridExposed<CarouselEntity>)?.fetchDataSource()
+    tab.isLoading = true
   }
 }
 
-function onChangeTab(key: string): void {
+async function onChangeTab(key: string): Promise<void> {
   tabActiveKey.value = key
   const dataSource = tabDataSource.value.find(s => s.key === key)
   if (dataSource && !dataSource.isLoading) {
-    dataSource.isLoading = true
-    void loadTabData(dataSource)
+    await loadTabData(dataSource)
   }
 }
 
@@ -330,6 +309,7 @@ async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({
     'resource-server': [{id: 'CarouselTypeEnum'}],
   })
+  // FIXME 这里不应该用枚举，应该用字典去灵活配置样式
   if (enums.data) {
     options.value.typeOptions = enums.data['resource-server']?.CarouselTypeEnum as NameValueEnumMetadata<number>[]
     for (const item of options.value.typeOptions) {
@@ -349,14 +329,14 @@ async function mounted() {
     }
   }
 
+  options.value.loading = false
+  await nextTick()
+
   if (tabDataSource.value.length > 0) {
     const firstTab = tabDataSource.value.at(0) as TabDataSource
     tabActiveKey.value = firstTab.key
-    firstTab.isLoading = true
     await loadTabData(firstTab)
   }
-
-  options.value.loading = false
 }
 
 function activated() {
@@ -389,32 +369,39 @@ onActivated(activated)
                 <a-empty />
               </template>
 
+<!--              <a-carousel class="mx-auto w-full max-w-[375px]" v-else :autoplay="{ dotDuration: true }" :autoplay-speed="5000" arrows>-->
               <a-carousel v-else :autoplay="{ dotDuration: true }" :autoplay-speed="5000" arrows>
+<!--                <div
+                  class="w-full aspect-[2/1] max-h-[360px] overflow-hidden rounded-lg bg-elevated"
+                  :key="entity.id"
+                  v-for="entity of item?.carouselDataSource || []"
+                >-->
+
                 <div
-                  class="text-center bg-fill-secondary"
+                  class="aspect-square h-[360px] overflow-hidden bg-mask"
                   :key="entity.id"
                   v-for="entity of item?.carouselDataSource || []"
                 >
-                  <a-image
+                  <l-basic-image
                     :preview="false"
-                    :src="attachmentService.query(entity?.cover?.bucketName, entity?.cover?.objectName)"
-                    :fallback="notFound"
+                    class="size-full object-cover"
+                    :src="getCoverImageSrc(entity?.cover)"
                   />
                 </div>
               </a-carousel>
             </a-spin>
 
             <l-crud-card-grid
-              :ref="(el) => setGridRef(item.key, el)"
-              :key="item.key"
               :service="carouselService"
+              :ref="item.key"
+              :key="item.key"
               v-model:query="item.query"
               v-model:selected-items="item.selectedItems"
               :immediate="false"
               :drag="dragEnabled"
               :authority="carouselAuthority"
-              :actions="bulkActions"
-              :item-actions="itemActionDefinitions"
+              :actions="bulkActions()"
+              :item-actions="itemActionDefinitions()"
               @deleted="onGridDeleted"
               @drop="onCardDrop"
             >
@@ -435,11 +422,14 @@ onActivated(activated)
                     </template>
                     <a-card size="small" :title="record.name">
                       <template #cover>
-                        <a-image
-                          @click.stop
-                          :src="attachmentService.query(record.cover?.bucketName ?? '', record.cover?.objectName ?? '')"
-                          :fallback="notFound"
-                        />
+                        <div class="aspect-square rounded-none w-full overflow-hidden">
+                          <l-basic-image
+                            class="size-full object-cover"
+                            @click.stop
+                            :src="getCoverImageSrc(record.cover)"
+                          />
+
+                        </div>
                       </template>
                       <template #actions>
                         <l-action-button

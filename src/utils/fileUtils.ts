@@ -1,6 +1,7 @@
 import type {VideoThumbnailResult} from '@/types/composables/common'
 import type {UploadFile, VcFile} from "antdv-next/dist/upload/interface";
 import type {ObjectWriteResult} from "@/types/apis";
+import type {AttachmentFileItem, AttachmentValue} from "@/types/composables/attachmentUpload.ts";
 import {AttachmentService} from "@/apis";
 
 /**
@@ -152,20 +153,26 @@ export function isUploadFile(item: unknown): item is UploadFile {
   return !!item && typeof item === 'object' && 'uid' in item
 }
 
-export function convertUploadFiles(fileList:ObjectWriteResult[] | UploadFile[], service:AttachmentService):UploadFile[] {
-  const result: UploadFile[] = []
+export function convertUploadFiles(
+  fileList: AttachmentFileItem[],
+  service: AttachmentService,
+): UploadFile<ObjectWriteResult>[] {
+  const result: UploadFile<ObjectWriteResult>[] = []
   for (const file of fileList) {
     if (isObjectWriteResult(file)) {
       const contentType = file?.extraHeaders?.['Content-Type'] || ''
+
       const url = service.query(file.bucketName, file.objectName)
       result.push({
         uid: file.etag,
         name: file?.extraHeaders?.['x-amz-meta-original-filename'] || file.objectName,
         url,
-        thumbUrl: contentType.includes('image/') ? url : undefined,
+        thumbUrl: ['image/', 'video/'].includes(contentType) ? url : undefined,
         type: contentType || undefined,
-        size: Number(file?.extraHeaders?.['Size'] || 0),
+        size: file.size || 0,
+        percent: 100,
         status: 'done',
+        response: file,
       })
     } else if (isUploadFile(file)) {
       result.push(file)
@@ -173,4 +180,62 @@ export function convertUploadFiles(fileList:ObjectWriteResult[] | UploadFile[], 
   }
 
   return result
+}
+
+export function displayUploadFileToListItem(
+  file: UploadFile<ObjectWriteResult>,
+): AttachmentFileItem {
+  if (file.originFileObj) {
+    return file
+  }
+  if (file.response) {
+    return file.response
+  }
+  return file
+}
+
+export function collectObjectWriteResults(
+  list: AttachmentFileItem[],
+): ObjectWriteResult[] {
+  return list.filter(isObjectWriteResult)
+}
+
+export function detectAttachmentValueMode(
+  value: AttachmentValue | null,
+  maxCount?: number,
+): 'single' | 'multiple' {
+  if (Array.isArray(value)) {
+    return 'multiple'
+  }
+  if (isUploadFile(value) || isObjectWriteResult(value)) {
+    return 'single'
+  }
+  return maxCount === 1 ? 'single' : 'multiple'
+}
+
+export function normalizeAttachmentToList(
+  value: AttachmentValue | null,
+): (UploadFile | ObjectWriteResult)[] {
+  if (value == null) {
+    return []
+  }
+  if (Array.isArray(value)) {
+    return [...value]
+  }
+  if (isObjectWriteResult(value)) {
+    return [...convertUploadFiles([value as ObjectWriteResult], new AttachmentService())]
+  }
+  return []
+}
+
+export function denormalizeAttachmentFromList(
+  list: (UploadFile | ObjectWriteResult)[],
+  referenceValue: AttachmentValue | null,
+  maxCount?: number,
+): AttachmentValue {
+  const mode = detectAttachmentValueMode(referenceValue, maxCount)
+  if (list.length === 0) {
+    return mode === 'single' ? undefined : []
+  }
+  return mode === 'single' ? list[0] : [...list]
 }

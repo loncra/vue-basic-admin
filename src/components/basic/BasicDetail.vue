@@ -85,7 +85,8 @@ async function mounted() {
   }
   entity.value = value
   route.value = globalProperties.$route;
-  await nextTick(() =>updateTitle(value));
+  await nextTick();
+  updateTitle(value)
   loading.value = false;
 }
 

@@ -24,7 +24,7 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
 
   static readonly MULTI_OBJECT_URL = AttachmentService.BASE_URL + '/multiObject'
 
-  static readonly SINGLE_UPLOAD_URL = AttachmentService.BASE_URL + '/singleUpload'
+  static readonly SINGLE_UPLOAD_URL = AttachmentService.BASE_URL + '/upload'
 
   static readonly CREATE_MULTIPART_URL = AttachmentService.BASE_URL + '/createMultipartUpload'
 
@@ -91,7 +91,7 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
     return axios.post(AttachmentService.COMPLETE_MULTIPART_UPLOAD_URL, data, config)
   }
 
-  removeAttachment(fileObjects: FileObject[]): Promise<RestResult<unknown>> {
+  removeAttachment(fileObjects: FileObject[]): Promise<RestResult<void>> {
     return axios.put(AttachmentService.DELETE_ATTACHMENT_URL, fileObjects)
   }
 }

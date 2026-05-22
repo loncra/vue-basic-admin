@@ -74,8 +74,7 @@ const props = withDefaults(
   },
 )
 
-const slots = useSlots()
-
+const slots = useSlots();
 const t = globalProperties.$t.bind(globalProperties)
 
 const {remove} = useCrudDelete<TBody, TEntity, TId>({
@@ -90,7 +89,7 @@ const {remove} = useCrudDelete<TBody, TEntity, TId>({
 
 const gridActions = computed(() =>
   mergeDefinitions(
-    createDefaultBulkActions<TEntity>({
+    createDefaultBulkActions<TBody, TEntity, TId>({
       authority: props.authority,
       service: props.service,
       t,
@@ -102,7 +101,7 @@ const gridActions = computed(() =>
 
 const itemActionDefinitions = computed(() =>
   mergeDefinitions(
-    createDefaultItemActions<TEntity>({
+    createDefaultItemActions<TBody, TEntity, TId>({
       authority: props.authority,
       service: props.service,
       t,
