@@ -83,13 +83,19 @@ const resolvedOutputScales = computed((): CropperOutputScale[] => {
 
 const croppedPreviewScale = ref(1)
 const previewRefreshing = ref(false)
+const liveCompressedPreview = ref<CropperOutputResult | null>(null)
 const confirming = ref(false)
 let previewRefreshTimer: ReturnType<typeof setTimeout> | null = null
+let previewRefreshInFlight = false
+let layoutTask: Promise<void> | null = null
 let onCanvasActionEnd: ((event: Event) => void) | null = null
 
 const hasCompressPreview = computed(() => props.compressQuality != null && props.compressQuality > 0)
 
 const selectedCroppedOutput = computed(() => {
+  if (liveCompressedPreview.value) {
+    return liveCompressedPreview.value
+  }
   const item = selectedItem.value
   if (!item) {
     return null
@@ -120,12 +126,24 @@ const croppedPreviewScaleOptions = computed(() => {
   }))
 })
 
+watch(croppedPreviewScale, (scale) => {
+  const outputs = selectedItem.value?.outputs
+  if (!outputs?.length) {
+    return
+  }
+  const matched = outputs.find((output) => output.scale === scale)
+  if (matched) {
+    liveCompressedPreview.value = matched
+  }
+})
+
 watch(
   () => selectedItem.value?.uid,
   (uid, prevUid) => {
     if (!uid || !prevUid || uid === prevUid) {
       return
     }
+    liveCompressedPreview.value = null
     croppedPreviewScale.value = selectedItem.value?.outputs?.[0]?.scale ?? 1
     void layoutSelectedCropper()
   },
@@ -136,16 +154,16 @@ function applyCropResult(
   outputs: CropperOutputResult[],
   previewOutput: CropperOutputResult,
 ) {
-  const index = items.value.findIndex((item) => item.uid === uid)
-  if (index < 0) {
-    return
-  }
-  items.value[index] = {
-    ...items.value[index]!,
-    outputs,
-    cropImg: previewOutput.dataUrl,
-    blob: previewOutput.blob,
-  }
+  items.value = items.value.map((item) => (
+    item.uid === uid
+      ? {
+          ...item,
+          outputs,
+          cropImg: previewOutput.dataUrl,
+          blob: previewOutput.blob,
+        }
+      : item
+  ))
 }
 
 function unbindPreviewListeners() {
@@ -168,7 +186,7 @@ function bindCanvasActionEndListener() {
     return
   }
   onCanvasActionEnd = () => {
-    if (!dragging.value) {
+    if (!dragging.value && !previewRefreshInFlight) {
       scheduleCroppedPreviewRefresh()
     }
   }
@@ -178,56 +196,58 @@ function bindCanvasActionEndListener() {
 function bindPreviewListeners() {
   bindCanvasActionEndListener()
   setAfterInteraction(() => {
-    scheduleCroppedPreviewRefresh(true)
+    if (!previewRefreshInFlight) {
+      scheduleCroppedPreviewRefresh()
+    }
   })
 }
 
-function scheduleCroppedPreviewRefresh(immediate = false) {
-  if (!hasCompressPreview.value || !open.value || dragging.value) {
+function scheduleCroppedPreviewRefresh() {
+  if (!hasCompressPreview.value || !open.value || dragging.value || previewRefreshInFlight) {
     return
   }
   if (previewRefreshTimer) {
     clearTimeout(previewRefreshTimer)
-    previewRefreshTimer = null
-  }
-  if (immediate) {
-    void refreshCroppedPreview()
-    return
   }
   previewRefreshTimer = setTimeout(() => {
     previewRefreshTimer = null
     void refreshCroppedPreview()
-  }, 200)
+  }, 300)
 }
 
 async function refreshCroppedPreview(retry = 0) {
-  if (!hasCompressPreview.value || !open.value || confirming.value || layoutInProgress.value) {
+  if (!hasCompressPreview.value || !open.value || confirming.value || previewRefreshInFlight) {
     return
   }
-  if (!ready.value && retry < 10) {
-    await new Promise((resolve) => setTimeout(resolve, 80))
-    await refreshCroppedPreview(retry + 1)
+  if (layoutInProgress.value || dragging.value || !ready.value) {
+    if (retry < 10) {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      await refreshCroppedPreview(retry + 1)
+    }
     return
   }
+
   const current = selectedItem.value
   const selection = resolveCropperElements()?.selection ?? cropperSelectionRef.value
   if (!current || !selection || !isSelectionReady(selection)) {
-    if (retry < 15) {
+    if (retry < 10) {
       await new Promise((resolve) => requestAnimationFrame(resolve))
       await refreshCroppedPreview(retry + 1)
     }
     return
   }
 
+  previewRefreshInFlight = true
   previewRefreshing.value = true
   try {
-    await cropCurrentItem(current)
+    await cropPreviewItem(current)
   } finally {
     previewRefreshing.value = false
+    previewRefreshInFlight = false
   }
 }
 
-async function cropCurrentItem(item = selectedItem.value): Promise<boolean> {
+async function cropPreviewItem(item = selectedItem.value): Promise<boolean> {
   if (!item) {
     return false
   }
@@ -236,33 +256,46 @@ async function cropCurrentItem(item = selectedItem.value): Promise<boolean> {
     return false
   }
 
-  const mimeType = props.outputMimeType
+  const outputs = await cropToOutputs([{scale: 1}], {
+    mimeType: props.outputMimeType,
+    quality: props.compressQuality,
+  })
+  const previewOutput = outputs[0]
+  if (!previewOutput) {
+    return false
+  }
+
+  liveCompressedPreview.value = previewOutput
+  return true
+}
+
+async function cropFinalItem(item = selectedItem.value): Promise<boolean> {
+  if (!item) {
+    return false
+  }
+  const selection = resolveCropperElements()?.selection ?? cropperSelectionRef.value
+  if (!selection || !isSelectionReady(selection)) {
+    return false
+  }
+
   const outputs = await cropToOutputs(resolvedOutputScales.value, {
-    mimeType,
+    mimeType: props.outputMimeType,
     quality: props.compressQuality,
   })
   if (outputs.length === 0) {
     return false
   }
 
-  const previewOutput = outputs.find((output) => output.scale === 1)
-    ?? outputs.reduce((max, output) => (output.scale > max.scale ? output : max), outputs[0]!)
-
+  const previewOutput = outputs.find((output) => output.scale === 1) ?? outputs[0]!
   applyCropResult(item.uid, outputs, previewOutput)
-  if (item.uid === selectedItem.value?.uid) {
-    croppedPreviewScale.value = previewOutput.scale
-  }
   return true
 }
 
 function onSelectionChangeWithPreview(event: Event) {
-  if (layoutInProgress.value) {
+  if (layoutInProgress.value || previewRefreshInFlight) {
     return
   }
   onSelectionChange(event)
-  if (!event.defaultPrevented && !dragging.value) {
-    scheduleCroppedPreviewRefresh()
-  }
 }
 
 function onZoom(ratio: number) {
@@ -278,16 +311,29 @@ function onRotate(degree: number | string) {
 async function onReset() {
   reset(hasFixedAspectRatio.value ? props.aspectRatio : undefined)
   await nextTick()
-  scheduleCroppedPreviewRefresh(true)
+  scheduleCroppedPreviewRefresh()
 }
 
 async function layoutSelectedCropper() {
   if (!open.value || !selectedItem.value?.preview) {
     return
   }
-  await layout(hasFixedAspectRatio.value ? props.aspectRatio : undefined)
-  bindPreviewListeners()
-  scheduleCroppedPreviewRefresh(true)
+  if (layoutTask) {
+    return layoutTask
+  }
+  layoutTask = (async () => {
+    liveCompressedPreview.value = null
+    await layout(hasFixedAspectRatio.value ? props.aspectRatio : undefined)
+    bindPreviewListeners()
+    await nextTick()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    })
+    await refreshCroppedPreview()
+  })().finally(() => {
+    layoutTask = null
+  })
+  return layoutTask
 }
 
 function onCropperHostMounted(el: Element | ComponentPublicInstance | null) {
@@ -299,9 +345,10 @@ function onCropperHostMounted(el: Element | ComponentPublicInstance | null) {
 
 function onAfterOpenChange(visible: boolean) {
   if (visible) {
-    void layoutSelectedCropper()
+    void nextTick().then(() => layoutSelectedCropper())
   } else {
     ready.value = false
+    liveCompressedPreview.value = null
     unbindPreviewListeners()
     if (previewRefreshTimer) {
       clearTimeout(previewRefreshTimer)
@@ -406,8 +453,7 @@ async function onConfirm() {
       selectCropper(item)
       await nextTick()
       await layout(hasFixedAspectRatio.value ? props.aspectRatio : undefined)
-      bindPreviewListeners()
-      if (!await cropCurrentItem(item)) {
+      if (!await cropFinalItem(item)) {
         message.error(`裁剪失败：${item.name}`)
         return
       }
@@ -458,7 +504,7 @@ onBeforeUnmount(() => {
       <a-row :gutter="[configProviderStore.getToken().marginLG, configProviderStore.getToken().marginLG]">
         <a-col :xs="24" :sm="24" :md="16" :lg="16" :xl="16" :xxl="16">
           <template v-if="selectedItem?.preview">
-            <a-spin :spinning="confirming" tip="处理中...">
+            <a-spin :spinning="confirming" description="处理中...">
               <div :ref="onCropperHostMounted" class="cropper-host">
               <cropper-canvas
                 ref="cropperCanvasRef"
@@ -575,7 +621,7 @@ onBeforeUnmount(() => {
                 <span class="hidden md:inline">压缩后</span>
               </a-space>
             </a-divider>
-            <a-spin :spinning="previewRefreshing" tip="生成预览...">
+            <a-spin :spinning="previewRefreshing" description="生成预览...">
               <div class="cropped-image">
                 <template v-if="selectedCroppedOutput">
                   <a-image

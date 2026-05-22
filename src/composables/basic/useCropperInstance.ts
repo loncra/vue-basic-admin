@@ -107,11 +107,7 @@ function resolveCropperElements(
 }
 
 function isSelectionReady(selection: CropperSelectionElement): boolean {
-  if (selection.width > 0 && selection.height > 0) {
-    return true
-  }
-  const rect = selection.getBoundingClientRect()
-  return rect.width > 0 && rect.height > 0
+  return selection.width > 0 && selection.height > 0
 }
 
 function pointInRect(x: number, y: number, rect: DOMRect): boolean {
@@ -467,6 +463,12 @@ export function useCropperInstance() {
       await new Promise<void>((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
       })
+      if (selection.width <= 0 || selection.height <= 0) {
+        selection.$center()
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => resolve())
+        })
+      }
       ready.value = true
     } finally {
       layoutInProgress.value = false
@@ -538,13 +540,29 @@ export function useCropperInstance() {
     scales: CropperOutputScale[],
     options: CropToBlobOptions,
   ): Promise<CropperOutputResult[]> {
+    if (dragging.value) {
+      return []
+    }
+
     const elements = getElements()
     const selection = elements?.selection
     if (!selection || scales.length === 0 || !isSelectionReady(selection)) {
       return []
     }
 
-    const baseCanvas = await selection.$toCanvas()
+    const sourceWidth = Math.max(1, Math.round(selection.width))
+    const sourceHeight = Math.max(1, Math.round(selection.height))
+
+    let baseCanvas: HTMLCanvasElement
+    try {
+      baseCanvas = await selection.$toCanvas({
+        width: sourceWidth,
+        height: sourceHeight,
+      })
+    } catch {
+      return []
+    }
+
     const baseWidth = baseCanvas.width
     const baseHeight = baseCanvas.height
     if (baseWidth <= 0 || baseHeight <= 0) {
@@ -556,9 +574,14 @@ export function useCropperInstance() {
       const width = Math.max(1, Math.round(baseWidth * item.scale))
       const height = Math.max(1, Math.round(baseHeight * item.scale))
       const quality = item.quality ?? options.quality
-      const canvas = item.scale === 1
-        ? baseCanvas
-        : await selection.$toCanvas({width, height})
+      let canvas = baseCanvas
+      if (item.scale !== 1) {
+        try {
+          canvas = await selection.$toCanvas({width, height})
+        } catch {
+          continue
+        }
+      }
       const encoded = await canvasToBlobResult(canvas, options.mimeType, quality)
       if (!encoded) {
         continue
