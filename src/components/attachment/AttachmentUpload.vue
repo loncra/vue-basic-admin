@@ -14,6 +14,7 @@ import {useFormItemContext} from "antdv-next/dist/form/context";
 import type {ObjectWriteResult} from "@/types/apis";
 import {ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
 import LAttachmentDraggerUpload from "@/components/attachment/internal/AttachmentDraggerUpload.vue";
+import LCropperModal from "@/components/basic/CropperModal.vue";
 import type {
   AttachmentFileItem,
   AttachmentUploadExecutorOptions,
@@ -35,6 +36,10 @@ import {
   isUploadFile,
   normalizeAttachmentToList,
 } from "@/utils/fileUtils.ts";
+import type {CropperModalProps} from "@/types/composables";
+import type { CropperModalCroppedFile, CropperModalItem } from "@/types/composables/cropperModal.ts";
+import type { UploadChangeParam } from "antdv-next";
+import type { VcFile } from "antdv-next/dist/upload/interface";
 
 defineOptions({
   name: 'LAttachmentUpload',
@@ -52,6 +57,7 @@ const props = withDefaults(defineProps<{
   multiple?: boolean
   accept?:string
   maxCount?:number
+  cropper?:CropperModalProps
 }>(),{
   postFilename:'file',
   autoUpload:false,
@@ -60,7 +66,12 @@ const props = withDefaults(defineProps<{
   bucket:'user.file',
   preview: false,
   multiple:true,
-  maxCount:20
+  maxCount:20,
+  cropper:() => ({
+    aspectRatio: 750 / 360,
+    compressQuality: 0.5,
+    outputScales: [{ scale: 1 }, { scale: 0.5, suffix: '@half' }],
+  }),
 })
 
 const globalProperties =
@@ -81,6 +92,8 @@ const syncing = ref<boolean>(false)
 const slot = useSlots()
 
 const formItemContext = useFormItemContext()
+const cropperModalRef = ref();
+const cropperPendingUids = ref<string[]>([])
 
 watch(value, (v) => {
   if (syncing.value) {
@@ -168,6 +181,72 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
   }
 }
 
+function findCroppedOutputsForItem(
+  item: CropperModalItem,
+  croppedFiles: CropperModalCroppedFile[],
+): CropperModalCroppedFile[] {
+  return croppedFiles.filter((cropped) => (
+    cropped.uid === item.uid || cropped.uid.startsWith(`${item.uid}-`)
+  ))
+}
+
+function onCropperComplete(items: CropperModalItem[]) {
+  const croppedFiles: CropperModalCroppedFile[] = cropperModalRef.value?.getCroppedFiles() ?? []
+  if (croppedFiles.length === 0) {
+    cropperPendingUids.value = []
+    return
+  }
+
+  const newUploadFiles: UploadFile<ObjectWriteResult>[] = []
+  for (const item of items) {
+    const outputsForItem = findCroppedOutputsForItem(item, croppedFiles)
+    for (const cropped of outputsForItem) {
+      const outputMeta = item.outputs?.find((output) => output.scale === cropped.scale)
+      const previewUrl = outputMeta?.dataUrl ?? item.cropImg
+      const useOriginalUid = outputsForItem.length === 1 && cropped.scale === 1
+      newUploadFiles.push({
+        uid: useOriginalUid ? item.uid : cropped.uid,
+        name: cropped.file.name,
+        type: cropped.file.type,
+        size: cropped.file.size,
+        originFileObj: cropped.file as VcFile,
+        thumbUrl: previewUrl,
+      })
+    }
+  }
+
+  syncing.value = true
+  fileList.value = [...fileList.value, ...newUploadFiles]
+  cropperPendingUids.value = []
+  void nextTick(() => {
+    syncing.value = false
+  })
+}
+
+function onCropperCancel() {
+  cropperPendingUids.value = []
+}
+
+async function onChange(info: UploadChangeParam) {
+  if (!props.cropper || props.preview) {
+    return
+  }
+  const newImages = info.fileList.filter(
+    f => f.originFileObj && f.type?.includes('image/') && !f.url /* 新选的本地文件 */
+  )
+  if (newImages.length === 0) {
+    return
+  }
+  // 先从列表里摘掉，避免未裁剪就出现在 UI 上
+  cropperPendingUids.value = newImages.map(f => f.uid)
+  fileList.value = fileList.value.filter(
+    item => !cropperPendingUids.value.includes(isUploadFile(item) ? item.uid : '')
+  )
+  const files = newImages.map(f => f.originFileObj!).filter(Boolean)
+  const uids = newImages.map(f => f.uid)
+  await cropperModalRef.value?.open(files, uids)
+}
+
 function mounted() {
   uploadOptionsRef.value = {...props.uploadOptions || {}, param: {}, headers: {}}
 }
@@ -187,16 +266,47 @@ defineExpose({
 </script>
 
 <template>
-  <a-spin :description="spin.description" :spinning="spin.spinning">
-    <l-attachment-dragger-upload v-model:file-list="fileList" :preview="preview" v-bind="$attrs" :maxCount="maxCount" :multiple="multiple" :accept="accept" v-if="mode === ATTACHMENT_UPLOAD_MODE.DRAGGER">
-      <template #itemRender="{file}" v-if="slot.itemRender">
-        <slot name="itemRender" :file="file" />
-      </template>
-    </l-attachment-dragger-upload>
-    <l-attachment-picture-card-upload v-model:file-list="fileList" :preview="preview" v-bind="$attrs" :maxCount="maxCount" :multiple="multiple" :accept="accept" v-else-if="mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD">
-      <template #itemRender="{file}" v-if="slot.itemRender">
-        <slot name="itemRender" :file="file" />
-      </template>
-    </l-attachment-picture-card-upload>
-  </a-spin>
+  <div>
+    <l-cropper-modal
+      v-if="cropper"
+      ref="cropperModalRef"
+      :aspect-ratio="cropper.aspectRatio"
+      :compress-quality="cropper.compressQuality"
+      :output-mime-type="cropper.outputMimeType"
+      :output-scales="cropper.outputScales"
+      @complete="onCropperComplete"
+      @cancel="onCropperCancel"
+    />
+    <a-spin :description="spin.description" :spinning="spin.spinning">
+      <l-attachment-dragger-upload 
+        :change-thumb-url="cropper ? false : true"
+        @change="onChange"
+        v-model:file-list="fileList" 
+        :preview="preview" 
+        v-bind="$attrs" 
+        :maxCount="maxCount" 
+        :multiple="multiple" 
+        :accept="accept" 
+        v-if="mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
+      >
+        <template #itemRender="{file}" v-if="slot.itemRender">
+          <slot name="itemRender" :file="file" />
+        </template>
+      </l-attachment-dragger-upload>
+      <l-attachment-picture-card-upload 
+        @change="onChange"
+        :change-thumb-url="cropper ? false : true"
+        v-model:file-list="fileList" 
+        :preview="preview" 
+        v-bind="$attrs" 
+        :maxCount="maxCount" 
+        :multiple="multiple" 
+        :accept="accept" v-else-if="mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
+      >
+        <template #itemRender="{file}" v-if="slot.itemRender">
+          <slot name="itemRender" :file="file" />
+        </template>
+      </l-attachment-picture-card-upload>
+    </a-spin>
+  </div>
 </template>

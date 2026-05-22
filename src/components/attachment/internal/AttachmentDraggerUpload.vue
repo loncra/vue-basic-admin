@@ -9,20 +9,22 @@ import type {
 } from "@/types/composables/attachmentUpload.ts";
 import {ATTACHMENT_PREVIEW_MODE} from "@/constants/systemConstant.ts";
 import {useAttachmentUploadFiles} from "@/composables/attachment/useAttachmentUploadFiles.js";
-
+import type { UploadChangeParam } from "antdv-next";
 defineOptions({
   name: 'LAttachmentDraggerUpload',
 })
 
 const props = withDefaults(defineProps<{
   previewMode?:AttachmentPreviewMode,
+  changeThumbUrl?: boolean,
   multiple?: boolean
   accept?:string
   preview?:boolean
   maxCount?:number
 }>(), {
   previewMode: ATTACHMENT_PREVIEW_MODE.LIST,
-  preview:false
+  preview:false,
+  changeThumbUrl: true
 })
 
 const globalProperties =
@@ -33,13 +35,22 @@ const fileList = defineModel<AttachmentFileItem[]>('fileList', {default:() => []
 const {uploadFiles} = useAttachmentUploadFiles(fileList)
 const slot = useSlots();
 
+const emit = defineEmits<{
+  change: [info: UploadChangeParam]
+}>()
+
+function onChange(info: UploadChangeParam) {
+  emit('change', info)
+}
+
 </script>
 
 <template>
   <div>
-
+    
     <l-attachment-preview
       v-model:file-list="uploadFiles"
+      :change-thumb-url="false"
       :preview="preview"
       :mode="props.previewMode"
     >
@@ -52,6 +63,7 @@ const slot = useSlots();
           v-model:file-list="uploadFiles"
           :before-upload="() => false"
           :show-upload-list="false"
+          @change="onChange"
         >
           <a-space orientation="vertical">
             <a-typography-title :level="2" class="m-0">

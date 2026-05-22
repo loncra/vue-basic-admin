@@ -15,7 +15,13 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     plugins: [
-      vue(),
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: (tag) => tag.startsWith('cropper-'),
+          },
+        },
+      }),
       tailwindcss(), Components({ resolvers: [AntdvNextResolver()] })
     ],
     server: {

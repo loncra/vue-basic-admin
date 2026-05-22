@@ -25,9 +25,11 @@ defineOptions({
 
 const props = withDefaults(defineProps<{
   mode?: AttachmentPreviewMode
+  changeThumbUrl?: boolean,
   preview?:boolean,
 }>(),{
   mode: ATTACHMENT_PREVIEW_MODE.LIST,
+  changeThumbUrl: true,
   preview:false,
 })
 
@@ -145,7 +147,14 @@ async function ensureThumbUrl(file: UploadFile<ObjectWriteResult>) {
   }
 }
 
-watch(() => fileList.value,()=> fileList.value.forEach(f => ensureThumbUrl(f)))
+function valueChange() {
+  if (!props.changeThumbUrl){
+    return
+  }
+  fileList.value.forEach(f => ensureThumbUrl(f))
+}
+
+watch(() => fileList.value,()=> valueChange())
 
 </script>
 

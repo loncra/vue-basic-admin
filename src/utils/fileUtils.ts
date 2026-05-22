@@ -58,7 +58,7 @@ export function byteFormat(bytes: number): string {
  *   .catch(err => console.error('读取失败', err));
  * ```
  */
-export function getImageBase64(file: VcFile | undefined): Promise<string> {
+export function getImageBase64(file: File | undefined): Promise<string> {
 
   return new Promise((resolve, reject) => {
     if (!file) {
@@ -67,7 +67,7 @@ export function getImageBase64(file: VcFile | undefined): Promise<string> {
     }
     const reader = new FileReader()
     // 读取文件为 Data URL 格式（Base64）
-    reader.readAsDataURL(file as VcFile)
+    reader.readAsDataURL(file)
     // 读取成功
     reader.onload = () => resolve(reader.result as string)
     // 读取失败
