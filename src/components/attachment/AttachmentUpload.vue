@@ -60,12 +60,7 @@ const props = withDefaults(defineProps<{
   bucket:'user.file',
   preview: false,
   multiple:true,
-  maxCount:20,
-  cropper:() => ({
-    aspectRatio: 750 / 360,
-    compressQuality: 0.5,
-    outputScales: [{ scale: 1 }, { scale: 0.5, suffix: '@half' }],
-  }),
+  maxCount:20
 })
 
 const globalProperties =
