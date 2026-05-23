@@ -9,11 +9,22 @@ defineOptions({
 </script>
 
 <template>
-  <a-flex class="size-full" align="center" justify="center">
+  <div class="size-full overflow-hidden">
     <a-image
       v-bind="$attrs"
-      class="size-full object-cover"
+      :classes="{
+        root: 'block size-full',
+        image: 'size-full object-cover',
+      }"
+      :styles="{
+        image: { height: '100%', objectFit: 'cover' },
+      }"
+      class="block size-full [&_.ant-image-img]:h-full [&_.ant-image-img]:w-full [&_.ant-image-img]:object-cover"
       :fallback="notFound"
-    />
-  </a-flex>
+    >
+      <template #cover>
+        <slot name="cover" />
+      </template>
+    </a-image>
+  </div>
 </template>

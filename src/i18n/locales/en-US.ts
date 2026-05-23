@@ -12,11 +12,11 @@ const locale: LanguagePack = {
     id: 'ID',
     creationTime: 'Created at',
     save: 'Save',
-    add: 'Add{name}',
-    edit: 'Edit{name}',
+    add: 'Add {name}',
+    edit: 'Edit {name}',
     export: {
-      all: 'Export All',
-      selected: 'Export ({count}) selected',
+      all: 'Export all',
+      selected: 'Export ({count}) record(s)',
     },
     detail: '{name} details',
     action: 'Actions',
@@ -44,7 +44,7 @@ const locale: LanguagePack = {
     back: 'Back',
     home: 'Home',
     parent: 'Parent',
-    addChild: 'Add{name} child level',
+    addChild: 'Add {name} child',
     open: 'On',
     close: 'Off',
     border: 'Border',
@@ -201,6 +201,14 @@ const locale: LanguagePack = {
         subTitle: 'Text or link color on hover.',
       },
     },
+    account: {
+      avatar: {
+        supportFormat: 'Only JPEG, PNG, JPG, and BMP images are supported',
+        supportSize: 'Image must be smaller than 1 MB',
+        history: 'History avatars',
+      },
+      modifyPassword: 'Change password',
+    },
   },
   form: {
     operationDataTrace: 'Operation history',
@@ -218,7 +226,10 @@ const locale: LanguagePack = {
     field: 'Field information',
     valid: {
       phoneNumber: 'Invalid phone number format',
+      password:
+        'Password must include at least three of: uppercase letters, lowercase letters, digits, and symbols',
     },
+    notEq: '{target} does not match {source}',
     badRequest: {
       page: 'Invalid parameters',
       title: 'The parameters you submitted are invalid',
@@ -244,6 +255,13 @@ const locale: LanguagePack = {
       select: 'Select options to search',
     },
   },
+  attachment: {
+    uploading: 'Uploading…',
+    dragger: {
+      title: 'Click or drag files to this area to upload',
+      subTitle: 'Supports single or batch upload',
+    },
+  },
   layoutContent: {
     loading: 'Loading…',
     pin: 'Pin',
@@ -267,10 +285,12 @@ const locale: LanguagePack = {
     welcomeSubTitle: 'Enter your account details to get started.',
     account: 'Username',
     password: 'Password',
+    oldPassword: 'Current password',
+    newPassword: 'New password',
     rememberMe: 'Remember me',
     forgotPassword: 'Forgot password?',
     login: 'Sign in',
-    log: ' Sign-in log ',
+    log: 'Sign-in log',
     phoneLogin: 'Sign in with phone',
     qrCodeLogin: 'QR code sign-in',
     noAccount: "Don't have an account?",
@@ -315,7 +335,7 @@ const locale: LanguagePack = {
       applicationName: 'Application name',
       page: 'Route path',
       icon: 'Icon',
-      routePage: ' Permissions ',
+      routePage: 'Permissions',
     },
     auditEvent: {
       type: 'Audit type',
@@ -323,10 +343,10 @@ const locale: LanguagePack = {
       traceId: 'Related business ID',
     },
     consoleUser: {
-      routePage: ' Employees ',
+      routePage: 'Employees',
     },
     role: {
-      routePage: ' Roles ',
+      routePage: 'Roles',
       removable: 'Can delete',
       modifiable: 'Can edit',
     },
@@ -336,22 +356,23 @@ const locale: LanguagePack = {
     dataDictionary: {
       valueType: 'Value type',
       level: 'Level',
-      routePage: ' Dictionary Data ',
+      routePage: 'Dictionary data',
       editPage: 'Type: {typeName}, Name: {dataName}',
     },
     dictionaryType: {
-      routePage: 'Dictionary Types',
+      routePage: 'Dictionary types',
     },
     attachment: {
       filename: 'File name',
     },
     carousel: {
-      dataContent:' Data Content',
-      routePage: ' Carousel',
-      link:'Link',
+      image: 'Image content',
+      dataContent: 'Data content',
+      routePage: 'Carousel',
+      link: 'Link',
       showtime: 'Display time',
-      immediately:'Immediately',
-      permanent:'Permanent',
+      immediately: 'Immediately',
+      permanent: 'Permanent',
     },
   },
 }

@@ -197,6 +197,14 @@ const locale: LanguagePack = {
         title: '文本（悬停）',
         subTitle: '文本或链接在鼠标悬停时的颜色。',
       },
+    },
+    account:{
+      avatar:{
+        supportFormat:'仅支持上传 jpeg, png, jpg, bmp 的图片',
+        supportSize:'图片必须小于 1MB!',
+        history: '聊天图片'
+      },
+      modifyPassword:'修改密码'
     }
   },
   form: {
@@ -215,7 +223,9 @@ const locale: LanguagePack = {
     field:'字段信息',
     valid:{
       phoneNumber:'手机号码格式不正确',
+      password:'密码段中在要求的四种(大写字母，小写字母，数字，标点符号)类型中至少存在三种'
     },
+    notEq:'{target}与{source}不一致',
     badRequest:{
       page:'参数错误',
       title:'您提交的参数错误',
@@ -269,6 +279,8 @@ const locale: LanguagePack = {
     welcomeSubTitle: '请输入您的账户信息，以开始使用系统。',
     account: '登录账户',
     password: '登录密码',
+    oldPassword:'旧密码',
+    newPassword:'新密码',
     rememberMe: '记住我',
     forgotPassword: '忘记密码?',
     login: '登录',

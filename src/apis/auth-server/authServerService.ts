@@ -29,6 +29,11 @@ export class AuthServerService {
   static readonly PREPARE_URL: string = AuthServerService.BASE_URL + '/prepare'
   /** 当前登录用户资源（可按类型过滤、可选树合并） */
   static readonly PRINCIPAL_RESOURCES_URL = AuthServerService.BASE_URL + '/principalResources'
+  static readonly UPDATE_PASSWORD_URL = AuthServerService.BASE_URL + 'user/password/update'
+
+  static updatePassword(oldPassword: string, newPassword: string):Promise<RestResult<void>> {
+    return axios.put(AuthServerService.UPDATE_PASSWORD_URL, formUrlEncoded({oldPassword, newPassword}))
+  }
 
   /**
    * 用户登录
@@ -72,4 +77,5 @@ export class AuthServerService {
       params,
     })
   }
+
 }

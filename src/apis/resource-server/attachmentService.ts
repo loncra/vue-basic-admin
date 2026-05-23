@@ -38,7 +38,11 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
     super(AttachmentService.SERVICE_URL)
   }
 
-  query(bucket:string, object:string,  download = false):string {
+  query(
+    bucket:string,
+    object:string,
+    download = false
+  ):string {
     const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
     return AttachmentService.BASE_URL
       + '/'
@@ -93,5 +97,24 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
 
   removeAttachment(fileObjects: FileObject[]): Promise<RestResult<void>> {
     return axios.put(AttachmentService.DELETE_ATTACHMENT_URL, fileObjects)
+  }
+
+  list(type:string,filename:string, formatObjectWriteResult:boolean = false):Promise<RestResult<ObjectWriteResult[]>> {
+    let url = AttachmentService.BASE_URL + '/' + type + "?1=1";
+    if (filename) {
+      url += '&filename=' + filename
+    }
+    if (formatObjectWriteResult) {
+      url += '&formatObjectWriteResult=' + true
+    }
+    return axios.get(url)
+  }
+
+  static resourceByFileObject(file:FileObject):string {
+    return AttachmentService.resource(file.bucketName, file.objectName)
+  }
+
+  static resource(bucketName:string, objectName:string):string {
+    return import.meta.env.VITE_APP_RESOURCE_PATH + "/" + bucketName + "/" + objectName
   }
 }

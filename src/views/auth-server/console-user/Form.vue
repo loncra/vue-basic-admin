@@ -115,7 +115,7 @@ function resetFields() {
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="phoneNumber" :label="globalProperties.$t('common.phoneNumber')" :rules="[{type: 'string', pattern:VALID_REGX.phoneNumber, message: globalProperties.$t('error.valid.phoneNumber')}]">
+          <a-form-item name="phoneNumber" :label="globalProperties.$t('common.phoneNumber')" :rules="[{type: 'string', pattern:VALID_REGX.PHONE_NUMBER, message: globalProperties.$t('error.valid.phoneNumber')}]">
             <a-input v-model:value="options.entity.phoneNumber" :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined" />
           </a-form-item>
         </a-col>

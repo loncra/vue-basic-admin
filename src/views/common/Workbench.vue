@@ -29,52 +29,52 @@ const principalStore = usePrincipalStore()
         </a-card>
 
         <a-card>
-          <a-flex vertical justify="space-between">
-            <div class="text-center">
-              <a-avatar :size="configProviderStore.getToken().sizeXXL" class="mb-sm"></a-avatar>
-              <a-typography-text class="text-xl block">
-                {{ principalStore.getName() }}
-              </a-typography-text>
-              <a-typography-text
-                type="secondary"
-                class="!text-lg block"
-                v-if="principalStore.getRoleName() !== ''"
-              >
-                {{ principalStore.getRoleName() }}
-              </a-typography-text>
-            </div>
+          <a-flex gap="small" vertical justify="space-between" align="center">
+            <a-avatar :size="configProviderStore.getToken().sizeXXL" :src="principalStore.getAvatarUrl()" >
+              {{principalStore.getAvatarPrefix()}}
+            </a-avatar>
+            <a-typography-text class="text-xl block">
+              {{ principalStore.getName() }}
+            </a-typography-text>
+            <a-typography-text
+              type="secondary"
+              class="!text-lg block"
+              v-if="principalStore.getRoleName() !== ''"
+            >
+              {{ principalStore.getRoleName() }}
+            </a-typography-text>
           </a-flex>
-          <div>
-            <a-divider plain orientation="left" class="text-text-secondary">
-              <a-space>
-                <icon-font class="icon" type="icon-suggest"/>
-                {{globalProperties.$t('common.basicInformation')}}
-              </a-space>
-            </a-divider>
-            <a-space direction="vertical" class="w-full">
-              <a-flex justify="space-between" align="center">
-                <a-space>
-                  <icon-font class="icon" type="icon-phone"/>
-                  {{globalProperties.$t('common.phoneNumber')}}
-                </a-space>
-                <span>{{ principalStore.state?.details?.metadata.phoneNumber }}</span>
-              </a-flex>
-              <a-flex justify="space-between" align="center">
-                <a-space>
-                  <icon-font class="icon" type="icon-email"/>
-                  {{globalProperties.$t('common.email')}}
-                </a-space>
-                <span>{{ principalStore.state?.details?.metadata.email }}</span>
-              </a-flex>
-              <a-flex justify="space-between" align="center">
-                <a-space>
-                  <icon-font class="icon" type="icon-gender"/>
-                  {{globalProperties.$t('common.gender')}}
-                </a-space>
-                <span>{{ principalStore.state?.details?.metadata?.gender?.name }}</span>
-              </a-flex>
+
+          <a-divider plain orientation="left" class="text-text-secondary">
+            <a-space>
+              <icon-font class="icon" type="icon-suggest"/>
+              {{globalProperties.$t('common.basicInformation')}}
             </a-space>
-          </div>
+          </a-divider>
+
+          <a-space direction="vertical" class="w-full">
+            <a-flex justify="space-between" align="center">
+              <a-space>
+                <icon-font class="icon" type="icon-phone"/>
+                {{globalProperties.$t('common.phoneNumber')}}
+              </a-space>
+              <span>{{ principalStore.state?.details?.metadata.phoneNumber }}</span>
+            </a-flex>
+            <a-flex justify="space-between" align="center">
+              <a-space>
+                <icon-font class="icon" type="icon-email"/>
+                {{globalProperties.$t('common.email')}}
+              </a-space>
+              <span>{{ principalStore.state?.details?.metadata.email }}</span>
+            </a-flex>
+            <a-flex justify="space-between" align="center">
+              <a-space>
+                <icon-font class="icon" type="icon-gender"/>
+                {{globalProperties.$t('common.gender')}}
+              </a-space>
+              <span>{{ principalStore.state?.details?.metadata?.gender?.name }}</span>
+            </a-flex>
+          </a-space>
         </a-card>
 
         <a-card :title="globalProperties.$t('workbench.personalActivity')">

@@ -175,8 +175,8 @@ export const SSE = {
  * 验证正则表达式集合
  */
 export const VALID_REGX = {
-  phoneNumber: /^1[3456789]\d{9}$/,
-  password:
+  PHONE_NUMBER: /^1[3456789]\d{9}$/,
+  PASSWORD:
     /^(?!^[0-9a-z]+$)(?!^[0-9A-Z]+$)(?!^[0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[a-zA-Z]+$)(?!^[a-z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)[a-z0-9A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$/,
 }
 
@@ -234,7 +234,8 @@ export const DATE_TIME_FORMAT = {
 
 export const ATTACHMENT_UPLOAD_MODE = {
   PICTURE_CARD:'picture-card',
-  DRAGGER:'dragger'
+  DRAGGER:'dragger',
+  CUSTOMIZE:'customize'
 } as const
 
 export const ATTACHMENT_PREVIEW_MODE = {

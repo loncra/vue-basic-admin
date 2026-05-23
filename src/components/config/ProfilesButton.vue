@@ -5,6 +5,7 @@ import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {MenuInfo} from '@v-c/menu'
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 const menuPrincipalStore = useMenuPrincipalStore()
 
@@ -15,6 +16,8 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+
+const principalStore = usePrincipalStore()
 
 const operateItems = ref<MenuItemType[]>([
   {
@@ -55,9 +58,9 @@ onMounted(mounted)
     :menu="{ items: operateItems }"
     @menu-click="onOperateClickItem"
   >
-    <a-badge :classes="{root: 'hover:cursor-pointer flex'}" :status="'success'" dot show-zero>
-      <a-avatar>
-        M
+    <a-badge :classes="{root: 'hover:cursor-pointer flex'}" :status="'success'" :offset="[-3, 28]" dot show-zero>
+      <a-avatar :src="principalStore.getAvatarUrl()" >
+        {{principalStore.getAvatarPrefix()}}
       </a-avatar>
     </a-badge>
   </a-dropdown>

@@ -1,10 +1,11 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
-import {AuthServerService} from '@/apis'
+import {AttachmentService, AuthServerService} from '@/apis'
 import {
   type AuthCredentials,
   type AuthenticationInfo,
   type AuthenticationType,
+  type ObjectWriteResult,
   type PrepareData,
   type RestResult
 } from '@/types/apis'
@@ -118,6 +119,26 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return state.value
   }
 
+  function getAvatarPrefix() {
+    return (state.value.details?.metadata?.realName || state.value?.name).substring(0,1)
+  }
+
+  function getAvatarUrl() {
+    if (!state.value.details?.metadata?.avatar) {
+      return undefined
+    }
+
+    return AttachmentService.resourceByFileObject(state.value.details?.metadata?.avatar)
+  }
+
+  function setAvatar(object:ObjectWriteResult | null) {
+    if (object === null) {
+      delete state.value.details.metadata.avatar
+    } else{
+      state.value.details.metadata.avatar = object
+    }
+  }
+
   /**
    * 准备（初始化）应用数据
    */
@@ -193,6 +214,9 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     // 用户信息
     getName,
     getRoleName,
+    getAvatarPrefix,
+    getAvatarUrl,
+    setAvatar,
     // 操作方法
     login,
     logout,

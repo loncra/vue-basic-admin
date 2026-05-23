@@ -190,12 +190,12 @@ defineExpose({
 <template>
   <div>
 
-    <a-spin :description="spin.description" :spinning="spin.spinning">
+    <a-spin :description="spin.description" :spinning="spin.spinning" v-if="props.mode !== ATTACHMENT_UPLOAD_MODE.CUSTOMIZE" >
       <l-attachment-dragger-upload
         v-model:file-list="fileList"
         :preview="preview"
         v-bind="$attrs"
-        :maxCount="maxCount"
+        :max-count="maxCount"
         :multiple="multiple"
         :accept="accept"
         v-if="mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
@@ -208,14 +208,25 @@ defineExpose({
         v-model:file-list="fileList"
         :preview="preview"
         v-bind="$attrs"
-        :maxCount="maxCount"
+        :max-count="maxCount"
         :multiple="multiple"
-        :accept="accept" v-else-if="mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
+        :accept="accept"
+        v-else-if="mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
       >
         <template #itemRender="{file}" v-if="slot.itemRender">
           <slot name="itemRender" :file="file" />
         </template>
       </l-attachment-picture-card-upload>
     </a-spin>
+    <a-upload
+      v-else
+      v-bind="$attrs"
+      :accept="accept"
+      :action="action"
+      :max-count="maxCount"
+      :multiple="multiple"
+    >
+      <slot/>
+    </a-upload>
   </div>
 </template>

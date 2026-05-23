@@ -159,6 +159,7 @@ const externalRowSelection = computed((): TableProps['rowSelection'] | false | n
 })
 
 const tablePassthroughAttrs = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {rowSelection: _rowSelection, ...rest} = attrs
   return rest
 })
@@ -358,6 +359,7 @@ defineExpose({
     :data-source="dataSource"
     :row-selection="mergedRowSelection"
     @change="onChange"
+    :classes="{content:'rounded-none'}"
     :loading="loading"
     :bordered="props.bordered"
     :on-row="tableOnRow"
@@ -366,7 +368,7 @@ defineExpose({
       <a-flex justify="space-between" class="pr-xs pl-xs" align="center">
         <a-space v-if="!slots.title">
           <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'icon-survey'"/>
-          <a-typography-text strong>{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</a-typography-text>
+          <a-typography-title :level="5" class="mb-0">{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</a-typography-title>
         </a-space>
         <slot v-else name="title" />
         <l-action-button :actions="titleActions"/>

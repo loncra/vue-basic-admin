@@ -5,6 +5,7 @@ import type {
   VersionEntityMetadata
 } from '@/types/apis/common'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.ts'
+import type {ObjectWriteResult} from "@/types/apis";
 
 /**
  * 账户认证类型
@@ -43,6 +44,7 @@ export interface Role {
  */
 export interface UserMetadata {
   role?: Role[]
+  avatar?:ObjectWriteResult
   creationTime?: number
   email?: string
   emailVerified?: NameValueEnumMetadata<number>
@@ -91,7 +93,7 @@ export interface Principal extends BasicIdMetadata<string>{
  * 认证信息
  */
 export interface AuthenticationInfo {
-  details?: Details
+  details: Details
   authenticated: boolean
   principal: Principal
   lastAuthenticationTime?: number
