@@ -32,9 +32,9 @@ import {
   mergeDefinitions,
   resolveActions,
   useActionAuth
-} from '@/composables/action'
-import {fetchCollectionData} from '@/composables/data/usePageDataFetch.ts'
-import {exportCollectionData} from '@/composables/data/exportCollectionData.ts'
+} from '@/composables/basic/action'
+import {fetchCollectionData} from '@/composables/basic/data/usePageDataFetch.ts'
+import {exportCollectionData} from '@/composables/basic/data/exportCollectionData.ts'
 import {useFlatDragDrop} from '@/composables'
 import {requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
@@ -126,6 +126,7 @@ const paginationBindProps = computed((): PaginationProps => {
   if (pagination.value === false) {
     return {}
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {onChange: _onChange, ...rest} = pagination.value as PaginationProps & {
     onChange?: PaginationProps['onChange']
   }

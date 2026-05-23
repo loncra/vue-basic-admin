@@ -28,7 +28,7 @@ import {
   resolveActions,
   useActionAuth,
   useCrudDelete,
-} from '@/composables/action'
+} from '@/composables/basic/action'
 
 defineOptions({
   name: 'LCrudCardGrid',

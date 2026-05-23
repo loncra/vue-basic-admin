@@ -2,7 +2,7 @@ import type {BasicCrudService, BasicIdMetadata} from '@/types/apis'
 import type {ActionDefinition} from '@/types/composables'
 import type {AuthorityProps} from '@/types/composables/collection'
 import {createIcon} from '@/utils'
-import type {ActionTranslateFn} from '@/composables/action/defaultToolbarActions.ts'
+import type {ActionTranslateFn} from '@/composables/basic/action/defaultToolbarActions.ts'
 
 export const BUILTIN_ITEM_ACTION_IDS = ['edit', 'detail', 'delete'] as const
 

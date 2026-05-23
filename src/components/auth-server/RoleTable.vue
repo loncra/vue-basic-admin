@@ -15,7 +15,7 @@ import {RoleService} from "@/apis/auth-server/roleService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
-import {mergeDefinitions} from "@/composables/action";
+import {mergeDefinitions} from "@/composables/basic/action";
 
 defineOptions({
   name: 'LRoleTable',

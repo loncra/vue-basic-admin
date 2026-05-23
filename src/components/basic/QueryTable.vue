@@ -37,13 +37,13 @@ import {
   mergeDefinitions,
   resolveActions,
   useActionAuth
-} from "@/composables/action";
+} from "@/composables/basic/action";
 import {
   type CollectionPagination,
   fetchCollectionData
-} from "@/composables/data/usePageDataFetch.ts";
-import {exportCollectionData} from "@/composables/data/exportCollectionData.ts";
-import {useMergeRowSelection, useTableRowDrag} from "@/composables/table";
+} from "@/composables/basic/data/usePageDataFetch.ts";
+import {exportCollectionData} from "@/composables/basic/data/exportCollectionData.ts";
+import {useMergeRowSelection, useTableRowDrag} from "@/composables/basic/table";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import LActionButton from "@/components/basic/ActionButton.vue";

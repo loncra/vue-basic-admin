@@ -19,7 +19,7 @@ import {
   isTreeDescendant,
   moveTreeNode,
   type TreePlacement,
-} from '@/utils/treeUtils'
+} from '@/utils'
 
 const DRAG_ROW_CLASS = {
   invalid: 'drag-row-invalid',

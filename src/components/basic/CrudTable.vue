@@ -23,7 +23,7 @@ import {
   resolveActions,
   useActionAuth,
   useCrudDelete,
-} from "@/composables/action";
+} from "@/composables/basic/action";
 
 defineOptions({
   name: 'LCrudTable',
@@ -101,8 +101,8 @@ const rowActionDefinitions = computed(() =>
       service: props.service,
       t,
       remove,
-      onEdit: (record) => emit('edit', record),
-      onDetail: (record) => emit('detail', record),
+      onEdit: (record:TEntity) => emit('edit', record),
+      onDetail: (record:TEntity) => emit('detail', record),
     }),
     props.rowActions ?? [],
   ),

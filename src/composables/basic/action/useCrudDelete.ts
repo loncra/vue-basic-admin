@@ -1,6 +1,6 @@
 import type {Ref} from 'vue'
 import type {BasicCrudService, BasicIdMetadata, RestResult} from '@/types/apis'
-import type {ActionTranslateFn} from '@/composables/action/defaultToolbarActions.ts'
+import type {ActionTranslateFn} from '@/composables/basic/action/defaultToolbarActions.ts'
 
 export interface ConfirmModalLike {
   confirm: (options: {title: string; content: string; onOk: () => void | Promise<void>}) => void
