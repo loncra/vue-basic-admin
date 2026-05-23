@@ -110,7 +110,7 @@ async function preSubmit() {
       <template #rowLayout>
         <a-col :span="24">
           <a-form-item :label="globalProperties.$t('resourceServer.carousel.image')" name="cover" :rules="[{ required: true, trigger: 'change' }]">
-            <l-attachment-upload accept=".jpg,.jpeg,.png" ref="coverUploadRef" :max-count="1" :multiple="false" mode="dragger" v-model:value="options.entity.cover">
+            <l-attachment-upload ref="coverUploadRef" :max-count="1" :multiple="false" mode="dragger" v-model:value="options.entity.cover">
 
             </l-attachment-upload>
           </a-form-item>

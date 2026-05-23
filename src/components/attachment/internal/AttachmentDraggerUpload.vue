@@ -47,10 +47,10 @@ function onChange(info: UploadChangeParam) {
 
 <template>
   <div>
-    
+
     <l-attachment-preview
       v-model:file-list="uploadFiles"
-      :change-thumb-url="false"
+      :change-thumb-url="changeThumbUrl"
       :preview="preview"
       :mode="props.previewMode"
     >

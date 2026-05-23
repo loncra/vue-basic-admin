@@ -1,7 +1,7 @@
 import type {TableProps} from 'antdv-next'
 import type {MaybeRef, Ref} from 'vue'
 import {computed, unref} from 'vue'
-import {SYSTEM_CONSTANT} from 'src/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 
 type RowSelection = NonNullable<TableProps['rowSelection']>
 

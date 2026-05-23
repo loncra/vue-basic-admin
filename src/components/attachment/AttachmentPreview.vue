@@ -76,7 +76,7 @@ const imageFiles = computed(() =>
 )
 
 function postRemove(file:UploadFile<ObjectWriteResult>) {
-  fileList.value.filter(f => f.uid !== file.uid)
+  fileList.value = fileList.value.filter(f => f.uid !== file.uid)
 }
 
 function onDownload(file: ObjectWriteResult) {
@@ -90,6 +90,8 @@ function onRemove(file:UploadFile<ObjectWriteResult>) {
       content: globalProperties.$t('common.delete.confirmSingle'),
       onOk: () => doRemove(file)
     })
+  } else {
+    postRemove(file)
   }
 }
 
@@ -179,13 +181,19 @@ watch(() => fileList.value,()=> valueChange())
       </a-image-preview-group>
     </div>
 
-    <a-modal destroy-on-hidden v-model:open="modalOptions.open" :title="modalOptions.file?.name" @ok="modalOptions.open = false" @cancel="modalOptions.open = false">
+    <a-modal
+      destroy-on-hidden
+      v-model:open="modalOptions.open"
+      :title="modalOptions.file?.name"
+      @ok="modalOptions.open = false"
+      @cancel="modalOptions.open = false"
+    >
       <video
         v-if="modalOptions?.file?.type?.includes('video/')"
         :src="modalOptions?.file.url"
         controls
         autoplay
-        style="width: 100%; height: 400px"
+        class="size-full bg-layout max-h-160 max-w-160"
       >
         您的浏览器不支持视频播放。
       </video>
@@ -214,7 +222,7 @@ watch(() => fileList.value,()=> valueChange())
                     <a-button danger v-if="!preview" @click="onRemove(file)" type="text" :disabled="file.status === 'uploading'">
                       <icon-font type="icon-delete" />
                     </a-button>
-                    <a-button @click="onDownload(file.response as ObjectWriteResult)" type="text" :disabled="!file.response">
+                    <a-button @click="onDownload(file.response as ObjectWriteResult)" type="text" v-if="file.response">
                       <icon-font type="icon-download" />
                     </a-button>
                   </a-space>

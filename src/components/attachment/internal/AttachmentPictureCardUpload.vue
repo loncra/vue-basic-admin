@@ -40,6 +40,7 @@ function onChange(info: UploadChangeParam) {
       v-model:file-list="uploadFiles"
       :preview="preview"
       :mode="ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
+      :change-thumb-url="changeThumbUrl"
     >
       <template #pictureCardAfter v-if="!props.maxCount || uploadFiles.length < props.maxCount || props.preview">
         <a-upload
