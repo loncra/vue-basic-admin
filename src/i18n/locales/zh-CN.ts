@@ -55,7 +55,11 @@ const locale: LanguagePack = {
     rememberOperate:'记住我的操作',
     default:'默认',
     basicInformation: '基础信息',
-    requestHeader:'请求头',
+    request:{
+      header:'请求头',
+      parameter:'请求参数',
+      body:'请求体'
+    },
     sort:'排序值',
     value: '值',
     unname:'未命名',

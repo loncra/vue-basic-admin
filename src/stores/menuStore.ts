@@ -1,4 +1,4 @@
-import {ref} from 'vue'
+import {ref, computed} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants/systemConstant.ts'
 import type {
@@ -17,6 +17,7 @@ import {
 } from "vue-router";
 import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
 import {getRouteTitle} from '@/routers'
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 /** 路由进入中：仅用于 tab 图标 spin（与 useRoute() 解耦，对齐 beforeEach 的 to.fullPath） */
 export interface RouteEnterPage {
@@ -33,6 +34,7 @@ const RESET: MenuState = {
   loading: false,
   currentBreadcrumbs: [],
   routeEnterPage: null,
+  quickAccess: [],
 }
 
 export interface MenuState  {
@@ -40,6 +42,7 @@ export interface MenuState  {
   loading: boolean
   currentBreadcrumbs: RouteResourceMetadata[]
   routeEnterPage: RouteEnterPage | null
+  quickAccess: RouteResourceMetadata[]
 }
 
 /**
@@ -48,7 +51,7 @@ export interface MenuState  {
  */
 export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   /** 菜单资源数据状态 */
-  const state = ref<MenuState>({...RESET})
+  const state = ref<MenuState>(reset())
 
   /**
    * 重置菜单状态
@@ -57,13 +60,29 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    * @returns 重置后的空菜单数组
    */
   function $reset(): MenuState {
-    state.value = {
-      menu: [],
-      loading: false,
-      currentBreadcrumbs: [],
-      routeEnterPage: null,
+    const result: MenuState = {
+      ...RESET,
     }
-    return state.value
+    const principalStore = usePrincipalStore();
+    let quickAccessRecord: Record<string, RouteResourceMetadata[]> = {}
+    const string = localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS)
+    if (string) {
+      quickAccessRecord = JSON.parse(string) as Record<string, RouteResourceMetadata[]>
+    }
+    if (!quickAccessRecord[principalStore.state.name]) {
+      quickAccessRecord[principalStore.state.name] = []
+    }
+
+    let quickAccess:RouteResourceMetadata[] | undefined = quickAccessRecord[principalStore.state.name]
+    if (!quickAccess) {
+      quickAccess = []
+    }
+    result.quickAccess = quickAccess.slice().sort((a, b) => b.sort - a.sort)
+    return result
+  }
+
+  function reset():MenuState {
+    return $reset()
   }
 
   function setRouteEnterLoading(pathKey: string, value: boolean) {
@@ -117,6 +136,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
       name: getRouteTitle(route.name),
       route: route.name,
       page: route.path,
+      sort: 0,
       deactivatedClose: (route.meta?.deactivatedClose || false) as boolean,
       applicationName: route.meta?.applicationName as string,
       path: route.fullPath,
@@ -178,6 +198,53 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
       }
     }
     state.value.currentBreadcrumbs = result;
+    if (Object.keys(route.query).length > 0 || route.meta.fixed || ["400", "403", "404"].includes(route.name as string)) {
+      return
+    }
+
+    const last = result.at(-1)
+    if (!last) {
+      return // 或跳过 quickAccess 逻辑
+    }
+    setQuickAccess(last);
+  }
+
+  function setQuickAccess(route:RouteResourceMetadata) {
+    const principalStore = usePrincipalStore();
+    const quickAccessItem: RouteResourceMetadata = { ...route, sort: 0 }
+
+    let quickAccessRecord: Record<string, RouteResourceMetadata[]> = {}
+    const string = localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS)
+    if (string) {
+      quickAccessRecord = JSON.parse(string) as Record<string, RouteResourceMetadata[]>
+    }
+    if (!quickAccessRecord[principalStore.state.name]) {
+      quickAccessRecord[principalStore.state.name] = []
+    }
+
+    let quickAccess:RouteResourceMetadata[] | undefined = quickAccessRecord[principalStore.state.name]
+    if (!quickAccess) {
+      quickAccess = []
+    }
+    const index = quickAccess.findIndex(m => m.path === quickAccessItem.path)
+    if (index >= 0) {
+      const item = quickAccess[index]
+      if (item) {
+        item.sort = item.sort + 1
+      }
+    } else {
+      quickAccess.push(quickAccessItem) // 若不存在则要 push，否则永远不会新增
+    }
+    state.value.quickAccess =  quickAccess.slice().sort((a, b) => b.sort - a.sort)
+    localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
+  }
+
+  function removeQuickAccess(path: string) {
+    const principalStore = usePrincipalStore();
+    const quickAccessRecord: Record<string, RouteResourceMetadata[]> = JSON.parse(localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS) || '{}')
+    quickAccessRecord[principalStore.state.name] = (quickAccessRecord[principalStore.state.name] || []).filter(item => item.path !== path)
+    localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
+    state.value.quickAccess = (quickAccessRecord[principalStore.state.name] || []).slice().sort((a, b) => b.sort - a.sort)
   }
 
   return {
@@ -185,6 +252,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     getPrincipalResources,
     setCurrentBreadcrumbs,
     resetCurrentBreadcrumbs,
+    removeQuickAccess,
     setRouteEnterLoading,
     toResourceRouteMetadata,
     $reset,

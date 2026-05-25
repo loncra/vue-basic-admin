@@ -19,7 +19,10 @@ export interface ResourceMetadata {
    * 路由页面
    */
   page: string
-
+  /**
+   * 顺序值
+   */
+  sort: number
 }
 
 export interface RouteResourceMetadata extends ResourceMetadata {
@@ -36,10 +39,6 @@ export interface ResourceSavePayload extends ResourceMetadata, BasicIdMetadata<n
    * 版本号
    */
   version:string
-  /**
-   * 顺序值
-   */
-  sort: number
 
   /**
    * 备注

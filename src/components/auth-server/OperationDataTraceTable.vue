@@ -50,7 +50,7 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: "target",
     ellipsis: true,
     width: 150,
-    key:'data.operationDataTrace.target',
+    key:'data.operationTrace.target',
     search:{
       component: markRaw(Input),
       props:{placeholder: globalProperties.$t('search.placeholder.input')},
@@ -65,7 +65,7 @@ const columns = ref<SearchableColumnType[]>([
     key:'after',
     search:{
       component: markRaw(DatePicker),
-      props:{allowClear:false, placeholder: globalProperties.$t('search.placeholder.input'), showTime: true},
+      props:{classes:{root:'w-full'}, allowClear:false, placeholder: globalProperties.$t('search.placeholder.input'), showTime: true},
       queryName:'after'
     },
   },
@@ -86,7 +86,7 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: "type",
     ellipsis: true,
     width: 100,
-    key: 'data.operationDataTrace.type.value',
+    key: 'data.operationTrace.type.value',
     search:{
       component: markRaw(Select),
       props: {placeholder: globalProperties.$t('search.placeholder.select'), fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
@@ -98,7 +98,7 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: "traceId",
     ellipsis: true,
     width: 150,
-    key:'data.operationDataTrace.entityId',
+    key:'data.operationTrace.id',
     search:{
       component: markRaw(InputNumber),
       props:{classes:{root:'w-full'}, placeholder: globalProperties.$t('search.placeholder.input')},
@@ -164,22 +164,22 @@ onMounted(mounted)
         {{ dateTimeFormat(record.timestamp) }}
       </template>
       <template v-if="column.dataIndex === 'target'">
-        {{ record.data.operationDataTrace.target }}
+        {{ record.data.operationTrace.target }}
       </template>
       <template v-if="column.dataIndex === 'auditType'">
-        {{ record.data.operationDataTrace.controllerAuditType }}
+        {{ record.data.metadata.name }}
       </template>
       <template v-if="column.dataIndex === 'traceId'">
-        {{ record.data.operationDataTrace.entityId }}
+        {{ record.data.operationTrace.id }}
       </template>
       <template v-if="column.dataIndex === 'remark'">
-        {{ record.data.operationDataTrace.remark }}
+        {{ record.data.operationTrace.remark }}
       </template>
       <template v-if="column.dataIndex === 'principal'">
         {{ record.data?.details?.metadata?.realName || record.principal }}
       </template>
       <template v-if="column.dataIndex === 'type'">
-        {{ record.data.operationDataTrace.type.name }}
+        {{ record.data.operationTrace.type.name }}
       </template>
     </template>
   </l-crud-table>
