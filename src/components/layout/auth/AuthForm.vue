@@ -60,11 +60,7 @@ const doAuth = async (): Promise<void> => {
       <a-form-item name="password" :label="$t('auth.password')" :rules="[{required: true}]">
         <a-input-password autocomplete="current-password" v-model:value="authFormProps.password"/>
       </a-form-item>
-      <a-flex justify="space-between" align="center">
-        <a-checkbox>{{ $t('auth.rememberMe') }}</a-checkbox>
-        <a-typography-link>{{ $t('auth.forgotPassword') }}</a-typography-link>
-      </a-flex>
-      <a-button class="mt-lg" html-type="submit" block type="primary">
+      <a-button html-type="submit" block type="primary">
         <template #icon>
           <icon-font class="icon" type="icon-unlock"/>
         </template>
@@ -87,11 +83,14 @@ const doAuth = async (): Promise<void> => {
     </a-space-compact>
 
     <a-divider/>
-    <a-typography class="text-center">
-      {{ $t('auth.noAccount') }}
-      <a-typography-link>
-        {{ $t('auth.createAccount') }}
-      </a-typography-link>
-    </a-typography>
+    <a-flex justify="space-between" align="center">
+      <a-typography class="text-center">
+        {{ $t('auth.noAccount') }}
+        <a-typography-link>
+          {{ $t('auth.createAccount') }}
+        </a-typography-link>
+      </a-typography>
+      <a-typography-link>{{ $t('auth.forgotPassword') }}</a-typography-link>
+    </a-flex>
   </a-spin>
 </template>
