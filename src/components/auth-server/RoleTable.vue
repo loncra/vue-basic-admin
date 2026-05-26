@@ -37,7 +37,6 @@ const props = withDefaults(defineProps<{
 })
 
 const service = new RoleService()
-const resourceServerService = new ResourceServerService()
 
 const actionButtons = ref<ActionDefinition<RoleEntity>[]>([])
 
@@ -122,7 +121,7 @@ async function mounted() {
       },
     });
   }
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
   if (enums.data) {
     for (const dataIndex of yesOrNoFields){
       const genderCol = columns.value[columns.value.findIndex(s => s.dataIndex === dataIndex)];

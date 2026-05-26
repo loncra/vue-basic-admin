@@ -52,6 +52,7 @@ const locale: LanguagePack = {
     lang: '语言',
     style:'风格',
     other:'其他',
+    owner:'所属用户',
     rememberOperate:'记住我的操作',
     default:'默认',
     basicInformation: '基础信息',
@@ -69,7 +70,7 @@ const locale: LanguagePack = {
     expiresTime:'过期时间',
     download:{
       text:'下载',
-      selected:'下载选中'
+      selected:'下载选中 ({count}) 条记录'
     },
     release:{
       text:'发布',
@@ -361,7 +362,9 @@ const locale: LanguagePack = {
       routePage:'字典类型'
     },
     attachment: {
-      filename:'文件名称'
+      filename:'文件名称',
+      fileSize:'文件大小',
+      lastModified:'最后修改时间'
     },
     carousel: {
       image:'图片内容',

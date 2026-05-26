@@ -1,5 +1,5 @@
 import type {VideoThumbnailResult} from '@/types/composables/common'
-import type {UploadFile, VcFile} from "antdv-next/dist/upload/interface";
+import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {ObjectWriteResult} from "@/types/apis";
 import type {AttachmentFileItem, AttachmentValue} from "@/types/composables/attachmentUpload.ts";
 import {AttachmentService} from "@/apis";
@@ -155,14 +155,13 @@ export function isUploadFile(item: unknown): item is UploadFile {
 
 export function convertUploadFiles(
   fileList: AttachmentFileItem[],
-  service: AttachmentService,
 ): UploadFile<ObjectWriteResult>[] {
   const result: UploadFile<ObjectWriteResult>[] = []
   for (const file of fileList) {
     if (isObjectWriteResult(file)) {
       const contentType = file?.extraHeaders?.['Content-Type'] || ''
 
-      const url = service.query(file.bucketName, file.objectName)
+      const url = AttachmentService.query(file.bucketName, file.objectName)
       result.push({
         uid: file.etag,
         name: file?.extraHeaders?.['x-amz-meta-original-filename'] || file.objectName,
@@ -223,7 +222,7 @@ export function normalizeAttachmentToList(
     return [...value]
   }
   if (isObjectWriteResult(value)) {
-    return [...convertUploadFiles([value as ObjectWriteResult], new AttachmentService())]
+    return [...convertUploadFiles([value as ObjectWriteResult])]
   }
   return []
 }

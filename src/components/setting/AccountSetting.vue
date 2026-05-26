@@ -46,7 +46,6 @@ const loading = ref<boolean>(false);
 const formRef = ref();
 
 const historyAvatar = ref<ObjectWriteResult[] | undefined>([]);
-const attachmentService = new AttachmentService()
 
 function validatePassword() {
   if (form.value.confirmPassword !== form.value.newPassword) {
@@ -90,7 +89,7 @@ function beforeUpload(file:UploadFile<ObjectWriteResult>) {
 }
 
 async function mounted() {
-  const result:RestResult<ObjectWriteResult[]> = await attachmentService.list('avatar', principalStore.state.name + "/", true)
+  const result:RestResult<ObjectWriteResult[]> = await AttachmentService.myResource('avatar', principalStore.state.name + "/")
   historyAvatar.value = result.data;
 }
 
@@ -114,7 +113,7 @@ function deleteHistory(history:ObjectWriteResult) {
 
 async function doDeleteHistory(history:ObjectWriteResult) {
   try {
-    const result:RestResult<void> = await attachmentService.removeAttachment([history])
+    const result:RestResult<void> = await AttachmentService.removeAttachment([history])
     message.success(result.message)
     if (history.etag === principalStore.state?.details?.metadata?.avatar?.etag) {
       await AvatarServerService.update(null)

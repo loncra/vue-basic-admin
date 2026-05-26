@@ -17,8 +17,8 @@ import axios from '@/requests'
  * @typeParam TId - 主键类型
  */
 export class FindRestfulCrudService<
-TBody extends BasicIdMetadata<TId>,
-TEntity extends TBody,
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
 > extends BasicRestfulCrudService<
   TBody,

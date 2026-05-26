@@ -24,7 +24,6 @@ const props = withDefaults(defineProps<{
 })
 
 const consoleUserService = new ConsoleUserService()
-const resourceServerService = new ResourceServerService()
 
 const columns = ref<SearchableColumnType[]>([
   {
@@ -113,7 +112,7 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
   if (enums.data) {
     const genderCol = columns.value[columns.value.findIndex(s => s.dataIndex === "gender")];
     if (genderCol?.search) {

@@ -34,7 +34,6 @@ function appendFormParams(formData: FormData, options: AttachmentUploadExecutorO
 }
 
 async function singleUpload(
-  service: AttachmentService,
   file: UploadFile,
   bucket: string,
   options: AttachmentUploadExecutorOptions,
@@ -55,7 +54,7 @@ async function singleUpload(
   appendFormParams(formData, options)
 
   try {
-    const result = await service.singleUpload(bucket, formData, config)
+    const result = await AttachmentService.singleUpload(bucket, formData, config)
     file.status = 'done'
     return extractObjectWriteResult(result)
   } catch (reason) {
@@ -64,7 +63,6 @@ async function singleUpload(
 }
 
 async function createMultipartUploadSuccess(
-  service: AttachmentService,
   initResult: RestResult<MultipartUploadInitData>,
   file: UploadFile,
   options: AttachmentUploadExecutorOptions,
@@ -103,7 +101,7 @@ async function createMultipartUploadSuccess(
     chunks.push({
       id: i,
       uploadSize: 0,
-      promise: service.uploadMultipart(i, uploadId, formData, config),
+      promise: AttachmentService.uploadMultipart(i, uploadId, formData, config),
     })
   }
 
@@ -116,7 +114,7 @@ async function createMultipartUploadSuccess(
     return {id: result.data.etag, value: result.data.partNumber}
   })
 
-  const completeResult = await service.completeMultipartUpload(
+  const completeResult = await AttachmentService.completeMultipartUpload(
     {uploadId, parts},
     {headers: options.headers},
   )
@@ -125,7 +123,6 @@ async function createMultipartUploadSuccess(
 }
 
 async function multipartUpload(
-  service: AttachmentService,
   file: UploadFile,
   bucket: string,
   options: AttachmentUploadExecutorOptions,
@@ -141,8 +138,8 @@ async function multipartUpload(
   }
 
   try {
-    const initResult = await service.createMultipartUpload(bucket, formUrlEncoded(param))
-    return await createMultipartUploadSuccess(service, initResult, file, options)
+    const initResult = await AttachmentService.createMultipartUpload(bucket, formUrlEncoded(param))
+    return await createMultipartUploadSuccess(initResult, file, options)
   } catch (reason) {
     throwUploadError(reason, file)
   }
@@ -160,7 +157,7 @@ export async function uploadFile(
 
   const uploadBlockSize = Number(import.meta.env.VITE_APP_UPLOAD_BLOCK_SIZE)
   if ((file.size || 0) < uploadBlockSize) {
-    return singleUpload(service, file, bucket, options)
+    return singleUpload(file, bucket, options)
   }
-  return multipartUpload(service, file, bucket, options)
+  return multipartUpload(file, bucket, options)
 }

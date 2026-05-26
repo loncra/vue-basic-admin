@@ -47,8 +47,6 @@ const globalProperties =
 
 const fileList = defineModel<UploadFile<ObjectWriteResult>[]>('fileList', {default:() => []})
 
-const attachmentService = new AttachmentService()
-
 const modalOptions = ref<{
   open: boolean
   file?: UploadFile
@@ -80,7 +78,7 @@ function postRemove(file:UploadFile<ObjectWriteResult>) {
 }
 
 function onDownload(file: ObjectWriteResult) {
-  attachmentService.download(file.bucketName, file.objectName);
+  AttachmentService.download(file.bucketName, file.objectName);
 }
 
 function onRemove(file:UploadFile<ObjectWriteResult>) {
@@ -100,7 +98,7 @@ async function doRemove(file: UploadFile<ObjectWriteResult>) {
     return ;
   }
   try {
-    const result:RestResult<void> = await attachmentService.removeAttachment([file.response])
+    const result:RestResult<void> = await AttachmentService.removeAttachment([file.response])
     message.success(result.message)
     postRemove(file)
   } catch (e) {

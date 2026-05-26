@@ -12,6 +12,7 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {ExportDataMetadata, FileObject} from "@/types/apis";
 import LCrudTable from "@/components/basic/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
+import {UserExportService} from "@/apis/resource-server/userExportService.ts";
 
 defineOptions({
   name: 'CommonUserExport',
@@ -65,7 +66,7 @@ const columns:SearchableColumnType[] = [{
   width: 210
 }]
 
-const service = new AttachmentService();
+const service = new UserExportService();
 const selectedRows = ref<ExportDataMetadata[]>([]);
 
 const rowActions: ActionDefinition<ExportDataMetadata>[] = [{
@@ -84,7 +85,7 @@ const rowActions: ActionDefinition<ExportDataMetadata>[] = [{
 const actions: ActionDefinition<ExportDataMetadata>[] = [{
   id: 'downloadSelected',
   permission: true,
-  label: () => globalProperties.$t('common.download.selected'),
+  label: (ctx) => globalProperties.$t('common.download.selected',{count: ctx.selectedItems.length}),
   enabled: (ctx) => ctx.selectedItems.some((item) => item.executeStatus.value === 1),
   icon: () => createIcon('icon-download', 'align'),
   run: (ctx) => {
@@ -92,7 +93,7 @@ const actions: ActionDefinition<ExportDataMetadata>[] = [{
       .filter((item) => item.executeStatus.value === 1)
       .map((item) => item.metadata)
       .map((metadata) => metadata.data as FileObject)
-    service.downloads(files)
+      AttachmentService.downloads(files)
   },
 }]
 
@@ -106,7 +107,7 @@ function downloadRecord(record: ExportDataMetadata) {
   if (!objectName || !bucketName) {
     return ;
   }
-  service.download(bucketName, objectName);
+  AttachmentService.download(bucketName, objectName);
 }
 
 </script>

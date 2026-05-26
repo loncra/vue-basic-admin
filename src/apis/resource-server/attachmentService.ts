@@ -1,13 +1,12 @@
 import type {
   CompleteMultipartUploadBody,
-  ExportDataMetadata,
   FileObject,
   MultipartUploadInitData,
   MultipartUploadPartData,
+  ObjectItemInfo,
   ObjectWriteResult,
   RestResult
 } from "@/types/apis";
-import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
 import axios from '@/requests/http.ts'
 import type {AxiosRequestConfig} from 'axios'
 
@@ -16,11 +15,8 @@ import type {AxiosRequestConfig} from 'axios'
  *
  * @author maurice.chen
  */
-export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata, ExportDataMetadata>{
+export class AttachmentService {
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/resource-server/attachment' : '/attachment')
-
-  /** 本服务相对 {@link BASE_URL} 的路径 */
-  static readonly SERVICE_URL = AttachmentService.BASE_URL + '/user/export'
 
   static readonly MULTI_OBJECT_URL = AttachmentService.BASE_URL + '/multiObject'
 
@@ -34,11 +30,13 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
 
   static readonly DELETE_ATTACHMENT_URL = AttachmentService.BASE_URL + '/delete'
 
-  constructor() {
-    super(AttachmentService.SERVICE_URL)
-  }
+  static readonly BUCKETS_URL = AttachmentService.BASE_URL + '/buckets'
 
-  query(
+  static readonly FIND_ATTACHMENT_URL = AttachmentService.BASE_URL + '/find'
+
+  static readonly MY_RESOURCE_URL = AttachmentService.BASE_URL + '/my/find'
+
+  static query(
     bucket:string,
     object:string,
     download = false
@@ -47,20 +45,20 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
     return AttachmentService.BASE_URL
       + '/'
       + bucket
-      + '/'
+      + '?objectName='
       + object
-      + '?download='
+      + '&download='
       + download
       + '&accessToken='
       + localStorage.getItem(accessTokenStorageName)
   }
 
-  download(bucket:string, object:string) {
+  static download(bucket:string, object:string) {
     const url:string = this.query(bucket, object, true)
     window.open(url);
   }
 
-  downloads(fileObjects:FileObject[]) {
+  static downloads(fileObjects:FileObject[]) {
     const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
     const url:string = AttachmentService.MULTI_OBJECT_URL
       + "?json="
@@ -70,15 +68,15 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
     window.open(url);
   }
 
-  singleUpload(type: string, formData: FormData, config: AxiosRequestConfig = {}): Promise<RestResult<ObjectWriteResult>> {
+  static singleUpload(type: string, formData: FormData, config: AxiosRequestConfig = {}): Promise<RestResult<ObjectWriteResult>> {
     return axios.post(AttachmentService.SINGLE_UPLOAD_URL + '/' + type, formData, config)
   }
 
-  createMultipartUpload(type: string, param: URLSearchParams): Promise<RestResult<MultipartUploadInitData>> {
+  static createMultipartUpload(type: string, param: URLSearchParams): Promise<RestResult<MultipartUploadInitData>> {
     return axios.post(AttachmentService.CREATE_MULTIPART_URL + '/' + type, param)
   }
 
-  uploadMultipart(
+  static uploadMultipart(
     partNumber: number,
     uploadId: string,
     formData: FormData,
@@ -88,26 +86,15 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
     return axios.postForm(url, formData, config)
   }
 
-  completeMultipartUpload(
+  static completeMultipartUpload(
     data: CompleteMultipartUploadBody,
     config: AxiosRequestConfig = {},
   ): Promise<RestResult<ObjectWriteResult>> {
     return axios.post(AttachmentService.COMPLETE_MULTIPART_UPLOAD_URL, data, config)
   }
 
-  removeAttachment(fileObjects: FileObject[]): Promise<RestResult<void>> {
+  static removeAttachment(fileObjects: FileObject[]): Promise<RestResult<void>> {
     return axios.put(AttachmentService.DELETE_ATTACHMENT_URL, fileObjects)
-  }
-
-  list(type:string,filename:string, formatObjectWriteResult:boolean = false):Promise<RestResult<ObjectWriteResult[]>> {
-    let url = AttachmentService.BASE_URL + '/' + type + "?1=1";
-    if (filename) {
-      url += '&filename=' + filename
-    }
-    if (formatObjectWriteResult) {
-      url += '&formatObjectWriteResult=' + true
-    }
-    return axios.get(url)
   }
 
   static resourceByFileObject(file:FileObject):string {
@@ -117,4 +104,26 @@ export class AttachmentService extends FindRestfulCrudService<ExportDataMetadata
   static resource(bucketName:string, objectName:string):string {
     return import.meta.env.VITE_APP_RESOURCE_PATH + "/" + bucketName + "/" + objectName
   }
+
+  static buckets():Promise<RestResult<Record<string, unknown>[]>> {
+    return axios.get(AttachmentService.BUCKETS_URL)
+  }
+
+  static findAttachment(type:string, filename:string):Promise<RestResult<ObjectItemInfo[]>> {
+    let url = AttachmentService.FIND_ATTACHMENT_URL + "?type=" + type
+    if (filename) {
+      url += '&filename=' + filename
+    }
+    return axios.post(url)
+  }
+
+  static myResource(type:string, filename:string):Promise<RestResult<ObjectWriteResult[]>> {
+    let url = AttachmentService.MY_RESOURCE_URL + "?type=" + type
+    if (filename) {
+      url += '&filename=' + filename
+    }
+    url += '&formatObjectWriteResult=' + true
+    return axios.post(url)
+  }
+
 }

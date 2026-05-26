@@ -27,7 +27,6 @@ const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
 
 const service = new DataDictionaryService()
 const typeService = new DictionaryTypeService()
-const resourceServerService = new ResourceServerService()
 
 const options = ref<{
   entity:DataDictionarySavePayload
@@ -55,7 +54,7 @@ const options = ref<{
 
 async function preMounted() {
 
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"ValueTypeEnum"}, {"id":"YesOrNo"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ValueTypeEnum"}, {"id":"YesOrNo"}]})
   if (enums.data) {
     options.value.valueTypeOptions = enums.data['resource-server']?.ValueTypeEnum as NameValueEnumMetadata<number>[]
     options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]

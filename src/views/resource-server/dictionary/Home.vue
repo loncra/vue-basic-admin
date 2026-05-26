@@ -58,7 +58,6 @@ defineOptions({
   name: 'ResourceServerDictionaryHome'
 })
 
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -151,7 +150,6 @@ const options = ref<{
 
 const dictionaryTypeService = new DictionaryTypeService();
 const dataDictionaryService = new DataDictionaryService();
-const resourceServerService = new ResourceServerService();
 
 const selectedDictionaryType = ref<DictionaryTypeEntity | null>(null)
 
@@ -209,7 +207,7 @@ function onSaveSuccessDictionaryType() {
 }
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"ValueTypeEnum"}, {"id":"YesOrNo"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ValueTypeEnum"}, {"id":"YesOrNo"}]})
   if (enums.data) {
     const enabledCol = options.value.dataDictionary.columns[options.value.dataDictionary.columns.findIndex(s => s.dataIndex === "enabled")]
     if (enabledCol?.search) {

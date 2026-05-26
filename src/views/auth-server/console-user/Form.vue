@@ -24,7 +24,6 @@ const globalProperties =
     .globalProperties
 
 const service = new ConsoleUserService()
-const resourceServerService = new ResourceServerService()
 
 const options = ref<{
   entity:ConsoleUserSavePayload
@@ -50,7 +49,7 @@ const options = ref<{
 
 async function mounted() {
   options.value.spinning = true
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
   if (enums.data) {
     const responseBody: EnumBucketsResponseBody = enums.data
     const resourceServer = responseBody['resource-server'] ?? {}

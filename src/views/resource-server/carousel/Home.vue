@@ -59,15 +59,13 @@ const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrent
 const globalProperties = instance.appContext.config
     .globalProperties
 
-const attachmentService = new AttachmentService()
-const resourceServerService = new ResourceServerService()
 const carouselService = new CarouselService()
 
 function getCoverImageSrc(cover: CarouselEntity['cover']) {
   if (!isObjectWriteResult(cover)) {
     return ''
   }
-  return attachmentService.query(cover.bucketName, cover.objectName)
+  return AttachmentService.query(cover.bucketName, cover.objectName)
 }
 
 const carouselAuthority = {
@@ -111,7 +109,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
       run: (ctx) => {
         const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
         if (tab) {
-          (instance.refs?.['tab.key'] as GridExposed<CarouselEntity>)?.remove(getReleaseSelectedEntities(ctx.selectedItems))
+          (instance.refs?.[tab.key] as GridExposed<CarouselEntity>)?.remove(getReleaseSelectedEntities(ctx.selectedItems))
         }
       },
     },
@@ -306,7 +304,7 @@ async function doRevoke(ids: number[]) {
 async function mounted() {
   options.value.loading = true
 
-  const enums: RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({
+  const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     'resource-server': [{id: 'CarouselTypeEnum'}],
   })
   // FIXME 这里不应该用枚举，应该用字典去灵活配置样式

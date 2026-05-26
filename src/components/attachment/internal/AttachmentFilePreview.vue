@@ -40,8 +40,6 @@ const emit = defineEmits<{
   preview: [file: UploadFile<ObjectWriteResult>]
 }>()
 
-const attachmentService = new AttachmentService()
-
 function getFileIcon() {
   if (props.file.type?.includes("image/")) {
     return 'icon-picture'
@@ -77,7 +75,7 @@ async function doRemove(file: UploadFile<ObjectWriteResult>) {
     return ;
   }
   try {
-    const result:RestResult<void> = await attachmentService.removeAttachment([file.response])
+    const result:RestResult<void> = await AttachmentService.removeAttachment([file.response])
     emit("delete", file)
     message.success(result.message)
   } catch (e) {
@@ -91,7 +89,7 @@ function onDownload(file: ObjectWriteResult) {
 }
 
 function download(file: ObjectWriteResult) {
-  attachmentService.download(file.bucketName, file.objectName);
+  AttachmentService.download(file.bucketName, file.objectName);
 }
 
 defineExpose({

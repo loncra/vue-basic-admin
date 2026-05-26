@@ -4,11 +4,7 @@
  * 提供跨服务的枚举桶查询（POST 批量 / GET 单枚举），不纳入 CRUD 继承树。
  */
 import axios from "@/requests/http.ts";
-import type {
-  EnumBucketsRequestBody,
-  EnumBucketsResponseBody,
-  RestResult
-} from "@/types/apis";
+import type {EnumBucketsRequestBody, EnumBucketsResponseBody, RestResult} from "@/types/apis";
 
 /**
  * resource-server 侧通用查询（当前仅封装枚举相关接口）。
@@ -23,12 +19,12 @@ export class ResourceServerService {
   static readonly GET_SERVICE_ENUMERATE_URL = ResourceServerService.BASE_URL + '/enumerate'
 
   /** `POST .../enumerate`：按请求体拉取多组枚举 */
-  getServiceEnumerates(filter: EnumBucketsRequestBody): Promise<RestResult<EnumBucketsResponseBody>> {
+  static getServiceEnumerates(filter: EnumBucketsRequestBody): Promise<RestResult<EnumBucketsResponseBody>> {
     return axios.post(ResourceServerService.GET_SERVICE_ENUMERATE_URL, filter)
   }
 
   /** `GET .../enumerate/{service}/{enumerateName}`：单枚举 */
-  getServiceEnumerate(service: string, enumerateName:string): Promise<RestResult<EnumBucketsResponseBody>> {
+  static getServiceEnumerate(service: string, enumerateName:string): Promise<RestResult<EnumBucketsResponseBody>> {
     return axios.get(ResourceServerService.GET_SERVICE_ENUMERATE_URL + '/' + service + '/' + enumerateName)
   }
 

@@ -26,7 +26,6 @@ const globalProperties =
     .globalProperties
 
 const service = new CarouselService()
-const resourceServerService = new ResourceServerService()
 
 const coverUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
 
@@ -60,7 +59,7 @@ const options = ref<{
 })
 
 async function preMounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"CarouselTypeEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"CarouselTypeEnum"}]})
 
   if (enums.data) {
     options.value.typeOptions = enums.data['resource-server']?.CarouselTypeEnum as NameValueEnumMetadata<number>[]

@@ -23,7 +23,6 @@ const globalProperties =
     .globalProperties
 
 const service = new ResourceService()
-const resourceServerService = new ResourceServerService()
 
 const options = ref<{
   entity:ResourceSavePayload
@@ -60,7 +59,7 @@ const options = ref<{
 
 async function mounted() {
 
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"},{"id":"YesOrNo"}],"auth-server":[{"id":"ResourceTypeEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"},{"id":"YesOrNo"}],"auth-server":[{"id":"ResourceTypeEnum"}]})
   if (enums.data) {
     options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
     options.value.sourceOptions = enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]

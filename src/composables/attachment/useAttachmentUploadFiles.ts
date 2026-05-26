@@ -22,7 +22,7 @@ export function useAttachmentUploadFiles(
       if (syncingFromChild) {
         return
       }
-      uploadFiles.value = convertUploadFiles(Array.isArray(list) ? list : [], service)
+      uploadFiles.value = convertUploadFiles(Array.isArray(list) ? list : [])
     },
     {immediate: true, deep: true},
   )

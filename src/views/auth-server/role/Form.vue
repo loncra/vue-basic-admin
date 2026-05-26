@@ -27,7 +27,6 @@ const globalProperties =
     .globalProperties
 
 const service = new RoleService()
-const resourceServerService = new ResourceServerService()
 
 const options = ref<{
   entity:RoleSavePayload
@@ -82,7 +81,7 @@ function toSourceSelectOptions(
 
 async function mounted() {
 
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
   if (enums.data) {
     options.value.modifiableOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
     options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]

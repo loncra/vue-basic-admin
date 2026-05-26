@@ -1,4 +1,4 @@
-import type {IdValueMetadata, NameValueEnumMetadata} from "@/types/apis/common";
+import type {BasicIdMetadata, IdValueMetadata, NameValueEnumMetadata} from "@/types/apis/common";
 
 export type EnumBucketsResponseBody = Record<string, Record<string, NameValueEnumMetadata<number | string>[]>>
 
@@ -79,6 +79,7 @@ export interface FileObject {
 export interface ObjectWriteResult extends FileObject{
   etag:string
   size:number
+  lastModified:number
 }
 
 export interface MultipartUploadInitData {
@@ -95,4 +96,74 @@ export interface MultipartUploadPartData {
 export interface CompleteMultipartUploadBody {
   uploadId: string
   parts: IdValueMetadata<string, number>[]
+}
+
+
+export interface ObjectItemInfo extends BasicIdMetadata<string>{
+  /**
+   * 唯一识别
+   */
+  id:string
+  /**
+   * 获取对象名称
+   *
+   */
+  objectName:string
+
+  /**
+   * 获取 ETag（去除引号）
+   */
+  etag:string
+
+  /**
+   * 获取最后修改时间
+   *
+   */
+  lastModified:number
+  /**
+   * 获取对象大小
+   *
+   */
+  size:number
+
+  /**
+   * 获取用户元数据
+   *
+   *
+   */
+  userMetadata:Record<string, string>
+  /**
+   * 获取存储类
+   *
+   * @return 存储类
+ */
+  storageClass:string
+
+  /**
+   * 判断是否为最新版本
+   *
+   * @return true 表示是最新版本，否则 false
+   */
+  latest:boolean
+
+  /**
+   * 获取版本 ID
+   *
+   * @return 版本 ID
+   */
+  versionId:string
+
+  /**
+   * 获取用户标签
+   *
+   * @return 用户标签
+   */
+  userTags:string[]
+
+  /**
+   * 判断是否为目录
+   *
+   * @return true 表示是目录，否则 false
+   */
+  dir:string
 }

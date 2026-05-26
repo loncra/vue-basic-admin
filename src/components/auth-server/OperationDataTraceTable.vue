@@ -30,7 +30,6 @@ const props = withDefaults(defineProps<{
 })
 
 const service = new OperationDataTraceAuditEventService()
-const resourceServerService = new ResourceServerService()
 
 const columns = ref<SearchableColumnType[]>([
   {
@@ -130,7 +129,7 @@ if (props.date) {
 }
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await resourceServerService.getServiceEnumerates({"resource-server":[{"id":"OperationDataType"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"OperationDataType"}]})
   if (enums.data) {
     const typeCol = columns.value[columns.value.findIndex(s => s.dataIndex === "type")];
     if (typeCol?.search) {

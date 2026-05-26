@@ -2,12 +2,11 @@
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/utils'
-import {type ComponentInternalInstance, onMounted} from 'vue'
-import {getCurrentInstance} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {OperationDataTraceAuditEventService} from "@/apis";
 import type {AuditEventEntity, RestResult, TotalPage} from "@/types/apis";
-import { ref } from 'vue'
+
 defineOptions({
   name: 'CommonWorkbench'
 })
@@ -50,21 +49,20 @@ onMounted(mounted)
             <icon-font class="icon" type="icon-quick"/>
           </template>
           <template v-if="menuStore.state.quickAccess.length > 0">
-            <a-card-grid class="group relative w-1/3 min-h-15 cursor-pointer " @click="globalProperties.$router.push(item.page)" :key="item.page" v-for="item of menuStore.state.quickAccess" >
-              <a-flex vertical align="center" justify="space-between" class="h-full min-h-15">
+            <a-card-grid class="group relative w-1/3 min-h-12 cursor-pointer " @click="globalProperties.$router.push(item.page)" :key="item.page" v-for="item of menuStore.state.quickAccess" >
+              <a-flex vertical align="center" justify="space-between" class="h-full min-h-12">
                 <icon-font class="icon text-2xl" :type="item.icon" />
-                <a-typography-text 
-                  strong 
-                  class="text-sm" 
+                <a-typography-text
+                  class="text-sm"
                   :ellipsis="{ tooltip: item.name }"
                 >
                   {{item.name}}
                 </a-typography-text>
               </a-flex>
-              <icon-font 
+              <icon-font
                 @click.stop="menuStore.removeQuickAccess(item.page)"
-                class="icon absolute top-2 right-2 text-xs text-text-secondary opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100" 
-                type="icon-close" 
+                class="icon absolute top-2 right-2 text-xs text-text-secondary opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
+                type="icon-close"
                 />
             </a-card-grid>
           </template>
@@ -137,9 +135,9 @@ onMounted(mounted)
                       {{globalProperties.$dayjs(item.timestamp).fromNow()}}
                     </a-tag>
                   </a-tooltip>
-                  <a-typography-text 
+                  <a-typography-text
                     :ellipsis="{ tooltip: item.data?.metadata?.name }"
-                    class=" flex-1 cursor-pointer" 
+                    class=" flex-1 cursor-pointer"
                     @click="globalProperties.$router.push({name:'auth_server_audit_event_authentication_detail', query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
                     {{ item.data?.metadata?.name }}
                   </a-typography-text>
@@ -155,9 +153,9 @@ onMounted(mounted)
                       {{globalProperties.$dayjs(item.timestamp).fromNow()}}
                     </a-tag>
                   </a-tooltip>
-                  <a-typography-text 
+                  <a-typography-text
                     :ellipsis="{ tooltip: item.data?.metadata?.name }"
-                    class=" flex-1 cursor-pointer" 
+                    class=" flex-1 cursor-pointer"
                     @click="globalProperties.$router.push({name:'auth_server_audit_event_authentication_detail', query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
                     {{ item.data?.metadata?.name }}
                   </a-typography-text>
@@ -173,9 +171,9 @@ onMounted(mounted)
                       {{globalProperties.$dayjs(item.timestamp).fromNow()}}
                     </a-tag>
                   </a-tooltip>
-                  <a-typography-text 
+                  <a-typography-text
                     :ellipsis="{ tooltip: item.data?.metadata?.name }"
-                    class=" flex-1 cursor-pointer" 
+                    class=" flex-1 cursor-pointer"
                     @click="globalProperties.$router.push({name:'auth_server_audit_event_authentication_detail', query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
                     {{ item.data?.metadata?.name }}
                   </a-typography-text>
