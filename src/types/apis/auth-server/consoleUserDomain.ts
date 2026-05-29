@@ -1,18 +1,12 @@
-import type {
-  NameValueEnumMetadata,
-  VersionEntityMetadata
-} from "@/types/apis/common";
-import type{
-  AbstractPlatformUser,
-  UserInitializationMetadata,
-} from './authDomain'
+import type {NameValueEnumMetadata, VersionEntityMetadata} from "@/types/apis/common";
+import type {PlatformUser, UserInitializationMetadata,} from './authDomain'
 
 /**
  * 后台用户请求体
  *
  * maurice.chen
  */
-export interface ConsoleUserSavePayload extends AbstractPlatformUser, VersionEntityMetadata {
+export interface ConsoleUserSavePayload extends PlatformUser, VersionEntityMetadata {
   /**
    * 真实姓名
    */
@@ -21,10 +15,6 @@ export interface ConsoleUserSavePayload extends AbstractPlatformUser, VersionEnt
    * 性别
    */
   gender:NameValueEnumMetadata<number> | number
-  /**
-   * 电话号码
-   */
-  phoneNumber:string
   /**
    * 备注
    */
@@ -36,15 +26,6 @@ export interface ConsoleUserSavePayload extends AbstractPlatformUser, VersionEnt
  * @author maurice.chen
  */
 export interface ConsoleUserEntity extends ConsoleUserSavePayload {
-
-  /**
-   * 手机号码是否认证
-   */
-  phoneNumberVerified:NameValueEnumMetadata<number> | number
-  /**
-   * 是否验证邮件
-   */
-  emailVerified: NameValueEnumMetadata<number> | number
 
   /**
    * 最后登录时间

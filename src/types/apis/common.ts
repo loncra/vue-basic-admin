@@ -55,6 +55,10 @@ export interface BasicIdMetadata<T> {
   id: T
 }
 
+export interface StringIdEntity extends BasicIdMetadata<string> {
+  creationTime?: number
+}
+
 /** 带乐观锁版本号的实体元数据（常见于服务端返回的审计字段） */
 export interface VersionEntityMetadata extends BasicIdMetadata<number> {
   creationTime?: number,
@@ -68,6 +72,10 @@ export interface VersionEntityMetadata extends BasicIdMetadata<number> {
 export interface IdNameMetadata extends BasicIdMetadata<string> {
   /** 显示名称 */
   name: string
+}
+
+export interface IdNameValueMetadata<T> extends IdNameMetadata {
+  value:T
 }
 
 /**

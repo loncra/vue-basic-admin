@@ -59,7 +59,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
           </a-descriptions>
         </template>
 
-        <template v-if="entity?.data?.metadata.headers">
+        <template v-if="entity?.data?.metadata?.headers">
           <a-divider orientation="left" plain="">
             <a-space>
               <icon-font class="icon align" type="icon-post"/>
@@ -73,7 +73,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
           </a-descriptions>
         </template>
 
-        <template v-if="entity?.data?.metadata.parameters">
+        <template v-if="entity?.data?.metadata?.parameters">
           <a-divider orientation="left" plain="">
             <a-space>
               <icon-font class="icon align" type="icon-tool"/>
@@ -87,7 +87,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
           </a-descriptions>
         </template>
 
-        <template v-if="entity?.data?.metadata.body">
+        <template v-if="entity?.data?.metadata?.body">
           <a-divider orientation="left" plain="">
             <a-space>
               <icon-font class="icon align" type="icon-tool"/>

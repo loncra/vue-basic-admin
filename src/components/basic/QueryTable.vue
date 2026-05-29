@@ -155,7 +155,7 @@ const externalRowSelection = computed((): TableProps['rowSelection'] | false | n
   if (raw === undefined && !needsBulkRowSelection.value) {
     return null
   }
-  return raw ?? {type: 'checkbox' as const}
+  return raw ?? {fixed:true, type: 'checkbox' as const}
 })
 
 const tablePassthroughAttrs = computed(() => {
@@ -411,21 +411,21 @@ defineExpose({
           <a-space-compact block>
             <a-button block type="primary" @click="search(column, setSelectedKeys, confirm)">
               <template #icon>
-                <icon-font class="icon align" type="icon-confirm"/>
+                <icon-font class="icon" type="icon-confirm"/>
               </template>
               <span>{{ globalProperties.$t('search.text') }}</span>
             </a-button>
 
             <a-button block @click="resetField(column, setSelectedKeys, confirm)">
               <template #icon>
-                <icon-font class="icon align" type="icon-error"/>
+                <icon-font class="icon" type="icon-error"/>
               </template>
               <span>{{ globalProperties.$t('common.reset') }}</span>
             </a-button>
 
             <a-button block @click="clear(confirm, setSelectedKeys)">
               <template #icon>
-                <icon-font class="icon align" type="icon-delete"/>
+                <icon-font class="icon" type="icon-delete"/>
               </template>
               <span>{{globalProperties.$t('common.clear')}}</span>
             </a-button>

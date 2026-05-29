@@ -3,7 +3,7 @@
  * @description 继承 {@link FindRestfulCrudService}，具备详情 + 条件列表 + 增删改；
  * 网关前缀随 `RUNTIME_MODE` 在单体与微服务间切换。
  */
-import type {RoleEntity, RoleSavePayload} from "../../types/apis/auth-server/roleDomain.ts";
+import type {RoleEntity, RoleSavePayload} from "@/types/apis/auth-server/roleDomain.ts";
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
 
 /**

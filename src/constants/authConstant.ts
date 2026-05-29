@@ -15,6 +15,8 @@ export const RESOURCE_TYPE = {
   TOOL: 'tool',
   /** 个人中心 */
   PROFILE: 'profile',
+  /** 导航数据 */
+  NAVIGATION_DATA: 'navigationData',
 } as const
 
 /**

@@ -27,7 +27,6 @@ export interface AuthCredentials {
   username: string
   password: string
   loginType: LoginType
-
   [key: string]: unknown
 }
 
@@ -131,11 +130,25 @@ export interface BasicSystemUser extends BasicIdMetadata<number>{
 /**
  * 平台用户信息
  */
-export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMetadata {
+export interface PlatformUser extends BasicSystemUser, VersionEntityMetadata {
   /**
    * 邮箱
    */
   email?:string
+
+  /**
+   * 手机号码
+   */
+  phoneNumber?: string
+
+  /**
+   * 手机号码是否认证
+   */
+  phoneNumberVerified:NameValueEnumMetadata<number> | number
+  /**
+   * 是否验证邮件
+   */
+  emailVerified: NameValueEnumMetadata<number> | number
 
   /**
    * 拥有角色
@@ -146,7 +159,14 @@ export interface AbstractPlatformUser extends BasicSystemUser, VersionEntityMeta
    * 拥有资源
    */
   resourceIds?:number[]
-
+  /**
+   * 系统名称
+   */
+  systemName:string
+  /**
+   * 真实姓名
+   */
+  realName?:string
 }
 
 /**

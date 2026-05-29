@@ -137,7 +137,7 @@ export const HTTP = {
   CACHE_CONTROL: {
     NO_CACHE: 'no-cache',
   },
-}
+} as const
 
 /**
  * SSE 相关常量
@@ -169,7 +169,7 @@ export const SSE = {
     RETRY: 'retry:',
     COMMENT: 'comment:',
   },
-}
+} as const
 
 /**
  * 验证正则表达式集合
@@ -178,7 +178,7 @@ export const VALID_REGX = {
   PHONE_NUMBER: /^1[3456789]\d{9}$/,
   PASSWORD:
     /^(?!^[0-9a-z]+$)(?!^[0-9A-Z]+$)(?!^[0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[a-zA-Z]+$)(?!^[a-z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)[a-z0-9A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$/,
-}
+} as const
 
 /**
  * http 请求方法

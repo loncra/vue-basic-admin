@@ -11,6 +11,7 @@ import {
   onActivated,
   onMounted,
   ref,
+  useSlots,
   watch
 } from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -31,6 +32,8 @@ defineOptions({
 const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
 const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_KEY)
 
+const slots = useSlots()
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
@@ -42,10 +45,12 @@ const props = withDefaults(
     actionItems?: NonNullable<MenuProps['items']>
     operationDataTraceTarget?:string,
     redirect: RouteLocationRaw
+    postGetEntity?:(entity: TEntity) => void
     service: DetailSearchService<TEntity>
     titleText?: (title:string, entity: TEntity) => string
   }>(),
   {
+    postGetEntity: (entity: TEntity) => entity ,
     queryFields: () => ['id'],
     titleText: (title:string, entity: TEntity) => title,
   },
@@ -79,11 +84,13 @@ async function mounted() {
   }
   const result:RestResult<TEntity> = await fetchDetail(id);
   const value = {...entity.value, ...result?.data || {}};
+  await props.postGetEntity(value as TEntity)
   const ct = (value as { creationTime?: number }).creationTime
   if (ct != null) {
     creationTime.value = ct
   }
   entity.value = value
+
   route.value = globalProperties.$route;
   await nextTick();
   updateTitle(value)
@@ -147,10 +154,10 @@ watch(
 <template>
   <div>
     <l-menu-title-card :loading="loading">
+      <template #extra v-if="slots.extra">
+        <slot name="extra" />
+      </template>
       <a-descriptions bordered v-bind="$attrs" :title="globalProperties.$t('common.basicInformation')">
-        <template #extra>
-
-        </template>
         <slot></slot>
       </a-descriptions>
 

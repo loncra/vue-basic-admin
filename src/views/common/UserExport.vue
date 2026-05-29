@@ -120,7 +120,7 @@ function downloadRecord(record: ExportDataMetadata) {
     :row-actions="rowActions"
     v-model:selected-rows="selectedRows"
     :scroll="{x:'max-content'}"
-    :row-selection="{type: 'checkbox'}"
+    :row-selection="{fixed:true, type: 'checkbox'}"
     :authority="{
       delete:true
     }"

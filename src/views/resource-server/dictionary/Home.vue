@@ -101,7 +101,7 @@ const options = ref<{
         },
       },
       {
-        title: globalProperties.$t("resourceServer.code"),
+        title: globalProperties.$t("common.code"),
         dataIndex:'code',
         key:'code',
         search:{
@@ -305,7 +305,7 @@ onMounted(mounted)
               delete:'perms[resource_server_dictionary_type:delete]'
             }"
             :scroll="{x:'max-content'}"
-            :row-selection="{type: 'checkbox'}"
+            :row-selection="{fixed:true, type: 'checkbox'}"
             :row-class-name="dictionaryTypeRowClassName"
             @edit="r => dictionaryTypeTableActionItemClick('edit', r)"
             :on-row="onDictionaryTypeRow"
@@ -391,7 +391,7 @@ onMounted(mounted)
       <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="[{required: true}]">
         <a-input v-model:value="options.dictionaryType.entity.name" />
       </a-form-item>
-      <a-form-item name="code" :label="globalProperties.$t('resourceServer.code')" :rules="[{required: true}]">
+      <a-form-item name="code" :label="globalProperties.$t('common.code')" :rules="[{required: true}]">
         <a-input v-model:value="options.dictionaryType.entity.code">
           <template #prefix v-if="options.dictionaryType.parent">
             {{options.dictionaryType.parent.code + '.'}}

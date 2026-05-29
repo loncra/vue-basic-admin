@@ -39,8 +39,42 @@ const columns = ref<SearchableColumnType[]>([
     search:{
       component: markRaw(Input),
       props:{placeholder: globalProperties.$t('search.placeholder.input')},
-      queryName:'principal'
+      queryName:'filter_[principal_eq]_or_[data.details.metadata.realName_eq]'
     },
+  }, {
+    title: globalProperties.$t('authServer.deviceIdentified'),
+    dataIndex: "deviceIdentified",
+    key: "deviceIdentified",
+    ellipsis: true,
+    width: 300
+  }, {
+    title: globalProperties.$t('common.ip'),
+    dataIndex: "ip",
+    key: "ip",
+    ellipsis: true,
+    width: 250,
+    search:{
+      component: markRaw(Input),
+      props:{placeholder: globalProperties.$t('search.placeholder.input')},
+      queryName:'filter_[data.details.requestDetails.remoteAddress_eq]'
+    },
+  }, {
+    title: globalProperties.$t('common.type'),
+    dataIndex: "type",
+    key: "type",
+    ellipsis: true,
+    width: 150,
+    search:{
+      component: markRaw(Input),
+      props:{placeholder: globalProperties.$t('search.placeholder.input')},
+      expression:'eq'
+    },
+  }, {
+    title: globalProperties.$t('common.system'),
+    dataIndex: "system",
+    key: "system",
+    ellipsis: true,
+    width: 150
   }
 ])
 
@@ -60,6 +94,7 @@ function openAuthenticationDetail(r: AuditEventEntity) {
     :authority="{
       detail: 'perms[auth_server_audit_event:get]',
     }"
+    :scroll="{x:'max-content'}"
     @detail="openAuthenticationDetail"
   >
     <template #bodyCell="{ column, record }">
@@ -69,6 +104,18 @@ function openAuthenticationDetail(r: AuditEventEntity) {
 
       <template v-if="column.dataIndex === 'principal'">
         {{ record.data?.details?.metadata?.realName || record.principal}}
+      </template>
+      <template v-if="column.dataIndex === 'deviceIdentified'">
+        {{ record.data?.details?.requestDetails?.requestHeaders?.['x-device-identified'] }}
+      </template>
+      <template v-if="column.dataIndex === 'ip'">
+        {{ record.data?.details?.requestDetails?.remoteAddress }}
+      </template>
+      <template v-if="column.dataIndex === 'type'">
+        {{ record.data?.details?.requestDetails?.type }}
+      </template>
+      <template v-if="column.dataIndex === 'system'">
+        {{ record.data?.details?.requestDetails?.requestHeaders?.['user-agent']}}
       </template>
     </template>
   </l-crud-table>

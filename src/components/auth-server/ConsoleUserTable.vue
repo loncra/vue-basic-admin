@@ -106,7 +106,7 @@ const columns = ref<SearchableColumnType[]>([
     search:{
       component: markRaw(DateRangePicker),
       props:{},
-      expression:'betwent'
+      expression:'between'
     },
   },
 ])

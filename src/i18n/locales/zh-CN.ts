@@ -11,9 +11,12 @@ const locale: LanguagePack = {
   common: {
     id: '主键',
     creationTime:'创建时间',
+    ip:'IP 地址',
+    system:'系统信息',
     save: '保存',
     add: '添加{name}',
     edit: '编辑{name}',
+    all: '全部{name}',
     export: {
       all: '导出全部',
       selected: '导出 ({count}) 条记录',
@@ -28,16 +31,20 @@ const locale: LanguagePack = {
       confirmSingle: '确定要删除该记录吗？',
       confirmBatch: '确定要删除 {count} 条记录吗？',
     },
+    title:'标题',
     serverError: '服务器异常，请稍后在试。',
     confirmPassword:'确认密码',
     email: '电子邮箱',
     phoneNumber: '手机号码',
     status: '状态',
+    content:'内容',
     gender: '性别',
     remark: '备注',
     realName: '真实姓名',
+    send: '发送{name}',
     name:'名称',
     enabled: '启用',
+    verified: '是否认证{name}',
     disabled: '禁用',
     type:'类型',
     category:'类别',
@@ -67,7 +74,15 @@ const locale: LanguagePack = {
     clear:'清空',
     executeStatus:'执行状态',
     successTime:'成功时间',
+    completionTime:'完成事件',
     expiresTime:'过期时间',
+    auditionTime:'审核时间',
+    code:'代码',
+    retry:{
+      time:'重试时间',
+      count:'重试次数'
+    },
+    channel:'渠道',
     download:{
       text:'下载',
       selected:'下载选中 ({count}) 条记录'
@@ -308,7 +323,6 @@ const locale: LanguagePack = {
     newChat: '新话题',
     network: '网络搜索',
     knowledge: '知识库搜索',
-    send: '发送',
     stop: '停止',
     history: '聊天历史',
     tool: {
@@ -323,6 +337,7 @@ const locale: LanguagePack = {
     },
   },
   authServer:{
+    deviceIdentified:'设备唯一识别',
     randomPassword: '是否随机密码',
     randomUsername: '是否随机登录账户',
     lastAuthenticationTime:'最后登录时间',
@@ -351,7 +366,6 @@ const locale: LanguagePack = {
     }
   },
   resourceServer:{
-    code:'代码',
     dataDictionary:{
       valueType:'值类型',
       level:'等级',
@@ -375,6 +389,38 @@ const locale: LanguagePack = {
       immediately:'立即',
       permanent:'永久',
     }
+  },
+  messageServer:{
+    sms:{
+      routePage:'短信消息',
+      template:{
+        routePage:'短信模版管理',
+        code:'短信模版'
+      },
+      sign:{
+        routePage:'短信签名管理',
+        code:'短信签名'
+      },
+      variable:{
+        title:'模版变量'
+      }
+    },
+    site:{
+      pushable:'是否推送',
+      routePage:'站内信消息',
+      readCount:'已读数量{count}',
+      channel:'推送渠道',
+    },
+    batch:{
+      routePage:'批量消息',
+      count:'总发送数量',
+      successNumber:'成功数量',
+      failNumber:'失败数量',
+      sendingNumber:'发送中数量'
+    }
+  },
+  component: {
+
   }
 }
 

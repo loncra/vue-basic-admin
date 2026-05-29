@@ -45,7 +45,7 @@ const entity = ref<DataDictionaryEntity>({
       <a-descriptions-item :label="globalProperties.$t('common.name')">
         {{entity.name}}
       </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('resourceServer.code')">
+      <a-descriptions-item :label="globalProperties.$t('common.code')">
         {{entity.code}}
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('resourceServer.dataDictionary.valueType')">

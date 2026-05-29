@@ -121,7 +121,7 @@ function setPageTitle(title:string, entity: DataDictionaryEntity | DataDictionar
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="code" :label="globalProperties.$t('resourceServer.code')" :rules="[{required: true}]">
+          <a-form-item name="code" :label="globalProperties.$t('common.code')" :rules="[{required: true}]">
             <a-input v-model:value="options.entity.code" >
               <template #prefix v-if="options.type">
                 <a-typography-text strong="">{{options.type.code + '.'}}</a-typography-text>

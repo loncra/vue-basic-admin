@@ -3,7 +3,7 @@ import type {BasicIdMetadata, IdValueMetadata, NameValueEnumMetadata} from "@/ty
 export type EnumBucketsResponseBody = Record<string, Record<string, NameValueEnumMetadata<number | string>[]>>
 
 export type EnumBucketsRequestBody = Record<string, {
-  id:string,
+  id: string,
   value?: string[],
 }[]>
 
@@ -71,15 +71,15 @@ export interface ExportDataMetadata {
 }
 
 export interface FileObject {
-  bucketName:string
-  objectName:string
+  bucketName: string
+  objectName: string
   extraHeaders?: Record<string, string>
 }
 
-export interface ObjectWriteResult extends FileObject{
-  etag:string
-  size:number
-  lastModified:number
+export interface ObjectWriteResult extends FileObject {
+  etag: string
+  size: number
+  lastModified: number
 }
 
 export interface MultipartUploadInitData {
@@ -99,71 +99,71 @@ export interface CompleteMultipartUploadBody {
 }
 
 
-export interface ObjectItemInfo extends BasicIdMetadata<string>{
+export interface ObjectItemInfo extends BasicIdMetadata<string> {
   /**
    * 唯一识别
    */
-  id:string
+  id: string
   /**
-   * 获取对象名称
+   * 对象名称
    *
    */
-  objectName:string
+  objectName: string
 
   /**
-   * 获取 ETag（去除引号）
+   *  ETag（去除引号）
    */
-  etag:string
+  etag: string
 
   /**
-   * 获取最后修改时间
+   * 最后修改时间
    *
    */
-  lastModified:number
+  lastModified: number
   /**
-   * 获取对象大小
+   * 对象大小
    *
    */
-  size:number
+  size: number
 
   /**
-   * 获取用户元数据
+   * 用户元数据
    *
    *
    */
-  userMetadata:Record<string, string>
+  userMetadata: Record<string, string>
   /**
-   * 获取存储类
+   * 存储类
    *
    * @return 存储类
- */
-  storageClass:string
+   */
+  storageClass: string
 
   /**
    * 判断是否为最新版本
    *
    * @return true 表示是最新版本，否则 false
    */
-  latest:boolean
+  latest: boolean
 
   /**
-   * 获取版本 ID
+   * 版本 ID
    *
    * @return 版本 ID
    */
-  versionId:string
+  versionId: string
 
   /**
-   * 获取用户标签
+   * 用户标签
    *
    * @return 用户标签
    */
-  userTags:string[]
+  userTags: string[]
 
   /**
    * 判断是否为目录
    *
    * @return true 表示是目录，否则 false
    */
-  dir:string
+  dir: string
 }

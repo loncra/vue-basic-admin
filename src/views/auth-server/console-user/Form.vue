@@ -4,16 +4,15 @@ import type {
   ConsoleUserEntity,
   ConsoleUserSavePayload
 } from "@/types/apis/auth-server/consoleUserDomain";
-import type {NameValueEnumMetadata, RestResult} from "@/types/apis";
+import type {NameValueEnumMetadata, RestResult, RoleEntity} from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ConsoleUserService, ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import type {RoleEntity} from "@/types/apis/auth-server/roleDomain";
-import type {TableProps} from "antdv-next"
 import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
+import type {TableProps} from "antdv-next";
 
 defineOptions({
   name: 'AuthServerConsoleUserForm'
@@ -33,15 +32,18 @@ const options = ref<{
 }>({
   spinning: false,
   entity: {
-    id:null as unknown as number,
-    version:null as unknown as number,
+    id: null as unknown as number,
+    version: null as unknown as number,
     realName: "",
     gender: 30,
     phoneNumber: "",
     remark: "",
     email: "",
     username: "",
-    status: 1
+    status: 1,
+    phoneNumberVerified: 0,
+    emailVerified: 0,
+    systemName: ""
   },
   genderOptions:[],
   statusOptions:[],

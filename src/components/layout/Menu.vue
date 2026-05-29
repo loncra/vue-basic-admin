@@ -125,7 +125,7 @@ onMounted(() => collapsedAndSelectedMenu(globalProperties.$route))
     :classes="{itemContent: props.hideLabel ? 'm-0' : ''}"
     v-model:open-keys="menuOptions.openKeys"
     v-model:selected-keys="menuOptions.selectedKeys"
-    :items="menuPrincipalStore.state.menu.filter(s => props.menuTypes.includes(getEnumValue(s.type)))"
+    :items="filterTreeDeep((s:ResourceEntity) => props.menuTypes.includes(getEnumValue(s.type)),menuPrincipalStore.state.menu)"
     :label-render="props.hideLabel ? undefined : labelRender"
     :icon-render="iconRender"
     v-bind="$attrs"

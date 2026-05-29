@@ -6,10 +6,7 @@ import type {
 } from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import type {
-  PrepareData,
-  ResourceEntity,
-} from "@/types/apis";
+import type {PrepareData, ResourceEntity,} from "@/types/apis";
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
@@ -18,9 +15,9 @@ import {unmergeTree} from '@/utils'
 
 import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
-import Workbench from '../views/common/Workbench.vue'
-import UserExport from "../views/common/UserExport.vue";
-import Setting from '../views/common/Setting.vue'
+import Workbench from '@/views/common/Workbench.vue'
+import UserExport from "@/views/common/UserExport.vue";
+import Setting from '@/views/common/Setting.vue'
 import NotFound from '@/views/error/NotFound.vue';
 import Forbidden from '@/views/error/Forbidden.vue';
 import BadRequest from '@/views/error/BadRequest.vue';
@@ -261,7 +258,8 @@ const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
     RESOURCE_TYPE.DIRECTORY,
     RESOURCE_TYPE.MENU,
     RESOURCE_TYPE.TOOL,
-    RESOURCE_TYPE.PROFILE
+    RESOURCE_TYPE.PROFILE,
+    RESOURCE_TYPE.NAVIGATION_DATA
   ])
   const unmergeMenus = unmergeTree<ResourceEntity>(menus);
   const menuRoutes = [...childrenRoutes, ...importRoutes]

@@ -1,8 +1,6 @@
 import type {BasicIdMetadata, NameValueEnumMetadata} from "@/types/apis/common";
 import type {Details, IdNameMetadata} from "@/types/apis";
 
-export interface AuthServer {}
-
 export interface ControllerAuditEventMetadata extends IdNameMetadata{
   startTime: number
 

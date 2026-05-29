@@ -1,11 +1,11 @@
-import {ref, computed} from 'vue'
+import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants/systemConstant.ts'
 import type {
   ResourceEntity,
   ResourceMetadata,
-  RouteResourceMetadata,
-  RestResult
+  RestResult,
+  RouteResourceMetadata
 } from '@/types/apis'
 import {AuthServerService} from '@/apis'
 import {isResultSuccess} from '@/requests'
@@ -64,21 +64,35 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
       ...RESET,
     }
     const principalStore = usePrincipalStore();
+    const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
+    const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
+    result.quickAccess = quickAccess.slice().sort((a, b) => b.sort - a.sort)
+    return result
+  }
+
+  function getPrincipalQuickAccessRecord(principal:string) {
     let quickAccessRecord: Record<string, RouteResourceMetadata[]> = {}
     const string = localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS)
     if (string) {
       quickAccessRecord = JSON.parse(string) as Record<string, RouteResourceMetadata[]>
     }
-    if (!quickAccessRecord[principalStore.state.name]) {
-      quickAccessRecord[principalStore.state.name] = []
+    if (!quickAccessRecord[principal]) {
+      quickAccessRecord[principal] = []
     }
 
+    return quickAccessRecord;
+  }
+
+  function getCurrentQuickAccess(
+    principal:string,
+    quickAccessRecord: Record<string, RouteResourceMetadata[]>
+  ) {
+    const principalStore = usePrincipalStore();
     let quickAccess:RouteResourceMetadata[] | undefined = quickAccessRecord[principalStore.state.name]
     if (!quickAccess) {
       quickAccess = []
     }
-    result.quickAccess = quickAccess.slice().sort((a, b) => b.sort - a.sort)
-    return result
+    return quickAccess;
   }
 
   function reset():MenuState {
@@ -211,21 +225,10 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
   function setQuickAccess(route:RouteResourceMetadata) {
     const principalStore = usePrincipalStore();
+    const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
+    const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
+;
     const quickAccessItem: RouteResourceMetadata = { ...route, sort: 0 }
-
-    let quickAccessRecord: Record<string, RouteResourceMetadata[]> = {}
-    const string = localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS)
-    if (string) {
-      quickAccessRecord = JSON.parse(string) as Record<string, RouteResourceMetadata[]>
-    }
-    if (!quickAccessRecord[principalStore.state.name]) {
-      quickAccessRecord[principalStore.state.name] = []
-    }
-
-    let quickAccess:RouteResourceMetadata[] | undefined = quickAccessRecord[principalStore.state.name]
-    if (!quickAccess) {
-      quickAccess = []
-    }
     const index = quickAccess.findIndex(m => m.path === quickAccessItem.path)
     if (index >= 0) {
       const item = quickAccess[index]
@@ -241,7 +244,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
   function removeQuickAccess(path: string) {
     const principalStore = usePrincipalStore();
-    const quickAccessRecord: Record<string, RouteResourceMetadata[]> = JSON.parse(localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS) || '{}')
+    const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
     quickAccessRecord[principalStore.state.name] = (quickAccessRecord[principalStore.state.name] || []).filter(item => item.path !== path)
     localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
     state.value.quickAccess = (quickAccessRecord[principalStore.state.name] || []).slice().sort((a, b) => b.sort - a.sort)

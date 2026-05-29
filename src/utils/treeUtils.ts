@@ -245,25 +245,29 @@ export function filterTreeDeep<T>(predicate: Predicate<T>, data: TreeLike<T>[]):
    * 先处理子节点，再决定当前节点是否保留
    */
   function processNode(node: TreeLike<T>): T | null {
-    // 如果当前节点有子节点，先递归过滤子节点
+    let filteredChildren: T[] | undefined
+
     if (hasTreeChildren(node)) {
-      const children: TreeLike<T>[] = node.children!
-      // 递归处理所有子节点并过滤掉 null 值
-      const filteredChildren = children.map(processNode).filter((child) => child !== null)
-
-      // 如果有过滤后的子节点，保留当前节点并包含过滤后的子节点
-      if (filteredChildren.length > 0) {
-        return {...node, children: filteredChildren}
-      }
+      filteredChildren = node.children!
+        .map(processNode)
+        .filter((child): child is T => child !== null)
     }
 
-    // 如果当前节点本身满足过滤条件，返回节点（不包含子节点）
-    if (predicate(node)) {
-      return {...node}
+    const selfMatches = predicate(node)
+    const hasMatchingChildren = (filteredChildren?.length ?? 0) > 0
+
+    if (!selfMatches && !hasMatchingChildren) {
+      return null
     }
 
-    // 如果当前节点及其子节点都不满足条件，返回 null 表示丢弃
-    return null
+    if (hasTreeChildren(node)) {
+      const { children: _omit, ...rest } = node
+      return (hasMatchingChildren
+        ? { ...rest, children: filteredChildren! }
+        : { ...rest }) as T
+    }
+
+    return { ...node }
   }
 
   // 对数据中的每个节点调用 processNode 函数，并过滤掉 null 值

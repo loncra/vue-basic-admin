@@ -1,7 +1,3 @@
-/**
- * @file 资源（菜单 / 权限等）REST 客户端
- * @description 继承 {@link FindRestfulCrudService}，与角色服务同属 RBAC 配置域。
- */
 import type {ResourceEntity, ResourceSavePayload, RestResult, TreeSortMetadata} from '@/types/apis'
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
 import axios from "@/requests/http.ts";
