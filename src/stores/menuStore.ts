@@ -151,6 +151,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
   function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
     return {
+      code: "",
       icon: (route.meta?.icon || 'icon-survey') as string,
       name: getRouteTitle(route.name),
       route: route.name,
@@ -161,7 +162,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
       path: route.fullPath,
       fixed: route.meta?.fixed as boolean,
       single: (route.meta?.single || false) as boolean,
-      dynamicTitle: (route.meta?.dynamicTitle || false) as boolean,
+      dynamicTitle: (route.meta?.dynamicTitle || false) as boolean
     }
   }
 

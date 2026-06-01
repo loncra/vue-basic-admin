@@ -3,12 +3,28 @@ import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
 import LMenu from '@/components/layout/Menu.vue'
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
+import {h, resolveComponent, type VNode} from "vue";
+import type {ResourceEntity} from "@/types/apis";
 
 defineOptions({
   name: 'LLayoutHeader',
 })
 
 const menuPrincipalStore = useMenuPrincipalStore()
+
+function itemRender(item:ResourceEntity, node:VNode) {
+  if (item.code === 'site_message') {
+    const badge = resolveComponent('ABadge')
+    return h(
+      badge,
+      {count: 3, size: 'small'},
+      {default:() => node},
+    )
+  }
+
+  return node
+
+}
 
 </script>
 
@@ -35,7 +51,12 @@ const menuPrincipalStore = useMenuPrincipalStore()
       </a-breadcrumb>
       <span />
       <a-space align="center">
-        <l-menu :menu-types="[RESOURCE_TYPE.TOOL]" :hide-label="true" mode="horizontal"/>
+        <l-menu
+          :menu-types="[RESOURCE_TYPE.TOOL]"
+          :hide-label="true"
+          :item-render="itemRender"
+          mode="horizontal"
+        />
         <l-profile-button/>
       </a-space>
     </a-flex>

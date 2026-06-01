@@ -8,6 +8,7 @@ import {
   onMounted,
   ref,
   resolveComponent,
+  type VNode,
   watch
 } from "vue";
 import {type RouteLocationNormalizedLoaded} from "vue-router";
@@ -34,10 +35,12 @@ const menuPrincipalStore = useMenuPrincipalStore()
 
 const props = withDefaults(defineProps<{
   menuTypes: string[],
-  hideLabel?: boolean
+  hideLabel?: boolean,
+  itemRender?:(item:ResourceEntity, node:VNode) => VNode
 }>(), {
   menuTypes: () => [],
-  inlineCollapsed: false
+  inlineCollapsed: false,
+  itemRender:(item:ResourceEntity, node:VNode) => node
 })
 
 const menuOptions = ref<
@@ -79,17 +82,19 @@ function labelRender(item: ResourceEntity) {
   if (item == null || typeof item !== 'object') {
     return
   }
-  return h('span', {}, String(item.name))
+  const node:VNode = h('span', {}, String(item.name))
+  return props?.itemRender(item, node) || node;
 }
 
 function iconRender(item: ResourceEntity) {
   const icon = createIcon(item.icon || 'icon-survey')
-  const Tooltip = resolveComponent('ATooltip')
-  return h(
-    Tooltip,
+  const tooltip = resolveComponent('ATooltip')
+  const node:VNode =  h(
+    tooltip,
     {title: String(item.name ?? '')},
     {default: () => icon},
   )
+  return props?.itemRender(item, node) || node;
 }
 
 function handleClick(e: MenuInfo) {

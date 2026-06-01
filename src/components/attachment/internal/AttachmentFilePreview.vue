@@ -14,8 +14,6 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<AttachmentPreviewFileProps>(),{
-  height:'100%',
-  width:'100%',
   enabledDelete: true,
   enabledDownload: true,
 })
@@ -85,7 +83,6 @@ function download(file: ObjectWriteResult) {
   AttachmentService.download(file.bucketName, file.objectName);
 }
 
-
 defineExpose({
   download,
   remove,
@@ -96,8 +93,11 @@ defineExpose({
 <template>
 
   <div
-    :class="'group relative size-16 shrink-0 overflow-hidden rounded border border-border-secondary '"
-    :style="{width:props.width, height: props.height}"
+    :class="[
+      'group relative shrink-0 overflow-hidden rounded border border-border-secondary',
+      itemClass,
+    ]"
+    :style="itemStyle"
   >
 
     <slot name="itemRender" v-if="slots.itemRender" :file="file" />

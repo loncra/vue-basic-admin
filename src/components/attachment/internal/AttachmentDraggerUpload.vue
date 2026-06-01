@@ -1,11 +1,11 @@
 <script setup lang="ts">
 
 import {requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance, useSlots} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance, useSlots} from "vue";
 import LAttachmentPreview from "@/components/attachment/AttachmentPreview.vue";
 import type {
   AttachmentDraggerUploadProps,
-  AttachmentFileItem
+  AttachmentFileItem,
 } from "@/types/composables/attachmentUpload.ts";
 import {ATTACHMENT_PREVIEW_MODE} from "@/constants/systemConstant.ts";
 import {useAttachmentUploadFiles} from "@/composables/attachment/useAttachmentUploadFiles.js";
@@ -27,7 +27,7 @@ const globalProperties =
 
 const fileList = defineModel<AttachmentFileItem[]>('fileList', {default:() => []})
 const {uploadFiles} = useAttachmentUploadFiles(fileList)
-const slot = useSlots();
+const slots = useSlots();
 
 const emit = defineEmits<{
   change: [info: UploadChangeParam]
@@ -37,18 +37,30 @@ function onChange(info: UploadChangeParam) {
   emit('change', info)
 }
 
+const uploadClasses = computed(() => ({
+  trigger: props.classes?.trigger,
+}))
+
+const uploadStyles = computed(() => ({
+  trigger: props.styles?.trigger,
+}))
+
 </script>
 
 <template>
   <l-attachment-preview
     v-model:file-list="uploadFiles"
     :change-thumb-url="changeThumbUrl"
+    :classes="props.classes"
+    :styles="props.styles"
     :preview="preview"
     :mode="props.mode"
   >
     <template #listBefore v-if="!props.maxCount || uploadFiles.length < props.maxCount || props.preview">
       <a-upload-dragger
         v-bind="$attrs"
+        :classes="uploadClasses"
+        :styles="uploadStyles"
         :max-count="props.maxCount"
         :multiple="props.multiple"
         :accept="props.accept"
@@ -70,8 +82,14 @@ function onChange(info: UploadChangeParam) {
         </a-space>
       </a-upload-dragger>
     </template>
-    <template v-if="slot.itemRender" #itemRender="{file}">
+    <template v-if="slots.itemRender" #itemRender="{file}">
       <slot name="itemRender" :file="file" />
+    </template>
+    <template #itemTitle="{file}" v-if="slots.itemTitle" >
+      <slot name="itemTitle" :file="file" />
+    </template>
+    <template #itemDescription="{file}" v-if="slots.itemDescription">
+      <slot name="itemDescription" :file="file" />
     </template>
   </l-attachment-preview>
 </template>

@@ -1,11 +1,7 @@
 import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
 import type {CSSProperties} from 'vue'
 import type {ObjectWriteResult} from "@/types/apis";
-import type {
-  UploadClassNamesType,
-  UploadFile,
-  UploadStylesType,
-} from "antdv-next/dist/upload/interface";
+import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {
   SemanticClassNamesType,
   SemanticStylesType,
@@ -28,20 +24,6 @@ export interface AttachmentUploadExecutorOptions {
   headers?: Record<string, string>
 }
 
-/** LAttachmentUpload 自身语义节点 */
-export interface AttachmentUploadSemanticClassNames {
-  preview?: string
-  list?: string
-  item?: string
-  trigger?: string
-}
-export interface AttachmentUploadSemanticStyles {
-  preview?: CSSProperties
-  list?: CSSProperties
-  item?: CSSProperties
-  trigger?: CSSProperties
-}
-
 export interface BasicAttachmentProps {
   multiple?: boolean
   preview?:boolean
@@ -49,7 +31,56 @@ export interface BasicAttachmentProps {
   maxCount?:number
 }
 
-export interface AttachmentUploadProps extends BasicAttachmentProps {
+/** classes/styles 函数回调可读取的 props 上下文 */
+export interface AttachmentSemanticContextProps {
+  mode?: AttachmentUploadMode | AttachmentPreviewMode
+  preview?: boolean
+  maxCount?: number
+  multiple?: boolean
+}
+
+/** LAttachmentUpload 语义节点 */
+export interface AttachmentUploadSemanticClassNames {
+  container?: string
+  list?: string
+  item?: string
+  trigger?: string
+  meta?: string
+}
+
+export interface AttachmentUploadSemanticStyles {
+  container?: CSSProperties
+  list?: CSSProperties
+  item?: CSSProperties
+  trigger?: CSSProperties
+}
+
+/** 对外：支持 object | function */
+export type AttachmentUploadClassNamesType = SemanticClassNamesType<
+  AttachmentSemanticContextProps,
+  AttachmentUploadSemanticClassNames
+>
+
+export type AttachmentUploadStylesType = SemanticStylesType<
+  AttachmentSemanticContextProps,
+  AttachmentUploadSemanticStyles
+>
+
+/** 对内：merge 后的 plain object */
+export type AttachmentUploadResolvedClassNames = Readonly<AttachmentUploadSemanticClassNames>
+export type AttachmentUploadResolvedStyles = Readonly<AttachmentUploadSemanticStyles>
+
+export interface AttachmentUploadPublicDomProps {
+  classes?: AttachmentUploadClassNamesType
+  styles?: AttachmentUploadStylesType
+}
+
+export interface AttachmentUploadDomProps {
+  classes?: AttachmentUploadResolvedClassNames
+  styles?: AttachmentUploadResolvedStyles
+}
+
+export interface AttachmentUploadProps extends BasicAttachmentProps, AttachmentUploadPublicDomProps {
   mode?:AttachmentUploadMode
   postFilename?:string
   autoUpload?:boolean
@@ -60,7 +91,7 @@ export interface AttachmentUploadProps extends BasicAttachmentProps {
   previewMode?:AttachmentPreviewMode
 }
 
-export interface AttachmentPreviewProps {
+export interface AttachmentPreviewProps extends AttachmentUploadDomProps {
   mode?: AttachmentPreviewMode
   changeThumbUrl?: boolean
   preview?:boolean
@@ -70,14 +101,14 @@ export interface AttachmentPreviewProps {
 
 export interface AttachmentPreviewFileProps {
   file: UploadFile
-  height?:string
-  width?:string
   enabledDelete?:boolean
   enabledDownload?:boolean
+  itemClass?: string
+  itemStyle?: CSSProperties
 }
 
 export interface AttachmentDraggerUploadProps extends AttachmentPreviewProps, BasicAttachmentProps {
 }
 
-export interface AttachmentPictureCardUploadProps extends AttachmentPreviewProps, BasicAttachmentProps{
+export interface AttachmentPictureCardUploadProps extends AttachmentPreviewProps, BasicAttachmentProps {
 }

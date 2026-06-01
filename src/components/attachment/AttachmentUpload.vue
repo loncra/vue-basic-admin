@@ -3,13 +3,16 @@
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   type ComponentInternalInstance,
+  computed,
   getCurrentInstance,
   nextTick,
   onMounted,
   ref,
+  toRef,
   useSlots,
   watch
 } from "vue";
+import { useMergeSemantic, useToArr, useToProps } from 'antdv-next/dist/_util/hooks/useMergeSemantic'
 import {useFormItemContext} from "antdv-next/dist/form/context";
 import type {ObjectWriteResult} from "@/types/apis";
 import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
@@ -66,7 +69,7 @@ const spin = defineModel<{
 const value = defineModel<AttachmentValue>('value');
 const fileList = ref<AttachmentFileItem[]>([])
 const syncing = ref<boolean>(false)
-const slot = useSlots()
+const slots = useSlots()
 
 const formItemContext = useFormItemContext()
 
@@ -86,6 +89,12 @@ watch(fileList, (list) => {
 watch(value, () => {
   formItemContext?.triggerChange()
 }, {deep: true})
+
+const [mergedClasses, mergedStyles] = useMergeSemantic(
+  useToArr(toRef(props, 'classes')),
+  useToArr(toRef(props, 'styles')),
+  useToProps(computed(() => props)),
+)
 
 function buildExecutorOptions(): AttachmentUploadExecutorOptions {
   return {
@@ -123,13 +132,8 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
 
   try {
     const options = buildExecutorOptions()
-    const uploadedMap = new Map<string, ObjectWriteResult>()
-
     await Promise.all(
-      pending.map(async (file) => {
-        const result = await uploadAttachmentFile(attachmentService, file, props.bucket, options)
-        uploadedMap.set(file.uid, result)
-      }),
+      pending.map(async (file) => file.response = await uploadAttachmentFile(attachmentService, file, props.bucket, options)),
     )
 
     const results = list
@@ -137,8 +141,8 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
         if (isObjectWriteResult(item)) {
           return item
         }
-        if (isUploadFile(item) && uploadedMap.has(item.uid)) {
-          return uploadedMap.get(item.uid)!
+        if (isUploadFile(item) && item.response) {
+          return item.response
         }
         return null
       })
@@ -155,6 +159,7 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
     spin.value = {...spin.value, spinning: false}
   }
 }
+
 
 function mounted() {
   uploadOptionsRef.value = {...props.uploadOptions || {}, param: {}, headers: {}}
@@ -182,14 +187,22 @@ defineExpose({
         v-model:file-list="fileList"
         :preview="props.preview"
         v-bind="$attrs"
+        :classes="mergedClasses"
+        :styles="mergedStyles"
         :max-count="props.maxCount"
         :multiple="props.multiple"
         :accept="props.accept"
         :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.LIST"
         v-if="props.mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
       >
-        <template #itemRender="{file}" v-if="slot.itemRender">
+        <template #itemRender="{file}" v-if="slots.itemRender">
           <slot name="itemRender" :file="file" />
+        </template>
+        <template #itemTitle="{file}" v-if="slots.itemTitle" >
+          <slot name="itemTitle" :file="file" />
+        </template>
+        <template #itemDescription="{file}" v-if="slots.itemDescription">
+          <slot name="itemDescription" :file="file" />
         </template>
       </l-attachment-dragger-upload>
       <l-attachment-picture-card-upload
@@ -199,11 +212,22 @@ defineExpose({
         :max-count="props.maxCount"
         :multiple="props.multiple"
         :accept="props.accept"
+        :classes="mergedClasses"
+        :styles="mergedStyles"
         :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
         v-else-if="props.mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
       >
-        <template #itemRender="{file}" v-if="slot.itemRender">
+        <template #uploadDescription v-if="slots.uploadDescription">
+          <slot name="uploadDescription" />
+        </template>
+        <template #itemRender="{file}" v-if="slots.itemRender">
           <slot name="itemRender" :file="file" />
+        </template>
+        <template #itemTitle="{file}" v-if="slots.itemTitle" >
+          <slot name="itemTitle" :file="file" />
+        </template>
+        <template #itemDescription="{file}" v-if="slots.itemDescription">
+          <slot name="itemDescription" :file="file" />
         </template>
       </l-attachment-picture-card-upload>
     </a-spin>

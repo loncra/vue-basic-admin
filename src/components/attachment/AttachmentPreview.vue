@@ -152,10 +152,15 @@ function valueChange() {
 
 watch(() => fileList.value,()=> valueChange())
 
+const classes = computed(() => ({
+  ...props.classes,
+  item: [props.classes?.item, (props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD ? 'h-[84px] w-[84px]' : 'h-[50px] w-[50px]' )].filter(Boolean).join(' '),
+}))
+
 </script>
 
 <template>
-  <div>
+  <div :class="props.classes?.container" :style="props.styles?.container">
     <div class="hidden">
       <a-image-preview-group
         :preview="{
@@ -193,16 +198,21 @@ watch(() => fileList.value,()=> valueChange())
       </video>
     </a-modal>
 
-    <slot name="listBefore" />
-    <a-space direction="vertical" class="w-full"  v-if="props.mode === ATTACHMENT_PREVIEW_MODE.LIST">
+    <a-space
+      direction="vertical"
+      :class="['w-full', classes?.list]"
+      :style="props.styles?.list"
+      v-if="props.mode === ATTACHMENT_PREVIEW_MODE.LIST"
+    >
+      <slot name="listBefore" />
       <template :key="file.uid" v-for="file in fileList">
         <a-alert v-if="!slots.itemRender" :type="getAlertType(file.status)">
           <template #title>
             <a-flex justify="space-between" align="center" :gap="8">
               <l-attachment-file-preview
                 :preview="preview"
-                :height="props?.height || '50px'"
-                :width="props?.width || '50px'"
+                :item-class="classes?.item"
+                :item-style="props.styles?.item"
                 @preview="openPreview"
                 :file="file"
                 :enabled-download="false"
@@ -237,13 +247,33 @@ watch(() => fileList.value,()=> valueChange())
         <slot v-else name="itemRender" :file="file" />
       </template>
     </a-space>
-    <a-space wrap v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD">
+    <a-space
+      wrap
+      :class="classes?.list"
+      :style="props.styles?.list"
+      v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
+    >
       <a-card :classes="{body:'p-xs'}" size="small" :key="file.uid" v-for="file in fileList" :type="getAlertType(file.status)">
-        <l-attachment-file-preview :preview="preview" :width="props?.width || '84px'" :height="props?.height || '84px'" @delete="(_file) => postRemove(_file)" @preview="openPreview" :file="file">
+        <l-attachment-file-preview
+          :preview="preview"
+          :item-class="classes?.item"
+          :item-style="props.styles?.item"
+          @delete="(_file) => postRemove(_file)"
+          @preview="openPreview"
+          :file="file"
+        >
           <template #itemRender="{file}" v-if="slots.itemRender">
-            <slot name="itemRender" v-if="slots.itemRender" :file="file" />
+            <slot name="itemRender" :file="file" />
           </template>
         </l-attachment-file-preview>
+        <a-card-meta :class="classes?.meta" v-if="slots.itemTitle || slots.itemDescription">
+          <template #title v-if="slots.itemTitle">
+            <slot name="itemTitle" :file="file" />
+          </template>
+          <template #description v-if="slots.itemDescription">
+            <slot name="itemDescription" :file="file" />
+          </template>
+        </a-card-meta>
       </a-card>
       <slot name="pictureCardAfter" />
     </a-space>

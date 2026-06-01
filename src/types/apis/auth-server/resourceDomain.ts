@@ -82,7 +82,10 @@ export interface ResourceSavePayload extends ResourceMetadata, BasicIdMetadata<n
  */
 export interface ResourceEntity extends ResourceSavePayload {
   key: string,
-
+  /**
+   * 代码
+   */
+  code:string
   /**
    * 子节点
    */

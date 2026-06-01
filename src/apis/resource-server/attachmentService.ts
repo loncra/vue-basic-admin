@@ -9,6 +9,7 @@ import type {
 } from "@/types/apis";
 import axios from '@/requests/http.ts'
 import type {AxiosRequestConfig} from 'axios'
+import {formUrlEncoded} from "@/utils";
 
 /**
  * 附件领域服务：`/api[/resource-server]/user/export`
@@ -73,7 +74,7 @@ export class AttachmentService {
   }
 
   static createMultipartUpload(type: string, param: URLSearchParams): Promise<RestResult<MultipartUploadInitData>> {
-    return axios.post(AttachmentService.CREATE_MULTIPART_URL + '/' + type, param)
+    return axios.get(AttachmentService.CREATE_MULTIPART_URL + '/' + type, {params: param})
   }
 
   static uploadMultipart(
