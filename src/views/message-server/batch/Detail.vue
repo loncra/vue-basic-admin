@@ -5,6 +5,8 @@ import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from "v
 import {BatchMessageService} from "@/apis/message-server/batchMessageService.js";
 import type {BatchMessageEntity} from "@/types/apis/message-server/batchDomain.ts";
 import LSmsTable from "@/components/message-server/SmsTable.vue";
+import LSiteTable from "@/components/message-server/SiteTable.vue";
+import LEmailTable from "@/components/message-server/EmailTable.vue";
 import {APP_RELOAD_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 
 defineOptions({
@@ -55,20 +57,26 @@ async function postGetEntity(entity:BatchMessageEntity){
       <a-descriptions-item :label="globalProperties.$t('common.creationTime')">{{ dateTimeFormat(entity.creationTime) }}</a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.completionTime')">{{ dateTimeFormat(entity.completeTime) }}</a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('messageServer.batch.count')">
-        {{ entity.count }}
-        <template v-if="getEnumValue(entity.type) === 10">
-          {{globalProperties.$t('messageServer.site.readCount',{count: ':' +readCount})}}
-        </template>
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('messageServer.batch.sendingNumber')">{{ entity.sendingNumber }}</a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('messageServer.batch.successNumber')">
-        <a-typography-text type="success">{{ entity.successNumber }}</a-typography-text>
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('messageServer.batch.failNumber')">
-        <a-typography-text type="danger">{{ entity.failNumber }}</a-typography-text>
+        <a-space>
+          <span>
+            {{ entity.count }}
+          </span>
+          <span>
+            (
+            <a-typography-text type="success">{{globalProperties.$t('messageServer.batch.successNumber', {count:':' + entity.successNumber})}}</a-typography-text>,
+            <a-typography-text type="danger">{{ globalProperties.$t('messageServer.batch.failNumber', {count:':' + entity.failNumber}) }}</a-typography-text>
+            )
+          </span>
+
+          <template v-if="getEnumValue(entity.type) === 10">
+            {{globalProperties.$t('messageServer.site.readCount',{count: ':' + readCount})}}
+          </template>
+        </a-space>
       </a-descriptions-item>
       <template #afterDescriptions v-if="entity.id > 0">
         <l-sms-table v-if="getEnumValue(entity.type) === 30" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
+        <l-site-table v-else-if="getEnumValue(entity.type) === 10" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
+        <l-email-table v-else-if="getEnumValue(entity.type) === 20" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
       </template>
       <template #extra>
         <a-button size="small" @click="reload?.()">

@@ -12,13 +12,13 @@ import type {
 import {ResourceServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LUserSelect from "@/components/basic/UserSelect.vue";
-import {requireNonNullOrUndefined} from "@/utils";
-import {SiteMessageService} from "@/apis/message-server";
+import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
-import type {SiteMessageSendPayload} from "@/types/apis/message-server/siteDomain.ts";
 import LTipTap from "@/components/tiptap/TipTap.vue";
 
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
+import type {EmailMessageSendPayload} from "@/types/apis/message-server/emailDomain.ts";
 
 defineOptions({
   name: 'MessageServerSiteForm',
@@ -33,24 +33,21 @@ const configProviderStore = useConfigProviderStore()
 const {message} = useApp()
 
 const formRef = ref()
-const service = new SiteMessageService()
-const coverUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
+const service = new EmailMessageService()
 const attachmentUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
 
 const options = ref<{
-  form:SiteMessageSendPayload
+  form:EmailMessageSendPayload
   typeOptions:NameValueEnumMetadata<number>[] | number[]
   channelOptions:NameValueEnumMetadata<number>[] | number[]
   loading:boolean
 }>({
   loading: false,
   form: {
-    toUsers: [],
+    toEmails: [],
     type: 10,
     content:"",
     title: "",
-    pushable: 1,
-    channels:[],
     attachmentList: [],
     remark:"",
     metadata: {}
@@ -66,11 +63,11 @@ function onFinish(){
 async function doSubmit(){
   options.value.loading = true;
   try {
-    await Promise.all([coverUploadRef.value?.upload(), attachmentUploadRef.value?.upload()])
+    await attachmentUploadRef.value?.upload()
     const result = await service.send(options.value.form);
     const data = result.data
     if (Array.isArray(data)) {
-      globalProperties.$router.push({name:'message_server_site'})
+      globalProperties.$router.push({name:'message_server_email'})
     } else if (typeof (data as BatchResponse)) {
       const response = data as BatchResponse;
       globalProperties.$router.push({name:'message_server_batch_detail', query:{id:response.batchId}})
@@ -100,65 +97,19 @@ onMounted(mounted);
     <l-menu-title-card>
       <a-spin :spinning="options.loading" >
         <l-form ref="formRef" @finish="onFinish" :model="options.form">
-          <a-form-item :message-variables="{ label: globalProperties.$t('common.cover') }" name="cover">
-            <l-attachment-upload
-              mode="picture-card"
-              accept=".jpg,.jpeg,.png"
-              ref="coverUploadRef"
-              :classes="{
-                item:'w-[425px] h-[225px]',
-                list:'w-full justify-center',
-                meta:'w-[425px] mt-xxs max-w-full min-w-0'
-              }"
-              :max-count="1"
-              :multiple="false"
-              v-model:value="options.form.cover"
-            >
-              <template #itemTitle>
-                <a-typography-text ellipsis>
-                  {{options.form.title}}
-                </a-typography-text>
-              </template>
-              <template #uploadDescription>
-                {{globalProperties.$t('common.cover')}}
-              </template>
-              <template #itemDescription>
-                <a-typography-paragraph class="m-0" type="secondary" :ellipsis="{ rows: 3 }">
-                  {{options.form.content.replace(/<[^>]*>/g, '')}}
-                </a-typography-paragraph>
-              </template>
-            </l-attachment-upload>
+          <a-form-item :label="globalProperties.$t('common.type')" name="type">
+            <a-select v-model:value="options.form.type" :options="options.typeOptions" :field-names="{label:'name'}">
+            </a-select>
           </a-form-item>
-
-          <a-row :gutter="configProviderStore.getToken().sizeMD">
-            <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-              <a-form-item :label="globalProperties.$t('common.type')" name="type" >
-                <a-select v-model:value="options.form.type" :options="options.typeOptions" :field-names="{label:'name'}">
-                </a-select>
-              </a-form-item>
-            </a-col>
-            <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-              <a-form-item :label="globalProperties.$t('messageServer.site.channel')" name="channels" :rules="options.form.pushable === 1 ? [{required: true, trigger: 'change'}] : undefined">
-                <a-space-compact block>
-                  <a-select mode="multiple" :disabled="options.form.pushable !== 1" :options="options.channelOptions" :field-names="{label:'name'}" v-model:value="options.form.channels" />
-                  <a-space-addon>
-                    <a-switch
-                      v-model:value="options.form.pushable"
-                      :un-checked-value="0"
-                      :checked-value="1"
-                      :checked-children="globalProperties.$t('common.enabled')"
-                      :un-checked-children="globalProperties.$t('common.disabled')"
-                    />
-                  </a-space-addon>
-                </a-space-compact>
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-form-item :label="globalProperties.$t('auth.account')" name="toUsers" :rules="[{required: true,type:'array', trigger: 'change'}]">
-            <l-user-select v-model:value="options.form.toUsers" mode="multiple">
+          <a-form-item :label="globalProperties.$t('common.email')" name="toEmails" :rules="[{required: true,type:'array', trigger: 'change'}]">
+            <l-user-select :query="{'filter_[email_nen]':'true'}" v-model:value="options.form.toEmails" mode="tags">
               <template #optionRender="{ option }">
                 <template v-if="option.data.payload">
-                  {{option.data?.payload?.realName || option.data?.payload?.username}}
+                  <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.emailVerified)})">
+                    <a-typography-text :type="getEnumValue(option.data?.payload.emailVerified) === 1 ? 'success' : 'warning'">
+                      {{option.data?.payload?.realName || option.data?.payload?.username}} ({{option.data?.payload?.email}})
+                    </a-typography-text>
+                  </a-tooltip>
                 </template>
                 <template v-else>
                   {{option.data.label}}

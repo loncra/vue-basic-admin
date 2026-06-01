@@ -72,16 +72,16 @@ async function searchUser(value:string){
 
 function onDeselect(value:string) {
   const userTypeOption = userTypeOptions.value.find(t => t.value === value)
-  if (userTypeOption && currentIgnoreTypes.value.includes(userTypeOption.type)) {
-    currentIgnoreTypes.value = currentIgnoreTypes.value.filter(v => v !== userTypeOption.type);
+  if (userTypeOption && currentIgnoreTypes.value.includes(String(userTypeOption.value))) {
+    currentIgnoreTypes.value = currentIgnoreTypes.value.filter(v => v !== String(userTypeOption.value));
     searchUser(value);
   }
 }
 
 function onSelect(value:string) {
   const userTypeOption = userTypeOptions.value.find(t => t.value === value)
-  if (userTypeOption && !currentIgnoreTypes.value.includes(userTypeOption.type)) {
-    currentIgnoreTypes.value.push(userTypeOption.type)
+  if (userTypeOption && !currentIgnoreTypes.value.includes(String(userTypeOption.value))) {
+    currentIgnoreTypes.value.push(String(userTypeOption.value))
     options.value = options.value.filter(v => !currentIgnoreTypes.value.includes(String(v.value)));
   }
 }
@@ -92,8 +92,8 @@ async function mounted(){
     const userTypeOptionsData =  enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]
     userTypeOptions.value = userTypeOptionsData.map(v => ({
       label:globalProperties.$t('common.all', {name:' ' + v.name}),
-      type: v.value,
-      value:"ALL_" + String(v.value)
+      value: v.value,
+      //value:"ALL_" + String(v.value)
     }))
   }
   currentIgnoreTypes.value = [...props.ignoreTypes || []]

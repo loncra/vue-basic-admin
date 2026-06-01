@@ -48,13 +48,6 @@ const columns = ref<SearchableColumnType[]>([
     width: 200
   },
   {
-    title: globalProperties.$t('messageServer.batch.successNumber'),
-    dataIndex: "successNumber",
-    key:"success_number",
-    ellipsis: true,
-    width: 200
-  },
-  {
     title: globalProperties.$t('messageServer.batch.failNumber'),
     dataIndex: "failNumber",
     key:"fail_number",

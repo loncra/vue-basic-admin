@@ -75,7 +75,7 @@ const locale: LanguagePack = {
     clear:'清空',
     executeStatus:'执行状态',
     successTime:'成功时间',
-    completionTime:'完成事件',
+    completionTime:'完成时间',
     expiresTime:'过期时间',
     auditionTime:'审核时间',
     code:'代码',
@@ -413,12 +413,14 @@ const locale: LanguagePack = {
       readCount:'已读数量{count}',
       channel:'推送渠道',
     },
+    email:{
+      routePage:'邮件消息',
+    },
     batch:{
       routePage:'批量消息',
       count:'总发送数量',
-      successNumber:'成功数量',
-      failNumber:'失败数量',
-      sendingNumber:'发送中数量'
+      successNumber:'成功数量{count}',
+      failNumber:'失败数量{count}'
     }
   },
   component: {
