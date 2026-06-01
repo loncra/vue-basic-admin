@@ -45,6 +45,7 @@ const locale: LanguagePack = {
     home: 'Home',
     parent: 'Parent',
     addChild: 'Add {name} child',
+    content: 'Content',
     open: 'On',
     close: 'Off',
     border: 'Border',

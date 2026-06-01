@@ -11,7 +11,7 @@ import {
   watch
 } from "vue";
 import type {VideoThumbnailResult} from "@/types/composables";
-import type {AttachmentPreviewMode} from "@/types/composables/attachmentUpload.ts";
+import type {AttachmentPreviewProps} from "@/types/composables/attachmentUpload.ts";
 import {ATTACHMENT_PREVIEW_MODE} from "@/constants/systemConstant.ts";
 import LAttachmentFilePreview from "@/components/attachment/internal/AttachmentFilePreview.vue";
 import type {ObjectWriteResult, RestResult} from "@/types/apis";
@@ -23,11 +23,7 @@ defineOptions({
   name: 'LAttachmentPreview',
 })
 
-const props = withDefaults(defineProps<{
-  mode?: AttachmentPreviewMode
-  changeThumbUrl?: boolean,
-  preview?:boolean,
-}>(),{
+const props = withDefaults(defineProps<AttachmentPreviewProps>(),{
   mode: ATTACHMENT_PREVIEW_MODE.LIST,
   changeThumbUrl: true,
   preview:false,
@@ -197,14 +193,21 @@ watch(() => fileList.value,()=> valueChange())
       </video>
     </a-modal>
 
+    <slot name="listBefore" />
     <a-space direction="vertical" class="w-full"  v-if="props.mode === ATTACHMENT_PREVIEW_MODE.LIST">
-      <slot name="listBefore" />
-      <a-alert :key="file.uid" v-for="file in fileList" :type="getAlertType(file.status)">
-        <template #title>
-          <template v-if="!slots.itemRender">
+      <template :key="file.uid" v-for="file in fileList">
+        <a-alert v-if="!slots.itemRender" :type="getAlertType(file.status)">
+          <template #title>
             <a-flex justify="space-between" align="center" :gap="8">
-              <l-attachment-file-preview :preview="preview" height="50px" width="50px" @preview="openPreview" :file="file" :enabled-download="false" :enabled-delete="false" />
-
+              <l-attachment-file-preview
+                :preview="preview"
+                :height="props?.height || '50px'"
+                :width="props?.width || '50px'"
+                @preview="openPreview"
+                :file="file"
+                :enabled-download="false"
+                :enabled-delete="false"
+              />
               <a-flex vertical flex="1" class="min-w-0">
                 <a-flex flex="1" class="min-w-0">
                   <a-flex vertical flex="1" class="min-w-0">
@@ -230,13 +233,13 @@ watch(() => fileList.value,()=> valueChange())
               </a-flex>
             </a-flex>
           </template>
-          <slot  v-else name="itemRender" :file="file" />
-        </template>
-      </a-alert>
+        </a-alert>
+        <slot v-else name="itemRender" :file="file" />
+      </template>
     </a-space>
     <a-space wrap v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD">
       <a-card :classes="{body:'p-xs'}" size="small" :key="file.uid" v-for="file in fileList" :type="getAlertType(file.status)">
-        <l-attachment-file-preview :preview="preview" width="84px" height="84px" @delete="(_file) => postRemove(_file)" @preview="openPreview" :file="file">
+        <l-attachment-file-preview :preview="preview" :width="props?.width || '84px'" :height="props?.height || '84px'" @delete="(_file) => postRemove(_file)" @preview="openPreview" :file="file">
           <template #itemRender="{file}" v-if="slots.itemRender">
             <slot name="itemRender" v-if="slots.itemRender" :file="file" />
           </template>

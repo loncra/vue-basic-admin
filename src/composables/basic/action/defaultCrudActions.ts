@@ -24,6 +24,7 @@ export function createDefaultBulkActions<
     {
       id: 'deleteSelected',
       permission: options.authority?.delete,
+      danger: true,
       visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
       enabled: (ctx) =>
         ctx.selectedItems.length > 0 &&
@@ -78,6 +79,7 @@ TId,
     {
       id: 'delete',
       permission: options.authority?.delete,
+      danger:true,
       enabled: () =>
         typeof (options.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
       label: () => options.t('common.delete.text'),

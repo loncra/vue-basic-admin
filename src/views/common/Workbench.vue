@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {dateTimeFormat, requireNonNullOrUndefined} from '@/utils'
+import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {OperationDataTraceAuditEventService} from "@/apis";
@@ -48,8 +48,8 @@ onMounted(mounted)
           <template #extra>
             <icon-font class="icon" type="icon-quick"/>
           </template>
-          <template v-if="menuStore.state.quickAccess.length > 0">
-            <a-card-grid class="group relative w-1/3 min-h-15 cursor-pointer " @click="globalProperties.$router.push(item.page)" :key="item.page" v-for="item of menuStore.state.quickAccess" >
+          <template v-if="menuStore.currentPrincipalQuickAccess.length > 0">
+            <a-card-grid class="group relative w-1/3 min-h-15 cursor-pointer " @click="globalProperties.$router.push(item.page)" :key="item.page" v-for="item of menuStore.currentPrincipalQuickAccess" >
               <a-flex vertical align="center" justify="space-between" class="h-full min-h-12">
                 <icon-font class="icon text-2xl" :type="item.icon" />
                 <a-typography-text

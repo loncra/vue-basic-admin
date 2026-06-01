@@ -68,6 +68,7 @@ const locale: LanguagePack = {
       parameter:'请求参数',
       body:'请求体'
     },
+    cover:'封面',
     sort:'排序值',
     value: '值',
     unname:'未命名',
@@ -271,10 +272,11 @@ const locale: LanguagePack = {
     }
   },
   attachment: {
+    text:'附件',
     uploading: '文件上传中...',
     dragger:{
       title:'点击或拖动文件至该区域进行上传',
-      subTitle:'支持单文件或批量上传'
+      subTitle:'可上传 {maxCount} 个文件内容，当前已上传 {count}'
     }
   },
   layoutContent: {

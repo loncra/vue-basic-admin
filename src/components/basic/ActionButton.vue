@@ -35,6 +35,7 @@ const menuItems = computed(() =>
   props.actions.map((action) => ({
     key: action.id,
     label: action.label,
+    danger: action.danger,
     icon: action.icon ? () => action.icon : undefined,
     disabled: action.disabled,
   })),

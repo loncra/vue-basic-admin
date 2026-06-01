@@ -280,4 +280,64 @@
     @apply pointer-events-none fixed -left-[9999px] z-[9999] rounded p-xs text-sm
       bg-container text-main shadow-ter border border-dashed;
   }
+
+  .loncra-tip-tap {
+    @apply border border-solid border-border rounded-md
+  }
+
+  .loncra-tip-tap.disabled {
+    @apply cursor-not-allowed bg-(--ant-color-bg-container-disabled)
+  }
+
+  .loncra-tip-tap .loncra-tip-tap-content {
+    @apply p-sm flex flex-col overflow-auto
+  }
+
+  .loncra-tip-tap .loncra-tip-tap-content .tiptap {
+    @apply flex-1 outline-0
+  }
+
+  .loncra-tip-tap .loncra-tip-tap-content .tiptap img {
+    @apply block h-auto max-w-full
+  }
+
+  /* 选中图片容器 */
+  .loncra-tip-tap .loncra-tip-tap-content .tiptap [data-node="image"].ProseMirror-selectednode {
+    @apply outline outline-1 outline-(--ant-color-primary);
+  }
+
+  /* resize 拖拽手柄（可选） */
+  .loncra-tip-tap .loncra-tip-tap-content .tiptap [data-node="image"] [data-resize-handle] {
+    @apply absolute z-10 h-1.5 w-1.5 rounded-xs border border-white bg-(--ant-color-primary);
+  }
+
+  .loncra-tip-tap .loncra-tip-tap-content .tiptap [data-node="image"] [data-resize-handle="bottom-right"],
+  .loncra-tip-tap .loncra-tip-tap-content .tiptap [data-node="image"] [data-resize-handle="top-left"]{
+    @apply cursor-nwse-resize
+  }
+
+  .loncra-tip-tap .loncra-tip-tap-content .tiptap [data-node="image"] [data-resize-handle="bottom-left"],
+  .loncra-tip-tap .loncra-tip-tap-content .tiptap [data-node="image"] [data-resize-handle="top-right"]{
+    @apply cursor-nesw-resize
+
+  }
+
+  .loncra-tip-tap .loncra-tip-tap-content :deep(.ProseMirror p.is-editor-empty:first-child::before) {
+    @apply float-left h-0 text-(--ant-color-text-placeholder) content-[attr(data-placeholder)] pointer-events-none
+  }
+
+  .loncra-tip-tap .loncra-tip-tap-content :deep(.ProseMirror ul),
+  .loncra-tip-tap .loncra-tip-tap-content :deep(.ProseMirror ol) {
+    @apply pl-[1.5em];
+  }
+
+  .loncra-tip-tap .loncra-tip-tap-contentt :deep(.ProseMirror img),
+  .loncra-tip-tap .loncra-tip-tap-content :deep(.ProseMirror video) {
+    @apply max-w-full;
+  }
+
+
+  .loncra-tip-tap .l-tip-tap-toolbar {
+    @apply w-full p-xxs border-b border-solid border-b-border
+  }
 }

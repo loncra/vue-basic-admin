@@ -12,12 +12,12 @@ import {
 } from "vue";
 import {useFormItemContext} from "antdv-next/dist/form/context";
 import type {ObjectWriteResult} from "@/types/apis";
-import {ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
+import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
 import LAttachmentDraggerUpload from "@/components/attachment/internal/AttachmentDraggerUpload.vue";
 import type {
   AttachmentFileItem,
   AttachmentUploadExecutorOptions,
-  AttachmentUploadMode,
+  AttachmentUploadProps,
   AttachmentValue
 } from "@/types/composables/attachmentUpload.ts";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
@@ -40,19 +40,7 @@ defineOptions({
   name: 'LAttachmentUpload',
 })
 
-const props = withDefaults(defineProps<{
-  mode?:AttachmentUploadMode
-  postFilename?:string
-  autoUpload?:boolean
-  action?:string
-  promiseLimit?:number
-  bucket?:string
-  preview?:boolean
-  uploadOptions?:Record<string, unknown>,
-  multiple?: boolean
-  accept?:string
-  maxCount?:number
-}>(),{
+const props = withDefaults(defineProps<AttachmentUploadProps>(),{
   postFilename:'file',
   autoUpload:false,
   mode:ATTACHMENT_UPLOAD_MODE.PICTURE_CARD,
@@ -168,7 +156,6 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
   }
 }
 
-
 function mounted() {
   uploadOptionsRef.value = {...props.uploadOptions || {}, param: {}, headers: {}}
 }
@@ -193,12 +180,13 @@ defineExpose({
     <a-spin :description="spin.description" :spinning="spin.spinning" v-if="props.mode !== ATTACHMENT_UPLOAD_MODE.CUSTOMIZE" >
       <l-attachment-dragger-upload
         v-model:file-list="fileList"
-        :preview="preview"
+        :preview="props.preview"
         v-bind="$attrs"
-        :max-count="maxCount"
-        :multiple="multiple"
-        :accept="accept"
-        v-if="mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
+        :max-count="props.maxCount"
+        :multiple="props.multiple"
+        :accept="props.accept"
+        :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.LIST"
+        v-if="props.mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
       >
         <template #itemRender="{file}" v-if="slot.itemRender">
           <slot name="itemRender" :file="file" />
@@ -206,12 +194,13 @@ defineExpose({
       </l-attachment-dragger-upload>
       <l-attachment-picture-card-upload
         v-model:file-list="fileList"
-        :preview="preview"
+        :preview="props.preview"
         v-bind="$attrs"
-        :max-count="maxCount"
-        :multiple="multiple"
-        :accept="accept"
-        v-else-if="mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
+        :max-count="props.maxCount"
+        :multiple="props.multiple"
+        :accept="props.accept"
+        :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
+        v-else-if="props.mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
       >
         <template #itemRender="{file}" v-if="slot.itemRender">
           <slot name="itemRender" :file="file" />
@@ -221,10 +210,10 @@ defineExpose({
     <a-upload
       v-else
       v-bind="$attrs"
-      :accept="accept"
-      :action="action"
-      :max-count="maxCount"
-      :multiple="multiple"
+      :accept="props.accept"
+      :action="props.action"
+      :max-count="props.maxCount"
+      :multiple="props.multiple"
     >
       <slot/>
     </a-upload>

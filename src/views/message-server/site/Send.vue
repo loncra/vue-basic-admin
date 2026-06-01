@@ -10,6 +10,9 @@ import {requireNonNullOrUndefined} from "@/utils";
 import {SiteMessageService} from "@/apis/message-server";
 import useApp from "antdv-next/dist/app/useApp";
 import type {SiteMessageSendPayload} from "@/types/apis/message-server/siteDomain.ts";
+import LTipTap from "@/components/tiptap/TipTap.vue";
+
+import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 
 defineOptions({
   name: 'MessageServerSiteForm',
@@ -105,14 +108,11 @@ onMounted(mounted);
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item :label="globalProperties.$t('common.title')" :name="['metadata','signCode']" :rules="[{required: true, trigger: 'change'}]">
-          <a-input v-model:value="options.form.title" />
-        </a-form-item>
         <a-form-item :label="globalProperties.$t('auth.account')" name="toUsers" :rules="[{required: true, trigger: 'change'}]">
           <l-user-select :v-model:value="options.form.toUsers" mode="tags">
             <template #optionRender="{ option }">
               <template v-if="option.data.payload">
-                  {{option.data?.payload?.realName || option.data?.payload?.username}}
+                {{option.data?.payload?.realName || option.data?.payload?.username}}
               </template>
               <template v-else>
                 {{option.data.label}}
@@ -120,6 +120,26 @@ onMounted(mounted);
             </template>
           </l-user-select>
         </a-form-item>
+        <a-form-item :label="globalProperties.$t('common.cover')" name="cover" :rules="[{ required: true, trigger: 'change' }]">
+          <l-attachment-upload preview-mode="picture-card" accept=".jpg,.jpeg,.png" ref="coverUploadRef" :max-count="1" :multiple="false" mode="dragger" v-model:value="options.form.cover">
+
+          </l-attachment-upload>
+        </a-form-item>
+        <a-form-item :label="globalProperties.$t('common.title')" name="title" :rules="[{required: true, trigger: 'change'}]">
+          <a-input v-model:value="options.form.title" />
+        </a-form-item>
+        <a-form-item :label="globalProperties.$t('common.content')" name="content" :rules="[{required: true, trigger: 'change'}]">
+          <l-tip-tap
+            v-model:value="options.form.content"
+            model="html"
+            class="min-h-100 max-h-120"
+            :toolbar="{ items: ['undo', 'redo', 'divider', 'bold', 'italic', 'underline', 'blockquote', 'heading', 'divider', 'list', 'align', 'divider', 'link', 'picture'] }"
+          />
+        </a-form-item>
+        <a-form-item :label="globalProperties.$t('attachment.text')" name="attachmentList" :rules="[{ required: true, type:'array', trigger: 'change' }]">
+          <l-attachment-upload ref="attachmentUploadRef" :multiple="false" mode="dragger" v-model:value="options.form.attachmentList" />
+        </a-form-item>
+
         <a-form-item :label="globalProperties.$t('common.remark')" name="remark">
           <a-textarea v-model:value="options.form.remark" :auto-size="{ minRows: 5, maxRows: 10 }"/>
         </a-form-item>

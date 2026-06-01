@@ -1,4 +1,4 @@
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants/systemConstant.ts'
 import type {
@@ -34,7 +34,6 @@ const RESET: MenuState = {
   loading: false,
   currentBreadcrumbs: [],
   routeEnterPage: null,
-  quickAccess: [],
 }
 
 export interface MenuState  {
@@ -42,7 +41,6 @@ export interface MenuState  {
   loading: boolean
   currentBreadcrumbs: RouteResourceMetadata[]
   routeEnterPage: RouteEnterPage | null
-  quickAccess: RouteResourceMetadata[]
 }
 
 /**
@@ -66,7 +64,6 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     const principalStore = usePrincipalStore();
     const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
     const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
-    result.quickAccess = quickAccess.slice().sort((a, b) => b.sort - a.sort)
     return result
   }
 
@@ -83,16 +80,24 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     return quickAccessRecord;
   }
 
+  const currentPrincipalQuickAccess = computed(() => {
+    const principalStore = usePrincipalStore();
+    if (Number(principalStore.state.principal.id) <= 0) {
+      return []
+    }
+    const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
+    return getCurrentQuickAccess(principalStore.state.name, quickAccessRecord)
+  })
+
   function getCurrentQuickAccess(
     principal:string,
     quickAccessRecord: Record<string, RouteResourceMetadata[]>
   ) {
-    const principalStore = usePrincipalStore();
-    let quickAccess:RouteResourceMetadata[] | undefined = quickAccessRecord[principalStore.state.name]
+    let quickAccess:RouteResourceMetadata[] | undefined = quickAccessRecord[principal]
     if (!quickAccess) {
       quickAccess = []
     }
-    return quickAccess;
+    return quickAccess.slice().sort((a, b) => b.sort - a.sort);
   }
 
   function reset():MenuState {
@@ -238,7 +243,6 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     } else {
       quickAccess.push(quickAccessItem) // 若不存在则要 push，否则永远不会新增
     }
-    state.value.quickAccess =  quickAccess.slice().sort((a, b) => b.sort - a.sort)
     localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
   }
 
@@ -247,7 +251,6 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
     quickAccessRecord[principalStore.state.name] = (quickAccessRecord[principalStore.state.name] || []).filter(item => item.path !== path)
     localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
-    state.value.quickAccess = (quickAccessRecord[principalStore.state.name] || []).slice().sort((a, b) => b.sort - a.sort)
   }
 
   return {
@@ -255,6 +258,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     getPrincipalResources,
     setCurrentBreadcrumbs,
     resetCurrentBreadcrumbs,
+    currentPrincipalQuickAccess,
     removeQuickAccess,
     setRouteEnterLoading,
     toResourceRouteMetadata,

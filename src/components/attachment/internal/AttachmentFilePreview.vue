@@ -7,20 +7,13 @@ import useApp from "antdv-next/dist/app/useApp";
 import {requireNonNullOrUndefined} from "@/utils";
 import {AttachmentService} from "@/apis";
 import LBasicImage from "@/components/basic/BasicImage.vue";
+import type {AttachmentPreviewFileProps} from "@/types/composables/attachmentUpload.ts";
 
 defineOptions({
   name: 'LAttachmentFilePreview',
 })
 
-const props = withDefaults(defineProps<{
-  file: UploadFile
-  preview?:boolean
-  height?:string
-  width?:string
-  enabledDelete?:boolean
-  enabledDownload?:boolean
-}>(),{
-  preview:false,
+const props = withDefaults(defineProps<AttachmentPreviewFileProps>(),{
   height:'100%',
   width:'100%',
   enabledDelete: true,
@@ -92,6 +85,7 @@ function download(file: ObjectWriteResult) {
   AttachmentService.download(file.bucketName, file.objectName);
 }
 
+
 defineExpose({
   download,
   remove,
@@ -102,37 +96,34 @@ defineExpose({
 <template>
 
   <div
-    class="group relative size-16 shrink-0 overflow-hidden rounded border border-border-secondary"
+    :class="'group relative size-16 shrink-0 overflow-hidden rounded border border-border-secondary '"
     :style="{width:props.width, height: props.height}"
   >
 
     <slot name="itemRender" v-if="slots.itemRender" :file="file" />
-    <template v-else>
+    <a-tooltip v-else :title="file.name">
       <l-basic-image
         v-if="file.thumbUrl"
         class="size-full object-cover"
-        :alt="file.name"
         :src="file.thumbUrl"
-      />
+      >
+        <template #cover>
+          <a-space >
+            <a-button size="small" @click.stop="onClickPreview" type="text" class="text-white! p-0">
+              <icon-font type="icon-view" />
+            </a-button>
+            <a-button size="small" v-if="enabledDelete" @click.stop="onRemove" type="text" class="text-white! p-0" >
+              <icon-font type="icon-delete" />
+            </a-button>
+            <a-button size="small" v-if="file.response" @click.stop="onDownload" type="text" class="text-white! p-0" >
+              <icon-font type="icon-download" />
+            </a-button>
+          </a-space>
+        </template>
+      </l-basic-image>
       <div v-else class="flex items-center justify-center h-full w-full">
         <icon-font class="text-2xl" :type="getFileIcon()" />
       </div>
-    </template>
-    <div
-      v-if="!preview"
-      class="absolute inset-0 flex items-center justify-center gap-3 bg-black/45 opacity-0 transition-opacity group-hover:opacity-100"
-    >
-      <a-space-compact >
-        <a-button size="small" @click="onClickPreview" type="text" class="text-white!">
-          <icon-font type="icon-view" />
-        </a-button>
-        <a-button size="small" v-if="enabledDelete" @click="onRemove" type="text" class="text-white!" >
-          <icon-font type="icon-delete" />
-        </a-button>
-        <a-button size="small" v-if="enabledDownload" @click="onDownload" type="text" class="text-white!" >
-          <icon-font type="icon-download" />
-        </a-button>
-      </a-space-compact>
-    </div>
+    </a-tooltip>
   </div>
 </template>

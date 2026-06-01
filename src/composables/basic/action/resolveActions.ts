@@ -38,6 +38,7 @@ export function resolveActions<TItem>(
         id: def.id,
         label: def.label?.(context) ?? '',
         icon: def.icon?.(context),
+        danger: def.danger,
         disabled,
         run: disabled
           ? undefined

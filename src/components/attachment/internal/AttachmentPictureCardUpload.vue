@@ -1,22 +1,21 @@
 <script setup lang="ts">
 
-import type {AttachmentFileItem} from "@/types/composables/attachmentUpload.ts";
+import type {
+  AttachmentFileItem,
+  AttachmentPictureCardUploadProps
+} from "@/types/composables/attachmentUpload.ts";
 import LAttachmentPreview from "@/components/attachment/AttachmentPreview.vue";
 import {ATTACHMENT_PREVIEW_MODE} from "@/constants/systemConstant.ts";
 import {useAttachmentUploadFiles} from "@/composables/attachment/useAttachmentUploadFiles.js";
 import {useSlots} from "vue";
-import type { UploadChangeParam } from "antdv-next";
+import type {UploadChangeParam} from "antdv-next";
+
 defineOptions({
   name: 'LAttachmentPictureCardUpload',
 })
 
-const props = withDefaults(defineProps<{
-  multiple?: boolean
-  accept?:string
-  preview?:boolean
-  maxCount?:number
-  changeThumbUrl?: boolean
-}>(), {
+const props = withDefaults(defineProps<AttachmentPictureCardUploadProps>(), {
+  mode: ATTACHMENT_PREVIEW_MODE.PICTURE_CARD,
   preview:false,
   changeThumbUrl: true
 })
@@ -28,6 +27,7 @@ const slot = useSlots()
 const emit = defineEmits<{
   change: [info: UploadChangeParam]
 }>()
+
 function onChange(info: UploadChangeParam) {
   emit('change', info)
 }

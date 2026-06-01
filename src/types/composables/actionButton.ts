@@ -15,6 +15,7 @@ export interface ActionContext<TItem = unknown> {
 export interface ActionDefinition<TItem = unknown> {
   id: string
   permission?: string | boolean
+  danger?:boolean,
   visible?: (ctx: ActionContext<TItem>) => boolean
   enabled?: (ctx: ActionContext<TItem>) => boolean
   label?: (ctx: ActionContext<TItem>) => string
@@ -26,6 +27,7 @@ export interface ResolvedAction {
   id: string
   label: string
   icon?: VNode
+  danger?: boolean
   disabled: boolean
   loading?: boolean
   run?: () => void | Promise<void>
