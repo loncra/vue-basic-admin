@@ -55,6 +55,13 @@ const columns = ref<SearchableColumnType[]>([
     width: 200
   },
   {
+    title: globalProperties.$t('messageServer.batch.successNumber'),
+    dataIndex: "successNumber",
+    key:"success_number",
+    ellipsis: true,
+    width: 200
+  },
+  {
     title: globalProperties.$t('common.completionTime'),
     dataIndex: "completeTime",
     ellipsis: true,
@@ -105,7 +112,7 @@ onMounted(mounted)
           {{ dateTimeFormat(record.creationTime) }}
         </template>
         <template v-if="column.dataIndex === 'completeTime'">
-          {{ dateTimeFormat(record.successTime) }}
+          {{ dateTimeFormat(record.completeTime) }}
         </template>
         <template v-if="column.dataIndex === 'executeStatus'">
           <a-space>

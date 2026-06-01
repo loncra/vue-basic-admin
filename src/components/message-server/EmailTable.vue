@@ -158,7 +158,7 @@ onMounted(mounted)
       delete:'perms[message_server_email:delete]'
     }"
     :scroll="{x:'max-content'}"
-    :row-selection="{fixed: true, type: 'checkbox'}"
+    :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"
     @detail="r => globalProperties.$router.push({name:'message_server_email_detail', query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
