@@ -18,6 +18,7 @@ import type {ObjectWriteResult, RestResult} from "@/types/apis";
 import {AttachmentService} from "@/apis";
 import useApp from "antdv-next/dist/app/useApp";
 import LBasicImage from "@/components/basic/BasicImage.vue";
+import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
 defineOptions({
   name: 'LAttachmentPreview',
@@ -40,6 +41,8 @@ const {message, modal} = useApp()
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+
+const configProviderStore = useConfigProviderStore();
 
 const fileList = defineModel<UploadFile<ObjectWriteResult>[]>('fileList', {default:() => []})
 
@@ -201,6 +204,7 @@ const classes = computed(() => ({
     <a-space
       direction="vertical"
       :class="['w-full', classes?.list]"
+      size="middle"
       :style="props.styles?.list"
       v-if="props.mode === ATTACHMENT_PREVIEW_MODE.LIST"
     >
@@ -208,9 +212,9 @@ const classes = computed(() => ({
       <template :key="file.uid" v-for="file in fileList">
         <a-alert v-if="!slots.itemRender" :type="getAlertType(file.status)">
           <template #title>
-            <a-flex justify="space-between" align="center" :gap="8">
+            <a-flex justify="space-between" align="center" :gap="configProviderStore.getToken().sizeXS">
               <l-attachment-file-preview
-                :preview="preview"
+                :tooltip-filename="false"
                 :item-class="classes?.item"
                 :item-style="props.styles?.item"
                 @preview="openPreview"
@@ -255,7 +259,7 @@ const classes = computed(() => ({
     >
       <a-card :classes="{body:'p-xs'}" size="small" :key="file.uid" v-for="file in fileList" :type="getAlertType(file.status)">
         <l-attachment-file-preview
-          :preview="preview"
+          :enabled-delete="!preview"
           :item-class="classes?.item"
           :item-style="props.styles?.item"
           @delete="(_file) => postRemove(_file)"

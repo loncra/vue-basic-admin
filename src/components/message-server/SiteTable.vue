@@ -14,7 +14,12 @@ import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
 import {SiteMessageService} from "@/apis/message-server/siteMessageService.js";
 import type {SiteMessageEntity} from "@/types/apis/message-server/siteDomain.ts";
-import type {EnumBucketsResponseBody, FilterRequest, RestResult} from "@/types/apis";
+import type {
+  EnumBucketsResponseBody,
+  FilterRequest,
+  NameValueEnumMetadata,
+  RestResult
+} from "@/types/apis";
 
 defineOptions({
   name: 'LSiteTable',
@@ -87,7 +92,7 @@ const columns = ref<SearchableColumnType[]>([
       expression:'like'
     },
   },{
-    title: globalProperties.$t('auth.account'),
+    title: globalProperties.$t('auth.principal'),
     dataIndex: "toUser",
     ellipsis: true,
     key:'to_user',
@@ -102,29 +107,11 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: "pushable",
     key:'pushable',
     ellipsis: true,
-    width: 210
-  }, {
-    title: globalProperties.$t('messageServer.site.readable'),
-    dataIndex: "readable",
-    key:'readable',
-    ellipsis: true,
-    width: 210
-  }, {
-    title: globalProperties.$t('common.successTime'),
-    dataIndex: "successTime",
-    key:'success_time',
-    ellipsis: true,
-    width: 210
-  }, {
-    title: globalProperties.$t('common.retry.count'),
-    dataIndex: "retryCount",
-    key:'retry_count',
-    ellipsis: true,
     width: 80
   }, {
-    title: globalProperties.$t('common.retry.time'),
-    dataIndex: "retryTime",
-    key:'retry_time',
+    title: globalProperties.$t('common.readTime'),
+    dataIndex: "readTime",
+    key:'read_time',
     ellipsis: true,
     width: 210
   }
@@ -152,6 +139,10 @@ async function mounted() {
   }
 }
 
+function getChannelsName(channels:NameValueEnumMetadata<number>[] = []) {
+  return channels.map((v:NameValueEnumMetadata<number>) => getEnumName(v)).join(',')
+}
+
 onMounted(mounted)
 </script>
 
@@ -174,14 +165,24 @@ onMounted(mounted)
     @detail="r => globalProperties.$router.push({name:'message_server_site_detail', query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
-      <template v-if="column.dataIndex === 'channel'">
-        {{ getEnumName(record.channel) }}
-      </template>
       <template v-if="column.dataIndex === 'creationTime'">
         {{ dateTimeFormat(record.creationTime) }}
       </template>
       <template v-if="column.dataIndex === 'successTime'">
         {{ dateTimeFormat(record.successTime) }}
+      </template>
+      <template v-if="column.dataIndex === 'redTime'">
+        {{dateTimeFormat(record.readTime)}}
+      </template>
+      <template v-if="column.dataIndex === 'pushable'">
+        <a-tooltip v-if="getEnumValue(record.pushable) === 1">
+          <template #title>
+            {{globalProperties.$t('messageServer.site.channel')}}:{{getChannelsName(record.channels)}}
+          </template>
+          <span>
+          {{ getEnumName(record.pushable) }}
+          </span>
+        </a-tooltip>
       </template>
       <template v-if="column.dataIndex === 'retryCount'">
         {{ record.retryCount  }} / {{ record.maxRetryCount }}

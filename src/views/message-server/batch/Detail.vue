@@ -8,6 +8,8 @@ import LSmsTable from "@/components/message-server/SmsTable.vue";
 import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
 import {APP_RELOAD_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {SiteMessageService} from "@/apis/message-server";
+import type {RestResult} from "@/types/apis";
 
 defineOptions({
   name: 'MessageServerBatchDetail'
@@ -18,6 +20,7 @@ const globalProperties =
     .globalProperties
 const reload = inject<Function>(APP_RELOAD_PROVIDE_KEY)
 const service = new BatchMessageService()
+const siteService = new SiteMessageService()
 const entity = ref<BatchMessageEntity>({
   completeTime: 0,
   count: 0,
@@ -33,7 +36,8 @@ const entity = ref<BatchMessageEntity>({
 const readCount = ref<number>(0)
 
 async function postGetEntity(entity:BatchMessageEntity){
-
+  const result:RestResult<number> = await siteService.countRead(entity.id);
+  readCount.value = result?.data || 0
 }
 
 </script>

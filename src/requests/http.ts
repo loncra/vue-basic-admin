@@ -117,10 +117,10 @@ function responseInterceptor<T = unknown>(
  */
 async function responseError<T = unknown>(
   error: AxiosError<RestResult<T>>,
-): Promise<AxiosError | Error | BusinessError> {
+): Promise<AxiosError | Error | BusinessError | RestResult<T>> {
   // 如果错误状态码在忽略列表中，直接拒绝
   if (error.response && ignoreErrorStatus.includes(error.response.status)) {
-    return Promise.reject(error)
+    return Promise.resolve(error.response.data)
   }
 
   // 处理无响应的情况（网络错误）
@@ -145,8 +145,7 @@ async function responseError<T = unknown>(
   // 统一处理 401 未授权错误
   if (status === 401) {
     message.error('登录已过期，请重新登录')
-    router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME}).catch(() => {
-    })
+    router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME}).catch(() => {})
     return Promise.reject(
       new BusinessError(result?.executeCode || '401', status, serverMessage, result?.data),
     )

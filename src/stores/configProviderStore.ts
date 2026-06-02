@@ -127,7 +127,8 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     const initialState = {
       algorithm: null,
       ...{locale: navigator.language},
-      ...(storedValue ? JSON.parse(storedValue) : CONFIG_PROVIDER.STORED_STATE_VALUE),
+      ...CONFIG_PROVIDER.STORED_STATE_VALUE,
+      ...(storedValue ? JSON.parse(storedValue) : {}),
     }
 
     // 初始化 screen 属性
@@ -286,6 +287,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
       homeCollapsible: state.value.homeCollapsible,
       homeSiderWidth: state.value.homeSiderWidth,
       formLayout: state.value.formLayout,
+      detailLayout: state.value.detailLayout,
       locale: state.value.locale,
       token:state.value.token,
       componentSize:'middle',

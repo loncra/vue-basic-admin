@@ -16,6 +16,7 @@ defineOptions({
 const props = withDefaults(defineProps<AttachmentPreviewFileProps>(),{
   enabledDelete: true,
   enabledDownload: true,
+  tooltipFilename:true,
 })
 
 const slots = useSlots()
@@ -101,7 +102,7 @@ defineExpose({
   >
 
     <slot name="itemRender" v-if="slots.itemRender" :file="file" />
-    <a-tooltip v-else :title="file.name">
+    <a-tooltip v-else :title="tooltipFilename ? file.name : null">
       <l-basic-image
         v-if="file.thumbUrl"
         class="size-full object-cover"
@@ -115,7 +116,7 @@ defineExpose({
             <a-button size="small" v-if="enabledDelete" @click.stop="onRemove" type="text" class="text-white! p-0" >
               <icon-font type="icon-delete" />
             </a-button>
-            <a-button size="small" v-if="file.response" @click.stop="onDownload" type="text" class="text-white! p-0" >
+            <a-button size="small" v-if="file.response" @click.stop="onDownload(file.response)" type="text" class="text-white! p-0" >
               <icon-font type="icon-download" />
             </a-button>
           </a-space>

@@ -39,12 +39,17 @@ export interface EmailMessageEntity extends BasicMessageEntity, BasicSiteMessage
   /**
    * 收信邮箱
    */
-  toEmail: string;
+  toEmail: string
 
   /**
    * 批量消息 id
    */
-  batchId: number;
+  batchId: number
+
+  /**
+   * 发送邮箱
+   */
+  fromEmail:string
 }
 
 /**

@@ -1,4 +1,3 @@
-
 import type {NameValueEnumMetadata} from "@/types/apis";
 import {CONFIG_PROVIDER, CONFIG_PROVIDER_THEME} from "@/constants/systemConstant.ts";
 
@@ -38,6 +37,8 @@ export interface ConfigProviderStoredState {
   homeCollapsible: boolean
   /** 表单布局方式 */
   formLayout: string
+  /** 明细页布局方式 */
+  detailLayout:string
   /** 首页侧边栏宽度 */
   homeSiderWidth: number
   /** 当前语言环境 */

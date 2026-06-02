@@ -75,6 +75,7 @@ const locale: LanguagePack = {
     clear:'清空',
     executeStatus:'执行状态',
     successTime:'成功时间',
+    readTime:'读取时间',
     completionTime:'完成时间',
     expiresTime:'过期时间',
     auditionTime:'审核时间',
@@ -299,6 +300,7 @@ const locale: LanguagePack = {
     subTitle: '通过配置式生成，快速构建企业级应用，让开发更高效、更专注',
     welcomeTitle: '欢迎回来👋🏻',
     welcomeSubTitle: '请输入您的账户信息，以开始使用系统。',
+    principal:'用户信息',
     account: '登录账户',
     password: '登录密码',
     oldPassword:'旧密码',
@@ -410,11 +412,14 @@ const locale: LanguagePack = {
     site:{
       pushable:'是否推送',
       routePage:'站内信消息',
+      readable:'是否已读',
       readCount:'已读数量{count}',
       channel:'推送渠道',
     },
     email:{
       routePage:'邮件消息',
+      fromEmail:'发送邮箱',
+      receiveEmail:'收信邮箱',
     },
     batch:{
       routePage:'批量消息',

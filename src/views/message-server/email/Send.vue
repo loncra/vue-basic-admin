@@ -10,7 +10,6 @@ import type {
   RestResult
 } from "@/types/apis";
 import {ResourceServerService} from "@/apis";
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
@@ -21,14 +20,12 @@ import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts"
 import type {EmailMessageSendPayload} from "@/types/apis/message-server/emailDomain.ts";
 
 defineOptions({
-  name: 'MessageServerSiteForm',
+  name: 'MessageServerEmailSend',
 })
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
-
-const configProviderStore = useConfigProviderStore()
 
 const {message} = useApp()
 

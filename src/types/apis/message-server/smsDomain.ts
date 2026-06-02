@@ -14,7 +14,7 @@ export interface SmsMessageEntity extends BasicMessageEntity {
     /**
      * 渠道名称
      */
-    channel: NameValueEnumMetadata<string>;
+    channel: NameValueEnumMetadata<string> | string;
 
     /**
      * 手机号码

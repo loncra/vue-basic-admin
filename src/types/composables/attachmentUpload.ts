@@ -101,6 +101,7 @@ export interface AttachmentPreviewProps extends AttachmentUploadDomProps {
 
 export interface AttachmentPreviewFileProps {
   file: UploadFile
+  tooltipFilename?:boolean,
   enabledDelete?:boolean
   enabledDownload?:boolean
   itemClass?: string

@@ -58,6 +58,7 @@ export const CONFIG_PROVIDER = {
     token:{},
     componentSize:'middle',
     compact: false,
+    detailLayout: 'vertical',
   },
   CREATE_SUCCESS_BACK: {
     CURRENT:'current',

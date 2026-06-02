@@ -39,6 +39,17 @@ const router: RouteRecordRaw[] = [
       parent: '/message-server/sms',
       requiresFullyAuth: true,
     },
+  },{
+    path: '/message-server/sms/detail',
+    component: () => import('@/views/message-server/sms/Detail.vue'),
+    name: 'message_server_sms_detail',
+    meta: {
+      applicationName: 'message-server',
+      requiresAuth: true,
+      icon: 'icon-order-inspection',
+      parent: '/message-server/sms',
+      requiresFullyAuth: true,
+    },
   }
 ]
 

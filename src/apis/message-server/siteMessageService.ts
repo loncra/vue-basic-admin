@@ -19,16 +19,21 @@ export class SiteMessageService extends PageSearchRestfulService<SiteMessageEnti
   /** 本服务相对 {@link BASE_URL} 的路径 */
   static readonly SERVICE_URL = SiteMessageService.BASE_URL + '/site'
 
+  static readonly COUNT_READ_URL = SiteMessageService.SERVICE_URL + '/read/count'
+
   constructor() {
     super(SiteMessageService.SERVICE_URL)
   }
 
-  /** `DELETE {baseUrl}?ids=...`（`ids` 经 {@link formUrlEncoded}） */
   delete(ids: number[]): Promise<RestResult<void>> {
     return axios.delete(this.baseUrl, {params: formUrlEncoded({ids})})
   }
 
   send(data:SiteMessageSendPayload):Promise<RestResult<number[] | BatchResponse>> {
     return axios.put(SiteMessageService.SERVICE_URL, data)
+  }
+
+  countRead(batchId:number):Promise<RestResult<number>> {
+    return axios.get(SiteMessageService.COUNT_READ_URL + '/' + batchId)
   }
 }

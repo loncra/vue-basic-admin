@@ -21,7 +21,7 @@ import LTipTap from "@/components/tiptap/TipTap.vue";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 
 defineOptions({
-  name: 'MessageServerSiteForm',
+  name: 'MessageServerSiteSend',
 })
 
 const globalProperties =
@@ -154,7 +154,7 @@ onMounted(mounted);
               </a-form-item>
             </a-col>
           </a-row>
-          <a-form-item :label="globalProperties.$t('auth.account')" name="toUsers" :rules="[{required: true,type:'array', trigger: 'change'}]">
+          <a-form-item :label="globalProperties.$t('auth.principal')" name="toUsers" :rules="[{required: true,type:'array', trigger: 'change'}]">
             <l-user-select v-model:value="options.form.toUsers" mode="multiple">
               <template #optionRender="{ option }">
                 <template v-if="option.data.payload">

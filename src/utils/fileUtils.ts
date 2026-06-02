@@ -160,13 +160,12 @@ export function convertUploadFiles(
   for (const file of fileList) {
     if (isObjectWriteResult(file)) {
       const contentType = file?.extraHeaders?.['Content-Type'] || ''
-
       const url = AttachmentService.query(file.bucketName, file.objectName)
       result.push({
         uid: file.etag,
         name: file?.extraHeaders?.['x-amz-meta-original-filename'] || file.objectName,
         url,
-        thumbUrl: ['image/', 'video/'].includes(contentType) ? url : undefined,
+        thumbUrl: ['image/', 'video/'].some(v => contentType.startsWith(v)) ? url : undefined,
         type: contentType || undefined,
         size: file.size || 0,
         percent: 100,
