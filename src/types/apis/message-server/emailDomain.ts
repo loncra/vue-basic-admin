@@ -1,6 +1,6 @@
 import type {BasicMessageEntity, NameValueEnumMetadata, ObjectWriteResult} from "@/types/apis";
 
-export interface BasicSiteMessage {
+export interface BasicEmailMessage {
   /**
    * 类型
    *
@@ -34,7 +34,7 @@ export interface BasicSiteMessage {
  *
  * @author maurice.chen
  */
-export interface EmailMessageEntity extends BasicMessageEntity, BasicSiteMessage {
+export interface EmailMessageEntity extends BasicMessageEntity, BasicEmailMessage {
 
   /**
    * 收信邮箱
@@ -57,7 +57,7 @@ export interface EmailMessageEntity extends BasicMessageEntity, BasicSiteMessage
  *
  * @author maurice.chen
  */
-export interface EmailMessageSendPayload extends BasicSiteMessage{
+export interface EmailMessageSendPayload extends BasicEmailMessage{
   /**
    * 接收方用户
    */

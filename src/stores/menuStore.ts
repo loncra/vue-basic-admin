@@ -62,8 +62,6 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
       ...RESET,
     }
     const principalStore = usePrincipalStore();
-    const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
-    const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
     return result
   }
 
@@ -151,7 +149,6 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
   function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
     return {
-      code: "",
       icon: (route.meta?.icon || 'icon-survey') as string,
       name: getRouteTitle(route.name),
       route: route.name,

@@ -415,6 +415,8 @@ const locale: LanguagePack = {
       readable:'是否已读',
       readCount:'已读数量{count}',
       channel:'推送渠道',
+      deleteRead:'删除已读',
+      readAll:'设置全部为已读',
     },
     email:{
       routePage:'邮件消息',

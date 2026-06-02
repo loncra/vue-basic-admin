@@ -1,4 +1,9 @@
-import type {BasicMessageEntity, NameValueEnumMetadata, ObjectWriteResult} from "@/types/apis";
+import type {
+  BasicMessageEntity,
+  NameValueEnumMetadata,
+  ObjectWriteResult, PageRequest,
+  TotalPage
+} from "@/types/apis";
 
 export interface BasicSiteMessage {
   /**
@@ -81,3 +86,10 @@ export interface SiteMessageSendPayload extends BasicSiteMessage{
   toUsers: string[];
 }
 
+export interface MySiteMessageProps {
+  dataSource:TotalPage<SiteMessageEntity>
+  key:string
+  install:boolean
+  loading:boolean
+  pageRequest:PageRequest
+}

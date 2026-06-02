@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {BatchMessageService} from "@/apis/message-server/batchMessageService.js";
 import type {BatchMessageEntity} from "@/types/apis/message-server/batchDomain.ts";
 import LSmsTable from "@/components/message-server/SmsTable.vue";
 import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
-import {APP_RELOAD_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 import {SiteMessageService} from "@/apis/message-server";
 import type {RestResult} from "@/types/apis";
 
@@ -18,7 +17,6 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
-const reload = inject<Function>(APP_RELOAD_PROVIDE_KEY)
 const service = new BatchMessageService()
 const siteService = new SiteMessageService()
 const entity = ref<BatchMessageEntity>({
@@ -81,11 +79,6 @@ async function postGetEntity(entity:BatchMessageEntity){
         <l-sms-table v-if="getEnumValue(entity.type) === 30" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
         <l-site-table v-else-if="getEnumValue(entity.type) === 10" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
         <l-email-table v-else-if="getEnumValue(entity.type) === 20" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
-      </template>
-      <template #extra>
-        <a-button size="small" @click="reload?.()">
-          <icon-font class="icon" type="icon-change" />
-        </a-button>
       </template>
     </l-basic-detail>
   </div>

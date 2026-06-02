@@ -3,8 +3,9 @@ import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
 import LMenu from '@/components/layout/Menu.vue'
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
-import {h, resolveComponent, type VNode} from "vue";
+import {h, onMounted, resolveComponent, type VNode} from "vue";
 import type {ResourceEntity} from "@/types/apis";
+import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 
 defineOptions({
   name: 'LLayoutHeader',
@@ -12,19 +13,25 @@ defineOptions({
 
 const menuPrincipalStore = useMenuPrincipalStore()
 
+const messageServerStore = useMessageServerStore()
+
 function itemRender(item:ResourceEntity, node:VNode) {
-  if (item.code === 'site_message') {
+  if (item.code === 'my_message') {
     const badge = resolveComponent('ABadge')
     return h(
       badge,
-      {count: 3, size: 'small'},
+      {count: messageServerStore.getUnreadQuantity(), dot:true, size: 'small'},
       {default:() => node},
     )
   }
-
   return node
-
 }
+
+async function mounted(){
+  await messageServerStore.installState()
+}
+
+onMounted(mounted)
 
 </script>
 

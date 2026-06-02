@@ -12,6 +12,7 @@ export const SYSTEM_CONSTANT = {
 export const STORE = {
   CONFIG_PROVIDER_ID: 'configProvider',
   PRINCIPAL_ID: 'principal',
+  MESSAGE_SERVER_ID: 'messageServer',
   SOCKET_ID: 'socket',
   MENU_ID: 'menu',
 } as const

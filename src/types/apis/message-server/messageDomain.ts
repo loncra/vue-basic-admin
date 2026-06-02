@@ -1,4 +1,4 @@
-import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common";
+import type {IdNameMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "../common";
 
 /**
  * 基础消息实体，用于将所有消息内容公有化使用。
@@ -66,4 +66,9 @@ export interface BatchResponse {
    * 数量
    */
   count: number
+}
+
+export interface MyMessageState {
+  record?:Record<number, number> | undefined
+  siteTypes?:IdNameMetadata[]
 }

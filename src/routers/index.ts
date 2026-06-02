@@ -17,6 +17,7 @@ import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
 import Workbench from '@/views/common/Workbench.vue'
 import UserExport from "@/views/common/UserExport.vue";
+import MyMessage from '@/views/common/MyMessage.vue'
 import Setting from '@/views/common/Setting.vue'
 import NotFound from '@/views/error/NotFound.vue';
 import Forbidden from '@/views/error/Forbidden.vue';
@@ -72,6 +73,15 @@ const childrenRoutes: RouteRecordRaw[] = [
     path: '/commons/setting',
     name: 'setting',
     component: Setting,
+    meta: {
+      applicationName: 'commons',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/commons/my/message',
+    name: 'my_message',
+    component: MyMessage,
     meta: {
       applicationName: 'commons',
       requiresAuth: true,

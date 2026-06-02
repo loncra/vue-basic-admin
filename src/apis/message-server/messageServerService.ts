@@ -1,4 +1,4 @@
-import type {FileObject, RestResult} from "@/types/apis";
+import type {FileObject, IdNameMetadata, RestResult} from "@/types/apis";
 import axios from "@/requests/http.ts";
 
 /**
@@ -12,13 +12,13 @@ export class MessageServerService {
 
   static readonly UNREAD_QUANTITY_URL = MessageServerService.BASE_URL + '/unreadQuantity'
 
-  static readonly MESSAGE_TYPE_URL = MessageServerService.BASE_URL + '/unreadQuantity'
+  static readonly TYPE_URL = MessageServerService.BASE_URL + '/types'
 
-  static unreadQuantity(): Promise<RestResult<void>> {
+  static unreadQuantity(): Promise<RestResult<Record<number, number>>> {
     return axios.get(MessageServerService.UNREAD_QUANTITY_URL)
   }
 
-  static messageTypes(): Promise<RestResult<void>> {
-    return axios.get(MessageServerService.MESSAGE_TYPE_URL)
+  static types(category:string): Promise<RestResult<IdNameMetadata[]>> {
+    return axios.get(MessageServerService.TYPE_URL + '/' +category)
   }
 }

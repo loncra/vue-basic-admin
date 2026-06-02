@@ -123,21 +123,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    * @returns 初始化后的 ConfigProviderState
    */
   function reset(): ConfigProviderState {
-
-    const initialState = {
-      algorithm: null,
-      ...{locale: navigator.language},
-      ...CONFIG_PROVIDER.STORED_STATE_VALUE,
-      ...(storedValue ? JSON.parse(storedValue) : {}),
-    }
-
-    // 初始化 screen 属性
-    const initialScreen = calculateScreenBreakpoint(window.innerWidth)
-
-    return {
-      ...initialState,
-      screen: initialScreen,
-    }
+    return $reset()
   }
 
   /**
@@ -398,7 +384,20 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    * @returns 重置后的状态
    */
   function $reset(): ConfigProviderState {
-    return reset()
+    const initialState = {
+      algorithm: null,
+      ...{locale: navigator.language},
+      ...CONFIG_PROVIDER.STORED_STATE_VALUE,
+      ...(storedValue ? JSON.parse(storedValue) : {}),
+    }
+
+    // 初始化 screen 属性
+    const initialScreen = calculateScreenBreakpoint(window.innerWidth)
+
+    return {
+      ...initialState,
+      screen: initialScreen,
+    }
   }
 
   /**

@@ -369,8 +369,8 @@ onMounted(mounted)
     >
       <!-- 顶部操作区：左侧预留按钮，右侧分段器充当标签导航 -->
       <a-flex align="center" justify="center" class="layout-content-operation">
-        <a-border-beam 
-          v-if="isRoutePageLoading(globalProperties.$route.fullPath)" 
+        <a-border-beam
+          v-if="isRoutePageLoading(globalProperties.$route.fullPath)"
           :color="[
             {
               color: configProviderStore.getToken().colorPrimary,
@@ -521,7 +521,7 @@ onMounted(mounted)
         </div>
       </a-flex>
       <a-flex vertical flex="1" class="pr-md pl-md">
-        <a-spin class="layout-content-route-spin" :spinning="isRoutePageLoading(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
+        <a-spin class="h-full-spin" :spinning="isRoutePageLoading(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
             <transition name="fade-transform" mode="out-in">
               <!-- 使用 key 来清除缓存：key = fullPath + 版本号 -->

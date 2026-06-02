@@ -13,6 +13,11 @@ import {message, Modal, notification} from 'antdv-next'
 // 导入全局样式
 import '@/assets/style.css'
 
+/*import {
+  Conversations,
+  XProvider
+} from '@antdv-next/x'*/
+
 dayjs.extend(relativeTime)
 
 /**
@@ -32,6 +37,8 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(i18n)
+/*app.use(Conversations)
+app.use(XProvider)*/
 app.component('IconFont', IconFont)
 
 // ==================配置全局属性================== //
