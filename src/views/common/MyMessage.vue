@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import LMySiteMessage from "@/components/my/MySiteMessage.vue";
+import LMyChatMessage from "@/components/my/MyChatMessage.vue";
 import {markRaw, ref} from "vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 
@@ -21,8 +22,9 @@ const segmented = ref<{
     component:markRaw(LMySiteMessage)
   },{
     value:'chat_message',
-    text:'即时聊天',
-    iconFont:'loncra-messages-square'
+    text:'我的聊天',
+    iconFont:'loncra-messages-square',
+    component: markRaw(LMyChatMessage)
   },{
     value:'ai_chat',
     text:'ai',
@@ -61,7 +63,7 @@ function onSegmented(value:string) {
             </template>
           </a-segmented>
         </div>
-        <a-flex flex="1">
+        <a-flex flex="1" class="h-full">
           <component :is="segmented.data.find(v => v.value === segmented.value)?.component" />
         </a-flex>
       </a-flex>

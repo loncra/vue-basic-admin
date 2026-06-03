@@ -184,7 +184,7 @@
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab {
-    @apply relative z-[1] rounded-sm border-0 border-transparent bg-transparent px-md pb-0 pt-0 text-sec
+    @apply relative z-1 rounded-sm border-0 border-transparent bg-transparent px-md pb-0 pt-0 text-sec
     transition-colors duration-(--ant-motion-duration-mid) ease-(--ant-motion-ease-in-out)
     motion-reduce:transition-none;
   }
@@ -285,7 +285,7 @@
   }
 
   .drag-ghost {
-    @apply pointer-events-none fixed -left-[9999px] z-[9999] rounded p-xs text-sm
+    @apply pointer-events-none fixed -left-2499.75 z-9999 rounded p-xs text-sm
       bg-container text-main shadow-ter border border-dashed;
   }
 
