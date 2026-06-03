@@ -19,7 +19,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       dynamicTitle: true,
       applicationName: 'resource-server',
-      icon: 'icon-edit',
+      icon: 'loncra-file-pen-line',
       parent: '/resource-server/carousel',
       requiresFullyAuth: true,
     },
@@ -30,7 +30,7 @@ const router: RouteRecordRaw[] = [
     name: 'resource_server_carousel_add',
     meta: {
       applicationName: 'resource-server',
-      icon: 'icon-add',
+      icon: 'loncra-file-plus',
       parent: '/resource-server/carousel',
       requiresFullyAuth: true,
     },

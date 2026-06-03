@@ -126,7 +126,6 @@ const defaultTableActions = computed(() =>
   createDefaultToolbarActions<TEntity>({
     authority: props.authority,
     t: globalProperties.$t.bind(globalProperties),
-    iconClass: 'align',
     onAdd: (ctx) => emit('action', {id: 'add', context: ctx}),
     onExport: (ctx) => exportData(ctx.selectedItems),
   }),
@@ -367,7 +366,7 @@ defineExpose({
     <template #title v-if="!props.hideTitle">
       <a-flex justify="space-between" class="pr-xs pl-xs" align="center">
         <a-space v-if="!slots.title">
-          <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'icon-survey'"/>
+          <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'loncra-file'"/>
           <a-typography-title :level="5" class="mb-0">{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</a-typography-title>
         </a-space>
         <slot v-else name="title" />
@@ -392,7 +391,7 @@ defineExpose({
     </template>
 
     <template #filterIcon="{filtered}">
-      <icon-font :class="'icon' + (filtered ? ' text-primary' : '')" type="icon-search"/>
+      <icon-font :class="'icon' + (filtered ? ' text-primary' : '')" type="loncra-search"/>
     </template>
 
     <template #filterDropdown="{column, setSelectedKeys, confirm}" >
@@ -411,21 +410,21 @@ defineExpose({
           <a-space-compact block>
             <a-button block type="primary" @click="search(column, setSelectedKeys, confirm)">
               <template #icon>
-                <icon-font class="icon" type="icon-confirm"/>
+                <icon-font class="icon" type="loncra-check"/>
               </template>
               <span>{{ globalProperties.$t('search.text') }}</span>
             </a-button>
 
             <a-button block @click="resetField(column, setSelectedKeys, confirm)">
               <template #icon>
-                <icon-font class="icon" type="icon-error"/>
+                <icon-font class="icon" type="loncra-time-reset"/>
               </template>
               <span>{{ globalProperties.$t('common.reset') }}</span>
             </a-button>
 
             <a-button block @click="clear(confirm, setSelectedKeys)">
               <template #icon>
-                <icon-font class="icon" type="icon-delete"/>
+                <icon-font class="icon" type="loncra-archive-x"/>
               </template>
               <span>{{globalProperties.$t('common.clear')}}</span>
             </a-button>

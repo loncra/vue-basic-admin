@@ -42,14 +42,15 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'deleteRead',
       label: globalProperties.$t('messageServer.site.deleteRead'),
-      icon: createIcon('icon-delete', 'align'),
+      icon: createIcon('loncra-archive-x', 'align'),
+      danger:true,
       disabled: false,
       run:onDeleteRead
     },
     {
       id: 'readAll',
       label: globalProperties.$t('messageServer.site.readAll'),
-      icon: createIcon('icon-good', 'align'),
+      icon: createIcon('loncra-user-check', 'align'),
       disabled: false,
       run:onReadAll
     },
@@ -246,7 +247,7 @@ onMounted(mounted)
       <a-flex vertical flex="1" class="min-w-0" :key="item.id" v-for="item of (getCurrentItem(activeTagKey)?.dataSource?.elements || [])">
         <a-flex flex="1" class="min-w-0" gap="middle" align="top">
           <a-avatar>
-            <icon-font class="icon" type="icon-edit"/>
+            <icon-font class="icon" type="loncra-file-pen-line"/>
           </a-avatar>
           <a-flex vertical flex="1" class="min-w-0">
             <a-typography-text @click="getEnumValue(item.readable) === 1 ? onRead(item.id) : undefined" :strong="getEnumValue(item.readable) === 1" ellipsis class="min-w-0 m-0 text-md cursor-pointer">
@@ -264,7 +265,7 @@ onMounted(mounted)
           </a-flex>
 
           <a-button size="small" danger @click="onDeleteMessage(item.id)">
-            <icon-font type="icon-delete" />
+            <icon-font type="loncra-archive-x" />
           </a-button>
         </a-flex>
         <a-divider class="mb-sm mt-sm"/>

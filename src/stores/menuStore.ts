@@ -149,7 +149,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
   function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
     return {
-      icon: (route.meta?.icon || 'icon-survey') as string,
+      icon: (route.meta?.icon || 'loncra-file') as string,
       name: getRouteTitle(route.name),
       route: route.name,
       page: route.path,

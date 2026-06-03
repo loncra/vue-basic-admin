@@ -193,14 +193,14 @@ onMounted(mounted);
           <a-space>
             <a-button type="primary" html-type="submit" :loading="options.loading">
               <template #icon>
-                <icon-font class="icon" type="icon-send-fill" />
+                <icon-font class="icon" type="loncra-send" />
               </template>
               <span>{{ globalProperties.$t('common.send') }}</span>
             </a-button>
 
             <a-button html-type="reset" :disabled="options.loading">
               <template #icon>
-                <icon-font class="icon" type="icon-time-history" />
+                <icon-font class="icon" type="loncra-history" />
               </template>
               <span>{{ globalProperties.$t('common.reset') }}</span>
             </a-button>

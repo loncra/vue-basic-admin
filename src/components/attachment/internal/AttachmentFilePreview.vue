@@ -34,11 +34,11 @@ const emit = defineEmits<{
 
 function getFileIcon() {
   if (props.file.type?.includes("image/")) {
-    return 'icon-picture'
+    return 'loncra-file-image'
   } else if (props.file?.type?.includes("video/")) {
-    return 'icon-video'
+    return 'loncra-file-play'
   } else {
-    return 'icon-order-upload'
+    return 'loncra-file-up'
   }
 }
 
@@ -111,13 +111,13 @@ defineExpose({
         <template #cover>
           <a-space >
             <a-button size="small" @click.stop="onClickPreview" type="text" class="text-white! p-0">
-              <icon-font type="icon-view" />
+              <icon-font type="loncra-view" />
             </a-button>
             <a-button size="small" v-if="enabledDelete" @click.stop="onRemove" type="text" class="text-white! p-0" >
-              <icon-font type="icon-delete" />
+              <icon-font type="loncra-archive-x" />
             </a-button>
             <a-button size="small" v-if="file.response" @click.stop="onDownload(file.response)" type="text" class="text-white! p-0" >
-              <icon-font type="icon-download" />
+              <icon-font type="loncra-download" />
             </a-button>
           </a-space>
         </template>

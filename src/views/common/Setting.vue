@@ -13,12 +13,12 @@ const tabList = [
   {
     key: 'accountSetting',
     tab: '账户设置',
-    icon:createIcon('icon-customer-management', 'align')
+    icon:createIcon('loncra-user-round-cog', 'align')
   },
   {
     key: 'configProviderSetting',
     tab: '系统设置',
-    icon:createIcon('icon-conditions', 'align')
+    icon:createIcon('loncra-sliders-horizontal', 'align')
   },
 ]
 

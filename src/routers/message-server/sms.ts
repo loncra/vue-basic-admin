@@ -17,7 +17,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       applicationName: 'message-server',
       requiresAuth: true,
-      icon:'icon-template'
+      icon:'loncra-layout-template'
     },
   },{
     path: '/message-server/sms/sign',
@@ -26,7 +26,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       applicationName: 'message-server',
       requiresAuth: true,
-      icon:'icon-flag'
+      icon:'loncra-signature'
     },
   },{
     path: '/message-server/sms/send',
@@ -35,7 +35,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       applicationName: 'message-server',
       requiresAuth: true,
-      icon: 'icon-send-fill',
+      icon: 'loncra-send',
       parent: '/message-server/sms',
       requiresFullyAuth: true,
     },
@@ -46,7 +46,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       applicationName: 'message-server',
       requiresAuth: true,
-      icon: 'icon-order-inspection',
+      icon: 'loncra-file-search',
       parent: '/message-server/sms',
       requiresFullyAuth: true,
     },

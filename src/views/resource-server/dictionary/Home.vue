@@ -227,7 +227,7 @@ async function mounted() {
         id: 'addChild',
         permission: 'perms[resource_server_data_dictionary:save]',
         label: () => globalProperties.$t('common.addChild', {name:''}),
-        icon: () => createIcon('icon-editor-add-cell'),
+        icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
             dictionaryTypeTableActionItemClick('addChild', ctx.record)
@@ -313,7 +313,7 @@ onMounted(mounted)
             <template #title>
               <a-flex justify="space-between" align="center">
                 <a-space>
-                  <icon-font icon="icon align" type="icon-category" />
+                  <icon-font icon="icon align" type="loncra-table-of-contents" />
                   <a-typography-text strong>{{globalProperties.$t('resourceServer.dictionaryType.routePage')}}</a-typography-text>
                 </a-space>
               </a-flex>
@@ -359,7 +359,7 @@ onMounted(mounted)
             <template #title>
               <a-flex justify="space-between" align="center">
                 <a-space>
-                  <icon-font icon="icon align" type="icon-product-list" />
+                  <icon-font icon="icon align" type="loncra-database" />
                   <a-typography-text strong>{{globalProperties.$t('resourceServer.dataDictionary.routePage')}}</a-typography-text>
                 </a-space>
               </a-flex>

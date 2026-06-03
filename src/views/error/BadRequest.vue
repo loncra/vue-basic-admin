@@ -66,7 +66,7 @@ onMounted(mounted)
         </a-table>
         <div class="text-center mt-lg">
           <a-button @click="globalProperties.$router.go(-1);">
-            <icon-font class="icon align" type="icon-return"/>
+            <icon-font class="icon align" type="loncra-undo-2"/>
             <span>{{ globalProperties.$t('common.back') }}</span>
           </a-button>
         </div>

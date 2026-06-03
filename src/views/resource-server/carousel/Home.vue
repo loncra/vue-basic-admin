@@ -92,7 +92,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
       id: 'add',
       permission: carouselAuthority.add,
       label: () => globalProperties.$t('common.add', {name: ''}),
-      icon: () => createIcon('icon-add'),
+      icon: () => createIcon('loncra-file-plus'),
       run: () => {
         void globalProperties.$router.push({name: 'resource_server_carousel_add', query: {type: tabActiveKey.value}})
       },
@@ -105,7 +105,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
         globalProperties.$t('common.delete.selected', {
           count: getReleaseSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('icon-delete'),
+      icon: () => createIcon('loncra-archive-x'),
       run: (ctx) => {
         const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
         if (tab) {
@@ -121,7 +121,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
         globalProperties.$t('common.release.selected', {
           count: getReleaseSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('icon-response'),
+      icon: () => createIcon('loncra-screen-share'),
       run: (ctx) => release(getReleaseSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
     {
@@ -132,7 +132,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
         globalProperties.$t('common.revoke.selected', {
           count: getRevokeSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('icon-time-response'),
+      icon: () => createIcon('loncra-screen-share-off'),
       run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
   ]
@@ -144,7 +144,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
       permission: 'perms[resource_server_carousel:release]',
       enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 20,
       label: () => globalProperties.$t('common.release.text'),
-      icon: () => createIcon('icon-response'),
+      icon: () => createIcon('loncra-screen-share'),
       run: (ctx) => release([Number(ctx.record!.id)]),
     },
     {
@@ -152,7 +152,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
       permission: 'perms[resource_server_carousel:revoke]',
       enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) === 20,
       label: () => globalProperties.$t('common.revoke.text'),
-      icon: () => createIcon('icon-time-response'),
+      icon: () => createIcon('loncra-screen-share-off'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
     },
     {
@@ -160,7 +160,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
       permission: carouselAuthority.edit,
       enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 20,
       label: () => globalProperties.$t('common.edit'),
-      icon: () => createIcon('icon-edit'),
+      icon: () => createIcon('loncra-file-pen-line'),
       run: (ctx) => {
         void globalProperties.$router.push({
           name: 'resource_server_carousel_edit',

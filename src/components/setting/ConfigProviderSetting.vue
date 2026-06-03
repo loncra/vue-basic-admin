@@ -36,28 +36,28 @@ const tabItems = computed(() => [
       key:'colorSetting',
     },
     id: globalProperties.$t('setting.colorSetting.text'),
-    value: createIcon('icon-user-defined', 'align')
+    value: createIcon('loncra-paint-bucket', 'align')
   },
   {
     metadata: {
       key:'size',
     },
     id: globalProperties.$t('common.size'),
-    value: createIcon('icon-customization', 'align')
+    value: createIcon('loncra-pencil-ruler', 'align')
   },
   {
     metadata: {
       key:'style',
     },
     id: globalProperties.$t('common.style'),
-    value: createIcon('icon-panorama', 'align')
+    value: createIcon('loncra-line-style', 'align')
   },
   {
     metadata: {
       key:'other',
     },
     id: globalProperties.$t('common.other'),
-    value: createIcon('icon-chengchangzhiyin', 'align')
+    value: createIcon('loncra-signpost-big', 'align')
   }
 ])
 
@@ -143,7 +143,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                   {{ globalProperties.$t('setting.colorSetting.prepare') }}
                 </template>
                 <template #extra>
-                  <icon-font class="icon" type="icon-user-defined" />
+                  <icon-font class="icon" type="loncra-paint-bucket" />
                 </template>
                 <a-space orientation="vertical" class="w-full" >
                   <a-flex justify="space-between" align="center" :key="color" v-for="color in ['blue','purple','cyan','yellow','green','magenta','pink','volcano','lime','gold']">
@@ -159,7 +159,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                   {{globalProperties.$t('setting.other.transparency.text')}}
                 </template>
                 <template #extra>
-                  <icon-font class="icon" type="icon-editor-background" />
+                  <icon-font class="icon" type="loncra-squares-intersect" />
                 </template>
                 <a-space orientation="vertical" class="w-full">
                   <a-flex justify="space-between" align="center" >
@@ -186,7 +186,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 {{globalProperties.$t('setting.borderRadius')}}
               </template>
               <template #extra>
-                <icon-font class="icon" type="icon-editor-under-line" />
+                <icon-font class="icon" type="loncra-radius" />
               </template>
               <a-space orientation="vertical" class="w-full">
                 <a-flex justify="space-between" align="center">
@@ -208,7 +208,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 {{globalProperties.$t('setting.boxShadow.text')}}
               </template>
               <template #extra>
-                <icon-font class="icon" type="icon-editor-tag-subscript" />
+                <icon-font class="icon" type="loncra-squares-subtract" />
               </template>
               <a-space orientation="vertical" class="w-full" >
                 <a-flex justify="space-between" align="center" >
@@ -241,7 +241,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 {{globalProperties.$t('setting.size.common')}}
               </template>
               <template #extra>
-                <icon-font class="icon" type="icon-editor-subscript" />
+                <icon-font class="icon" type="loncra-ruler-dimension-line" />
               </template>
               <a-space orientation="vertical" class="w-full" >
                 <a-flex justify="space-between">
@@ -264,7 +264,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 {{globalProperties.$t('setting.font.text')}}
               </template>
               <template #extra>
-                <icon-font class="icon" type="icon-editor-subscript" />
+                <icon-font class="icon" type="loncra-file-type-corner" />
               </template>
               <a-space orientation="vertical" class="w-full" >
                 <a-flex justify="space-between" align="center">
@@ -292,7 +292,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 {{globalProperties.$t('setting.lineHeight.text')}}
               </template>
               <template #extra>
-                <icon-font class="icon" type="icon-editor-text" />
+                <icon-font class="icon" type="loncra-unfold-vertical" />
               </template>
               <a-space orientation="vertical" class="w-full" >
                 <a-flex justify="space-between" align="center">
@@ -320,7 +320,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 {{globalProperties.$t('setting.margin')}}
               </template>
               <template #extra>
-                <icon-font class="icon" type="icon-gallery" />
+                <icon-font class="icon" type="loncra-bring-to-front" />
               </template>
               <a-space orientation="vertical" class="w-full" >
                 <a-flex justify="space-between" align="center">
@@ -342,7 +342,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 {{globalProperties.$t('setting.padding')}}
               </template>
               <template #extra>
-                <icon-font class="icon" type="icon-gallery" />
+                <icon-font class="icon" type="loncra-panel-top-bottom-dashed" />
               </template>
               <a-space orientation="vertical" class="w-full" >
                 <a-flex justify="space-between" align="center">

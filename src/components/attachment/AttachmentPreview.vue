@@ -235,10 +235,10 @@ const classes = computed(() => ({
 
                   <a-space>
                     <a-button danger v-if="!preview" @click="onRemove(file)" type="text" :disabled="file.status === 'uploading'">
-                      <icon-font type="icon-delete" />
+                      <icon-font type="loncra-archive-x" />
                     </a-button>
                     <a-button @click="onDownload(file.response as ObjectWriteResult)" type="text" v-if="file.response">
-                      <icon-font type="icon-download" />
+                      <icon-font type="loncra-download" />
                     </a-button>
                   </a-space>
                 </a-flex>

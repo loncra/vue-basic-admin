@@ -72,7 +72,7 @@ const uploadStyles = computed(() => ({
       >
         <a-space orientation="vertical">
           <a-typography-title :level="2" class="m-0">
-            <icon-font type="icon-upload" />
+            <icon-font type="loncra-upload" />
           </a-typography-title>
           <a-typography-title :level="5" class="m-0">
             {{globalProperties.$t('attachment.dragger.title')}}

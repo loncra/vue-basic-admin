@@ -2,6 +2,7 @@
 import imageSrc from '@/assets/404.svg'
 import {type ComponentInternalInstance, getCurrentInstance} from 'vue'
 import {requireNonNullOrUndefined} from '@/utils'
+
 defineOptions({
   name: 'ErrorNotFound',
 })
@@ -20,14 +21,14 @@ const globalProperties = instance.appContext.config.globalProperties
         <a-space>
           <a-button @click="globalProperties.$router.go(-1)">
             <template #icon>
-              <icon-font class="icon align" type="icon-return" />
+              <icon-font class="icon align" type="loncra-undo-2" />
             </template>
             <span>{{ globalProperties.$t('common.back') }}</span>
           </a-button>
 
           <a-button type="primary" @click="globalProperties.$router.push({ path: '/' })">
             <template #icon>
-              <icon-font class="icon align" type="icon-home" />
+              <icon-font class="icon align" type="loncra-warehouse" />
             </template>
             <span>{{ globalProperties.$t('common.home') }}</span>
           </a-button>

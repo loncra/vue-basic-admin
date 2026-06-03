@@ -41,7 +41,7 @@ onMounted(mounted)
       <a-breadcrumb class="hidden sm:block">
         <a-breadcrumb-item v-for="(breadcrumb, index) in menuPrincipalStore.state.currentBreadcrumbs" :key="breadcrumb.name">
           <a-space>
-            <icon-font class="icon align" :type="breadcrumb.icon || 'icon-survey'"/>
+            <icon-font class="icon align" :type="breadcrumb.icon || 'loncra-file'"/>
             <router-link
               :to="breadcrumb.page"
               v-if="index != menuPrincipalStore.state.currentBreadcrumbs.length - 1 && breadcrumb.page"

@@ -31,7 +31,7 @@ export function createDefaultBulkActions<
         typeof (options.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
       label: (ctx) =>
         options.t('common.delete.selected', {count: ctx.selectedItems.length}),
-      icon: () => createIcon('icon-delete'),
+      icon: () => createIcon('loncra-archive-x'),
       run: (ctx) => options.remove(ctx.selectedItems),
     },
   ]
@@ -58,7 +58,7 @@ TId,
       id: 'edit',
       permission: options.authority?.edit,
       label: () => options.t('common.edit', {name: ''}),
-      icon: () => createIcon('icon-edit'),
+      icon: () => createIcon('loncra-file-pen-line'),
       run: (ctx) => {
         if (ctx.record) {
           options.onEdit(ctx.record)
@@ -69,7 +69,7 @@ TId,
       id: 'detail',
       permission: options.authority?.detail,
       label: () => options.t('common.detail', {name: ''}),
-      icon: () => createIcon('icon-order-inspection'),
+      icon: () => createIcon('loncra-file-search'),
       run: (ctx) => {
         if (ctx.record) {
           options.onDetail(ctx.record)
@@ -83,7 +83,7 @@ TId,
       enabled: () =>
         typeof (options.service as BasicCrudService<TBody, TEntity, TId>).delete === 'function',
       label: () => options.t('common.delete.text'),
-      icon: () => createIcon('icon-delete'),
+      icon: () => createIcon('loncra-archive-x'),
       run: (ctx) => {
         if (ctx.record) {
           options.remove([ctx.record])

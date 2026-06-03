@@ -251,7 +251,7 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
-          <icon-font class="icon" type="icon-template-success" />
+          <icon-font class="icon" type="loncra-accessibility" />
           {{ globalProperties.$t('authServer.standaloneResource') }}
         </a-space>
       </a-divider>

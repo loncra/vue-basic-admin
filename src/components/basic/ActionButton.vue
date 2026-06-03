@@ -65,7 +65,7 @@ function handleMenuClick(e: MenuInfo) {
   >
     <a-button :size="props.size" v-bind="$attrs">
       <template #icon>
-        <icon-font class="icon" type="icon-more"/>
+        <icon-font class="icon" type="loncra-ellipsis"/>
       </template>
     </a-button>
   </a-dropdown>

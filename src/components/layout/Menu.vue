@@ -87,7 +87,7 @@ function labelRender(item: ResourceEntity) {
 }
 
 function iconRender(item: ResourceEntity) {
-  const icon = createIcon(item.icon || 'icon-survey')
+  const icon = createIcon(item.icon || 'loncra-file')
   const tooltip = resolveComponent('ATooltip')
   const node:VNode =  h(
     tooltip,

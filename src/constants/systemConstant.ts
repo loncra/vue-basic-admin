@@ -39,9 +39,9 @@ export const CONFIG_PROVIDER_THEME = {
   LIGHT: 'light',
   SYSTEM: 'system',
   ICON: {
-    system: 'icon-setting',
-    dark: 'icon-dark',
-    light: 'icon-light',
+    system: 'loncra-sun-moon',
+    dark: 'loncra-moon',
+    light: 'loncra-sun-medium',
   }
 } as const
 

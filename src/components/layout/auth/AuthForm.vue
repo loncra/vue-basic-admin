@@ -62,7 +62,7 @@ const doAuth = async (): Promise<void> => {
       </a-form-item>
       <a-button html-type="submit" block type="primary">
         <template #icon>
-          <icon-font class="icon" type="icon-unlock"/>
+          <icon-font class="icon" type="loncra-log-in"/>
         </template>
         {{ $t('auth.login') }}
       </a-button>
@@ -70,13 +70,13 @@ const doAuth = async (): Promise<void> => {
     <a-space-compact block v-if="props.enablePhoneAuth || props.enableQrCodeAuth">
       <a-button block v-if="props.enablePhoneAuth">
         <template #icon>
-          <icon-font class="icon" type="icon-mobile-phone-btn"/>
+          <icon-font class="icon" type="loncra-tablet-smartphone"/>
         </template>
         {{ $t('auth.phoneLogin') }}
       </a-button>
       <a-button block v-if="props.enableQrCodeAuth">
         <template #icon>
-          <icon-font class="icon" type="icon-qr-code"/>
+          <icon-font class="icon" type="loncra-qr-code"/>
         </template>
         {{ $t('auth.qrCodeLogin') }}
       </a-button>

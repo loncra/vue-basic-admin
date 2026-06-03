@@ -37,7 +37,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'downloadSelected',
       label: globalProperties.$t('common.download.selected', { count }),
-      icon: createIcon('icon-download', 'align'),
+      icon: createIcon('loncra-download', 'align'),
       disabled,
       run: disabled
         ? undefined
@@ -52,7 +52,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'deleteSelected',
       label: globalProperties.$t('common.delete.selected', { count }),
-      icon: createIcon('icon-delete', 'align'),
+      icon: createIcon('loncra-archive-x', 'align'),
       disabled,
       run: disabled ? undefined : () => onDelete(checkValue.value),
     },
@@ -134,7 +134,7 @@ onMounted(() => loadDataSource())
                 v-else
                 class="aspect-[4/3] w-full flex items-center justify-center bg-fill-tertiary"
               >
-                <icon-font class="icon text-3xl" type="icon-order"/>
+                <icon-font class="icon text-3xl" type="loncra-file-text"/>
               </div>
             </template>
             <a-card-meta >

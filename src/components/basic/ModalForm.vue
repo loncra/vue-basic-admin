@@ -105,7 +105,7 @@ const footer = () => {
       type: 'primary',
       onClick: onFinish,
     }, {
-      icon: () => createIcon('icon-save','align'),
+      icon: () => createIcon('loncra-save','align'),
       default: () => h('span', null, globalProperties.$t('common.save')),
     }),
     h(Button, {
@@ -115,7 +115,7 @@ const footer = () => {
         emit('resetFields')
       },
     }, {
-      icon: () => createIcon('icon-time-history','align'),
+      icon: () => createIcon('loncra-history','align'),
       default: () => h('span', null, globalProperties.$t('common.reset')),
     }),
   ]
@@ -161,7 +161,7 @@ defineExpose({
       <div v-if="entity.id && creationTime" class="mb-md">
         <a-divider orientation="left" plain>
           <a-space>
-            <icon-font class="icon" type="icon-time-response" />
+            <icon-font class="icon" type="loncra-timer-reset" />
             <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
           </a-space>
         </a-divider>

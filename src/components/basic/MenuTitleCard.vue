@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<{
     </template>
     <template v-else-if="!props.hideTitle" #title>
       <a-space>
-        <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'icon-survey'"/>
+        <icon-font class="icon align" :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'loncra-file'"/>
         <span>{{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}</span>
       </a-space>
     </template>

@@ -49,12 +49,12 @@ const operateItems = ref<MenuItemType[]>([
   {
     key: 'close-others',
     label: globalProperties.$t('layoutContent.close.others'),
-    icon: () => createIcon('icon-close'),
+    icon: () => createIcon('loncra-x'),
   },
   {
     key: 'close-right',
     label: globalProperties.$t('layoutContent.close.right'),
-    icon: () => createIcon('icon-close'),
+    icon: () => createIcon('loncra-x'),
   },
 ])
 
@@ -304,13 +304,13 @@ function onOpenOperateChange(open: boolean) {
     operateItems.value.unshift({
       key: 'unpin',
       label: globalProperties.$t('layoutContent.unpin'),
-      icon: () => createIcon('icon-unlock'),
+      icon: () => createIcon('loncra-pin-off'),
     })
   } else {
     operateItems.value.unshift({
       key: 'pin',
       label: globalProperties.$t('layoutContent.pin'),
-      icon: () => createIcon('icon-pin'),
+      icon: () => createIcon('loncra-pin'),
     })
   }
 }
@@ -400,13 +400,13 @@ onMounted(mounted)
                   <icon-font
                     v-if="isRoutePageLoading(item.key)"
                     class="icon align"
-                    type="icon-loading"
+                    type="loncra-loader"
                     spin
                   />
                   <icon-font
                     v-else
                     class="icon align"
-                    :type="item.iconString || 'icon-survey'"
+                    :type="item.iconString || 'loncra-file'"
                   />
                   <span>{{item.label}}</span>
                 </a-space>
@@ -416,7 +416,7 @@ onMounted(mounted)
                   <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
                     <a-button type="text" @click="reload">
                       <template #icon>
-                        <icon-font class="icon align" type="icon-change"/>
+                        <icon-font class="icon align" type="loncra-iteration-cw"/>
                       </template>
                     </a-button>
                   </a-tooltip>
@@ -431,8 +431,7 @@ onMounted(mounted)
                       <template #icon>
                         <icon-font
                           class="icon align"
-                          :type="isFullscreen ? 'icon-reduce' : 'icon-move'"
-                          :rotate="isFullscreen ? 0 : 45"
+                          :type="isFullscreen ? 'loncra-minimize' : 'loncra-expand'"
                         />
                       </template>
                     </a-button>
@@ -444,7 +443,7 @@ onMounted(mounted)
                   >
                     <a-button type="text">
                       <template #icon>
-                        <icon-font class="icon align" type="icon-more"/>
+                        <icon-font class="icon align" type="loncra-ellipsis"/>
                       </template>
                     </a-button>
                   </a-dropdown>
@@ -467,13 +466,13 @@ onMounted(mounted)
                 <icon-font
                   v-if="isRoutePageLoading(item.key)"
                   class="icon align"
-                  type="icon-loading"
+                  type="loncra-loader"
                   spin
                 />
                 <icon-font
                   v-else
                   class="icon align"
-                  :type="item.iconString || 'icon-survey'"
+                  :type="item.iconString || 'loncra-file'"
                 />
                 <span>{{item.label}}</span>
               </a-space>
@@ -483,7 +482,7 @@ onMounted(mounted)
                 <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
                   <a-button type="text" @click="reload">
                     <template #icon>
-                      <icon-font class="icon align" type="icon-change"/>
+                      <icon-font class="icon align" type="loncra-iteration-cw"/>
                     </template>
                   </a-button>
                 </a-tooltip>
@@ -498,8 +497,7 @@ onMounted(mounted)
                     <template #icon>
                       <icon-font
                         class="icon align"
-                        :type="isFullscreen ? 'icon-reduce' : 'icon-move'"
-                        :rotate="isFullscreen ? 0 : 45"
+                        :type="isFullscreen ? 'loncra-minimize' : 'loncra-expand'"
                       />
                     </template>
                   </a-button>
@@ -511,7 +509,7 @@ onMounted(mounted)
                 >
                   <a-button type="text">
                     <template #icon>
-                      <icon-font class="icon align" type="icon-more"/>
+                      <icon-font class="icon align" type="loncra-ellipsis"/>
                     </template>
                   </a-button>
                 </a-dropdown>

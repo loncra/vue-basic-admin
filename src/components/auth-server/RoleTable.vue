@@ -143,7 +143,7 @@ async function mounted() {
         id: 'addChild',
         permission: 'perms[auth_server_role:save]',
         label: () => globalProperties.$t('common.addChild', {name:''}),
-        icon: () => createIcon('icon-editor-add-cell'),
+        icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
             globalProperties.$router.push({name:'auth_server_role_add_child', query:{parentId:String(ctx.record.id)}})

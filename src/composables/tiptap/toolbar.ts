@@ -9,6 +9,8 @@ import type {
 } from '@/types/composables/tiptap'
 import LTipTapToolbarButtonPopover from "@/components/tiptap/TipTapToolbarButtonPopover.vue";
 
+import i18n from '@/i18n'
+
 export const DEFAULT_TIP_TAP_TOOLBAR_ITEMS: TipTapToolbarControlKey[] = [
   'bold',
   'italic',
@@ -127,8 +129,8 @@ export function createDefaultTipTapToolbarControls(
       key: 'bold',
       component: buttonComponent,
       props: {
-        icon: 'icon-editor-bold',
-        tooltip:'加粗',
+        icon: 'loncra-bold',
+        tooltip: i18n.global.t('component.tiptap.bold'),
         size: context.size,
         disabled: context.disabled,
         active: context.editor.isActive('bold'),
@@ -141,8 +143,8 @@ export function createDefaultTipTapToolbarControls(
       key: 'italic',
       component: buttonComponent,
       props: {
-        icon: 'icon-editor-italic',
-        tooltip:'斜体',
+        icon: 'loncra-italic',
+        tooltip:i18n.global.t('component.tiptap.italic'),
         size: context.size,
         disabled: context.disabled,
         active: context.editor.isActive('italic'),
@@ -155,8 +157,8 @@ export function createDefaultTipTapToolbarControls(
       key: 'underline',
       component: buttonComponent,
       props: {
-        icon: 'icon-editor-under-line',
-        tooltip:'下划线',
+        icon: 'loncra-underline',
+        tooltip:i18n.global.t('component.tiptap.underline'),
         size: context.size,
         active: context.editor.isActive('underline'),
         disabled: context.disabled
@@ -169,8 +171,8 @@ export function createDefaultTipTapToolbarControls(
       key: 'blockquote',
       component: buttonComponent,
       props: {
-        icon: 'icon-editor-text',
-        tooltip:'引用',
+        icon: 'loncra-quote',
+        tooltip:i18n.global.t('component.tiptap.blockquote'),
         size: context.size,
         active: context.editor.isActive('blockquote'),
         disabled: context.disabled
@@ -187,12 +189,12 @@ export function createDefaultTipTapToolbarControls(
         size: context.size,
         disabled: context.disabled,
         options: [
-          {label: '正文', key: 'paragraph'},
-          {label: '标题 1', key: '1'},
-          {label: '标题 2', key: '2'},
-          {label: '标题 3', key: '3'},
-          {label: '标题 4', key: '4'},
-          {label: '标题 5', key: '5'},
+          {label: i18n.global.t('component.tiptap.text'), key: 'paragraph', icon:'loncra-type-outline'},
+          {label: i18n.global.t('component.tiptap.title', {number:' ' + 1}), key: '1', icon:'loncra-heading-1'},
+          {label: i18n.global.t('component.tiptap.title', {number:' ' + 2}), key: '2', icon:'loncra-heading-2'},
+          {label: i18n.global.t('component.tiptap.title', {number:' ' + 3}), key: '3', icon:'loncra-heading-3'},
+          {label: i18n.global.t('component.tiptap.title', {number:' ' + 4}), key: '4', icon:'loncra-heading-4'},
+          {label: i18n.global.t('component.tiptap.title', {number:' ' + 5}), key: '5', icon:'loncra-heading-5'},
         ],
       },
       events: {
@@ -207,9 +209,9 @@ export function createDefaultTipTapToolbarControls(
         size: context.size,
         disabled: context.disabled,
         options: [
-          {label: '无列表', key: 'none', icon:'icon-error'},
-          {label: '无序列表', key: 'bulletList', icon:'icon-category'},
-          {label: '有序列表', key: 'orderedList', icon: 'icon-list'},
+          {label: i18n.global.t('component.tiptap.list.none'), key: 'none', icon:'loncra-ban'},
+          {label: i18n.global.t('component.tiptap.list.bullet'), key: 'bulletList', icon:'loncra-list'},
+          {label: i18n.global.t('component.tiptap.list.ordered'), key: 'orderedList', icon: 'loncra-list-ordered'},
         ],
       },
       events: {
@@ -224,9 +226,9 @@ export function createDefaultTipTapToolbarControls(
         size: context.size,
         disabled: context.disabled,
         options: [
-          {label: '左对齐', key: 'left', icon:'icon-editor-left-alignment'},
-          {label: '居中', key: 'center', icon:'icon-editor-center-alignment'},
-          {label: '右对齐', key: 'right', icon:'icon-editor-right-alignment'},
+          {label: i18n.global.t('component.tiptap.align.left'), key: 'left', icon:'loncra-text-align-start'},
+          {label: i18n.global.t('component.tiptap.align.center'), key: 'center', icon:'loncra-text-align-center'},
+          {label: i18n.global.t('component.tiptap.align.right'), key: 'right', icon:'loncra-text-align-end'},
         ],
       },
       events: {
@@ -237,9 +239,9 @@ export function createDefaultTipTapToolbarControls(
       key: 'link',
       component: buttonComponentPopover,
       props: {
-        icon: 'icon-link',
-        tooltip:'超链接',
-        label:'链接地址',
+        icon: 'loncra-paperclip',
+        tooltip: i18n.global.t('component.tiptap.link.text'),
+        label:i18n.global.t('component.tiptap.link.label'),
         size: context.size,
         active: context.editor.isActive('link'),
         disabled: context.disabled,
@@ -252,8 +254,8 @@ export function createDefaultTipTapToolbarControls(
       key: 'undo',
       component: buttonComponent,
       props: {
-        icon: 'icon-left',
-        tooltip:'撤销',
+        icon: 'loncra-step-back',
+        tooltip:i18n.global.t('component.tiptap.undo'),
         size: context.size,
         disabled: context.disabled || !context.editor.can().undo(),
       },
@@ -265,8 +267,8 @@ export function createDefaultTipTapToolbarControls(
       key: 'redo',
       component: buttonComponent,
       props: {
-        icon: 'icon-right',
-        tooltip:'重做',
+        icon: 'loncra-step-forward',
+        tooltip:i18n.global.t('component.tiptap.redo'),
         size: context.size,
         disabled: context.disabled || !context.editor.can().redo(),
       },
@@ -278,9 +280,9 @@ export function createDefaultTipTapToolbarControls(
       key: 'picture',
       component: buttonComponentPopover,
       props: {
-        icon: 'icon-picture',
-        tooltip:'图片',
-        label:'图片地址',
+        icon: 'loncra-image-plus',
+        tooltip:i18n.global.t('component.tiptap.picture.text'),
+        label:i18n.global.t('component.tiptap.picture.label'),
         size: context.size,
         disabled: context.disabled,
       },

@@ -54,7 +54,7 @@ const currentValue = computed(() => {
       <a-space v-if="currentValue">
         <icon-font v-if="currentValue.icon" class="icon align" :type="currentValue.icon" />
         {{ currentValue?.label }}
-        <icon-font class="icon align" type="icon-down" />
+        <icon-font class="icon align" type="loncra-chevron-down" />
       </a-space>
     </a-button>
 

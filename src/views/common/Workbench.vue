@@ -46,7 +46,7 @@ onMounted(mounted)
       <a-flex gap="large" vertical>
         <a-card :classes="{body:'max-h-72 overflow-auto'}" :title="globalProperties.$t('workbench.quickAccess')">
           <template #extra>
-            <icon-font class="icon" type="icon-quick"/>
+            <icon-font class="icon" type="loncra-fan"/>
           </template>
           <template v-if="menuStore.currentPrincipalQuickAccess.length > 0">
             <a-card-grid class="group relative w-1/3 min-h-15 cursor-pointer " @click="globalProperties.$router.push(item.page)" :key="item.page" v-for="item of menuStore.currentPrincipalQuickAccess" >
@@ -62,7 +62,7 @@ onMounted(mounted)
               <icon-font
                 @click.stop="menuStore.removeQuickAccess(item.page)"
                 class="icon absolute top-2 right-2 text-xs text-text-secondary opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
-                type="icon-close"
+                type="loncra-x"
                 />
             </a-card-grid>
           </template>
@@ -88,7 +88,7 @@ onMounted(mounted)
 
           <a-divider plain orientation="left" class="text-text-secondary">
             <a-space>
-              <icon-font class="icon" type="icon-suggest"/>
+              <icon-font class="icon" type="loncra-file-text"/>
               {{globalProperties.$t('common.basicInformation')}}
             </a-space>
           </a-divider>
@@ -96,21 +96,21 @@ onMounted(mounted)
           <a-space direction="vertical" class="w-full">
             <a-flex justify="space-between" align="center">
               <a-space>
-                <icon-font class="icon" type="icon-phone"/>
+                <icon-font class="icon" type="loncra-smartphone"/>
                 {{globalProperties.$t('common.phoneNumber')}}
               </a-space>
               <span>{{ principalStore.state?.details?.metadata.phoneNumber }}</span>
             </a-flex>
             <a-flex justify="space-between" align="center">
               <a-space>
-                <icon-font class="icon" type="icon-email"/>
+                <icon-font class="icon" type="loncra-mail"/>
                 {{globalProperties.$t('common.email')}}
               </a-space>
               <span>{{ principalStore.state?.details?.metadata.email }}</span>
             </a-flex>
             <a-flex justify="space-between" align="center">
               <a-space>
-                <icon-font class="icon" type="icon-gender"/>
+                <icon-font class="icon" type="loncra-transgender"/>
                 {{globalProperties.$t('common.gender')}}
               </a-space>
               <span>{{ principalStore.state?.details?.metadata?.gender?.name }}</span>
@@ -120,7 +120,7 @@ onMounted(mounted)
 
         <a-card :title="globalProperties.$t('workbench.personalActivity')" :classes="{body:'max-h-125 overflow-auto'}">
           <template #extra>
-            <icon-font class="icon" type="icon-time"/>
+            <icon-font class="icon" type="loncra-timer"/>
           </template>
           <a-timeline
             v-if="personalActivityItems.length > 0"

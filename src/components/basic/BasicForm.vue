@@ -261,7 +261,7 @@ watch(
           <div v-if="entity.id && creationTime" class="mb-md">
             <a-divider orientation="left" plain>
               <a-space>
-                <icon-font class="icon" type="icon-time-response" />
+                <icon-font class="icon" type="loncra-timer-reset" />
                 <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
               </a-space>
             </a-divider>
@@ -270,14 +270,14 @@ watch(
           <a-space>
             <a-button type="primary" html-type="submit" :loading="spinning">
               <template #icon>
-                <icon-font class="icon" type="icon-save" />
+                <icon-font class="icon" type="loncra-save" />
               </template>
               <span>{{ globalProperties.$t('common.save') }}</span>
             </a-button>
 
             <a-button html-type="reset" :disabled="spinning">
               <template #icon>
-                <icon-font class="icon" type="icon-time-history" />
+                <icon-font class="icon" type="loncra-history" />
               </template>
               <span>{{ globalProperties.$t('common.reset') }}</span>
             </a-button>

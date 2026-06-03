@@ -18,7 +18,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       dynamicTitle: true,
       applicationName: 'message-server',
-      icon: 'icon-order-inspection',
+      icon: 'loncra-file-search',
       parent: '/message-server/batch',
       requiresFullyAuth: true,
     },

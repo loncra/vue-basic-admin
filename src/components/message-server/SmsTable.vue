@@ -39,19 +39,19 @@ const actionButtons = ref<ActionDefinition<SmsMessageEntity>[]>([{
   id: "send",
   permission:'perms[message_server_sms:send]',
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.sms.routePage')}),
-  icon:() => createIcon('icon-send-fill'),
+  icon:() => createIcon('loncra-send'),
   run:() => void globalProperties.$router.push({name:'message_server_sms_send'})
 },{
   id: "template",
   permission:'perms[message_server_sms_template:find]',
   label:() => globalProperties.$t('messageServer.sms.template.routePage'),
-  icon:() => createIcon('icon-template'),
+  icon:() => createIcon('loncra-layout-template'),
   run:() => void globalProperties.$router.push({name:'message_server_sms_template'})
 },{
   id: "sign",
   permission:'perms[message_server_sms_sign:find]',
   label:() => globalProperties.$t('messageServer.sms.sign.routePage'),
-  icon:() => createIcon('icon-flag'),
+  icon:() => createIcon('loncra-signature'),
   run:() => void globalProperties.$router.push({name:'message_server_sms_sign'})
 }])
 
@@ -209,7 +209,7 @@ onMounted(mounted)
         <a-space>
           <template v-if="getEnumValue(record.executeStatus) === 99">
             <a-tooltip :title="record.exception">
-              <icon-font class="icon align" type="icon-warning"/>
+              <icon-font class="icon align" type="loncra-message-circle-warning"/>
             </a-tooltip>
           </template>
           {{ getEnumName(record.executeStatus) }}

@@ -431,7 +431,34 @@ const locale: LanguagePack = {
     }
   },
   component: {
-
+    tiptap:{
+      undo:'撤销',
+      redo:'重做',
+      picture:{
+        text:'图片',
+        label:'图片地址'
+      },
+      bold:'加粗',
+      italic:'斜体',
+      underline:'下划线',
+      blockquote:'引用',
+      text:'正文',
+      link:{
+        text:'链接',
+        label:'链接地址'
+      },
+      title:'标题{number}',
+      list:{
+        none:'无列表',
+        bullet:'无序列表',
+        ordered:'有序列表'
+      },
+      align:{
+        left:'左对齐',
+        center:'居中对齐',
+        right:'右对齐'
+      }
+    }
   }
 }
 

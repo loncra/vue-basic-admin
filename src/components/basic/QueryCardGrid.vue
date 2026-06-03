@@ -214,7 +214,7 @@ defineExpose({
         <a-space v-if="!slots.title">
           <icon-font
             class="icon align"
-            :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'icon-survey'"
+            :type="menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.icon || 'loncra-file'"
           />
           <a-typography-text strong>
             {{ menuPrincipalStore.state.currentBreadcrumbs.at(-1)?.name || '' }}

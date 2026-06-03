@@ -36,7 +36,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     meta: {
       deactivatedClose: true,
       applicationName: 'system',
-      icon: 'icon-warning',
+      icon: 'loncra-message-circle-warning',
     }
   },
   {
@@ -45,7 +45,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     component: BadRequest,
     meta: {
       applicationName: 'system',
-      icon: 'icon-cry',
+      icon: 'loncra-badge-alert',
       deactivatedClose: true,
     }
   },

@@ -97,7 +97,7 @@
 
   /* ========== Icon 图标样式 ========== */
   .icon {
-    @apply align-middle text-lg;
+    @apply align-middle;
   }
 
   .icon.align {
@@ -136,6 +136,14 @@
     @apply border-b border-solid border-b-border-secondary bg-container px-0 pl-lg pr-lg;
   }
 
+  .layout-header .ant-menu-horizontal .icon {
+    @apply text-lg;
+  }
+
+  .layout-header .ant-menu-horizontal .ant-badge.ant-menu-item-icon .icon {
+    @apply mt-[1.6rem];
+  }
+
   .layout-header .ant-menu-item:hover::after,
   .layout-header .ant-menu-submenu:hover::after,
   .layout-header .ant-menu-item-active::after,
@@ -154,8 +162,8 @@
 
   .layout-content-operation::after {
     @apply absolute inset-x-0 top-0 z-[-1] h-full bg-repeat content-[''] backdrop-blur-[10px];
-    mask-image: linear-gradient(black, black 40%, transparent 100%);
-    -webkit-mask-image: linear-gradient(black, black 40%, transparent 100%);
+    mask-image: linear-gradient(black, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(black, black 85%, transparent 100%);
   }
 
   .layout-content-operation > .tool-bar {

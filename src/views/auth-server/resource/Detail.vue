@@ -47,7 +47,7 @@ const entity = ref<ResourceEntity>({
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.name')">
         <a-space>
-          <icon-font class="icon" :type="entity.icon || 'icon-survey'"/>
+          <icon-font class="icon" :type="entity.icon || 'loncra-file'"/>
           {{entity.name}}
         </a-space>
       </a-descriptions-item>

@@ -23,7 +23,7 @@ export function createDefaultToolbarActions<TEntity>(
       permission: options.authority?.add,
       visible: (ctx) => ctx.extras.titleActionsEnabled !== false,
       label: () => options.t('common.add', {name: ''}),
-      icon: () => createIcon('icon-add', iconClass),
+      icon: () => createIcon('loncra-file-plus-corner', iconClass),
       run: (ctx) => options.onAdd(ctx),
     },
     {
@@ -34,7 +34,7 @@ export function createDefaultToolbarActions<TEntity>(
         ctx.selectedItems.length > 0
           ? options.t('common.export.selected', {count: ctx.selectedItems.length})
           : options.t('common.export.all'),
-      icon: () => createIcon('icon-goods-start-to-ship', iconClass),
+      icon: () => createIcon('loncra-panel-right-close', iconClass),
       run: (ctx) => options.onExport(ctx),
     },
   ]

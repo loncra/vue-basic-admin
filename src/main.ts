@@ -27,7 +27,7 @@ dayjs.extend(relativeTime)
 const IconFont = createFromIconfontCN({
   scriptUrl: [
     // 文件图标字体脚本
-    '/font_system_icon/iconfont.js',
+    '/font_loncra_icon/iconfont.js',
     '/font_xiaojiage/iconfont.js',
   ],
 })

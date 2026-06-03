@@ -48,7 +48,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
         <template v-if="entity?.data?.details || false">
           <a-divider orientation="left" plain>
             <a-space>
-              <icon-font class="icon align" type="icon-customer-bussinessman"/>
+              <icon-font class="icon align" type="loncra-user-round"/>
               <span >{{ globalProperties.$t('operation.principal') + ' ' + globalProperties.$t('common.basicInformation')}}</span>
             </a-space>
           </a-divider>
@@ -62,7 +62,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
         <template v-if="entity?.data?.metadata?.headers">
           <a-divider orientation="left" plain="">
             <a-space>
-              <icon-font class="icon align" type="icon-post"/>
+              <icon-font class="icon align" type="loncra-file-code"/>
               <span>{{  globalProperties.$t('common.request.header') + ' ' + globalProperties.$t('common.basicInformation')}}</span>
             </a-space>
           </a-divider>
@@ -76,7 +76,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
         <template v-if="entity?.data?.metadata?.parameters">
           <a-divider orientation="left" plain="">
             <a-space>
-              <icon-font class="icon align" type="icon-tool"/>
+              <icon-font class="icon align" type="loncra-file-code-corner"/>
               <span>{{  globalProperties.$t('common.request.parameter') + ' ' + globalProperties.$t('common.basicInformation')}}</span>
             </a-space>
           </a-divider>
@@ -90,7 +90,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
         <template v-if="entity?.data?.metadata?.body">
           <a-divider orientation="left" plain="">
             <a-space>
-              <icon-font class="icon align" type="icon-tool"/>
+              <icon-font class="icon align" type="loncra-file-code-corner"/>
               <span>{{  globalProperties.$t('common.request.body') + ' ' + globalProperties.$t('common.basicInformation')}}</span>
             </a-space>
           </a-divider>
@@ -104,7 +104,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
         <template v-if="entity?.data?.operationTrace">
           <a-divider orientation="left" plain>
             <a-space>
-              <icon-font class="icon align" type="icon-order-location"/>
+              <icon-font class="icon align" type="loncra-file-search"/>
               <span>{{ globalProperties.$t('operation.data') }}</span>
             </a-space>
           </a-divider>

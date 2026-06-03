@@ -81,7 +81,7 @@ const rowActions: ActionDefinition<ObjectItemInfo>[] = [{
   id: 'download',
   permission: true,
   label: () => globalProperties.$t('common.download.text'),
-  icon: () => createIcon('icon-download', 'align'),
+  icon: () => createIcon('loncra-download'),
   run: (ctx) => {
     if (!ctx.record) {
       return
@@ -92,7 +92,7 @@ const rowActions: ActionDefinition<ObjectItemInfo>[] = [{
   id: 'delete',
   permission: true,
   label: () => globalProperties.$t('common.delete.text'),
-  icon: () => createIcon('icon-delete', 'align'),
+  icon: () => createIcon('loncra-archive-x'),
   run: (ctx) => {
     if (!ctx.record) {
       return
@@ -106,14 +106,14 @@ const actions: ActionDefinition<ObjectItemInfo>[] = [{
   permission: true,
   label: (ctx) => globalProperties.$t('common.download.selected',{count: ctx.selectedItems.length}),
   enabled: () => true,
-  icon: () => createIcon('icon-download', 'align'),
+  icon: () => createIcon('loncra-download'),
   run: (ctx) => AttachmentService.downloads(ctx.selectedItems.map(k => ({bucketName: segmented.value.value, objectName: k.objectName})))
 },{
   id: 'deleteSelected',
   permission: true,
   label: (ctx) => globalProperties.$t('common.delete.selected',{count: ctx.selectedItems.length}),
   enabled: () => true,
-  icon: () => createIcon('icon-delete', 'align'),
+  icon: () => createIcon('loncra-archive-x'),
   run: (ctx) => onDelete(ctx.selectedItems)
 }]
 

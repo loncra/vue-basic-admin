@@ -40,7 +40,7 @@ const actionButtons = ref<ActionDefinition<SiteMessageEntity>[]>([{
   id: "send",
   permission:'perms[message_server_site:send]',
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.site.routePage')}),
-  icon:() => createIcon('icon-send-fill'),
+  icon:() => createIcon('loncra-send'),
   run:() => void globalProperties.$router.push({name:'message_server_site_send'})
 }])
 
@@ -194,7 +194,7 @@ onMounted(mounted)
         <a-space>
           <template v-if="getEnumValue(record.executeStatus) === 99">
             <a-tooltip :title="record.exception">
-              <icon-font class="icon align" type="icon-warning"/>
+              <icon-font class="icon align" type="loncra-message-circle-warning"/>
             </a-tooltip>
           </template>
           {{ getEnumName(record.executeStatus) }}

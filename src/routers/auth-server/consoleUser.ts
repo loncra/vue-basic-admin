@@ -18,7 +18,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       dynamicTitle: true,
       applicationName: 'auth-server',
-      icon: 'icon-edit',
+      icon: 'loncra-file-pen-line',
       parent: '/auth-server/user/console',
       requiresFullyAuth: true,
     },
@@ -29,7 +29,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_console_user_add',
     meta: {
       applicationName: 'auth-server',
-      icon: 'icon-add',
+      icon: 'loncra-file-plus',
       parent: '/auth-server/user/console',
       requiresFullyAuth: true,
     },
@@ -41,7 +41,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       dynamicTitle: true,
       applicationName: 'auth-server',
-      icon: 'icon-order-inspection',
+      icon: 'loncra-file-search',
       parent: '/auth-server/user/console',
       requiresFullyAuth: true,
     },

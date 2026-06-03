@@ -17,16 +17,16 @@ const segmented = ref<{
   data:[{
     value:'site_message',
     text:'站内消息',
-    iconFont:'icon-notice',
+    iconFont:'loncra-message-square-text',
     component:markRaw(LMySiteMessage)
   },{
     value:'chat_message',
     text:'即时聊天',
-    iconFont:'icon-notice'
+    iconFont:'loncra-messages-square'
   },{
     value:'ai_chat',
     text:'ai',
-    iconFont:'icon-notice'
+    iconFont:'loncra-bot'
   }]
 })
 
@@ -52,10 +52,10 @@ function onSegmented(value:string) {
       <a-flex align="start" flex="1" class="h-full">
         <div class="h-full p-xs bg-layout border-t border-t-border-secondary">
           <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
-            <template #labelRender="{ iconFont, text, value }">
+            <template #iconRender="{ iconFont, text, value }">
               <a-tooltip :title="text" placement="left">
                 <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">
-                  <icon-font class="icon" :type="iconFont" />
+                  <icon-font class="icon align" :type="iconFont" />
                 </a-badge>
               </a-tooltip>
             </template>

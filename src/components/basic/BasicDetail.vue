@@ -168,7 +168,7 @@ watch(
       <div v-if="entity.id && creationTime && operationDataTraceTarget">
         <a-divider orientation="left" plain>
           <a-space>
-            <icon-font class="icon" type="icon-time-response" />
+            <icon-font class="icon" type="loncra-timer-reset" />
             <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
           </a-space>
         </a-divider>

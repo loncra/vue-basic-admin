@@ -151,7 +151,7 @@ onMounted(mounted)
     <a-card size="small" :classes="{root:'mb-sm', body:'max-h-50 overflow-auto rounded-none'}" v-if="historyAvatar && historyAvatar.length > 0">
       <template #title>
         <a-space>
-          <icon-font class="icon" type="icon-time-history"/>
+          <icon-font class="icon" type="loncra-history"/>
           <span class="hidden-md hidden-sm hidden-xs">{{ globalProperties.$t('setting.account.avatar.history') }}</span>
         </a-space>
       </template>
@@ -160,10 +160,10 @@ onMounted(mounted)
           <template #cover>
             <a-space-compact >
               <a-button @click.stop="selectHistory(v)" size="small" type="text" class="text-white">
-                <icon-font class="icon" type="icon-tap"/>
+                <icon-font class="icon" type="loncra-circle-check"/>
               </a-button>
               <a-button size="small" type="text" class="text-white" @click.stop="deleteHistory(v)">
-                <icon-font class="icon" type="icon-delete"/>
+                <icon-font class="icon" type="loncra-archive-x"/>
               </a-button>
             </a-space-compact>
           </template>
@@ -185,7 +185,7 @@ onMounted(mounted)
         <a-avatar :size="configProviderStore.getToken().sizeXXL * 2" :src="principalStore.getAvatarUrl()" >
           {{principalStore.getAvatarPrefix()}}
         </a-avatar>
-        <icon-font class="icon text-text-secondary absolute bottom-0 right-0" type="icon-camera" />
+        <icon-font class="icon text-text-secondary absolute bottom-0 right-0" type="loncra-camera" />
       </span>
     </l-attachment-upload>
 
@@ -209,7 +209,7 @@ onMounted(mounted)
         <a-divider />
         <a-button type="primary" html-type="submit" :loading="loading">
           <template #icon>
-            <icon-font class="icon" type="icon-selected"/>
+            <icon-font class="icon" type="loncra-user-check"/>
           </template>
           {{globalProperties.$t('setting.account.modifyPassword')}}
         </a-button>

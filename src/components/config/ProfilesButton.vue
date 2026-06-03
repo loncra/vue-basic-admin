@@ -26,7 +26,7 @@ const operateItems = ref<MenuItemType[]>([
   {
     key: 'logout',
     label: globalProperties.$t('profile.logout'),
-    icon: () => createIcon('icon-shut-down'),
+    icon: () => createIcon('loncra-log-out'),
   },
 ])
 
@@ -46,7 +46,7 @@ function mounted() {
   const data = menuPrincipalStore.state
     .menu
     .filter(r => getEnumValue(r.type) === RESOURCE_TYPE.PROFILE)
-    .map(r => ({key: String(r.id), label: r.name, icon: createIcon(r.icon || 'icon-survey'), page: r.page}));
+    .map(r => ({key: String(r.id), label: r.name, icon: createIcon(r.icon || 'loncra-file'), page: r.page}));
   operateItems.value.unshift(...data)
 }
 

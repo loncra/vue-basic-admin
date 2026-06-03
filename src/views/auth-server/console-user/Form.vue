@@ -134,7 +134,7 @@ function resetFields() {
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
-          <icon-font class="icon" type="icon-customer-group" />
+          <icon-font class="icon" type="loncra-users-round" />
           {{ globalProperties.$t('authServer.userRole') }}
         </a-space>
       </a-divider>
@@ -143,7 +143,7 @@ function resetFields() {
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
-          <icon-font class="icon" type="icon-template-success" />
+          <icon-font class="icon" type="loncra-accessibility" />
           {{ globalProperties.$t('authServer.standaloneResource') }}
         </a-space>
       </a-divider>

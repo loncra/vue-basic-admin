@@ -17,7 +17,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       applicationName: 'message-server',
       requiresAuth: true,
-      icon: 'icon-send-fill',
+      icon: 'loncra-send',
       parent: '/message-server/site',
       requiresFullyAuth: true,
     },
@@ -28,7 +28,7 @@ const router: RouteRecordRaw[] = [
     meta: {
       applicationName: 'message-server',
       requiresAuth: true,
-      icon: 'icon-order-inspection',
+      icon: 'loncra-file-search',
       parent: '/message-server/site',
       requiresFullyAuth: true,
     },

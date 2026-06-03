@@ -73,7 +73,7 @@ const rowActions: ActionDefinition<ExportDataMetadata>[] = [{
   id: 'download',
   permission: true,
   label: () => globalProperties.$t('common.download.text'),
-  icon: () => createIcon('icon-download', 'align'),
+  icon: () => createIcon('loncra-download', 'align'),
   run: (ctx) => {
     if (!ctx.record) {
       return
@@ -87,7 +87,7 @@ const actions: ActionDefinition<ExportDataMetadata>[] = [{
   permission: true,
   label: (ctx) => globalProperties.$t('common.download.selected',{count: ctx.selectedItems.length}),
   enabled: (ctx) => ctx.selectedItems.some((item) => item.executeStatus.value === 1),
-  icon: () => createIcon('icon-download', 'align'),
+  icon: () => createIcon('loncra-download', 'align'),
   run: (ctx) => {
     const files: FileObject[] = ctx.selectedItems
       .filter((item) => item.executeStatus.value === 1)

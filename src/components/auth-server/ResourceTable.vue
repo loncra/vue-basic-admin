@@ -174,7 +174,7 @@ async function mounted() {
         id: 'addChild',
         permission: 'perms[resource_server_data_dictionary:save]',
         label: () => globalProperties.$t('common.addChild', {name:''}),
-        icon: () => createIcon('icon-editor-add-cell'),
+        icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
             globalProperties.$router.push({name:'auth_server_resource_add_child', query:{parentId:String(ctx.record.id)}})
@@ -247,7 +247,7 @@ onMounted(mounted)
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'name'">
         <a-space>
-          <icon-font class="icon align" :type="record.icon || 'icon-survey'" />
+          <icon-font class="icon align" :type="record.icon || 'loncra-file'" />
           {{ record.name}}
         </a-space>
       </template>

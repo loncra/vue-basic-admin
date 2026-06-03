@@ -26,7 +26,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_audit_event_authentication_detail',
     meta: {
       applicationName: 'auth-server',
-      icon: 'icon-order-inspection',
+      icon: 'loncra-file-search',
       parent: '/auth-server/audit/event/authentication',
       requiresFullyAuth: true,
     },
@@ -37,7 +37,7 @@ const router: RouteRecordRaw[] = [
     name: 'auth_server_audit_event_operation_data_trace_detail',
     meta: {
       applicationName: 'auth-server',
-      icon: 'icon-order-inspection',
+      icon: 'loncra-file-search',
       parent: '/auth-server/audit/event/operationDataTrace',
       requiresFullyAuth: true,
     },

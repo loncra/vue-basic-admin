@@ -31,14 +31,14 @@ function logout() {
           <a-space>
             <a-button @click="globalProperties.$router.go(-1);">
               <template #icon>
-                <icon-font class="icon align" type="icon-return"/>
+                <icon-font class="icon align" type="loncra-undo-2"/>
               </template>
               <span>{{ globalProperties.$t('common.back') }}</span>
             </a-button>
 
             <a-button type="primary" @click="logout" >
               <template #icon>
-                <icon-font class="icon align" type="icon-shut-down"/>
+                <icon-font class="icon align" type="loncra-log-out"/>
               </template>
               <span >{{ globalProperties.$t('auth.reLogin') }}</span>
             </a-button>
