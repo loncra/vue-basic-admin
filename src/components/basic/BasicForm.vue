@@ -23,7 +23,7 @@ import {isResultSuccess} from "@/requests/http";
 import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {getRouteTitle} from "@/routers";
-import {LAYOUT_CONTENT_CLOSE_TAB_KEY, LAYOUT_PANE_TITLE_KEY} from "@/constants/systemConstant";
+import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, LAYOUT_PANE_TITLE_PROVIDE_KEY} from "@/constants/systemConstant";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 import i18n from "@/i18n";
 
@@ -32,8 +32,8 @@ defineOptions({
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
-const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_KEY)
+const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
+const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_PROVIDE_KEY)
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config

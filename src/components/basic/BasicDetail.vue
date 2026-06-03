@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import {LAYOUT_PANE_TITLE_KEY, SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {LAYOUT_PANE_TITLE_PROVIDE_KEY, SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicIdMetadata, DetailSearchService, RestResult} from "@/types/apis";
 import {
   type ComponentInternalInstance,
@@ -18,7 +18,7 @@ import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {getRouteTitle} from "@/routers";
 import {App, type MenuProps} from "antdv-next";
-import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant";
+import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY} from "@/constants/systemConstant";
 import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 import i18n from "@/i18n";
@@ -30,8 +30,8 @@ defineOptions({
   name: 'LBasicDetail',
 })
 
-const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
-const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_KEY)
+const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
+const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_PROVIDE_KEY)
 
 const slots = useSlots()
 

@@ -22,6 +22,10 @@ import Setting from '@/views/common/Setting.vue'
 import NotFound from '@/views/error/NotFound.vue';
 import Forbidden from '@/views/error/Forbidden.vue';
 import BadRequest from '@/views/error/BadRequest.vue';
+
+import MySiteMessage from "@/views/common/my/MySiteMessage.vue";
+import MyChatMessage from "@/views/common/my/MyChatMessage.vue";
+
 import i18n from '@/i18n'
 
 /**
@@ -86,6 +90,23 @@ const childrenRoutes: RouteRecordRaw[] = [
       applicationName: 'commons',
       requiresAuth: true,
     },
+    children:[{
+      path: '/commons/my/message/site',
+      name: 'my_site_message',
+      component: MySiteMessage,
+      meta: {
+        applicationName: 'commons',
+        requiresAuth: true,
+      },
+    },{
+      path: '/commons/my/message/chat',
+      name: 'my_chat_message',
+      component: MyChatMessage,
+      meta: {
+        applicationName: 'commons',
+        requiresAuth: true,
+      },
+    }]
   },
 ]
 
@@ -257,6 +278,9 @@ const applyRouteMetaToMenu = (
   meta.title = menuData.name
   meta.applicationName = menuData.applicationName
   meta.icon = menuData.icon
+  if (route.children && route.children.length > 0) {
+    route.children.forEach(m => applyRouteMetaToMenu(m, menus))
+  }
 }
 
 const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {

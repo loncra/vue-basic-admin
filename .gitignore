@@ -43,3 +43,4 @@ components.d.ts
 /.cursor/
 /skills-lock.json
 /pnpm-lock.yaml
+/.codegraph/.gitignore

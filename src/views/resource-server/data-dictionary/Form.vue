@@ -13,7 +13,7 @@ import LBasicForm from "@/components/basic/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
-import {LAYOUT_CONTENT_CLOSE_TAB_KEY} from "@/constants/systemConstant.ts";
+import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 
 defineOptions({
   name: 'ResourceServerDataDictionaryForm',
@@ -23,7 +23,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_KEY)
+const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
 
 const service = new DataDictionaryService()
 const typeService = new DictionaryTypeService()

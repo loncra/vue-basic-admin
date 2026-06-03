@@ -72,6 +72,7 @@ export interface VersionEntityMetadata extends BasicIdMetadata<number> {
 export interface IdNameMetadata extends BasicIdMetadata<string> {
   /** 显示名称 */
   name: string
+  [key: string]: unknown
 }
 
 export interface IdNameValueMetadata<T> extends IdNameMetadata {

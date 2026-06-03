@@ -5,14 +5,14 @@ import {
   Sender as AxSender,
   SenderHeader as AxSenderHeader,
 } from '@antdv-next/x'
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import type {
   ItemType
 } from "@antdv-next/x/dist/conversations/interface";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 
 defineOptions({
-  name: 'LMyChatMessage',
+  name: 'MyChatMessageHome',
 })
 
 const dataSource = ref<ItemType[]>([{
@@ -25,23 +25,25 @@ const dataSource = ref<ItemType[]>([{
 
 const conversationActive = ref<{
   key?:string,
-  item?:ItemType
+  item?:ItemType | undefined
   loading:boolean,
   sending?:boolean
   openHeader?:boolean,
   text?:string
 }>({
   key:undefined,
-  item:undefined,
   loading:false,
   sending:false,
   openHeader:false
 })
 
-function onConversationsActiveChange(value: string, item?: ItemType) {
+function onConversationsActiveChange(value: string, item: ItemType | undefined): void {
   conversationActive.value.key = value
-  conversationActive.value.item = item
+  if (item) {
+    conversationActive.value.item = item
+  }
 }
+
 </script>
 
 <template>

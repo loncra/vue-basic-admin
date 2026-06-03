@@ -1,40 +1,62 @@
 <script setup lang="ts">
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import LMySiteMessage from "@/components/my/MySiteMessage.vue";
-import LMyChatMessage from "@/components/my/MyChatMessage.vue";
-import {markRaw, ref} from "vue";
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  onActivated,
+  onMounted,
+  provide,
+  ref,
+  type VNode
+} from "vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
+import {findFirstTreeNode, requireNonNullOrUndefined} from "@/utils";
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 
 defineOptions({
   name: 'CommonMyMessage',
 })
 
+const globalProperties =
+  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
+    .globalProperties
+
 const messageServerStore = useMessageServerStore()
+const menuPrincipalStore = useMenuPrincipalStore()
 const segmented = ref<{
-  value:string
+  value?:string
   data:Record<string, unknown>[]
 }>({
-  value:'site_message',
-  data:[{
-    value:'site_message',
-    text:'站内消息',
-    iconFont:'loncra-message-square-text',
-    component:markRaw(LMySiteMessage)
-  },{
-    value:'chat_message',
-    text:'我的聊天',
-    iconFont:'loncra-messages-square',
-    component: markRaw(LMyChatMessage)
-  },{
-    value:'ai_chat',
-    text:'ai',
-    iconFont:'loncra-bot'
-  }]
+  data:[]
 })
+
+const extraContent = ref<VNode>();
+provide(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, (comp:VNode) => extraContent.value = comp);
 
 function onSegmented(value:string) {
   segmented.value.value = value;
+  globalProperties.$router.push({ name: value });
 }
+
+function mounted() {
+  const menu = findFirstTreeNode((m) => m.code === 'my_message',menuPrincipalStore.state.menu)
+  if (menu && (menu?.children || []).length > 0) {
+    segmented.value.data = (menu.children || []).map(r => ({name:r.name, value:r.code,iconText:r.icon}))
+  }
+  activated()
+}
+
+function activated(){
+  const current = segmented.value.data.find(v => v.value === globalProperties.$route.name)
+  if (current) {
+    segmented.value.value = String(current?.value)
+  }
+}
+
+onMounted(mounted)
+
+onActivated(activated)
 </script>
 
 <template>
@@ -46,28 +68,29 @@ function onSegmented(value:string) {
         body:'flex-1 min-h-100 p-0 overflow-hidden'
       }"
     >
-      <template #extra>
-        <template v-if="segmented.value === 'site_message'">
-          {{segmented.data.find(v => v.value === 'site_message')?.text}}
-        </template>
+      <template #extra v-if="extraContent">
+        <component :is="extraContent" />
       </template>
       <a-flex align="start" flex="1" class="h-full">
         <div class="h-full p-xs bg-layout border-t border-t-border-secondary">
           <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
-            <template #iconRender="{ iconFont, text, value }">
-              <a-tooltip :title="text" placement="left">
+            <template #iconRender="{ iconText, name, value }">
+              <a-tooltip :title="name" placement="left">
                 <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">
-                  <icon-font class="icon align" :type="iconFont" />
+                  <icon-font class="icon align" :type="iconText" />
                 </a-badge>
               </a-tooltip>
             </template>
           </a-segmented>
         </div>
         <a-flex flex="1" class="h-full">
-          <component :is="segmented.data.find(v => v.value === segmented.value)?.component" />
+          <router-view v-slot="{ Component }">
+            <keep-alive :include="['MyChatMessageHome', 'MySiteMessageHome']">
+              <component :is="Component" />
+            </keep-alive>
+          </router-view>
         </a-flex>
       </a-flex>
-
     </l-menu-title-card>
   </a-flex>
 </template>

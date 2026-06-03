@@ -3,9 +3,12 @@ import {
   type ComponentInternalInstance,
   computed,
   getCurrentInstance,
+  h,
+  inject,
   nextTick,
   onMounted,
-  ref
+  ref,
+  type VNode
 } from "vue";
 import {MessageServerService, SiteMessageService} from "@/apis/message-server";
 import type {
@@ -15,14 +18,15 @@ import type {
   SiteMessageEntity,
   TotalPage
 } from "@/types/apis";
-import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import {useMessageServerStore} from "@/stores/messageServerStore.js";
 import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import type {ResolvedAction} from "@/types/composables";
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 
 defineOptions({
-  name: 'LMySiteMessage',
+  name: 'MySiteMessageHome',
 })
 
 const {message, modal} = useApp()
@@ -31,11 +35,24 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
+const setMessageExtraContent = inject<Function>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
+
 const types = ref<IdNameMetadata[]>([])
 const activeTagKey = ref<string>()
 const siteMessages = ref<MySiteMessageProps[]>([])
 const messageServerStore = useMessageServerStore()
 const siteMessageService = new SiteMessageService()
+
+const typeIcons:IdNameMetadata[] = [{
+  id:"30",
+  name:'loncra-message-square-dot'
+},{
+  id:"20",
+  name:'loncra-message-square-more'
+},{
+  id:"10",
+  name:'loncra-message-square-warning'
+}]
 
 const actions = computed<ResolvedAction[]>(() => {
   return [
@@ -60,13 +77,33 @@ const actions = computed<ResolvedAction[]>(() => {
 async function mounted() {
   const result:RestResult<IdNameMetadata[]> = await MessageServerService.types('site')
   types.value = (result.data || [])
-  if (types.value.length > 0){
+  if (types.value.length > 0) {
+    types.value.forEach(item => item.iconText = typeIcons.find(i => i.id === item.id)?.name || 'loncra-file-question-mark')
     siteMessages.value.push(...types.value.map(t => createDataSource(t.id)))
-    activeTagKey.value = types.value.at(0)?.id || ''
+    await onTabChange(types.value.at(0)?.id || '')
   }
-  if (activeTagKey.value && activeTagKey.value !== '') {
-    await loadDataSource(activeTagKey.value)
+}
+
+async function onTabChange(activeKey:string) {
+  activeTagKey.value = activeKey
+  changeMessageExtraContent(activeKey)
+  await nextTick()
+  await loadDataSource(activeTagKey.value)
+}
+
+function changeMessageExtraContent(activeKey:string) {
+
+  const message = siteMessages.value.find(v => v.key === activeKey)
+  if (!message) {
+    return
   }
+  const type = types.value.find(t => t.id === message.key)
+  if (!type) {
+    return
+  }
+
+  const node:VNode = h('span', {}, {default:() => type.name})
+  setMessageExtraContent?.(node)
 }
 
 function createDataSource(key:string) {
@@ -155,12 +192,6 @@ function getCurrentItem(key:string="") {
   return siteMessages.value[index]
 }
 
-async function onTabChange(activeKey:string) {
-  activeTagKey.value = activeKey
-  await nextTick()
-  await loadDataSource(activeTagKey.value)
-}
-
 async function onDeleteRead() {
   modal.confirm({
     title: globalProperties.$t('common.delete.confirmTitle'),
@@ -226,7 +257,7 @@ onMounted(mounted)
 
 <template>
   <a-flex class="p-md w-full" vertical gap="middle">
-    <a-tabs :classes="{header:'m-0'}" :items="types.map(t => ({key:t.id, label:t.name}))" :active-key="activeTagKey" @change="onTabChange">
+    <a-tabs :classes="{header:'m-0'}" :items="types.map(t => ({key:t.id, label:t.name, iconText:t.iconText}))" :active-key="activeTagKey" @change="onTabChange">
       <template #rightExtra>
         <l-action-button
           :actions="actions"
@@ -234,6 +265,7 @@ onMounted(mounted)
       </template>
       <template #labelRender="{ item }">
         <a-space>
+          <icon-font class="icon align" :type="item.iconText" />
           <span>
             {{item.label}}
           </span>

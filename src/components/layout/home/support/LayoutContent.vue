@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {type RouteLocationNormalizedLoaded} from 'vue-router'
+import {type RouteLocationNormalized, type RouteLocationNormalizedLoaded} from 'vue-router'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -14,8 +14,8 @@ import type {MenuItemType} from 'antdv-next'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import {
   APP_RELOAD_PROVIDE_KEY,
-  LAYOUT_CONTENT_CLOSE_TAB_KEY,
-  LAYOUT_PANE_TITLE_KEY
+  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
+  LAYOUT_PANE_TITLE_PROVIDE_KEY
 } from '@/constants/systemConstant'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {RouteResourceMetadata} from '@/types/apis'
@@ -64,8 +64,8 @@ function isRoutePageLoading(itemKey: string | number): boolean {
 }
 
 provide(APP_RELOAD_PROVIDE_KEY, reload)
-provide(LAYOUT_CONTENT_CLOSE_TAB_KEY, removePaneByPage)
-provide(LAYOUT_PANE_TITLE_KEY, setPaneName)
+provide(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, removePaneByPage)
+provide(LAYOUT_PANE_TITLE_PROVIDE_KEY, setPaneName)
 
 function setPaneName(fullPath: string, name: string) {
   const pane = panes.value.find((p) => p.path === fullPath)
@@ -107,13 +107,6 @@ function activateTab(route: RouteResourceMetadata) {
   if (current) {
     globalProperties.$router.push(current.path)
   } else {
-    /*const temp = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
-    if (temp) {
-      panes.value.push(temp)
-      if (!(route.page in routeCacheVersions.value)) {
-        routeCacheVersions.value[route.path] = 0
-      }
-    }*/
     panes.value.push(route);
   }
   activeKey.value = route.path as string
@@ -338,7 +331,8 @@ function onRemoveTab(value: string, action: string) {
 
 watch(
   () => globalProperties.$route.fullPath,
-  () => activateTab(menuPrincipalStore.toResourceRouteMetadata(globalProperties.$route)),
+  () => activateTab(menuPrincipalStore.toResourceRouteMetadata(globalProperties.$route))
+
 )
 
 watch(
