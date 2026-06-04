@@ -30,8 +30,9 @@ export interface RouteResourceMetadata extends ResourceMetadata {
   fixed: boolean
   deactivatedClose: boolean
   single: boolean
-  route: RouteRecordName,
-  dynamicTitle: boolean,
+  route: RouteRecordName
+  dynamicTitle: boolean
+  parentKeepAlive?:string | unknown
 }
 
 export interface ResourceSavePayload extends ResourceMetadata, BasicIdMetadata<number> {

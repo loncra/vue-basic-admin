@@ -140,9 +140,9 @@
     @apply text-lg;
   }
 
-  .layout-header .ant-menu-horizontal .ant-badge.ant-menu-item-icon .icon {
+  /*.layout-header .ant-menu-horizontal .ant-badge.ant-menu-item-icon .icon {
     @apply mt-[1.6rem];
-  }
+  }*/
 
   .layout-header .ant-menu-item:hover::after,
   .layout-header .ant-menu-submenu:hover::after,

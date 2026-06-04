@@ -69,7 +69,7 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
   })
 
   const getUnreadQuantityByType = computed(() => (type:string) => {
-    if (type === 'site_message') {
+    if (type === 'my_site_message') {
       return countUnreadQuantity(...(state.value?.siteTypes || []).map(v => v.id))
     }
     return 0;

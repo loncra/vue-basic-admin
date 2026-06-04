@@ -85,6 +85,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/commons/my/message',
     name: 'my_message',
+    redirect: {name: 'my_chat_message'},
     component: MyMessage,
     meta: {
       applicationName: 'commons',
@@ -96,6 +97,7 @@ const childrenRoutes: RouteRecordRaw[] = [
       component: MySiteMessage,
       meta: {
         applicationName: 'commons',
+        parentKeepAlive:'/commons/my/message',
         requiresAuth: true,
       },
     },{
@@ -104,6 +106,7 @@ const childrenRoutes: RouteRecordRaw[] = [
       component: MyChatMessage,
       meta: {
         applicationName: 'commons',
+        parentKeepAlive:'/commons/my/message',
         requiresAuth: true,
       },
     }]

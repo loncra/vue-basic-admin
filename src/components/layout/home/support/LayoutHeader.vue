@@ -15,16 +15,11 @@ const menuPrincipalStore = useMenuPrincipalStore()
 
 const messageServerStore = useMessageServerStore()
 
-function itemRender(item:ResourceEntity, node:VNode) {
+function badgeRender(item:ResourceEntity) {
   if (item.code === 'my_message') {
-    const badge = resolveComponent('ABadge')
-    return h(
-      badge,
-      {count: messageServerStore.getUnreadQuantity(), dot:true, size: 'small'},
-      {default:() => node},
-    )
+    return {count: messageServerStore.getUnreadQuantity(), dot:true, size: 'small'}
   }
-  return node
+  return {}
 }
 
 async function mounted(){
@@ -59,9 +54,10 @@ onMounted(mounted)
       <span />
       <a-space align="center">
         <l-menu
+          :badges="['my_message']"
+          :badgeRender="badgeRender"
           :menu-types="[RESOURCE_TYPE.TOOL]"
           :hide-label="true"
-          :item-render="itemRender"
           mode="horizontal"
         />
         <l-profile-button/>

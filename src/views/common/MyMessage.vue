@@ -74,20 +74,20 @@ onActivated(activated)
       <a-flex align="start" flex="1" class="h-full">
         <div class="h-full p-xs bg-layout border-t border-t-border-secondary">
           <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
-            <template #iconRender="{ iconText, name, value }">
-              <a-tooltip :title="name" placement="left">
-                <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">
-                  <icon-font class="icon align" :type="iconText" />
-                </a-badge>
-              </a-tooltip>
+            <template #iconRender="{ iconText,value }">
+              <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">
+                <icon-font class="icon align" :type="iconText" />
+              </a-badge>
             </template>
           </a-segmented>
         </div>
         <a-flex flex="1" class="h-full">
           <router-view v-slot="{ Component }">
-            <keep-alive :include="['MyChatMessageHome', 'MySiteMessageHome']">
-              <component :is="Component" />
-            </keep-alive>
+            <transition name="fade-transform" mode="out-in">
+              <keep-alive v-if="Component">
+                <component :is="Component" />
+              </keep-alive>
+            </transition>
           </router-view>
         </a-flex>
       </a-flex>

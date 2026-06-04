@@ -34,13 +34,16 @@ const globalProperties =
 const menuPrincipalStore = useMenuPrincipalStore()
 
 const props = withDefaults(defineProps<{
-  menuTypes: string[],
-  hideLabel?: boolean,
+  menuTypes: string[]
+  hideLabel?: boolean
+  badges?:string[]
   itemRender?:(item:ResourceEntity, node:VNode) => VNode
+  badgeRender?:(item:ResourceEntity) => Record<string, unknown>
 }>(), {
   menuTypes: () => [],
   inlineCollapsed: false,
-  itemRender:(item:ResourceEntity, node:VNode) => node
+  itemRender:(item:ResourceEntity, node:VNode) => node,
+  badgeRender:(item:ResourceEntity) => ({})
 })
 
 const menuOptions = ref<
@@ -88,11 +91,16 @@ function labelRender(item: ResourceEntity) {
 
 function iconRender(item: ResourceEntity) {
   const icon = createIcon(item.icon || 'loncra-file')
+  let trigger = icon
+  if (props.badges && props.badges.includes(item.code)) {
+    const badge = resolveComponent('ABadge')
+    trigger = h(badge, {...props.badgeRender(item)}, () => icon)
+  }
   const tooltip = resolveComponent('ATooltip')
   const node:VNode =  h(
     tooltip,
     {title: String(item.name ?? '')},
-    {default: () => icon},
+    {default: () => trigger},
   )
   return props?.itemRender(item, node) || node;
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {type RouteLocationNormalized, type RouteLocationNormalizedLoaded} from 'vue-router'
+import {type RouteLocationNormalizedLoaded} from 'vue-router'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -21,7 +21,6 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {RouteResourceMetadata} from '@/types/apis'
 import i18n from "@/i18n";
 import {getRouteTitle} from '@/routers'
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
 defineOptions({
   name: 'LLayoutContent',
@@ -32,7 +31,6 @@ const globalProperties =
     .globalProperties
 
 const menuPrincipalStore = useMenuPrincipalStore()
-const configProviderStore = useConfigProviderStore()
 
 const activeKey = ref<string>('')
 const isRouterAlive = ref(true)
@@ -74,7 +72,7 @@ function setPaneName(fullPath: string, name: string) {
 
 function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
   const version = routeCacheVersions.value[route.fullPath] || 0
-  return `${route.fullPath}-v${version}`
+  return String(route?.meta?.parentKeepAlive || `${route.fullPath}-v${version}`)
 }
 
 function getFixedRoutesFromRouter(): RouteResourceMetadata[] {
@@ -100,19 +98,38 @@ function loadPinnedFromStorage(): RouteResourceMetadata[] {
   }
 }
 
+function getActiveRoute(route: RouteResourceMetadata) {
+  let temp = route;
+  if (route.parentKeepAlive) {
+    const parent = globalProperties.$router
+      .getRoutes()
+      .find(r => [r.path, r.name].includes(String(route.parentKeepAlive)))
+    if (parent) {
+      temp = menuPrincipalStore.toResourceRouteMetadata(parent)
+    }
+  }
+
+  return temp;
+}
+
 function activateTab(route: RouteResourceMetadata) {
+  const temp = getActiveRoute(route)
+
   panes.value = panes.value.filter(p => !p.deactivatedClose)
-  const current = panes.value.find(p => p.path === route.path)
+  const current = panes.value.find(p => p.path === temp.path)
 
   if (current) {
+    if (route.parentKeepAlive) {
+      return ;
+    }
     globalProperties.$router.push(current.path)
   } else {
-    panes.value.push(route);
+    panes.value.push(temp);
   }
-  activeKey.value = route.path as string
-  if (route.single) {
-    const keepPath = route.path
-    const pageKey = route.page
+  activeKey.value = temp.path as string
+  if (temp.single) {
+    const keepPath = temp.path
+    const pageKey = temp.page
     const toRemove = panes.value.filter(
       (p) => p.page === pageKey && p.path !== keepPath && !isPaneFixed(p),
     )
@@ -363,90 +380,7 @@ onMounted(mounted)
     >
       <!-- 顶部操作区：左侧预留按钮，右侧分段器充当标签导航 -->
       <a-flex align="center" justify="center" class="layout-content-operation">
-        <a-border-beam
-          v-if="isRoutePageLoading(globalProperties.$route.fullPath)"
-          :color="[
-            {
-              color: configProviderStore.getToken().colorPrimary,
-              percent: 0
-            },
-            {
-              color: configProviderStore.getToken().colorSuccess,
-              percent: 50
-            },
-            {
-              color: configProviderStore.getToken().colorError,
-              percent: 100
-            }
-          ]"
-        >
-          <div class="tool-bar ">
-            <a-tabs
-              @change="changeTab"
-              :items="panes.map(p => ({ label: p.name, iconString: p.icon, key: p.path, closable: !pinnedRouteNames.some(_p => _p.path === p.path) && !fixedRouteNames.has(p.path) }))"
-              type="editable-card"
-              :active-key="activeKey"
-              hide-add
-              @edit="onRemoveTab"
-            >
-              <template #labelRender="{ item }">
-                <a-space>
-                  <icon-font
-                    v-if="isRoutePageLoading(item.key)"
-                    class="icon align"
-                    type="loncra-loader"
-                    spin
-                  />
-                  <icon-font
-                    v-else
-                    class="icon align"
-                    :type="item.iconString || 'loncra-file'"
-                  />
-                  <span>{{item.label}}</span>
-                </a-space>
-              </template>
-              <template #leftExtra>
-                <div class="mr-xs">
-                  <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
-                    <a-button type="text" @click="reload">
-                      <template #icon>
-                        <icon-font class="icon align" type="loncra-iteration-cw"/>
-                      </template>
-                    </a-button>
-                  </a-tooltip>
-                  <a-tooltip
-                    :title="
-                      isFullscreen
-                        ? globalProperties.$t('layoutContent.exitFullscreen')
-                        : globalProperties.$t('layoutContent.fullscreen')
-                    "
-                  >
-                    <a-button type="text" @click="toggleFullscreen">
-                      <template #icon>
-                        <icon-font
-                          class="icon align"
-                          :type="isFullscreen ? 'loncra-minimize' : 'loncra-expand'"
-                        />
-                      </template>
-                    </a-button>
-                  </a-tooltip>
-                  <a-dropdown
-                    :menu="{ items: operateItems }"
-                    @menu-click="onOperateMenuClick"
-                    @open-change="onOpenOperateChange"
-                  >
-                    <a-button type="text">
-                      <template #icon>
-                        <icon-font class="icon align" type="loncra-ellipsis"/>
-                      </template>
-                    </a-button>
-                  </a-dropdown>
-                </div>
-              </template>
-            </a-tabs>
-          </div>
-        </a-border-beam>
-        <div class="tool-bar " v-else>
+        <div class="tool-bar " >
           <a-tabs
             @change="changeTab"
             :items="panes.map(p => ({ label: p.name, iconString: p.icon, key: p.path, closable: !pinnedRouteNames.some(_p => _p.path === p.path) && !fixedRouteNames.has(p.path) }))"

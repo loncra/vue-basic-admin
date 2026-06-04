@@ -10,7 +10,7 @@ import type {
 import {AuthServerService} from '@/apis'
 import {isResultSuccess} from '@/requests'
 import {
-  type RouteLocationNormalized,
+  type RouteLocationNormalized, type RouteLocationNormalizedGeneric,
   type RouteMeta,
   type Router,
   type RouteRecordNormalized
@@ -58,11 +58,9 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    * @returns 重置后的空菜单数组
    */
   function $reset(): MenuState {
-    const result: MenuState = {
+    return {
       ...RESET,
     }
-    const principalStore = usePrincipalStore();
-    return result
   }
 
   function getPrincipalQuickAccessRecord(principal:string) {
@@ -147,8 +145,9 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     state.value.currentBreadcrumbs = currentBreadcrumbs;
   }
 
-  function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
+  function toResourceRouteMetadata(route: RouteLocationNormalized | RouteRecordNormalized): RouteResourceMetadata {
     return {
+      parentKeepAlive: route.meta?.parentKeepAlive,
       icon: (route.meta?.icon || 'loncra-file') as string,
       name: getRouteTitle(route.name),
       route: route.name,
@@ -156,7 +155,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
       sort: 0,
       deactivatedClose: (route.meta?.deactivatedClose || false) as boolean,
       applicationName: route.meta?.applicationName as string,
-      path: route.fullPath,
+      path: (route as RouteLocationNormalized).fullPath || route.path,
       fixed: route.meta?.fixed as boolean,
       single: (route.meta?.single || false) as boolean,
       dynamicTitle: (route.meta?.dynamicTitle || false) as boolean
@@ -230,7 +229,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     const principalStore = usePrincipalStore();
     const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
     const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
-;
+
     const quickAccessItem: RouteResourceMetadata = { ...route, sort: 0 }
     const index = quickAccess.findIndex(m => m.path === quickAccessItem.path)
     if (index >= 0) {

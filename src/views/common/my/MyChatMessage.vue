@@ -47,7 +47,8 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
 </script>
 
 <template>
-  <a-splitter class="h-full ">
+  <div class="size-full">
+  <a-splitter class="h-full">
     <a-splitter-panel class="h-full" default-size="20%" min="15%" max="25%">
       <a-flex vertical class="h-full">
         <div class="p-md">
@@ -267,4 +268,5 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
       </a-flex>
     </a-splitter-panel>
   </a-splitter>
+  </div>
 </template>
