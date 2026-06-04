@@ -21,6 +21,7 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {RouteResourceMetadata} from '@/types/apis'
 import i18n from "@/i18n";
 import {getRouteTitle} from '@/routers'
+import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 
 defineOptions({
   name: 'LLayoutContent',
@@ -31,6 +32,7 @@ const globalProperties =
     .globalProperties
 
 const menuPrincipalStore = useMenuPrincipalStore()
+const messageServerStore = useMessageServerStore()
 
 const activeKey = ref<string>('')
 const isRouterAlive = ref(true)
@@ -396,27 +398,29 @@ onMounted(mounted)
         <div class="tool-bar " >
           <a-tabs
             @change="changeTab"
-            :items="panes.map(p => ({ label: p.name, iconString: p.icon, key: p.path, closable: !pinnedRouteNames.some(_p => _p.path === p.path) && !fixedRouteNames.has(p.path) }))"
+            :items="panes.map(p => ({badge:p.badge, route:p.route, label: p.name, iconString: p.icon, key: p.path, closable: !pinnedRouteNames.some(_p => _p.path === p.path) && !fixedRouteNames.has(p.path) }))"
             type="editable-card"
             :active-key="activeKey"
             hide-add
             @edit="onRemoveTab"
           >
             <template #labelRender="{ item }">
-              <a-space>
-                <icon-font
-                  v-if="isRoutePageLoading(item.key)"
-                  class="icon align"
-                  type="loncra-loader"
-                  spin
-                />
-                <icon-font
-                  v-else
-                  class="icon align"
-                  :type="item.iconString || 'loncra-file'"
-                />
-                <span>{{item.label}}</span>
-              </a-space>
+                <a-space>
+                  <icon-font
+                    v-if="isRoutePageLoading(item.key)"
+                    class="icon align"
+                    type="loncra-loader"
+                    spin
+                  />
+                  <icon-font
+                    v-else
+                    class="icon align"
+                    :type="item.iconString || 'loncra-file'"
+                  />
+                  <a-badge dot :count="messageServerStore.getUnreadQuantityByType(item.route)">
+                    <span>{{item.label}}</span>
+                  </a-badge>
+                </a-space>
             </template>
             <template #leftExtra>
               <div class="mr-xs">

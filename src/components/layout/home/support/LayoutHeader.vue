@@ -15,13 +15,6 @@ const menuPrincipalStore = useMenuPrincipalStore()
 
 const messageServerStore = useMessageServerStore()
 
-function badgeRender(item:ResourceEntity) {
-  if (item.code === 'my_message') {
-    return {count: messageServerStore.getUnreadQuantity(), dot:true, size: 'small'}
-  }
-  return {}
-}
-
 async function mounted(){
   await messageServerStore.installState()
 }
@@ -55,7 +48,6 @@ onMounted(mounted)
       <a-space align="center">
         <l-menu
           :badges="['my_message']"
-          :badgeRender="badgeRender"
           :menu-types="[RESOURCE_TYPE.TOOL]"
           :hide-label="true"
           mode="horizontal"

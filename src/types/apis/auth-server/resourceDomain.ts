@@ -31,6 +31,7 @@ export interface RouteResourceMetadata extends ResourceMetadata {
   deactivatedClose: boolean
   single: boolean
   route: RouteRecordName
+  badge?: boolean,
   dynamicTitle: boolean
   parentKeepAlive?:string | unknown
 }

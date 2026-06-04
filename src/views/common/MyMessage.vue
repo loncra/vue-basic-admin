@@ -64,7 +64,7 @@ onActivated(activated)
   <a-flex flex="1" class="min-h-0">
     <l-menu-title-card
       :classes="{
-        root:'min-h-0 flex flex-col size-full shadow-ter',
+        root:'min-h-150 flex flex-col size-full shadow-ter',
         header: 'flex-shrink-0',
         body:'flex-1 min-h-0 p-0 overflow-hidden'
       }"
@@ -73,7 +73,7 @@ onActivated(activated)
         <component :is="extraContent" />
       </template>
       <a-flex align="start" flex="1" class="h-full">
-        <div class="h-full p-xs bg-layout border-t border-t-border-secondary">
+        <div class="h-full p-xs bg-layout border-r border-r-border-secondary">
           <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
             <template #iconRender="{ iconText,value }">
               <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">

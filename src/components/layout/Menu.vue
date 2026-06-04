@@ -22,6 +22,7 @@ import {
 } from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {MenuInfo} from '@v-c/menu'
+import {useMessageServerStore} from "@/stores/messageServerStore";
 
 defineOptions({
   name: 'LMenu',
@@ -32,18 +33,17 @@ const globalProperties =
     .globalProperties
 
 const menuPrincipalStore = useMenuPrincipalStore()
+const messageServerStore = useMessageServerStore()
 
 const props = withDefaults(defineProps<{
   menuTypes: string[]
   hideLabel?: boolean
   badges?:string[]
   itemRender?:(item:ResourceEntity, node:VNode) => VNode
-  badgeRender?:(item:ResourceEntity) => Record<string, unknown>
 }>(), {
   menuTypes: () => [],
   inlineCollapsed: false,
   itemRender:(item:ResourceEntity, node:VNode) => node,
-  badgeRender:(item:ResourceEntity) => ({})
 })
 
 const menuOptions = ref<
@@ -85,7 +85,11 @@ function labelRender(item: ResourceEntity) {
   if (item == null || typeof item !== 'object') {
     return
   }
-  const node:VNode = h('span', {}, String(item.name))
+  let node:VNode = h('span', {}, String(item.name))
+  if (props.badges && props.badges.includes(item.code)) {
+    const badge = resolveComponent('ABadge')
+    node = h(badge, {count: messageServerStore.getUnreadQuantityByType(item.code), dot:true, size: 'small'}, () => node)
+  }
   return props?.itemRender(item, node) || node;
 }
 
@@ -94,7 +98,7 @@ function iconRender(item: ResourceEntity) {
   let trigger = icon
   if (props.badges && props.badges.includes(item.code)) {
     const badge = resolveComponent('ABadge')
-    trigger = h(badge, {...props.badgeRender(item)}, () => icon)
+    trigger = h(badge, {count: messageServerStore.getUnreadQuantityByType(item.code), dot:true, size: 'small'}, () => icon)
   }
   const tooltip = resolveComponent('ATooltip')
   const node:VNode =  h(

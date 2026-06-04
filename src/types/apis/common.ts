@@ -201,7 +201,7 @@ export interface ScrollPageResult<T> {
   /** 元数据 */
   metadata?: Record<string, unknown>
   /** 当前页元素数量 */
-  numberOfElements: number
+  numberOfElements?: number
   /** 每页大小 */
   size: number
   /** 是否为最后一页 */
