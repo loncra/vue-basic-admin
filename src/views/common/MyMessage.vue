@@ -61,12 +61,12 @@ onActivated(activated)
 </script>
 
 <template>
-  <a-flex flex="1" >
+  <a-flex flex="1" class="min-h-0">
     <l-menu-title-card
       :classes="{
         root:'min-h-0 flex flex-col size-full shadow-ter',
         header: 'flex-shrink-0',
-        body:'flex-1 min-h-100 p-0 overflow-hidden'
+        body:'flex-1 min-h-0 p-0 overflow-hidden'
       }"
     >
       <template #extra v-if="extraContent">

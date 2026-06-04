@@ -23,6 +23,18 @@ const dataSource = ref<ItemType[]>([{
   data:{
     lastMessage:'asdfasdfadfsdfsdfasdfsdfasdfsdfasdfsdfasdfsdfasdfsdfasdf'
   }
+},{
+  key:'2',
+  label:'sdfasdfsdfasdfsdfasdfsdfasdfsdfasdf',
+  data:{
+    lastMessage:'asdfasdfadfsdfsdfasdfsdfasdfsdfasdfsdfasdfsdfasdfsdfasdf'
+  }
+},{
+  key:'3',
+  label:'sdfasdfsdfasdfsdfasdfsdfasdfsdfasdf',
+  data:{
+    lastMessage:'asdfasdfadfsdfsdfasdfsdfasdfsdfasdfsdfasdfsdfasdfsdfasdf'
+  }
 }])
 
 const conversationActive = ref<{
@@ -50,13 +62,13 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
 
 <template>
   <div class="size-full">
-  <a-splitter class="h-full">
-    <a-splitter-panel class="h-full" default-size="20%" min="15%" max="25%">
-      <a-flex vertical class="h-full">
-        <div class="p-md">
+  <a-splitter class="h-full min-h-0">
+    <a-splitter-panel class="h-ful min-h-0 overflow-hiddenl" default-size="20%" min="15%" max="25%">
+      <a-flex vertical class="h-full min-h-0">
+        <div class="shrink-0 p-md">
           <a-input-search />
         </div>
-        <a-flex flex="1" class="h-full">
+        <a-flex flex="1" class="h-full min-h-0">
           <ax-conversations
             :activeKey="conversationActive.key"
             :classes="{item:'p-xs'}"
@@ -92,7 +104,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
             <a-empty />
           </a-flex>
         </a-flex>
-        <a-space-compact block class="p-xs bg-layout">
+        <a-space-compact block class="shrink-0 p-xs bg-layout">
 
           <a-button type="text" size="small" block>
             <icon-font class="icon" type="loncra-message-square-more"/>
@@ -104,9 +116,13 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
         </a-space-compact>
       </a-flex>
     </a-splitter-panel>
-    <a-splitter-panel class="h-full">
-      <a-flex vertical v-if="conversationActive.key" class="h-full min-h-0 overflow-hidden">
-        <a-flex flex="1" vertical class="overflow-auto min-h-0 p-md">
+    <a-splitter-panel class="h-full min-h-0 overflow-hidden">
+      <a-flex 
+        vertical 
+        v-if="conversationActive.key" 
+        class="h-full min-h-0 flex-col overflow-hidden"
+      >
+        <a-flex flex="1" vertical class="overflow-y-auto min-h-0 p-md">
           <ax-bubble content="align left">
             <template #avatar>
               <a-avatar
@@ -142,8 +158,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
                 a
               </a-avatar>
             </template>
-          </ax-bubble>
-          <ax-bubble content="align left">
+          </ax-bubble><ax-bubble content="align left">
             <template #avatar>
               <a-avatar
                 size="large"
@@ -160,8 +175,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
                 a
               </a-avatar>
             </template>
-          </ax-bubble>
-          <ax-bubble content="align left">
+          </ax-bubble><ax-bubble content="align left">
             <template #avatar>
               <a-avatar
                 size="large"
@@ -178,8 +192,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
                 a
               </a-avatar>
             </template>
-          </ax-bubble>
-          <ax-bubble content="align left">
+          </ax-bubble><ax-bubble content="align left">
             <template #avatar>
               <a-avatar
                 size="large"
@@ -196,8 +209,24 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
                 a
               </a-avatar>
             </template>
+          </ax-bubble><ax-bubble content="align left">
+            <template #avatar>
+              <a-avatar
+                size="large"
+              >
+                s
+              </a-avatar>
+            </template>
           </ax-bubble>
-          <ax-bubble content="align left">
+          <ax-bubble content="align left" placement="end">
+            <template #avatar>
+              <a-avatar
+                size="large"
+              >
+                a
+              </a-avatar>
+            </template>
+          </ax-bubble><ax-bubble content="align left">
             <template #avatar>
               <a-avatar
                 size="large"
@@ -216,7 +245,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
             </template>
           </ax-bubble>
         </a-flex>
-        <div class="p-md">
+        <div class="shrink-0 p-sm border-t border-t-border-secondary">
           <ax-sender
             v-model:value="conversationActive.text"
             placeholder="按 Enter 发送消息"
