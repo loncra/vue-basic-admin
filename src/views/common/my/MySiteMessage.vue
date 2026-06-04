@@ -35,7 +35,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const setMessageExtraContent = inject<Function>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
+const setMessageExtraContent =  inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
 
 const types = ref<IdNameMetadata[]>([])
 const activeTagKey = ref<string>()

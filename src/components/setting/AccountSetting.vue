@@ -27,7 +27,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const reload = inject<Function>(APP_RELOAD_PROVIDE_KEY)
+const reload = inject<() => void>(APP_RELOAD_PROVIDE_KEY)
 const {message, modal} = useApp()
 const principalStore = usePrincipalStore()
 const configProviderStore = useConfigProviderStore();

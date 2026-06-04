@@ -5,12 +5,14 @@ import {
   Sender as AxSender,
   SenderHeader as AxSenderHeader,
 } from '@antdv-next/x'
-import {onMounted, ref} from "vue";
+import {h, inject, onMounted, ref, type VNode} from "vue";
 import type {
   ItemType
 } from "@antdv-next/x/dist/conversations/interface";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import { MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY } from "@/constants/systemConstant";
 
+const setMessageExtraContent = inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
 defineOptions({
   name: 'MyChatMessageHome',
 })

@@ -25,9 +25,10 @@ const globalProperties =
 const messageServerStore = useMessageServerStore()
 const menuPrincipalStore = useMenuPrincipalStore()
 const segmented = ref<{
-  value?:string
+  value:string
   data:Record<string, unknown>[]
 }>({
+  value:'',
   data:[]
 })
 
@@ -49,8 +50,8 @@ function mounted() {
 
 function activated(){
   const current = segmented.value.data.find(v => v.value === globalProperties.$route.name)
-  if (current) {
-    segmented.value.value = String(current?.value)
+  if (current && current.value) {
+    segmented.value.value = String(current.value)
   }
 }
 

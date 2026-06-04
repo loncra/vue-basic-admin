@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {type RouteLocationNormalizedLoaded} from 'vue-router'
+import {type RouteLocationNormalized, type RouteLocationNormalizedLoaded} from 'vue-router'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -47,12 +47,12 @@ const operateItems = ref<MenuItemType[]>([
   {
     key: 'close-others',
     label: globalProperties.$t('layoutContent.close.others'),
-    icon: () => createIcon('loncra-x'),
+    icon: () => createIcon('loncra-copy-x'),
   },
   {
     key: 'close-right',
     label: globalProperties.$t('layoutContent.close.right'),
-    icon: () => createIcon('loncra-x'),
+    icon: () => createIcon('loncra-list-x'),
   },
 ])
 
@@ -105,7 +105,16 @@ function getActiveRoute(route: RouteResourceMetadata) {
       .getRoutes()
       .find(r => [r.path, r.name].includes(String(route.parentKeepAlive)))
     if (parent) {
-      temp = menuPrincipalStore.toResourceRouteMetadata(parent)
+      const newRoute:RouteLocationNormalized = {
+        ...parent,
+        fullPath: route.path,
+        matched: [],
+        query: {},
+        hash: "",
+        redirectedFrom: undefined,
+        params: {}
+      }
+      temp = menuPrincipalStore.toResourceRouteMetadata(newRoute)
     }
   }
 
@@ -116,15 +125,19 @@ function activateTab(route: RouteResourceMetadata) {
   const temp = getActiveRoute(route)
 
   panes.value = panes.value.filter(p => !p.deactivatedClose)
-  const current = panes.value.find(p => p.path === temp.path)
+  let current = panes.value.find(p => p.path === temp.path)
+  if (!current && route.parentKeepAlive) {
+    current = panes.value.find(p => p.page === route.parentKeepAlive)
+  }
 
-  if (current) {
-    if (route.parentKeepAlive) {
-      return ;
-    }
-    globalProperties.$router.push(current.path)
-  } else {
+  if (!current) {
     panes.value.push(temp);
+  } else {
+    if (route.parentKeepAlive) {
+      current.path = String(route.path)
+    } else {
+      globalProperties.$router.push(current.path)
+    }
   }
   activeKey.value = temp.path as string
   if (temp.single) {
@@ -410,7 +423,7 @@ onMounted(mounted)
                 <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
                   <a-button type="text" @click="reload">
                     <template #icon>
-                      <icon-font class="icon align" type="loncra-iteration-cw"/>
+                      <icon-font class="icon align" type="loncra-refresh-cw"/>
                     </template>
                   </a-button>
                 </a-tooltip>

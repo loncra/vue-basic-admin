@@ -145,7 +145,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     state.value.currentBreadcrumbs = currentBreadcrumbs;
   }
 
-  function toResourceRouteMetadata(route: RouteLocationNormalized | RouteRecordNormalized): RouteResourceMetadata {
+  function toResourceRouteMetadata(route: RouteLocationNormalized): RouteResourceMetadata {
     return {
       parentKeepAlive: route.meta?.parentKeepAlive,
       icon: (route.meta?.icon || 'loncra-file') as string,
@@ -155,7 +155,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
       sort: 0,
       deactivatedClose: (route.meta?.deactivatedClose || false) as boolean,
       applicationName: route.meta?.applicationName as string,
-      path: (route as RouteLocationNormalized).fullPath || route.path,
+      path: route.fullPath,
       fixed: route.meta?.fixed as boolean,
       single: (route.meta?.single || false) as boolean,
       dynamicTitle: (route.meta?.dynamicTitle || false) as boolean

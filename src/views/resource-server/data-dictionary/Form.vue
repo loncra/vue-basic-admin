@@ -22,8 +22,8 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
+
+const closeLayoutTab = inject<(page: string, activatePane:boolean) => void>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
 
 const service = new DataDictionaryService()
 const typeService = new DictionaryTypeService()

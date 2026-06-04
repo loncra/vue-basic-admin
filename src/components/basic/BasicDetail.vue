@@ -30,7 +30,7 @@ defineOptions({
   name: 'LBasicDetail',
 })
 
-const closeLayoutTab = inject<Function>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
+const closeLayoutTab = inject<(page: string, activatePane:boolean) => void>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
 const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_PROVIDE_KEY)
 
 const slots = useSlots()
