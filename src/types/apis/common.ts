@@ -52,7 +52,7 @@ export interface RestResult<T = unknown> {
 
 /** 带主键 `id` 的最小实体形状（主键字段名由 {@link SYSTEM_CONSTANT.ID_NAME} 与具体实体约定） */
 export interface BasicIdMetadata<T> {
-  id: T
+  id: T | undefined
 }
 
 export interface StringIdEntity extends BasicIdMetadata<string> {
@@ -62,7 +62,7 @@ export interface StringIdEntity extends BasicIdMetadata<string> {
 /** 带乐观锁版本号的实体元数据（常见于服务端返回的审计字段） */
 export interface VersionEntityMetadata extends BasicIdMetadata<number> {
   creationTime?: number,
-  version: number,
+  version: number | undefined,
 }
 
 /**

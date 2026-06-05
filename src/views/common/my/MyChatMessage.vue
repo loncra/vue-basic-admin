@@ -9,7 +9,7 @@ import {
   type ComponentInternalInstance,
   getCurrentInstance,
   h,
-  inject,
+  inject, nextTick,
   onMounted,
   ref,
   resolveComponent,
@@ -25,8 +25,8 @@ import {
   type PageResult,
   type PlatformUser,
   type RestResult,
-  type UserChatMessageEntity,
-  type UserChatRoomResponseBody
+  type UserChatConversationResponseBody,
+  type UserChatMessageEntity
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import {AttachmentService, AuthServerService} from "@/apis";
@@ -48,9 +48,9 @@ const segmented = ref<{
   value:string
   data:Record<string, unknown>[]
 }>({
-  value:'chat',
+  value:'conversation',
   data:[{
-    value:'chat',
+    value:'conversation',
     iconText:'loncra-message-square-more'
   },{
     value:'contact',
@@ -59,17 +59,11 @@ const segmented = ref<{
 })
 
 const options = ref<{
-  chatRoomDataSource:PageResult<UserChatRoomResponseBody>
+  conversationDataSource:UserChatConversationResponseBody[]
   contactDataSource:ConversationItemType[]
   loading:boolean
 }>({
-  chatRoomDataSource:{
-    elements: [],
-    first: false,
-    last: false,
-    number: 1,
-    size: 10
-  },
+  conversationDataSource:[],
   contactDataSource:[],
   loading:false
 })
@@ -119,7 +113,46 @@ async function loadConversationData(item:ItemType) {
 }
 
 function getConversationItemAvatar(item:BubbleItemType) {
-  return item?.extraInfo ? AttachmentService.query(item?.extraInfo?.avatar.bucketName, item?.extraInfo?.avatar.objectName) : undefined
+  return item?.extraInfo ? AttachmentService.query(item?.extraInfo?.avatar.bucketName, item?.extraInfo?.avatar.objectName) : ''
+}
+
+async function onContactActiveChange(value: string, item: ItemType | undefined) {
+  if (!item || !(item as ConversationItemType)) {
+    return ;
+  }
+  const conversationItem = (item as ConversationItemType)
+  const name = conversationItem.label
+  options.value.loading = true
+  try {
+    const result:RestResult<UserChatConversationResponseBody> = await ChatMessageService.createConversation(
+      {
+        id: undefined,
+        version: undefined,
+        name:String(name)
+      },
+      [conversationItem?.data?.systemName]
+    )
+    if (!result.data) {
+      return ;
+    }
+    const body:UserChatConversationResponseBody = result.data;
+    let find = options.value.conversationDataSource.find(d => d.id === body.id)
+    if (find) {
+      options.value.conversationDataSource = options.value.conversationDataSource.filter(d => d.id !== body.id)
+    } else {
+      find = body
+    }
+    options.value.conversationDataSource = [
+      find,
+      ...options.value.conversationDataSource,
+    ]
+    segmented.value.value = 'conversation'
+    await nextTick()
+    onConversationsActiveChange(String(find.id), {label:find.room.name, key:String(find.id), data:find})
+  } finally {
+    options.value.loading = false
+  }
+
 }
 
 function onConversationsActiveChange(value: string, item: ItemType | undefined): void {
@@ -133,7 +166,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
   const space = resolveComponent('ASpace')
   const avatar = h(
     resolveComponent('AAvatar'),
-    {src:conversationItem?.data?.avatar},
+    {src:conversationItem?.data?.avatar || ''},
     [String(conversationItem.label).substring(0,1)]
   )
 
@@ -149,9 +182,9 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
 async function mounted() {
   options.value.loading = true
   try {
-    const chatRoomResult:RestResult<PageResult<UserChatRoomResponseBody>> = await ChatMessageService.my({number:1})
+    const chatRoomResult:RestResult<UserChatConversationResponseBody[]> = await ChatMessageService.my({number:1})
     if (chatRoomResult.data) {
-      options.value.chatRoomDataSource = chatRoomResult.data
+      options.value.conversationDataSource = chatRoomResult.data
     }
     const contactResult:RestResult<IdNameValueMetadata<PlatformUser[]>[]> = await AuthServerService.systemUsers({number:-1})
     if (contactResult.data) {
@@ -163,10 +196,10 @@ async function mounted() {
             label: v.realName || v.username,
             group: r.name,
             data: v,
-          } as ConversationItemType)
+          })
         }
       }
-      options.value.contactDataSource = list as ConversationItemType[]
+      options.value.contactDataSource.push(...list)
     }
   } finally {
     options.value.loading = false
@@ -186,13 +219,13 @@ onMounted(mounted)
             <div class="shrink-0 p-sm border-b border-b-border-secondary">
               <a-input-search />
             </div>
-            <a-flex flex="1" class="h-full min-h-0" v-if="segmented.value === 'chat'">
+            <a-flex flex="1" class="h-full min-h-0" v-if="segmented.value === 'conversation'">
               <ax-conversations
                 :activeKey="conversationActive.key"
                 :classes="{item:'p-xs! h-auto! rounded-none!'}"
-                :items="(options.chatRoomDataSource.elements || []).map(r => ({label:r.name, key:String(r.id), data:r}))"
+                :items="(options.conversationDataSource || []).map(r => ({label:r.room.name, key:String(r.id), data:r}))"
                 :onActiveChange="onConversationsActiveChange"
-                v-if="options.chatRoomDataSource.elements.length > 0"
+                v-if="options.conversationDataSource.length > 0"
                 class="w-full p-0! gap-0!">
                 <template #iconRender="{ item }" >
                   <a-avatar
@@ -208,17 +241,20 @@ onMounted(mounted)
                         <a-typography-text ellipsis class="flex-1">
                           {{item?.label}}
                         </a-typography-text>
-                        <a-typography-text type="secondary" >
-                          {{ globalProperties.$dayjs(item.data.creationTime).fromNow() }}
+                        <a-typography-text type="secondary" v-if="item?.data?.lastMessage">
+                          {{ globalProperties.$dayjs(item?.data?.lastMessage.creationTime).fromNow() }}
                         </a-typography-text>
                       </a-flex>
-                      <a-typography-text ellipsis type="secondary">
+                      <a-typography-text ellipsis v-if="item?.data?.draft" type="danger">
+                        [草稿]:{{item?.data?.draft}}
+                      </a-typography-text>
+                      <a-typography-text ellipsis v-if="item?.data?.lastMessage" type="secondary">
                         {{item?.data?.lastMessage}}
                       </a-typography-text>
                     </a-flex>
                 </template>
               </ax-conversations >
-              <a-flex v-else justify="center" align="center" class="h-full">
+              <a-flex v-else justify="center" align="center" class="size-full">
                 <a-empty />
               </a-flex>
             </a-flex>
@@ -226,6 +262,7 @@ onMounted(mounted)
               <ax-conversations
                 :classes="{item:'p-xs! h-auto! rounded-none!'}"
                 :items="(options.contactDataSource || [])"
+                :onActiveChange="onContactActiveChange"
                 v-if="options.contactDataSource.length > 0"
                 groupable
                 class="w-full p-0! gap-0!">
@@ -248,7 +285,7 @@ onMounted(mounted)
                   </a-flex>
                 </template>
               </ax-conversations >
-              <a-flex v-else justify="center" align="center" class="h-full">
+              <a-flex v-else justify="center" align="center" class="size-full">
                 <a-empty />
               </a-flex>
             </a-flex>

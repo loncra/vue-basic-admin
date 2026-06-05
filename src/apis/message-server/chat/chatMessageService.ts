@@ -1,8 +1,13 @@
-import type {PageRequest, PageResult, RestResult,} from "@/types/apis";
+import type {
+  ChatMessageContent,
+  PageRequest,
+  PageResult,
+  RestResult,
+  UserChatConversationResponseBody, UserChatRoomEntity,
+} from "@/types/apis";
 
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
-import type {UserChatRoomResponseBody} from "../../../types/apis/message-server/chatDomain.ts";
 
 /**
  * 用户聊天消息领域服务：`/api[/message-server]/user/chat`
@@ -15,9 +20,19 @@ export class ChatMessageService  {
   /** 本服务相对 {@link BASE_URL} 的路径 */
   static readonly SERVICE_URL = ChatMessageService.BASE_URL + '/user/chat'
 
-  static readonly MY_URL = ChatMessageService.SERVICE_URL + '/my'
+  static readonly CREATE_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation/create'
 
-  static my(request: PageRequest): Promise<RestResult<PageResult<UserChatRoomResponseBody>>> {
-    return axios.post(ChatMessageService.MY_URL, formUrlEncoded(request as Record<string, unknown>))
+  static readonly CREATE_SEND_URL = ChatMessageService.SERVICE_URL + '/send'
+
+  static my(request: PageRequest): Promise<RestResult<UserChatConversationResponseBody[]>> {
+    return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request as Record<string, unknown>))
+  }
+
+  static createConversation(body: UserChatRoomEntity, principals:string[]): Promise<RestResult<UserChatConversationResponseBody>> {
+    return axios.put(ChatMessageService.CREATE_CONVERSATION_URL, body, {params:formUrlEncoded({principals})})
+  }
+
+  static send(body: ChatMessageContent, roomId:string): Promise<RestResult<UserChatConversationResponseBody>> {
+    return axios.put(ChatMessageService.CREATE_SEND_URL + '/' + roomId, body)
   }
 }
