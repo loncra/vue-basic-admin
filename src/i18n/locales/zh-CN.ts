@@ -224,7 +224,7 @@ const locale: LanguagePack = {
       avatar:{
         supportFormat:'仅支持上传 jpeg, png, jpg, bmp 的图片',
         supportSize:'图片必须小于 1MB!',
-        history: '聊天图片'
+        history: '历史图片'
       },
       modifyPassword:'修改密码'
     }

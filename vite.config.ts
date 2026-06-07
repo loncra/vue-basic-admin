@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/api/, ''), // 重写路径，去掉 `/api` 前缀
         },
         '/socket.io': {
-          target: env.VITE_APP_SERVER_URL, // 后端服务器地址
+          target: env.VITE_APP_SERVER_SOCKET_URL, // 后端服务器地址
           changeOrigin: true, // 允许跨域
           ws: true, // WebSocket 代理
         },

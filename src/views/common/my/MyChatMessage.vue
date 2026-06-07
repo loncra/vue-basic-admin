@@ -2,14 +2,13 @@
 import {
   BubbleList as AxBubbleList,
   Conversations as AxConversations,
-  Sender as AxSender,
-  SenderHeader as AxSenderHeader,
 } from '@antdv-next/x'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
   h,
-  inject, nextTick,
+  inject,
+  nextTick,
   onMounted,
   ref,
   resolveComponent,
@@ -17,10 +16,13 @@ import {
 } from "vue";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
-import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import ChatMessageComposer from "@/components/chat/ChatMessageComposer.vue";
+import ChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant";
 import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
+import {isChatMessageContent} from "@/composables/chat/useChatComposer.ts";
 import {
+  type ChatMessageContent,
   type IdNameValueMetadata,
   type PageResult,
   type PlatformUser,
@@ -68,20 +70,24 @@ const options = ref<{
   loading:false
 })
 
+type ChatBubbleItem = {
+  key: string | number
+  role: 'user' | 'ai'
+  content: ChatMessageContent
+}
+
 const conversationActive = ref<{
   key?:string,
-  item?:ItemType | undefined
+  item:ConversationItemType | undefined
   loading:boolean
   sending?:boolean
-  openHeader?:boolean
-  text?:string
   dataSource:PageResult<UserChatMessageEntity>
-  bubbleList:BubbleItemType[]
+  bubbleList:ChatBubbleItem[]
 }>({
   key:undefined,
+  item:undefined,
   loading:false,
   sending:false,
-  openHeader:false,
   dataSource:{
     elements: [],
     first: false,
@@ -94,19 +100,37 @@ const conversationActive = ref<{
 
 const userChatMessageService = new UserChatMessageService()
 
-async function loadConversationData(item:ItemType) {
+function toBubbleContent(raw: Record<string, unknown>): ChatMessageContent {
+  if (isChatMessageContent(raw)) {
+    return raw
+  }
+  const text = typeof raw === 'object' && raw !== null && 'text' in raw
+    ? String((raw as { text: unknown }).text)
+    : String(raw)
+  return {
+    type: 'composite',
+    version: 1,
+    blocks: [{type: 'text', segments: [{type: 'plain', text}]}],
+  }
+}
+
+async function loadConversationData(chatRoomId: string) {
   conversationActive.value.loading = true
   try {
-    const result:RestResult<PageResult<UserChatMessageEntity>> = await userChatMessageService.page({number:1,chatRoomId:item.key})
+    const result = await userChatMessageService.page({number:1, chatRoomId}) as RestResult<PageResult<UserChatMessageEntity>>
     if (!result.data) {
       return ;
     }
     conversationActive.value.dataSource = result.data
-    conversationActive.value.bubbleList = (conversationActive.value.dataSource.elements || []).map(d => ({
-      key:String(d.id),
-      role:principalStore.state.name === d.principal ? 'user' : 'ai',
-      content: String(d.content)
-    }))
+    const bubbleItems: ChatBubbleItem[] = []
+    for (const d of conversationActive.value.dataSource.elements || []) {
+      bubbleItems.push({
+        key: String(d.id),
+        role: principalStore.state.name === d.principal ? 'user' : 'ai',
+        content: toBubbleContent(d.content),
+      })
+    }
+    conversationActive.value.bubbleList = bubbleItems
   }finally {
     conversationActive.value.loading = false
   }
@@ -114,6 +138,31 @@ async function loadConversationData(item:ItemType) {
 
 function getConversationItemAvatar(item:BubbleItemType) {
   return item?.extraInfo ? AttachmentService.query(item?.extraInfo?.avatar.bucketName, item?.extraInfo?.avatar.objectName) : ''
+}
+
+function renderBubbleContent(content: unknown) {
+  return h(ChatMessageBubbleContent, {content: content as ChatMessageContent})
+}
+
+const bubbleListRole = {
+  user: {contentRender: renderBubbleContent,variant:'filled', placement:'end', shape:'corner', classes:{content:'bg-primary-bg!'}},
+  ai: {contentRender: renderBubbleContent, variant:'filled', placement:'start', shape:'corner',},
+}
+
+async function onSendMessage(content: ChatMessageContent) {
+  const conversationItem = conversationActive.value.item as ConversationItemType | undefined
+  const body = conversationItem?.data as UserChatConversationResponseBody | undefined
+  const chatRoomId = body?.room?.id
+  if (!chatRoomId || !conversationItem) {
+    return
+  }
+  conversationActive.value.sending = true
+  try {
+    await ChatMessageService.send(content, String(chatRoomId))
+    await loadConversationData(String(conversationItem.key))
+  } finally {
+    conversationActive.value.sending = false
+  }
 }
 
 async function onContactActiveChange(value: string, item: ItemType | undefined) {
@@ -158,10 +207,12 @@ async function onContactActiveChange(value: string, item: ItemType | undefined) 
 function onConversationsActiveChange(value: string, item: ItemType | undefined): void {
   conversationActive.value.key = value
   if (!item || !(item as ConversationItemType)) {
+    conversationActive.value.item = undefined
     return ;
   }
-  loadConversationData(item)
   const conversationItem = item as ConversationItemType
+  conversationActive.value.item = conversationItem
+  loadConversationData(String(conversationItem.key))
   const label = h('span', {}, {default:() => conversationItem.label})
   const space = resolveComponent('ASpace')
   const avatar = h(
@@ -222,7 +273,7 @@ onMounted(mounted)
             <a-flex flex="1" class="h-full min-h-0" v-if="segmented.value === 'conversation'">
               <ax-conversations
                 :activeKey="conversationActive.key"
-                :classes="{item:'p-xs! h-auto! rounded-none!'}"
+                :classes="{item:'p-sm! h-auto! rounded-none!'}"
                 :items="(options.conversationDataSource || []).map(r => ({label:r.room.name, key:String(r.id), data:r}))"
                 :onActiveChange="onConversationsActiveChange"
                 v-if="options.conversationDataSource.length > 0"
@@ -306,76 +357,42 @@ onMounted(mounted)
           v-if="conversationActive.key"
           class="h-full min-h-0 flex-col overflow-hidden"
         >
-          <a-flex flex="1" vertical class="overflow-y-auto min-h-0 p-md">
-            <ax-bubble-list
-              auto-scroll
-              :items="conversationActive.bubbleList"
-            >
-              <template #avatar="{ item }">
-                <a-avatar
-                  :src="getConversationItemAvatar(item)"
-                  v-if="item.role === 'ai'"
-                  size="large"
-                >
-                  公司
-                </a-avatar>
-                <a-avatar
-                  :src="principalStore.getAvatarUrl()"
-                  v-else
-                  size="large"
-                >
-                  我
-                </a-avatar>
-              </template>
-            </ax-bubble-list>
+          <a-flex flex="1" vertical class="overflow-y-auto min-h-0">
+            <a-spin :spinning="conversationActive.loading" class="h-full-spin">
+              <ax-bubble-list
+                auto-scroll
+                :items="(conversationActive.bubbleList as BubbleItemType[])"
+                :role="bubbleListRole"
+              >
+                <template #avatar="{ item }">
+                  <a-avatar
+                    :src="getConversationItemAvatar(item)"
+                    v-if="item.role === 'ai'"
+                    size="large"
+                  >
+                    他
+                  </a-avatar>
+                  <a-avatar
+                    :src="principalStore.getAvatarUrl()"
+                    v-else
+                    size="large"
+                  >
+                    我
+                  </a-avatar>
+                </template>
+                <template #header="{ item }">
+                  <a-typography-text v-if="item.role === 'ai'">
+                    他
+                  </a-typography-text>
+                  <a-typography-text type="secondary" v-else>
+                    我
+                  </a-typography-text>
+                </template>
+              </ax-bubble-list>
+            </a-spin>
           </a-flex>
           <div class="shrink-0 p-sm border-t border-t-border-secondary">
-            <ax-sender
-              v-model:value="conversationActive.text"
-              placeholder="按 Enter 发送消息"
-              :suffix="false"
-              :auto-size="{ maxRows: 6 }"
-            >
-              <template #header>
-                <ax-sender-header
-                  title="发送文件"
-                  :open="conversationActive.openHeader"
-                  :on-open-change="(val: boolean) => (conversationActive.openHeader = val)"
-                >
-                  <l-attachment-upload />
-                </ax-sender-header>
-              </template>
-              <template #footer="{ components }">
-                <a-flex justify="space-between" align="center">
-                  <a-flex align="center" gap="small">
-                    <a-button type="text" @click="conversationActive.openHeader = true">
-                      <template #icon>
-                        <icon-font class="text-md" type="loncra-upload"/>
-                      </template>
-                    </a-button>
-                    <a-button type="text">
-                      <template #icon>
-                        <icon-font class="text-md" type="loncra-image-plus"/>
-                      </template>
-                    </a-button>
-                  </a-flex>
-                  <a-flex align="center" gap="small">
-                    <a-button type="text">
-                      <template #icon>
-                        <icon-font class="text-md" type="loncra-smile"/>
-                      </template>
-                    </a-button>
-                    <component :is="components.ClearButton" />
-                    <component
-                      :is="conversationActive.loading ? components.LoadingButton : components.SendButton"
-                      type="primary"
-                      :disabled="!conversationActive.text || conversationActive.sending"
-                    >
-                    </component>
-                  </a-flex>
-                </a-flex>
-              </template>
-            </ax-sender>
+            <chat-message-composer @submit="onSendMessage" />
           </div>
         </a-flex>
         <a-flex v-else vertical class="h-full" justify="center" align="center" >

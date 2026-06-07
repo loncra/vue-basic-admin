@@ -44,3 +44,4 @@ components.d.ts
 /skills-lock.json
 /pnpm-lock.yaml
 /.codegraph/.gitignore
+/.codegraph/daemon.pid

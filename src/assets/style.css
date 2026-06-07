@@ -348,4 +348,12 @@
   .loncra-tip-tap .l-tip-tap-toolbar {
     @apply w-full p-xxs border-b border-solid border-b-border
   }
+
+  .chat-sender-input.antd-sender-input-slot {
+    @apply flex flex-col items-stretch overflow-x-hidden;
+  }
+
+  .chat-sender-input.antd-sender-input-slot > .antd-sender-slot {
+    @apply block w-full max-w-full shrink-0 basis-full my-1;
+  }
 }

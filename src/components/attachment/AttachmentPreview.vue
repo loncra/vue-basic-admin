@@ -184,6 +184,7 @@ const classes = computed(() => ({
     </div>
 
     <a-modal
+      :footer="null"
       destroy-on-hidden
       v-model:open="modalOptions.open"
       :title="modalOptions.file?.name"
@@ -195,7 +196,7 @@ const classes = computed(() => ({
         :src="modalOptions?.file.url"
         controls
         autoplay
-        class="size-full bg-layout max-h-160 max-w-160"
+        class="size-full bg-layout max-h-100"
       >
         您的浏览器不支持视频播放。
       </video>

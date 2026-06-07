@@ -6,6 +6,7 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {MenuInfo} from '@v-c/menu'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+import {useSocketStore} from "@/stores/socketStore.ts";
 
 const menuPrincipalStore = useMenuPrincipalStore()
 
@@ -18,6 +19,7 @@ const globalProperties =
     .globalProperties
 
 const principalStore = usePrincipalStore()
+const socketStore = useSocketStore()
 
 const operateItems = ref<MenuItemType[]>([
   {
@@ -58,7 +60,7 @@ onMounted(mounted)
     :menu="{ items: operateItems }"
     @menu-click="onOperateClickItem"
   >
-    <a-badge :classes="{root: 'hover:cursor-pointer flex'}" :status="'success'" :offset="[-3, 28]" dot show-zero>
+    <a-badge :classes="{root: 'hover:cursor-pointer flex'}" :status="socketStore.isConnected ? 'success' : 'error'" :offset="[-3, 28]" dot show-zero>
       <a-avatar :src="principalStore.getAvatarUrl()" >
         {{principalStore.getAvatarPrefix()}}
       </a-avatar>

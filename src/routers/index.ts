@@ -27,6 +27,7 @@ import MySiteMessage from "@/views/common/my/MySiteMessage.vue";
 import MyChatMessage from "@/views/common/my/MyChatMessage.vue";
 
 import i18n from '@/i18n'
+import {useSocketStore} from "@/stores/socketStore.ts";
 
 /**
  * 首页的子路由配置
@@ -330,6 +331,8 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   const principalStore = usePrincipalStore()
 
   if (to.name === import.meta.env.VITE_APP_AUTH_PAGE_NAME) {
+    const socketStore = useSocketStore()
+    socketStore.disconnect()
     await principalStore.logout()
     clearRoute()
     return // 继续导航

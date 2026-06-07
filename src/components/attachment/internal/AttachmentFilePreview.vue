@@ -33,7 +33,7 @@ const emit = defineEmits<{
 }>()
 
 function getFileIcon() {
-  if (props.file.type?.includes("image/")) {
+  if (props.file?.type?.includes("image/")) {
     return 'loncra-file-image'
   } else if (props.file?.type?.includes("video/")) {
     return 'loncra-file-play'

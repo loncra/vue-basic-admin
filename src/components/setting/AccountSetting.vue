@@ -151,8 +151,8 @@ onMounted(mounted)
     <a-card size="small" :classes="{root:'mb-sm', body:'max-h-50 overflow-auto rounded-none'}" v-if="historyAvatar && historyAvatar.length > 0">
       <template #title>
         <a-space>
-          <icon-font class="icon" type="loncra-history"/>
-          <span class="hidden-md hidden-sm hidden-xs">{{ globalProperties.$t('setting.account.avatar.history') }}</span>
+          <icon-font class="icon align" type="loncra-history"/>
+          <span>{{ globalProperties.$t('setting.account.avatar.history') }}</span>
         </a-space>
       </template>
       <a-card-grid :hoverable="false" class="p-0 w-1/5" :key="v.etag" v-for="v of historyAvatar" >

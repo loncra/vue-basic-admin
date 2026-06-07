@@ -7,25 +7,14 @@ import type {ObjectWriteResult} from "@/types/apis";
  * @author maurice.chen
  */
 export interface UserChatRoomEntity extends VersionEntityMetadata {
-  /**
-   * 业务  id
-   */
+  /** 业务  id */
   businessId?: string;
-  /**
-   * 业务 场景
-   */
+  /** 业务 场景 */
   businessScene?: string;
-
-  /**
-   * 名称
-   */
+  /** 名称 */
   name: string;
-
-  /**
-   * 房间类型
-   */
+  /** 房间类型 */
   type?: NameValueEnumMetadata<number> | number;
-
   metadata?: Record<string, unknown>;
 }
 
@@ -35,111 +24,95 @@ export interface UserChatRoomEntity extends VersionEntityMetadata {
  * @author maurice.chen
  */
 export interface UserChatMessageEntity extends VersionEntityMetadata {
-  /**
-   * 业务  id
-   */
+  /** 业务  id */
   chatRoomId: number;
-
-  /**
-   * 内容
-   */
+  /** 内容 */
   content: Record<string, unknown>;
-
-  /**
-   * 发送者
-   */
+  /** 发送者 */
   principal: string;
-
-  /**
-   * 是否撤销
-   */
+  /** 是否撤销 */
   revoke: NameValueEnumMetadata<number> | number;
-  /**
-   * 撤销时间
-   */
+  /** 撤销时间 */
   revocationTime: number;
 }
 
-
 export interface BasicUserChatConversation extends VersionEntityMetadata {
-
-  /**
-   * 所属用户
-   */
+  /** 所属用户 */
   principal: string;
-
-  /**
-   * 是否置顶
-   */
+  /** 是否置顶 */
   pinned: NameValueEnumMetadata<number> | number;
-
-  /**
-   * 是否免打扰
-   */
+  /** 是否免打扰 */
   muted: NameValueEnumMetadata<number> | number;
-
-  /**
-   * 草稿内容
-   */
+  /** 草稿内容 */
   draft: string;
-
 }
 
 export interface UserChatConversationEntity extends BasicUserChatConversation {
-
-  /**
-   * 房间 id
-   */
+  /** 房间 id */
   userChatRoomId: number;
-
-  /**
-   * 最后一条消息内容
-   */
+  /** 最后一条消息内容 */
   lastUserChatMessageId: number;
 }
 
-
 export interface UserChatConversationResponseBody extends BasicUserChatConversation {
-
-  /**
-   * 最后一条消息内容
-   */
+  /** 最后一条消息内容 */
   lastUserMessage: UserChatMessageEntity;
-
-  /**
-   * 房间
-   */
+  /** 房间 */
   room: UserChatRoomEntity;
 }
 
+export type TextSegment =
+  | { type: 'plain'; text: string }
+  | { type: 'mention'; value: string; label: string }
+  | { type: 'emoji'; value: string; label: string }
+
+export interface TextContentBlock {
+  type: 'text'
+  segments: TextSegment[]
+}
 
 export interface ChatMessageContent {
-  type: 'composite'          // 复合消息
+  type: 'composite'
   version: 1
   blocks: ChatContentBlock[]
 }
 
 export type ChatContentBlock =
-  | { type: 'text'; text: string }
-  | { type: 'image'; file: ObjectWriteResult; }
-  | { type: 'video'; file: ObjectWriteResult; }
-  | { type: 'file'; file: ObjectWriteResult; }
+  | TextContentBlock
+  | { type: 'image'; file: ObjectWriteResult }
+  | { type: 'video'; file: ObjectWriteResult }
+  | { type: 'files'; files: ObjectWriteResult[] }
 
-/** 编辑态 block（本地草稿，尚未发送） */
-export type DraftTextBlock = {
+export type DraftFileItem = {
   id: string
-  type: 'text'
-  text: string
-}
-export type DraftMediaBlock = {
-  id: string
-  type: 'image' | 'video' | 'file'
   localFile: File
-  previewUrl?: string
   fileName: string
-  mimeType: string
   status: 'pending' | 'uploading' | 'done' | 'error'
   result?: ObjectWriteResult
   error?: string
 }
-export type DraftBlock = DraftTextBlock | DraftMediaBlock
+
+export type DraftTextBlock = {
+  id: string
+  type: 'text'
+  segments: TextSegment[]
+}
+
+export type DraftMediaBlock = {
+  id: string
+  type: 'image' | 'video'
+  localFile: File
+  previewUrl?: string
+  fileName: string
+  status: 'pending' | 'uploading' | 'done' | 'error'
+  result?: ObjectWriteResult
+  error?: string
+}
+
+export type DraftFilesBlock = {
+  id: string
+  type: 'files'
+  items: DraftFileItem[]
+}
+
+export type DraftBlock = DraftTextBlock | DraftMediaBlock | DraftFilesBlock
