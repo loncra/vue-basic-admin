@@ -61,36 +61,34 @@ onActivated(activated)
 </script>
 
 <template>
-  <a-flex flex="1" class="min-h-0">
+  <a-flex flex="1" class="min-h-0 h-full">
     <l-menu-title-card
       :classes="{
         root:'min-h-150 flex flex-col size-full shadow-ter',
         header: 'flex-shrink-0',
-        body:'flex-1 min-h-0 p-0 overflow-hidden'
+        body:'flex flex-1 min-h-0 p-0! overflow-hidden'
       }"
     >
       <template #extra v-if="extraContent">
         <component :is="extraContent" />
       </template>
-      <a-flex align="start" flex="1" class="h-full">
-        <div class="h-full p-xs bg-layout border-r border-r-border-secondary">
-          <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
-            <template #iconRender="{ iconText,value }">
-              <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">
-                <icon-font class="icon align" :type="iconText" />
-              </a-badge>
-            </template>
-          </a-segmented>
-        </div>
-        <a-flex flex="1" class="h-full">
-          <router-view v-slot="{ Component }">
-            <transition name="fade-transform" mode="out-in">
+      <div class="h-full p-xs bg-layout border-r border-r-border-secondary">
+        <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
+          <template #iconRender="{ iconText,value }">
+            <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">
+              <icon-font class="icon align" :type="iconText" />
+            </a-badge>
+          </template>
+        </a-segmented>
+      </div>
+      <a-flex flex="1" class="min-h-0 h-full overflow-hidden">
+        <router-view v-slot="{ Component }">
+          <transition name="fade-transform" mode="out-in">
               <keep-alive v-if="Component">
                 <component :is="Component" />
               </keep-alive>
-            </transition>
-          </router-view>
-        </a-flex>
+          </transition>
+        </router-view>
       </a-flex>
     </l-menu-title-card>
   </a-flex>

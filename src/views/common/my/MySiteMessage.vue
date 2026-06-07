@@ -79,7 +79,7 @@ async function mounted() {
   types.value = (result.data || [])
   if (types.value.length > 0) {
     types.value.forEach(item => item.iconText = typeIcons.find(i => i.id === item.id)?.name || 'loncra-file-question-mark')
-    siteMessages.value.push(...types.value.map(t => createDataSource(t.id)))
+    siteMessages.value.push(...types.value.map(t => createDataSource(String(t.id))))
     await onTabChange(types.value.at(0)?.id || '')
   }
 }
@@ -152,7 +152,10 @@ async function doLoadDataSource(item:MySiteMessageProps) {
   }
 }
 
-function onDeleteMessage(id:number) {
+function onDeleteMessage(id:number | undefined) {
+  if (!id) {
+    return ;
+  }
   modal.confirm({
     title: globalProperties.$t('common.delete.confirmTitle'),
     content: globalProperties.$t('common.delete.confirmSingle'),
@@ -237,7 +240,10 @@ async function onReadAll() {
   }
 }
 
-async function onRead(id:number) {
+async function onRead(id:number | undefined) {
+  if (!id) {
+    return
+  }
   const result:RestResult<SiteMessageEntity> = await siteMessageService.read(id)
   if (!result?.data) {
     return ;
@@ -256,62 +262,64 @@ onMounted(mounted)
 </script>
 
 <template>
-  <a-flex class="p-md w-full" vertical gap="middle">
-    <a-tabs :classes="{header:'m-0'}" :items="types.map(t => ({key:t.id, label:t.name, iconText:t.iconText}))" :active-key="activeTagKey" @change="onTabChange">
-      <template #rightExtra>
-        <l-action-button
-          :actions="actions"
-        />
-      </template>
-      <template #labelRender="{ item }">
-        <a-space>
-          <icon-font class="icon align" :type="item.iconText" />
-          <span>
-            {{item.label}}
-          </span>
-          <a-badge :count="messageServerStore.getUnreadQuantity(item.key)" size="small">
-          </a-badge>
-        </a-space>
-      </template>
-    </a-tabs>
+  <div class="size-full">
+    <a-flex class="p-md w-full" vertical gap="middle">
+      <a-tabs :classes="{header:'m-0'}" :items="types.map(t => ({key:t.id, label:t.name, iconText:t.iconText}))" :active-key="activeTagKey" @change="onTabChange">
+        <template #rightExtra>
+          <l-action-button
+            :actions="actions"
+          />
+        </template>
+        <template #labelRender="{ item }">
+          <a-space>
+            <icon-font class="icon align" :type="item.iconText" />
+            <span>
+              {{item.label}}
+            </span>
+            <a-badge :count="messageServerStore.getUnreadQuantity(item.key)" size="small">
+            </a-badge>
+          </a-space>
+        </template>
+      </a-tabs>
 
-    <a-spin :spinning="getCurrentItem(activeTagKey)?.loading">
-      <a-flex vertical flex="1" class="min-w-0" :key="item.id" v-for="item of (getCurrentItem(activeTagKey)?.dataSource?.elements || [])">
-        <a-flex flex="1" class="min-w-0" gap="middle" align="top">
-          <a-avatar>
-            <icon-font class="icon" type="loncra-file-pen-line"/>
-          </a-avatar>
-          <a-flex vertical flex="1" class="min-w-0">
-            <a-typography-text @click="getEnumValue(item.readable) === 1 ? onRead(item.id) : undefined" :strong="getEnumValue(item.readable) === 1" ellipsis class="min-w-0 m-0 text-md cursor-pointer">
-              {{ item.title }}
-            </a-typography-text>
+      <a-spin :spinning="getCurrentItem(activeTagKey)?.loading">
+        <a-flex vertical flex="1" class="min-w-0" :key="item.id" v-for="item of (getCurrentItem(activeTagKey)?.dataSource?.elements || [])">
+          <a-flex flex="1" class="min-w-0" gap="middle" align="top">
+            <a-avatar>
+              <icon-font class="icon" type="loncra-file-pen-line"/>
+            </a-avatar>
+            <a-flex vertical flex="1" class="min-w-0">
+              <a-typography-text @click="getEnumValue(item.readable) === 1 ? onRead(item.id) : undefined" :strong="getEnumValue(item.readable) === 1" ellipsis class="min-w-0 m-0 text-md cursor-pointer">
+                {{ item.title }}
+              </a-typography-text>
 
-            <a-typography-text type="secondary" class="hidden md:inline shrink-0">
-              {{dateTimeFormat(item.creationTime)}}
-            </a-typography-text>
+              <a-typography-text type="secondary" class="hidden md:inline shrink-0">
+                {{dateTimeFormat(item.creationTime)}}
+              </a-typography-text>
 
-            <a-typography-paragraph class="m-0" type="secondary" :ellipsis="{ rows: 3 }">
-              {{item.content.replace(/<[^>]*>/g, '')}}
-            </a-typography-paragraph>
+              <a-typography-paragraph class="m-0" type="secondary" :ellipsis="{ rows: 3 }">
+                {{item.content.replace(/<[^>]*>/g, '')}}
+              </a-typography-paragraph>
 
+            </a-flex>
+
+            <a-button size="small" danger @click="onDeleteMessage(item.id)">
+              <icon-font type="loncra-archive-x" />
+            </a-button>
           </a-flex>
-
-          <a-button size="small" danger @click="onDeleteMessage(item.id)">
-            <icon-font type="loncra-archive-x" />
-          </a-button>
+          <a-divider class="mb-sm mt-sm"/>
         </a-flex>
-        <a-divider class="mb-sm mt-sm"/>
-      </a-flex>
 
-      <a-pagination
-        align="center"
-        v-if="getCurrentItem(activeTagKey)"
-        :page-size="getCurrentItem(activeTagKey)?.dataSource?.size"
-        :current="getCurrentItem(activeTagKey)?.dataSource?.number"
-        :total="getCurrentItem(activeTagKey)?.dataSource?.totalCount"
-        @change="onChangePage"
-        hide-on-single-page
-      />
-    </a-spin>
-  </a-flex>
+        <a-pagination
+          align="center"
+          v-if="getCurrentItem(activeTagKey)"
+          :page-size="getCurrentItem(activeTagKey)?.dataSource?.size"
+          :current="getCurrentItem(activeTagKey)?.dataSource?.number"
+          :total="getCurrentItem(activeTagKey)?.dataSource?.totalCount"
+          @change="onChangePage"
+          hide-on-single-page
+        />
+      </a-spin>
+    </a-flex>
+  </div>
 </template>

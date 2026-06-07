@@ -22,6 +22,7 @@ import type {RouteResourceMetadata} from '@/types/apis'
 import i18n from "@/i18n";
 import {getRouteTitle} from '@/routers'
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import LLayoutFooter from "@/components/layout/LayoutFooter.vue";
 
 defineOptions({
   name: 'LLayoutContent',
@@ -463,7 +464,7 @@ onMounted(mounted)
           </a-tabs>
         </div>
       </a-flex>
-      <a-flex vertical flex="1" class="pr-md min-h-0 pl-md">
+      <a-flex vertical flex="1" class="pr-md pl-md">
         <a-spin class="h-full-spin" :spinning="isRoutePageLoading(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
             <transition name="fade-transform" mode="out-in">
@@ -477,7 +478,7 @@ onMounted(mounted)
           </router-view>
         </a-spin>
       </a-flex>
-      <layout-footer/>
+      <l-layout-footer/>
     </a-flex>
   </a-layout-content>
 </template>

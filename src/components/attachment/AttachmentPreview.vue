@@ -153,7 +153,7 @@ function valueChange() {
   fileList.value.forEach(f => ensureThumbUrl(f))
 }
 
-watch(() => fileList.value,()=> valueChange())
+watch(() => fileList.value,()=> valueChange(),{ immediate: true, deep: true })
 
 const classes = computed(() => ({
   ...props.classes,
@@ -258,7 +258,7 @@ const classes = computed(() => ({
       :style="props.styles?.list"
       v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
     >
-      <a-card :classes="{body:'p-xs'}" size="small" :key="file.uid" v-for="file in fileList" :type="getAlertType(file.status)">
+      <a-card :classes="{body:'p-xs!'}" size="small" :key="file.uid" v-for="file in fileList" :type="getAlertType(file.status)">
         <l-attachment-file-preview
           :enabled-delete="!preview"
           :item-class="classes?.item"

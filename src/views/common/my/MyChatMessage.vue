@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  BubbleList as AxBubbleList,
-  Conversations as AxConversations,
-} from '@antdv-next/x'
+import {BubbleList as AxBubbleList, Conversations as AxConversations,} from '@antdv-next/x'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -16,7 +13,6 @@ import {
 } from "vue";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
-import ChatMessageComposer from "@/components/chat/ChatMessageComposer.vue";
 import ChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant";
 import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
@@ -34,6 +30,7 @@ import {requireNonNullOrUndefined} from "@/utils";
 import {AttachmentService, AuthServerService} from "@/apis";
 import {UserChatMessageService} from "@/apis/message-server/chat/userChatMessageService.ts";
 import {usePrincipalStore} from "@/stores/principalStore";
+import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
 
 const setMessageExtraContent = inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
 defineOptions({
@@ -261,12 +258,11 @@ onMounted(mounted)
 </script>
 
 <template>
-  <div class="size-full ">
+  <div class="size-full">
     <a-splitter class="h-full min-h-0">
-
       <a-splitter-panel class="h-ful p-0 overflow-hiddenl" default-size="20%" min="15%" max="25%">
         <a-spin :spinning="options.loading" class="h-full-spin">
-          <a-flex vertical class="h-full min-h-0">
+          <a-flex vertical class="size-full min-h-0">
             <div class="shrink-0 p-sm border-b border-b-border-secondary">
               <a-input-search />
             </div>
@@ -287,22 +283,22 @@ onMounted(mounted)
                   </a-avatar>
                 </template>
                 <template #labelRender="{item}">
-                    <a-flex vertical>
-                      <a-flex gap="small">
-                        <a-typography-text ellipsis class="flex-1">
-                          {{item?.label}}
-                        </a-typography-text>
-                        <a-typography-text type="secondary" v-if="item?.data?.lastMessage">
-                          {{ globalProperties.$dayjs(item?.data?.lastMessage.creationTime).fromNow() }}
-                        </a-typography-text>
-                      </a-flex>
-                      <a-typography-text ellipsis v-if="item?.data?.draft" type="danger">
-                        [草稿]:{{item?.data?.draft}}
+                  <a-flex vertical>
+                    <a-flex gap="small">
+                      <a-typography-text ellipsis class="flex-1">
+                        {{item?.label}}
                       </a-typography-text>
-                      <a-typography-text ellipsis v-if="item?.data?.lastMessage" type="secondary">
-                        {{item?.data?.lastMessage}}
+                      <a-typography-text type="secondary" v-if="item?.data?.lastMessage">
+                        {{ globalProperties.$dayjs(item?.data?.lastMessage.creationTime).fromNow() }}
                       </a-typography-text>
                     </a-flex>
+                    <a-typography-text ellipsis v-if="item?.data?.draft" type="danger">
+                      [草稿]:{{item?.data?.draft}}
+                    </a-typography-text>
+                    <a-typography-text ellipsis v-if="item?.data?.lastMessage" type="secondary">
+                      {{item?.data?.lastMessage}}
+                    </a-typography-text>
+                  </a-flex>
                 </template>
               </ax-conversations >
               <a-flex v-else justify="center" align="center" class="size-full">
@@ -351,16 +347,17 @@ onMounted(mounted)
           </a-flex>
         </a-spin>
       </a-splitter-panel>
-      <a-splitter-panel class="h-full min-h-0 overflow-hidden">
+      <a-splitter-panel class="size-full min-h-0 overflow-hidden">
         <a-flex
           vertical
           v-if="conversationActive.key"
-          class="h-full min-h-0 flex-col overflow-hidden"
+          class="h-full min-h-0 overflow-hidden"
         >
-          <a-flex flex="1" vertical class="overflow-y-auto min-h-0">
+          <a-flex flex="1" vertical>
             <a-spin :spinning="conversationActive.loading" class="h-full-spin">
               <ax-bubble-list
                 auto-scroll
+                class="min-h-0 h-full"
                 :items="(conversationActive.bubbleList as BubbleItemType[])"
                 :role="bubbleListRole"
               >
@@ -392,10 +389,11 @@ onMounted(mounted)
             </a-spin>
           </a-flex>
           <div class="shrink-0 p-sm border-t border-t-border-secondary">
-            <chat-message-composer @submit="onSendMessage" />
+            <!--            <chat-message-composer @submit="onSendMessage" />-->
+            <l-chat-message-sender @submit="onSendMessage" />
           </div>
         </a-flex>
-        <a-flex v-else vertical class="h-full" justify="center" align="center" >
+        <a-flex v-else vertical class="size-full" justify="center" align="center" >
           <a-empty />
         </a-flex>
       </a-splitter-panel>

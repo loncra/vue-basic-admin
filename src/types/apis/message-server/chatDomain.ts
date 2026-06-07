@@ -1,5 +1,6 @@
 import type {NameEnumMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "../common";
 import type {ObjectWriteResult} from "@/types/apis";
+import type {AttachmentValue} from "@/types/composables/attachmentUpload.ts";
 
 /**
  * 聊天房间
@@ -44,7 +45,7 @@ export interface BasicUserChatConversation extends VersionEntityMetadata {
   /** 是否免打扰 */
   muted: NameValueEnumMetadata<number> | number;
   /** 草稿内容 */
-  draft: string;
+  draft: Record<string, unknown>[];
 }
 
 export interface UserChatConversationEntity extends BasicUserChatConversation {
@@ -116,3 +117,7 @@ export type DraftFilesBlock = {
 }
 
 export type DraftBlock = DraftTextBlock | DraftMediaBlock | DraftFilesBlock
+
+export type AttachmentBlock = {
+
+}
