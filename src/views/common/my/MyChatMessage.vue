@@ -11,7 +11,7 @@ import {
   resolveComponent,
   type VNode
 } from "vue";
-import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
+import type {BubbleItemType, RoleType} from "@antdv-next/x/dist/bubble/interface";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
 import ChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant";
@@ -23,7 +23,8 @@ import {
   type PlatformUser,
   type RestResult,
   type UserChatConversationResponseBody,
-  type UserChatMessageEntity
+  type UserChatMessageEntity,
+  type ActiveConversationItem
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import {AttachmentService, AuthServerService} from "@/apis";
@@ -44,49 +45,51 @@ const globalProperties =
 const principalStore = usePrincipalStore()
 
 const segmented = ref<{
-  value:string
-  data:Record<string, unknown>[]
+  value: string
+  data: Record<string, unknown>[]
 }>({
-  value:'conversation',
-  data:[{
-    value:'conversation',
-    iconText:'loncra-message-square-more'
-  },{
-    value:'contact',
-    iconText:'loncra-contact'
+  value: 'conversation',
+  data: [{
+    value: 'conversation',
+    iconText: 'loncra-message-square-more'
+  }, {
+    value: 'contact',
+    iconText: 'loncra-contact'
   }]
 })
 
+const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
+
 const options = ref<{
-  conversationDataSource:UserChatConversationResponseBody[]
-  contactDataSource:ConversationItemType[]
-  loading:boolean
+  conversationDataSource: UserChatConversationResponseBody[]
+  contactDataSource: ActiveConversationItem[]
+  loading: boolean
 }>({
-  conversationDataSource:[],
-  contactDataSource:[],
-  loading:false
+  conversationDataSource: [],
+  contactDataSource: [],
+  loading: false
 })
 
 const conversationActive = ref<{
-  key?:string,
-  item:ConversationItemType | undefined
-  loading:boolean
-  sending?:boolean
-  dataSource:PageResult<UserChatMessageEntity>
-  bubbleList:ChatBubbleItem[]
+  key?: string,
+  item: ActiveConversationItem | undefined
+  loading: boolean
+  sending?: boolean
+  dataSource: PageResult<UserChatMessageEntity>
+  bubbleList: ChatBubbleItem[]
 }>({
-  key:undefined,
-  item:undefined,
-  loading:false,
-  sending:false,
-  dataSource:{
+  key: undefined,
+  item: undefined,
+  loading: false,
+  sending: false,
+  dataSource: {
     elements: [],
     first: false,
     last: false,
     number: 1,
     size: 10
   },
-  bubbleList:[]
+  bubbleList: []
 })
 
 const userChatMessageService = new UserChatMessageService()
@@ -94,9 +97,12 @@ const userChatMessageService = new UserChatMessageService()
 async function loadConversationData(chatRoomId: string) {
   conversationActive.value.loading = true
   try {
-    const result = await userChatMessageService.page({number:1, chatRoomId}) as RestResult<PageResult<UserChatMessageEntity>>
+    const result = await userChatMessageService.page({
+      number: 1,
+      chatRoomId
+    }) as RestResult<PageResult<UserChatMessageEntity>>
     if (!result.data) {
-      return ;
+      return;
     }
     conversationActive.value.dataSource = result.data
     const bubbleItems: ChatBubbleItem[] = []
@@ -108,12 +114,12 @@ async function loadConversationData(chatRoomId: string) {
       })
     }
     conversationActive.value.bubbleList = bubbleItems
-  }finally {
+  } finally {
     conversationActive.value.loading = false
   }
 }
 
-function getConversationItemAvatar(item:BubbleItemType) {
+function getConversationItemAvatar(item: BubbleItemType) {
   return item?.extraInfo ? AttachmentService.query(item?.extraInfo?.avatar.bucketName, item?.extraInfo?.avatar.objectName) : ''
 }
 
@@ -122,9 +128,20 @@ function renderBubbleContent(content: ChatContentBlock[]) {
 }
 
 const bubbleListRole = {
-  user: {contentRender: renderBubbleContent,variant:'filled', placement:'end', shape:'corner', classes:{content:'bg-primary-bg!'}},
-  ai: {contentRender: renderBubbleContent, variant:'filled', placement:'start', shape:'corner',},
-}
+  user: {
+    contentRender: renderBubbleContent,
+    variant: 'filled',
+    placement: 'end',
+    shape: 'corner',
+    classes: {content: 'bg-primary-bg!'},
+  },
+  ai: {
+    contentRender: renderBubbleContent,
+    variant: 'filled',
+    placement: 'start',
+    shape: 'corner',
+  },
+} satisfies RoleType
 
 async function onSendMessage(content: ChatContentBlock[]) {
   const conversationItem = conversationActive.value.item as ConversationItemType | undefined
@@ -135,8 +152,29 @@ async function onSendMessage(content: ChatContentBlock[]) {
   }
   conversationActive.value.sending = true
   try {
-    await ChatMessageService.send(content, String(chatRoomId))
-    await loadConversationData(String(conversationItem.key))
+    const result = await ChatMessageService.send(content, String(chatRoomId))
+    if (!result.data) {
+      return
+    }
+    const body: UserChatMessageEntity = result.data
+    const find = options.value.conversationDataSource.find(d => d.room.id === body.chatRoomId)
+    if (find) {
+      options.value.conversationDataSource = options.value.conversationDataSource.filter(d => d.room.id !== body.chatRoomId)
+      find.lastUserMessage = body
+      options.value.conversationDataSource = [
+        find,
+        ...options.value.conversationDataSource,
+      ]
+      options.value.conversationDataSource.sort((a, b) => {
+        return globalProperties.$dayjs(b.lastUserMessage?.creationTime).diff(globalProperties.$dayjs(a.lastUserMessage?.creationTime))
+      })
+    }
+    conversationActive.value.bubbleList.push({
+      key: String(body.id),
+      role: 'user',
+      content: body.content,
+    })
+    senderRef.value?.clear()
   } finally {
     conversationActive.value.sending = false
   }
@@ -144,24 +182,24 @@ async function onSendMessage(content: ChatContentBlock[]) {
 
 async function onContactActiveChange(value: string, item: ItemType | undefined) {
   if (!item || !(item as ConversationItemType)) {
-    return ;
+    return;
   }
   const conversationItem = (item as ConversationItemType)
   const name = conversationItem.label
   options.value.loading = true
   try {
-    const result:RestResult<UserChatConversationResponseBody> = await ChatMessageService.createConversation(
+    const result: RestResult<UserChatConversationResponseBody> = await ChatMessageService.createConversation(
       {
         id: undefined,
         version: undefined,
-        name:String(name)
+        name: String(name)
       },
       [conversationItem?.data?.systemName]
     )
     if (!result.data) {
-      return ;
+      return;
     }
-    const body:UserChatConversationResponseBody = result.data;
+    const body: UserChatConversationResponseBody = result.data;
     let find = options.value.conversationDataSource.find(d => d.id === body.id)
     if (find) {
       options.value.conversationDataSource = options.value.conversationDataSource.filter(d => d.id !== body.id)
@@ -174,7 +212,11 @@ async function onContactActiveChange(value: string, item: ItemType | undefined) 
     ]
     segmented.value.value = 'conversation'
     await nextTick()
-    onConversationsActiveChange(String(find.id), {label:find.room.name, key:String(find.id), data:find})
+    onConversationsActiveChange(String(find.id), {
+      label: find.room.name,
+      key: String(find.id),
+      data: find
+    })
   } finally {
     options.value.loading = false
   }
@@ -185,20 +227,24 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
   conversationActive.value.key = value
   if (!item || !(item as ConversationItemType)) {
     conversationActive.value.item = undefined
-    return ;
+    return;
   }
   const conversationItem = item as ConversationItemType
-  conversationActive.value.item = conversationItem
+  conversationActive.value.item = {
+    key: conversationItem.key,
+    label: typeof conversationItem.label === 'string' ? conversationItem.label : String(conversationItem.label ?? ''),
+    data: conversationItem.data as UserChatConversationResponseBody | PlatformUser | undefined,
+  }
   loadConversationData(String(conversationItem.key))
-  const label = h('span', {}, {default:() => conversationItem.label})
+  const label = h('span', {}, {default: () => conversationItem.label})
   const space = resolveComponent('ASpace')
   const avatar = h(
     resolveComponent('AAvatar'),
-    {src:conversationItem?.data?.avatar || ''},
-    [String(conversationItem.label).substring(0,1)]
+    {src: conversationItem?.data?.avatar || ''},
+    [String(conversationItem.label).substring(0, 1)]
   )
 
-  const node:VNode =  h(
+  const node: VNode = h(
     space,
     {},
     [label, avatar]
@@ -210,19 +256,20 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
 async function mounted() {
   options.value.loading = true
   try {
-    const chatRoomResult:RestResult<UserChatConversationResponseBody[]> = await ChatMessageService.my({number:1})
+    const chatRoomResult: RestResult<UserChatConversationResponseBody[]> = await ChatMessageService.my({number: 1})
     if (chatRoomResult.data) {
       options.value.conversationDataSource = chatRoomResult.data
     }
-    const contactResult:RestResult<IdNameValueMetadata<PlatformUser[]>[]> = await AuthServerService.systemUsers({number:-1})
+    const contactResult: RestResult<IdNameValueMetadata<PlatformUser[]>[]> = await AuthServerService.systemUsers({number: -1})
     if (contactResult.data) {
-      const list: ConversationItemType[] = []
+      const list: ActiveConversationItem[] = []
       for (const r of contactResult.data) {
         for (const v of r.value) {
           list.push({
             key: String(v.id),
             label: v.realName || v.username,
             group: r.name,
+            disabled: principalStore.state.name === v.systemName,
             data: v,
           })
         }
@@ -232,6 +279,32 @@ async function mounted() {
   } finally {
     options.value.loading = false
   }
+}
+
+function getLastMessageContent(lastUserMessage: UserChatMessageEntity | undefined) {
+  if (!lastUserMessage) {
+    return ''
+  }
+  let content = ""
+  for (const block of lastUserMessage.content) {
+    if (block.type === 'text') {
+      content += block.value || ''
+    } else if (block.type === 'custom' && block.slotKind === 'files') {
+      for (const file of block.files) {
+        const contentType = file?.extraHeaders?.['Content-Type'] || ''
+        if (contentType.startsWith('image/')) {
+          content += '[图片]'
+        } else if (contentType.startsWith('video/')) {
+          content += '[视频]'
+        } else if (contentType.startsWith('audio/')) {
+          content += '[音频]'
+        } else {
+          content += '[文件]'
+        }
+      }
+    }
+  }
+  return content
 }
 
 onMounted(mounted)
@@ -244,7 +317,7 @@ onMounted(mounted)
         <a-spin :spinning="options.loading" class="h-full-spin">
           <a-flex vertical class="size-full min-h-0">
             <div class="shrink-0 p-sm border-b border-b-border-secondary">
-              <a-input-search />
+              <a-input-search/>
             </div>
             <a-flex flex="1" class="h-full min-h-0" v-if="segmented.value === 'conversation'">
               <ax-conversations
@@ -254,73 +327,76 @@ onMounted(mounted)
                 :onActiveChange="onConversationsActiveChange"
                 v-if="options.conversationDataSource.length > 0"
                 class="w-full p-0! gap-0!">
-                <template #iconRender="{ item }" >
+                <template #iconRender="{ item }">
                   <a-avatar
                     :src="item?.data?.avatar ? AttachmentService.query(item?.data?.avatar.bucketName, item?.data?.avatar.objectName) : undefined"
                     size="large"
                   >
-                    {{item.label.substring(0,1)}}
+                    {{ item.label.substring(0, 1) }}
                   </a-avatar>
                 </template>
                 <template #labelRender="{item}">
                   <a-flex vertical>
                     <a-flex gap="small">
                       <a-typography-text ellipsis class="flex-1">
-                        {{item?.label}}
+                        {{ item?.label }}
                       </a-typography-text>
-                      <a-typography-text type="secondary" v-if="item?.data?.lastMessage">
-                        {{ globalProperties.$dayjs(item?.data?.lastMessage.creationTime).fromNow() }}
+                      <a-typography-text type="secondary" v-if="item?.data?.lastUserMessage">
+                        {{
+                          globalProperties.$dayjs(item?.data?.lastUserMessage.creationTime).fromNow()
+                        }}
                       </a-typography-text>
                     </a-flex>
                     <a-typography-text ellipsis v-if="item?.data?.draft" type="danger">
-                      [草稿]:{{item?.data?.draft}}
+                      [草稿]:{{ item?.data?.draft }}
                     </a-typography-text>
-                    <a-typography-text ellipsis v-if="item?.data?.lastMessage" type="secondary">
-                      {{item?.data?.lastMessage}}
+                    <a-typography-text ellipsis v-if="item?.data?.lastUserMessage" type="secondary">
+                      {{ getLastMessageContent(item?.data?.lastUserMessage) }}
                     </a-typography-text>
                   </a-flex>
                 </template>
-              </ax-conversations >
+              </ax-conversations>
               <a-flex v-else justify="center" align="center" class="size-full">
-                <a-empty />
+                <a-empty/>
               </a-flex>
             </a-flex>
             <a-flex flex="1" class="h-full min-h-0" v-else-if="segmented.value === 'contact'">
               <ax-conversations
-                :classes="{item:'p-xs! h-auto! rounded-none!'}"
+                :classes="{item:'chat-conversations-item p-xs! h-auto! rounded-none!'}"
                 :items="(options.contactDataSource || [])"
                 :onActiveChange="onContactActiveChange"
                 v-if="options.contactDataSource.length > 0"
                 groupable
                 class="w-full p-0! gap-0!">
-                <template #iconRender="{ item }" >
+                <template #iconRender="{ item }">
                   <a-avatar
                     :src="item?.data?.avatar ? AttachmentService.query(item?.data?.avatar.bucketName, item?.data?.avatar.objectName) : undefined"
                     size="large"
                   >
-                    {{item.label.substring(0,1)}}
+                    {{ item.label.substring(0, 1) }}
                   </a-avatar>
                 </template>
                 <template #labelRender="{item}">
                   <a-flex vertical>
                     <a-typography-text ellipsis class="flex-1">
-                      {{item?.label}}
+                      {{ item?.label }}
                     </a-typography-text>
                     <a-typography-text ellipsis type="secondary">
-                      {{item?.data?.phoneNumber || item?.data?.email || ' '}}
+                      {{ item?.data?.phoneNumber || item?.data?.email || ' ' }}
                     </a-typography-text>
                   </a-flex>
                 </template>
-              </ax-conversations >
+              </ax-conversations>
               <a-flex v-else justify="center" align="center" class="size-full">
-                <a-empty />
+                <a-empty/>
               </a-flex>
             </a-flex>
 
             <div class="shrink-0 p-xs bg-layout -ml-1px">
-              <a-segmented v-model:value="segmented.value" block :options="segmented.data" @change="(key:string )=> segmented.value = key ">
+              <a-segmented v-model:value="segmented.value" block :options="segmented.data"
+                           @change="(key:string )=> segmented.value = key ">
                 <template #iconRender="{ iconText }">
-                  <icon-font class="icon align" :type="iconText" />
+                  <icon-font class="icon align" :type="iconText"/>
                 </template>
               </a-segmented>
             </div>
@@ -370,11 +446,12 @@ onMounted(mounted)
           </a-flex>
           <div class="shrink-0 p-sm border-t border-t-border-secondary">
             <!--            <chat-message-composer @submit="onSendMessage" />-->
-            <l-chat-message-sender @submit="onSendMessage" />
+            <l-chat-message-sender :sending="conversationActive.sending" ref="senderRef"
+                                   @submit="onSendMessage"/>
           </div>
         </a-flex>
-        <a-flex v-else vertical class="size-full" justify="center" align="center" >
-          <a-empty />
+        <a-flex v-else vertical class="size-full" justify="center" align="center">
+          <a-empty/>
         </a-flex>
       </a-splitter-panel>
     </a-splitter>

@@ -31,11 +31,10 @@ const configProviderStore = useConfigProviderStore()
 
 const uploadRefMap = new Map<string, AttachmentUploadExpose>()
 const senderRef = ref<SenderRef>()
-const modeValue = defineModel<SlotConfigType[]>("value", {default: () => []})
-const options = ref({
-  uploading: false,
-  sending: false,
-})
+
+const uploading = ref<boolean>(false)
+
+const sending = defineModel<boolean>("sending", {default: false})
 
 const props = withDefaults(defineProps<{
   slotConfig?:SlotConfigType[]
@@ -361,7 +360,7 @@ async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
   if (!sender || !_slotConfig?.length) {
     return
   }
-  options.value.uploading = true
+  uploading.value = true
   try {
     const blocks:ChatContentBlock[] = []
     // 1. 逐个 files 词槽上传
@@ -389,24 +388,25 @@ async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
       }
     }
 
-    options.value.sending = true
-    emit('submit', blocks)  // 父组件 MyChatMessage 里 ChatMessageService.send
-    onClear()
+    emit('submit', blocks) 
   } finally {
-    options.value.uploading = false
-    options.value.sending = false
+    uploading.value = false
   }
 }
 
-function onClear() {
+function clear() {
   const sender = senderRef.value
   if (!sender) {
     return
   }
-  modeValue.value = []
   sender.clear()
   focusAndScrollToEnd(sender)
 }
+
+defineExpose({
+  clear
+})
+
 </script>
 
 <template>
@@ -415,25 +415,41 @@ function onClear() {
     :slot-config="props.slotConfig"
     placeholder="输入消息，可粘贴文件到此处发送文件内容"
     :suffix="false"
+    allow-speech
     :auto-size="true"
     :class-names="{
       content: 'chat-sender-content',
       input: 'chat-sender-input',
-      footer:'border-t border-t-border-secondary'
+      footer:'p-xs! border-t border-t-border-secondary'
     }"
-    :loading="options.uploading || options.sending"
+    :loading="uploading || sending"
     @paste-file="onPasteFiles"
     @change="onChange"
     @submit="onSubmit"
   >
     <template #footer="{ components }">
-      <a-flex justify="flex-end" align="center" gap="small">
-        <component :is="components.ClearButton" @click="onClear" />
-        <component
-          :is="options.uploading || options.sending ? components.LoadingButton : components.SendButton"
-          type="primary"
-          :disabled="!senderRef"
-        />
+      <a-flex justify="space-between" align="center" gap="small">
+        <a-space>
+          <a-button type="text" >
+            <template #icon>
+              <icon-font type="loncra-smile" />
+            </template>
+          </a-button>
+          <a-button type="text" >
+            <template #icon>
+              <icon-font type="loncra-hard-drive-upload" />
+            </template>
+          </a-button>
+        </a-space>
+        <div>
+          <component :is="components.ClearButton" @click="clear" />
+          <component :is="components.SpeechButton" />
+          <component
+            :is="uploading || sending ? components.LoadingButton : components.SendButton"
+            type="primary"
+            :disabled="!senderRef"
+          />
+        </div>
       </a-flex>
     </template>
   </ax-sender>

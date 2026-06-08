@@ -1,12 +1,9 @@
 import type {
-  ChatContentBlock,
-  ChatMessageContent,
   PageRequest,
-  PageResult,
   RestResult,
-  UserChatConversationResponseBody, UserChatRoomEntity,
+  UserChatConversationResponseBody, UserChatMessageEntity, UserChatRoomEntity,
 } from "@/types/apis";
-
+import type { ChatContentBlock } from "@/types/composables";
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
 
@@ -33,7 +30,7 @@ export class ChatMessageService  {
     return axios.put(ChatMessageService.CREATE_CONVERSATION_URL, body, {params:formUrlEncoded({principals})})
   }
 
-  static send(body: ChatContentBlock[], roomId:string): Promise<RestResult<UserChatConversationResponseBody>> {
+  static send(body: ChatContentBlock[], roomId:string): Promise<RestResult<UserChatMessageEntity>> {
     return axios.put(ChatMessageService.CREATE_SEND_URL + '/' + roomId, body)
   }
 }

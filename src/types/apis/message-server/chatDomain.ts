@@ -1,8 +1,6 @@
-import type {NameEnumMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "../common";
-import type {ObjectWriteResult} from "@/types/apis";
-import type {AttachmentValue} from "@/types/composables/attachmentUpload.ts";
-import type {UploadFile} from "antdv-next/dist/upload/interface";
+import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common";
 import type {ChatContentBlock} from "@/types/composables";
+import type { PlatformUser } from "@/types/apis";
 
 /**
  * 聊天房间
@@ -64,9 +62,16 @@ export interface UserChatConversationResponseBody extends BasicUserChatConversat
   room: UserChatRoomEntity;
 }
 
-
 export type ChatBubbleItem = {
   key: string | number
   role: 'user' | 'ai'
   content: ChatContentBlock[]
+}
+
+export type ActiveConversationItem = {
+  key: string
+  label?: string
+  disabled?:boolean
+  group?: string
+  data?: UserChatConversationResponseBody | PlatformUser
 }
