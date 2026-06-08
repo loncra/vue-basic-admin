@@ -1,43 +1,51 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import type {ChatMessageContent, ObjectWriteResult} from "@/types/apis";
+import type {
+  AttachmentBlock,
+  ChatContentBlock,
+  TextBlock,
+  FilesSlotProps, CursorContext
+} from "@/types/composables";
 import {Sender as AxSender} from '@antdv-next/x'
 import LAttachmentUpload from '@/components/attachment/AttachmentUpload.vue'
-import type {AttachmentValue} from "@/types/composables/attachmentUpload.ts";
+import type {
+  AttachmentUploadExpose,
+  AttachmentValue
+} from "@/types/composables/attachmentUpload.ts";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import {requireNonNullOrUndefined} from "@/utils";
+import {isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
+import {XProvider as AxConfigProvider} from '@antdv-next/x'
+import { nextTick } from "vue";
+import {useConfigProviderStore} from '@/stores/configProviderStore'
+import {TYPING_ANCHOR} from "@/constants/systemConstant.ts";
+import type {ObjectWriteResult} from "@/types/apis";
 
 defineOptions({
   name: 'LChatMessageSender',
 })
 
-// --- 词槽类型 ---
-
-type FilesSlotKind = 'files'
-
-type FilesSlotProps = {
-  slotKind: FilesSlotKind
-  defaultValue: UploadFile<ObjectWriteResult>[]
-}
-
-const TYPING_ANCHOR = '\u200B'
-
 const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
 
-const emit = defineEmits<{
-  submit: [content: ChatMessageContent]
-}>()
+const configProviderStore = useConfigProviderStore()
 
+const uploadRefMap = new Map<string, AttachmentUploadExpose>()
 const senderRef = ref<SenderRef>()
 const modeValue = defineModel<SlotConfigType[]>("value", {default: () => []})
-
 const options = ref({
   uploading: false,
   sending: false,
 })
 
-// --- 词槽工具函数 ---
+const props = withDefaults(defineProps<{
+  slotConfig?:SlotConfigType[]
+}>(),{
+  slotConfig:() => []
+})
+
+const emit = defineEmits<{
+  submit: [content: ChatContentBlock[]]
+}>()
 
 function slotTextRaw(slot: SlotConfigType): string {
   return slot.type === 'text' ? (slot.value ?? '') : ''
@@ -45,6 +53,19 @@ function slotTextRaw(slot: SlotConfigType): string {
 
 function isAnchorOrEmptyText(text: string): boolean {
   return text.replace(/\u200B/g, '').trim() === ''
+}
+
+function bindUploadRef(slotKey: string, inst: unknown) {
+  if (!slotKey) return
+  const exposed =
+    (inst as AttachmentUploadExpose | null)?.upload
+      ? (inst as AttachmentUploadExpose)
+      : (inst as { exposed?: AttachmentUploadExpose } | null)?.exposed
+  if (exposed?.upload) {
+    uploadRefMap.set(slotKey, exposed)
+  } else {
+    uploadRefMap.delete(slotKey)
+  }
 }
 
 function stripTrailingEmptyText(slots: SlotConfigType[]): SlotConfigType[] {
@@ -82,7 +103,6 @@ function createFilesSlot(
     type: 'custom',
     key,
     props: {slotKind: 'files', defaultValue: files},
-    formatResult: () => '',
     customRender: fileCustomRender,
   }
 }
@@ -90,7 +110,9 @@ function createFilesSlot(
 function serializeSlots(sender: SenderRef): SlotConfigType[] {
   const result: SlotConfigType[] = []
   for (const slot of sender.getValue().slotConfig ?? []) {
-    if (slot.type === 'content') continue
+    if (slot.type === 'content') {
+      continue
+    }
     if (slot.type === 'text') {
       result.push({type: 'text', value: slotTextRaw(slot)})
       continue
@@ -108,12 +130,13 @@ function serializeSlots(sender: SenderRef): SlotConfigType[] {
 function appendTypingAnchor(sender: SenderRef) {
   const slots = sender.getValue().slotConfig ?? []
   const last = slots[slots.length - 1]
-  if (last?.type === 'text' && isAnchorOrEmptyText(slotTextRaw(last))) {
-    sender.focus({cursor: 'end'})
+  const lastText = last?.type === 'text' ? slotTextRaw(last) : ''
+  if (last?.type === 'text' && lastText.includes(TYPING_ANCHOR)) {
+    focusAndScrollToEnd(sender)
     return
   }
   sender.insert([{type: 'text', value: TYPING_ANCHOR}], 'end')
-  sender.focus({cursor: 'end'})
+  focusAndScrollToEnd(sender)
 }
 
 function applySlots(sender: SenderRef, slots: SlotConfigType[]) {
@@ -125,10 +148,8 @@ function applySlots(sender: SenderRef, slots: SlotConfigType[]) {
   if (finalSlots.length > 0) {
     sender.insert(finalSlots, 'start')
   }
-  sender.focus({cursor: 'end'})
+  focusAndScrollToEnd(sender)
 }
-
-// --- 附件词槽渲染 ---
 
 function handleFilesSlotChange(
   item: SlotConfigType,
@@ -153,51 +174,137 @@ function fileCustomRender(
   _props: { disabled?: boolean; readOnly?: boolean },
   item: SlotConfigType,
 ) {
-  const node = h(LAttachmentUpload, {
-    value: value,
-    multiple: true,
-    maxCount: value.length,
-    'onUpdate:value': (next)  => handleFilesSlotChange(item, next, onChange)
-  })
+   const slotKey = 'key' in item && item.key ? item.key : ''
+  const node = h(
+    AxConfigProvider,
+    {
+      locale: (configProviderStore.localeMessage as { antDesign?: object }).antDesign,
+      componentSize: configProviderStore.state.componentSize,
+      theme: providerTheme(),
+    },
+    {
+      default: () =>
+        h(LAttachmentUpload, {
+          ref: (inst) => bindUploadRef(slotKey, inst),
+          value,
+          multiple: true,
+          maxCount: value.length,
+          'onUpdate:value': (next: AttachmentValue) => handleFilesSlotChange(item, next, onChange),
+        }),
+    },
+  )
   node.appContext = currentInstance.appContext
   return node
 }
 
-function getCursorSlotConfigIndex(sender: SenderRef): number {
-  const editable = sender.nativeElement
-  const sel = window.getSelection()
-  if (!sel?.rangeCount || !sel.anchorNode || !editable.contains(sel.anchorNode)) {
-    return -1
-  }
-  const anchorNode = sel.anchorNode
-  const slots = sender.getValue().slotConfig ?? []
-  let slotIdx = 0
-  for (const child of editable.childNodes) {
-    if (child.nodeType === Node.TEXT_NODE) {
-      const text = child.textContent ?? ''
-      if (!text) continue
-      if (child === anchorNode || child.contains(anchorNode)) {
-        return slotIdx
-      }
-      if (slots[slotIdx]?.type === 'text') slotIdx++
-      continue
-    }
-    if (child instanceof HTMLElement && child.dataset.slotKey) {
-      if (child.dataset.nodeType === 'nbsp') continue
-      if (child === anchorNode || child.contains(anchorNode)) {
-        return slotIdx
-      }
-      slotIdx++
-    }
-  }
-  return -1
+function providerTheme() {
+  const raw = configProviderStore.getAlgorithm()
+  const algorithm =
+    raw == null
+      ? undefined
+      : Array.isArray(raw)
+        ? raw.filter((item) => item != null)
+        : raw
+  return { algorithm, token: configProviderStore.state.token }
 }
 
-function isCursorInEmptyTextSlot(sender: SenderRef): boolean {
-  const idx = getCursorSlotConfigIndex(sender)
-  if (idx < 0) return false
-  const slot = sender.getValue().slotConfig?.[idx]
-  return slot?.type === 'text' && isAnchorOrEmptyText(slotTextRaw(slot))
+function getEditableRoot(sender: SenderRef): HTMLElement | null {
+  const root = sender.nativeElement
+  if (root.isContentEditable) {
+    return root
+  }
+  return (
+    root.querySelector<HTMLElement>('[contenteditable="true"]')
+  )
+}
+
+function findDirectChildContaining(editable: HTMLElement, node: Node): ChildNode | null {
+  let cur: Node | null = node
+  while (cur && cur !== editable) {
+    if (cur.parentNode === editable) {
+      return cur as ChildNode
+    }
+    cur = cur.parentNode
+  }
+  return null
+}
+
+function advanceSlotIdx(slots: SlotConfigType[], slotIdx: number, child: Node): number {
+  if (child.nodeType === Node.TEXT_NODE) {
+    const text = child.textContent ?? ''
+    if (!text) {
+      return slotIdx
+    }
+    return slots[slotIdx]?.type === 'text' ? slotIdx + 1 : slotIdx
+  }
+  if (child instanceof HTMLElement && child.dataset.slotKey && child.dataset.nodeType !== 'nbsp') {
+    return slotIdx + 1
+  }
+  return slotIdx
+}
+
+function resolveCursorContext(sender: SenderRef): CursorContext | null {
+  const editable = getEditableRoot(sender)
+  const sel = window.getSelection()
+  if (!editable || !sel?.rangeCount || !sel.anchorNode || !editable.contains(sel.anchorNode)) {
+    return null
+  }
+  const slots = sender.getValue().slotConfig ?? []
+  const { anchorNode, anchorOffset } = sel
+  // 容器选区：光标在 editable 子节点缝隙里（空行、块后最常见）
+  if (anchorNode === editable) {
+    let slotIdx = 0
+    for (let i = 0; i < anchorOffset; i++) {
+      const child = editable.childNodes[i]
+      if (child) {
+        slotIdx = advanceSlotIdx(slots, slotIdx, child)
+      }
+    }
+    return { slotIdx, textOffset: 0, isAtLineStart: true }
+  }
+  const directChild = findDirectChildContaining(editable, anchorNode)
+  if (!directChild) {
+    return null
+  }
+  let slotIdx = 0
+  for (const child of editable.childNodes) {
+    if (child !== directChild) {
+      slotIdx = advanceSlotIdx(slots, slotIdx, child)
+      continue
+    }
+    if (child.nodeType === Node.TEXT_NODE) {
+      const textNode = child as Text
+      const offset =
+        anchorNode.nodeType === Node.TEXT_NODE && anchorNode === textNode
+          ? anchorOffset
+          : 0
+      return {
+        slotIdx,
+        textOffset: offset,
+        isAtLineStart: offset === 0,
+      }
+    }
+    if (child instanceof HTMLBRElement) {
+      return { slotIdx, textOffset: 0, isAtLineStart: true }
+    }
+    // custom / content 词槽（含 AttachmentUpload portal）
+    return { slotIdx, textOffset: 0, isAtLineStart: true }
+  }
+  return null
+}
+
+function popLastFileFromSlot(slots: SlotConfigType[], key: string): SlotConfigType[] {
+  return slots.flatMap((slot) => {
+    if (!isFilesSlot(slot) || slot.key !== key) {
+      return [slot]
+    }
+    const files = [...slot.props.defaultValue]
+    files.pop()
+    if (files.length === 0) {
+      return []
+    }
+    return [createFilesSlot(files, slot.key)]
+  })
 }
 
 function onPasteFiles(fileList: FileList) {
@@ -209,42 +316,103 @@ function onPasteFiles(fileList: FileList) {
   if (files.length === 0) {
     return
   }
+
   const slot = createFilesSlot(files.map(toUploadFile))
-  if (isCursorInEmptyTextSlot(sender)) {
-    const idx = getCursorSlotConfigIndex(sender)
-    const slots = serializeSlots(sender)
-    if (idx >= 0 && idx < slots.length && slots[idx]?.type === 'text') {
-      slots[idx] = slot
-      applySlots(sender, slots)
-      return
-    }
-  }
+
   sender.insert([slot], 'cursor')
   appendTypingAnchor(sender)
 }
 
 function onChange(_value: string, _event?: Event, _slotConfig?: SlotConfigType[]) {
-  // 步骤 3/4 将在此处理 Backspace 与 canSend
-  console.info(_slotConfig)
+  const sender = senderRef.value
+  if (!sender) {
+    return
+  }
+
+  const ctx = resolveCursorContext(sender)
+  if (ctx === null && (_slotConfig || [])?.some(s => s.type === 'custom')) {
+    applySlots(sender, popLastFileFromSlot(serializeSlots(sender), (_slotConfig || []).at(-1)?.key ?? ''))
+  } else if (ctx !== null && ctx.slotIdx > 1 && ctx.isAtLineStart) {
+    const prevSlot = (_slotConfig|| [])[ctx.slotIdx - 1]
+    if (!prevSlot || !isFilesSlot(prevSlot)) {
+      return
+    }
+    if (_event && (_event as InputEvent).inputType === 'deleteContentBackward') {
+      applySlots(sender, popLastFileFromSlot(serializeSlots(sender), prevSlot.key))
+    }
+  }
+
+}
+
+function focusAndScrollToEnd(sender: SenderRef) {
+  sender.focus({ cursor: 'end' })
+  nextTick(() => {
+    const el = getEditableRoot(sender) // 你已有
+    if (!el) {
+      return
+    }
+    el.scrollTop = el.scrollHeight
+    requestAnimationFrame(() => el.scrollTop = el.scrollHeight)
+  })
 }
 
 async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
-  // 步骤 5 实现上传与提交
+  const sender = senderRef.value
+  if (!sender || !_slotConfig?.length) {
+    return
+  }
+  options.value.uploading = true
+  try {
+    const blocks:ChatContentBlock[] = []
+    // 1. 逐个 files 词槽上传
+    for (const slot of _slotConfig) {
+      if (isFilesSlot(slot) && slot.key) {
+        const uploaded = await uploadRefMap.get(slot.key)?.upload()
+        const files:ObjectWriteResult[] = (Array.isArray(uploaded) ? uploaded : uploaded ? [uploaded] : [])
+          .filter((f): f is ObjectWriteResult => isObjectWriteResult(f))
+        const attachmentBlock:AttachmentBlock = {
+          files:files,
+          type:'custom',
+          slotKind:'files'
+        }
+        blocks.push(attachmentBlock)
+      } else {
+        const text = slotTextRaw(slot).replace(/\u200B/g, '').trim()
+        if (!text) {
+          continue
+        }
+        const textBlock:TextBlock = {
+          type: 'text',
+          value: text
+        }
+        blocks.push(textBlock)
+      }
+    }
+
+    options.value.sending = true
+    emit('submit', blocks)  // 父组件 MyChatMessage 里 ChatMessageService.send
+    onClear()
+  } finally {
+    options.value.uploading = false
+    options.value.sending = false
+  }
 }
 
 function onClear() {
   const sender = senderRef.value
-  if (!sender) return
+  if (!sender) {
+    return
+  }
   modeValue.value = []
   sender.clear()
-  sender.focus({cursor: 'end'})
+  focusAndScrollToEnd(sender)
 }
 </script>
 
 <template>
   <ax-sender
     ref="senderRef"
-    :slot-config="modeValue"
+    :slot-config="props.slotConfig"
     placeholder="输入消息，可粘贴文件到此处发送文件内容"
     :suffix="false"
     :auto-size="true"

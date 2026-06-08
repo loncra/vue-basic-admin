@@ -7,6 +7,8 @@ export const SYSTEM_CONSTANT = {
   ID_NAME: 'id'
 } as const
 
+export const TYPING_ANCHOR = '\u200B'
+
 /**
  * 系统所有 store 的 id
  */

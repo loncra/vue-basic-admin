@@ -351,9 +351,6 @@
   .chat-sender-root.antd-sender-main {
     @apply flex max-h-60 min-h-0 flex-col overflow-hidden;
   }
-  /*.chat-sender-content {
-    @apply p-0! rounded-none
-  }*/
   .chat-sender-content.antd-sender-content {
     @apply min-h-0 flex-1 items-stretch overflow-hidden;
   }

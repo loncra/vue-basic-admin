@@ -16,9 +16,8 @@ import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversati
 import ChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant";
 import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
-import {isChatMessageContent} from "@/composables/chat/useChatComposer.ts";
 import {
-  type ChatMessageContent,
+  type ChatBubbleItem,
   type IdNameValueMetadata,
   type PageResult,
   type PlatformUser,
@@ -31,6 +30,7 @@ import {AttachmentService, AuthServerService} from "@/apis";
 import {UserChatMessageService} from "@/apis/message-server/chat/userChatMessageService.ts";
 import {usePrincipalStore} from "@/stores/principalStore";
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
+import type {ChatContentBlock} from "@/types/composables";
 
 const setMessageExtraContent = inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
 defineOptions({
@@ -67,12 +67,6 @@ const options = ref<{
   loading:false
 })
 
-type ChatBubbleItem = {
-  key: string | number
-  role: 'user' | 'ai'
-  content: ChatMessageContent
-}
-
 const conversationActive = ref<{
   key?:string,
   item:ConversationItemType | undefined
@@ -97,20 +91,6 @@ const conversationActive = ref<{
 
 const userChatMessageService = new UserChatMessageService()
 
-function toBubbleContent(raw: Record<string, unknown>): ChatMessageContent {
-  if (isChatMessageContent(raw)) {
-    return raw
-  }
-  const text = typeof raw === 'object' && raw !== null && 'text' in raw
-    ? String((raw as { text: unknown }).text)
-    : String(raw)
-  return {
-    type: 'composite',
-    version: 1,
-    blocks: [{type: 'text', segments: [{type: 'plain', text}]}],
-  }
-}
-
 async function loadConversationData(chatRoomId: string) {
   conversationActive.value.loading = true
   try {
@@ -124,7 +104,7 @@ async function loadConversationData(chatRoomId: string) {
       bubbleItems.push({
         key: String(d.id),
         role: principalStore.state.name === d.principal ? 'user' : 'ai',
-        content: toBubbleContent(d.content),
+        content: d.content,
       })
     }
     conversationActive.value.bubbleList = bubbleItems
@@ -137,8 +117,8 @@ function getConversationItemAvatar(item:BubbleItemType) {
   return item?.extraInfo ? AttachmentService.query(item?.extraInfo?.avatar.bucketName, item?.extraInfo?.avatar.objectName) : ''
 }
 
-function renderBubbleContent(content: unknown) {
-  return h(ChatMessageBubbleContent, {content: content as ChatMessageContent})
+function renderBubbleContent(content: ChatContentBlock[]) {
+  return h(ChatMessageBubbleContent, {content: content})
 }
 
 const bubbleListRole = {
@@ -146,7 +126,7 @@ const bubbleListRole = {
   ai: {contentRender: renderBubbleContent, variant:'filled', placement:'start', shape:'corner',},
 }
 
-async function onSendMessage(content: ChatMessageContent) {
+async function onSendMessage(content: ChatContentBlock[]) {
   const conversationItem = conversationActive.value.item as ConversationItemType | undefined
   const body = conversationItem?.data as UserChatConversationResponseBody | undefined
   const chatRoomId = body?.room?.id

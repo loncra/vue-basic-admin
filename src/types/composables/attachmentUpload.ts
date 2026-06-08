@@ -17,6 +17,10 @@ export type AttachmentValue =
   | AttachmentFileItem[]
   | undefined
 
+export type AttachmentUploadExpose = {
+  upload: () => Promise<ObjectWriteResult | ObjectWriteResult[] | undefined>
+}
+
 export interface AttachmentUploadExecutorOptions {
   postFilename: string
   promiseLimit: number

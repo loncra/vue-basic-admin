@@ -1,6 +1,8 @@
 import type {NameEnumMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "../common";
 import type {ObjectWriteResult} from "@/types/apis";
 import type {AttachmentValue} from "@/types/composables/attachmentUpload.ts";
+import type {UploadFile} from "antdv-next/dist/upload/interface";
+import type {ChatContentBlock} from "@/types/composables";
 
 /**
  * 聊天房间
@@ -28,7 +30,7 @@ export interface UserChatMessageEntity extends VersionEntityMetadata {
   /** 业务  id */
   chatRoomId: number;
   /** 内容 */
-  content: Record<string, unknown>;
+  content: ChatContentBlock[];
   /** 发送者 */
   principal: string;
   /** 是否撤销 */
@@ -62,62 +64,9 @@ export interface UserChatConversationResponseBody extends BasicUserChatConversat
   room: UserChatRoomEntity;
 }
 
-export type TextSegment =
-  | { type: 'plain'; text: string }
-  | { type: 'mention'; value: string; label: string }
-  | { type: 'emoji'; value: string; label: string }
 
-export interface TextContentBlock {
-  type: 'text'
-  segments: TextSegment[]
-}
-
-export interface ChatMessageContent {
-  type: 'composite'
-  version: 1
-  blocks: ChatContentBlock[]
-}
-
-export type ChatContentBlock =
-  | TextContentBlock
-  | { type: 'image'; file: ObjectWriteResult }
-  | { type: 'video'; file: ObjectWriteResult }
-  | { type: 'files'; files: ObjectWriteResult[] }
-
-export type DraftFileItem = {
-  id: string
-  localFile: File
-  fileName: string
-  status: 'pending' | 'uploading' | 'done' | 'error'
-  result?: ObjectWriteResult
-  error?: string
-}
-
-export type DraftTextBlock = {
-  id: string
-  type: 'text'
-  segments: TextSegment[]
-}
-
-export type DraftMediaBlock = {
-  id: string
-  type: 'image' | 'video'
-  localFile: File
-  previewUrl?: string
-  fileName: string
-  status: 'pending' | 'uploading' | 'done' | 'error'
-  result?: ObjectWriteResult
-  error?: string
-}
-
-export type DraftFilesBlock = {
-  id: string
-  type: 'files'
-  items: DraftFileItem[]
-}
-
-export type DraftBlock = DraftTextBlock | DraftMediaBlock | DraftFilesBlock
-
-export type AttachmentBlock = {
-
+export type ChatBubbleItem = {
+  key: string | number
+  role: 'user' | 'ai'
+  content: ChatContentBlock[]
 }

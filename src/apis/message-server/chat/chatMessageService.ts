@@ -1,4 +1,5 @@
 import type {
+  ChatContentBlock,
   ChatMessageContent,
   PageRequest,
   PageResult,
@@ -32,7 +33,7 @@ export class ChatMessageService  {
     return axios.put(ChatMessageService.CREATE_CONVERSATION_URL, body, {params:formUrlEncoded({principals})})
   }
 
-  static send(body: ChatMessageContent, roomId:string): Promise<RestResult<UserChatConversationResponseBody>> {
+  static send(body: ChatContentBlock[], roomId:string): Promise<RestResult<UserChatConversationResponseBody>> {
     return axios.put(ChatMessageService.CREATE_SEND_URL + '/' + roomId, body)
   }
 }
