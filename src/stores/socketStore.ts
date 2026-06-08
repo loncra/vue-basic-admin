@@ -1,8 +1,8 @@
-import { computed, ref, type Ref } from 'vue'
-import { defineStore } from 'pinia'
-import { io, type Socket } from 'socket.io-client'
-import { SOCKET_EVENT_TYPE, STORE } from '@/constants/systemConstant'
-import { usePrincipalStore } from '@/stores/principalStore'
+import {computed, ref, type Ref} from 'vue'
+import {defineStore} from 'pinia'
+import {io, type Socket} from 'socket.io-client'
+import {SOCKET_EVENT_TYPE, STORE} from '@/constants/systemConstant'
+import {usePrincipalStore} from '@/stores/principalStore'
 
 export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
   const principalStore = usePrincipalStore()
@@ -96,14 +96,14 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
   /**
    * 监听服务端事件
    */
-  function on(event: string, callback: (...args: unknown[]) => void): void {
+  function on(event: string, callback: (payload: string, callback:() => void) => void): void {
     socket.value?.on(event, callback)
   }
 
   /**
    * 取消监听
    */
-  function off(event: string, callback?: (...args: unknown[]) => void): void {
+  function off(event: string, callback: (payload: string, callback:() => void) => void): void {
     if (callback) {
       socket.value?.off(event, callback)
     } else {

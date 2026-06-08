@@ -30,6 +30,7 @@ export const SOCKET_EVENT_TYPE = {
   CONNECT_ERROR: 'connect_error',
   CONNECT_TIMEOUT: 'connect_timeout',
   CLIENT_DISCONNECT: 'client_disconnect',
+  CHAT_MESSAGE:'chat_message',
   /** 服务端推送的执行系统命令事件，payload 为 RestResult<string> */
   RUN_COMMAND: 'run_command',
 } as const
