@@ -23,7 +23,7 @@ import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} fro
 import useApp from "antdv-next/dist/app/useApp";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import type {ResolvedAction} from "@/types/composables";
-import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 
 defineOptions({
   name: 'MySiteMessageHome',
@@ -276,7 +276,7 @@ onMounted(mounted)
             <span>
               {{item.label}}
             </span>
-            <a-badge :count="messageServerStore.getUnreadQuantity(item.key)" size="small">
+            <a-badge :count="messageServerStore.getUnreadQuantity(MESSAGE_GROUP.SITE, item.key)" size="small">
             </a-badge>
           </a-space>
         </template>

@@ -10,6 +10,7 @@ const locale: LanguagePack = {
   antDesign: enUS,
   common: {
     id: 'ID',
+    me: 'me',
     creationTime: 'Created at',
     save: 'Save',
     add: 'Add {name}',

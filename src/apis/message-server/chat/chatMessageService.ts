@@ -1,7 +1,8 @@
 import type {
-  PageRequest,
+  PageRequest, PageResult,
   RestResult,
-  UserChatConversationResponseBody, UserChatMessageEntity, UserChatRoomEntity,
+  UserChatConversationResponseBody, UserChatMessageEntity,
+  UserChatMessageResponseBody, UserChatRoomEntity,
 } from "@/types/apis";
 import type { ChatContentBlock } from "@/types/composables";
 import {formUrlEncoded} from "@/utils";
@@ -22,8 +23,12 @@ export class ChatMessageService  {
 
   static readonly CREATE_SEND_URL = ChatMessageService.SERVICE_URL + '/send'
 
+  static readonly CREATE_HISTORIES_URL = ChatMessageService.SERVICE_URL + '/message/histories'
+
+  static readonly CREATE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read'
+
   static my(request: PageRequest): Promise<RestResult<UserChatConversationResponseBody[]>> {
-    return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request as Record<string, unknown>))
+    return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request))
   }
 
   static createConversation(body: UserChatRoomEntity, principals:string[]): Promise<RestResult<UserChatConversationResponseBody>> {
@@ -32,5 +37,13 @@ export class ChatMessageService  {
 
   static send(body: ChatContentBlock[], roomId:string): Promise<RestResult<UserChatMessageEntity>> {
     return axios.put(ChatMessageService.CREATE_SEND_URL + '/' + roomId, body)
+  }
+
+  static histories(request: PageRequest, roomId:number): Promise<RestResult<PageResult<UserChatMessageResponseBody>>> {
+    return axios.post(ChatMessageService.CREATE_HISTORIES_URL + '/' + roomId, formUrlEncoded(request))
+  }
+
+  static read(messageIds:number[]): Promise<RestResult<PageResult<UserChatMessageResponseBody>>> {
+    return axios.post(ChatMessageService.CREATE_READ_URL, formUrlEncoded({messageIds}))
   }
 }

@@ -3,6 +3,7 @@ import LForm from '@/components/Form.vue'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {AuthCredentials} from '@/types/apis'
 import {usePrincipalStore} from '@/stores/principalStore'
+import {useSocketStore} from '@/stores/socketStore'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.js'
 import {requireNonNullOrUndefined} from '@/utils'
 
@@ -33,6 +34,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 const principalStore = usePrincipalStore()
+const socketStore = useSocketStore()
 
 const onAuth = (): void => {
   formRef.value.validate().then(() => doAuth())
@@ -43,6 +45,7 @@ const doAuth = async (): Promise<void> => {
   try {
     const data = await principalStore.login(authFormProps.value, AUTHENTICATION_TYPE.CONSOLE)
     if (data.authenticated) {
+      socketStore.ensureConnected()
       globalProperties.$router.push('/')
     }
   } finally {

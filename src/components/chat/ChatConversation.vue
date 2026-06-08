@@ -5,27 +5,22 @@ import {
   type ComponentInternalInstance,
   getCurrentInstance,
   h,
-  inject, onMounted,
+  inject,
   ref,
   resolveComponent,
   type VNode
 } from "vue";
 import type {
-  ActiveConversationItem,
-  ChatBubbleItem,
-  PageResult,
-  PlatformUser, RestResult,
+  FileObject,
   UserChatConversationResponseBody,
   UserChatMessageEntity
 } from "@/types/apis";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
-import {
-  MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY,
-  SOCKET_EVENT_TYPE
-} from "@/constants/systemConstant.ts";
+import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 import {requireNonNullOrUndefined} from "@/utils";
 import {Conversations as AxConversations,} from '@antdv-next/x'
-import {useSocketStore} from "@/stores/socketStore.ts";
+import type {ServerConversationItem} from "@/types/composables";
+import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 
 defineOptions({
   name: 'LChatConversation',
@@ -36,55 +31,53 @@ const globalProperties =
     .globalProperties
 const setMessageExtraContent = inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
 
-const socketStore = useSocketStore();
+const messgeServerStore = useMessageServerStore()
 
-const conversationActive = ref<{
-  key?: string,
-  item: ActiveConversationItem | undefined
-  loading: boolean
-  sending?: boolean
-  dataSource: PageResult<UserChatMessageEntity>
-  bubbleList: ChatBubbleItem[]
-}>({
-  key: undefined,
-  item: undefined,
-  loading: false,
-  sending: false,
-  dataSource: {
-    elements: [],
-    first: false,
-    last: false,
-    number: 1,
-    size: 10
-  },
-  bubbleList: []
-})
-
+const activeKey = ref<string>();
 const dataSource = defineModel<UserChatConversationResponseBody[]>('dataSource', {default:() => []})
 
 const emit = defineEmits<{
-  change: [item: ActiveConversationItem]
+  change: [item: ServerConversationItem]
 }>()
 
 function onConversationsActiveChange(value: string, item: ItemType | undefined): void {
-  conversationActive.value.key = value
+  activeKey.value = value
   if (!item || !(item as ConversationItemType)) {
-    conversationActive.value.item = undefined
     return;
   }
   const conversationItem = item as ConversationItemType
-  conversationActive.value.item = {
-    key: conversationItem.key,
+  const activeConversationItem:ServerConversationItem = {
+    key: value,
     label: typeof conversationItem.label === 'string' ? conversationItem.label : String(conversationItem.label ?? ''),
-    data: conversationItem.data as UserChatConversationResponseBody | PlatformUser | undefined,
+    data: conversationItem.data as UserChatConversationResponseBody,
   }
-  const label = h('span', {}, {default: () => conversationItem.label})
+  const label = h('span', {}, {default: () => activeConversationItem.label})
   const space = resolveComponent('ASpace')
-  const avatar = h(
-    resolveComponent('AAvatar'),
-    {src: conversationItem?.data?.avatar || ''},
-    [String(conversationItem.label).substring(0, 1)]
-  )
+  let avatar;
+  const avatars:VNode[] = []
+  for (const c of (activeConversationItem?.data?.cover || [])) {
+    const a = h(
+      resolveComponent('AAvatar'),
+      {src: AttachmentService.query(c.bucketName, c.objectName)}
+    )
+    avatars.push(a)
+  }
+  if (avatars.length > 0) {
+    avatar = h(
+      resolveComponent('AAvatarGroup'),
+      {
+        max:{
+          count:3
+        }
+      },
+      avatars)
+  } else {
+    avatar = h(
+      resolveComponent('AAvatar'),
+      {},
+      [String(activeConversationItem.label).substring(0, 1)]
+    )
+  }
 
   const node: VNode = h(
     space,
@@ -94,7 +87,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
 
   setMessageExtraContent?.(node)
 
-  emit("change", conversationActive.value.item)
+  emit("change", activeConversationItem)
 
 }
 
@@ -123,35 +116,28 @@ function getLastMessageContent(lastUserMessage: UserChatMessageEntity | undefine
   }
   return content
 }
-
-function onChatMessageReceived(payload: string): void {
-  const result:RestResult<UserChatMessageEntity> = JSON.parse(payload)
-  console.info(result)
-}
-
-function mounted() {
-  socketStore.on(SOCKET_EVENT_TYPE.CHAT_MESSAGE, onChatMessageReceived)
-}
-
-onMounted(mounted)
 </script>
 
 <template>
   <a-flex flex="1" class="h-full min-h-0" >
     <ax-conversations
-      :activeKey="conversationActive.key"
+      :activeKey="activeKey"
       :classes="{item:'p-sm! h-auto! rounded-none!'}"
-      :items="(dataSource || []).map(r => ({label:r.room.name, key:String(r.id), data:r}))"
+      :items="(dataSource || []).map(r => ({label:r.name, key:String(r.id), data:r}))"
       :onActiveChange="onConversationsActiveChange"
       v-if="dataSource.length > 0"
       class="w-full p-0! gap-0!">
       <template #iconRender="{ item }">
-        <a-avatar
-          :src="item?.data?.avatar ? AttachmentService.query(item?.data?.avatar.bucketName, item?.data?.avatar.objectName) : undefined"
-          size="large"
-        >
-          {{ item.label.substring(0, 1) }}
-        </a-avatar>
+        <a-flex justify="center" align="center" class="h-full">
+          <a-badge size="small" :count="messgeServerStore.getUnreadQuantity(MESSAGE_GROUP.USER_CHAT, item.key)" >
+            <a-avatar-group :max="{count: 3}" v-if="(item.data.cover || []).length > 0">
+              <a-avatar v-for="c in item.data.cover" :key="c.objectName" :src="AttachmentService.query(c.bucketName, c.objectName)" size="large"/>
+            </a-avatar-group>
+            <a-avatar v-else size="large">
+              {{ item?.label.substring(0,1) }}
+            </a-avatar>
+          </a-badge>
+        </a-flex>
       </template>
       <template #labelRender="{item}">
         <a-flex vertical>

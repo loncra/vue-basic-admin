@@ -2,19 +2,19 @@
 
 import {AttachmentService} from "@/apis";
 import type {
-  ActiveConversationItem,
   RestResult,
   UserChatConversationResponseBody
 } from "@/types/apis";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
 import {Conversations as AxConversations,} from '@antdv-next/x'
+import type {ContactItem} from "@/types/composables";
 
 defineOptions({
   name: 'LChatContact',
 })
 
-const dataSource = defineModel<ActiveConversationItem[]>('dataSource', {default:() => []})
+const dataSource = defineModel<ContactItem[]>('dataSource', {default:() => []})
 const loading = defineModel<boolean>('loading', {default:() => false})
 
 const emit = defineEmits<{
@@ -26,14 +26,12 @@ async function onContactActiveChange(value: string, item: ItemType | undefined) 
     return;
   }
   const conversationItem = (item as ConversationItemType)
-  const name = conversationItem.label
   loading.value = true
   try {
     const result: RestResult<UserChatConversationResponseBody> = await ChatMessageService.createConversation(
       {
         id: undefined,
-        version: undefined,
-        name: String(name)
+        version: undefined
       },
       [conversationItem?.data?.systemName]
     )

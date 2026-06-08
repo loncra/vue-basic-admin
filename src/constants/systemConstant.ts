@@ -21,21 +21,6 @@ export const STORE = {
 } as const
 
 /**
- * socket 事件相关
- */
-export const SOCKET_EVENT_TYPE = {
-  CONNECT: 'connect',
-  DISCONNECT: 'disconnect',
-  ERROR: 'error',
-  CONNECT_ERROR: 'connect_error',
-  CONNECT_TIMEOUT: 'connect_timeout',
-  CLIENT_DISCONNECT: 'client_disconnect',
-  CHAT_MESSAGE:'chat_message',
-  /** 服务端推送的执行系统命令事件，payload 为 RestResult<string> */
-  RUN_COMMAND: 'run_command',
-} as const
-
-/**
  * 主题模式类型
  */
 export const CONFIG_PROVIDER_THEME = {
@@ -47,6 +32,14 @@ export const CONFIG_PROVIDER_THEME = {
     dark: 'loncra-moon',
     light: 'loncra-sun-medium',
   }
+} as const
+
+/**
+ * 消息分组
+ */
+export const MESSAGE_GROUP = {
+  SITE: 'site',
+  USER_CHAT: 'userChat'
 } as const
 
 /**

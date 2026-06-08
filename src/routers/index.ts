@@ -357,6 +357,10 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
     }
   }
 
+  if (principalStore.isAuthenticated) {
+    useSocketStore().ensureConnected()
+  }
+
   useMenuPrincipalStore().setRouteEnterLoading(to.fullPath, true)
   // 默认继续导航
   return true

@@ -1,4 +1,5 @@
 import type {IdNameMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "../common";
+import {MESSAGE_GROUP} from "@/constants/systemConstant.ts";
 
 /**
  * 基础消息实体，用于将所有消息内容公有化使用。
@@ -69,6 +70,8 @@ export interface BatchResponse {
 }
 
 export interface MyMessageState {
-  record?:Record<number, number> | undefined
+  record?:Record<MessageGroup, Record<number,number>> | undefined
   siteTypes?:IdNameMetadata[]
 }
+
+export type MessageGroup = typeof MESSAGE_GROUP.USER_CHAT | typeof MESSAGE_GROUP.SITE

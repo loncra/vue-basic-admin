@@ -1,42 +1,92 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
 import {io, type Socket} from 'socket.io-client'
-import {SOCKET_EVENT_TYPE, STORE} from '@/constants/systemConstant'
+import {STORE} from '@/constants/systemConstant'
 import {usePrincipalStore} from '@/stores/principalStore'
+import {
+  SOCKET_EVENT_TYPE,
+  type SocketBusinessEvent,
+  type SocketBusinessEventPayloadMap,
+  type SocketConnectionStatus,
+} from '@/types/socket'
+
+type SocketHandler = (...args: unknown[]) => void
 
 export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
   const principalStore = usePrincipalStore()
   const socket: Ref<Socket | null> = ref(null)
   const connected: Ref<boolean> = ref(false)
   const connectError: Ref<string | null> = ref(null)
+  const status: Ref<SocketConnectionStatus> = ref('idle')
+  const lastToken: Ref<string | null> = ref(null)
+
+  const handlerRegistry = new Map<string, Set<SocketHandler>>()
 
   const isConnected = computed(() => connected.value)
 
-  /**
-   * 建立 Socket 连接
-   * 从 localStorage 读取 accessToken，需在登录成功后调用
-   */
-  function connect(): void {
-    const token = principalStore.state.details?.token?.value
-    if (!token) {
-      connectError.value = '未找到 accessToken，请先登录'
+  function addToRegistry(event: string, handler: SocketHandler): void {
+    let handlers = handlerRegistry.get(event)
+    if (!handlers) {
+      handlers = new Set()
+      handlerRegistry.set(event, handlers)
+    }
+    handlers.add(handler)
+  }
+
+  function removeFromRegistry(event: string, handler?: SocketHandler): void {
+    if (!handler) {
+      handlerRegistry.delete(event)
       return
     }
-
-    // 已连接且 token 未变，跳过
-    if (socket.value?.connected) {
-      return
+    const handlers = handlerRegistry.get(event)
+    handlers?.delete(handler)
+    if (handlers?.size === 0) {
+      handlerRegistry.delete(event)
     }
+  }
 
-    // 已有实例但未连接，先断开
+  function attachHandlerRegistry(instance: Socket): void {
+    for (const [event, handlers] of handlerRegistry) {
+      for (const handler of handlers) {
+        instance.on(event, handler as (...args: any[]) => void)
+      }
+    }
+  }
+
+  function bindInternalListeners(instance: Socket): void {
+    instance.on(SOCKET_EVENT_TYPE.CONNECT, () => {
+      connected.value = true
+      status.value = 'connected'
+      connectError.value = null
+    })
+
+    instance.on(SOCKET_EVENT_TYPE.DISCONNECT, () => {
+      connected.value = false
+      status.value = 'disconnected'
+    })
+
+    instance.on(SOCKET_EVENT_TYPE.CONNECT_ERROR, (err: Error) => {
+      connected.value = false
+      status.value = 'error'
+      connectError.value = err?.message || '连接失败'
+    })
+
+    instance.on(SOCKET_EVENT_TYPE.CONNECT_TIMEOUT, () => {
+      connected.value = false
+      status.value = 'error'
+      connectError.value = '连接超时'
+    })
+  }
+
+  function destroySocketInstance(): void {
     if (socket.value) {
       socket.value.removeAllListeners()
       socket.value.disconnect()
       socket.value = null
     }
+  }
 
-    connectError.value = null
-
+  function createSocketInstance(token: string): void {
     const retryTimeout = Number(import.meta.env.VITE_APP_SOCKET_RETRY_TIMEOUT) || 1000
     const retryCount = Number(import.meta.env.VITE_APP_SOCKET_RETRY_COUNT) || 3
 
@@ -44,7 +94,6 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     const accessTokenName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
     const deviceId = localStorage.getItem(deviceIdStorageName)
 
-    //const baseUrl = getApiBaseUrl()
     const instance = io({
       query: {
         t: String(Date.now()),
@@ -58,75 +107,87 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
       timeout: 10000,
     })
 
-    instance.on(SOCKET_EVENT_TYPE.CONNECT, () => {
-      connected.value = true
-      connectError.value = null
-    })
-
-    instance.on(SOCKET_EVENT_TYPE.DISCONNECT, () => {
-      connected.value = false
-    })
-
-    instance.on(SOCKET_EVENT_TYPE.CONNECT_ERROR, (err: Error) => {
-      connected.value = false
-      connectError.value = err?.message || '连接失败'
-    })
-
-    instance.on(SOCKET_EVENT_TYPE.CONNECT_TIMEOUT, () => {
-      connected.value = false
-      connectError.value = '连接超时'
-    })
-
+    bindInternalListeners(instance)
+    attachHandlerRegistry(instance)
     socket.value = instance
   }
 
   /**
-   * 断开 Socket 连接
+   * 幂等连接：有 token 且未连接或 token 变更则建连
+   */
+  function ensureConnected(): void {
+    const token = principalStore.state.details?.token?.value
+    if (!token) {
+      status.value = 'idle'
+      connectError.value = '未找到 accessToken，请先登录'
+      return
+    }
+
+    if (socket.value?.connected && lastToken.value === token) {
+      return
+    }
+
+    if (socket.value) {
+      destroySocketInstance()
+    }
+
+    lastToken.value = token
+    status.value = 'connecting'
+    connectError.value = null
+    createSocketInstance(token)
+  }
+
+  /**
+   * 断开 Socket 连接，保留 handler registry
    */
   function disconnect(): void {
-    if (socket.value) {
-      socket.value.removeAllListeners()
-      socket.value.disconnect()
-      socket.value = null
-    }
+    destroySocketInstance()
     connected.value = false
+    status.value = 'disconnected'
     connectError.value = null
+    lastToken.value = null
   }
 
-  /**
-   * 监听服务端事件
-   */
-  function on(event: string, callback: (payload: string, callback:() => void) => void): void {
-    socket.value?.on(event, callback)
-  }
-
-  /**
-   * 取消监听
-   */
-  function off(event: string, callback: (payload: string, callback:() => void) => void): void {
-    if (callback) {
-      socket.value?.off(event, callback)
-    } else {
-      socket.value?.off(event)
+  function subscribe<E extends SocketBusinessEvent>(
+    event: E,
+    handler: (payload: SocketBusinessEventPayloadMap[E]) => void,
+  ): () => void {
+    const wrapped: SocketHandler = (payload: unknown) => {
+      handler(payload as SocketBusinessEventPayloadMap[E])
     }
+    addToRegistry(event, wrapped)
+    socket.value?.on(event as string, wrapped as (...args: any[]) => void)
+    return () => unsubscribe(event, wrapped)
   }
 
-  /**
-   * 向服务端发送事件
-   */
+  function unsubscribe(event: string, handler?: SocketHandler): void {
+    if (handler) {
+      removeFromRegistry(event, handler)
+      socket.value?.off(event, handler)
+      return
+    }
+
+    const handlers = handlerRegistry.get(event)
+    if (handlers && socket.value) {
+      for (const registeredHandler of handlers) {
+        socket.value.off(event, registeredHandler)
+      }
+    }
+    removeFromRegistry(event)
+  }
+
   function emit(event: string, ...args: unknown[]): void {
     socket.value?.emit(event, ...args)
   }
 
   return {
-    socket,
-    connected,
     connectError,
+    status,
     isConnected,
-    connect,
+    ensureConnected,
     disconnect,
-    on,
-    off,
+    subscribe,
+    unsubscribe,
     emit,
   }
 })

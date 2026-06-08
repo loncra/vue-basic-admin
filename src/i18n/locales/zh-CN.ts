@@ -10,6 +10,7 @@ const locale: LanguagePack = {
   antDesign: zhCN,
   common: {
     id: '主键',
+    me: '我',
     creationTime:'创建时间',
     ip:'IP 地址',
     system:'系统信息',

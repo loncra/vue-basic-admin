@@ -1,4 +1,10 @@
-import type {ObjectWriteResult} from "@/types/apis";
+import type {
+  ObjectWriteResult,
+  PageResult,
+  PlatformUser,
+  UserChatConversationResponseBody,
+  UserChatMessageEntity, UserChatMessageResponseBody
+} from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 
 export type TextSegment =
@@ -37,4 +43,34 @@ export type CursorContext = {
   slotIdx: number
   textOffset: number
   isAtLineStart: boolean
+}
+
+export type ChatBubbleItem = {
+  key: string | number
+  role: 'user' | 'ai'
+  content: ChatContentBlock[]
+  data:UserChatMessageEntity
+}
+
+export interface ServerConversationItem {
+  key: string
+  label?: string
+  disabled?:boolean
+  data?: UserChatConversationResponseBody
+}
+
+export interface ContactItem {
+  key: string
+  label?: string
+  data?: PlatformUser
+  disabled?:boolean
+  group?: string
+}
+
+export interface ConversationActiveProps {
+  item: ServerConversationItem | undefined
+  loading: boolean
+  sending?: boolean
+  dataSource: PageResult<UserChatMessageResponseBody>
+  bubbleList: ChatBubbleItem[]
 }
