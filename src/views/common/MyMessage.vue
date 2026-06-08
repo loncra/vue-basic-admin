@@ -61,18 +61,18 @@ onActivated(activated)
 </script>
 
 <template>
-  <a-flex flex="1" class="min-h-0 h-full">
+  <div class="h-full min-h-0">
     <l-menu-title-card
       :classes="{
-        root:'min-h-150 flex flex-col size-full shadow-ter',
-        header: 'flex-shrink-0',
-        body:'flex flex-1 min-h-0 p-0! overflow-hidden'
+        root:'min-h-0 flex flex-col h-full shadow-ter',
+        header: 'shrink-0',
+        body:'flex flex-1 min-h-120 p-0! overflow-hidden'
       }"
     >
       <template #extra v-if="extraContent">
         <component :is="extraContent" />
       </template>
-      <div class="h-full p-xs bg-layout border-r border-r-border-secondary">
+      <div class="h-full min-h-0 p-xs bg-layout border-r border-r-border-secondary">
         <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
           <template #iconRender="{ iconText,value }">
             <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">
@@ -81,7 +81,7 @@ onActivated(activated)
           </template>
         </a-segmented>
       </div>
-      <a-flex flex="1" class="min-h-0 h-full overflow-hidden">
+      <div class="min-h-0 size-full overflow-hidden">
         <router-view v-slot="{ Component }">
           <transition name="fade-transform" mode="out-in">
               <keep-alive v-if="Component">
@@ -89,7 +89,7 @@ onActivated(activated)
               </keep-alive>
           </transition>
         </router-view>
-      </a-flex>
+      </div>
     </l-menu-title-card>
-  </a-flex>
+  </div>
 </template>

@@ -47,15 +47,15 @@ async function onContactActiveChange(value: string, item: ItemType | undefined) 
 }
 </script>
 
-<template>
-  <a-flex flex="1" class="h-full min-h-0" >
+<template>:
+  <a-flex vertical class="h-full min-h-0 overflow-hidden" >
     <ax-conversations
-      :classes="{item:'chat-conversations-item p-xs! h-auto! rounded-none!'}"
+      :classes="{item:'chat-conversations-item p-xs! h-auto! min-h-auto! rounded-none!'}"
       :items="(dataSource || [])"
       :onActiveChange="onContactActiveChange"
       v-if="dataSource.length > 0"
       groupable
-      class="w-full p-0! gap-0!">
+      class="min-h-0 size-full flex-[1_1_0] p-0! gap-0!">
       <template #iconRender="{ item }">
         <a-avatar
           :src="item?.data?.avatar ? AttachmentService.query(item?.data?.avatar.bucketName, item?.data?.avatar.objectName) : undefined"

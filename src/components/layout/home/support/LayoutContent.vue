@@ -465,7 +465,7 @@ onMounted(mounted)
         </div>
       </a-flex>
       <a-flex vertical flex="1" class="pr-md pl-md">
-        <a-spin class="h-full-spin" :spinning="isRoutePageLoading(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
+        <a-spin class="size-full-spin" :spinning="isRoutePageLoading(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
             <transition name="fade-transform" mode="out-in">
               <!-- 使用 key 来清除缓存：key = fullPath + 版本号 -->

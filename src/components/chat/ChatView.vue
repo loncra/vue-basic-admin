@@ -91,53 +91,55 @@ defineExpose({
 </script>
 
 <template>
-  <a-flex flex="1" vertical>
-    <a-spin :spinning="conversation.loading" class="h-full-spin">
-      <ax-bubble-list
-        auto-scroll
-        class="min-h-0 h-full"
-        :classes="{scroll:'pl-xs pr-xs'}"
-        :items="(conversation.bubbleList as BubbleItemType[])"
-        :role="bubbleListRole"
-      >
-        <template #extra="{item}" >
-          <a-flex class="h-full" justify="end" align="end">
-            <a-tag color="lime" v-if="item.role === 'user' && item.data.readableCount === 0" >已读</a-tag>
-          </a-flex>
-        </template>
-        <template #avatar="{ item }">
-          <a-avatar
-            :src="getConversationItemAvatar(item.data?.participant?.metadata?.details?.avatar)"
-            v-if="item.role === 'ai'"
-            size="large"
-          >
-            {{ (item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme || globalProperties.$t('common.unname')).substring(0,1) }}
-          </a-avatar>
-          <a-avatar
-            :src="principalStore.getAvatarUrl()"
-            v-else
-            size="large"
-          >
-            {{globalProperties.$t('common.me')}}
-          </a-avatar>
-        </template>
-        <template #header="{ item }">
-          <a-typography-text v-if="item.role === 'ai'">
-            {{ item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme }}
-          </a-typography-text>
-          <a-typography-text type="secondary" v-else>
-            {{globalProperties.$t('common.me')}}
-          </a-typography-text>
-        </template>
-      </ax-bubble-list>
-    </a-spin>
+  <a-flex
+    vertical
+    flex="1"
+    class="h-full min-h-0 overflow-hidden"
+  >
+    <a-flex flex="1" class="h-full min-h-0">
+      <a-spin :spinning="conversation.loading" class="size-full-spin">
+        <ax-bubble-list
+          auto-scroll
+          class="min-h-0 h-full flex flex-[1_1_0]"
+          :classes="{scroll:'pl-xs pr-xs'}"
+          :items="(conversation.bubbleList as BubbleItemType[])"
+          :role="bubbleListRole"
+        >
+          <template #extra="{item}" >
+            <a-flex class="h-full" justify="end" align="end">
+              <a-tag color="lime" v-if="item.role === 'user' && item.data.readableCount === 0" >已读</a-tag>
+            </a-flex>
+          </template>
+          <template #avatar="{ item }">
+            <a-avatar
+              :src="getConversationItemAvatar(item.data?.participant?.metadata?.details?.avatar)"
+              v-if="item.role === 'ai'"
+              size="large"
+            >
+              {{ (item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme || globalProperties.$t('common.unname')).substring(0,1) }}
+            </a-avatar>
+            <a-avatar
+              :src="principalStore.getAvatarUrl()"
+              v-else
+              size="large"
+            >
+              {{globalProperties.$t('common.me')}}
+            </a-avatar>
+          </template>
+          <template #header="{ item }">
+            <a-typography-text v-if="item.role === 'ai'">
+              {{ item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme }}
+            </a-typography-text>
+            <a-typography-text type="secondary" v-else>
+              {{globalProperties.$t('common.me')}}
+            </a-typography-text>
+          </template>
+        </ax-bubble-list>
+      </a-spin>
+    </a-flex>
+    <div class="shrink-0 p-sm border-t border-t-border-secondary">
+      <l-chat-message-sender :sending="conversation.sending" ref="senderRef" @submit="onSendMessage"/>
+    </div>
   </a-flex>
-  <div class="shrink-0 p-sm border-t border-t-border-secondary">
-    <l-chat-message-sender :sending="conversation.sending" ref="senderRef" @submit="onSendMessage"/>
-  </div>
 
 </template>
-
-<style scoped>
-
-</style>

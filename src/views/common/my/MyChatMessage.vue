@@ -230,51 +230,48 @@ onMounted(mounted)
 </script>
 
 <template>
-  <div class="size-full">
-    <a-splitter class="h-full min-h-0">
-      <a-splitter-panel class="h-ful p-0 overflow-hiddenl" default-size="20%" min="15%" max="25%">
-        <a-spin :spinning="options.loading" class="h-full-spin">
-          <a-flex vertical class="size-full min-h-0">
-            <div class="shrink-0 p-sm border-b border-b-border-secondary">
-              <a-input-search/>
-            </div>
+  <a-splitter class="h-full min-h-0">
+    <a-splitter-panel class="h-full p-0 overflow-hiddenl" default-size="20%" min="15%" max="25%">
+      <a-spin :spinning="options.loading" class="size-full-spin">
+        <a-flex vertical class="size-full min-h-0">
+          <div class="shrink-0 p-sm">
+            <a-input-search/>
+          </div>
 
-            <l-chat-conversation
-              @change="onConversationsChange"
-              v-model:data-source="options.conversationDataSource"
-              v-if="segmented.value === 'conversation'"
-            />
+          <l-chat-conversation
+            @change="onConversationsChange"
+            v-model:data-source="options.conversationDataSource"
+            v-if="segmented.value === 'conversation'"
+          />
 
-            <l-chat-contact
-              @selected="onContactSelected"
-              v-model:loading="options.loading"
-              v-else-if="segmented.value === 'contact'"
-              v-model:data-source="options.contactDataSource"
-            />
+          <l-chat-contact
+            @selected="onContactSelected"
+            v-model:loading="options.loading"
+            v-else-if="segmented.value === 'contact'"
+            v-model:data-source="options.contactDataSource"
+          />
 
-            <div class="shrink-0 p-xs bg-layout -ml-1px">
-              <a-segmented v-model:value="segmented.value" block :options="segmented.data"
-                           @change="(key:string )=> segmented.value = key ">
-                <template #iconRender="{ iconText }">
-                  <icon-font class="icon align" :type="iconText"/>
-                </template>
-              </a-segmented>
-            </div>
-          </a-flex>
-        </a-spin>
-      </a-splitter-panel>
-      <a-splitter-panel class="size-full min-h-0 overflow-hidden">
-        <a-flex
-          vertical
-          v-if="conversationActive.item"
-          class="h-full min-h-0 overflow-hidden"
-        >
-          <l-chat-view ref="chatViewRef" v-model:conversation="conversationActive" @send="onSendMessage" />
+          <div class="shrink-0 p-xs bg-layout -ml-1px">
+            <a-segmented v-model:value="segmented.value" block :options="segmented.data"
+                         @change="(key:string )=> segmented.value = key ">
+              <template #iconRender="{ iconText }">
+                <icon-font class="icon align" :type="iconText"/>
+              </template>
+            </a-segmented>
+          </div>
         </a-flex>
-        <a-flex v-else vertical class="size-full" justify="center" align="center">
-          <a-empty/>
-        </a-flex>
-      </a-splitter-panel>
-    </a-splitter>
-  </div>
+      </a-spin>
+    </a-splitter-panel>
+    <a-splitter-panel class="h-full min-h-0 overflow-hidden">
+      <l-chat-view
+        ref="chatViewRef"
+        v-if="conversationActive.item"
+        v-model:conversation="conversationActive"
+        @send="onSendMessage"
+      />
+      <a-flex v-else vertical class="size-full" justify="center" align="center">
+        <a-empty/>
+      </a-flex>
+    </a-splitter-panel>
+  </a-splitter>
 </template>

@@ -116,17 +116,18 @@ function getLastMessageContent(lastUserMessage: UserChatMessageEntity | undefine
   }
   return content
 }
+
 </script>
 
 <template>
-  <a-flex flex="1" class="h-full min-h-0" >
+  <a-flex vertical class="h-full min-h-0 overflow-hidden" >
     <ax-conversations
       :activeKey="activeKey"
-      :classes="{item:'p-sm! h-auto! rounded-none!'}"
+      :classes="{item:'p-xs! h-auto! min-h-auto! rounded-none!'}"
       :items="(dataSource || []).map(r => ({label:r.name, key:String(r.id), data:r}))"
       :onActiveChange="onConversationsActiveChange"
       v-if="dataSource.length > 0"
-      class="w-full p-0! gap-0!">
+      class="min-h-0 size-full flex-[1_1_0] p-0! gap-0!">
       <template #iconRender="{ item }">
         <a-flex justify="center" align="center" class="h-full">
           <a-badge size="small" :count="messgeServerStore.getUnreadQuantity(MESSAGE_GROUP.USER_CHAT, item.key)" >
