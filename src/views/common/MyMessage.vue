@@ -70,7 +70,9 @@ onActivated(activated)
       }"
     >
       <template #extra v-if="extraContent">
-        <component :is="extraContent" />
+        <div>
+          <component :is="extraContent" />
+        </div>
       </template>
       <div class="h-full min-h-0 p-xs bg-layout border-r border-r-border-secondary">
         <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">

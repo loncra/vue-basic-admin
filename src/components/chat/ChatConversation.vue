@@ -70,19 +70,22 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
           count:3
         }
       },
-      avatars)
+      {
+        default: () => avatars
+      }
+    )
   } else {
     avatar = h(
       resolveComponent('AAvatar'),
       {},
-      [String(activeConversationItem.label).substring(0, 1)]
+      { default: () => String(activeConversationItem.label).substring(0, 1) }
     )
   }
 
   const node: VNode = h(
     space,
     {},
-    [label, avatar]
+    { default: () => [label, avatar] }
   )
 
   setMessageExtraContent?.(node)
