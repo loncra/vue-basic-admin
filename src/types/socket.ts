@@ -15,6 +15,7 @@ export type SocketBusinessEventPayloadMap = {
   [SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE]: RestResult<UserChatConversationResponseBody>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ]: RestResult<UserChatMessageResponseBody>
   [SOCKET_EVENT_TYPE.CHAT_ROOM_RENAME]: RestResult<IdValueMetadata<number, string>>
+  [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ_UPDATE]: RestResult<IdValueMetadata<number, number>[]>
 }
 
 export type SocketBusinessEvent = keyof SocketBusinessEventPayloadMap

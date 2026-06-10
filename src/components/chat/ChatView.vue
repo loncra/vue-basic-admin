@@ -4,12 +4,19 @@ import type {BubbleItemType, BubbleListRef, RoleType} from "@antdv-next/x/dist/b
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
 import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps} from "@/types/composables";
 import {AttachmentService} from "@/apis";
-import {type ComponentInternalInstance, getCurrentInstance, h, nextTick, onMounted, ref} from "vue";
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  h,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref
+} from "vue";
 import ChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
-  FileObject,
   RestResult,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
@@ -17,10 +24,11 @@ import type {
 } from "@/types/apis";
 import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
 import {BubbleList as AxBubbleList} from "@antdv-next/x";
-import {requireNonNullOrUndefined} from "@/utils";
+import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
 
 defineOptions({
   name: 'LChatView',
@@ -72,9 +80,6 @@ const bubbleListRole = {
     }
 } satisfies RoleType
 
-function getConversationItemAvatar(item: FileObject) {
-  return item ? AttachmentService.query(item.bucketName, item.objectName) : ''
-}
 
 function renderBubbleContent(content: ChatContentBlock[]) {
   return h(ChatMessageBubbleContent, {content: content})
@@ -155,7 +160,7 @@ function mounted() {
 }
 
 onMounted(mounted)
-
+onUnmounted(() => socketListener.value.forEach(f => f?.()));
 defineExpose({
   addMessage,
   getScrollBox: () => bubbleListRef.value?.scrollBoxNativeElement,
@@ -187,16 +192,37 @@ defineExpose({
         >
           <template #extra="{item}" >
             <a-flex class="h-full" justify="end" align="end" v-if="item.role === 'user'">
-              <a-tooltip :title="item.data.readableCount === 1 ? '未读' :'已读'">
+              <a-tooltip v-if="getEnumValue(conversation.item?.data?.room?.type) === 20" :title="item.data.readableCount === 1 ? '未读' :'已读'">
                 <a-typography-text :type="item.data.readableCount === 1 ? 'secondary' : 'success'">
                   <icon-font class="icon" :type="item.data.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'" />
                 </a-typography-text>
               </a-tooltip>
+              <a-popover :placement="item.role === 'user' ? 'left' : 'right'" v-else-if="item.data" trigger="click" >
+                <template #content>
+                  <l-chat-message-read-table :message-id="item.data.id" />
+                </template>
+
+
+                <a-button
+                  :color="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCoun ? undefined : 'lime'"
+                  size="small"
+                  :variant="Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount ? 'filled' : undefined"
+                  type="dashed"
+                >
+                  <a-space v-if="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCount">
+                    <a-badge status="processing" />
+                    {{Math.abs(item.data.readableCount - item.data.readCount)}} / {{item.data.readCount}}
+                  </a-space>
+                  <template #icon v-if="Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount">
+                    <icon-font type="loncra-list-checks"/>
+                  </template>
+                </a-button>
+              </a-popover>
             </a-flex>
           </template>
           <template #avatar="{ item }">
             <a-avatar
-              :src="getConversationItemAvatar(item.data?.participant?.metadata?.details?.avatar)"
+              :src="AttachmentService.getAvatarUrlIfNotNull(item.data?.participant?.metadata?.details?.avatar)"
               v-if="item.role === 'ai'"
               size="large"
             >

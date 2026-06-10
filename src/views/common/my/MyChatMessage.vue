@@ -71,11 +71,13 @@ const options = ref<{
   loadConversationDataSource: UserChatConversationResponseBody[]
   loadContactDataSource: ContactItem[]
   loading: boolean
+  searchValue:string
 }>({
   conversationDataSource: [],
   contactDataSource: [],
   loadConversationDataSource: [],
   loadContactDataSource: [],
+  searchValue:'',
   loading: false
 })
 
@@ -184,17 +186,21 @@ async function onContactSelected(value: UserChatConversationResponseBody) {
     find,
     ...options.value.conversationDataSource,
   ]
+  options.value.loadConversationDataSource = [
+    find,
+    ...options.value.loadConversationDataSource,
+  ]
   segmented.value.value = 'conversation'
   const activeConversationItem:ServerConversationItem = {
     key: String(find.id),
     label: find.name,
     data: find,
   }
+  await onConversationsChange(activeConversationItem)
   await nextTick()
   if (conversationRef.value) {
-    conversationRef.value?.changeMessageExtraContent(activeConversationItem)
+    conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
   }
-  await onConversationsChange(activeConversationItem)
 }
 
 async function onConversationsChange(conversationItem:ServerConversationItem) {
@@ -263,8 +269,8 @@ async function mounted() {
   try {
     const chatRoomResult: RestResult<UserChatConversationResponseBody[]> = await ChatMessageService.my({number: 1})
     if (chatRoomResult.data) {
-      options.value.conversationDataSource = chatRoomResult.data
-      options.value.loadConversationDataSource = chatRoomResult.data
+      options.value.conversationDataSource = [...chatRoomResult.data]
+      options.value.loadConversationDataSource = [...chatRoomResult.data]
     }
     const contactResult: RestResult<IdNameValueMetadata<PlatformUser[]>[]> = await AuthServerService.systemUsers({number: -1}, true, false)
     if (contactResult.data) {
@@ -278,8 +284,8 @@ async function mounted() {
           data: v,
         }))
       }
-      options.value.contactDataSource.push(...list)
-      options.value.loadContactDataSource.push(...list)
+      options.value.contactDataSource = [...list]
+      options.value.loadContactDataSource = [...list]
     }
   } finally {
     options.value.loading = false
@@ -335,17 +341,22 @@ function onConversationMoreClick(data:UserChatConversationResponseBody) {
   conversationActive.value.drawerOpen = !conversationActive.value.drawerOpen;
 }
 
-function onChatRooViewConfirm(user:PlatformUser[], restResult:RestResult<UserChatConversationResponseBody>) {
+async function onChatRooViewConfirm(user:PlatformUser[], restResult:RestResult<UserChatConversationResponseBody>) {
   if (!restResult.data) {
     return ;
   }
-  options.value.loadConversationDataSource = [restResult.data, ... options.value.loadConversationDataSource]
-  options.value.conversationDataSource = options.value.loadConversationDataSource
-  onConversationsChange({
+  options.value.loadConversationDataSource = [restResult.data, ...options.value.loadConversationDataSource]
+  options.value.conversationDataSource = [restResult.data, ...options.value.conversationDataSource]
+  onSearch(options.value.searchValue)
+  await onConversationsChange({
     key: String(restResult.data.id),
     label: restResult.data.name,
     data: restResult.data
   })
+  await nextTick()
+  if (conversationRef.value) {
+    conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
+  }
 }
 
 onUnmounted(() => socketListener.value.forEach(f => f?.()));
@@ -360,7 +371,7 @@ onMounted(mounted)
         <a-spin :spinning="options.loading" class="size-full-spin">
           <a-flex vertical class="size-full min-h-0">
             <div class="shrink-0 p-sm">
-              <a-input-search @search="onSearch"/>
+              <a-input v-model:value="options.searchValue" @search="onSearch"/>
             </div>
             <l-chat-conversation
               ref="conversationRef"

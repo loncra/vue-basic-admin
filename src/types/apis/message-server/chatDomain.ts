@@ -37,7 +37,7 @@ export interface UserChatMessageEntity extends VersionEntityMetadata {
   type: NameValueEnumMetadata<number> | number;
 }
 
-export interface UserChatParticipantMetadata  {
+export interface UserChatParticipantDetails {
   details: UserMetadata;
 }
 
@@ -49,7 +49,7 @@ export interface UserChatParticipantMetadata {
   /**
    * 元数据信息
    */
-  metadata: UserChatParticipantMetadata;
+  metadata: UserChatParticipantDetails;
 }
 
 export interface UserChatParticipantEntity extends VersionEntityMetadata, UserChatParticipantMetadata {
@@ -100,5 +100,32 @@ export interface UserChatConversationResponseBody extends BasicUserChatConversat
   /** 房间 */
   room: UserChatRoomEntity
   /** 可读数量 **/
-  readableCount:number
+  readableCount: number
+}
+
+export interface UserChatMessageReadEntity extends VersionEntityMetadata {
+  /**
+   * 业务  id
+   */
+  chatMessageId: number;
+
+  /**
+   * 发送者
+   */
+  principal: string;
+
+  /**
+   * 是否可读
+   */
+  readable: NameValueEnumMetadata<number> | number;
+
+  /**
+   * 读取时间
+   */
+  readTime: number;
+}
+
+
+export interface UserChatMessageReadResponseBody extends UserChatMessageReadEntity {
+  participant: UserChatParticipantMetadata;
 }

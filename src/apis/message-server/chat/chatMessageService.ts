@@ -4,6 +4,7 @@ import type {
   PageResult,
   RestResult,
   UserChatConversationResponseBody,
+  UserChatMessageReadResponseBody,
   UserChatMessageResponseBody,
   UserChatRoomEntity,
 } from "@/types/apis";
@@ -41,6 +42,8 @@ export class ChatMessageService  {
   static readonly REMOVE_ROOM_PARTICIPANT_URL = ChatMessageService.SERVICE_URL + '/participant/remove'
 
   static readonly ROOM_RENAME_URL = ChatMessageService.SERVICE_URL + '/room/rename'
+
+  static readonly FIND_MESSAGE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read/find'
 
   static my(request: PageRequest): Promise<RestResult<UserChatConversationResponseBody[]>> {
     return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request))
@@ -84,5 +87,9 @@ export class ChatMessageService  {
 
   static roomRename(roomId:number, newName: string):Promise<RestResult<void>> {
     return axios.put(ChatMessageService.ROOM_RENAME_URL + "/" + roomId, formUrlEncoded({newName}))
+  }
+
+  static findMessageRead(messageId:number):Promise<RestResult<UserChatMessageReadResponseBody[]>> {
+    return axios.post(ChatMessageService.FIND_MESSAGE_READ_URL + "/" + messageId)
   }
 }

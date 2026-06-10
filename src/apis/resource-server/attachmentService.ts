@@ -9,7 +9,6 @@ import type {
 } from "@/types/apis";
 import axios from '@/requests/http.ts'
 import type {AxiosRequestConfig} from 'axios'
-import {formUrlEncoded} from "@/utils";
 
 /**
  * 附件领域服务：`/api[/resource-server]/user/export`
@@ -127,4 +126,7 @@ export class AttachmentService {
     return axios.post(url)
   }
 
+  static getAvatarUrlIfNotNull(item: FileObject) {
+    return item ? AttachmentService.query(item.bucketName, item.objectName) : ''
+  }
 }
