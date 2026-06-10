@@ -7,7 +7,7 @@ import {
   onUnmounted,
   ref
 } from "vue";
-import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
+import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {
   type ContactItem,
   type IdNameValueMetadata,
@@ -132,9 +132,9 @@ async function loadConversationData(
       conversationActive.value.bubbleList = [...bubbleItems,...conversationActive.value.bubbleList]
       if (conversationActive.value.dataSource.last) {
         conversationActive.value.bubbleList.unshift({
-          key: 'system-unread-hint',        // 唯一 key
-          role: 'system',                   // 关键：必须是 'system'
-          content: '没有更多记录了',              // 显示文案，也可传 VNode
+          key: 'system-unread-hint',
+          role: 'system',
+          content: '没有更多记录了',
         })
       }
     } else {
@@ -289,6 +289,16 @@ async function mounted() {
     }
   } finally {
     options.value.loading = false
+  }
+  await nextTick()
+  const find = options.value.conversationDataSource.find(d => d.id === Number(globalProperties.$route.query.conversationId))
+  if (find) {
+    const activeConversationItem:ServerConversationItem = {
+      key: String(find.id),
+      label: find.name,
+      data: find,
+    }
+    await onConversationsChange(activeConversationItem)
   }
 }
 

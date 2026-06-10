@@ -19,7 +19,7 @@ const configProviderStore = useConfigProviderStore()
       :component-size="configProviderStore.state.componentSize"
       :theme="{ algorithm: configProviderStore.getAlgorithm(), token: configProviderStore.state.token }"
     >
-      <a-app >
+      <a-app :message="{ maxCount: 1 }" :notification="{ placement: 'bottomRight',maxCount:6, showProgress: true, bottom: configProviderStore.getToken().sizeXL}">
         <router-view v-slot="{ Component }">
           <transition name="fade-transform" mode="out-in">
             <component :is="Component"/>

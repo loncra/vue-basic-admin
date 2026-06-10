@@ -34,6 +34,7 @@ const RESET: MenuState = {
   loading: false,
   currentBreadcrumbs: [],
   routeEnterPage: null,
+  quickAccess:[]
 }
 
 export interface MenuState  {
@@ -41,6 +42,7 @@ export interface MenuState  {
   loading: boolean
   currentBreadcrumbs: RouteResourceMetadata[]
   routeEnterPage: RouteEnterPage | null
+  quickAccess:RouteResourceMetadata[]
 }
 
 /**
@@ -58,8 +60,12 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    * @returns 重置后的空菜单数组
    */
   function $reset(): MenuState {
+    const principalStore = usePrincipalStore();
+    const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
+    const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
     return {
       ...RESET,
+      ...{quickAccess:quickAccess}
     }
   }
 
@@ -76,14 +82,14 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     return quickAccessRecord;
   }
 
-  const currentPrincipalQuickAccess = computed(() => {
+  /*const currentPrincipalQuickAccess = computed(() => {
     const principalStore = usePrincipalStore();
     if (Number(principalStore.state.principal.id) <= 0) {
       return []
     }
     const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
     return getCurrentQuickAccess(principalStore.state.name, quickAccessRecord)
-  })
+  })*/
 
   function getCurrentQuickAccess(
     principal:string,
@@ -240,6 +246,8 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     } else {
       quickAccess.push(quickAccessItem) // 若不存在则要 push，否则永远不会新增
     }
+    state.value.quickAccess = quickAccess;
+    quickAccessRecord[principalStore.state.name] = quickAccess
     localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
   }
 
@@ -255,7 +263,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     getPrincipalResources,
     setCurrentBreadcrumbs,
     resetCurrentBreadcrumbs,
-    currentPrincipalQuickAccess,
+    /*currentPrincipalQuickAccess,*/
     removeQuickAccess,
     setRouteEnterLoading,
     toResourceRouteMetadata,

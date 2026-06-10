@@ -6,6 +6,7 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {OperationDataTraceAuditEventService} from "@/apis";
 import type {AuditEventEntity, RestResult, TotalPage} from "@/types/apis";
+import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 
 defineOptions({
   name: 'CommonWorkbench'
@@ -18,8 +19,11 @@ const globalProperties =
 const configProviderStore = useConfigProviderStore()
 const principalStore = usePrincipalStore()
 const menuStore = useMenuPrincipalStore()
+const messageServerStore = useMessageServerStore()
 const operationDataTraceAuditEventService = new OperationDataTraceAuditEventService()
 const personalActivityItems = ref<AuditEventEntity[]>([])
+
+const quickAccessBadgeName = ["my_chat_message","my_message"]
 
 async function mounted() {
   const request = {
@@ -48,12 +52,14 @@ onMounted(mounted)
           <template #extra>
             <icon-font class="icon" type="loncra-fan"/>
           </template>
-          <template v-if="menuStore.currentPrincipalQuickAccess.length > 0">
-            <a-card-grid class="group relative w-1/3 min-h-15 cursor-pointer " @click="globalProperties.$router.push(item.page)" :key="item.page" v-for="item of menuStore.currentPrincipalQuickAccess" >
-              <a-flex vertical align="center" justify="space-between" class="h-full min-h-12">
-                <icon-font class="icon text-2xl" :type="item.icon" />
+          <template v-if="menuStore.state.quickAccess.length > 0">
+            <a-card-grid class="group relative w-1/3 min-h-15 cursor-pointer p-md" @click="globalProperties.$router.push(item.page)" :key="item.page" v-for="item of menuStore.state.quickAccess" >
+              <a-flex vertical align="center" gap="small" justify="space-between" class="h-full min-h-12">
+                <a-badge v-if="quickAccessBadgeName.includes(String(item.route))" size="small" :count="messageServerStore.getUnreadQuantityByType(String(item.route))">
+                  <icon-font class="icon text-2xl" :type="item.icon" />
+                </a-badge>
+                <icon-font v-else class="icon text-2xl" :type="item.icon" />
                 <a-typography-text
-                  class="text-sm"
                   :ellipsis="{ tooltip: item.name }"
                 >
                   {{item.name}}

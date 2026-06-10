@@ -13,8 +13,7 @@ import {
 import type {
   BasicUserChatConversation,
   RestResult,
-  UserChatConversationResponseBody,
-  UserChatMessageEntity
+  UserChatConversationResponseBody
 } from "@/types/apis";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
@@ -24,7 +23,7 @@ import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
 import type {MenuItemType} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
-import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
+import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 
 defineOptions({
   name: 'LChatConversation',
@@ -90,39 +89,6 @@ function createMenu(item:UserChatConversationResponseBody):MenuItemType[] {
   return temp;
 }
 
-function createAvatarNode(activeConversationItem:ServerConversationItem) {
-  let avatar;
-  const avatars:VNode[] = []
-  for (const c of (activeConversationItem?.data?.cover || [])) {
-    const a = h(
-      resolveComponent('AAvatar'),
-      {src: AttachmentService.query(c.bucketName, c.objectName)}
-    )
-    avatars.push(a)
-  }
-  if (avatars.length > 0) {
-    avatar = h(
-      resolveComponent('AAvatarGroup'),
-      {
-        max:{
-          count:3
-        },
-        class:'[&>*:not(:first-child)]:-ms-6!'
-      },
-      {
-        default: () => avatars
-      }
-    )
-  } else {
-    avatar = h(
-      resolveComponent('AAvatar'),
-      {},
-      { default: () => String(activeConversationItem.label).substring(0, 1) }
-    )
-  }
-  return avatar
-}
-
 function onMoreClick(item: ServerConversationItem) {
   if (!item.data) {
     return
@@ -162,7 +128,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
 function changeMessageExtraContent(activeConversationItem:ServerConversationItem) {
   const label = h('span', {}, {default: () => activeConversationItem.label})
   const space = resolveComponent('ASpace')
-  const avatar = createAvatarNode(activeConversationItem)
+  const avatar = ChatMessageService.createAvatarNode(activeConversationItem.data?.cover || [], String(activeConversationItem.label))
   const button = createMoreButton(activeConversationItem)
   const node: VNode = h(
     space,
@@ -221,32 +187,6 @@ async function doDelete(item: UserChatConversationResponseBody) {
   }
 }
 
-function getLastMessageContent(lastUserMessage: UserChatMessageEntity | undefined) {
-  if (!lastUserMessage) {
-    return ''
-  }
-  let content = ""
-  for (const block of lastUserMessage.content) {
-    if (block.type === 'text') {
-      content += block.value || ''
-    } else if (block.type === 'custom' && block.slotKind === 'files') {
-      for (const file of block.files) {
-        const contentType = file?.extraHeaders?.['Content-Type'] || ''
-        if (contentType.startsWith('image/')) {
-          content += '[图片]'
-        } else if (contentType.startsWith('video/')) {
-          content += '[视频]'
-        } else if (contentType.startsWith('audio/')) {
-          content += '[音频]'
-        } else {
-          content += '[文件]'
-        }
-      }
-    }
-  }
-  return content
-}
-
 defineExpose({
   changeMessageExtraContent
 })
@@ -297,7 +237,7 @@ defineExpose({
               [草稿]:{{ item?.data?.draft }}
             </a-typography-text>
             <a-typography-text ellipsis v-if="item?.data?.lastUserMessage" type="secondary">
-              {{ getLastMessageContent(item?.data?.lastUserMessage) }}
+              {{ ChatMessageService.getMessageContent(item?.data?.lastUserMessage) }}
             </a-typography-text>
           </a-flex>
         </a-dropdown>

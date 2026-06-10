@@ -363,4 +363,8 @@
   .chat-sender-input.antd-sender-input-slot > .antd-sender-slot:not(.antd-sender-slot-content) {
     @apply my-1 mx-0! block! h-auto! w-full max-w-full shrink-0;
   }
+
+  .ant-menu-item-selected .ant-badge {
+    @apply text-inherit;
+  }
 }

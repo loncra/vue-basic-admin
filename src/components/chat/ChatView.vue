@@ -22,7 +22,7 @@ import type {
   UserChatMessageEntity,
   UserChatMessageResponseBody
 } from "@/types/apis";
-import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
+import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {BubbleList as AxBubbleList} from "@antdv-next/x";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {useSocketStore} from "@/stores/socketStore.ts";

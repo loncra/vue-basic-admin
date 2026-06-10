@@ -9,7 +9,7 @@ import {
 } from "vue";
 import type {IdValueMetadata, RestResult, UserChatMessageReadResponseBody} from "@/types/apis";
 import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
+import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AttachmentService} from "@/apis";
 import type {TableProps} from "antdv-next";

@@ -1,16 +1,20 @@
 import type {
-  BasicUserChatConversation,
+  BasicUserChatConversation, FileObject,
   PageRequest,
   PageResult,
-  RestResult,
-  UserChatConversationResponseBody,
+  RestResult, UserChatConversationEntity,
+  UserChatConversationResponseBody, UserChatMessageEntity,
   UserChatMessageReadResponseBody,
-  UserChatMessageResponseBody,
+  UserChatMessageResponseBody, UserChatParticipantEntity,
   UserChatRoomEntity,
 } from "@/types/apis";
-import type {ChatContentBlock} from "@/types/composables";
+import type {ChatContentBlock, ServerConversationItem} from "@/types/composables";
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
+import {h, resolveComponent, type VNode} from "vue";
+import {AttachmentService} from "@/apis";
+import { Avatar, AvatarGroup } from 'antdv-next'
+import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 
 /**
  * 用户聊天消息领域服务：`/api[/message-server]/user/chat`
@@ -41,9 +45,13 @@ export class ChatMessageService  {
 
   static readonly REMOVE_ROOM_PARTICIPANT_URL = ChatMessageService.SERVICE_URL + '/participant/remove'
 
+  static readonly FIND_PARTICIPANT_URL = ChatMessageService.SERVICE_URL + '/participant/find'
+
   static readonly ROOM_RENAME_URL = ChatMessageService.SERVICE_URL + '/room/rename'
 
   static readonly FIND_MESSAGE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read/find'
+
+  static readonly GET_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation'
 
   static my(request: PageRequest): Promise<RestResult<UserChatConversationResponseBody[]>> {
     return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request))
@@ -81,6 +89,10 @@ export class ChatMessageService  {
     return axios.put(ChatMessageService.ADD_ROOM_PARTICIPANT_URL + "/" + roomId, formUrlEncoded({principals}))
   }
 
+  static findRoomParticipant(roomId:number): Promise<RestResult<UserChatParticipantEntity[]>> {
+    return axios.post(ChatMessageService.FIND_PARTICIPANT_URL + "/" + roomId)
+  }
+
   static removeRoomParticipant(roomId:number,principals:string[]): Promise<RestResult<UserChatRoomEntity>> {
     return axios.put(ChatMessageService.REMOVE_ROOM_PARTICIPANT_URL + "/" + roomId, formUrlEncoded({principals}))
   }
@@ -91,5 +103,74 @@ export class ChatMessageService  {
 
   static findMessageRead(messageId:number):Promise<RestResult<UserChatMessageReadResponseBody[]>> {
     return axios.post(ChatMessageService.FIND_MESSAGE_READ_URL + "/" + messageId)
+  }
+
+  static getConversation(roomId:number):Promise<RestResult<UserChatConversationEntity>> {
+    return axios.get(ChatMessageService.GET_CONVERSATION_URL + "/" + roomId)
+  }
+
+  static getMessageContent(lastUserMessage: UserChatMessageEntity | undefined) {
+    if (!lastUserMessage) {
+      return ''
+    }
+    let content = ""
+    for (const block of lastUserMessage.content) {
+      if (block.type === 'text') {
+        content += block.value || ''
+      } else if (block.type === 'custom' && block.slotKind === 'files') {
+        for (const file of block.files) {
+          const contentType = file?.extraHeaders?.['Content-Type'] || ''
+          if (contentType.startsWith('image/')) {
+            content += '[图片]'
+          } else if (contentType.startsWith('video/')) {
+            content += '[视频]'
+          } else if (contentType.startsWith('audio/')) {
+            content += '[音频]'
+          } else {
+            content += '[文件]'
+          }
+        }
+      }
+    }
+    return content
+  }
+
+  static createAvatarNode(
+    cover:FileObject[],
+    defaultLabel:string,
+    size:AvatarSize = 'medium',
+    groupClass:string="[&>*:not(:first-child)]:-ms-6!"
+  ) {
+    let avatar;
+    const avatars:VNode[] = []
+    for (const c of cover) {
+      const a = h(
+        Avatar,
+        {src: AttachmentService.query(c.bucketName, c.objectName), size}
+      )
+      avatars.push(a)
+    }
+    if (avatars.length > 0) {
+      avatar = h(
+        AvatarGroup,
+        {
+          max:{
+            count:3
+          },
+          size,
+          class:groupClass ? groupClass : undefined
+        },
+        {
+          default: () => avatars
+        }
+      )
+    } else {
+      avatar = h(
+        Avatar,
+        {size},
+        { default: () => defaultLabel.substring(0, 1) }
+      )
+    }
+    return avatar
   }
 }

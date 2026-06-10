@@ -10,9 +10,8 @@ import type {
 } from "@/types/apis";
 import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {UserChatParticipantService} from "@/apis/message-server/chat/userChatParticipantService.ts";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
-import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
+import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import useApp from "antdv-next/dist/app/useApp";
 
@@ -32,7 +31,6 @@ const props = withDefaults(defineProps<{
 
 })
 
-const userChatParticipantService = new UserChatParticipantService();
 const principalStore = usePrincipalStore()
 const participants = ref<UserChatParticipantEntity[]>([])
 const options = ref<{
@@ -66,7 +64,7 @@ async function mounted() {
   options.value.currentConversation = {...conversation.value}
   try {
     loading.value = true
-    const result:RestResult<UserChatParticipantEntity[]> = await userChatParticipantService.find({"filter_[chat_room_id_eq]": conversation.value.room.id})
+    const result:RestResult<UserChatParticipantEntity[]> = await ChatMessageService.findRoomParticipant(Number(conversation.value.room.id))
     if (result.data) {
       participants.value = result.data
     }

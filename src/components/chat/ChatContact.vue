@@ -6,7 +6,7 @@ import type {
   RestResult,
   UserChatConversationResponseBody
 } from "@/types/apis";
-import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
+import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
 
 defineOptions({
