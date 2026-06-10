@@ -191,8 +191,8 @@ defineExpose({
           :role="bubbleListRole"
         >
           <template #extra="{item}" >
-            <a-flex class="h-full" justify="end" align="end" v-if="item.role === 'user'">
-              <a-tooltip v-if="getEnumValue(conversation.item?.data?.room?.type) === 20" :title="item.data.readableCount === 1 ? '未读' :'已读'">
+            <a-flex class="h-full" justify="end" align="end">
+              <a-tooltip v-if="getEnumValue(conversation.item?.data?.room?.type) === 20 && item.role === 'user'" :title="item.data.readableCount === 1 ? '未读' :'已读'">
                 <a-typography-text :type="item.data.readableCount === 1 ? 'secondary' : 'success'">
                   <icon-font class="icon" :type="item.data.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'" />
                 </a-typography-text>

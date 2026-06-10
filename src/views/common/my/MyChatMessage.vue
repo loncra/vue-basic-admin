@@ -127,13 +127,6 @@ async function loadConversationData(
           data:d
         })
       }
-
-    }
-    const messageIds:number[] = elements.filter(e => getEnumValue(e.readable) === 1)
-      .map(e => Number(e.id))
-    if (messageIds.length > 0) {
-      await ChatMessageService.read(messageIds)
-      await messageServerStore.fetchUnreadQuantity()
     }
     if (prepend) {
       conversationActive.value.bubbleList = [...bubbleItems,...conversationActive.value.bubbleList]
@@ -146,6 +139,13 @@ async function loadConversationData(
       }
     } else {
       conversationActive.value.bubbleList = bubbleItems
+    }
+    await nextTick()
+    const messageIds:number[] = elements.filter(e => getEnumValue(e.readable) === 1)
+      .map(e => Number(e.id))
+    if (messageIds.length > 0) {
+      await ChatMessageService.read(messageIds)
+      await messageServerStore.fetchUnreadQuantity()
     }
   } finally {
     conversationActive.value.loading = false
@@ -337,7 +337,7 @@ function onSearch(value:string) {
   }
 }
 
-function onConversationMoreClick(data:UserChatConversationResponseBody) {
+function onConversationMoreClick() {
   conversationActive.value.drawerOpen = !conversationActive.value.drawerOpen;
 }
 

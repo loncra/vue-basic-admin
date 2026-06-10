@@ -265,7 +265,7 @@ defineExpose({
       <template #iconRender="{ item }">
         <a-flex justify="center" align="center" :class="'h-full relative ' + (getEnumValue(item.data.muted) === 1 ? 'opacity-80' : '')">
           <a-badge size="small" :count="getEnumValue(item.data.muted) === 1 ? 0 : messageServerStore.getUnreadQuantity(MESSAGE_GROUP.USER_CHAT, item.key)" >
-            <a-avatar-group :max="{count: 3}" v-if="(item.data.cover || []).length > 0" size="large" class="[&>*:not(:first-child)]:-ms-6!">
+            <a-avatar-group :max="{count: 3}" v-if="(item.data.cover || []).length > 0" size="large" class="[&>*:not(:first-child)]:-ms-8!">
               <a-avatar v-for="c in item.data.cover" :key="c.objectName" :src="AttachmentService.query(c.bucketName, c.objectName)" />
             </a-avatar-group>
             <a-avatar v-else size="large">
