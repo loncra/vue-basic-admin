@@ -1,6 +1,6 @@
-import type {NameValueEnumMetadata, PageResult, VersionEntityMetadata} from "../common";
+import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common";
 import type {ChatContentBlock} from "@/types/composables";
-import type {FileObject, ObjectWriteResult, PlatformUser} from "@/types/apis";
+import type {FileObject, UserMetadata} from "@/types/apis";
 
 /**
  * 聊天房间
@@ -34,17 +34,26 @@ export interface UserChatMessageEntity extends VersionEntityMetadata {
   /** 撤销时间 */
   revocationTime: number;
   metadata: Record<string, unknown>;
+  type: NameValueEnumMetadata<number> | number;
+}
+
+export interface UserChatParticipantMetadata  {
+  details: UserMetadata;
 }
 
 export interface UserChatParticipantMetadata {
   /**
    * 是否房主
    */
-  owner: NameValueEnumMetadata<number> | number;
+  type: NameValueEnumMetadata<number> | number;
   /**
    * 元数据信息
    */
-  metadata: Record<string, unknown>;
+  metadata: UserChatParticipantMetadata;
+}
+
+export interface UserChatParticipantEntity extends VersionEntityMetadata, UserChatParticipantMetadata {
+  principal: string;
 }
 
 export interface UserChatMessageResponseBody extends UserChatMessageEntity {

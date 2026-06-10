@@ -167,6 +167,8 @@ export interface PlatformUser extends BasicSystemUser, VersionEntityMetadata {
    * 真实姓名
    */
   realName?:string
+
+  avatar?:ObjectWriteResult
 }
 
 /**

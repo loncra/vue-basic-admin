@@ -37,8 +37,13 @@ export class AuthServerService {
 
   static readonly SYSTEM_USERS_URL = AuthServerService.BASE_URL + '/system/users'
 
-  static updatePassword(oldPassword: string, newPassword: string):Promise<RestResult<void>> {
-    return axios.put(AuthServerService.UPDATE_PASSWORD_URL, formUrlEncoded({oldPassword, newPassword}))
+  static readonly SYSTEM_USERS_NOT_DESENSITIZE_NAME_URL = AuthServerService.BASE_URL + '/system/users/undesensitize/name'
+
+  static updatePassword(oldPassword: string, newPassword: string): Promise<RestResult<void>> {
+    return axios.put(AuthServerService.UPDATE_PASSWORD_URL, formUrlEncoded({
+      oldPassword,
+      newPassword
+    }))
   }
 
   /**
@@ -68,8 +73,23 @@ export class AuthServerService {
     return axios.get(AuthServerService.PREPARE_URL)
   }
 
-  static systemUsers(request:PageRequest,idNameValueMetadata:boolean = true): Promise<RestResult<IdNameValueMetadata<PlatformUser[]>[]>> {
-    return axios.post(AuthServerService.SYSTEM_USERS_URL, formUrlEncoded({...request, idNameValueMetadata}))
+  static systemUsers(
+    request: PageRequest,
+    idNameValueMetadata: boolean = true,
+    desensitizeName: boolean = true
+  ): Promise<RestResult<IdNameValueMetadata<PlatformUser[]>[]>> {
+    if (desensitizeName){
+      return axios.post(AuthServerService.SYSTEM_USERS_URL, formUrlEncoded({
+        ...request,
+        idNameValueMetadata
+      }))
+    } else {
+
+      return axios.post(AuthServerService.SYSTEM_USERS_NOT_DESENSITIZE_NAME_URL, formUrlEncoded({
+        ...request,
+        idNameValueMetadata
+      }))
+    }
   }
 
   /**

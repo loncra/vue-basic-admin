@@ -1,4 +1,5 @@
 import {SYSTEM_CONSTANT, TIME_UNIT_TYPE} from '@/constants/systemConstant.ts'
+import type {PlatformUser} from "@/types/apis/auth-server";
 
 /**
  * 通用类型与「数据访问服务」契约（接口层）
@@ -389,4 +390,12 @@ export interface FlatSortMetadata<T> extends BasicIdMetadata<T> {
 
 export interface TreeSortMetadata<T> extends FlatSortMetadata<T>{
   parentId?:T
+}
+
+export interface ContactItem {
+  key: string
+  label?: string
+  data: PlatformUser
+  disabled?:boolean
+  group?: string
 }

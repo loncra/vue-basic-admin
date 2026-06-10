@@ -1,10 +1,13 @@
 import type {
-  PageRequest, PageResult,
+  BasicUserChatConversation,
+  PageRequest,
+  PageResult,
   RestResult,
-  UserChatConversationResponseBody, UserChatMessageEntity,
-  UserChatMessageResponseBody, UserChatRoomEntity,
+  UserChatConversationResponseBody,
+  UserChatMessageResponseBody,
+  UserChatRoomEntity,
 } from "@/types/apis";
-import type { ChatContentBlock } from "@/types/composables";
+import type {ChatContentBlock} from "@/types/composables";
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
 
@@ -27,6 +30,18 @@ export class ChatMessageService  {
 
   static readonly CREATE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read'
 
+  static readonly CREATE_PINNED_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation/pinned'
+
+  static readonly CREATE_MUTED_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation/muted'
+
+  static readonly CREATE_DELETE_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation'
+
+  static readonly ADD_ROOM_PARTICIPANT_URL = ChatMessageService.SERVICE_URL + '/participant/add'
+
+  static readonly REMOVE_ROOM_PARTICIPANT_URL = ChatMessageService.SERVICE_URL + '/participant/remove'
+
+  static readonly ROOM_RENAME_URL = ChatMessageService.SERVICE_URL + '/room/rename'
+
   static my(request: PageRequest): Promise<RestResult<UserChatConversationResponseBody[]>> {
     return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request))
   }
@@ -35,7 +50,7 @@ export class ChatMessageService  {
     return axios.put(ChatMessageService.CREATE_CONVERSATION_URL, body, {params:formUrlEncoded({principals})})
   }
 
-  static send(body: ChatContentBlock[], roomId:string): Promise<RestResult<UserChatMessageEntity>> {
+  static send(body: ChatContentBlock[], roomId:string): Promise<RestResult<UserChatMessageResponseBody>> {
     return axios.put(ChatMessageService.CREATE_SEND_URL + '/' + roomId, body)
   }
 
@@ -45,5 +60,29 @@ export class ChatMessageService  {
 
   static read(messageIds:number[]): Promise<RestResult<PageResult<UserChatMessageResponseBody>>> {
     return axios.post(ChatMessageService.CREATE_READ_URL, formUrlEncoded({messageIds}))
+  }
+
+  static pinnedConversation(ids:number[]): Promise<RestResult<BasicUserChatConversation[]>> {
+    return axios.put(ChatMessageService.CREATE_PINNED_CONVERSATION_URL, formUrlEncoded({ids}))
+  }
+
+  static mutedConversation(ids:number[]): Promise<RestResult<BasicUserChatConversation[]>> {
+    return axios.put(ChatMessageService.CREATE_MUTED_CONVERSATION_URL, formUrlEncoded({ids}))
+  }
+
+  static deleteConversation(ids:number[]): Promise<RestResult<void>> {
+    return axios.delete(ChatMessageService.CREATE_DELETE_CONVERSATION_URL, {params: formUrlEncoded({ids})})
+  }
+
+  static addRoomParticipant(roomId:number,principals:string[]): Promise<RestResult<UserChatConversationResponseBody>> {
+    return axios.put(ChatMessageService.ADD_ROOM_PARTICIPANT_URL + "/" + roomId, formUrlEncoded({principals}))
+  }
+
+  static removeRoomParticipant(roomId:number,principals:string[]): Promise<RestResult<UserChatRoomEntity>> {
+    return axios.put(ChatMessageService.REMOVE_ROOM_PARTICIPANT_URL + "/" + roomId, formUrlEncoded({principals}))
+  }
+
+  static roomRename(roomId:number, newName: string):Promise<RestResult<void>> {
+    return axios.put(ChatMessageService.ROOM_RENAME_URL + "/" + roomId, formUrlEncoded({newName}))
   }
 }

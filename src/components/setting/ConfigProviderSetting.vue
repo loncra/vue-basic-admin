@@ -1,12 +1,16 @@
 <script setup lang="ts">
 
-import type {CreateSuccessBackValue, ThemeMode} from "@/types/composables";
 import type {Color} from "antdv-next";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
-import {CONFIG_PROVIDER, CONFIG_PROVIDER_THEME} from "@/constants/systemConstant.ts";
 import LForm from "@/components/Form.vue";
+import {
+  CONFIG_PROVIDER_THEME,
+  CREATE_SUCCESS_BACK,
+  type CreateSuccessBackValue,
+  type ThemeMode
+} from "@/constants/configProviderConstant.ts";
 
 defineOptions({
   name: 'LConfigProviderSetting',
@@ -20,8 +24,8 @@ const globalProperties =
 const colorOptions = ref<string[]>(['colorPrimary', 'colorError', 'colorSuccess', 'colorWarning'])
 
 const createSuccessOptions = computed(() => [
-  { name: globalProperties.$t('form.createSuccess.okReturnList'), value: CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME },
-  { name: globalProperties.$t('form.createSuccess.addAnother'), value: CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT },
+  { name: globalProperties.$t('form.createSuccess.okReturnList'), value: CREATE_SUCCESS_BACK.HOME },
+  { name: globalProperties.$t('form.createSuccess.addAnother'), value: CREATE_SUCCESS_BACK.CURRENT },
 ])
 
 const sizeOptions = computed(() => [

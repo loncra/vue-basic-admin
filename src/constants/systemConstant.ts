@@ -1,13 +1,26 @@
 export const APP_RELOAD_PROVIDE_KEY = 'reload'
 export const LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY = "closeContentTab"
 export const LAYOUT_PANE_TITLE_PROVIDE_KEY = "paneTitle"
+/**
+ * @deprecated
+ */
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
 
 export const SYSTEM_CONSTANT = {
   ID_NAME: 'id'
 } as const
-
+/**
+ * @deprecated
+ */
 export const TYPING_ANCHOR = '\u200B'
+/**
+ * 消息分组
+ * @deprecated
+ */
+export const MESSAGE_GROUP = {
+  SITE: 'site',
+  USER_CHAT: 'userChat'
+} as const
 
 /**
  * 系统所有 store 的 id
@@ -19,89 +32,6 @@ export const STORE = {
   SOCKET_ID: 'socket',
   MENU_ID: 'menu',
 } as const
-
-/**
- * 主题模式类型
- */
-export const CONFIG_PROVIDER_THEME = {
-  DARK: 'dark',
-  LIGHT: 'light',
-  SYSTEM: 'system',
-  ICON: {
-    system: 'loncra-sun-moon',
-    dark: 'loncra-moon',
-    light: 'loncra-sun-medium',
-  }
-} as const
-
-/**
- * 消息分组
- */
-export const MESSAGE_GROUP = {
-  SITE: 'site',
-  USER_CHAT: 'userChat'
-} as const
-
-/**
- * 整体标准化配置相关
- */
-export const CONFIG_PROVIDER = {
-  MATCH_MEDIA_QUERY: '(prefers-color-scheme: dark)',
-  STORED_STATE_VALUE: {
-    mode: CONFIG_PROVIDER_THEME.SYSTEM,
-    homeCollapsedWidth: 84,
-    collapsible: false,
-    formLayout: 'vertical',
-    homeSiderWidth: 260,
-    token:{},
-    componentSize:'middle',
-    compact: false,
-    detailLayout: 'vertical',
-  },
-  CREATE_SUCCESS_BACK: {
-    CURRENT:'current',
-    HOME:'home'
-  }
-} as const
-
-/**
- * 屏幕断点常量
- *
- * 用于响应式设计，对应 Ant Design Vue 的屏幕断点 token
- * 这些值用于判断当前屏幕尺寸，便于做响应式布局和功能调整
- *
- * @example
- * // 判断是否为平板大小
- * if (screen === SCREEN_BREAKPOINT.SCREEN_MD || screen === SCREEN_BREAKPOINT.SCREEN_LG) {
- *   // 平板布局逻辑
- * }
- */
-export const SCREEN_BREAKPOINT = {
-  /** 超超超大屏幕 (≥2000px) */
-  SCREEN_XXXL: 'screenXXXL',
-  /** 超超大屏幕 (≥1600px) */
-  SCREEN_XXL: 'screenXXL',
-  /** 超大屏幕 (≥1200px) */
-  SCREEN_XL: 'screenXL',
-  /** 大屏幕 (≥992px) - 笔记本 */
-  SCREEN_LG: 'screenLG',
-  /** 中等屏幕 (≥768px) - 平板 */
-  SCREEN_MD: 'screenMD',
-  /** 小屏幕 (≥576px) - 大屏手机 */
-  SCREEN_SM: 'screenSM',
-  /** 超小屏幕 (<576px) - 手机 */
-  SCREEN_XS: 'screenXS',
-}
-
-/**
- * 平板一下的尺寸名称
- */
-export const PAD_SCREENS: readonly string[] = [
-  SCREEN_BREAKPOINT.SCREEN_LG,
-  SCREEN_BREAKPOINT.SCREEN_MD,
-  SCREEN_BREAKPOINT.SCREEN_SM,
-  SCREEN_BREAKPOINT.SCREEN_XS,
-]
 
 /**
  * HTTP 相关常量
@@ -241,3 +171,11 @@ export const ATTACHMENT_PREVIEW_MODE = {
   LIST:'list',
   PICTURE_CARD:'picture-card'
 } as const
+
+export const DEFAULT_PAGE_RESULT_VALUE = {
+  elements: [],
+  first: true,
+  last: true,
+  number: 1,
+  size: 10
+}

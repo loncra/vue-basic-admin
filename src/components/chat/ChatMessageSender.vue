@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, nextTick, ref} from "vue";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {
   AttachmentBlock,
   ChatContentBlock,
-  TextBlock,
-  FilesSlotProps, CursorContext
+  CursorContext,
+  FilesSlotProps,
+  TextBlock
 } from "@/types/composables";
-import {Sender as AxSender} from '@antdv-next/x'
+import {Sender as AxSender, XProvider as AxConfigProvider} from '@antdv-next/x'
 import LAttachmentUpload from '@/components/attachment/AttachmentUpload.vue'
 import type {
   AttachmentUploadExpose,
@@ -15,10 +16,8 @@ import type {
 } from "@/types/composables/attachmentUpload.ts";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
-import {XProvider as AxConfigProvider} from '@antdv-next/x'
-import { nextTick } from "vue";
 import {useConfigProviderStore} from '@/stores/configProviderStore'
-import {TYPING_ANCHOR} from "@/constants/systemConstant.ts";
+import {TYPING_ANCHOR} from "@/constants/messageConstant.ts";
 import type {ObjectWriteResult} from "@/types/apis";
 
 defineOptions({
@@ -51,7 +50,7 @@ function slotTextRaw(slot: SlotConfigType): string {
 }
 
 function isAnchorOrEmptyText(text: string): boolean {
-  return text.replace(/\u200B/g, '').trim() === ''
+  return text.replace(new RegExp(TYPING_ANCHOR, 'g'), '').trim() === ''
 }
 
 function bindUploadRef(slotKey: string, inst: unknown) {
@@ -376,7 +375,7 @@ async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
         }
         blocks.push(attachmentBlock)
       } else {
-        const text = slotTextRaw(slot).replace(/\u200B/g, '').trim()
+        const text = slotTextRaw(slot).replace(new RegExp(TYPING_ANCHOR, 'g'), '').trim()
         if (!text) {
           continue
         }
@@ -388,7 +387,7 @@ async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
       }
     }
 
-    emit('submit', blocks) 
+    emit('submit', blocks)
   } finally {
     uploading.value = false
   }
@@ -441,7 +440,7 @@ defineExpose({
             </template>
           </a-button>
         </a-space>
-        <div>
+        <a-flex justify="space-between" align="center" gap="small">
           <component :is="components.ClearButton" @click="clear" />
           <component :is="components.SpeechButton" />
           <component
@@ -449,7 +448,7 @@ defineExpose({
             type="primary"
             :disabled="!senderRef"
           />
-        </div>
+        </a-flex>
       </a-flex>
     </template>
   </ax-sender>

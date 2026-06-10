@@ -23,7 +23,7 @@ import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} fro
 import useApp from "antdv-next/dist/app/useApp";
 import LActionButton from "@/components/basic/ActionButton.vue";
 import type {ResolvedAction} from "@/types/composables";
-import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MySiteMessageHome',

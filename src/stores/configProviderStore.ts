@@ -13,13 +13,15 @@
 import {computed, type ComputedRef, onMounted, onUnmounted, type Ref, ref} from 'vue'
 import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
+import {STORE} from '@/constants/systemConstant'
+
 import {
-  CONFIG_PROVIDER,
   CONFIG_PROVIDER_THEME,
+  MATCH_MEDIA_QUERY,
   PAD_SCREENS,
   SCREEN_BREAKPOINT,
-  STORE
-} from '@/constants/systemConstant'
+  STORED_STATE_VALUE,
+} from '@/constants/configProviderConstant'
 
 import i18n, {type LanguagePack} from '@/i18n'
 import type {NameValueEnumMetadata} from '@/types/apis'
@@ -242,7 +244,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    */
   function getTheme(): ThemeValue {
     if (state.value.mode === CONFIG_PROVIDER_THEME.SYSTEM) {
-      return window.matchMedia(CONFIG_PROVIDER.MATCH_MEDIA_QUERY).matches
+      return window.matchMedia(MATCH_MEDIA_QUERY).matches
         ? CONFIG_PROVIDER_THEME.DARK
         : CONFIG_PROVIDER_THEME.LIGHT
     } else {
@@ -337,12 +339,12 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    */
   function setMode(mode: ThemeMode): void {
     state.value.mode = mode
-    const darkModeMediaQuery = window.matchMedia(CONFIG_PROVIDER.MATCH_MEDIA_QUERY)
+    const darkModeMediaQuery = window.matchMedia(MATCH_MEDIA_QUERY)
     const handleDarkModeChange = (event: MediaQueryListEvent): void => changeMode(event.matches)
     if (state.value.mode === CONFIG_PROVIDER_THEME.SYSTEM) {
       // 系统模式：监听系统主题变化
       darkModeMediaQuery.addEventListener('change', handleDarkModeChange)
-      const isDarkMode = window.matchMedia(CONFIG_PROVIDER.MATCH_MEDIA_QUERY).matches
+      const isDarkMode = window.matchMedia(MATCH_MEDIA_QUERY).matches
       changeMode(isDarkMode)
     } else {
       // 手动模式：移除监听，直接应用选择的模式
@@ -387,7 +389,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     const initialState = {
       algorithm: null,
       ...{locale: navigator.language},
-      ...CONFIG_PROVIDER.STORED_STATE_VALUE,
+      ...STORED_STATE_VALUE,
       ...(storedValue ? JSON.parse(storedValue) : {}),
     }
 

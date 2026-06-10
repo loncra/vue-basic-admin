@@ -1,26 +1,11 @@
 import type {NameValueEnumMetadata} from "@/types/apis";
-import {CONFIG_PROVIDER, CONFIG_PROVIDER_THEME} from "@/constants/systemConstant.ts";
 
 import {theme} from 'antdv-next'
-
-/**
- * 主题模式类型
- * 从 CONFIG_PROVIDER_THEME 常量推导的类型
- * 可以是：dark（深色）、light（浅色）或 system（跟随系统）
- */
-export type ThemeMode =
-  | typeof CONFIG_PROVIDER_THEME.DARK
-  | typeof CONFIG_PROVIDER_THEME.LIGHT
-  | typeof CONFIG_PROVIDER_THEME.SYSTEM
-
-/**
- * 主题值类型
- * 实际应用的主题值，仅包含 dark 和 light
- * 不包含 system，因为 system 需要转换为具体的 dark 或 light
- */
-export type ThemeValue = typeof CONFIG_PROVIDER_THEME.DARK | typeof CONFIG_PROVIDER_THEME.LIGHT
-
-export type CreateSuccessBackValue = typeof CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT | typeof CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME
+import {
+  type CreateSuccessBackValue,
+  type ThemeMode,
+  type ThemeValue
+} from "@/constants/configProviderConstant.ts";
 
 /**
  * 存储在 localStorage 中的状态值

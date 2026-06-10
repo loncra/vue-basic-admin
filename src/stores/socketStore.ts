@@ -4,11 +4,11 @@ import {io, type Socket} from 'socket.io-client'
 import {STORE} from '@/constants/systemConstant'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {
-  SOCKET_EVENT_TYPE,
   type SocketBusinessEvent,
   type SocketBusinessEventPayloadMap,
   type SocketConnectionStatus,
 } from '@/types/socket'
+import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 
 type SocketHandler = (...args: unknown[]) => void
 

@@ -1,8 +1,9 @@
 import {defineStore} from "pinia";
-import {MESSAGE_GROUP, STORE} from "@/constants/systemConstant.ts";
+import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
 import {computed, ref} from "vue";
 import type {IdNameMetadata, MessageGroup, MyMessageState, RestResult} from "@/types/apis";
 import {MessageServerService} from "@/apis/message-server";
+import {STORE} from "@/constants/systemConstant.ts";
 
 const RESET: MyMessageState = {
   record:{

@@ -13,7 +13,7 @@ import {
   ref,
   watch
 } from "vue";
-import {CONFIG_PROVIDER, SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import type {BasicCrudService, BasicIdMetadata, RestResult} from "@/types/apis";
 import type {BasicAuthorityProps} from "@/types/composables";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -23,9 +23,13 @@ import {isResultSuccess} from "@/requests/http";
 import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {getRouteTitle} from "@/routers";
-import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, LAYOUT_PANE_TITLE_PROVIDE_KEY} from "@/constants/systemConstant";
+import {
+  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
+  LAYOUT_PANE_TITLE_PROVIDE_KEY
+} from "@/constants/systemConstant";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 import i18n from "@/i18n";
+import {CREATE_SUCCESS_BACK} from "@/constants/configProviderConstant.ts";
 
 defineOptions({
   name: 'LBasicForm',
@@ -113,7 +117,7 @@ function createdAfterSetting(result:RestResult<TId>) {
       onOk: () => {
         globalProperties.$router.push(props.redirect)
         if (rememberMe.value) {
-          configProviderStore.setCreateSuccessBack(CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME)
+          configProviderStore.setCreateSuccessBack(CREATE_SUCCESS_BACK.HOME)
         }
         closeLayoutTab?.(globalProperties.$route.fullPath, false);
       },
@@ -121,7 +125,7 @@ function createdAfterSetting(result:RestResult<TId>) {
         formRef.value?.resetFields?.()
         emit('resetFields')
         if (rememberMe.value) {
-          configProviderStore.setCreateSuccessBack(CONFIG_PROVIDER.CREATE_SUCCESS_BACK.CURRENT)
+          configProviderStore.setCreateSuccessBack(CREATE_SUCCESS_BACK.CURRENT)
         }
       },
       footer: ({ extra }: any) => {
@@ -143,7 +147,7 @@ function createdAfterSetting(result:RestResult<TId>) {
   formRef.value?.resetFields?.()
   emit('resetFields')
 
-  if (configProviderStore.state.createSuccessBack === CONFIG_PROVIDER.CREATE_SUCCESS_BACK.HOME) {
+  if (configProviderStore.state.createSuccessBack === CREATE_SUCCESS_BACK.HOME) {
     globalProperties.$router.push(props.redirect)
   }
 

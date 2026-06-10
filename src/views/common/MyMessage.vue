@@ -12,7 +12,7 @@ import {
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {findFirstTreeNode, requireNonNullOrUndefined} from "@/utils";
-import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'CommonMyMessage',

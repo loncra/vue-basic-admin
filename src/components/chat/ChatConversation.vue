@@ -11,48 +11,86 @@ import {
   type VNode
 } from "vue";
 import type {
-  FileObject,
+  BasicUserChatConversation,
+  RestResult,
   UserChatConversationResponseBody,
   UserChatMessageEntity
 } from "@/types/apis";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
-import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/systemConstant.ts";
-import {requireNonNullOrUndefined} from "@/utils";
+import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {Conversations as AxConversations,} from '@antdv-next/x'
 import type {ServerConversationItem} from "@/types/composables";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
+import type {MenuItemType} from "antdv-next";
+import useApp from "antdv-next/dist/app/useApp";
+import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
 
 defineOptions({
   name: 'LChatConversation',
 })
+
+const {message, modal} = useApp()
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 const setMessageExtraContent = inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
 
-const messgeServerStore = useMessageServerStore()
-
-const activeKey = ref<string>();
+const messageServerStore = useMessageServerStore()
+const moreButtonActive = ref(false)
+const activeKey = defineModel<string>('activeKey');
 const dataSource = defineModel<UserChatConversationResponseBody[]>('dataSource', {default:() => []})
 
 const emit = defineEmits<{
-  change: [item: ServerConversationItem]
+  change: [item: ServerConversationItem],
+  moreClick: [data: UserChatConversationResponseBody],
 }>()
 
-function onConversationsActiveChange(value: string, item: ItemType | undefined): void {
-  activeKey.value = value
-  if (!item || !(item as ConversationItemType)) {
-    return;
+const DEFAULT_MENU_ITEMS: MenuItemType[] = [
+  {
+    type: "divider",
+  },
+  {
+    label: '删除',
+    key: 'delete',
+    icon:createIcon('loncra-archive-x', 'text-lg'),
+    danger: true,
+  },
+]
+
+function createMenu(item:UserChatConversationResponseBody):MenuItemType[] {
+  const temp = [...DEFAULT_MENU_ITEMS]
+  if (getEnumValue(item.muted) === 0) {
+    temp.unshift({
+      label: '免打扰',
+      key: 'muted',
+      icon:createIcon('loncra-megaphone-off', 'text-lg'),
+    })
+  } else {
+    temp.unshift({
+      label: '取消免打扰',
+      key: 'muted',
+      icon:createIcon('loncra-megaphone', 'text-lg'),
+    })
   }
-  const conversationItem = item as ConversationItemType
-  const activeConversationItem:ServerConversationItem = {
-    key: value,
-    label: typeof conversationItem.label === 'string' ? conversationItem.label : String(conversationItem.label ?? ''),
-    data: conversationItem.data as UserChatConversationResponseBody,
+  if (getEnumValue(item.pinned) === 0) {
+    temp.unshift({
+      label: '置顶',
+      key: 'pinned',
+      icon:createIcon('loncra-heart', 'text-lg'),
+    })
+  } else {
+    temp.unshift({
+      label: '取消置顶',
+      key: 'pinned',
+      icon:createIcon('loncra-heart-off', 'text-lg'),
+    })
   }
-  const label = h('span', {}, {default: () => activeConversationItem.label})
-  const space = resolveComponent('ASpace')
+  return temp;
+}
+
+function createAvatarNode(activeConversationItem:ServerConversationItem) {
   let avatar;
   const avatars:VNode[] = []
   for (const c of (activeConversationItem?.data?.cover || [])) {
@@ -68,7 +106,8 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
       {
         max:{
           count:3
-        }
+        },
+        class:'[&>*:not(:first-child)]:-ms-6!'
       },
       {
         default: () => avatars
@@ -81,17 +120,105 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
       { default: () => String(activeConversationItem.label).substring(0, 1) }
     )
   }
+  return avatar
+}
 
+function onMoreClick(item: ServerConversationItem) {
+  if (!item.data) {
+    return
+  }
+  moreButtonActive.value = !moreButtonActive.value
+  emit("moreClick", item.data)
+}
+
+function createMoreButton(activeConversationItem:ServerConversationItem) {
+  return h(
+    resolveComponent('AButton'),
+    {
+      type:'text',
+      icon: () => createIcon(moreButtonActive.value ? 'loncra-panel-right-close' : 'loncra-panel-left-close'),
+      size: 'small',
+      onClick: () => onMoreClick(activeConversationItem),
+    },
+  )
+}
+
+function onConversationsActiveChange(value: string, item: ItemType | undefined): void {
+  activeKey.value = value
+  if (!item || !(item as ConversationItemType)) {
+    return;
+  }
+  const conversationItem = item as ConversationItemType
+  const activeConversationItem:ServerConversationItem = {
+    key: value,
+    label: typeof conversationItem.label === 'string' ? conversationItem.label : String(conversationItem.label ?? ''),
+    data: conversationItem.data as UserChatConversationResponseBody,
+  }
+  changeMessageExtraContent(activeConversationItem)
+  emit("change", activeConversationItem)
+
+}
+
+function changeMessageExtraContent(activeConversationItem:ServerConversationItem) {
+  const label = h('span', {}, {default: () => activeConversationItem.label})
+  const space = resolveComponent('ASpace')
+  const avatar = createAvatarNode(activeConversationItem)
+  const button = createMoreButton(activeConversationItem)
   const node: VNode = h(
     space,
     {},
-    { default: () => [label, avatar] }
+    { default: () => [label, avatar, button] }
   )
 
   setMessageExtraContent?.(node)
+}
 
-  emit("change", activeConversationItem)
+async function onMenuClick(e: { key: string}, item:UserChatConversationResponseBody) {
+  if (e.key === 'delete') {
+    modal.confirm({
+      title: globalProperties.$t('common.delete.confirmTitle'),
+      content:globalProperties.$t('common.delete.confirmSingle'),
+      onOk: () => doDelete(item),
+    })
+  } else if (e.key === 'pinned') {
+    const result:RestResult<BasicUserChatConversation[]> = await ChatMessageService.pinnedConversation([Number(item.id)])
+    if (!result.data) {
+      return
+    }
+    for (const c of result.data) {
+      const index = dataSource.value.findIndex(v => v.id === c.id)
+      const data = dataSource.value[index]
+      if (!data) {
+        continue ;
+      }
+      data.pinned = c.pinned
+    }
+  } else if (e.key === 'muted') {
+    const result:RestResult<BasicUserChatConversation[]> = await ChatMessageService.mutedConversation([Number(item.id)])
+    if (!result.data) {
+      return
+    }
+    for (const c of result.data) {
+      const index = dataSource.value.findIndex(v => v.id === c.id)
+      const data = dataSource.value[index]
+      if (!data) {
+        continue ;
+      }
+      data.pinned = c.pinned
+      data.muted = c.muted
+      await messageServerStore.fetchUnreadQuantity()
+    }
+  }
+}
 
+async function doDelete(item: UserChatConversationResponseBody) {
+  try {
+    const result:RestResult<void> = await ChatMessageService.deleteConversation([Number(item.id)])
+    message.success(result.message)
+    dataSource.value = dataSource.value.filter(d => d.id !== item.id)
+  } catch (e) {
+    message.error(e instanceof Error ? e.message : String(e))
+  }
 }
 
 function getLastMessageContent(lastUserMessage: UserChatMessageEntity | undefined) {
@@ -120,6 +247,10 @@ function getLastMessageContent(lastUserMessage: UserChatMessageEntity | undefine
   return content
 }
 
+defineExpose({
+  changeMessageExtraContent
+})
+
 </script>
 
 <template>
@@ -132,36 +263,44 @@ function getLastMessageContent(lastUserMessage: UserChatMessageEntity | undefine
       v-if="dataSource.length > 0"
       class="min-h-0 size-full flex-[1_1_0] p-0! gap-0!">
       <template #iconRender="{ item }">
-        <a-flex justify="center" align="center" class="h-full">
-          <a-badge size="small" :count="messgeServerStore.getUnreadQuantity(MESSAGE_GROUP.USER_CHAT, item.key)" >
-            <a-avatar-group :max="{count: 3}" v-if="(item.data.cover || []).length > 0">
-              <a-avatar v-for="c in item.data.cover" :key="c.objectName" :src="AttachmentService.query(c.bucketName, c.objectName)" size="large"/>
+        <a-flex justify="center" align="center" :class="'h-full relative ' + (getEnumValue(item.data.muted) === 1 ? 'opacity-80' : '')">
+          <a-badge size="small" :count="getEnumValue(item.data.muted) === 1 ? 0 : messageServerStore.getUnreadQuantity(MESSAGE_GROUP.USER_CHAT, item.key)" >
+            <a-avatar-group :max="{count: 3}" v-if="(item.data.cover || []).length > 0" size="large" class="[&>*:not(:first-child)]:-ms-6!">
+              <a-avatar v-for="c in item.data.cover" :key="c.objectName" :src="AttachmentService.query(c.bucketName, c.objectName)" />
             </a-avatar-group>
             <a-avatar v-else size="large">
               {{ item?.label.substring(0,1) }}
             </a-avatar>
           </a-badge>
+          <div v-if="getEnumValue(item.data.pinned) === 1" class="inline-block absolute top-0 left-0 pl-xxs pr-xxs opacity-80 border border-solid border-warning-border bg-warning rounded-full">
+            <icon-font class="text-md text-white" type="loncra-heart" />
+          </div>
+          <div v-if="getEnumValue(item.data.muted) === 1" class="inline-block absolute bottom-0 left-0 pl-xxs pr-xxs border border-dashed opacity-80 bg-elevated rounded-full">
+            <icon-font class="text-md text-error" type="loncra-megaphone-off" />
+          </div>
         </a-flex>
       </template>
       <template #labelRender="{item}">
-        <a-flex vertical>
-          <a-flex gap="small">
-            <a-typography-text ellipsis class="flex-1">
-              {{ item?.label }}
+        <a-dropdown :menu="{ items:createMenu(item.data) }" :trigger="['contextmenu']" @menuClick="onMenuClick($event, item.data)">
+          <a-flex vertical>
+            <a-flex gap="small">
+              <a-typography-text ellipsis class="flex-1">
+                {{ item?.label }}
+              </a-typography-text>
+              <a-typography-text type="secondary" v-if="item?.data?.lastUserMessage">
+                {{
+                  globalProperties.$dayjs(item?.data?.lastUserMessage.creationTime).fromNow()
+                }}
+              </a-typography-text>
+            </a-flex>
+            <a-typography-text ellipsis v-if="item?.data?.draft" type="danger">
+              [草稿]:{{ item?.data?.draft }}
             </a-typography-text>
-            <a-typography-text type="secondary" v-if="item?.data?.lastUserMessage">
-              {{
-                globalProperties.$dayjs(item?.data?.lastUserMessage.creationTime).fromNow()
-              }}
+            <a-typography-text ellipsis v-if="item?.data?.lastUserMessage" type="secondary">
+              {{ getLastMessageContent(item?.data?.lastUserMessage) }}
             </a-typography-text>
           </a-flex>
-          <a-typography-text ellipsis v-if="item?.data?.draft" type="danger">
-            [草稿]:{{ item?.data?.draft }}
-          </a-typography-text>
-          <a-typography-text ellipsis v-if="item?.data?.lastUserMessage" type="secondary">
-            {{ getLastMessageContent(item?.data?.lastUserMessage) }}
-          </a-typography-text>
-        </a-flex>
+        </a-dropdown>
       </template>
     </ax-conversations>
     <a-flex v-else justify="center" align="center" class="size-full">

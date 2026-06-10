@@ -1,9 +1,8 @@
 import type {
   ObjectWriteResult,
   PageResult,
-  PlatformUser,
   UserChatConversationResponseBody,
-  UserChatMessageEntity, UserChatMessageResponseBody
+  UserChatMessageResponseBody
 } from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 
@@ -47,9 +46,9 @@ export type CursorContext = {
 
 export type ChatBubbleItem = {
   key: string | number
-  role: 'user' | 'ai'
-  content: ChatContentBlock[]
-  data:UserChatMessageEntity
+  role: 'user' | 'ai' | 'system'
+  content: ChatContentBlock[] | ChatContentBlock | string
+  data?:UserChatMessageResponseBody
 }
 
 export interface ServerConversationItem {
@@ -59,16 +58,9 @@ export interface ServerConversationItem {
   data?: UserChatConversationResponseBody
 }
 
-export interface ContactItem {
-  key: string
-  label?: string
-  data?: PlatformUser
-  disabled?:boolean
-  group?: string
-}
-
 export interface ConversationActiveProps {
   item: ServerConversationItem | undefined
+  drawerOpen:boolean,
   loading: boolean
   sending?: boolean
   dataSource: PageResult<UserChatMessageResponseBody>

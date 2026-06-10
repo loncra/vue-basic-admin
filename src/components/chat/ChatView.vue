@@ -1,34 +1,54 @@
 <script setup lang="ts">
 
-import type {BubbleItemType, RoleType} from "@antdv-next/x/dist/bubble/interface";
+import type {BubbleItemType, BubbleListRef, RoleType} from "@antdv-next/x/dist/bubble/interface";
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
 import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps} from "@/types/composables";
 import {AttachmentService} from "@/apis";
-import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, nextTick, onMounted, ref} from "vue";
 import ChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
   FileObject,
+  RestResult,
   UserChatConversationResponseBody,
-  UserChatMessageEntity
+  UserChatMessageEntity,
+  UserChatMessageResponseBody
 } from "@/types/apis";
 import {ChatMessageService} from "@/apis/message-server/chat/chatMessageService.ts";
 import {BubbleList as AxBubbleList} from "@antdv-next/x";
 import {requireNonNullOrUndefined} from "@/utils";
+import {useSocketStore} from "@/stores/socketStore.ts";
+import {parseSocketRestPayload} from "@/types/socket.ts";
+import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'LChatView',
 })
 
+const props = withDefaults(
+  defineProps<{
+    topThreshold?:number
+  }>(),
+  {
+    topThreshold:80
+  }
+)
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 const principalStore = usePrincipalStore()
+const socketStore = useSocketStore()
+const bubbleListRef = ref<BubbleListRef>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
+
+const socketListener = ref<((() => void) | undefined)[]>([])
+
 const conversation = defineModel<ConversationActiveProps>("conversation", {default:{}})
 const emit = defineEmits<{
-  send: [entity: UserChatMessageEntity]
+  send: [entity: UserChatMessageEntity],
+  nextPage: [scrollBox: HTMLElement]
 }>()
 
 const bubbleListRole = {
@@ -45,6 +65,11 @@ const bubbleListRole = {
     placement: 'start',
     shape: 'corner',
   },
+  system: {
+    variant: 'outlined',
+    shape: 'round',
+    classes: { content: 'text-text-secondary!' },
+    }
 } satisfies RoleType
 
 function getConversationItemAvatar(item: FileObject) {
@@ -67,16 +92,18 @@ async function onSendMessage(content: ChatContentBlock[]) {
     if (!result.data) {
       return
     }
-    const body: UserChatMessageEntity = result.data
+    const body: UserChatMessageResponseBody = result.data
     addMessage(body, 'user')
     senderRef.value?.clear()
     emit("send", body)
+    await nextTick()
+    bubbleListRef.value?.scrollTo({ top: "bottom", behavior: "smooth" });
   } finally {
     conversation.value.sending = false
   }
 }
 
-function addMessage(body: UserChatMessageEntity, role:ChatBubbleItem["role"]) {
+function addMessage(body: UserChatMessageResponseBody, role:ChatBubbleItem["role"]) {
   conversation.value.bubbleList.push({
     key: String(body.id),
     role: role,
@@ -85,8 +112,59 @@ function addMessage(body: UserChatMessageEntity, role:ChatBubbleItem["role"]) {
   })
 }
 
+function isNearOldest(scrollBox: HTMLElement) {
+  return scrollBox.scrollHeight + scrollBox.scrollTop <= scrollBox.clientHeight + props.topThreshold
+}
+
+function onScroll(event:Event) {
+  const scrollBox = event.target as HTMLElement
+
+  if (conversation.value.loading) {
+    return
+  }
+  if (conversation.value.dataSource.last) {
+    return
+  }
+
+  if (!isNearOldest(scrollBox)) {
+    return
+  }
+  emit("nextPage", scrollBox)
+}
+
+function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBody>) {
+  if (!result.data) {
+    return
+  }
+  const index = conversation.value.bubbleList.findIndex(b => b?.data?.id === result?.data?.id)
+  if (index < 0) {
+    return
+  }
+  const bubble = conversation.value.bubbleList[index]
+  if (!bubble) {
+    return
+  }
+  bubble.data = result?.data
+}
+
+function mounted() {
+  socketListener.value.push(socketStore.subscribe(
+    SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ,
+    (payload) => onChatMessageReadReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
+  ))
+}
+
+onMounted(mounted)
+
 defineExpose({
-  addMessage
+  addMessage,
+  getScrollBox: () => bubbleListRef.value?.scrollBoxNativeElement,
+  scrollTo: (options: {
+    key?: string | number;
+    top?: number | "bottom" | "top";
+    behavior?: ScrollBehavior;
+    block?: ScrollLogicalPosition;
+  }) => bubbleListRef.value?.scrollTo(options)
 })
 </script>
 
@@ -100,14 +178,20 @@ defineExpose({
       <a-spin :spinning="conversation.loading" class="size-full-spin">
         <ax-bubble-list
           auto-scroll
+          ref="bubbleListRef"
           class="min-h-0 h-full flex flex-[1_1_0]"
           :classes="{scroll:'pl-xs pr-xs'}"
           :items="(conversation.bubbleList as BubbleItemType[])"
+          @scroll="onScroll"
           :role="bubbleListRole"
         >
           <template #extra="{item}" >
-            <a-flex class="h-full" justify="end" align="end">
-              <a-tag color="lime" v-if="item.role === 'user' && item.data.readableCount === 0" >已读</a-tag>
+            <a-flex class="h-full" justify="end" align="end" v-if="item.role === 'user'">
+              <a-tooltip :title="item.data.readableCount === 1 ? '未读' :'已读'">
+                <a-typography-text :type="item.data.readableCount === 1 ? 'secondary' : 'success'">
+                  <icon-font class="icon" :type="item.data.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'" />
+                </a-typography-text>
+              </a-tooltip>
             </a-flex>
           </template>
           <template #avatar="{ item }">
