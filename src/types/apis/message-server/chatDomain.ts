@@ -1,6 +1,7 @@
 import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common";
 import type {ChatContentBlock} from "@/types/composables";
 import type {FileObject, PlatformUser} from "@/types/apis";
+
 /**
  * 聊天房间
  *
@@ -75,17 +76,21 @@ export interface UserChatMessageResponseBody extends UserChatMessageEntity {
 
 export interface BasicUserChatConversation extends VersionEntityMetadata {
   /** 所属用户 */
-  principal: string;
+  principal: string
   name: string
   cover: FileObject[]
   /** 是否置顶 */
-  pinned: NameValueEnumMetadata<number> | number;
+  pinned: NameValueEnumMetadata<number> | number
   /** 置顶时间 */
-  pinnedTime: number;
+  pinnedTime: number
+  /**
+   * 是否启用
+   */
+  enabled:NameValueEnumMetadata<number> | number
   /** 是否免打扰 */
-  muted: NameValueEnumMetadata<number> | number;
+  muted: NameValueEnumMetadata<number> | number
   /** 草稿内容 */
-  draft: Record<string, unknown>[];
+  draft: Record<string, unknown>[]
 }
 
 export interface UserChatConversationEntity extends BasicUserChatConversation {

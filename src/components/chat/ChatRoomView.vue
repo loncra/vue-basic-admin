@@ -10,7 +10,6 @@ import {
 import type {
   BasicUserChatConversation,
   ContactItem,
-  PlatformUser,
   RestResult,
   UserChatConversationResponseBody,
   UserChatParticipantEntity
@@ -22,7 +21,9 @@ import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import useApp from "antdv-next/dist/app/useApp";
 import type {ChatRoomViewModalOpenType} from "@/types/composables";
-import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
+import {CHAAT_ROOM_VIEW_MODAL_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {useSocketStore} from "@/stores/socketStore.ts";
+import {parseSocketRestPayload} from "@/types/socket.ts";
 
 defineOptions({
   name: 'LChatRoomView',
@@ -41,11 +42,12 @@ const props = withDefaults(defineProps<{
 })
 
 const principalStore = usePrincipalStore()
+const socketStore = useSocketStore()
 const participants = ref<UserChatParticipantEntity[]>([])
 const options = ref<{
   editName:boolean
   currentConversation?:UserChatConversationResponseBody
-  selectedUser:PlatformUser[]
+  selectedUser:ContactItem[]
 }>({
   editName:false,
   selectedUser:[]
@@ -62,10 +64,11 @@ const modalOptions = ref<{
 
 const conversation = defineModel<UserChatConversationResponseBody>("conversation")
 
+const socketListener = ref<((() => void) | undefined)[]>([])
 const loading = ref<boolean>(false);
 
 const emit = defineEmits<{
-  confirm: [info: PlatformUser[], restResult:RestResult<UserChatConversationResponseBody>]
+  confirm: [info: ContactItem[], restResult:RestResult<UserChatConversationResponseBody>]
 }>()
 
 const systemUserPanelDataSource = computed<ContactItem[]>(() => {
@@ -75,22 +78,37 @@ const systemUserPanelDataSource = computed<ContactItem[]>(() => {
   if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING) {
     return participants.value
       .filter(p => p.principal !== principalStore.state.name)
-      .map(p => p.metadata?.details)
-      .filter((user): user is PlatformUser => Boolean(user?.id))
+      //.map(p => p.metadata?.details)
+      //.filter((user): user is PlatformUser => Boolean(user?.id))
       .map(toContactItem)
   }
   return []
 })
 
-function toContactItem(user: PlatformUser): ContactItem {
+function toContactItem(p: UserChatParticipantEntity): ContactItem {
   return {
-    key: String(user.id),
-    label: user.realName || user.username || String(globalProperties.$t('common.unname')),
-    data: user,
+    key: String(p.metadata.details.id),
+    label: p.metadata.details.realName || p.metadata.details.username || String(globalProperties.$t('common.unname')),
+    data: p.metadata.details,
+    participantType:p.type
   }
 }
 
+function onChatParticipantRefreshByRoomId(restResult: RestResult<number>) {
+  if (!options.value.currentConversation || !options.value.currentConversation?.room.id) {
+    return
+  }
+  if (options.value.currentConversation?.room.id !== restResult.data) {
+    return
+  }
+  loadParticipant()
+}
+
 async function mounted() {
+  socketListener.value.push(socketStore.subscribe(
+    SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID,
+    (payload) => onChatParticipantRefreshByRoomId(parseSocketRestPayload<number>(payload))
+  ))
   if (!conversation.value) {
     return
   }
@@ -102,7 +120,7 @@ async function mounted() {
 }
 
 async function loadParticipant() {
-  if (!conversation.value) {
+  if (!conversation.value || getEnumValue(conversation.value?.enabled) === 0) {
     return
   }
   try {
@@ -131,7 +149,7 @@ async function onModalOk(){
   if (options.value.selectedUser.length <= 0 || !conversation.value.room?.id) {
     return
   }
-  const principals = options.value.selectedUser.map(u => u.systemName)
+  const principals = options.value.selectedUser.map(d => d.data).map(u => u.systemName)
 
   try {
     modalOptions.value.confirmLoading = true
@@ -221,8 +239,8 @@ function onMemberSetting() {
   modalOptions.value.open = true
 }
 
-async function onSetOwner() {
-  const principals = options.value.selectedUser.map(u => u.systemName)
+async function onUpdateParticipantType(type:number) {
+  const principals = options.value.selectedUser.map(d => d.data).map(u => u.systemName)
   if (principals.length <= 0) {
     return
   }
@@ -233,9 +251,9 @@ async function onSetOwner() {
 
   try {
     modalOptions.value.confirmLoading = true
-    const result:RestResult<void> = await ChatMessageService.setRoomCoOwner(conversation.value.room.id, principals)
+    const result:RestResult<void> = await ChatMessageService.updateParticipantType(conversation.value.room.id, type, principals)
     message.success(result.message)
-    await loadParticipant()
+    //await loadParticipant()
     onModalCancel()
   } finally {
     modalOptions.value.confirmLoading = false;
@@ -243,7 +261,7 @@ async function onSetOwner() {
 }
 
 async function onRemoveMember() {
-  const principals = options.value.selectedUser.map(u => u.systemName)
+  const principals = options.value.selectedUser.map(d => d.data).map(u => u.systemName)
   if (principals.length <= 0) {
     return
   }
@@ -272,20 +290,32 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
 <template>
   <a-flex vertical class="h-full min-h-0">
     <a-spin :spinning="loading" class="size-full-spin min-h-0">
-      <a-flex class="shrink-0 mb-sm" v-if="getEnumValue(conversation?.room?.type) === 10">
-        <a-input-search  />
-      </a-flex>
-      <a-flex flex="1" class="h-full min-h-0 overflow-y-auto" wrap="wrap" gap="small" justify="flex-start" align="flex-start">
-        <a-flex
-          vertical
-          justify="center"
-          align="center"
-          class="w-12.5 relative"
-          v-for="c in participants"
-          :key="c.id"
-        >
+      <template v-if="getEnumValue(conversation?.enabled) === 1">
+        <a-flex class="shrink-0 mb-sm">
+          <a-input-search  />
+        </a-flex>
+        <a-flex flex="1" class="h-full min-h-0 overflow-y-auto" wrap="wrap" gap="small" justify="flex-start" align="flex-start">
+          <a-flex
+            vertical
+            justify="center"
+            align="center"
+            class="w-12.5 relative"
+            v-for="c in participants"
+            :key="c.id"
+          >
 
-          <a-badge-ribbon :color="getEnumValue(c.type) === 10 ? 'gold' : 'yellow'" class="text-xs top-0 opacity-80" v-if="[10,20].includes(getEnumValue(c.type))" :text="getEnumName(c.type)">
+            <a-badge-ribbon :color="getEnumValue(c.type) === 10 ? 'gold' : 'yellow'" class="text-xs top-0 opacity-80" v-if="[10,20].includes(getEnumValue(c.type))" :text="getEnumName(c.type)">
+              <a-avatar
+                size="large"
+                shape="square"
+                v-if="c.metadata.details.avatar"
+                :src="AttachmentService.query(c.metadata.details.avatar.bucketName, c.metadata.details.avatar.objectName)"
+              />
+              <a-avatar size="large" shape="square" v-else>
+                {{ String(c.metadata?.details?.realName || c.metadata?.details?.username || globalProperties.$t('common.unname')).substring(0,1) }}
+              </a-avatar>
+            </a-badge-ribbon>
+            <span v-else>
             <a-avatar
               size="large"
               shape="square"
@@ -295,38 +325,33 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
             <a-avatar size="large" shape="square" v-else>
               {{ String(c.metadata?.details?.realName || c.metadata?.details?.username || globalProperties.$t('common.unname')).substring(0,1) }}
             </a-avatar>
-          </a-badge-ribbon>
-          <span v-else>
-          <a-avatar
-            size="large"
-            shape="square"
-            v-if="c.metadata.details.avatar"
-            :src="AttachmentService.query(c.metadata.details.avatar.bucketName, c.metadata.details.avatar.objectName)"
-          />
-          <a-avatar size="large" shape="square" v-else>
-            {{ String(c.metadata?.details?.realName || c.metadata?.details?.username || globalProperties.$t('common.unname')).substring(0,1) }}
-          </a-avatar>
-        </span>
-          <a-typography-text :ellipsis="{tooltip:String(c.metadata?.details?.realName || c.metadata?.details?.username || globalProperties.$t('common.unname'))}">
-            {{String(c.metadata?.details?.realName || c.metadata?.details?.username || globalProperties.$t('common.unname'))}}
-          </a-typography-text>
+          </span>
+            <a-typography-text :ellipsis="{tooltip:String(c.metadata?.details?.realName || c.metadata?.details?.username || globalProperties.$t('common.unname'))}">
+              {{String(c.metadata?.details?.realName || c.metadata?.details?.username || globalProperties.$t('common.unname'))}}
+            </a-typography-text>
+          </a-flex>
+
+          <a-flex
+            vertical
+            justify="center"
+            align="center"
+            @click="onAddParticipant"
+            class="w-12.5 cursor-pointer"
+          >
+            <a-avatar class="opacity-50" size="large" shape="square">
+              <icon-font class="text-xl" type="loncra-user-round-plus" />
+            </a-avatar>
+            <a-typography-text>
+              添加
+            </a-typography-text>
+          </a-flex>
         </a-flex>
 
-        <a-flex
-          vertical
-          justify="center"
-          align="center"
-          @click="onAddParticipant"
-          class="w-12.5 cursor-pointer"
-        >
-          <a-avatar class="opacity-50" size="large" shape="square">
-            <icon-font class="text-xl" type="loncra-user-round-plus" />
-          </a-avatar>
-          <a-typography-text>
-            添加
-          </a-typography-text>
-        </a-flex>
+      </template>
+      <a-flex flex="1" class="h-full min-h-0" v-else justify="center" align="center">
+        <a-empty />
       </a-flex>
+
       <a-flex vertical class="shrink-0">
         <a-divider />
         <a-button block type="text">
@@ -350,7 +375,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               <a-typography-text>
                 {{ conversation.name }}
               </a-typography-text>
-              <a-button size="small" type="text" @click="options.editName = true">
+              <a-button v-if="participants.some(s => s.principal === principalStore.state.name && [10,20].includes(getEnumValue(s.type)))" size="small" type="text" @click="options.editName = true">
                 <template #icon>
                   <icon-font type="loncra-pencil" />
                 </template>
@@ -366,32 +391,34 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               </a-button>
             </a-space-compact>
           </a-flex>
-          <a-flex justify="space-between" align="center" >
-            <a-typography-text>
-              置顶聊天
-            </a-typography-text>
-            <a-switch
-              size="small"
-              :checked="getEnumValue(conversation.pinned) === 1"
-              @change="onPinnedChange"
-              :checked-children="globalProperties.$t('common.open')"
-              :un-checked-children="globalProperties.$t('common.close')"
-            />
-          </a-flex>
-          <a-flex justify="space-between" align="center" >
-            <a-typography-text>
-              消息免打扰
-            </a-typography-text>
-            <a-switch
-              size="small"
-              :checked="getEnumValue(conversation.muted) === 1"
-              @change="onMutedChange"
-              :checked-children="globalProperties.$t('common.open')"
-              :un-checked-children="globalProperties.$t('common.close')"
-            />
-          </a-flex>
+          <template v-if="getEnumValue(conversation?.enabled) === 1">
+            <a-flex justify="space-between" align="center" >
+              <a-typography-text>
+                置顶聊天
+              </a-typography-text>
+              <a-switch
+                size="small"
+                :checked="getEnumValue(conversation.pinned) === 1"
+                @change="onPinnedChange"
+                :checked-children="globalProperties.$t('common.open')"
+                :un-checked-children="globalProperties.$t('common.close')"
+              />
+            </a-flex>
+            <a-flex justify="space-between" align="center" >
+              <a-typography-text>
+                消息免打扰
+              </a-typography-text>
+              <a-switch
+                size="small"
+                :checked="getEnumValue(conversation.muted) === 1"
+                @change="onMutedChange"
+                :checked-children="globalProperties.$t('common.open')"
+                :un-checked-children="globalProperties.$t('common.close')"
+              />
+            </a-flex>
+          </template>
           <template v-if="getEnumValue(conversation.room.type) === 10">
-            <a-button block @click="onMemberSetting">
+            <a-button block @click="onMemberSetting" v-if="participants.some(s => s.principal === principalStore.state.name && [10,20].includes(getEnumValue(s.type)))">
               <template #icon>
                 <icon-font type="loncra-user-cog"/>
               </template>
@@ -440,7 +467,10 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
       <template #footer="{extra}" v-if="modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING">
         <a-space>
           <a-space-compact>
-            <a-button @click="onSetOwner()" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.length <= 0">
+            <a-button @click="onUpdateParticipantType(30)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === 20).length <= 0">
+              设置为成员
+            </a-button>
+            <a-button @click="onUpdateParticipantType(20)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === 30).length <= 0">
               设置为群管
             </a-button>
             <a-popconfirm

@@ -11,7 +11,6 @@ import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {
   type ContactItem,
   type IdNameValueMetadata,
-  type IdValueMetadata,
   type PageResult,
   type PlatformUser,
   type RestResult,
@@ -177,50 +176,30 @@ async function onConversationsChange(conversationItem:ServerConversationItem) {
   requestAnimationFrame(() => chatViewRef.value?.scrollTo({ top: "bottom", behavior: "smooth" }));
 }
 
-function onChatConversationRename(result:RestResult<UserChatConversationEntity>) {
+async function onConversationRefreshByRoomId(result:RestResult<number>) {
   if (!result.data) {
     return
   }
-  const index = options.value.conversationDataSource.findIndex(s => s.room.id === result.data?.id)
+  const index = options.value.conversationDataSource.findIndex(s => s.room.id === result.data)
   if (index < 0) {
     return
   }
+  const conversationResult:RestResult<UserChatConversationEntity | UserChatConversationResponseBody> = await ChatMessageService.getConversation(result.data, true)
 
-  const find = options.value.conversationDataSource[index];
-  if (find) {
-    find.name = result.data.name
+  if (!conversationResult.data) {
+    return
   }
+  options.value.conversationDataSource[index] = conversationResult.data as UserChatConversationResponseBody
+  const find = options.value.conversationDataSource[index];
   if (!conversationActive.value.item || !conversationActive.value.item?.data) {
     return
   }
-  if (conversationActive.value.item?.data?.id === result?.data?.id) {
-    conversationActive.value.item.data.name = result.data.name
-    conversationActive.value.item.label = result.data.name
-
-    conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
-  }
-}
-
-function onChatRoomRename(result: RestResult<IdValueMetadata<number, string>>) {
-  if (!result.data) {
-    return
-  }
-  const index = options.value.conversationDataSource.findIndex(s => s.room.id === result.data?.id)
-  if (index < 0) {
-    return
-  }
-
-  const find = options.value.conversationDataSource[index];
-  if (find) {
-    find.name = result.data.value
-  }
-  if (!conversationActive.value.item || !conversationActive.value.item?.data) {
-    return
-  }
-
-  if (conversationActive.value.item?.data?.room?.id === result?.data?.id) {
-    conversationActive.value.item.data.name = result.data?.value
-    conversationActive.value.item.label = result.data?.value
+  if (conversationActive.value.item?.data?.room?.id === result.data) {
+    conversationActive.value.item = {
+      label:find.name,
+      key:String(find.id),
+      data:find
+    }
 
     conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
   }
@@ -235,13 +214,10 @@ async function mounted() {
     SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE,
     (payload) => onChatConversationReceived(parseSocketRestPayload<UserChatConversationResponseBody>(payload))
   ))
+
   socketListener.value.push(socketStore.subscribe(
-    SOCKET_EVENT_TYPE.CHAT_ROOM_RENAME,
-    (payload) => onChatRoomRename(parseSocketRestPayload<IdValueMetadata<number, string>>(payload))
-  ))
-  socketListener.value.push(socketStore.subscribe(
-    SOCKET_EVENT_TYPE.CHAT_CONVERSATION_RENAME,
-    (payload) => onChatConversationRename(parseSocketRestPayload<UserChatConversationEntity>(payload))
+    SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH_BY_ROOM_ID,
+    (payload) => onConversationRefreshByRoomId(parseSocketRestPayload<number>(payload))
   ))
   options.value.loading = true
   try {
@@ -341,7 +317,7 @@ function onConversationMoreClick() {
   conversationActive.value.drawerOpen = !conversationActive.value.drawerOpen;
 }
 
-async function onChatRooViewConfirm(user:PlatformUser[], restResult:RestResult<UserChatConversationResponseBody>) {
+async function onChatRooViewConfirm(user:ContactItem[], restResult:RestResult<UserChatConversationResponseBody>) {
   if (!restResult.data) {
     return ;
   }

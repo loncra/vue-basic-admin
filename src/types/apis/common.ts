@@ -397,5 +397,6 @@ export interface ContactItem {
   label?: string
   data: PlatformUser
   disabled?:boolean
-  group?: string
+  group?: string,
+  [key:string]: unknown
 }

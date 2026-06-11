@@ -17,21 +17,19 @@ import {STORE} from '@/constants/systemConstant'
 
 import {
   CONFIG_PROVIDER_THEME,
+  type CreateSuccessBackValue,
   MATCH_MEDIA_QUERY,
   PAD_SCREENS,
   SCREEN_BREAKPOINT,
   STORED_STATE_VALUE,
+  type ThemeMode,
+  type ThemeValue,
 } from '@/constants/configProviderConstant'
 
 import i18n, {type LanguagePack} from '@/i18n'
 import type {NameValueEnumMetadata} from '@/types/apis'
-import type {
-  ConfigProviderState,
-  ConfigProviderStoredState,
-  CreateSuccessBackValue,
-  ThemeMode,
-  ThemeValue
-} from '@/types/composables'
+import type {ConfigProviderState, ConfigProviderStoredState,} from '@/types/composables'
+
 import type {ComposerTranslation} from 'vue-i18n'
 import dayjs from 'dayjs'
 
@@ -137,7 +135,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     return token.value
   })
 
-  function getTokenValue (key: string):string {
+  function getTokenValue(key: string): string {
     if (state.value.token && state.value.token[key]) {
       return state.value.token[key] as unknown as string;
     }
@@ -219,7 +217,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     saveLocalStorage()
   }
 
-  function setCreateSuccessBack(value:CreateSuccessBackValue) {
+  function setCreateSuccessBack(value: CreateSuccessBackValue) {
     state.value.createSuccessBack = value
     saveLocalStorage()
   }
@@ -277,9 +275,9 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
       formLayout: state.value.formLayout,
       detailLayout: state.value.detailLayout,
       locale: state.value.locale,
-      token:state.value.token,
-      componentSize:'middle',
-      compact:false,
+      token: state.value.token,
+      componentSize: 'middle',
+      compact: false,
       createSuccessBack: state.value.createSuccessBack
     }
     localStorage.setItem(
@@ -409,6 +407,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
   const handleResize = (): void => {
     updateScreenBreakpoint()
   }
+
   /**
    * 设置首页侧边栏折叠宽度
    *
@@ -418,6 +417,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     state.value.homeCollapsedWidth = width
     saveLocalStorage()
   }
+
   /**
    * 组件挂载时的初始化
    *

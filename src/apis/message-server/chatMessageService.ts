@@ -1,24 +1,23 @@
 import type {
-  BasicUserChatConversation, FileObject,
+  BasicUserChatConversation,
+  FileObject,
   PageRequest,
   PageResult,
-  RestResult, UserChatConversationEntity,
-  UserChatConversationResponseBody, UserChatMessageEntity,
+  RestResult,
+  UserChatConversationEntity,
+  UserChatConversationResponseBody,
+  UserChatMessageEntity,
   UserChatMessageReadResponseBody,
-  UserChatMessageResponseBody, UserChatParticipantEntity,
+  UserChatMessageResponseBody,
+  UserChatParticipantEntity,
   UserChatRoomEntity,
 } from "@/types/apis";
-import type {
-  ChatBubbleItem,
-  ChatContentBlock,
-  ServerConversationItem,
-  TextBlock
-} from "@/types/composables";
-import {formUrlEncoded, getEnumValue} from "@/utils";
+import type {ChatBubbleItem, ChatContentBlock, TextBlock} from "@/types/composables";
+import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
-import {h, resolveComponent, type VNode} from "vue";
+import {h, type VNode} from "vue";
 import {AttachmentService} from "@/apis";
-import { Avatar, AvatarGroup } from 'antdv-next'
+import {Avatar, AvatarGroup} from 'antdv-next'
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 
 /**
@@ -52,13 +51,13 @@ export class ChatMessageService  {
 
   static readonly FIND_PARTICIPANT_URL = ChatMessageService.SERVICE_URL + '/participant/find'
 
+  static readonly UPDATE_PARTICIPANT_TYPE_URL = ChatMessageService.SERVICE_URL + '/participant/update/type'
+
   static readonly ROOM_RENAME_URL = ChatMessageService.SERVICE_URL + '/room/rename'
 
   static readonly FIND_MESSAGE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read/find'
 
   static readonly GET_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation'
-
-  static readonly SET_ROOM_CO_OWNER_URL = ChatMessageService.SERVICE_URL + '/room/set/co/owner'
 
   static my(request: PageRequest): Promise<RestResult<UserChatConversationResponseBody[]>> {
     return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request))
@@ -104,8 +103,8 @@ export class ChatMessageService  {
     return axios.put(ChatMessageService.REMOVE_ROOM_PARTICIPANT_URL + "/" + roomId, formUrlEncoded({principals}))
   }
 
-  static setRoomCoOwner(roomId:number,principals:string[]): Promise<RestResult<void>> {
-    return axios.put(ChatMessageService.SET_ROOM_CO_OWNER_URL + "/" + roomId, formUrlEncoded({principals}))
+  static updateParticipantType(roomId:number, type:number, principals:string[]): Promise<RestResult<void>> {
+    return axios.put(ChatMessageService.UPDATE_PARTICIPANT_TYPE_URL + "/" + roomId, formUrlEncoded({type, principals}))
   }
 
   static roomRename(roomId:number, newName: string):Promise<RestResult<void>> {
@@ -116,8 +115,8 @@ export class ChatMessageService  {
     return axios.post(ChatMessageService.FIND_MESSAGE_READ_URL + "/" + messageId)
   }
 
-  static getConversation(roomId:number):Promise<RestResult<UserChatConversationEntity>> {
-    return axios.get(ChatMessageService.GET_CONVERSATION_URL + "/" + roomId)
+  static getConversation(roomId:number, convertBody:boolean = false):Promise<RestResult<UserChatConversationEntity | UserChatConversationResponseBody>> {
+    return axios.get(ChatMessageService.GET_CONVERSATION_URL + "/" + roomId, {params:formUrlEncoded({convertBody})})
   }
 
   static getMessageContent(lastUserMessage: UserChatMessageEntity | undefined) {

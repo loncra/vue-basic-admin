@@ -2,10 +2,11 @@
 
 import type {BubbleItemType, BubbleListRef, RoleType} from "@antdv-next/x/dist/bubble/interface";
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
-import type {ChatContentBlock, ConversationActiveProps} from "@/types/composables";
+import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps} from "@/types/composables";
 import {AttachmentService} from "@/apis";
 import {
   type ComponentInternalInstance,
+  computed,
   getCurrentInstance,
   h,
   nextTick,
@@ -29,8 +30,7 @@ import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
-import type {ChatBubbleItem} from "@/types/composables";
-import {computed} from "vue";
+
 defineOptions({
   name: 'LChatView',
 })
@@ -80,13 +80,13 @@ const bubbleListRole = {
     classes: { content: 'text-text-secondary!' },
   },
   divider: {
-    dividerProps: { 
-      plain: true, 
+    dividerProps: {
+      plain: true,
       dashed:true,
-      size: 'small',           // 缩小间距
+      size: 'small',
       classes: {
         content: 'text-text-secondary! text-xs! font-normal!',
-        root: 'text-text-secondary! text-xs! font-normal! my-xs!', // with-text 时 root 也会带字号/颜色
+        root: 'text-text-secondary! text-xs! font-normal! my-xs!',
       },
     }
   },
@@ -191,6 +191,7 @@ function mounted() {
     SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ,
     (payload) => onChatMessageReadReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
   ))
+  console.info(conversation.value.item?.data?.enabled)
 }
 
 onMounted(mounted)
@@ -294,7 +295,7 @@ defineExpose({
       </a-spin>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
-      <l-chat-message-sender :sending="conversation.sending" ref="senderRef" @submit="onSendMessage"/>
+      <l-chat-message-sender v-if="conversation?.item?.data" :disabled="getEnumValue(conversation.item.data.enabled) === 0" :sending="conversation.sending" ref="senderRef" @submit="onSendMessage"/>
     </div>
   </a-flex>
 

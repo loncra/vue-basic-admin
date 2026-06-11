@@ -1,7 +1,8 @@
 import type {
   ObjectWriteResult,
   PageResult,
-  UserChatConversationResponseBody, UserChatMessageEntity,
+  UserChatConversationResponseBody,
+  UserChatMessageEntity,
   UserChatMessageResponseBody
 } from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
@@ -59,7 +60,6 @@ export type ChatBubbleItem = {
 export interface ServerConversationItem {
   key: string
   label?: string
-  disabled?:boolean
   data?: UserChatConversationResponseBody
 }
 

@@ -2,7 +2,8 @@
 
 import {AttachmentService} from "@/apis";
 import {
-  type ComponentInternalInstance, computed,
+  type ComponentInternalInstance,
+  computed,
   getCurrentInstance,
   h,
   inject,
@@ -170,7 +171,6 @@ async function onMenuClick(e: { key: string}, item:UserChatConversationResponseB
       if (!data) {
         continue ;
       }
-      data.pinned = c.pinned
       data.muted = c.muted
       await messageServerStore.fetchUnreadQuantity()
     }
@@ -219,7 +219,7 @@ const conversationItems = computed(() =>
   [...(dataSource.value ?? [])].sort(compareConversations).map(r => ({
     label: r.name,
     key: String(r.id),
-    data: r,
+    data: r
   })),
 )
 

@@ -1,6 +1,6 @@
 import type {
   IdValueMetadata,
-  RestResult, UserChatConversationEntity,
+  RestResult,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
   UserChatMessageResponseBody
@@ -14,9 +14,9 @@ export type SocketBusinessEventPayloadMap = {
   [SOCKET_EVENT_TYPE.RUN_COMMAND]: RestResult<string>
   [SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE]: RestResult<UserChatConversationResponseBody>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ]: RestResult<UserChatMessageResponseBody>
-  [SOCKET_EVENT_TYPE.CHAT_ROOM_RENAME]: RestResult<IdValueMetadata<number, string>>
+  [SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH_BY_ROOM_ID]: RestResult<number>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ_UPDATE]: RestResult<IdValueMetadata<number, number>[]>
-  [SOCKET_EVENT_TYPE.CHAT_CONVERSATION_RENAME]: RestResult<UserChatConversationEntity>
+  [SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID]: RestResult<number>
 }
 
 export type SocketBusinessEvent = keyof SocketBusinessEventPayloadMap

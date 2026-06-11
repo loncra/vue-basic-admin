@@ -37,8 +37,10 @@ const sending = defineModel<boolean>("sending", {default: false})
 
 const props = withDefaults(defineProps<{
   slotConfig?:SlotConfigType[]
+  disabled:boolean
 }>(),{
-  slotConfig:() => []
+  slotConfig:() => [],
+  disabled:false
 })
 
 const emit = defineEmits<{
@@ -411,10 +413,12 @@ defineExpose({
 <template>
   <ax-sender
     ref="senderRef"
-    :slot-config="props.slotConfig"
-    placeholder="输入消息，可粘贴文件到此处发送文件内容"
+    :slot-config="props.disabled ? undefined : props.slotConfig"
+    :placeholder="props.disabled ? '您从本群已经被移除' : '输入消息，可粘贴文件到此处发送文件内容'"
     :suffix="false"
     allow-speech
+
+    :disabled="props.disabled"
     :auto-size="true"
     :class-names="{
       content: 'chat-sender-content',
@@ -426,7 +430,7 @@ defineExpose({
     @change="onChange"
     @submit="onSubmit"
   >
-    <template #footer="{ components }">
+    <template #footer="{ components }" v-if="!props.disabled">
       <a-flex justify="space-between" align="center" gap="small">
         <a-space>
           <a-button type="text" >
