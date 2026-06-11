@@ -53,6 +53,8 @@ export class ChatMessageService  {
 
   static readonly UPDATE_PARTICIPANT_TYPE_URL = ChatMessageService.SERVICE_URL + '/participant/update/type'
 
+  static readonly PARTICIPANT_EXIST_ROOM_URL = ChatMessageService.SERVICE_URL + '/participant/exist/room'
+
   static readonly ROOM_RENAME_URL = ChatMessageService.SERVICE_URL + '/room/rename'
 
   static readonly FIND_MESSAGE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read/find'
@@ -105,6 +107,10 @@ export class ChatMessageService  {
 
   static updateParticipantType(roomId:number, type:number, principals:string[]): Promise<RestResult<void>> {
     return axios.put(ChatMessageService.UPDATE_PARTICIPANT_TYPE_URL + "/" + roomId, formUrlEncoded({type, principals}))
+  }
+
+  static existRoom(roomId: number): Promise<RestResult<void>> {
+    return axios.delete(ChatMessageService.PARTICIPANT_EXIST_ROOM_URL, {params:formUrlEncoded({roomId})})
   }
 
   static roomRename(roomId:number, newName: string):Promise<RestResult<void>> {

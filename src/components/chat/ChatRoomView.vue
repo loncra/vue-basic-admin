@@ -33,7 +33,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const {message} = useApp()
+const {message, modal} = useApp()
 
 const props = withDefaults(defineProps<{
   contactDataSource:ContactItem[],
@@ -281,6 +281,33 @@ async function onRemoveMember() {
   }
 }
 
+function onExist() {
+
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
+
+  modal.confirm({
+    title: '退群提示',
+    content: '确定要退出' + conversation.value.name + '群聊吗?',
+    onOk: () => doExist(),
+  })
+
+}
+
+async function doExist() {
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
+  try {
+    loading.value = true
+    const result:RestResult<void> = await ChatMessageService.existRoom(conversation.value.room.id)
+    message.success(result.message)
+  } finally {
+    loading.value = false;
+  }
+}
+
 onMounted(mounted)
 
 watch(() => conversation.value, () => loadParticipant(), { deep: true })
@@ -427,7 +454,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               </span>
             </a-button>
             <a-space-compact block>
-              <a-button block danger>
+              <a-button block danger @click="onExist">
                 <template #icon>
                   <icon-font type="loncra-log-out"/>
                 </template>
