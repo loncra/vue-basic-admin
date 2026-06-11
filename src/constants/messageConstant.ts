@@ -9,6 +9,12 @@ export const MESSAGE_GROUP = {
   USER_CHAT: 'userChat'
 } as const
 
+
+export const CHAAT_ROOM_VIEW_MODAL_TYPE = {
+  ADD_PARTICIPANT: 'addParticipant',
+  MEMBER_SETTING: 'memberSetting'
+} as const
+
 /** Socket.IO 事件名 */
 export const SOCKET_EVENT_TYPE = {
   CONNECT: 'connect',
@@ -23,6 +29,8 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_MESSAGE_READ:'chat_message_read',
   CHAT_MESSAGE_READ_UPDATE:'chat_message_read_update',
   CHAT_ROOM_JOIN:'chat_room_join',
+  CHAT_ROOM_REMOVE_PARTICIPANT:'chat_room_remove_participant',
   CHAT_ROOM_RENAME:'chat_room_rename',
   CHAT_CONVERSATION_CREATE:'chat_conversation_create',
+  CHAT_CONVERSATION_RENAME:'chat_conversation_rename',
 } as const

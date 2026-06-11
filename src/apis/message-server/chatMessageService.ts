@@ -8,8 +8,13 @@ import type {
   UserChatMessageResponseBody, UserChatParticipantEntity,
   UserChatRoomEntity,
 } from "@/types/apis";
-import type {ChatContentBlock, ServerConversationItem} from "@/types/composables";
-import {formUrlEncoded} from "@/utils";
+import type {
+  ChatBubbleItem,
+  ChatContentBlock,
+  ServerConversationItem,
+  TextBlock
+} from "@/types/composables";
+import {formUrlEncoded, getEnumValue} from "@/utils";
 import axios from '@/requests'
 import {h, resolveComponent, type VNode} from "vue";
 import {AttachmentService} from "@/apis";
@@ -53,6 +58,8 @@ export class ChatMessageService  {
 
   static readonly GET_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation'
 
+  static readonly SET_ROOM_CO_OWNER_URL = ChatMessageService.SERVICE_URL + '/room/set/co/owner'
+
   static my(request: PageRequest): Promise<RestResult<UserChatConversationResponseBody[]>> {
     return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request))
   }
@@ -93,8 +100,12 @@ export class ChatMessageService  {
     return axios.post(ChatMessageService.FIND_PARTICIPANT_URL + "/" + roomId)
   }
 
-  static removeRoomParticipant(roomId:number,principals:string[]): Promise<RestResult<UserChatRoomEntity>> {
+  static removeRoomParticipant(roomId:number,principals:string[]): Promise<RestResult<void>> {
     return axios.put(ChatMessageService.REMOVE_ROOM_PARTICIPANT_URL + "/" + roomId, formUrlEncoded({principals}))
+  }
+
+  static setRoomCoOwner(roomId:number,principals:string[]): Promise<RestResult<void>> {
+    return axios.put(ChatMessageService.SET_ROOM_CO_OWNER_URL + "/" + roomId, formUrlEncoded({principals}))
   }
 
   static roomRename(roomId:number, newName: string):Promise<RestResult<void>> {
@@ -133,6 +144,26 @@ export class ChatMessageService  {
       }
     }
     return content
+  }
+
+  static addBubbleListMessage(body: UserChatMessageEntity, role:ChatBubbleItem["role"], bubbleList:ChatBubbleItem[]) {
+    if (role === 'system') {
+      for (const c of body.content) {
+        bubbleList.push({
+          key: String(body.id),
+          role: role,
+          content: (c as TextBlock).value as unknown as ChatContentBlock,
+          data:body
+        })
+      }
+    } else {
+      bubbleList.push({
+        key: String(body.id),
+        role: role,
+        content: body.content,
+        data:body
+      })
+    }
   }
 
   static createAvatarNode(

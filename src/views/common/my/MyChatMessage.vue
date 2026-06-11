@@ -15,6 +15,7 @@ import {
   type PageResult,
   type PlatformUser,
   type RestResult,
+  type UserChatConversationEntity,
   type UserChatConversationResponseBody,
   type UserChatMessageEntity,
   type UserChatMessageResponseBody
@@ -27,10 +28,8 @@ import LChatContact from "@/components/chat/ChatContact.vue";
 import LChatView from "@/components/chat/ChatView.vue";
 import type {
   ChatBubbleItem,
-  ChatContentBlock,
   ConversationActiveProps,
-  ServerConversationItem,
-  TextBlock
+  ServerConversationItem
 } from "@/types/composables";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
@@ -96,8 +95,7 @@ const socketListener = ref<((() => void) | undefined)[]>([])
 
 async function loadConversationData(
   chatRoomId: number,
-  number:number,
-  prepend: boolean = true,
+  number:number
 ) {
 
   if (conversationActive.value.loading) {
@@ -109,36 +107,13 @@ async function loadConversationData(
     const result:RestResult<PageResult<UserChatMessageResponseBody>> = await ChatMessageService.histories({number}, chatRoomId)
 
     conversationActive.value.dataSource = result?.data || DEFAULT_PAGE_RESULT_VALUE
-    const bubbleItems: ChatBubbleItem[] = []
     const elements = conversationActive.value.dataSource.elements || []
     for (const d of elements) {
+      let role:ChatBubbleItem["role"] = principalStore.state.name === (d.participant?.metadata?.details as {systemName:string})?.systemName ? 'user' : 'ai'
       if (getEnumValue(d.type) === 20) {
-        bubbleItems.push({
-          key: String(d.id),
-          role: 'system',
-          content: d.content.map(c => ((c as TextBlock).value as unknown as ChatContentBlock)),
-          data:d
-        })
-      } else {
-        bubbleItems.push({
-          key: String(d.id),
-          role: principalStore.state.name === (d.participant?.metadata?.details as {systemName:string})?.systemName ? 'user' : 'ai',
-          content: d.content,
-          data:d
-        })
+        role = 'system'
       }
-    }
-    if (prepend) {
-      conversationActive.value.bubbleList = [...bubbleItems,...conversationActive.value.bubbleList]
-      if (conversationActive.value.dataSource.last) {
-        conversationActive.value.bubbleList.unshift({
-          key: 'system-unread-hint',
-          role: 'system',
-          content: '没有更多记录了',
-        })
-      }
-    } else {
-      conversationActive.value.bubbleList = bubbleItems
+      ChatMessageService.addBubbleListMessage(d, role, conversationActive.value.bubbleList)
     }
     await nextTick()
     const messageIds:number[] = elements.filter(e => getEnumValue(e.readable) === 1)
@@ -152,7 +127,7 @@ async function loadConversationData(
   }
 }
 
-async function onSendMessage(entity: UserChatMessageEntity, fetchUnreadQuantity:boolean = false) {
+async function onSendMessage(entity: UserChatMessageEntity) {
 
   const find = options.value.conversationDataSource.find(d => d.room.id === entity.chatRoomId)
   if (!find) {
@@ -164,15 +139,10 @@ async function onSendMessage(entity: UserChatMessageEntity, fetchUnreadQuantity:
     find,
     ...options.value.conversationDataSource,
   ]
-  options.value
-    .conversationDataSource
-    .sort((a, b) => globalProperties
+  options.value.conversationDataSource.sort((a, b) => globalProperties
       .$dayjs(b.lastUserMessage?.creationTime)
       .diff(globalProperties.$dayjs(a.lastUserMessage?.creationTime))
-    )
-  if (fetchUnreadQuantity) {
-    await messageServerStore.fetchUnreadQuantity()
-  }
+  )
 }
 
 async function onContactSelected(value: UserChatConversationResponseBody) {
@@ -191,16 +161,7 @@ async function onContactSelected(value: UserChatConversationResponseBody) {
     ...options.value.loadConversationDataSource,
   ]
   segmented.value.value = 'conversation'
-  const activeConversationItem:ServerConversationItem = {
-    key: String(find.id),
-    label: find.name,
-    data: find,
-  }
-  await onConversationsChange(activeConversationItem)
-  await nextTick()
-  if (conversationRef.value) {
-    conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
-  }
+  await setActiveConversationItemByEntity(find)
 }
 
 async function onConversationsChange(conversationItem:ServerConversationItem) {
@@ -214,9 +175,34 @@ async function onConversationsChange(conversationItem:ServerConversationItem) {
   if (!conversationActive.value.item?.data) {
     return
   }
-  await loadConversationData(Number(conversationActive.value.item?.data?.room?.id),1, false)
+  conversationActive.value.bubbleList = []
+  await loadConversationData(Number(conversationActive.value.item?.data?.room?.id),1)
   await nextTick()
   requestAnimationFrame(() => chatViewRef.value?.scrollTo({ top: "bottom", behavior: "smooth" }));
+}
+
+function onChatConversationRename(result:RestResult<UserChatConversationEntity>) {
+  if (!result.data) {
+    return
+  }
+  const index = options.value.conversationDataSource.findIndex(s => s.room.id === result.data?.id)
+  if (index < 0) {
+    return
+  }
+
+  const find = options.value.conversationDataSource[index];
+  if (find) {
+    find.name = result.data.name
+  }
+  if (!conversationActive.value.item || !conversationActive.value.item?.data) {
+    return
+  }
+  if (conversationActive.value.item?.data?.id === result?.data?.id) {
+    conversationActive.value.item.data.name = result.data.name
+    conversationActive.value.item.label = result.data.name
+
+    conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
+  }
 }
 
 function onChatRoomRename(result: RestResult<IdValueMetadata<number, string>>) {
@@ -241,14 +227,6 @@ function onChatRoomRename(result: RestResult<IdValueMetadata<number, string>>) {
     conversationActive.value.item.label = result.data?.value
 
     conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
-    if (result?.data?.metadata) {
-      const systemMessage:ChatBubbleItem = {
-        key: String(result.timestamp),
-        role: 'system',
-        content: String(result?.data?.metadata.realName || globalProperties.$t('common.unname')) + '修改了名称(' + result.data?.value + ')'
-      }
-      conversationActive.value.bubbleList = [...conversationActive.value.bubbleList, systemMessage]
-    }
   }
 }
 
@@ -264,6 +242,10 @@ async function mounted() {
   socketListener.value.push(socketStore.subscribe(
     SOCKET_EVENT_TYPE.CHAT_ROOM_RENAME,
     (payload) => onChatRoomRename(parseSocketRestPayload<IdValueMetadata<number, string>>(payload))
+  ))
+  socketListener.value.push(socketStore.subscribe(
+    SOCKET_EVENT_TYPE.CHAT_CONVERSATION_RENAME,
+    (payload) => onChatConversationRename(parseSocketRestPayload<UserChatConversationEntity>(payload))
   ))
   options.value.loading = true
   try {
@@ -293,25 +275,37 @@ async function mounted() {
   await nextTick()
   const find = options.value.conversationDataSource.find(d => d.id === Number(globalProperties.$route.query.conversationId))
   if (find) {
-    const activeConversationItem:ServerConversationItem = {
-      key: String(find.id),
-      label: find.name,
-      data: find,
-    }
-    await onConversationsChange(activeConversationItem)
+    await setActiveConversationItemByEntity(find)
   }
 }
 
-async function onChatMessageReceived(result: RestResult<UserChatMessageResponseBody>) {
-  if (!result.data || (result.data.participant?.metadata?.details as {systemName:string})?.systemName === principalStore.state.name) {
+async function setActiveConversationItemByEntity(body:UserChatConversationResponseBody) {
+  const activeConversationItem:ServerConversationItem = {
+    key: String(body.id),
+    label: body.name,
+    data: body,
+  }
+  await setActiveConversationItem(activeConversationItem)
+}
+
+async function setActiveConversationItem(activeConversationItem:ServerConversationItem) {
+  await onConversationsChange(activeConversationItem)
+  if (conversationRef.value) {
+    conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
+  }
+}
+
+async function onChatMessageReceived(result: RestResult<UserChatMessageResponseBody | UserChatMessageEntity>) {
+  if (!result.data || result.data.principal === principalStore.state.name) {
     return
   }
 
   if (conversationActive.value.item?.data?.room?.id === result.data.chatRoomId && chatViewRef.value) {
-    chatViewRef.value.addMessage(result.data, 'ai')
+    const role = getEnumValue(result.data.type) === 20 ? 'system' : 'ai';
+    ChatMessageService.addBubbleListMessage(result.data, role, conversationActive.value.bubbleList)
   }
 
-  await onSendMessage(result.data, true)
+  await onSendMessage(result.data)
 }
 
 function onChatConversationReceived(result: RestResult<UserChatConversationResponseBody>) {
@@ -355,18 +349,14 @@ async function onChatRooViewConfirm(user:PlatformUser[], restResult:RestResult<U
   if (!restResult.data) {
     return ;
   }
-  options.value.loadConversationDataSource = [restResult.data, ...options.value.loadConversationDataSource]
-  options.value.conversationDataSource = [restResult.data, ...options.value.conversationDataSource]
-  onSearch(options.value.searchValue)
-  await onConversationsChange({
-    key: String(restResult.data.id),
-    label: restResult.data.name,
-    data: restResult.data
-  })
-  await nextTick()
-  if (conversationRef.value) {
-    conversationRef.value?.changeMessageExtraContent(conversationActive.value.item)
+  if (!options.value.loadConversationDataSource.map(d => d.id).includes(restResult?.data?.id)) {
+    options.value.loadConversationDataSource = [restResult.data, ...options.value.loadConversationDataSource]
   }
+  if (!options.value.conversationDataSource.map(d => d.id).includes(restResult?.data?.id)) {
+    options.value.conversationDataSource = [restResult.data, ...options.value.conversationDataSource]
+  }
+  onSearch(options.value.searchValue)
+  await setActiveConversationItemByEntity(restResult.data)
 }
 
 onUnmounted(() => socketListener.value.forEach(f => f?.()));

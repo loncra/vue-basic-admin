@@ -1,15 +1,20 @@
 import type {
   ObjectWriteResult,
   PageResult,
-  UserChatConversationResponseBody,
+  UserChatConversationResponseBody, UserChatMessageEntity,
   UserChatMessageResponseBody
 } from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
+import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
 
 export type TextSegment =
   | { type: 'plain'; text: string }
   | { type: 'mention'; value: string; label: string }
   | { type: 'emoji'; value: string; label: string }
+
+export type ChatRoomViewModalOpenType =
+  | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
+  | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
 
 export interface TextSegmentContentBlock {
   type: 'custom',
@@ -48,7 +53,7 @@ export type ChatBubbleItem = {
   key: string | number
   role: 'user' | 'ai' | 'system'
   content: ChatContentBlock[] | ChatContentBlock | string
-  data?:UserChatMessageResponseBody
+  data?:UserChatMessageResponseBody | UserChatMessageEntity
 }
 
 export interface ServerConversationItem {

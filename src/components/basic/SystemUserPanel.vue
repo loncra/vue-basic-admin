@@ -85,8 +85,8 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
 
 <template>
   <a-flex class="size-full">
-    <a-flex vertical :class="'min-h-80 max-h-120 p-sm overflow-hidden ' + ((!props.selected || props.hideSelectPanel) ? 'w-full' : 'w-[30%]') " >
-      <a-input-search @search="onSearch" v-if="!hideSearch"/>
+    <a-flex vertical gap="middle" :class="'min-h-80 max-h-120 p-sm overflow-hidden ' + ((!props.selected || props.hideSelectPanel) ? 'w-full' : 'w-[30%]') " >
+      <a-input-search @search="onSearch" v-if="!hideSearch""/>
       <ax-conversations
         :classes="{item:'chat-conversations-item p-xs! h-auto! min-h-auto! rounded-none!'}"
         :items="(filterDataSource || [])"

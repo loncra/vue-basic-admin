@@ -2,7 +2,7 @@
 
 import type {BubbleItemType, BubbleListRef, RoleType} from "@antdv-next/x/dist/bubble/interface";
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
-import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps} from "@/types/composables";
+import type {ChatContentBlock, ConversationActiveProps} from "@/types/composables";
 import {AttachmentService} from "@/apis";
 import {
   type ComponentInternalInstance,
@@ -98,7 +98,7 @@ async function onSendMessage(content: ChatContentBlock[]) {
       return
     }
     const body: UserChatMessageResponseBody = result.data
-    addMessage(body, 'user')
+    ChatMessageService.addBubbleListMessage(body, 'user', conversation.value.bubbleList)
     senderRef.value?.clear()
     emit("send", body)
     await nextTick()
@@ -106,15 +106,6 @@ async function onSendMessage(content: ChatContentBlock[]) {
   } finally {
     conversation.value.sending = false
   }
-}
-
-function addMessage(body: UserChatMessageResponseBody, role:ChatBubbleItem["role"]) {
-  conversation.value.bubbleList.push({
-    key: String(body.id),
-    role: role,
-    content: body.content,
-    data:body
-  })
 }
 
 function isNearOldest(scrollBox: HTMLElement) {
@@ -162,7 +153,6 @@ function mounted() {
 onMounted(mounted)
 onUnmounted(() => socketListener.value.forEach(f => f?.()));
 defineExpose({
-  addMessage,
   getScrollBox: () => bubbleListRef.value?.scrollBoxNativeElement,
   scrollTo: (options: {
     key?: string | number;
@@ -197,11 +187,14 @@ defineExpose({
                   <icon-font class="icon" :type="item.data.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'" />
                 </a-typography-text>
               </a-tooltip>
-              <a-popover :placement="item.role === 'user' ? 'left' : 'right'" v-else-if="item.data" trigger="click" >
+              <a-popover
+                :placement="item.role === 'user' ? 'left' : 'right'"
+                v-else-if="getEnumValue(conversation.item?.data?.room?.type) === 10 && item.data"
+                trigger="click"
+              >
                 <template #content>
                   <l-chat-message-read-table :message-id="item.data.id" />
                 </template>
-
 
                 <a-button
                   :color="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCoun ? undefined : 'lime'"
@@ -226,7 +219,12 @@ defineExpose({
               v-if="item.role === 'ai'"
               size="large"
             >
-              {{ (item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme || globalProperties.$t('common.unname')).substring(0,1) }}
+              <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
+                {{ (item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme || globalProperties.$t('common.unname')).substring(0,1) }}
+              </template>
+              <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
+                {{ (conversation.item?.label || globalProperties.$t('common.unname')).substring(0,1) }}
+              </template>
             </a-avatar>
             <a-avatar
               :src="principalStore.getAvatarUrl()"
@@ -238,7 +236,12 @@ defineExpose({
           </template>
           <template #header="{ item }">
             <a-typography-text v-if="item.role === 'ai'">
-              {{ item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme }}
+              <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
+                {{ item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme }}
+              </template>
+              <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 20">
+                {{ (conversation.item?.label || globalProperties.$t('common.unname'))}}
+              </template>
             </a-typography-text>
             <a-typography-text type="secondary" v-else>
               {{globalProperties.$t('common.me')}}

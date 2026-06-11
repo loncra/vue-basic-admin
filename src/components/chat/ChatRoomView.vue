@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref, watch} from "vue";
+import {
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  onMounted,
+  ref,
+  watch
+} from "vue";
 import type {
   BasicUserChatConversation,
   ContactItem,
@@ -14,6 +21,8 @@ import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import useApp from "antdv-next/dist/app/useApp";
+import type {ChatRoomViewModalOpenType} from "@/types/composables";
+import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'LChatRoomView',
@@ -23,7 +32,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const {message, modal} = useApp()
+const {message} = useApp()
 
 const props = withDefaults(defineProps<{
   contactDataSource:ContactItem[],
@@ -34,16 +43,21 @@ const props = withDefaults(defineProps<{
 const principalStore = usePrincipalStore()
 const participants = ref<UserChatParticipantEntity[]>([])
 const options = ref<{
-  modalOpen: boolean
-  confirmLoading:boolean
   editName:boolean
   currentConversation?:UserChatConversationResponseBody
   selectedUser:PlatformUser[]
 }>({
-  modalOpen: false,
-  confirmLoading:false,
   editName:false,
   selectedUser:[]
+})
+
+const modalOptions = ref<{
+  open: boolean
+  title?:string
+  type?:ChatRoomViewModalOpenType
+  confirmLoading?:boolean
+}>({
+  open:false
 })
 
 const conversation = defineModel<UserChatConversationResponseBody>("conversation")
@@ -54,6 +68,25 @@ const emit = defineEmits<{
   confirm: [info: PlatformUser[], restResult:RestResult<UserChatConversationResponseBody>]
 }>()
 
+const systemUserPanelDataSource = computed(() => {
+  if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT) {
+    return props.contactDataSource
+  } else if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING){
+    return participants.value
+      .filter(p => p.principal !== principalStore.state.name)
+      .map(p => p.metadata)
+      .filter(metadata => metadata)
+      .map(metadata => metadata.details)
+      .filter(details => details)
+      .map(details => ({
+        key: details.id,
+        // FIXME 这里太多地方写重复代码了。
+        label: details.realName || details.username || globalProperties.$t('common.unname'),
+        data: details
+      }))
+  }
+  return []
+})
 async function mounted() {
   if (!conversation.value) {
     return
@@ -62,6 +95,13 @@ async function mounted() {
     return
   }
   options.value.currentConversation = {...conversation.value}
+  await loadParticipant()
+}
+
+async function loadParticipant() {
+  if (!conversation.value) {
+    return
+  }
   try {
     loading.value = true
     const result:RestResult<UserChatParticipantEntity[]> = await ChatMessageService.findRoomParticipant(Number(conversation.value.room.id))
@@ -74,7 +114,10 @@ async function mounted() {
 }
 
 function onFilterSystemUser(item:ContactItem) {
-  return !participants.value.map(d => d.metadata.details.id).includes(item.data.id)
+  if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT) {
+    return !participants.value.map(d => d.metadata.details.id).includes(item.data.id)
+  }
+  return true
 }
 
 async function onModalOk(){
@@ -85,14 +128,16 @@ async function onModalOk(){
   if (options.value.selectedUser.length <= 0 || !conversation.value.room?.id) {
     return
   }
+  const principals = options.value.selectedUser.map(u => u.systemName)
 
   try {
-    options.value.confirmLoading = true
-    const result:RestResult<UserChatConversationResponseBody> = await ChatMessageService.addRoomParticipant(Number(conversation.value.room.id), options.value.selectedUser.map(u => u.systemName))
+    modalOptions.value.confirmLoading = true
+    const result:RestResult<UserChatConversationResponseBody> = await ChatMessageService.addRoomParticipant(Number(conversation.value.room.id), principals)
     emit("confirm", options.value.selectedUser, result)
-    options.value.modalOpen = false
+    await loadParticipant()
+    onModalCancel()
   } finally {
-    options.value.confirmLoading = false;
+    modalOptions.value.confirmLoading = false;
   }
 }
 
@@ -156,9 +201,68 @@ async function onMutedChange() {
   }
 }
 
+function onModalCancel() {
+  modalOptions.value.open = false
+  options.value.selectedUser = [];
+}
+
+function onAddParticipant() {
+  modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
+  modalOptions.value.title = "发起群聊"
+  modalOptions.value.open = true
+}
+
+function onMemberSetting() {
+  modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
+  modalOptions.value.title = "成员管理"
+  modalOptions.value.open = true
+}
+
+async function onSetOwner() {
+  const principals = options.value.selectedUser.map(u => u.systemName)
+  if (principals.length <= 0) {
+    return
+  }
+
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
+
+  try {
+    modalOptions.value.confirmLoading = true
+    const result:RestResult<void> = await ChatMessageService.setRoomCoOwner(conversation.value.room.id, principals)
+    message.success(result.message)
+    await loadParticipant()
+    onModalCancel()
+  } finally {
+    modalOptions.value.confirmLoading = false;
+  }
+}
+
+async function onRemoveMember() {
+  const principals = options.value.selectedUser.map(u => u.systemName)
+  if (principals.length <= 0) {
+    return
+  }
+
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
+
+  try {
+    modalOptions.value.confirmLoading = true
+    const result:RestResult<void> = await ChatMessageService.removeRoomParticipant(conversation.value.room.id, principals)
+    message.success(result.message)
+    await loadParticipant()
+    onModalCancel()
+  } finally {
+    modalOptions.value.confirmLoading = false;
+  }
+}
+
 onMounted(mounted)
 
-watch(() => conversation.value, () => mounted(), { deep: true })
+watch(() => conversation.value, () => loadParticipant(), { deep: true })
 
 </script>
 
@@ -209,7 +313,7 @@ watch(() => conversation.value, () => mounted(), { deep: true })
           vertical
           justify="center"
           align="center"
-          @click="options.modalOpen = true"
+          @click="onAddParticipant"
           class="w-12.5 cursor-pointer"
         >
           <a-avatar class="opacity-50" size="large" shape="square">
@@ -284,40 +388,32 @@ watch(() => conversation.value, () => mounted(), { deep: true })
             />
           </a-flex>
           <template v-if="getEnumValue(conversation.room.type) === 10">
-            <a-space-compact block v-if="participants.some(c => getEnumValue(c.type) === 10 && principalStore.state.name === c.principal)">
-              <a-button block>
+            <a-button block @click="onMemberSetting">
+              <template #icon>
+                <icon-font type="loncra-user-cog"/>
+              </template>
+              <span>
+                成员管理
+              </span>
+            </a-button>
+            <a-space-compact block>
+              <a-button block danger>
                 <template #icon>
-                  <icon-font type="loncra-arrow-right-left"/>
+                  <icon-font type="loncra-log-out"/>
                 </template>
                 <span>
-                转让群主
+                退出群聊
               </span>
               </a-button>
-              <a-button block>
+              <a-button type="primary" block danger v-if="participants.some(c => getEnumValue(c.type) === 10 && principalStore.state.name === c.principal)">
                 <template #icon>
-                  <icon-font type="loncra-user-key"/>
+                  <icon-font type="loncra-message-square-x"/>
                 </template>
                 <span>
-                设置管理员
+                解散群聊
               </span>
               </a-button>
             </a-space-compact>
-            <a-button block danger>
-              <template #icon>
-                <icon-font type="loncra-log-out"/>
-              </template>
-              <span>
-              退出群聊
-            </span>
-            </a-button>
-            <a-button type="primary" block danger v-if="participants.some(c => getEnumValue(c.type) === 10 && principalStore.state.name === c.principal)">
-              <template #icon>
-                <icon-font type="loncra-message-square-x"/>
-              </template>
-              <span>
-              解散群聊
-            </span>
-            </a-button>
           </template>
         </a-flex>
       </a-flex>
@@ -331,13 +427,33 @@ watch(() => conversation.value, () => mounted(), { deep: true })
         xl: '60%',
         xxl: '60%',
       }"
-      :open="options.modalOpen"
-      title="发起群聊"
-      @cancel="options.modalOpen = false"
+      :open="modalOptions.open"
+      :title="modalOptions.title"
+      @cancel="onModalCancel()"
       @ok="onModalOk"
-      :confirm-loading="options.confirmLoading"
+      :confirm-loading="modalOptions.confirmLoading"
     >
-      <l-system-user-panel v-model:value="options.selectedUser" :filter="onFilterSystemUser" :data-source="props.contactDataSource" />
+      <l-system-user-panel v-model:value="options.selectedUser" :filter="onFilterSystemUser" :data-source="systemUserPanelDataSource" />
+      <template #footer="{extra}" v-if="modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING">
+        <a-space>
+          <a-space-compact>
+            <a-button @click="onSetOwner()" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.length <= 0">
+              设置为群管
+            </a-button>
+            <a-popconfirm
+              :ok-button-props="{ loading: modalOptions.confirmLoading }"
+              :title="globalProperties.$t('common.delete.confirmTitle')"
+              description="确定要移除选中的成员吗？"
+              @confirm="onRemoveMember()"
+            >
+              <a-button :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.length <= 0" type="primary" danger>
+                移除成员
+              </a-button>
+            </a-popconfirm>
+          </a-space-compact>
+          <component :is="extra.CancelBtn" />
+        </a-space>
+      </template>
     </a-modal>
   </a-flex>
 </template>
