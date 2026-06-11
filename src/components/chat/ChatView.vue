@@ -29,7 +29,8 @@ import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
-
+import type {ChatBubbleItem} from "@/types/composables";
+import {computed} from "vue";
 defineOptions({
   name: 'LChatView',
 })
@@ -77,9 +78,51 @@ const bubbleListRole = {
     variant: 'outlined',
     shape: 'round',
     classes: { content: 'text-text-secondary!' },
+  },
+  divider: {
+    dividerProps: { 
+      plain: true, 
+      dashed:true,
+      size: 'small',           // 缩小间距
+      classes: {
+        content: 'text-text-secondary! text-xs! font-normal!',
+        root: 'text-text-secondary! text-xs! font-normal! my-xs!', // with-text 时 root 也会带字号/颜色
+      },
     }
-} satisfies RoleType
+  },
+} as RoleType
 
+const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
+
+function getMessageTime(item: ChatBubbleItem): number {
+  return item.data?.creationTime ?? 0
+}
+
+function buildBubbleListWithDividers(messages: ChatBubbleItem[]): BubbleItemType[] {
+  // 升序：[旧 → 新]，配合 column-reverse 贴底
+  const sorted = [...messages].sort((a, b) => getMessageTime(a) - getMessageTime(b))
+  const result: BubbleItemType[] = []
+  let lastDividerTime = 0
+  for (const msg of sorted) {
+    const msgTime = getMessageTime(msg)
+    const needDivider =
+      result.length === 0 ||
+      (msgTime > 0 && msgTime - lastDividerTime >= TIME_DIVIDER_GAP_MS)
+    if (needDivider && msgTime > 0) {
+      result.push({
+        key: `divider-${String(msg.key)}-${msgTime}`,
+        role: 'divider',
+        content: globalProperties.$dayjs(msgTime).fromNow(),
+      })
+      lastDividerTime = msgTime
+    }
+    result.push(msg as BubbleItemType)
+  }
+  return result
+}
+const bubbleListItems = computed(() =>
+  buildBubbleListWithDividers(conversation.value.bubbleList ?? []),
+)
 
 function renderBubbleContent(content: ChatContentBlock[]) {
   return h(ChatMessageBubbleContent, {content: content})
@@ -176,7 +219,7 @@ defineExpose({
           ref="bubbleListRef"
           class="min-h-0 h-full flex flex-[1_1_0]"
           :classes="{scroll:'pl-xs pr-xs'}"
-          :items="(conversation.bubbleList as BubbleItemType[])"
+          :items="bubbleListItems"
           @scroll="onScroll"
           :role="bubbleListRole"
         >

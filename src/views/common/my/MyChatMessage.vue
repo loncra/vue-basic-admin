@@ -139,10 +139,6 @@ async function onSendMessage(entity: UserChatMessageEntity) {
     find,
     ...options.value.conversationDataSource,
   ]
-  options.value.conversationDataSource.sort((a, b) => globalProperties
-      .$dayjs(b.lastUserMessage?.creationTime)
-      .diff(globalProperties.$dayjs(a.lastUserMessage?.creationTime))
-  )
 }
 
 async function onContactSelected(value: UserChatConversationResponseBody) {

@@ -2,7 +2,7 @@
 
 import {AttachmentService} from "@/apis";
 import {
-  type ComponentInternalInstance,
+  type ComponentInternalInstance, computed,
   getCurrentInstance,
   h,
   inject,
@@ -187,6 +187,42 @@ async function doDelete(item: UserChatConversationResponseBody) {
   }
 }
 
+function getConversationActiveTime(
+  item: UserChatConversationResponseBody,
+): number {
+  return item.lastUserMessage?.creationTime ?? item.creationTime ?? 0
+}
+
+function isPinned(item: UserChatConversationResponseBody): boolean {
+  return getEnumValue(item.pinned) === 1
+}
+
+function compareConversations(
+  a: UserChatConversationResponseBody,
+  b: UserChatConversationResponseBody,
+): number {
+  const aPinned = isPinned(a)
+  const bPinned = isPinned(b)
+  // 1. 置顶优先
+  if (aPinned !== bPinned) {
+    return aPinned ? -1 : 1
+  }
+  // 2. 同为置顶 → pinnedTime 降序
+  if (aPinned && bPinned) {
+    return (b.pinnedTime ?? 0) - (a.pinnedTime ?? 0)
+  }
+  // 3. 非置顶 → 活跃时间降序
+  return getConversationActiveTime(b) - getConversationActiveTime(a)
+}
+
+const conversationItems = computed(() =>
+  [...(dataSource.value ?? [])].sort(compareConversations).map(r => ({
+    label: r.name,
+    key: String(r.id),
+    data: r,
+  })),
+)
+
 defineExpose({
   changeMessageExtraContent
 })
@@ -198,7 +234,7 @@ defineExpose({
     <ax-conversations
       :activeKey="activeKey"
       :classes="{item:'p-xs! h-auto! min-h-auto! rounded-none!'}"
-      :items="(dataSource || []).map(r => ({label:r.name, key:String(r.id), data:r}))"
+      :items="conversationItems"
       :onActiveChange="onConversationsActiveChange"
       v-if="dataSource.length > 0"
       class="min-h-0 size-full flex-[1_1_0] p-0! gap-0!">

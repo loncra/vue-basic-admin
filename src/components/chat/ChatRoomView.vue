@@ -68,25 +68,28 @@ const emit = defineEmits<{
   confirm: [info: PlatformUser[], restResult:RestResult<UserChatConversationResponseBody>]
 }>()
 
-const systemUserPanelDataSource = computed(() => {
+const systemUserPanelDataSource = computed<ContactItem[]>(() => {
   if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT) {
     return props.contactDataSource
-  } else if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING){
+  }
+  if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING) {
     return participants.value
       .filter(p => p.principal !== principalStore.state.name)
-      .map(p => p.metadata)
-      .filter(metadata => metadata)
-      .map(metadata => metadata.details)
-      .filter(details => details)
-      .map(details => ({
-        key: details.id,
-        // FIXME 这里太多地方写重复代码了。
-        label: details.realName || details.username || globalProperties.$t('common.unname'),
-        data: details
-      }))
+      .map(p => p.metadata?.details)
+      .filter((user): user is PlatformUser => Boolean(user?.id))
+      .map(toContactItem)
   }
   return []
 })
+
+function toContactItem(user: PlatformUser): ContactItem {
+  return {
+    key: String(user.id),
+    label: user.realName || user.username || String(globalProperties.$t('common.unname')),
+    data: user,
+  }
+}
+
 async function mounted() {
   if (!conversation.value) {
     return
