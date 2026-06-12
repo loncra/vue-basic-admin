@@ -15,28 +15,29 @@ const globalProperties =
 
 const service = new ConsoleUserService()
 const entity = ref<ConsoleUserEntity>({
+  systemName: "",
   version: 0,
   emailVerified: {
     value:0,
-    name:'否'
+    name:''
   },
   phoneNumberVerified:{
     value:0,
-    name:'否'
+    name:''
   },
   gender: {
     value:30,
-    name:'位置性别'
+    name:''
   },
   id: 0,
   initialization:{
     randomPassword: {
       value: 1,
-      name:'是'
+      name:''
     },
     randomUsername:{
       value: 1,
-      name:'是'
+      name:''
     }
   },
   lastAuthenticationTime: 0,
@@ -44,11 +45,11 @@ const entity = ref<ConsoleUserEntity>({
   realName: "",
   status: {
     value: 99,
-    name:'位置性别'
+    name:''
   },
   type: {
     name:'',
-    value:'CONSOLE'
+    value:''
   },
   username: ""
 

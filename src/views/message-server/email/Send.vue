@@ -11,7 +11,7 @@ import type {
 } from "@/types/apis";
 import {ResourceServerService} from "@/apis";
 import LUserSelect from "@/components/basic/UserSelect.vue";
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 import LTipTap from "@/components/tiptap/TipTap.vue";
 
@@ -121,6 +121,7 @@ onMounted(mounted);
             <l-tip-tap
               v-model:value="options.form.content"
               model="html"
+              :placeholder="globalProperties.$()"
               class="min-h-100 max-h-120"
               :toolbar="{ items: ['undo', 'redo', 'divider', 'bold', 'italic', 'underline', 'blockquote', 'heading', 'divider', 'list', 'align', 'divider', 'link', 'picture'] }"
             />

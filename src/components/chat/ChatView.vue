@@ -126,13 +126,13 @@ const bubbleListItems = computed(() =>
 
 const placeholderText = computed(() => {
   if (getEnumValue(conversation.value?.item?.data?.status) === 20) {
-    return globalProperties.$t('userChat.view.placeholder.exitRoom')
+    return globalProperties.$t('chat.view.placeholder.exitRoom')
   } else if (getEnumValue(conversation.value?.item?.data?.status) === 25) {
-    return globalProperties.$t('userChat.view.placeholder.roomRemove')
+    return globalProperties.$t('chat.view.placeholder.roomRemove')
   } else if (getEnumValue(conversation.value?.item?.data?.status) === 30) {
-    return globalProperties.$t('userChat.view.placeholder.disbandRoom')
+    return globalProperties.$t('chat.view.placeholder.disbandRoom')
   } else {
-    return globalProperties.$t('userChat.view.placeholder.text')
+    return globalProperties.$t('chat.view.placeholder.text')
   }
 })
 

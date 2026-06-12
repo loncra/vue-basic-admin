@@ -240,7 +240,7 @@ export function createDefaultTipTapToolbarControls(
       component: buttonComponentPopover,
       props: {
         icon: 'loncra-paperclip',
-        tooltip: i18n.global.t('component.tiptap.link.text'),
+        tooltip: i18n.global.t('common.link'),
         label:i18n.global.t('component.tiptap.link.label'),
         size: context.size,
         active: context.editor.isActive('link'),

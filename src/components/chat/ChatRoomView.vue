@@ -227,13 +227,13 @@ function onModalCancel() {
 
 function onAddParticipant() {
   modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
-  modalOptions.value.title = globalProperties.$t("userChat.roomView.addParticipant")
+  modalOptions.value.title = globalProperties.$t("chat.roomView.addParticipant")
   modalOptions.value.open = true
 }
 
 function onMemberSetting() {
   modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
-  modalOptions.value.title = globalProperties.$t("userChat.roomView.memberManager")
+  modalOptions.value.title = globalProperties.$t("chat.roomView.memberManager")
   modalOptions.value.open = true
 }
 
@@ -287,8 +287,8 @@ function onExist() {
 
   if (getEnumValue(conversation.value.status) === 10) {
     modal.confirm({
-      title: globalProperties.$t('userChat.roomView.exitRoom.title'),
-      content: globalProperties.$t('userChat.roomView.exitRoom.content', {name: conversation.value.name}),
+      title: globalProperties.$t('chat.roomView.exitRoom.title'),
+      content: globalProperties.$t('chat.roomView.exitRoom.content', {name: conversation.value.name}),
       onOk: () => doExist(),
     })
   } else {
@@ -306,8 +306,8 @@ function onDisbandRoom() {
     return
   }
   modal.confirm({
-    title: globalProperties.$t('userChat.roomView.disbandRoom.title'),
-    content: globalProperties.$t('userChat.roomView.disbandRoom.content', {name: conversation.value.name}),
+    title: globalProperties.$t('chat.roomView.disbandRoom.title'),
+    content: globalProperties.$t('chat.roomView.disbandRoom.content', {name: conversation.value.name}),
     onOk: () => doDisbandRoom(),
   })
 }
@@ -428,7 +428,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
           <template #icon>
             <icon-font type="loncra-calendar-clock"/>
           </template>
-          {{ globalProperties.$t('userChat.history') }}
+          {{ globalProperties.$t('chat.history') }}
         </a-button>
         <a-divider plain orientation="left" class="mt-xs mb-xs">
           <a-space>
@@ -471,7 +471,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
             <template v-if="getEnumValue(conversation?.status) === 10">
               <a-flex justify="space-between" align="center" >
                 <a-typography-text>
-                  {{ globalProperties.$t('userChat.pinned.action') }}
+                  {{ globalProperties.$t('chat.pinned.action') }}
                 </a-typography-text>
                 <a-switch
                   size="small"
@@ -483,7 +483,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               </a-flex>
               <a-flex justify="space-between" align="center" >
                 <a-typography-text>
-                  {{ globalProperties.$t('userChat.muted.action') }}
+                  {{ globalProperties.$t('chat.muted.action') }}
                 </a-typography-text>
                 <a-switch
                   size="small"
@@ -503,7 +503,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
                   <icon-font type="loncra-user-cog"/>
                 </template>
                 <span>
-                  {{ globalProperties.$t('userChat.roomView.memberManager') }}
+                  {{ globalProperties.$t('chat.roomView.memberManager') }}
                 </span>
               </a-button>
               <a-space-compact block>
@@ -512,7 +512,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
                     <icon-font :type="getEnumValue(conversation.status) === 10 ? 'loncra-log-out' : 'loncra-archive-x'"/>
                   </template>
                   <span>
-                    {{getEnumValue(conversation.status) === 10 ? globalProperties.$t('userChat.roomView.exitRoom.action') : globalProperties.$t('userChat.conversation.delete')}}
+                    {{getEnumValue(conversation.status) === 10 ? globalProperties.$t('chat.roomView.exitRoom.action') : globalProperties.$t('chat.conversation.delete')}}
                   </span>
                 </a-button>
                 <a-button
@@ -526,7 +526,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
                     <icon-font type="loncra-message-square-x"/>
                   </template>
                   <span>
-                  {{ globalProperties.$t('userChat.roomView.disbandRoom.action') }}
+                  {{ globalProperties.$t('chat.roomView.disbandRoom.action') }}
                 </span>
                 </a-button>
               </a-space-compact>
@@ -547,7 +547,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               <icon-font type="loncra-archive-x"/>
             </template>
             <span>
-              {{ globalProperties.$t('userChat.conversation.delete') }}
+              {{ globalProperties.$t('chat.conversation.delete') }}
             </span>
           </a-button>
         </a-flex>
@@ -573,19 +573,19 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
         <a-space>
           <a-space-compact>
             <a-button @click="onUpdateParticipantType(30)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === 20).length <= 0">
-              {{ globalProperties.$t('userChat.roomView.modal.changeMember') }}
+              {{ globalProperties.$t('chat.roomView.modal.changeMember') }}
             </a-button>
             <a-button @click="onUpdateParticipantType(20)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === 30).length <= 0">
-              {{ globalProperties.$t('userChat.roomView.modal.changeCoOwner') }}
+              {{ globalProperties.$t('chat.roomView.modal.changeCoOwner') }}
             </a-button>
             <a-popconfirm
               :ok-button-props="{ loading: modalOptions.confirmLoading }"
-              :title="globalProperties.$t('userChat.roomView.modal.removeMember.confirmTitle')"
-              :description="globalProperties.$t('userChat.roomView.modal.removeMember.content',{count:options.selectedUser.length})"
+              :title="globalProperties.$t('chat.roomView.modal.removeMember.confirmTitle')"
+              :description="globalProperties.$t('chat.roomView.modal.removeMember.content',{count:options.selectedUser.length})"
               @confirm="onRemoveMember()"
             >
               <a-button :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.length <= 0" type="primary" danger>
-                {{ globalProperties.$t('userChat.roomView.modal.removeMember.action') }}
+                {{ globalProperties.$t('chat.roomView.modal.removeMember.action') }}
               </a-button>
             </a-popconfirm>
           </a-space-compact>

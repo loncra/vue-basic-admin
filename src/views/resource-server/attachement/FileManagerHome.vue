@@ -176,7 +176,7 @@ onMounted(mounted)
       <a-segmented v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
         <template #labelRender="{name, size, objects}">
           <a-typography-text strong>{{ name }}({{objects || 0}})</a-typography-text>
-          <div>使用空间:{{ byteFormat(size || 0)}}</div>
+          <div>{{ globalProperties.$t('common.used') }}:{{ byteFormat(size || 0)}}</div>
         </template>
 
       </a-segmented>

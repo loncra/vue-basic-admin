@@ -23,6 +23,8 @@ const locale: LanguagePack = {
       all: 'Export all',
       selected: 'Export ({count}) record(s)',
     },
+    used:'Used',
+    link:'Link URL',
     detail: '{name} details',
     action: 'Actions',
     reset: 'Reset',
@@ -47,6 +49,7 @@ const locale: LanguagePack = {
     content: 'Content',
     gender: 'Gender',
     remark: 'Remark',
+    unSupport:'Your browser does not support this operation',
     realName: 'Full name',
     send: 'Send {name}',
     name: 'Name',
@@ -294,6 +297,12 @@ const locale: LanguagePack = {
       title: 'Click or drag files to this area to upload',
       subTitle: 'Up to {maxCount} file(s); {count} uploaded',
     },
+    type:{
+      image:'image',
+      video:'video',
+      audio:'audio',
+      unknown:'file'
+    }
   },
   layoutContent: {
     loading: 'Loading…',
@@ -335,25 +344,6 @@ const locale: LanguagePack = {
   workbench: {
     personalActivity: 'Personal activity',
     quickAccess: 'Quick access',
-  },
-  ai: {
-    greeting: 'Hi, {name}! How can I help you today?',
-    models: 'Models',
-    think: 'Deep reasoning',
-    newChat: 'New chat',
-    network: 'Web search',
-    knowledge: 'Knowledge base search',
-    stop: 'Stop',
-    tool: {
-      arguments: 'Request parameters',
-      responseData: 'Response',
-    },
-    duration: 'Elapsed: {time} s',
-    token: {
-      total: 'Total tokens: {value}',
-      prompt: 'Prompt tokens: {value}',
-      completion: 'Completion tokens: {value}',
-    },
   },
   authServer: {
     deviceIdentified: 'Device identifier',
@@ -460,7 +450,6 @@ const locale: LanguagePack = {
       text: 'Body text',
       link: {
         text: 'Link',
-        label: 'Link URL',
       },
       title: 'Heading {number}',
       list: {
@@ -478,7 +467,7 @@ const locale: LanguagePack = {
       selectedMember:'Selected Member'
     }
   },
-  userChat: {
+  chat: {
     conversation: {
       delete: 'Delete conversation',
     },

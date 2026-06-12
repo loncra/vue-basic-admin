@@ -13,12 +13,14 @@ const locale: LanguagePack = {
     setting:'设置',
     me: '我',
     creationTime:'创建时间',
+    link:'链接地址',
     ip:'IP 地址',
     system:'系统信息',
     save: '保存',
     add: '添加{name}',
     edit: '编辑{name}',
     all: '全部{name}',
+    used:'已使用',
     export: {
       all: '导出全部',
       selected: '导出 ({count}) 条记录',
@@ -47,6 +49,7 @@ const locale: LanguagePack = {
     content:'内容',
     gender: '性别',
     remark: '备注',
+    unSupport:'您的浏览器不支此操作',
     realName: '真实姓名',
     send: '发送{name}',
     name:'名称',
@@ -288,6 +291,12 @@ const locale: LanguagePack = {
     dragger:{
       title:'点击或拖动文件至该区域进行上传',
       subTitle:'可上传 {maxCount} 个文件内容，当前已上传 {count}'
+    },
+    type:{
+      image:'图片',
+      video:'视频',
+      audio:'音频',
+      unknown:'文件'
     }
   },
   layoutContent: {
@@ -329,25 +338,6 @@ const locale: LanguagePack = {
   workbench: {
     personalActivity: '个人动态',
     quickAccess: '快速入口',
-  },
-  ai: {
-    greeting: '嗨! {name} 今天有什么可以帮您？',
-    models: '模型',
-    think: '深度思考',
-    newChat: '新话题',
-    network: '网络搜索',
-    knowledge: '知识库搜索',
-    stop: '停止',
-    tool: {
-      arguments: '请求参数',
-      responseData: '响应结果',
-    },
-    duration: '用时 {time} 秒',
-    token: {
-      total: '总消耗词元数: {value}',
-      prompt: '输入解析提示词词元数: {value}',
-      completion: '应答词元数: {value}',
-    },
   },
   authServer:{
     deviceIdentified:'设备唯一识别',
@@ -397,7 +387,6 @@ const locale: LanguagePack = {
       image:'图片内容',
       dataContent:' 数据内容',
       routePage:'轮播图',
-      link:'链接地址',
       showtime:'展示时间',
       immediately:'立即',
       permanent:'永久',
@@ -454,7 +443,6 @@ const locale: LanguagePack = {
       text:'正文',
       link:{
         text:'链接',
-        label:'链接地址'
       },
       title:'标题{number}',
       list:{
@@ -472,7 +460,7 @@ const locale: LanguagePack = {
       selectedMember:'已选择的成员'
     }
   },
-  userChat:{
+  chat:{
     conversation:{
       delete:'删除会话'
     },

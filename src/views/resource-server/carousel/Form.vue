@@ -140,7 +140,7 @@ async function preSubmit() {
         </a-col>
       </template>
 
-      <a-form-item label="链接地址" :name="['link','value']" :rules="[{ required: true, trigger: 'change'}]">
+      <a-form-item :label="globalProperties.$t('common.link')" :name="['link','value']" :rules="[{ required: true, trigger: 'change'}]">
         <a-space-compact block>
           <a-select v-model:value="options.entity.link.id" style="width: 120px" :options="options.linkOptions"/>
           <a-input v-model:value="options.entity.link.value" />

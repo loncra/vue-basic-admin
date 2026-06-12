@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import LTipTapToolbarButton from "@/components/tiptap/TipTapToolbarButton.vue";
+import {requireNonNullOrUndefined} from "@/utils";
 
 defineOptions({
   name: 'LTipTapToolbarButtonPopover',
@@ -12,7 +13,9 @@ const props = withDefaults(defineProps<{
 }>(),{
   label:'',
 })
-
+const globalProperties =
+  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
+    .globalProperties
 const modelValue = ref<string>('')
 
 const open = ref<boolean>(false);
@@ -36,10 +39,10 @@ const emit = defineEmits<{
         <a-space-addon>{{props.label}}:</a-space-addon>
         <a-input class="w-90" v-model:value="modelValue" />
         <a-button type="primary" @click="confirm">
-          确定
+          {{ globalProperties.$t('common.confirm') }}
         </a-button>
         <a-button @click="open = false">
-          取消
+          {{ globalProperties.$t('common.cancel') }}
         </a-button>
       </a-space-compact>
     </template>

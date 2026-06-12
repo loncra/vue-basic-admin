@@ -65,26 +65,26 @@ function createMenu(item:UserChatConversationResponseBody):MenuItemType[] {
   const temp = [...DEFAULT_MENU_ITEMS.value]
   if (getEnumValue(item.muted) === 0) {
     temp.unshift({
-      label: globalProperties.$t("userChat.muted.action"),
+      label: globalProperties.$t("chat.muted.action"),
       key: 'muted',
       icon:createIcon('loncra-megaphone-off', 'text-lg'),
     })
   } else {
     temp.unshift({
-      label: globalProperties.$t("userChat.muted.cancel"),
+      label: globalProperties.$t("chat.muted.cancel"),
       key: 'muted',
       icon:createIcon('loncra-megaphone', 'text-lg'),
     })
   }
   if (getEnumValue(item.pinned) === 0) {
     temp.unshift({
-      label: globalProperties.$t("userChat.pinned.action"),
+      label: globalProperties.$t("chat.pinned.action"),
       key: 'pinned',
       icon:createIcon('loncra-heart', 'text-lg'),
     })
   } else {
     temp.unshift({
-      label: globalProperties.$t("userChat.pinned.cancel"),
+      label: globalProperties.$t("chat.pinned.cancel"),
       key: 'pinned',
       icon:createIcon('loncra-heart-off', 'text-lg'),
     })

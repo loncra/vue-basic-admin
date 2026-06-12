@@ -19,6 +19,7 @@ import {h, type VNode} from "vue";
 import {AttachmentService} from "@/apis";
 import {Avatar, AvatarGroup} from 'antdv-next'
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
+import i18n from "@/i18n";
 
 /**
  * 用户聊天消息领域服务：`/api[/message-server]/user/chat`
@@ -143,13 +144,13 @@ export class ChatMessageService  {
         for (const file of block.files) {
           const contentType = file?.extraHeaders?.['Content-Type'] || ''
           if (contentType.startsWith('image/')) {
-            content += '[图片]'
+            content += '[' + i18n.global.t('attachment.type.image') + ']'
           } else if (contentType.startsWith('video/')) {
-            content += '[视频]'
+            content += '[' + i18n.global.t('attachment.type.video') + ']'
           } else if (contentType.startsWith('audio/')) {
-            content += '[音频]'
+              content += '[' + i18n.global.t('attachment.type.audio') + ']'
           } else {
-            content += '[文件]'
+            content += '[' + i18n.global.t('attachment.type.file') + ']'
           }
         }
       }
