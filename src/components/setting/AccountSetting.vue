@@ -4,7 +4,7 @@ import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, getCurrentInstance, inject, onMounted, ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {APP_RELOAD_PROVIDE_KEY, ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
+import {APP_RELOAD_PROVIDE_KEY, ATTACHMENT_UPLOAD_MODE, VALID_REGX} from "@/constants/systemConstant.ts";
 import type {UploadChangeParam} from "antdv-next";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {ObjectWriteResult, RestResult} from "@/types/apis";
