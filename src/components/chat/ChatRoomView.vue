@@ -283,7 +283,7 @@ async function onRemoveMember() {
 
 function onExist() {
 
-  if (!conversation.value || !conversation.value.room?.id) {
+  if (!conversation.value) {
     return
   }
 
@@ -301,6 +301,30 @@ function onExist() {
     })
   }
 
+}
+
+function onDisbandRoom() {
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
+  modal.confirm({
+    title: '解散提示',
+    content: '确定要解散' + conversation.value.name + '群聊吗?',
+    onOk: () => doDisbandRoom(),
+  })
+}
+
+async function doDisbandRoom() {
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
+  try {
+    loading.value = true
+    const result:RestResult<void> = await ChatMessageService.disbandRoom(conversation.value.room.id)
+    message.success(result.message)
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function doConversationDelete(body:UserChatConversationResponseBody | undefined) {
@@ -408,91 +432,126 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
           </template>
           聊天记录
         </a-button>
-        <a-divider plain orientation="left">
+        <a-divider plain orientation="left" class="mt-xs mb-xs">
           <a-space>
             <icon-font type="loncra-settings-2" />
             <span>设置</span>
           </a-space>
         </a-divider>
-        <a-flex vertical gap="small" v-if="conversation">
-          <a-flex justify="space-between" align="center" v-if="getEnumValue(conversation.room.type) === 10" >
+        <template v-if="conversation && conversation.room">
+
+          <a-flex vertical gap="middle">
+            <a-flex justify="space-between" align="center" v-if="getEnumValue(conversation.room.type) === 10" >
+              <a-typography-text>
+                名称
+              </a-typography-text>
+              <a-space v-if="!options.editName">
+                <a-typography-text>
+                  {{ conversation.name }}
+                </a-typography-text>
+                <a-button
+                  v-if="participants.some(s => s.principal === principalStore.state.name && [10,20].includes(getEnumValue(s.type))) && getEnumValue(conversation.status) === 10"
+                  size="small"
+                  type="text"
+                  @click="options.editName = true"
+                >
+                  <template #icon>
+                    <icon-font type="loncra-pencil" />
+                  </template>
+                </a-button>
+              </a-space>
+              <a-space-compact v-else-if="options.currentConversation">
+                <a-input @press-enter="onRename" :max-length="16" size="small" v-model:value="options.currentConversation.name" />
+                <a-button size="small" @click="onCancelRename">
+                  <icon-font type="loncra-message-circle-x"/>
+                </a-button>
+                <a-button size="small" type="primary" @click="onRename">
+                  <icon-font type="loncra-message-circle-check"/>
+                </a-button>
+              </a-space-compact>
+            </a-flex>
+            <template v-if="getEnumValue(conversation?.status) === 10">
+              <a-flex justify="space-between" align="center" >
+                <a-typography-text>
+                  置顶聊天
+                </a-typography-text>
+                <a-switch
+                  size="small"
+                  :checked="getEnumValue(conversation.pinned) === 1"
+                  @change="onPinnedChange"
+                  :checked-children="globalProperties.$t('common.open')"
+                  :un-checked-children="globalProperties.$t('common.close')"
+                />
+              </a-flex>
+              <a-flex justify="space-between" align="center" >
+                <a-typography-text>
+                  消息免打扰
+                </a-typography-text>
+                <a-switch
+                  size="small"
+                  :checked="getEnumValue(conversation.muted) === 1"
+                  @change="onMutedChange"
+                  :checked-children="globalProperties.$t('common.open')"
+                  :un-checked-children="globalProperties.$t('common.close')"
+                />
+              </a-flex>
+            </template>
+            <template v-if="getEnumValue(conversation.room.type) === 10">
+              <a-button
+                block
+                @click="onMemberSetting"
+                v-if="participants.some(s => s.principal === principalStore.state.name && [10,20].includes(getEnumValue(s.type))) && getEnumValue(conversation.status) === 10">
+                <template #icon>
+                  <icon-font type="loncra-user-cog"/>
+                </template>
+                <span>
+                  成员管理
+                </span>
+              </a-button>
+              <a-space-compact block>
+                <a-button block danger @click="onExist">
+                  <template #icon>
+                    <icon-font :type="getEnumValue(conversation.status) === 10 ? 'loncra-log-out' : 'loncra-archive-x'"/>
+                  </template>
+                  <span>
+                    {{getEnumValue(conversation.status) === 10 ? '退出群聊' : '删除会话'}}
+                  </span>
+                </a-button>
+                <a-button
+                  type="primary"
+                  block
+                  danger
+                  @click="onDisbandRoom"
+                  v-if="participants.some(c => getEnumValue(c.type) === 10 && principalStore.state.name === c.principal) && getEnumValue(conversation.status) === 10"
+                >
+                  <template #icon>
+                    <icon-font type="loncra-message-square-x"/>
+                  </template>
+                  <span>
+                  解散群聊
+                </span>
+                </a-button>
+              </a-space-compact>
+            </template>
+          </a-flex>
+        </template>
+        <a-flex vertical gap="middle" v-else-if="conversation">
+          <a-flex  justify="space-between" align="center">
             <a-typography-text>
               名称
             </a-typography-text>
-            <a-space v-if="!options.editName">
-              <a-typography-text>
-                {{ conversation.name }}
-              </a-typography-text>
-              <a-button v-if="participants.some(s => s.principal === principalStore.state.name && [10,20].includes(getEnumValue(s.type)))" size="small" type="text" @click="options.editName = true">
-                <template #icon>
-                  <icon-font type="loncra-pencil" />
-                </template>
-              </a-button>
-            </a-space>
-            <a-space-compact v-else-if="options.currentConversation">
-              <a-input @press-enter="onRename" :max-length="16" size="small" v-model:value="options.currentConversation.name" />
-              <a-button size="small" @click="onCancelRename">
-                <icon-font type="loncra-message-circle-x"/>
-              </a-button>
-              <a-button size="small" type="primary" @click="onRename">
-                <icon-font type="loncra-message-circle-check"/>
-              </a-button>
-            </a-space-compact>
+            <a-typography-text>
+              {{ conversation.name }}
+            </a-typography-text>
           </a-flex>
-          <template v-if="getEnumValue(conversation?.status) === 10">
-            <a-flex justify="space-between" align="center" >
-              <a-typography-text>
-                置顶聊天
-              </a-typography-text>
-              <a-switch
-                size="small"
-                :checked="getEnumValue(conversation.pinned) === 1"
-                @change="onPinnedChange"
-                :checked-children="globalProperties.$t('common.open')"
-                :un-checked-children="globalProperties.$t('common.close')"
-              />
-            </a-flex>
-            <a-flex justify="space-between" align="center" >
-              <a-typography-text>
-                消息免打扰
-              </a-typography-text>
-              <a-switch
-                size="small"
-                :checked="getEnumValue(conversation.muted) === 1"
-                @change="onMutedChange"
-                :checked-children="globalProperties.$t('common.open')"
-                :un-checked-children="globalProperties.$t('common.close')"
-              />
-            </a-flex>
-          </template>
-          <template v-if="getEnumValue(conversation.room.type) === 10">
-            <a-button block @click="onMemberSetting" v-if="participants.some(s => s.principal === principalStore.state.name && [10,20].includes(getEnumValue(s.type)))">
-              <template #icon>
-                <icon-font type="loncra-user-cog"/>
-              </template>
-              <span>
-                成员管理
-              </span>
-            </a-button>
-            <a-space-compact block>
-              <a-button block danger @click="onExist" v-if="getEnumValue(conversation.status) === 10">
-                <template #icon>
-                  <icon-font :type="getEnumValue(conversation.status) === 10 ? 'loncra-log-out' : 'loncra-archive-x'"/>
-                </template>
-                <span>
-                  {{getEnumValue(conversation.status) === 10 ? '退出群聊' : '删除会话'}}
-                </span>
-              </a-button>
-              <a-button type="primary" block danger v-if="participants.some(c => getEnumValue(c.type) === 10 && principalStore.state.name === c.principal)">
-                <template #icon>
-                  <icon-font type="loncra-message-square-x"/>
-                </template>
-                <span>
-                解散群聊
-              </span>
-              </a-button>
-            </a-space-compact>
-          </template>
+          <a-button block danger @click="onExist">
+            <template #icon>
+              <icon-font type="loncra-archive-x"/>
+            </template>
+            <span>
+              删除会话
+            </span>
+          </a-button>
         </a-flex>
       </a-flex>
     </a-spin>

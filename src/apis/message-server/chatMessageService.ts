@@ -55,6 +55,8 @@ export class ChatMessageService  {
 
   static readonly PARTICIPANT_EXIST_ROOM_URL = ChatMessageService.SERVICE_URL + '/participant/exist/room'
 
+  static readonly DISBAND_ROOM_RUL =  ChatMessageService.SERVICE_URL + '/room/disband'
+
   static readonly ROOM_RENAME_URL = ChatMessageService.SERVICE_URL + '/room/rename'
 
   static readonly FIND_MESSAGE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read/find'
@@ -111,6 +113,10 @@ export class ChatMessageService  {
 
   static existRoom(roomId: number): Promise<RestResult<void>> {
     return axios.delete(ChatMessageService.PARTICIPANT_EXIST_ROOM_URL, {params:formUrlEncoded({roomId})})
+  }
+
+  static disbandRoom(roomId: number): Promise<RestResult<void>> {
+    return axios.delete(ChatMessageService.DISBAND_ROOM_RUL, {params:formUrlEncoded({roomId})})
   }
 
   static roomRename(roomId:number, newName: string):Promise<RestResult<void>> {
