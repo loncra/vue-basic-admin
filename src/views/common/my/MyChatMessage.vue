@@ -110,13 +110,7 @@ async function loadConversationData(
       }
       ChatMessageService.addBubbleListMessage(d, role, conversationActive.value.bubbleList)
     }
-    await nextTick()
-    const messageIds:number[] = elements.filter(e => getEnumValue(e.readable) === 1)
-      .map(e => Number(e.id))
-    if (messageIds.length > 0) {
-      await ChatMessageService.read(messageIds)
-      await messageServerStore.fetchUnreadQuantity()
-    }
+
   } finally {
     conversationActive.value.loading = false
   }
@@ -315,15 +309,30 @@ function onChatConversationReceived(result: RestResult<UserChatConversationRespo
   options.value.conversationDataSource.unshift(result.data)
 }
 
-async function onChatViewNextPage(scrollBox:HTMLElement) {
+async function onChatViewNextPage() {
   const roomId = Number(conversationActive.value.item?.data?.room?.id)
   if (!roomId) {
     return
   }
-  const oldHeight = scrollBox.scrollHeight;
-  await loadConversationData(roomId, conversationActive.value.dataSource.number + 1);
+  // 锚点：当前已加载的最旧一条消息（加载后它会被新内容顶到下面）
+  const bubbles = conversationActive.value.bubbleList
+  const anchor = bubbles.length
+    ? bubbles.reduce((a, b) =>
+      (a.data?.creationTime ?? 0) <= (b.data?.creationTime ?? 0) ? a : b)
+    : undefined
+  await loadConversationData(roomId, conversationActive.value.dataSource.number + 1)
   await nextTick()
-  scrollBox.scrollTop = oldHeight - scrollBox.scrollHeight
+  if (anchor) {
+    // behavior 必须用 'auto'（即 instant），否则平滑动画会很怪
+    chatViewRef.value?.scrollTo({ key: anchor.key, behavior: 'auto', block: 'start' })
+  }
+  if (conversationActive.value.dataSource.last) {
+    conversationActive.value.bubbleList.unshift({
+      key:globalProperties.$dayjs().unix(),
+      role:'system',
+      content:'没有更多的数据了'
+    })
+  }
 }
 
 function onConversationMoreClick() {
