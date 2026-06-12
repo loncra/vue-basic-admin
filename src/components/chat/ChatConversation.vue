@@ -49,42 +49,42 @@ const emit = defineEmits<{
   delete: [item:UserChatConversationResponseBody]
 }>()
 
-const DEFAULT_MENU_ITEMS: MenuItemType[] = [
+const DEFAULT_MENU_ITEMS = computed((): MenuItemType[] => [
   {
     type: "divider",
   },
   {
-    label: '删除',
+    label: globalProperties.$t("common.delete.text"),
     key: 'delete',
     icon:createIcon('loncra-archive-x', 'text-lg'),
     danger: true,
   },
-]
+])
 
 function createMenu(item:UserChatConversationResponseBody):MenuItemType[] {
-  const temp = [...DEFAULT_MENU_ITEMS]
+  const temp = [...DEFAULT_MENU_ITEMS.value]
   if (getEnumValue(item.muted) === 0) {
     temp.unshift({
-      label: '免打扰',
+      label: globalProperties.$t("userChat.muted.action"),
       key: 'muted',
       icon:createIcon('loncra-megaphone-off', 'text-lg'),
     })
   } else {
     temp.unshift({
-      label: '取消免打扰',
+      label: globalProperties.$t("userChat.muted.cancel"),
       key: 'muted',
       icon:createIcon('loncra-megaphone', 'text-lg'),
     })
   }
   if (getEnumValue(item.pinned) === 0) {
     temp.unshift({
-      label: '置顶',
+      label: globalProperties.$t("userChat.pinned.action"),
       key: 'pinned',
       icon:createIcon('loncra-heart', 'text-lg'),
     })
   } else {
     temp.unshift({
-      label: '取消置顶',
+      label: globalProperties.$t("userChat.pinned.cancel"),
       key: 'pinned',
       icon:createIcon('loncra-heart-off', 'text-lg'),
     })

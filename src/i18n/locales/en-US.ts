@@ -10,11 +10,15 @@ const locale: LanguagePack = {
   antDesign: enUS,
   common: {
     id: 'ID',
-    me: 'me',
+    setting: 'Settings',
+    me: 'Me',
     creationTime: 'Created at',
+    ip: 'IP address',
+    system: 'System information',
     save: 'Save',
     add: 'Add {name}',
     edit: 'Edit {name}',
+    all: 'All {name}',
     export: {
       all: 'Export all',
       selected: 'Export ({count}) record(s)',
@@ -22,6 +26,11 @@ const locale: LanguagePack = {
     detail: '{name} details',
     action: 'Actions',
     reset: 'Reset',
+    read: {
+      time: 'Read time',
+      readable: 'Unread {count}',
+      unreadable: 'Read {count}',
+    },
     delete: {
       text: 'Delete',
       selected: 'Delete ({count}) record(s)',
@@ -29,16 +38,20 @@ const locale: LanguagePack = {
       confirmSingle: 'Are you sure you want to delete this record?',
       confirmBatch: 'Are you sure you want to delete {count} record(s)?',
     },
+    title: 'Title',
     serverError: 'Server error. Please try again later.',
     confirmPassword: 'Confirm password',
     email: 'Email',
     phoneNumber: 'Phone number',
     status: 'Status',
+    content: 'Content',
     gender: 'Gender',
     remark: 'Remark',
     realName: 'Full name',
+    send: 'Send {name}',
     name: 'Name',
     enabled: 'Enabled',
+    verified: 'Verified {name}',
     disabled: 'Disabled',
     type: 'Type',
     category: 'Category',
@@ -46,7 +59,6 @@ const locale: LanguagePack = {
     home: 'Home',
     parent: 'Parent',
     addChild: 'Add {name} child',
-    content: 'Content',
     open: 'On',
     close: 'Off',
     border: 'Border',
@@ -54,20 +66,34 @@ const locale: LanguagePack = {
     lang: 'Language',
     style: 'Style',
     other: 'Other',
+    owner: 'Owner',
     rememberOperate: 'Remember my choice',
     default: 'Default',
     basicInformation: 'Basic information',
-    requestHeader: 'Request header',
+    request: {
+      header: 'Request header',
+      parameter: 'Request parameters',
+      body: 'Request body',
+    },
+    cover: 'Cover',
     sort: 'Sort order',
     value: 'Value',
     unname: 'Untitled',
     clear: 'Clear',
     executeStatus: 'Execution status',
     successTime: 'Success time',
+    completionTime: 'Completion time',
     expiresTime: 'Expiration time',
+    auditionTime: 'Review time',
+    code: 'Code',
+    retry: {
+      time: 'Retry time',
+      count: 'Retry count',
+    },
+    channel: 'Channel',
     download: {
       text: 'Download',
-      selected: 'Download selected',
+      selected: 'Download selected ({count}) record(s)',
     },
     release: {
       text: 'Publish',
@@ -90,7 +116,7 @@ const locale: LanguagePack = {
     type: 'Operation type',
     data: 'Operation data',
   },
-  setting: {
+  systemSetting: {
     componentSize: 'Default component size',
     wireframe: 'Wireframe',
     compact: 'Compact',
@@ -211,6 +237,10 @@ const locale: LanguagePack = {
       },
       modifyPassword: 'Change password',
     },
+    tab: {
+      accountSetting: 'Account settings',
+      configProviderSetting: 'System settings',
+    },
   },
   form: {
     operationDataTrace: 'Operation history',
@@ -258,10 +288,11 @@ const locale: LanguagePack = {
     },
   },
   attachment: {
+    text: 'Attachment',
     uploading: 'Uploading…',
     dragger: {
       title: 'Click or drag files to this area to upload',
-      subTitle: 'Supports single or batch upload',
+      subTitle: 'Up to {maxCount} file(s); {count} uploaded',
     },
   },
   layoutContent: {
@@ -285,7 +316,8 @@ const locale: LanguagePack = {
       'Build enterprise apps quickly through configuration—development stays efficient and focused.',
     welcomeTitle: 'Welcome back 👋🏻',
     welcomeSubTitle: 'Enter your account details to get started.',
-    account: 'Username',
+    principal: 'User information',
+    account: 'Sign-in account',
     password: 'Password',
     oldPassword: 'Current password',
     newPassword: 'New password',
@@ -311,9 +343,7 @@ const locale: LanguagePack = {
     newChat: 'New chat',
     network: 'Web search',
     knowledge: 'Knowledge base search',
-    send: 'Send',
     stop: 'Stop',
-    history: 'Chat history',
     tool: {
       arguments: 'Request parameters',
       responseData: 'Response',
@@ -326,6 +356,7 @@ const locale: LanguagePack = {
     },
   },
   authServer: {
+    deviceIdentified: 'Device identifier',
     randomPassword: 'Use random password',
     randomUsername: 'Use random username',
     lastAuthenticationTime: 'Last sign-in time',
@@ -354,7 +385,6 @@ const locale: LanguagePack = {
     },
   },
   resourceServer: {
-    code: 'Code',
     dataDictionary: {
       valueType: 'Value type',
       level: 'Level',
@@ -366,6 +396,8 @@ const locale: LanguagePack = {
     },
     attachment: {
       filename: 'File name',
+      fileSize: 'File size',
+      lastModified: 'Last modified',
     },
     carousel: {
       image: 'Image content',
@@ -375,6 +407,120 @@ const locale: LanguagePack = {
       showtime: 'Display time',
       immediately: 'Immediately',
       permanent: 'Permanent',
+    },
+  },
+  messageServer: {
+    sms: {
+      routePage: 'SMS messages',
+      template: {
+        routePage: 'SMS templates',
+        code: 'SMS template',
+      },
+      sign: {
+        routePage: 'SMS signatures',
+        code: 'SMS signature',
+      },
+      variable: {
+        title: 'Template variables',
+      },
+    },
+    site: {
+      pushable: 'Push enabled',
+      routePage: 'Site messages',
+      readable: 'Read status',
+      readCount: 'Read count {count}',
+      channel: 'Push channel',
+      deleteRead: 'Delete read',
+      readAll: 'Mark all as read',
+    },
+    email: {
+      routePage: 'Email messages',
+      fromEmail: 'From email',
+      receiveEmail: 'To email',
+    },
+    batch: {
+      routePage: 'Batch messages',
+      count: 'Total sent',
+      successNumber: 'Success count {count}',
+      failNumber: 'Failure count {count}',
+    },
+  },
+  component: {
+    tiptap: {
+      undo: 'Undo',
+      redo: 'Redo',
+      picture: {
+        text: 'Image',
+        label: 'Image URL',
+      },
+      bold: 'Bold',
+      italic: 'Italic',
+      underline: 'Underline',
+      blockquote: 'Quote',
+      text: 'Body text',
+      link: {
+        text: 'Link',
+        label: 'Link URL',
+      },
+      title: 'Heading {number}',
+      list: {
+        none: 'No list',
+        bullet: 'Bullet list',
+        ordered: 'Ordered list',
+      },
+      align: {
+        left: 'Align left',
+        center: 'Align center',
+        right: 'Align right',
+      },
+    },
+    systemUserPanel:{
+      selectedMember:'Selected Member'
+    }
+  },
+  userChat: {
+    conversation: {
+      delete: 'Delete conversation',
+    },
+    pinned: {
+      action: 'Pin chat',
+      cancel: 'Unpin chat',
+    },
+    muted: {
+      action: 'Mute notifications',
+      cancel: 'Unmute notifications',
+    },
+    history: 'Chat history',
+    view: {
+      placeholder: {
+        exitRoom: 'You have left this group',
+        roomRemove: 'You were removed from this group',
+        disbandRoom: 'This group has been disbanded',
+        text: 'Type a message; paste files here to send attachments',
+      },
+    },
+    roomView: {
+      addParticipant: 'Start group chat',
+      memberManager: 'Manage members',
+      exitRoom: {
+        title: 'Leave group',
+        content: 'Are you sure you want to leave {name}?',
+        action: 'Leave group',
+      },
+      disbandRoom: {
+        title: 'Disband group',
+        content: 'Are you sure you want to disband {name}?',
+        action: 'Disband group',
+      },
+      modal: {
+        changeMember: 'Set as member',
+        changeCoOwner: 'Set as co-admin',
+        removeMember: {
+          confirmTitle: 'Confirm removal',
+          content: 'Remove {count} selected member(s)?',
+          action: 'Remove members',
+        },
+      },
     },
   },
 }

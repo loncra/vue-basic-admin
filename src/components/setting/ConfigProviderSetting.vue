@@ -29,9 +29,9 @@ const createSuccessOptions = computed(() => [
 ])
 
 const sizeOptions = computed(() => [
-  { name: globalProperties.$t('setting.size.large'), value: 'large' },
-  { name: globalProperties.$t('setting.size.middle'), value: 'middle' },
-  { name: globalProperties.$t('setting.size.small'), value: 'small' },
+  { name: globalProperties.$t('systemSetting.size.large'), value: 'large' },
+  { name: globalProperties.$t('systemSetting.size.middle'), value: 'middle' },
+  { name: globalProperties.$t('systemSetting.size.small'), value: 'small' },
 ])
 
 const tabItems = computed(() => [
@@ -39,7 +39,7 @@ const tabItems = computed(() => [
     metadata: {
       key:'colorSetting',
     },
-    id: globalProperties.$t('setting.colorSetting.text'),
+    id: globalProperties.$t('systemSetting.colorSetting.text'),
     value: createIcon('loncra-paint-bucket', 'align')
   },
   {
@@ -66,9 +66,9 @@ const tabItems = computed(() => [
 ])
 
 const themeOptions = computed(() => [
-  { name: globalProperties.$t('setting.theme.system'), value: CONFIG_PROVIDER_THEME.SYSTEM },
-  { name: globalProperties.$t('setting.theme.dark'), value: CONFIG_PROVIDER_THEME.DARK },
-  { name: globalProperties.$t('setting.theme.light'), value: CONFIG_PROVIDER_THEME.LIGHT },
+  { name: globalProperties.$t('systemSetting.theme.system'), value: CONFIG_PROVIDER_THEME.SYSTEM },
+  { name: globalProperties.$t('systemSetting.theme.dark'), value: CONFIG_PROVIDER_THEME.DARK },
+  { name: globalProperties.$t('systemSetting.theme.light'), value: CONFIG_PROVIDER_THEME.LIGHT },
 ])
 
 function colorChange(_color: Color, tokenKey: string): void {
@@ -86,11 +86,11 @@ function colorChange(_color: Color, tokenKey: string): void {
         </a-form-item>
       </a-col>
       <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-        <a-form-item name="name" :label="globalProperties.$t('setting.theme.text')">
+        <a-form-item name="name" :label="globalProperties.$t('systemSetting.theme.text')">
           <a-space-compact block>
             <a-select  @change="(value: string) => configProviderStore.setMode(value as ThemeMode)" :value="configProviderStore.state.theme"  :options="themeOptions" :field-names="{label:'name'}"></a-select>
             <a-space-addon>
-              {{ globalProperties.$t('setting.compact') }} :
+              {{ globalProperties.$t('systemSetting.compact') }} :
             </a-space-addon>
             <a-space-addon>
               <a-switch size="small" :checked="configProviderStore.state.compact" @change="(value: boolean) => configProviderStore.setCompact(value)" :checked-children="globalProperties.$t('common.open')" :un-checked-children="globalProperties.$t('common.close')" />
@@ -99,12 +99,12 @@ function colorChange(_color: Color, tokenKey: string): void {
         </a-form-item>
       </a-col>
       <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-        <a-form-item name="name" :label="globalProperties.$t('setting.home.homeSiderWidth')">
+        <a-form-item name="name" :label="globalProperties.$t('systemSetting.home.homeSiderWidth')">
           <a-input-number class="w-full" @change="(value: number) => configProviderStore.setHomeSiderWidth(value)" :value="configProviderStore.state.homeSiderWidth" />
         </a-form-item>
       </a-col>
       <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-        <a-form-item name="name" :label="globalProperties.$t('setting.home.homeCollapsedWidth')">
+        <a-form-item name="name" :label="globalProperties.$t('systemSetting.home.homeCollapsedWidth')">
           <a-space-compact block>
             <a-input-number class="w-full" @change="(value: number) => configProviderStore.setHomeCollapsedWidth(value)" :value="configProviderStore.state.homeCollapsedWidth" />
             <a-space-addon>
@@ -122,21 +122,21 @@ function colorChange(_color: Color, tokenKey: string): void {
 
             <a-flex justify="space-between" align="center" >
               <a-typography-text strong>
-                {{ globalProperties.$t('setting.componentSize') }}
+                {{ globalProperties.$t('systemSetting.componentSize') }}
               </a-typography-text>
               <a-select @change="(value: string) => configProviderStore.setComponentSize(value)" :value="configProviderStore.state.componentSize" :options="sizeOptions" :field-names="{label:'name'}"/>
             </a-flex>
 
             <a-flex justify="space-between" align="center" >
               <a-typography-text strong>
-                {{ globalProperties.$t('setting.wireframe') }}
+                {{ globalProperties.$t('systemSetting.wireframe') }}
               </a-typography-text>
               <a-switch :checked="configProviderStore.getTokenValue('wireframe')" @change="(value: boolean) =>  configProviderStore.setTokenValue('wireframe', value)" :checked-children="globalProperties.$t('common.open')" :un-checked-children="globalProperties.$t('common.close')" />
             </a-flex>
 
             <a-flex justify="space-between" align="center" >
               <a-typography-text strong>
-                {{ globalProperties.$t('setting.createSuccessBack') }}
+                {{ globalProperties.$t('systemSetting.createSuccessBack') }}
               </a-typography-text>
               <a-select @change="(value: string) => configProviderStore.setCreateSuccessBack(value as CreateSuccessBackValue)" :value="configProviderStore.state.createSuccessBack" :options="createSuccessOptions" :field-names="{label:'name'}"/>
             </a-flex>
@@ -144,7 +144,7 @@ function colorChange(_color: Color, tokenKey: string): void {
             <a-collapse :classes="{header: 'bg-container!'}">
               <a-collapse-panel>
                 <template #header>
-                  {{ globalProperties.$t('setting.colorSetting.prepare') }}
+                  {{ globalProperties.$t('systemSetting.colorSetting.prepare') }}
                 </template>
                 <template #extra>
                   <icon-font class="icon" type="loncra-paint-bucket" />
@@ -152,7 +152,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-space orientation="vertical" class="w-full" >
                   <a-flex justify="space-between" align="center" :key="color" v-for="color in ['blue','purple','cyan','yellow','green','magenta','pink','volcano','lime','gold']">
                     <a-typography-text strong>
-                      {{globalProperties.$t('setting.colorSetting.other.' + color)}}
+                      {{globalProperties.$t('systemSetting.colorSetting.other.' + color)}}
                     </a-typography-text>
                     <a-color-picker  @change="(_color: Color) => colorChange(_color, color)" size="large" :default-value="configProviderStore.getTokenValue(color)" />
                   </a-flex>
@@ -160,7 +160,7 @@ function colorChange(_color: Color, tokenKey: string): void {
               </a-collapse-panel>
               <a-collapse-panel>
                 <template #header>
-                  {{globalProperties.$t('setting.other.transparency.text')}}
+                  {{globalProperties.$t('systemSetting.other.transparency.text')}}
                 </template>
                 <template #extra>
                   <icon-font class="icon" type="loncra-squares-intersect" />
@@ -168,13 +168,13 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-space orientation="vertical" class="w-full">
                   <a-flex justify="space-between" align="center" >
                     <a-typography-text strong>
-                      {{globalProperties.$t('setting.other.transparency.loading')}}
+                      {{globalProperties.$t('systemSetting.other.transparency.loading')}}
                     </a-typography-text>
                     <a-input-number @change="(value:number) => configProviderStore.setTokenValue('opacityLoading', value)" :value="configProviderStore.getTokenValue('opacityLoading')"/>
                   </a-flex>
                   <a-flex justify="space-between" align="center">
                     <a-typography-text strong>
-                      {{globalProperties.$t('setting.other.transparency.image')}}
+                      {{globalProperties.$t('systemSetting.other.transparency.image')}}
                     </a-typography-text>
                     <a-input-number @change="(value:number) => configProviderStore.setTokenValue('opacityImage', value)" :value="configProviderStore.getTokenValue('opacityImage')"/>
                   </a-flex>
@@ -187,7 +187,7 @@ function colorChange(_color: Color, tokenKey: string): void {
           <a-collapse :classes="{header: 'bg-container!'}">
             <a-collapse-panel>
               <template #header>
-                {{globalProperties.$t('setting.borderRadius')}}
+                {{globalProperties.$t('systemSetting.borderRadius')}}
               </template>
               <template #extra>
                 <icon-font class="icon" type="loncra-radius" />
@@ -195,13 +195,13 @@ function colorChange(_color: Color, tokenKey: string): void {
               <a-space orientation="vertical" class="w-full">
                 <a-flex justify="space-between" align="center">
                   <a-typography-text strong>
-                    {{globalProperties.$t('common.default')}}{{globalProperties.$t('setting.borderRadius')}}
+                    {{globalProperties.$t('common.default')}}{{globalProperties.$t('systemSetting.borderRadius')}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('borderRadius', value)" :value="configProviderStore.getTokenValue('borderRadius')"/>
                 </a-flex>
                 <a-flex justify="space-between" align="center" :key="size" v-for="size in ['sm','lg','xs']">
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.borderRadius')}}，{{globalProperties.$t('setting.size.' + size)}}
+                    {{globalProperties.$t('systemSetting.borderRadius')}}，{{globalProperties.$t('systemSetting.size.' + size)}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('borderRadius' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('borderRadius' + size.toUpperCase())"/>
                 </a-flex>
@@ -209,7 +209,7 @@ function colorChange(_color: Color, tokenKey: string): void {
             </a-collapse-panel>
             <a-collapse-panel>
               <template #header>
-                {{globalProperties.$t('setting.boxShadow.text')}}
+                {{globalProperties.$t('systemSetting.boxShadow.text')}}
               </template>
               <template #extra>
                 <icon-font class="icon" type="loncra-squares-subtract" />
@@ -217,19 +217,19 @@ function colorChange(_color: Color, tokenKey: string): void {
               <a-space orientation="vertical" class="w-full" >
                 <a-flex justify="space-between" align="center" >
                   <a-typography-text strong>
-                    {{globalProperties.$t('common.default')}}{{globalProperties.$t('setting.boxShadow.text')}}
+                    {{globalProperties.$t('common.default')}}{{globalProperties.$t('systemSetting.boxShadow.text')}}
                   </a-typography-text>
                   <a-input class="w-100" @change="(value:number) => configProviderStore.setTokenValue('boxShadow', value)" :value="configProviderStore.getTokenValue('boxShadow')"/>
                 </a-flex>
                 <a-flex justify="space-between" align="center" >
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.boxShadow.secondary')}}
+                    {{globalProperties.$t('systemSetting.boxShadow.secondary')}}
                   </a-typography-text>
                   <a-input class="w-100" @change="(value:number) => configProviderStore.setTokenValue('boxShadowSecondary', value)" :value="configProviderStore.getTokenValue('boxShadowSecondary')"/>
                 </a-flex>
                 <a-flex justify="space-between" align="center" >
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.boxShadow.tertiary')}}
+                    {{globalProperties.$t('systemSetting.boxShadow.tertiary')}}
                   </a-typography-text>
                   <a-input class="w-100" @change="(value:number) => configProviderStore.setTokenValue('boxShadowTertiary', value)" :value="configProviderStore.getTokenValue('boxShadowTertiary')"/>
                 </a-flex>
@@ -242,7 +242,7 @@ function colorChange(_color: Color, tokenKey: string): void {
           <a-collapse :classes="{header: 'bg-container!'}">
             <a-collapse-panel>
               <template #header>
-                {{globalProperties.$t('setting.size.common')}}
+                {{globalProperties.$t('systemSetting.size.common')}}
               </template>
               <template #extra>
                 <icon-font class="icon" type="loncra-ruler-dimension-line" />
@@ -256,7 +256,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-flex>
                 <a-flex justify="space-between" align="center" :key="size" v-for="size in ['lg','md','sm','xl','xs','xxl','xxs']">
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.size.' + size)}}
+                    {{globalProperties.$t('systemSetting.size.' + size)}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('size' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('size' + size.toUpperCase())" />
                 </a-flex>
@@ -265,7 +265,7 @@ function colorChange(_color: Color, tokenKey: string): void {
 
             <a-collapse-panel>
               <template #header>
-                {{globalProperties.$t('setting.font.text')}}
+                {{globalProperties.$t('systemSetting.font.text')}}
               </template>
               <template #extra>
                 <icon-font class="icon" type="loncra-file-type-corner" />
@@ -279,13 +279,13 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-flex>
                 <a-flex justify="space-between" align="center" :key="size" v-for="size in ['sm','lg','xl']">
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.font.text')}}，{{globalProperties.$t('setting.size.' + size)}}
+                    {{globalProperties.$t('systemSetting.font.text')}}，{{globalProperties.$t('systemSetting.size.' + size)}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('fontSize' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('fontSize' + size.toUpperCase())" />
                 </a-flex>
                 <a-flex justify="space-between" align="center" v-for="number in 5" :key="number">
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.font.heading',{number})}}
+                    {{globalProperties.$t('systemSetting.font.heading',{number})}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('fontSizeHeading' + number, value)" :value="configProviderStore.getTokenValue('fontSizeHeading' + number)"/>
                 </a-flex>
@@ -293,7 +293,7 @@ function colorChange(_color: Color, tokenKey: string): void {
             </a-collapse-panel>
             <a-collapse-panel>
               <template #header>
-                {{globalProperties.$t('setting.lineHeight.text')}}
+                {{globalProperties.$t('systemSetting.lineHeight.text')}}
               </template>
               <template #extra>
                 <icon-font class="icon" type="loncra-unfold-vertical" />
@@ -307,13 +307,13 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-flex>
                 <a-flex justify="space-between" align="center" v-for="number in 5" :key="number">
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.lineHeight.heading',{number})}}
+                    {{globalProperties.$t('systemSetting.lineHeight.heading',{number})}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('lineHeightHeading' + number, value)" :value="configProviderStore.getTokenValue('lineHeightHeading' + number)"/>
                 </a-flex>
                 <a-flex justify="space-between" align="center" :key="size" v-for="size in ['sm','lg']">
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.lineHeight.text')}}，{{globalProperties.$t('setting.size.' + size)}}
+                    {{globalProperties.$t('systemSetting.lineHeight.text')}}，{{globalProperties.$t('systemSetting.size.' + size)}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('lineHeight' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('lineHeight' + size.toUpperCase())"/>
                 </a-flex>
@@ -321,7 +321,7 @@ function colorChange(_color: Color, tokenKey: string): void {
             </a-collapse-panel>
             <a-collapse-panel>
               <template #header>
-                {{globalProperties.$t('setting.margin')}}
+                {{globalProperties.$t('systemSetting.margin')}}
               </template>
               <template #extra>
                 <icon-font class="icon" type="loncra-bring-to-front" />
@@ -335,7 +335,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-flex>
                 <a-flex justify="space-between" align="center" :key="size" v-for="size in ['lg', 'md', 'sm', 'xl', 'xs', 'xxl', 'xxs']">
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.size.' + size)}}
+                    {{globalProperties.$t('systemSetting.size.' + size)}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('margin' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('margin' + size.toUpperCase())"/>
                 </a-flex>
@@ -343,7 +343,7 @@ function colorChange(_color: Color, tokenKey: string): void {
             </a-collapse-panel>
             <a-collapse-panel>
               <template #header>
-                {{globalProperties.$t('setting.padding')}}
+                {{globalProperties.$t('systemSetting.padding')}}
               </template>
               <template #extra>
                 <icon-font class="icon" type="loncra-panel-top-bottom-dashed" />
@@ -357,7 +357,7 @@ function colorChange(_color: Color, tokenKey: string): void {
                 </a-flex>
                 <a-flex justify="space-between" align="center" :key="size" v-for="size in ['lg', 'md', 'sm', 'xl', 'xs', 'xxs']">
                   <a-typography-text strong>
-                    {{globalProperties.$t('setting.size.' + size)}}
+                    {{globalProperties.$t('systemSetting.size.' + size)}}
                   </a-typography-text>
                   <a-input-number @change="(value:number) => configProviderStore.setTokenValue('padding' + size.toUpperCase(), value)" :value="configProviderStore.getTokenValue('padding' + size.toUpperCase())"/>
                 </a-flex>
@@ -369,7 +369,7 @@ function colorChange(_color: Color, tokenKey: string): void {
           <a-collapse :classes="{header: 'bg-container!'}">
             <a-collapse-panel :key="id" v-for="id of colorOptions">
               <template #header>
-                {{globalProperties.$t('setting.colorSetting.' + id)}}
+                {{globalProperties.$t('systemSetting.colorSetting.' + id)}}
               </template>
               <template #extra>
                       <span @click.stop>
@@ -380,10 +380,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.active.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.active.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.active.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.active.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'Active')" size="large" :value="configProviderStore.getTokenValue(id + 'Active')" />
@@ -391,10 +391,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.bg.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.bg.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.bg.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.bg.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'Bg')" size="large" :default-value="configProviderStore.getTokenValue(id + 'Bg')" />
@@ -402,10 +402,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.bgHover.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.bgHover.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.bgHover.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.bgHover.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'BgHover')" size="large" :default-value="configProviderStore.getTokenValue(id + 'BgHover')" />
@@ -413,10 +413,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.border.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.border.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.border.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.border.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'Border')" size="large" :default-value="configProviderStore.getTokenValue(id + 'Border')" />
@@ -424,10 +424,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.borderHover.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.borderHover.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.borderHover.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.borderHover.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'BorderHover')" size="large" :default-value="configProviderStore.getTokenValue(id + 'BorderHover')" />
@@ -435,10 +435,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.hover.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.hover.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.hover.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.hover.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'Hover')" size="large" :default-value="configProviderStore.getTokenValue(id + 'Hover')" />
@@ -446,10 +446,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.colorText.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.colorText.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.colorText.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.colorText.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'Text')" size="large" :default-value="configProviderStore.getTokenValue(id + 'Text')" />
@@ -457,10 +457,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.colorTextActive.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.colorTextActive.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.colorTextActive.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.colorTextActive.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'TextActive')" size="large" :default-value="configProviderStore.getTokenValue(id + 'TextActive')" />
@@ -468,10 +468,10 @@ function colorChange(_color: Color, tokenKey: string): void {
                 <a-flex justify="space-between" align="center">
                   <a-flex vertical :gap="2">
                     <a-typography-text strong>
-                      {{ globalProperties.$t('setting.colorSetting.colorTextHover.title') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.colorTextHover.title') }}
                     </a-typography-text>
                     <a-typography-text type="secondary" class="text-sm">
-                      {{ globalProperties.$t('setting.colorSetting.colorTextHover.subTitle') }}
+                      {{ globalProperties.$t('systemSetting.colorSetting.colorTextHover.subTitle') }}
                     </a-typography-text>
                   </a-flex>
                   <a-color-picker  @change="(color: Color) => colorChange(color, id + 'TextHover')" size="large" :default-value="configProviderStore.getTokenValue(id + 'TextHover')" />

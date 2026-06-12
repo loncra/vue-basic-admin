@@ -19,7 +19,7 @@ import {
   type UserChatMessageEntity,
   type UserChatMessageResponseBody
 } from "@/types/apis";
-import {findAllTreeNodes, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore";
 import LChatConversation from "@/components/chat/ChatConversation.vue";

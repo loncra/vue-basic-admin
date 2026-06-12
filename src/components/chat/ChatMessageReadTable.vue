@@ -40,13 +40,13 @@ const loading = ref<boolean>(false);
 const segmented = computed(() =>{
   return [
     {
-      label: '已读 (' + dataSource.value.filter((item) => getEnumValue(item.readable) === 0).length + ')',
+      label: globalProperties.$t('common.read.unreadable', {count:'(' + dataSource.value.filter((item) => getEnumValue(item.readable) === 0).length + ')'}),
       value: '0',
       icon: createIcon('loncra-eye', 'align')
     },
     {
       value: '1',
-      label: '未读(' + dataSource.value.filter((item) => getEnumValue(item.readable) === 1).length + ')',
+      label: globalProperties.$t('common.read.readable', {count:'(' + dataSource.value.filter((item) => getEnumValue(item.readable) === 1).length + ')'}),
       icon: createIcon('loncra-eye-off', 'align')
     }
   ]
@@ -65,7 +65,7 @@ const columns = computed(() => {
 
   if (activeValue.value === '0') {
     result.push({
-      title: globalProperties.$t('common.readTime'),
+      title: globalProperties.$t('common.read.time'),
       dataIndex: 'readTime',
       key: 'readTime',
       width: 210,
@@ -103,7 +103,7 @@ function onChatMessageReadReceived(result: RestResult<IdValueMetadata<number, nu
     }
     find.readable = {
       value:0,
-      name:'已读'
+      name:globalProperties.$t("commons.read.unreadable")
     }
     find.readTime = s.value
   }

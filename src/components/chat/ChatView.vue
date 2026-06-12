@@ -126,13 +126,13 @@ const bubbleListItems = computed(() =>
 
 const placeholderText = computed(() => {
   if (getEnumValue(conversation.value?.item?.data?.status) === 20) {
-    return '您已退出本群'
+    return globalProperties.$t('userChat.view.placeholder.exitRoom')
   } else if (getEnumValue(conversation.value?.item?.data?.status) === 25) {
-    return '您已被本群移除'
+    return globalProperties.$t('userChat.view.placeholder.roomRemove')
   } else if (getEnumValue(conversation.value?.item?.data?.status) === 30) {
-    return '本群已解散'
+    return globalProperties.$t('userChat.view.placeholder.disbandRoom')
   } else {
-    return '输入消息，可粘贴文件到此处发送文件内容'
+    return globalProperties.$t('userChat.view.placeholder.text')
   }
 })
 
@@ -238,7 +238,10 @@ defineExpose({
         >
           <template #extra="{item}" >
             <a-flex class="h-full" justify="end" align="end">
-              <a-tooltip v-if="getEnumValue(conversation.item?.data?.room?.type) === 20 && item.role === 'user'" :title="item.data.readableCount === 1 ? '未读' :'已读'">
+              <a-tooltip
+                v-if="getEnumValue(conversation.item?.data?.room?.type) === 20 && item.role === 'user'"
+                :title="item.data.readableCount === 1 ? globalProperties.$t('common.read.readable') : globalProperties.$t('common.read.unreadable')"
+              >
                 <a-typography-text :type="item.data.readableCount === 1 ? 'secondary' : 'success'">
                   <icon-font class="icon" :type="item.data.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'" />
                 </a-typography-text>

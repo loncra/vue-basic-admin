@@ -74,7 +74,7 @@ const entity = ref<SiteMessageEntity>({
       <a-descriptions-item :label="globalProperties.$t('common.successTime')">
         {{ dateTimeFormat(entity.successTime) }}
       </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.readTime')">
+      <a-descriptions-item :label="globalProperties.$t('common.read.time')">
         {{ dateTimeFormat(entity.readTime) }}
       </a-descriptions-item>
       <a-descriptions-item :span="3" :label="globalProperties.$t('error.errorMessage')">

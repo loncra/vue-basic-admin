@@ -109,7 +109,7 @@ const columns = ref<SearchableColumnType[]>([
     ellipsis: true,
     width: 80
   }, {
-    title: globalProperties.$t('common.readTime'),
+    title: globalProperties.$t('common.read.time'),
     dataIndex: "readTime",
     key:'read_time',
     ellipsis: true,

@@ -10,6 +10,7 @@ const locale: LanguagePack = {
   antDesign: zhCN,
   common: {
     id: '主键',
+    setting:'设置',
     me: '我',
     creationTime:'创建时间',
     ip:'IP 地址',
@@ -25,6 +26,11 @@ const locale: LanguagePack = {
     detail: '{name}详情',
     action: '操作',
     reset: '重置',
+    read:{
+      time:'读取时间',
+      readable: '未读{count}',
+      unreadable: '已读{count}',
+    },
     delete:{
       text:'删除',
       selected: '删除 ({count}) 条记录',
@@ -76,7 +82,6 @@ const locale: LanguagePack = {
     clear:'清空',
     executeStatus:'执行状态',
     successTime:'成功时间',
-    readTime:'读取时间',
     completionTime:'完成时间',
     expiresTime:'过期时间',
     auditionTime:'审核时间',
@@ -111,7 +116,7 @@ const locale: LanguagePack = {
     type:'操作类型',
     data:'操作数据'
   },
-  setting: {
+  systemSetting: {
     componentSize:'组件默认大小设置',
     wireframe:'边框化',
     compact:'紧凑型',
@@ -228,6 +233,10 @@ const locale: LanguagePack = {
         history: '历史图片'
       },
       modifyPassword:'修改密码'
+    },
+    tab:{
+      accountSetting:'账户设置',
+      configProviderSetting:'系统设置'
     }
   },
   form: {
@@ -329,7 +338,6 @@ const locale: LanguagePack = {
     network: '网络搜索',
     knowledge: '知识库搜索',
     stop: '停止',
-    history: '聊天历史',
     tool: {
       arguments: '请求参数',
       responseData: '响应结果',
@@ -459,7 +467,55 @@ const locale: LanguagePack = {
         center:'居中对齐',
         right:'右对齐'
       }
+    },
+    systemUserPanel:{
+      selectedMember:'已选择的成员'
     }
+  },
+  userChat:{
+    conversation:{
+      delete:'删除会话'
+    },
+    pinned:{
+      action:'置顶聊天',
+      cancel:'取消置顶聊天'
+    },
+    muted:{
+      action:'消息免打扰',
+      cancel:'取消免打扰'
+    },
+    history: '聊天记录',
+    view:{
+      placeholder:{
+        exitRoom:'您已退出本群',
+        roomRemove:'您已被本群移除',
+        disbandRoom:'本群已解散',
+        text:'输入消息，可粘贴文件到此处发送文件内容'
+      }
+    },
+    roomView:{
+      addParticipant: '发起群聊',
+      memberManager:'成员管理',
+      exitRoom:{
+        title:'退群提示',
+        content: '确定要退出 {name} 群聊吗?',
+        action:'退出群聊'
+      },
+      disbandRoom:{
+        title:'解散提示',
+        content: '确定要解散 {name} 群聊吗?',
+        action:'解散群聊'
+      },
+      modal:{
+        changeMember:'设置为成员',
+        changeCoOwner:'设置为群管',
+        removeMember:{
+          confirmTitle:'移除成员确认',
+          content:'确定要移除{count}个选中成员吗？',
+          action:'移除成员'
+        }
+      }
+    },
   }
 }
 

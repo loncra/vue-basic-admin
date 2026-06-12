@@ -79,8 +79,6 @@ const systemUserPanelDataSource = computed<ContactItem[]>(() => {
   if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING) {
     return participants.value
       .filter(p => p.principal !== principalStore.state.name)
-      //.map(p => p.metadata?.details)
-      //.filter((user): user is PlatformUser => Boolean(user?.id))
       .map(toContactItem)
   }
   return []
@@ -229,13 +227,13 @@ function onModalCancel() {
 
 function onAddParticipant() {
   modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
-  modalOptions.value.title = "发起群聊"
+  modalOptions.value.title = globalProperties.$t("userChat.roomView.addParticipant")
   modalOptions.value.open = true
 }
 
 function onMemberSetting() {
   modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
-  modalOptions.value.title = "成员管理"
+  modalOptions.value.title = globalProperties.$t("userChat.roomView.memberManager")
   modalOptions.value.open = true
 }
 
@@ -289,8 +287,8 @@ function onExist() {
 
   if (getEnumValue(conversation.value.status) === 10) {
     modal.confirm({
-      title: '退群提示',
-      content: '确定要退出' + conversation.value.name + '群聊吗?',
+      title: globalProperties.$t('userChat.roomView.exitRoom.title'),
+      content: globalProperties.$t('userChat.roomView.exitRoom.content', {name: conversation.value.name}),
       onOk: () => doExist(),
     })
   } else {
@@ -308,8 +306,8 @@ function onDisbandRoom() {
     return
   }
   modal.confirm({
-    title: '解散提示',
-    content: '确定要解散' + conversation.value.name + '群聊吗?',
+    title: globalProperties.$t('userChat.roomView.disbandRoom.title'),
+    content: globalProperties.$t('userChat.roomView.disbandRoom.content', {name: conversation.value.name}),
     onOk: () => doDisbandRoom(),
   })
 }
@@ -414,7 +412,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               <icon-font class="text-xl" type="loncra-user-round-plus" />
             </a-avatar>
             <a-typography-text>
-              添加
+              {{ globalProperties.$t('common.add') }}
             </a-typography-text>
           </a-flex>
         </a-flex>
@@ -430,12 +428,12 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
           <template #icon>
             <icon-font type="loncra-calendar-clock"/>
           </template>
-          聊天记录
+          {{ globalProperties.$t('userChat.history') }}
         </a-button>
         <a-divider plain orientation="left" class="mt-xs mb-xs">
           <a-space>
             <icon-font type="loncra-settings-2" />
-            <span>设置</span>
+            <span>{{ globalProperties.$t('common.setting') }}</span>
           </a-space>
         </a-divider>
         <template v-if="conversation && conversation.room">
@@ -443,7 +441,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
           <a-flex vertical gap="middle">
             <a-flex justify="space-between" align="center" v-if="getEnumValue(conversation.room.type) === 10" >
               <a-typography-text>
-                名称
+                {{ globalProperties.$t('common.name') }}
               </a-typography-text>
               <a-space v-if="!options.editName">
                 <a-typography-text>
@@ -473,7 +471,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
             <template v-if="getEnumValue(conversation?.status) === 10">
               <a-flex justify="space-between" align="center" >
                 <a-typography-text>
-                  置顶聊天
+                  {{ globalProperties.$t('userChat.pinned.action') }}
                 </a-typography-text>
                 <a-switch
                   size="small"
@@ -485,7 +483,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               </a-flex>
               <a-flex justify="space-between" align="center" >
                 <a-typography-text>
-                  消息免打扰
+                  {{ globalProperties.$t('userChat.muted.action') }}
                 </a-typography-text>
                 <a-switch
                   size="small"
@@ -505,7 +503,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
                   <icon-font type="loncra-user-cog"/>
                 </template>
                 <span>
-                  成员管理
+                  {{ globalProperties.$t('userChat.roomView.memberManager') }}
                 </span>
               </a-button>
               <a-space-compact block>
@@ -514,7 +512,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
                     <icon-font :type="getEnumValue(conversation.status) === 10 ? 'loncra-log-out' : 'loncra-archive-x'"/>
                   </template>
                   <span>
-                    {{getEnumValue(conversation.status) === 10 ? '退出群聊' : '删除会话'}}
+                    {{getEnumValue(conversation.status) === 10 ? globalProperties.$t('userChat.roomView.exitRoom.action') : globalProperties.$t('userChat.conversation.delete')}}
                   </span>
                 </a-button>
                 <a-button
@@ -528,7 +526,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
                     <icon-font type="loncra-message-square-x"/>
                   </template>
                   <span>
-                  解散群聊
+                  {{ globalProperties.$t('userChat.roomView.disbandRoom.action') }}
                 </span>
                 </a-button>
               </a-space-compact>
@@ -538,7 +536,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
         <a-flex vertical gap="middle" v-else-if="conversation">
           <a-flex  justify="space-between" align="center">
             <a-typography-text>
-              名称
+              {{ globalProperties.$t('common.name') }}
             </a-typography-text>
             <a-typography-text>
               {{ conversation.name }}
@@ -549,7 +547,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               <icon-font type="loncra-archive-x"/>
             </template>
             <span>
-              删除会话
+              {{ globalProperties.$t('userChat.conversation.delete') }}
             </span>
           </a-button>
         </a-flex>
@@ -575,19 +573,19 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
         <a-space>
           <a-space-compact>
             <a-button @click="onUpdateParticipantType(30)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === 20).length <= 0">
-              设置为成员
+              {{ globalProperties.$t('userChat.roomView.modal.changeMember') }}
             </a-button>
             <a-button @click="onUpdateParticipantType(20)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === 30).length <= 0">
-              设置为群管
+              {{ globalProperties.$t('userChat.roomView.modal.changeCoOwner') }}
             </a-button>
             <a-popconfirm
               :ok-button-props="{ loading: modalOptions.confirmLoading }"
-              :title="globalProperties.$t('common.delete.confirmTitle')"
-              description="确定要移除选中的成员吗？"
+              :title="globalProperties.$t('userChat.roomView.modal.removeMember.confirmTitle')"
+              :description="globalProperties.$t('userChat.roomView.modal.removeMember.content',{count:options.selectedUser.length})"
               @confirm="onRemoveMember()"
             >
               <a-button :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.length <= 0" type="primary" danger>
-                移除成员
+                {{ globalProperties.$t('userChat.roomView.modal.removeMember.action') }}
               </a-button>
             </a-popconfirm>
           </a-space-compact>

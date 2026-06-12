@@ -3,7 +3,7 @@ import {AttachmentService} from "@/apis";
 import type {ContactItem, PlatformUser} from "@/types/apis";
 import type {ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {Conversations as AxConversations,} from '@antdv-next/x'
-import {findAllTreeNodes, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {
   type ComponentInternalInstance,
   computed,
@@ -123,8 +123,11 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
     </a-flex>
     <a-flex vertical v-if="props.selected && !props.hideSelectPanel" class="min-h-80 max-h-120 p-sm w-[70%]">
       <div v-if="modelValue.length > 0">
-        <a-divider plain class="mt-0">
-          已选择的成员
+        <a-divider plain class="mt-0" orientation="left">
+          <a-space>
+            <icon-font type="loncra-user-check"/>
+            {{globalProperties.$t('component.systemUserPanel.selectedMember')}}
+          </a-space>
         </a-divider>
         <a-space wrap>
           <a-flex

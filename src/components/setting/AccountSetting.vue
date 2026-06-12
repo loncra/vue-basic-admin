@@ -4,11 +4,7 @@ import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, getCurrentInstance, inject, onMounted, ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {
-  APP_RELOAD_PROVIDE_KEY,
-  ATTACHMENT_UPLOAD_MODE,
-  VALID_REGX
-} from "@/constants/systemConstant.ts";
+import {APP_RELOAD_PROVIDE_KEY, ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
 import type {UploadChangeParam} from "antdv-next";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {ObjectWriteResult, RestResult} from "@/types/apis";
@@ -74,14 +70,14 @@ function beforeUpload(file:UploadFile<ObjectWriteResult>) {
   const isTypeValid = file.type === 'image/jpeg' || file.type === 'image/png';
 
   if (!['image/jpeg','image/png','image/jpg','image/bmp'].includes(file.type as string)) {
-    message.error(globalProperties.$t('setting.account.avatar.supportFormat'));
+    message.error(globalProperties.$t('systemSetting.account.avatar.supportFormat'));
     return ;
   }
 
   const isSizeValid = (file?.size || 0) / 1024 / 1024 < 1;
 
   if (!isSizeValid) {
-    message.error(globalProperties.$t('setting.account.avatar.supportSize'));
+    message.error(globalProperties.$t('systemSetting.account.avatar.supportSize'));
     return ;
   }
 
@@ -152,7 +148,7 @@ onMounted(mounted)
       <template #title>
         <a-space>
           <icon-font class="icon align" type="loncra-history"/>
-          <span>{{ globalProperties.$t('setting.account.avatar.history') }}</span>
+          <span>{{ globalProperties.$t('systemSetting.account.avatar.history') }}</span>
         </a-space>
       </template>
       <a-card-grid :hoverable="false" class="p-0 w-1/5" :key="v.etag" v-for="v of historyAvatar" >
@@ -211,7 +207,7 @@ onMounted(mounted)
           <template #icon>
             <icon-font class="icon" type="loncra-user-check"/>
           </template>
-          {{globalProperties.$t('setting.account.modifyPassword')}}
+          {{globalProperties.$t('systemSetting.account.modifyPassword')}}
         </a-button>
       </l-form>
     </a-spin>
