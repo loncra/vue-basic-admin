@@ -5,7 +5,7 @@ import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {
   RestResult,
-  UserChatConversationEntity,
+  UserChatConversationEntity, UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from "@/types/apis";
 import {useSocketStore} from "@/stores/socketStore.ts";
@@ -49,26 +49,30 @@ async function onChatMessageReceived(result: RestResult<UserChatMessageResponseB
     return
   }
 
+  await messageServerStore.fetchUnreadQuantity()
   if (globalProperties.$route.name === 'my_chat_message') {
     return
   }
 
-  await messageServerStore.fetchUnreadQuantity()
-  const conversationResult:RestResult<UserChatConversationEntity> = await ChatMessageService.getConversation(result.data.chatRoomId)
-  if (!conversationResult.data || getEnumValue(conversationResult.data.muted) === 1) {
+  const conversationResult:RestResult<UserChatConversationEntity | UserChatConversationResponseBody> = await ChatMessageService.getConversation(result.data.chatRoomId, true)
+  if (!conversationResult.data) {
+    return ;
+  }
+  const body:UserChatConversationResponseBody = conversationResult.data as UserChatConversationResponseBody;
+  if (getEnumValue(body.muted) === 1) {
     return
   }
 
   notification.info({
-    title: conversationResult.data.name,
+    title: body.name,
     description:createNotificationDescription(ChatMessageService.getMessageContent(result.data)),
-    icon: ChatMessageService.createAvatarNode(conversationResult.data.cover, conversationResult.data.name,'large', '[&>*:not(:first-child)]:-ms-8!'),
+    icon: ChatMessageService.createAvatarNode(body.cover, body.name,'large', '[&>*:not(:first-child)]:-ms-8!'),
     classes:{
       root: 'cursor-pointer',
       icon: 'leading-normal! text-inherit flex items-center',
       title: 'font-medium'
     },
-    onClick:() => globalProperties.$router.push({name:'my_chat_message', query:{conversationId:conversationResult.data?.id}})
+    onClick:() => globalProperties.$router.push({name:'my_chat_message', query:{conversationId:body.id}})
   })
 }
 

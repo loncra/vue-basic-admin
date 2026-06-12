@@ -37,9 +37,11 @@ const sending = defineModel<boolean>("sending", {default: false})
 
 const props = withDefaults(defineProps<{
   slotConfig?:SlotConfigType[]
+  placeholder:string
   disabled:boolean
 }>(),{
   slotConfig:() => [],
+  placeholder:'',
   disabled:false
 })
 
@@ -414,7 +416,7 @@ defineExpose({
   <ax-sender
     ref="senderRef"
     :slot-config="props.disabled ? undefined : props.slotConfig"
-    :placeholder="props.disabled ? '您从本群已经被移除' : '输入消息，可粘贴文件到此处发送文件内容'"
+    :placeholder="props.placeholder"
     :suffix="false"
     allow-speech
 

@@ -41,10 +41,12 @@ const messageServerStore = useMessageServerStore()
 const moreButtonActive = ref(false)
 const activeKey = defineModel<string>('activeKey');
 const dataSource = defineModel<UserChatConversationResponseBody[]>('dataSource', {default:() => []})
+const searchValue = ref<string>('')
 
 const emit = defineEmits<{
   change: [item: ServerConversationItem],
   moreClick: [data: UserChatConversationResponseBody],
+  delete: [item:UserChatConversationResponseBody]
 }>()
 
 const DEFAULT_MENU_ITEMS: MenuItemType[] = [
@@ -126,7 +128,11 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
 
 }
 
-function changeMessageExtraContent(activeConversationItem:ServerConversationItem) {
+function changeMessageExtraContent(activeConversationItem:ServerConversationItem | undefined) {
+  if (!activeConversationItem) {
+    setMessageExtraContent?.(h('span'))
+    return null
+  }
   const label = h('span', {}, {default: () => activeConversationItem.label})
   const space = resolveComponent('ASpace')
   const avatar = ChatMessageService.createAvatarNode(activeConversationItem.data?.cover || [], String(activeConversationItem.label))
@@ -181,7 +187,7 @@ async function doDelete(item: UserChatConversationResponseBody) {
   try {
     const result:RestResult<void> = await ChatMessageService.deleteConversation([Number(item.id)])
     message.success(result.message)
-    dataSource.value = dataSource.value.filter(d => d.id !== item.id)
+    emit("delete",item)
   } catch (e) {
     message.error(e instanceof Error ? e.message : String(e))
   }
@@ -216,7 +222,8 @@ function compareConversations(
 }
 
 const conversationItems = computed(() =>
-  [...(dataSource.value ?? [])].sort(compareConversations).map(r => ({
+  [...(dataSource.value ?? [])].filter(s => searchValue.value === '' ? s : s.name.includes(searchValue.value))
+    .sort(compareConversations).map(r => ({
     label: r.name,
     key: String(r.id),
     data: r
@@ -231,6 +238,13 @@ defineExpose({
 
 <template>
   <a-flex vertical class="h-full min-h-0 overflow-hidden" >
+    <div class="shrink-0 p-sm">
+      <a-input v-model:value="searchValue">
+        <template #suffix>
+          <icon-font class="text-text-quaternary" type="loncra-user-search"/>
+        </template>
+      </a-input>
+    </div>
     <ax-conversations
       :activeKey="activeKey"
       :classes="{item:'p-xs! h-auto! min-h-auto! rounded-none!'}"

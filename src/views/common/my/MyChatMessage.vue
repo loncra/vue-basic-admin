@@ -66,15 +66,11 @@ const segmented = ref<{
 const options = ref<{
   conversationDataSource: UserChatConversationResponseBody[]
   contactDataSource: ContactItem[]
-  loadConversationDataSource: UserChatConversationResponseBody[]
-  loadContactDataSource: ContactItem[]
   loading: boolean
   searchValue:string
 }>({
   conversationDataSource: [],
   contactDataSource: [],
-  loadConversationDataSource: [],
-  loadContactDataSource: [],
   searchValue:'',
   loading: false
 })
@@ -151,10 +147,6 @@ async function onContactSelected(value: UserChatConversationResponseBody) {
     find,
     ...options.value.conversationDataSource,
   ]
-  options.value.loadConversationDataSource = [
-    find,
-    ...options.value.loadConversationDataSource,
-  ]
   segmented.value.value = 'conversation'
   await setActiveConversationItemByEntity(find)
 }
@@ -164,12 +156,10 @@ async function onConversationsChange(conversationItem:ServerConversationItem) {
     return;
   }
   if (conversationActive.value?.item?.key === conversationItem.key) {
+    conversationActive.value.item = conversationItem
     return
   }
   conversationActive.value.item = conversationItem
-  if (!conversationActive.value.item?.data) {
-    return
-  }
   conversationActive.value.bubbleList = []
   await loadConversationData(Number(conversationActive.value.item?.data?.room?.id),1)
   await nextTick()
@@ -205,6 +195,20 @@ async function onConversationRefreshByRoomId(result:RestResult<number>) {
   }
 }
 
+async function onConversationRefresh() {
+  const chatRoomResult: RestResult<UserChatConversationResponseBody[]> = await ChatMessageService.my()
+  if (chatRoomResult.data) {
+    options.value.conversationDataSource = [...chatRoomResult.data]
+  }
+
+  if (!conversationActive.value.item) {
+    return
+  }
+
+  const find = options.value.conversationDataSource.find(c => c.id === conversationActive.value.item?.data?.id)
+  await setActiveConversationItemByEntity(find)
+}
+
 async function mounted() {
   socketListener.value.push(socketStore.subscribe(
     SOCKET_EVENT_TYPE.CHAT_MESSAGE,
@@ -219,13 +223,15 @@ async function mounted() {
     SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH_BY_ROOM_ID,
     (payload) => onConversationRefreshByRoomId(parseSocketRestPayload<number>(payload))
   ))
+
+  socketListener.value.push(socketStore.subscribe(
+    SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH,
+    () => onConversationRefresh()
+  ))
+
   options.value.loading = true
   try {
-    const chatRoomResult: RestResult<UserChatConversationResponseBody[]> = await ChatMessageService.my({number: 1})
-    if (chatRoomResult.data) {
-      options.value.conversationDataSource = [...chatRoomResult.data]
-      options.value.loadConversationDataSource = [...chatRoomResult.data]
-    }
+    await onConversationRefresh()
     const contactResult: RestResult<IdNameValueMetadata<PlatformUser[]>[]> = await AuthServerService.systemUsers({number: -1}, true, false)
     if (contactResult.data) {
       const list: ContactItem[] = []
@@ -239,7 +245,6 @@ async function mounted() {
         }))
       }
       options.value.contactDataSource = [...list]
-      options.value.loadContactDataSource = [...list]
     }
   } finally {
     options.value.loading = false
@@ -251,13 +256,31 @@ async function mounted() {
   }
 }
 
-async function setActiveConversationItemByEntity(body:UserChatConversationResponseBody) {
-  const activeConversationItem:ServerConversationItem = {
-    key: String(body.id),
-    label: body.name,
-    data: body,
+function onConversationDelete(body:UserChatConversationResponseBody) {
+  options.value.conversationDataSource = options.value.conversationDataSource.filter(d => d.id !== body.id)
+
+  if (!conversationActive.value.item) {
+    return
   }
-  await setActiveConversationItem(activeConversationItem)
+  if (conversationActive.value.item?.data?.id === body.id) {
+    setActiveConversationItemByEntity(undefined)
+  }
+}
+
+async function setActiveConversationItemByEntity(body:UserChatConversationResponseBody | undefined) {
+  if (body) {
+    const activeConversationItem:ServerConversationItem = {
+      key: String(body.id),
+      label: body.name,
+      data: body,
+    }
+    await setActiveConversationItem(activeConversationItem)
+  } else {
+    conversationActive.value.item = undefined
+    if (conversationRef.value) {
+      conversationRef.value?.changeMessageExtraContent(undefined)
+    }
+  }
 }
 
 async function setActiveConversationItem(activeConversationItem:ServerConversationItem) {
@@ -303,31 +326,14 @@ async function onChatViewNextPage(scrollBox:HTMLElement) {
   scrollBox.scrollTop = oldHeight - scrollBox.scrollHeight
 }
 
-function onSearch(value:string) {
-  if (value === '') {
-    options.value.conversationDataSource = options.value.loadConversationDataSource
-    options.value.contactDataSource = options.value.loadContactDataSource
-  } else {
-    options.value.conversationDataSource = findAllTreeNodes((r) => r.name.includes(value), options.value.loadConversationDataSource)
-    options.value.contactDataSource = findAllTreeNodes((r) => String(r.label).includes(value), options.value.loadContactDataSource)
-  }
-}
-
 function onConversationMoreClick() {
   conversationActive.value.drawerOpen = !conversationActive.value.drawerOpen;
 }
 
-async function onChatRooViewConfirm(user:ContactItem[], restResult:RestResult<UserChatConversationResponseBody>) {
+async function onAddParticipant(user:ContactItem[], restResult:RestResult<UserChatConversationResponseBody>) {
   if (!restResult.data) {
     return ;
   }
-  if (!options.value.loadConversationDataSource.map(d => d.id).includes(restResult?.data?.id)) {
-    options.value.loadConversationDataSource = [restResult.data, ...options.value.loadConversationDataSource]
-  }
-  if (!options.value.conversationDataSource.map(d => d.id).includes(restResult?.data?.id)) {
-    options.value.conversationDataSource = [restResult.data, ...options.value.conversationDataSource]
-  }
-  onSearch(options.value.searchValue)
   await setActiveConversationItemByEntity(restResult.data)
 }
 
@@ -342,11 +348,10 @@ onMounted(mounted)
       <a-splitter-panel class="h-full p-0 overflow-hiddenl" default-size="20%" min="15%" max="25%">
         <a-spin :spinning="options.loading" class="size-full-spin">
           <a-flex vertical class="size-full min-h-0">
-            <div class="shrink-0 p-sm">
-              <a-input v-model:value="options.searchValue" @search="onSearch"/>
-            </div>
+
             <l-chat-conversation
               ref="conversationRef"
+              @delete="onConversationDelete"
               @change="onConversationsChange"
               :active-key="conversationActive?.item?.key"
               v-model:data-source="options.conversationDataSource"
@@ -388,7 +393,8 @@ onMounted(mounted)
             @close="conversationActive.drawerOpen = false"
           >
             <l-chat-room-view
-              @confirm="onChatRooViewConfirm"
+              @delete-conversation="onConversationDelete"
+              @add-participant="onAddParticipant"
               :contact-data-source="options.contactDataSource"
               v-model:conversation="conversationActive.item.data" />
           </a-drawer>

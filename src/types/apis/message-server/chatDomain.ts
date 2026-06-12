@@ -84,9 +84,9 @@ export interface BasicUserChatConversation extends VersionEntityMetadata {
   /** 置顶时间 */
   pinnedTime: number
   /**
-   * 是否启用
+   * 状态:10.启用,20.已退出,30.已解散
    */
-  enabled:NameValueEnumMetadata<number> | number
+  status:NameValueEnumMetadata<number> | number
   /** 是否免打扰 */
   muted: NameValueEnumMetadata<number> | number
   /** 草稿内容 */

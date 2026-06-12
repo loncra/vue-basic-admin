@@ -28,9 +28,10 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_MESSAGE: 'chat_message',
   CHAT_MESSAGE_READ:'chat_message_read',
   CHAT_MESSAGE_READ_UPDATE:'chat_message_read_update',
-  CHAT_ROOM_JOIN:'chat_room_join',
-  CHAT_ROOM_REMOVE_PARTICIPANT:'chat_room_remove_participant',
+
   CHAT_CONVERSATION_CREATE:'chat_conversation_create',
+
+  CHAT_CONVERSATION_REFRESH:'chat_conversation_refresh',
   CHAT_CONVERSATION_REFRESH_BY_ROOM_ID:'chat_conversation_refresh_by_room_id',
   CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID:'chat_participant_refresh_by_room_id'
 } as const

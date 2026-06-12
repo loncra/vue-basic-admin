@@ -68,7 +68,8 @@ const socketListener = ref<((() => void) | undefined)[]>([])
 const loading = ref<boolean>(false);
 
 const emit = defineEmits<{
-  confirm: [info: ContactItem[], restResult:RestResult<UserChatConversationResponseBody>]
+  addParticipant: [info: ContactItem[], restResult:RestResult<UserChatConversationResponseBody>],
+  deleteConversation:[body:UserChatConversationResponseBody]
 }>()
 
 const systemUserPanelDataSource = computed<ContactItem[]>(() => {
@@ -120,7 +121,7 @@ async function mounted() {
 }
 
 async function loadParticipant() {
-  if (!conversation.value || getEnumValue(conversation.value?.enabled) === 0) {
+  if (!conversation.value || getEnumValue(conversation.value?.status) !== 10) {
     return
   }
   try {
@@ -141,7 +142,7 @@ function onFilterSystemUser(item:ContactItem) {
   return true
 }
 
-async function onModalOk(){
+async function confirmAddParticipant(){
   if (!conversation.value) {
     return
   }
@@ -154,8 +155,7 @@ async function onModalOk(){
   try {
     modalOptions.value.confirmLoading = true
     const result:RestResult<UserChatConversationResponseBody> = await ChatMessageService.addRoomParticipant(Number(conversation.value.room.id), principals)
-    emit("confirm", options.value.selectedUser, result)
-    await loadParticipant()
+    emit("addParticipant", options.value.selectedUser, result)
     onModalCancel()
   } finally {
     modalOptions.value.confirmLoading = false;
@@ -287,12 +287,33 @@ function onExist() {
     return
   }
 
-  modal.confirm({
-    title: '退群提示',
-    content: '确定要退出' + conversation.value.name + '群聊吗?',
-    onOk: () => doExist(),
-  })
+  if (getEnumValue(conversation.value.status) === 10) {
+    modal.confirm({
+      title: '退群提示',
+      content: '确定要退出' + conversation.value.name + '群聊吗?',
+      onOk: () => doExist(),
+    })
+  } else {
+    modal.confirm({
+      title: globalProperties.$t('common.delete.confirmTitle'),
+      content:globalProperties.$t('common.delete.confirmSingle'),
+      onOk: () => doConversationDelete(conversation.value),
+    })
+  }
 
+}
+
+async function doConversationDelete(body:UserChatConversationResponseBody | undefined) {
+  if (!body) {
+    return
+  }
+  try {
+    const result:RestResult<void> = await ChatMessageService.deleteConversation([Number(body.id)])
+    message.success(result.message)
+    emit("deleteConversation",body)
+  } catch (e) {
+    message.error(e instanceof Error ? e.message : String(e))
+  }
 }
 
 async function doExist() {
@@ -317,8 +338,8 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
 <template>
   <a-flex vertical class="h-full min-h-0">
     <a-spin :spinning="loading" class="size-full-spin min-h-0">
-      <template v-if="getEnumValue(conversation?.enabled) === 1">
-        <a-flex class="shrink-0 mb-sm">
+      <template v-if="getEnumValue(conversation?.status) === 10">
+        <a-flex class="shrink-0 mb-sm" v-if="getEnumValue(conversation?.room?.type) === 10">
           <a-input-search  />
         </a-flex>
         <a-flex flex="1" class="h-full min-h-0 overflow-y-auto" wrap="wrap" gap="small" justify="flex-start" align="flex-start">
@@ -394,7 +415,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
           </a-space>
         </a-divider>
         <a-flex vertical gap="small" v-if="conversation">
-          <a-flex justify="space-between" align="center" >
+          <a-flex justify="space-between" align="center" v-if="getEnumValue(conversation.room.type) === 10" >
             <a-typography-text>
               名称
             </a-typography-text>
@@ -418,7 +439,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               </a-button>
             </a-space-compact>
           </a-flex>
-          <template v-if="getEnumValue(conversation?.enabled) === 1">
+          <template v-if="getEnumValue(conversation?.status) === 10">
             <a-flex justify="space-between" align="center" >
               <a-typography-text>
                 置顶聊天
@@ -454,13 +475,13 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               </span>
             </a-button>
             <a-space-compact block>
-              <a-button block danger @click="onExist">
+              <a-button block danger @click="onExist" v-if="getEnumValue(conversation.status) === 10">
                 <template #icon>
-                  <icon-font type="loncra-log-out"/>
+                  <icon-font :type="getEnumValue(conversation.status) === 10 ? 'loncra-log-out' : 'loncra-archive-x'"/>
                 </template>
                 <span>
-                退出群聊
-              </span>
+                  {{getEnumValue(conversation.status) === 10 ? '退出群聊' : '删除会话'}}
+                </span>
               </a-button>
               <a-button type="primary" block danger v-if="participants.some(c => getEnumValue(c.type) === 10 && principalStore.state.name === c.principal)">
                 <template #icon>
@@ -487,7 +508,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
       :open="modalOptions.open"
       :title="modalOptions.title"
       @cancel="onModalCancel()"
-      @ok="onModalOk"
+      @ok="confirmAddParticipant()"
       :confirm-loading="modalOptions.confirmLoading"
     >
       <l-system-user-panel v-model:value="options.selectedUser" :filter="onFilterSystemUser" :data-source="systemUserPanelDataSource" />

@@ -45,7 +45,6 @@ async function onContactSelected(data:PlatformUser) {
   <a-flex vertical class="h-full min-h-0 overflow-hidden" >
     <l-system-user-panel
       :selected="false"
-      hide-search
       hide-select-panel
       @selected="onContactSelected"
       v-model:data-source="dataSource"

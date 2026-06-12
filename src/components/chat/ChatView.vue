@@ -124,6 +124,18 @@ const bubbleListItems = computed(() =>
   buildBubbleListWithDividers(conversation.value.bubbleList ?? []),
 )
 
+const placeholderText = computed(() => {
+  if (getEnumValue(conversation.value?.item?.data?.status) === 20) {
+    return '您已退出本群'
+  } else if (getEnumValue(conversation.value?.item?.data?.status) === 25) {
+    return '您已被本群移除'
+  } else if (getEnumValue(conversation.value?.item?.data?.status) === 30) {
+    return '本群已解散'
+  } else {
+    return '输入消息，可粘贴文件到此处发送文件内容'
+  }
+})
+
 function renderBubbleContent(content: ChatContentBlock[]) {
   return h(ChatMessageBubbleContent, {content: content})
 }
@@ -191,11 +203,11 @@ function mounted() {
     SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ,
     (payload) => onChatMessageReadReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
   ))
-  console.info(conversation.value.item?.data?.enabled)
 }
 
 onMounted(mounted)
 onUnmounted(() => socketListener.value.forEach(f => f?.()));
+
 defineExpose({
   getScrollBox: () => bubbleListRef.value?.scrollBoxNativeElement,
   scrollTo: (options: {
@@ -295,7 +307,14 @@ defineExpose({
       </a-spin>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
-      <l-chat-message-sender v-if="conversation?.item?.data" :disabled="getEnumValue(conversation.item.data.enabled) === 0" :sending="conversation.sending" ref="senderRef" @submit="onSendMessage"/>
+      <l-chat-message-sender
+        ref="senderRef"
+        v-if="conversation?.item?.data"
+        :placeholder="placeholderText"
+        :disabled="getEnumValue(conversation.item.data.status) !== 10"
+        :sending="conversation.sending"
+        @submit="onSendMessage"
+      />
     </div>
   </a-flex>
 

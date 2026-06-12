@@ -44,9 +44,12 @@ const emit = defineEmits<{
 const localDataSource = ref<ContactItem[]>([])
 
 const modelValue = defineModel<ContactItem[]>("value",{default:() => []})
+const searchValue = ref<string>('')
 
 const filterDataSource = computed(() => {
-  return dataSource.value.filter(s => props.filter(s))
+  return dataSource.value
+    .filter(s => searchValue.value === '' ? s : getName(s.data).includes(searchValue.value))
+    .filter(s => props.filter(s))
 })
 
 async function onContactActiveChange(value: string, item: ItemType | undefined) {
@@ -65,14 +68,6 @@ async function onContactActiveChange(value: string, item: ItemType | undefined) 
   emit("selected", contact.data)
 }
 
-function onSearch(value:string) {
-  if (value === '') {
-    dataSource.value = localDataSource.value;
-  } else {
-    dataSource.value = findAllTreeNodes((r) => getName(r.data).includes(value), localDataSource.value)
-  }
-}
-
 function getName(c:PlatformUser) {
   return String(c.realName || c.username || globalProperties.$t('common.unname'))
 }
@@ -85,8 +80,14 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
 
 <template>
   <a-flex class="size-full">
-    <a-flex vertical gap="middle" :class="'min-h-80 max-h-120 p-sm overflow-hidden ' + ((!props.selected || props.hideSelectPanel) ? 'w-full' : 'w-[30%]') " >
-      <a-input-search @search="onSearch" v-if="!hideSearch"/>
+    <a-flex vertical :class="'min-h-80 max-h-120 overflow-hidden ' + ((!props.selected || props.hideSelectPanel) ? 'w-full' : 'w-[30%]') " >
+      <div class="shrink-0 p-sm">
+        <a-input v-model:value="searchValue">
+          <template #suffix>
+            <icon-font class="text-text-quaternary" type="loncra-user-search"/>
+          </template>
+        </a-input>
+      </div>
       <ax-conversations
         :classes="{item:'chat-conversations-item p-xs! h-auto! min-h-auto! rounded-none!'}"
         :items="(filterDataSource || [])"

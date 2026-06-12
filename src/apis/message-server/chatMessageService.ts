@@ -61,8 +61,8 @@ export class ChatMessageService  {
 
   static readonly GET_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation'
 
-  static my(request: PageRequest): Promise<RestResult<UserChatConversationResponseBody[]>> {
-    return axios.post(ChatMessageService.SERVICE_URL, formUrlEncoded(request))
+  static my(): Promise<RestResult<UserChatConversationResponseBody[]>> {
+    return axios.post(ChatMessageService.SERVICE_URL)
   }
 
   static createConversation(body: UserChatRoomEntity, principals:string[]): Promise<RestResult<UserChatConversationResponseBody>> {
