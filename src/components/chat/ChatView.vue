@@ -12,7 +12,8 @@ import {
   nextTick,
   onMounted,
   onUnmounted,
-  ref
+  ref,
+  watch
 } from "vue";
 import ChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -30,6 +31,8 @@ import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
+import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import { throttle } from 'lodash-es';
 
 defineOptions({
   name: 'LChatView',
@@ -49,10 +52,16 @@ const globalProperties =
     .globalProperties
 const principalStore = usePrincipalStore()
 const socketStore = useSocketStore()
+const messageServerStore = useMessageServerStore()
 const bubbleListRef = ref<BubbleListRef>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
-
 const socketListener = ref<((() => void) | undefined)[]>([])
+
+const readingSet = new Set<number>();
+const sentIds = new Set<number>();
+let readProcessing = false;
+
+const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
 
 const conversation = defineModel<ConversationActiveProps>("conversation", {default:{}})
 const emit = defineEmits<{
@@ -92,8 +101,6 @@ const bubbleListRole = {
   },
 } as RoleType
 
-const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
-
 function getMessageTime(item: ChatBubbleItem): number {
   return item.data?.creationTime ?? 0
 }
@@ -105,9 +112,7 @@ function buildBubbleListWithDividers(messages: ChatBubbleItem[]): BubbleItemType
   let lastDividerTime = 0
   for (const msg of sorted) {
     const msgTime = getMessageTime(msg)
-    const needDivider =
-      result.length === 0 ||
-      (msgTime > 0 && msgTime - lastDividerTime >= TIME_DIVIDER_GAP_MS)
+    const needDivider = result.length === 0 || (msgTime > 0 && msgTime - lastDividerTime >= TIME_DIVIDER_GAP_MS)
     if (needDivider && msgTime > 0) {
       result.push({
         key: `divider-${String(msg.key)}-${msgTime}`,
@@ -120,6 +125,7 @@ function buildBubbleListWithDividers(messages: ChatBubbleItem[]): BubbleItemType
   }
   return result
 }
+
 const bubbleListItems = computed(() =>
   buildBubbleListWithDividers(conversation.value.bubbleList ?? []),
 )
@@ -167,12 +173,54 @@ function isNearOldest(scrollBox: HTMLElement) {
   return scrollBox.scrollHeight + scrollBox.scrollTop <= scrollBox.clientHeight + props.topThreshold
 }
 
+
+function collectVisibleUnread(scrollBox: HTMLElement) {
+  for (const id of getVisibleUnreadMessageIds(scrollBox)) {
+    // sentIds 拦截已提交但本地 readable 尚未被 socket 回包更新的消息，避免重复提交
+    if (!sentIds.has(id)) {
+      readingSet.add(id)
+    }
+  }
+  void flushReadQueue()
+}
+
+async function flushReadQueue() {
+  if (readProcessing || readingSet.size === 0) {
+    return
+  }
+  readProcessing = true
+  try {
+    // while 循环：await 期间新收集的 ID 由下一轮批次带走
+    while (readingSet.size > 0) {
+      const batch = Array.from(readingSet)
+      readingSet.clear()
+      try {
+        await ChatMessageService.read(batch)
+        batch.forEach(id => sentIds.add(id))
+        await messageServerStore.fetchUnreadQuantity()
+      } catch (error) {
+        console.error('标记已读失败:', error)
+        // 丢弃本批：本地 readable 仍为未读，下次滚动会重新收集，避免服务端故障时无限重试
+        break
+      }
+    }
+  } finally {
+    readProcessing = false
+  }
+}
+
+// 节流后的处理函数，300ms 内最多触发一次
+const handleScrollRead = throttle(collectVisibleUnread, 300);
+
 function onScroll(event:Event) {
   const scrollBox = event.target as HTMLElement
 
   if (conversation.value.loading) {
     return
   }
+
+  handleScrollRead(scrollBox)
+
   if (conversation.value.dataSource.last) {
     return
   }
@@ -181,6 +229,44 @@ function onScroll(event:Event) {
     return
   }
   emit("nextPage", scrollBox)
+}
+
+function isUnreadMessage(message: UserChatMessageResponseBody | UserChatMessageEntity) {
+  if (!message) {
+    return false
+  }
+  const readable = (message as UserChatMessageResponseBody).readable
+  if (readable === undefined) {
+    return false
+  }
+  return getEnumValue(readable) === 1
+}
+
+function getVisibleUnreadMessageIds(scrollBox: HTMLElement) {
+  const scrollRect = scrollBox.getBoundingClientRect()
+  const content = scrollBox.querySelector('.antd-bubble-list-scroll-content')
+  if (!content) {
+    return []
+  }
+
+  const ids: number[] = []
+  const children = content.children
+
+  for (let i = 0; i < children.length && i < bubbleListItems.value.length; i++) {
+    const item = bubbleListItems.value[i]
+    if (!item || item.role === 'divider') {
+      continue
+    }
+    if (!isUnreadMessage((item as ChatBubbleItem)?.data as UserChatMessageResponseBody)) {
+      continue
+    }
+    const element = children[i] as HTMLElement
+    const rect = element.getBoundingClientRect()
+    if (rect.bottom > scrollRect.top && rect.top < scrollRect.bottom) {
+      ids.push(Number(item.key))
+    }
+  }
+  return ids
 }
 
 function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBody>) {
@@ -198,6 +284,26 @@ function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBod
   bubble.data = result?.data
 }
 
+// 数据变化（首屏加载、切换会话、socket 新消息、历史分页）后检查可见区未读。
+// 不能依赖 mounted：挂载时 bubbleList 尚未加载，且切换会话不会重新挂载；
+// 贴底收到新消息时 scrollTop 不变，也不会触发 scroll 事件
+watch(bubbleListItems, async (items) => {
+  if (items.length === 0) {
+    return
+  }
+  await nextTick()
+  const scrollBox = bubbleListRef.value?.scrollBoxNativeElement
+  if (scrollBox) {
+    handleScrollRead(scrollBox)
+  }
+})
+
+// 切换会话时重置已读队列状态
+watch(() => conversation.value.item?.key, () => {
+  readingSet.clear()
+  sentIds.clear()
+})
+
 function mounted() {
   socketListener.value.push(socketStore.subscribe(
     SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ,
@@ -206,7 +312,10 @@ function mounted() {
 }
 
 onMounted(mounted)
-onUnmounted(() => socketListener.value.forEach(f => f?.()));
+onUnmounted(() => {
+  handleScrollRead.cancel()
+  socketListener.value.forEach(f => f?.())
+});
 
 defineExpose({
   getScrollBox: () => bubbleListRef.value?.scrollBoxNativeElement,
