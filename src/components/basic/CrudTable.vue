@@ -148,6 +148,24 @@ function onTableAction(payload: ActionPayload<TEntity>) {
   emit('action', payload)
 }
 
+function onDrop(
+  sorts: TreeSortMetadata<TEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[],
+  target: TEntity,
+  fromIndex: number,
+  toIndex: number,
+) {
+  emit('drop', sorts as TreeSortMetadata<TId>[], target, fromIndex, toIndex)
+}
+
+function onTreeDrop(
+  sorts: TreeSortMetadata<TEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[],
+  drag: TEntity,
+  target: TEntity,
+  payload: { dropPosition: DropPosition; tree: TEntity[] },
+) {
+  emit('treeDrop', sorts as TreeSortMetadata<TId>[], drag, target, payload)
+}
+
 function fetchDataSource() {
   return queryTable.value?.fetchDataSource()
 }
@@ -184,8 +202,8 @@ defineExpose({
     v-model:loading="loading"
     v-model:selected-rows="selectedRows"
     @action="onTableAction"
-    @drop="(sorts, target, fromIndex, toIndex) => emit('drop', sorts, target, fromIndex, toIndex)"
-    @tree-drop="(sorts, drag, target, payload) => emit('treeDrop', sorts, drag, target, payload)"
+    @drop="onDrop"
+    @tree-drop="onTreeDrop"
   >
     <template #title v-if="slots.title">
       <slot name="title"/>
