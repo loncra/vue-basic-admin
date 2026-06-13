@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {AttachmentService} from "@/apis";
+import {AttachmentService, AuthServerService} from "@/apis";
 import type {ContactItem, PlatformUser} from "@/types/apis";
 import type {ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {Conversations as AxConversations,} from '@antdv-next/x'
@@ -48,7 +48,7 @@ const searchValue = ref<string>('')
 
 const filterDataSource = computed(() => {
   return dataSource.value
-    .filter(s => searchValue.value === '' ? s : getName(s.data).includes(searchValue.value))
+    .filter(s => searchValue.value === '' ? s : AuthServerService.getPrincipalNameByPlatformUser(s.data).includes(searchValue.value))
     .filter(s => props.filter(s))
 })
 
@@ -66,10 +66,6 @@ async function onContactActiveChange(value: string, item: ItemType | undefined) 
     }
   }
   emit("selected", contact.data)
-}
-
-function getName(c:PlatformUser) {
-  return String(c.realName || c.username || globalProperties.$t('common.unname'))
 }
 
 onMounted(() => localDataSource.value = [...dataSource.value])
@@ -112,7 +108,12 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
               {{ item?.label }}
             </a-typography-text>
             <a-typography-text ellipsis type="secondary">
-              {{ item?.data?.phoneNumber || item?.data?.email || ' ' }}
+              <template v-if="item?.data?.phoneNumber">
+                {{globalProperties.$t('common.phoneNumber')}}: {{item?.data?.phoneNumber}}
+              </template>
+              <template v-if="item?.data?.emai">
+                {{globalProperties.$t('common.email')}}: {{item?.data?.emai}}
+              </template>
             </a-typography-text>
           </a-flex>
         </template>
@@ -145,10 +146,10 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
               :src="AttachmentService.getAvatarUrlIfNotNull(c.data.avatar)"
             />
             <a-avatar size="large" shape="square" v-else>
-              {{ getName(c.data).substring(0,1) }}
+              {{ AuthServerService.getPrincipalNameByPlatformUser(c.data).substring(0, 1) }}
             </a-avatar>
-            <a-typography-text :ellipsis="{tooltip:getName(c.data)}">
-              {{getName(c.data)}}
+            <a-typography-text :ellipsis="{tooltip:AuthServerService.getPrincipalNameByPlatformUser(c.data)}">
+              {{ AuthServerService.getPrincipalNameByPlatformUser(c.data) }}
             </a-typography-text>
           </a-flex>
         </a-space>

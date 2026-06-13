@@ -15,10 +15,13 @@ import type {
   AttachmentValue
 } from "@/types/composables/attachmentUpload.ts";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import {isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
+import {getEnumName, getEnumValue, isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {TYPING_ANCHOR} from "@/constants/messageConstant.ts";
-import type {ObjectWriteResult} from "@/types/apis";
+import type {ObjectWriteResult, UserChatMessageResponseBody} from "@/types/apis";
+import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
+import {AuthServerService} from "@/apis";
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -27,6 +30,7 @@ defineOptions({
 const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
 
 const configProviderStore = useConfigProviderStore()
+const principalStore = usePrincipalStore()
 
 const uploadRefMap = new Map<string, AttachmentUploadExpose>()
 const senderRef = ref<SenderRef>()
@@ -34,6 +38,7 @@ const senderRef = ref<SenderRef>()
 const uploading = ref<boolean>(false)
 
 const sending = defineModel<boolean>("sending", {default: false})
+const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default:() =>[]})
 
 const props = withDefaults(defineProps<{
   slotConfig?:SlotConfigType[]
@@ -47,6 +52,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   submit: [content: ChatContentBlock[]]
+  jumpToReference:[body:UserChatMessageResponseBody]
 }>()
 
 function slotTextRaw(slot: SlotConfigType): string {
@@ -432,6 +438,28 @@ defineExpose({
     @change="onChange"
     @submit="onSubmit"
   >
+    <template #header>
+      <a-flex gap="small" wrap class="w-full p-xs bg-layout border-b border-b-border-secondary rounded-t-xl">
+        <a-tag closable @close="() => refMessages = refMessages.filter(m => m.id !== r.id)" variant="outlined" :key="r.id" v-for="r of refMessages" :color="getEnumValue(r.participant.type) !== 30 ? 'gold' : 'green'">
+          <a-space>
+            <template v-if="getEnumValue(r.participant.type) !== 30">
+              [{{getEnumName(r.participant.type)}}]
+            </template>
+            <template v-if="principalStore.state.name === r.principal">
+              {{ currentInstance.appContext.config.globalProperties.$t('common.me') }}
+            </template>
+            <template v-else>
+              {{ AuthServerService.getPrincipalNameByPlatformUser(r.participant.metadata.details) }}
+            </template>
+            :
+            <a-typography-text type="secondary" @click="emit('jumpToReference', r)" class="w-50 cursor-pointer" ellipsis>
+              {{ ChatMessageService.getMessageContent(r)}}
+            </a-typography-text>
+          </a-space>
+        </a-tag>
+      </a-flex>
+    </template>
+
     <template #footer="{ components }" v-if="!props.disabled">
       <a-flex justify="space-between" align="center" gap="small">
         <a-space>

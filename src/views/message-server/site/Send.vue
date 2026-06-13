@@ -9,7 +9,7 @@ import type {
   ObjectWriteResult,
   RestResult
 } from "@/types/apis";
-import {ResourceServerService} from "@/apis";
+import {AuthServerService, ResourceServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -158,7 +158,7 @@ onMounted(mounted);
             <l-user-select v-model:value="options.form.toUsers" mode="multiple">
               <template #optionRender="{ option }">
                 <template v-if="option.data.payload">
-                  {{option.data?.payload?.realName || option.data?.payload?.username}}
+                  {{ AuthServerService.getPrincipalNameByPlatformUser(option.data?.payload) }}
                 </template>
                 <template v-else>
                   {{option.data.label}}

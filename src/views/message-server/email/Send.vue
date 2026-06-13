@@ -9,9 +9,9 @@ import type {
   ObjectWriteResult,
   RestResult
 } from "@/types/apis";
-import {ResourceServerService} from "@/apis";
+import {AuthServerService, ResourceServerService} from "@/apis";
 import LUserSelect from "@/components/basic/UserSelect.vue";
-import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 import LTipTap from "@/components/tiptap/TipTap.vue";
 
@@ -104,7 +104,9 @@ onMounted(mounted);
                 <template v-if="option.data.payload">
                   <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.emailVerified)})">
                     <a-typography-text :type="getEnumValue(option.data?.payload.emailVerified) === 1 ? 'success' : 'warning'">
-                      {{option.data?.payload?.realName || option.data?.payload?.username}} ({{option.data?.payload?.email}})
+
+                      {{ AuthServerService.getPrincipalNameByPlatformUser(option.data?.payload) }}
+                      ({{ option.data?.payload?.email }})
                     </a-typography-text>
                   </a-tooltip>
                 </template>

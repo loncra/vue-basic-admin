@@ -11,7 +11,7 @@ import type {IdValueMetadata, RestResult, UserChatMessageReadResponseBody} from 
 import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {AttachmentService} from "@/apis";
+import {AttachmentService, AuthServerService} from "@/apis";
 import type {TableProps} from "antdv-next";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
@@ -166,7 +166,9 @@ onUnmounted(() => socketListener.value.forEach(f => f?.()));
               v-if="principalStore.state.name !== record.principal"
               size="large"
             >
-              {{ (record.participant?.metadata?.details?.realName || record.participant?.metadata?.details.useranme || globalProperties.$t('common.unname')).substring(0,1) }}
+              {{
+                AuthServerService.getPrincipalNameByPlatformUser(record.participant?.metadata?.details).substring(0, 1)
+              }}
             </a-avatar>
             <a-avatar
               :src="principalStore.getAvatarUrl()"
@@ -175,7 +177,9 @@ onUnmounted(() => socketListener.value.forEach(f => f?.()));
             >
               {{globalProperties.$t('common.me')}}
             </a-avatar>
-            {{ record.participant?.metadata?.details?.realName || record.participant?.metadata?.details.useranme || globalProperties.$t('common.unname') }}
+            {{
+              AuthServerService.getPrincipalNameByPlatformUser(record.participant?.metadata?.details)
+            }}
           </a-space>
         </template>
         <template v-if="column.key === 'readTime'">

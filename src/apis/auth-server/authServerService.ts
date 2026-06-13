@@ -16,6 +16,7 @@ import type {
   ResourceEntity,
   RestResult
 } from '@/types/apis'
+import i18n from '@/i18n'
 
 /**
  * auth-server 认证与初始化入口（无实例状态，仅静态 URL + 请求封装）。
@@ -106,6 +107,13 @@ export class AuthServerService {
     return axios.get(AuthServerService.PRINCIPAL_RESOURCES_URL, {
       params,
     })
+  }
+
+  static getPrincipalNameByPlatformUser(details:PlatformUser, defaultValue:String = i18n.global.t('common.unname')) {
+    if (!details) {
+      return ''
+    }
+    return details.realName || details.username || defaultValue
   }
 
 }

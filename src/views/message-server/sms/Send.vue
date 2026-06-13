@@ -14,7 +14,7 @@ import type {
 } from "@/types/apis";
 import {SmsSignService} from "@/apis/message-server/sms/signService.ts";
 import {SmsTemplateService} from "@/apis/message-server/sms/templateService.ts";
-import {ResourceServerService} from "@/apis";
+import {AuthServerService, ResourceServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import type {SearchableColumnType} from "@/types/composables";
 import LUserSelect from "@/components/basic/UserSelect.vue";
@@ -182,7 +182,8 @@ onMounted(mounted);
                   <template v-if="option.data.payload">
                     <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.phoneNumberVerified)})">
                       <a-typography-text :type="getEnumValue(option.data?.payload.phoneNumberVerified) === 1 ? 'success' : 'warning'">
-                        {{option.data?.payload?.realName || option.data?.payload?.username}} ({{option.data?.payload?.phoneNumber}})
+                        {{ AuthServerService.getPrincipalNameByPlatformUser(option.data?.payload) }}
+                        ({{ option.data?.payload?.phoneNumber }})
                       </a-typography-text>
                     </a-tooltip>
                   </template>

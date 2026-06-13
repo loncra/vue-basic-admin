@@ -495,10 +495,9 @@ onMounted(mounted)
             >
               <template #bubbleListAfter>
                 <a-button
-                  size="small"
                   @click="toReadableAnchor()"
                   v-if="showReadableAnchorButton()"
-                  class="shadow absolute mt-sm left-1/2 -translate-x-1/2"
+                  class="shadow-card absolute mt-sm left-1/2 -translate-x-1/2"
                 >
                   <template #icon>
                     <icon-font type="loncra-map-pin-search"/>

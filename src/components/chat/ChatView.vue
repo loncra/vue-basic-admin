@@ -3,7 +3,7 @@
 import type {BubbleItemType, BubbleListRef, RoleType} from "@antdv-next/x/dist/bubble/interface";
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
 import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps} from "@/types/composables";
-import {AttachmentService} from "@/apis";
+import {AttachmentService, AuthServerService} from "@/apis";
 import {
   type ComponentInternalInstance,
   computed,
@@ -29,7 +29,7 @@ import {BubbleList as AxBubbleList} from "@antdv-next/x";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
-import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {throttle} from 'lodash-es';
@@ -41,13 +41,15 @@ defineOptions({
 const props = withDefaults(
   defineProps<{
     topThreshold?:number,
+    scrollToBottomThreshold?: number,
     throttleCollectVisibleUnreadWait?:number
     throttleOnScrollWait?:number
   }>(),
   {
     throttleCollectVisibleUnreadWait:500,
     throttleOnScrollWait:300,
-    topThreshold:250
+    topThreshold:250,
+    scrollToBottomThreshold:100
   }
 )
 
@@ -58,8 +60,10 @@ const principalStore = usePrincipalStore()
 const socketStore = useSocketStore()
 const messageServerStore = useMessageServerStore()
 const bubbleListRef = ref<BubbleListRef>()
+const showScrollToBottom = ref<boolean>(false)
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const socketListener = ref<((() => void) | undefined)[]>([])
+const refMessages = ref<UserChatMessageResponseBody[]>([])
 
 const readingSet = new Set<number>();
 const sentIds = new Set<number>();
@@ -73,7 +77,6 @@ const emit = defineEmits<{
   loadPage: [tag:'next' | 'previous', scrollBox: HTMLElement],
 }>()
 
-
 const bubbleListRole = {
   user: {
     contentRender: renderBubbleContent,
@@ -81,12 +84,14 @@ const bubbleListRole = {
     placement: 'end',
     shape: 'corner',
     classes: {content: 'bg-primary-bg!'},
+    footerPlacement:'inner-start',
   },
   ai: {
     contentRender: renderBubbleContent,
     variant: 'filled',
     placement: 'start',
     shape: 'corner',
+    footerPlacement:'inner-start',
   },
   system: {
     variant: 'outlined',
@@ -227,11 +232,10 @@ async function flushReadQueue() {
 // 节流后的处理函数，props.throttleCollectVisibleUnreadWait 内最多触发一次
 const handleScrollRead = throttle(collectVisibleUnread, props.throttleCollectVisibleUnreadWait);
 // 节流后的处理函数，props.throttleCollectVisibleUnreadWait 内最多触发一次
-const handleOnScroll = throttle(onScroll, props.throttleOnScrollWait, { leading: true, trailing: false });
+const handleThrottleBubbleScroll = throttle(throttleBubbleScroll, props.throttleOnScrollWait, { leading: true, trailing: false });
 
-function onScroll(event: Event) {
+function throttleBubbleScroll(event: Event) {
   const scrollBox = event.target as HTMLElement
-
   handleScrollRead(scrollBox)
   const { first, last } = conversation.value.dataSource
   // 滚到最上方 → 加载更旧（number++）
@@ -242,6 +246,12 @@ function onScroll(event: Event) {
   else if (!first && isNearNewest(scrollBox)) {
     emit('loadPage', 'previous', scrollBox)
   }
+}
+
+function onBubbleScroll(event: Event) {
+  const scrollBox = event.target as HTMLElement
+  showScrollToBottom.value = scrollBox.scrollTop <= -props.scrollToBottomThreshold
+  handleThrottleBubbleScroll(event)
 }
 
 function isUnreadMessage(message: UserChatMessageResponseBody | UserChatMessageEntity) {
@@ -297,6 +307,17 @@ function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBod
   bubble.data = result?.data
 }
 
+function addRefMessage(item:UserChatMessageResponseBody) {
+  if (!item) {
+    return
+  }
+  if (refMessages.value.some(r => r.id === item.id)) {
+    return
+  }
+
+  refMessages.value.push(item)
+}
+
 // 数据变化（首屏加载、切换会话、socket 新消息、历史分页）后检查可见区未读。
 // 不能依赖 mounted：挂载时 bubbleList 尚未加载，且切换会话不会重新挂载；
 // 贴底收到新消息时 scrollTop 不变，也不会触发 scroll 事件
@@ -315,6 +336,7 @@ watch(bubbleListItems, async (items) => {
 watch(() => conversation.value.item?.key, () => {
   readingSet.clear()
   sentIds.clear()
+  refMessages.value = []
 })
 
 function mounted() {
@@ -325,6 +347,7 @@ function mounted() {
 }
 
 onMounted(mounted)
+
 onUnmounted(() => {
   handleScrollRead.cancel()
   socketListener.value.forEach(f => f?.())
@@ -348,95 +371,114 @@ defineExpose({
     class="h-full min-h-0 overflow-hidden"
   >
     <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
-        <ax-bubble-list
-          auto-scroll
-          ref="bubbleListRef"
-          class="min-h-0 h-full flex"
-          :classes="{scroll:'pl-xs pr-xs'}"
-          :items="bubbleListItems"
-          @scroll="handleOnScroll"
-          :role="bubbleListRole"
-        >
-          <template #extra="{item}" >
-            <a-flex class="h-full" justify="end" align="end">
-              <a-tooltip
-                v-if="getEnumValue(conversation.item?.data?.room?.type) === 20 && item.role === 'user'"
-                :title="item.data.readableCount === 1 ? globalProperties.$t('common.read.readable') : globalProperties.$t('common.read.unreadable')"
-              >
-                <a-typography-text :type="item.data.readableCount === 1 ? 'secondary' : 'success'">
-                  <icon-font class="icon" :type="item.data.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'" />
-                </a-typography-text>
-              </a-tooltip>
-              <a-popover
-                :placement="item.role === 'user' ? 'left' : 'right'"
-                v-else-if="getEnumValue(conversation.item?.data?.room?.type) === 10 && item.data"
-                trigger="click"
-              >
-                <template #content>
-                  <l-chat-message-read-table :message-id="item.data.id" />
-                </template>
+      <ax-bubble-list
+        auto-scroll
+        ref="bubbleListRef"
+        class="min-h-0 h-full flex"
+        :classes="{scroll:'pl-xs pr-xs'}"
+        :items="bubbleListItems"
+        @scroll="onBubbleScroll"
+        :role="bubbleListRole"
+      >
+        <template #extra="{item}" >
+          <a-flex class="h-full" justify="end" align="end">
+            <a-tooltip
+              v-if="getEnumValue(conversation.item?.data?.room?.type) === 20 && item.role === 'user'"
+              :title="item.data.readableCount === 1 ? globalProperties.$t('common.read.readable') : globalProperties.$t('common.read.unreadable')"
+            >
+              <a-typography-text :type="item.data.readableCount === 1 ? 'secondary' : 'success'">
+                <icon-font class="icon" :type="item.data.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'" />
+              </a-typography-text>
+            </a-tooltip>
+            <a-popover
+              :placement="item.role === 'user' ? 'left' : 'right'"
+              v-else-if="getEnumValue(conversation.item?.data?.room?.type) === 10 && item.data"
+              trigger="click"
+            >
+              <template #content>
+                <l-chat-message-read-table :message-id="item.data.id" />
+              </template>
 
-                <a-button
-                  :color="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCoun ? undefined : 'lime'"
-                  size="small"
-                  :variant="Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount ? 'filled' : undefined"
-                  type="dashed"
-                >
-                  <a-space v-if="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCount">
-                    <a-badge status="processing" />
-                    {{Math.abs(item.data.readableCount - item.data.readCount)}} / {{item.data.readCount}}
-                  </a-space>
-                  <template #icon v-if="Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount">
-                    <icon-font type="loncra-list-checks"/>
-                  </template>
-                </a-button>
-              </a-popover>
-            </a-flex>
-          </template>
-          <template #avatar="{ item }">
-            <a-avatar
-              :src="AttachmentService.getAvatarUrlIfNotNull(item.data?.participant?.metadata?.details?.avatar)"
-              v-if="item.role === 'ai'"
-              size="large"
-            >
-              <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
-                {{ (item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme || globalProperties.$t('common.unname')).substring(0,1) }}
-              </template>
-              <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
-                {{ (conversation.item?.label || globalProperties.$t('common.unname')).substring(0,1) }}
-              </template>
-            </a-avatar>
-            <a-avatar
-              :src="principalStore.getAvatarUrl()"
-              v-else
-              size="large"
-            >
-              {{globalProperties.$t('common.me')}}
-            </a-avatar>
-          </template>
-          <template #header="{ item }">
-            <a-typography-text v-if="item.role === 'ai'">
-              <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
-                {{ item.data?.participant?.metadata?.details?.realName || item.data?.participant?.metadata?.details.useranme }}
-              </template>
-              <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 20">
-                {{ (conversation.item?.label || globalProperties.$t('common.unname'))}}
-              </template>
-            </a-typography-text>
-            <a-typography-text type="secondary" v-else>
-              {{globalProperties.$t('common.me')}}
-            </a-typography-text>
-          </template>
-        </ax-bubble-list>
+              <a-button
+                :color="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCoun ? undefined : 'lime'"
+                size="small"
+                :variant="Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount ? 'filled' : undefined"
+                type="dashed"
+              >
+                <a-space v-if="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCount">
+                  <a-badge status="processing" />
+                  {{Math.abs(item.data.readableCount - item.data.readCount)}} / {{item.data.readCount}}
+                </a-space>
+                <template #icon v-if="Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount">
+                  <icon-font type="loncra-list-checks"/>
+                </template>
+              </a-button>
+            </a-popover>
+          </a-flex>
+        </template>
+        <template #avatar="{ item }">
+          <a-avatar
+            :src="AttachmentService.getAvatarUrlIfNotNull(item.data?.participant?.metadata?.details?.avatar)"
+            v-if="item.role === 'ai'"
+            size="large"
+          >
+            <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
+              {{AuthServerService.getPrincipalNameByPlatformUser(item.data?.participant?.metadata?.details).substring(0, 1)}}
+            </template>
+          </a-avatar>
+          <a-avatar
+            :src="principalStore.getAvatarUrl()"
+            v-else
+            size="large"
+          >
+            {{globalProperties.$t('common.me')}}
+          </a-avatar>
+        </template>
+        <template #header="{ item }">
+          <a-typography-text v-if="item.role === 'ai'">
+            <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
+              {{AuthServerService.getPrincipalNameByPlatformUser(item.data.participant.metadata.details)}}
+            </template>
+            <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 20">
+              {{ (conversation.item?.label || globalProperties.$t('common.unname'))}}
+            </template>
+          </a-typography-text>
+          <a-typography-text type="secondary" v-else>
+            {{globalProperties.$t('common.me')}}
+          </a-typography-text>
+        </template>
+        <template #footer="{role, item}">
+          <a-flex class="w-full" gap="small" :class="role === CHAT_BUBBLE_TYPE.USER ? '' : 'flex-row-reverse'">
+            <a-button size="small" type="text" @click="addRefMessage(item.data)">
+              <icon-font type="loncra-text-quote"/>
+            </a-button>
+            <a-button size="small" type="text" danger >
+              <icon-font type="loncra-undo"/>
+            </a-button>
+          </a-flex>
+        </template>
+      </ax-bubble-list>
       <slot name="bubbleListAfter"></slot>
+      <a-button
+        shape="circle"
+        v-if="showScrollToBottom"
+        @click="bubbleListRef?.scrollTo({ top: 'bottom' });"
+        class="shadow-card absolute bottom-0 mb-sm left-1/2 -translate-x-1/2"
+      >
+        <template #icon>
+          <icon-font type="loncra-hard-drive-download"/>
+        </template>
+      </a-button>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
       <l-chat-message-sender
         ref="senderRef"
         v-if="conversation?.item?.data"
+        v-model:ref-messages="refMessages"
         :placeholder="placeholderText"
         :disabled="getEnumValue(conversation.item.data.status) !== 10"
         :sending="conversation.sending"
+        @jump-to-reference="(body) => bubbleListRef?.scrollTo({ key: String(body.id), behavior: 'auto', block: 'start' })"
         @submit="onSendMessage"
       />
     </div>
