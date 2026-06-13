@@ -14,6 +14,7 @@ const locale: LanguagePack = {
     me: 'Me',
     creationTime: 'Created at',
     ip: 'IP address',
+    noMore:'No more data available',
     system: 'System information',
     save: 'Save',
     add: 'Add {name}',
@@ -487,6 +488,10 @@ const locale: LanguagePack = {
         disbandRoom: 'This group has been disbanded',
         text: 'Type a message; paste files here to send attachments',
       },
+      readable:{
+        jumpTo:'Jump to the earliest unread message',
+        systemMessage:'The following are the earliest unread messages'
+      }
     },
     roomView: {
       addParticipant: 'Start group chat',

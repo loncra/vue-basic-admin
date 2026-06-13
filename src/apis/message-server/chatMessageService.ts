@@ -20,6 +20,8 @@ import {AttachmentService} from "@/apis";
 import {Avatar, AvatarGroup} from 'antdv-next'
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 import i18n from "@/i18n";
+import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
+import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 
 /**
  * 用户聊天消息领域服务：`/api[/message-server]/user/chat`
@@ -158,23 +160,35 @@ export class ChatMessageService  {
     return content
   }
 
-  static addBubbleListMessage(body: UserChatMessageEntity, role:ChatBubbleItem["role"], bubbleList:ChatBubbleItem[]) {
-    if (role === 'system') {
-      for (const c of body.content) {
-        bubbleList.push({
-          key: String(body.id),
-          role: role,
-          content: (c as TextBlock).value as unknown as ChatContentBlock,
-          data:body
-        })
-      }
-    } else {
-      bubbleList.push({
+  static addBubbleListMessage(
+    body: UserChatMessageEntity,
+    role:BubbleItemType["role"],
+    bubbleList:ChatBubbleItem[],
+    append:boolean = false
+  ) {
+
+    if (bubbleList.some(b => b.key === String(body.id))) {
+      return
+    }
+
+    const items = role === CHAT_BUBBLE_TYPE.SYSTEM
+    ? body.content.map(c => ({
         key: String(body.id),
-        role: role,
+        role,
+        content: (c as TextBlock).value as unknown as ChatContentBlock,
+        data: body,
+      }))
+    : [{
+        key: String(body.id),
+        role,
         content: body.content,
-        data:body
-      })
+        data: body,
+      }]
+
+    if (!append) {
+      bubbleList.splice(0, 0, ...items)
+    } else {
+      bubbleList.push(...items)
     }
   }
 

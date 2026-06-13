@@ -12,6 +12,7 @@ const locale: LanguagePack = {
     id: '主键',
     setting:'设置',
     me: '我',
+    noMore:'没有更多的数据了',
     creationTime:'创建时间',
     link:'链接地址',
     ip:'IP 地址',
@@ -479,6 +480,10 @@ const locale: LanguagePack = {
         roomRemove:'您已被本群移除',
         disbandRoom:'本群已解散',
         text:'输入消息，可粘贴文件到此处发送文件内容'
+      },
+      readable:{
+        jumpTo:'跳转至最早未读消息',
+        systemMessage:'以下为最早未读消息'
       }
     },
     roomView:{

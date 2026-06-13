@@ -1,4 +1,3 @@
-
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
 export const TYPING_ANCHOR = '\u200B'
 /**
@@ -35,3 +34,10 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_CONVERSATION_REFRESH_BY_ROOM_ID:'chat_conversation_refresh_by_room_id',
   CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID:'chat_participant_refresh_by_room_id'
 } as const
+
+export const CHAT_BUBBLE_TYPE = {
+  AI:'ai',
+  SYSTEM:'system',
+  USER:'user',
+  DIVIDER:"divider"
+}

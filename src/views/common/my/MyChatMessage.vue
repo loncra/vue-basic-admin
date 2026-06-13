@@ -34,8 +34,9 @@ import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {DEFAULT_PAGE_RESULT_VALUE} from "@/constants/systemConstant.ts";
-import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatRoomView from "@/components/chat/ChatRoomView.vue";
+import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 
 defineOptions({
   name: 'MyChatMessageHome',
@@ -79,6 +80,10 @@ const conversationActive = ref<ConversationActiveProps>({
   item: undefined,
   loading: false,
   sending: false,
+  readableAnchorLoading:false,
+  loadConversationDataLock:false,
+  isOnLastPage: false,
+  isOnFirstPage: true,
   dataSource: DEFAULT_PAGE_RESULT_VALUE,
   drawerOpen:false,
   bubbleList: []
@@ -90,30 +95,44 @@ const socketListener = ref<((() => void) | undefined)[]>([])
 
 async function loadConversationData(
   chatRoomId: number,
-  number:number
+  number:number,
+  append:boolean = false,
+  clear:boolean = false,
 ) {
-
-  if (conversationActive.value.loading) {
+  if (conversationActive.value.loadConversationDataLock) {
     return ;
   }
-
-  conversationActive.value.loading = true
+  const request = {
+    number:number,
+    readableAnchor: conversationActive.value.readableAnchorLoading,
+  }
   try {
-    const result:RestResult<PageResult<UserChatMessageResponseBody>> = await ChatMessageService.histories({number}, chatRoomId)
+    conversationActive.value.loadConversationDataLock = true
+    const result:RestResult<PageResult<UserChatMessageResponseBody>> = await ChatMessageService.histories(request, chatRoomId)
 
     conversationActive.value.dataSource = result?.data || DEFAULT_PAGE_RESULT_VALUE
+    if (!conversationActive.value.isOnFirstPage) {
+      conversationActive.value.isOnFirstPage = conversationActive.value.dataSource.first
+    }
+    if (!conversationActive.value.isOnLastPage) {
+      conversationActive.value.isOnLastPage = conversationActive.value.dataSource.last
+    }
     const elements = conversationActive.value.dataSource.elements || []
+    if (clear) {
+      conversationActive.value.bubbleList = []
+    }
     for (const d of elements) {
-      let role:ChatBubbleItem["role"] = principalStore.state.name === (d.participant?.metadata?.details as {systemName:string})?.systemName ? 'user' : 'ai'
+      let role:BubbleItemType["role"] = principalStore.state.name === (d.participant?.metadata?.details as {systemName:string})?.systemName ? CHAT_BUBBLE_TYPE.USER : CHAT_BUBBLE_TYPE.AI
       if (getEnumValue(d.type) === 20) {
-        role = 'system'
+        role = CHAT_BUBBLE_TYPE.SYSTEM
       }
-      ChatMessageService.addBubbleListMessage(d, role, conversationActive.value.bubbleList)
+      ChatMessageService.addBubbleListMessage(d, role, conversationActive.value.bubbleList, !append)
     }
 
   } finally {
-    conversationActive.value.loading = false
+    conversationActive.value.loadConversationDataLock = false
   }
+
 }
 
 async function onSendMessage(entity: UserChatMessageEntity) {
@@ -153,11 +172,16 @@ async function onConversationsChange(conversationItem:ServerConversationItem) {
     conversationActive.value.item = conversationItem
     return
   }
-  conversationActive.value.item = conversationItem
-  conversationActive.value.bubbleList = []
-  await loadConversationData(Number(conversationActive.value.item?.data?.room?.id),1)
-  await nextTick()
-  requestAnimationFrame(() => chatViewRef.value?.scrollTo({ top: "bottom", behavior: "smooth" }));
+  conversationActive.value.loading = true
+  try {
+    conversationActive.value.item = conversationItem
+    conversationActive.value.bubbleList = []
+    await loadConversationData(Number(conversationActive.value.item?.data?.room?.id),1)
+    await nextTick()
+    requestAnimationFrame(() => chatViewRef.value?.scrollTo({ top: "bottom", behavior: "smooth" }));
+  } finally {
+    conversationActive.value.loading = false
+  }
 }
 
 async function onConversationRefreshByRoomId(result:RestResult<number>) {
@@ -290,7 +314,7 @@ async function onChatMessageReceived(result: RestResult<UserChatMessageResponseB
   }
 
   if (conversationActive.value.item?.data?.room?.id === result.data.chatRoomId && chatViewRef.value) {
-    const role = getEnumValue(result.data.type) === 20 ? 'system' : 'ai';
+    const role = getEnumValue(result.data.type) === 20 ? CHAT_BUBBLE_TYPE.SYSTEM : CHAT_BUBBLE_TYPE.AI;
     ChatMessageService.addBubbleListMessage(result.data, role, conversationActive.value.bubbleList)
   }
 
@@ -309,28 +333,45 @@ function onChatConversationReceived(result: RestResult<UserChatConversationRespo
   options.value.conversationDataSource.unshift(result.data)
 }
 
-async function onChatViewNextPage() {
+async function onChatViewLoadPage(tag:'next' | 'previous') {
+  if (conversationActive.value.loadConversationDataLock) {
+    return
+  }
+  if (tag === 'next' && conversationActive.value.isOnLastPage) {
+    return
+  }
+  if (tag === 'previous' && conversationActive.value.isOnFirstPage) {
+    return
+  }
   const roomId = Number(conversationActive.value.item?.data?.room?.id)
   if (!roomId) {
     return
   }
+  const reduceSort = (a:ChatBubbleItem,b:ChatBubbleItem) => {
+    const flag = tag === 'previous'
+      ? (a.data?.creationTime ?? 0) >= (b.data?.creationTime ?? 0)
+      : (a.data?.creationTime ?? 0) <= (b.data?.creationTime ?? 0)
+    return flag ? a : b
+  }
   // 锚点：当前已加载的最旧一条消息（加载后它会被新内容顶到下面）
   const bubbles = conversationActive.value.bubbleList
-  const anchor = bubbles.length
-    ? bubbles.reduce((a, b) =>
-      (a.data?.creationTime ?? 0) <= (b.data?.creationTime ?? 0) ? a : b)
-    : undefined
-  await loadConversationData(roomId, conversationActive.value.dataSource.number + 1)
+  const anchor = bubbles.length > 0 ? bubbles.reduce(reduceSort) : undefined
+
+  await loadConversationData(
+    roomId,
+    tag === 'next' ? ++conversationActive.value.dataSource.number : --conversationActive.value.dataSource.number,
+    tag === 'previous'
+  )
   await nextTick()
   if (anchor) {
     // behavior 必须用 'auto'（即 instant），否则平滑动画会很怪
     chatViewRef.value?.scrollTo({ key: anchor.key, behavior: 'auto', block: 'start' })
   }
-  if (conversationActive.value.dataSource.last) {
+  if (conversationActive.value.dataSource.last && tag === 'next') {
     conversationActive.value.bubbleList.unshift({
       key:globalProperties.$dayjs().unix(),
-      role:'system',
-      content:'没有更多的数据了'
+      role:CHAT_BUBBLE_TYPE.SYSTEM,
+      content:globalProperties.$t('common.noMore')
     })
   }
 }
@@ -344,6 +385,65 @@ async function onAddParticipant(user:ContactItem[], restResult:RestResult<UserCh
     return ;
   }
   await setActiveConversationItemByEntity(restResult.data)
+}
+
+function showReadableAnchorButton() {
+  return !conversationActive.value.loading
+    && conversationActive.value.dataSource?.metadata?.readableAnchorId
+}
+
+async function toReadableAnchor() {
+  const roomId = Number(conversationActive.value.item?.data?.room?.id)
+  if (!roomId) {
+    return
+  }
+  if (!conversationActive.value.dataSource?.metadata?.readableAnchorPage) {
+    return
+  }
+  const readableAnchorId = conversationActive.value.dataSource?.metadata?.readableAnchorId
+  if (!readableAnchorId) {
+    return
+  }
+
+  conversationActive.value.readableAnchorLoading = true
+  conversationActive.value.isOnLastPage = false;
+  conversationActive.value.isOnFirstPage = false;
+
+  await loadConversationData(
+    roomId,
+    Number(conversationActive.value.dataSource?.metadata?.readableAnchorPage),
+    false,
+    true
+  )
+
+  if (conversationActive.value.bubbleList.length <= 0) {
+    return ;
+  }
+
+  const anchorIndex = conversationActive.value.bubbleList.findIndex(b => b.key === String(readableAnchorId))
+  let key
+
+  if (anchorIndex < 0 ) {
+    key = conversationActive.value.bubbleList.at(0)?.key;
+  } else {
+    key = globalProperties.$dayjs().unix()
+    const anchorBubble = conversationActive.value.bubbleList[anchorIndex]
+    const anchorTime = anchorBubble?.data?.creationTime ?? 0
+    const newBubble = {
+      key: key,
+      role: CHAT_BUBBLE_TYPE.SYSTEM,
+      content: globalProperties.$t('chat.view.readable.systemMessage'),
+      data: { creationTime: anchorTime - 1 } as UserChatMessageResponseBody,
+    }
+    conversationActive.value.bubbleList.splice(anchorIndex, 0, newBubble)
+  }
+
+  await nextTick()
+
+  if (!chatViewRef.value) {
+    return
+  }
+  chatViewRef.value?.scrollTo({ key: key, behavior: 'auto', block: 'start' })
 }
 
 onUnmounted(() => socketListener.value.forEach(f => f?.()));
@@ -386,12 +486,28 @@ onMounted(mounted)
       </a-splitter-panel>
       <a-splitter-panel class="h-full min-h-0 overflow-hidden">
         <div class="h-full min-h-0 overflow-hidden relative" v-if="conversationActive.item">
-          <l-chat-view
-            @next-page="onChatViewNextPage"
-            ref="chatViewRef"
-            v-model:conversation="conversationActive"
-            @send="onSendMessage"
-          />
+          <a-spin :spinning="conversationActive.loading" class="size-full-spin">
+            <l-chat-view
+              @load-page="onChatViewLoadPage"
+              ref="chatViewRef"
+              v-model:conversation="conversationActive"
+              @send="onSendMessage"
+            >
+              <template #bubbleListAfter>
+                <a-button
+                  size="small"
+                  @click="toReadableAnchor()"
+                  v-if="showReadableAnchorButton()"
+                  class="shadow absolute mt-sm left-1/2 -translate-x-1/2"
+                >
+                  <template #icon>
+                    <icon-font type="loncra-map-pin-search"/>
+                  </template>
+                  <span>{{globalProperties.$t('chat.view.readable.jumpTo')}}</span>
+                </a-button>
+              </template>
+            </l-chat-view>
+          </a-spin>
           <a-drawer
             v-if="conversationActive.item.data"
             v-model:open="conversationActive.drawerOpen"

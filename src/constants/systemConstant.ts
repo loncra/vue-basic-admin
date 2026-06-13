@@ -176,5 +176,6 @@ export const DEFAULT_PAGE_RESULT_VALUE = {
   first: true,
   last: true,
   number: 1,
-  size: 10
+  size: 10,
+  metadata:{}
 }

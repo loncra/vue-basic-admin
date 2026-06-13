@@ -32,7 +32,7 @@ import {parseSocketRestPayload} from "@/types/socket.ts";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import { throttle } from 'lodash-es';
+import {throttle} from 'lodash-es';
 
 defineOptions({
   name: 'LChatView',
@@ -40,10 +40,14 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
-    topThreshold?:number
+    topThreshold?:number,
+    throttleCollectVisibleUnreadWait?:number
+    throttleOnScrollWait?:number
   }>(),
   {
-    topThreshold:80
+    throttleCollectVisibleUnreadWait:500,
+    throttleOnScrollWait:300,
+    topThreshold:250
   }
 )
 
@@ -66,8 +70,9 @@ const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
 const conversation = defineModel<ConversationActiveProps>("conversation", {default:{}})
 const emit = defineEmits<{
   send: [entity: UserChatMessageEntity],
-  nextPage: [scrollBox: HTMLElement]
+  loadPage: [tag:'next' | 'previous', scrollBox: HTMLElement],
 }>()
+
 
 const bubbleListRole = {
   user: {
@@ -169,10 +174,15 @@ async function onSendMessage(content: ChatContentBlock[]) {
   }
 }
 
+/** column-reverse：是否靠近最旧消息一侧（视觉顶部） */
 function isNearOldest(scrollBox: HTMLElement) {
-  return scrollBox.scrollHeight + scrollBox.scrollTop <= scrollBox.clientHeight + props.topThreshold
+  return scrollBox.scrollHeight + scrollBox.scrollTop
+    <= scrollBox.clientHeight + props.topThreshold
 }
-
+/** column-reverse：是否靠近最新消息一侧（视觉底部） */
+function isNearNewest(scrollBox: HTMLElement) {
+  return scrollBox.scrollTop >= -props.topThreshold
+}
 
 function collectVisibleUnread(scrollBox: HTMLElement) {
   for (const id of getVisibleUnreadMessageIds(scrollBox)) {
@@ -180,6 +190,11 @@ function collectVisibleUnread(scrollBox: HTMLElement) {
     if (!sentIds.has(id)) {
       readingSet.add(id)
     }
+
+    if (id === conversation.value.dataSource?.metadata?.readableAnchorId) {
+      delete conversation.value.dataSource?.metadata?.readableAnchorId
+    }
+
   }
   void flushReadQueue()
 }
@@ -209,26 +224,24 @@ async function flushReadQueue() {
   }
 }
 
-// 节流后的处理函数，300ms 内最多触发一次
-const handleScrollRead = throttle(collectVisibleUnread, 300);
+// 节流后的处理函数，props.throttleCollectVisibleUnreadWait 内最多触发一次
+const handleScrollRead = throttle(collectVisibleUnread, props.throttleCollectVisibleUnreadWait);
+// 节流后的处理函数，props.throttleCollectVisibleUnreadWait 内最多触发一次
+const handleOnScroll = throttle(onScroll, props.throttleOnScrollWait, { leading: true, trailing: false });
 
-function onScroll(event:Event) {
+function onScroll(event: Event) {
   const scrollBox = event.target as HTMLElement
 
-  if (conversation.value.loading) {
-    return
-  }
-
   handleScrollRead(scrollBox)
-
-  if (conversation.value.dataSource.last) {
-    return
+  const { first, last } = conversation.value.dataSource
+  // 滚到最上方 → 加载更旧（number++）
+  if (!last && isNearOldest(scrollBox)) {
+    emit('loadPage', 'next', scrollBox)
   }
-
-  if (!isNearOldest(scrollBox)) {
-    return
+  // 滚到最下方 → 加载更新（number--）
+  else if (!first && isNearNewest(scrollBox)) {
+    emit('loadPage', 'previous', scrollBox)
   }
-  emit("nextPage", scrollBox)
 }
 
 function isUnreadMessage(message: UserChatMessageResponseBody | UserChatMessageEntity) {
@@ -334,15 +347,14 @@ defineExpose({
     flex="1"
     class="h-full min-h-0 overflow-hidden"
   >
-    <a-flex flex="1" class="h-full min-h-0">
-      <a-spin :spinning="conversation.loading" class="size-full-spin">
+    <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
         <ax-bubble-list
           auto-scroll
           ref="bubbleListRef"
-          class="min-h-0 h-full flex flex-[1_1_0]"
+          class="min-h-0 h-full flex"
           :classes="{scroll:'pl-xs pr-xs'}"
           :items="bubbleListItems"
-          @scroll="onScroll"
+          @scroll="handleOnScroll"
           :role="bubbleListRole"
         >
           <template #extra="{item}" >
@@ -416,7 +428,7 @@ defineExpose({
             </a-typography-text>
           </template>
         </ax-bubble-list>
-      </a-spin>
+      <slot name="bubbleListAfter"></slot>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
       <l-chat-message-sender
