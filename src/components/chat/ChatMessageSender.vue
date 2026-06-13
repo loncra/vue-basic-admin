@@ -6,6 +6,7 @@ import type {
   ChatContentBlock,
   CursorContext,
   FilesSlotProps,
+  ReferenceBlock,
   TextBlock
 } from "@/types/composables";
 import {Sender as AxSender, XProvider as AxConfigProvider} from '@antdv-next/x'
@@ -15,13 +16,12 @@ import type {
   AttachmentValue
 } from "@/types/composables/attachmentUpload.ts";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import {getEnumName, getEnumValue, isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
+import {isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {TYPING_ANCHOR} from "@/constants/messageConstant.ts";
 import type {ObjectWriteResult, UserChatMessageResponseBody} from "@/types/apis";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {AuthServerService} from "@/apis";
+import LChatMessageReference from "@/components/chat/MessageReference.vue";
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -396,8 +396,16 @@ async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
         blocks.push(textBlock)
       }
     }
-
+    if (refMessages.value.length > 0) {
+      const referenceBlock:ReferenceBlock = {
+        type:'custom',
+        slotKind:'reference',
+        value: refMessages.value
+      }
+      blocks.push(referenceBlock)
+    }
     emit('submit', blocks)
+    refMessages.value = []
   } finally {
     uploading.value = false
   }
@@ -425,7 +433,6 @@ defineExpose({
     :placeholder="props.placeholder"
     :suffix="false"
     allow-speech
-
     :disabled="props.disabled"
     :auto-size="true"
     :class-names="{
@@ -440,23 +447,14 @@ defineExpose({
   >
     <template #header>
       <a-flex gap="small" wrap class="w-full p-xs bg-layout border-b border-b-border-secondary rounded-t-xl">
-        <a-tag closable @close="() => refMessages = refMessages.filter(m => m.id !== r.id)" variant="outlined" :key="r.id" v-for="r of refMessages" :color="getEnumValue(r.participant.type) !== 30 ? 'gold' : 'green'">
-          <a-space>
-            <template v-if="getEnumValue(r.participant.type) !== 30">
-              [{{getEnumName(r.participant.type)}}]
-            </template>
-            <template v-if="principalStore.state.name === r.principal">
-              {{ currentInstance.appContext.config.globalProperties.$t('common.me') }}
-            </template>
-            <template v-else>
-              {{ AuthServerService.getPrincipalNameByPlatformUser(r.participant.metadata.details) }}
-            </template>
-            :
-            <a-typography-text type="secondary" @click="emit('jumpToReference', r)" class="w-50 cursor-pointer" ellipsis>
-              {{ ChatMessageService.getMessageContent(r)}}
-            </a-typography-text>
-          </a-space>
-        </a-tag>
+        <l-chat-message-reference
+          closable
+          @click="emit('jumpToReference', r)"
+          @close="() => refMessages = refMessages.filter(m => m.id !== r.id)"
+          :message="r"
+          :key="r.id"
+          v-for="r of refMessages"
+        />
       </a-flex>
     </template>
 
@@ -480,7 +478,6 @@ defineExpose({
           <component
             :is="uploading || sending ? components.LoadingButton : components.SendButton"
             type="primary"
-            :disabled="!senderRef"
           />
         </a-flex>
       </a-flex>

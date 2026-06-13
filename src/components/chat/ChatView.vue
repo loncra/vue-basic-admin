@@ -153,7 +153,7 @@ const placeholderText = computed(() => {
 })
 
 function renderBubbleContent(content: ChatContentBlock[]) {
-  return h(ChatMessageBubbleContent, {content: content})
+  return h(ChatMessageBubbleContent, {content: content, onJumpToReference:(r) => bubbleListRef?.value?.scrollTo({ key: String(r.id), behavior: 'auto', block: 'start' })})
 }
 async function onSendMessage(content: ChatContentBlock[]) {
   const conversationItem = conversation.value.item as ConversationItemType | undefined

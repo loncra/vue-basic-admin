@@ -30,6 +30,12 @@ export interface AttachmentBlock {
   files: ObjectWriteResult[]
 }
 
+export interface ReferenceBlock {
+  type: 'custom',
+  slotKind: 'reference',
+  value: UserChatMessageResponseBody[]
+}
+
 export interface TextBlock {
   type: 'text',
   value: string
@@ -39,6 +45,7 @@ export type ChatContentBlock =
   | TextSegmentContentBlock
   | AttachmentBlock
   | TextBlock
+  | ReferenceBlock
 
 export type FilesSlotProps = {
   slotKind: 'files'
