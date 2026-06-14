@@ -107,6 +107,7 @@ defineExpose({
         v-if="file.thumbUrl"
         class="size-full object-cover"
         :src="file.thumbUrl"
+        loading="lazy"
       >
         <template #cover>
           <a-space >

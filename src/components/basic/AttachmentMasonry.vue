@@ -47,7 +47,12 @@ function onCheckChange(id: string, checked: boolean) {
     <template #itemRender="item">
       <a-card size="small">
         <template #cover>
-          <l-basic-image class="w-full" v-if="(item.userMetadata?.['content-type'] || '').startsWith('image/')" :src="AttachmentService.query(props.bucket,item.objectName)"/>
+          <l-basic-image
+            class="w-full"
+            loading="lazy"
+            v-if="(item.userMetadata?.['content-type'] || '').startsWith('image/')"
+            :src="AttachmentService.query(props.bucket,item.objectName)"
+          />
           <div
             v-else
             class="aspect-[4/3] w-full flex items-center justify-center bg-fill-tertiary"
@@ -68,9 +73,9 @@ function onCheckChange(id: string, checked: boolean) {
                 {{byteFormat(item.size)}}
               </a-checkbox>
               <a-tooltip :title="dateTimeFormat(item.lastModified)">
-                    <span>
-                      {{globalProperties.$dayjs(item.lastModified).fromNow()}}
-                    </span>
+                <span>
+                  {{globalProperties.$dayjs(item.lastModified).fromNow()}}
+                </span>
               </a-tooltip>
             </a-flex>
           </template>

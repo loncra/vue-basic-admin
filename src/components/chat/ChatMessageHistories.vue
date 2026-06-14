@@ -3,7 +3,7 @@
 import {
   type ComponentInternalInstance,
   computed,
-  getCurrentInstance,
+  getCurrentInstance, nextTick,
   onMounted,
   ref,
   watch
@@ -18,12 +18,12 @@ import type {
 } from "@/types/apis";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AttachmentService, AuthServerService} from "@/apis";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, dateFormat, requireNonNullOrUndefined} from "@/utils";
 import LChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
 import {DEFAULT_PAGE_RESULT_VALUE} from "@/constants/systemConstant.ts";
 import LAttachmentMasonry from "@/components/basic/AttachmentMasonry.vue";
-
+import { Dayjs } from "dayjs";
 defineOptions({
   name: 'LChatMessageHistories',
 })
@@ -41,7 +41,13 @@ const globalProperties =
 const dataSource = ref<TotalPage<UserChatMessageResponseBody>>()
 const loading = ref<boolean>(false)
 const filterRequest = ref<FilterRequest>({})
-
+const search = ref<{
+  content:string,
+  date:[Dayjs, Dayjs] | null 
+}>({
+  content:'',
+  date:null
+})
 const segmentedActive = ref<string>('message')
 const segmentedData = computed(() =>{
   return [
@@ -78,12 +84,51 @@ const fileOptions = ref<{
   checkValue:ObjectItemInfo[],
 }>({
   dataSource:[],
-  checkValue:[]
+  checkValue:[],
 })
 
 const emit = defineEmits<{
   click: [data: UserChatMessageResponseBody]
 }>()
+
+const computedFileDataSource = computed(():{key:string, items:ObjectItemInfo[]}[] => {
+  let result = fileOptions.value.dataSource
+  if (segmentedActive.value === 'video') {
+    result = fileOptions.value.dataSource.filter(d => (d.userMetadata?.['content-type'] || '').startsWith('video/'))
+  } else if (segmentedActive.value === 'image') {
+    result = fileOptions.value.dataSource.filter(d => (d.userMetadata?.['content-type'] || '').startsWith('image/'))
+  } else if (segmentedActive.value === 'audio') {
+    result = fileOptions.value.dataSource.filter(d => (d.userMetadata?.['content-type'] || '').startsWith('audio/'))
+  }
+
+  if (search.value.content !== '') {
+    result = result.filter(d => (d.userMetadata?.['X-Amz-Meta-Original-Filename'] || d.objectName).includes(search.value.content))
+  }
+  
+  const range = search.value.date
+  if (range?.[0] && range?.[1]) {
+    const start = globalProperties.$dayjs(range[0]).valueOf()
+    const end = globalProperties.$dayjs(range[1]).valueOf()
+    result = result.filter(d => d.lastModified >= start && d.lastModified <= end)
+  }
+
+  // 先按 group 归并
+  const grouped = [...result]
+    .sort((a, b) => a.lastModified - b.lastModified)
+    .reduce<Record<string, ObjectItemInfo[]>>((acc, it) => {
+      const key = String(it.group ?? dateFormat(it.lastModified))
+      ;(acc[key] ||= []).push(it)
+      return acc
+    }, {})
+  // 再转成数组，并控制顺序
+  return Object.entries(grouped)
+    .sort(([a], [b]) => b.localeCompare(a)) // 分组：新日期在上
+    .map(([key, items]) => ({
+      key,
+      items: [...items].sort((a, b) => b.lastModified - a.lastModified), // 组内：新文件在上
+    }))
+
+});
 
 async function loadHistories(number:number) {
   if (!props.roomId) {
@@ -109,6 +154,7 @@ async function loadFileResource(){
     loading.value = true;
     const result: RestResult<ObjectItemInfo[]> = await AttachmentService.findAttachment('temp', 'user_chat_room/' + props.roomId)
     fileOptions.value.dataSource = result.data || []
+    fileOptions.value.dataSource.forEach(d => d.group = dateFormat(d.lastModified))
   } finally {
     loading.value = false
   }
@@ -118,15 +164,20 @@ function onChangePage(page: number) {
   loadHistories(page)
 }
 
-function onSearch(value: string) {
-  if (value !== '') {
-    filterRequest.value["filter_[content.*type_jin]"] = String('text');
-    filterRequest.value["filter_[content.*value_jin]"] = value;
-  } else {
-    delete filterRequest.value["filter_[content.*type_jin]"];
-    delete filterRequest.value["filter_[content.*value_jin]"];
+function onSearch() {
+  if (loading.value) {
+    return
   }
-  loadHistories(1)
+  console.info(search.value.date)
+  if (segmentedActive.value === 'message') {
+    filterRequest.value = {}
+    if (search.value.content !== '') {
+      filterRequest.value["filter_[content.*type_jin]"] = String('text')
+      filterRequest.value["filter_[content.*value_jsa]"] = search.value.content
+    }
+    filterRequest.value["filter_[creation_time_between]"] = search.value.date
+    loadHistories(1)
+  }
 }
 
 function loadingDataSource(){
@@ -137,17 +188,30 @@ function loadingDataSource(){
 onMounted(() => loadingDataSource())
 
 watch(() => props.roomId, () => loadingDataSource())
-
+watch(segmentedActive, async (key) => {
+  if (key !== 'message') {
+    await nextTick()
+    window.dispatchEvent(new Event('resize'))
+  }
+})
 </script>
 
 <template>
   <a-flex vertical gap="middle">
-    <a-input-search @search="onSearch" />
+    <a-space-compact>
+      <a-input @press-enter="onSearch" v-model:value="search.content" />
+      <a-range-picker v-model:value="search.date" show-time />
+      <a-button @click="onSearch" :loading="loading">
+        <template #icon>
+          <icon-font type="loncra-calendar-search"/>
+        </template>
+      </a-button>
+    </a-space-compact>
     <a-segmented
       v-model:value="segmentedActive"
       block
       :options="segmentedData"
-      @change="(key:string )=> segmentedActive = key "
+      @change="(key:string )=> segmentedActive = key"
 
     >
       <template #iconRender="{ iconText }">
@@ -155,42 +219,60 @@ watch(() => props.roomId, () => loadingDataSource())
       </template>
     </a-segmented>
     <a-spin :spinning="loading">
-      <a-flex vertical v-if="dataSource && (dataSource.elements || []).length > 0" gap="middle" >
-        <a-flex vertical gap="middle" class="max-h-100 overflow-y-auto">
+      <a-flex vertical gap="middle" >
+        <a-flex vertical gap="middle" class="max-h-100 min-h-0 overflow-y-auto">
           <template v-if="segmentedActive === 'message'" >
-            <a-flex gap="middle" class="w-ful hover:bg-layout p-xs group rounded-lg" v-for="data in dataSource.elements" :key="data.id">
-            <l-user-avatar v-if="data.participant?.metadata?.details" :user="data.participant?.metadata?.details" size="large" />
-            <a-flex vertical class="w-full">
-              <a-flex>
-                <a-typography-text strong class="flex-1">
-                  {{AuthServerService.getPrincipalNameByPlatformUser(data.participant?.metadata?.details)}}
-                </a-typography-text>
-                <a-space>
-                  <a-button
-                    @click="emit('click', data)"
-                    type="text"
-                    size="small"
-                    class="opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
-                  >
-                    <template #icon>
-                      <icon-font type="loncra-map-pin-search"/>
-                    </template>
-                    {{ globalProperties.$t('chat.roomView.histories.positioning') }}
-                  </a-button>
-                  <a-typography-text type="secondary">
-                    {{globalProperties.$dayjs(data.creationTime).fromNow()}}
-                  </a-typography-text>
-                </a-space>
+            <template v-if="dataSource && (dataSource.elements || []).length > 0">
+              <a-flex gap="middle" class="w-ful hover:bg-layout p-xs group rounded-lg" v-for="data in dataSource.elements" :key="data.id">
+                <l-user-avatar v-if="data.participant?.metadata?.details" :user="data.participant?.metadata?.details" size="large" />
+                <a-flex vertical class="w-full">
+                  <a-flex>
+                    <a-typography-text strong class="flex-1">
+                      {{AuthServerService.getPrincipalNameByPlatformUser(data.participant?.metadata?.details)}}
+                    </a-typography-text>
+                    <a-space>
+                      <a-button
+                        @click="emit('click', data)"
+                        type="text"
+                        size="small"
+                        class="opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
+                      >
+                        <template #icon>
+                          <icon-font type="loncra-map-pin-search"/>
+                        </template>
+                        {{ globalProperties.$t('chat.roomView.histories.positioning') }}
+                      </a-button>
+                      <a-typography-text type="secondary">
+                        {{globalProperties.$dayjs(data.creationTime).fromNow()}}
+                      </a-typography-text>
+                    </a-space>
 
+                  </a-flex>
+                  <a-flex flex="1">
+                    <l-chat-message-bubble-content :content="data.content" />
+                  </a-flex>
+                </a-flex>
               </a-flex>
-              <a-flex flex="1">
-                <l-chat-message-bubble-content :content="data.content" />
-              </a-flex>
-            </a-flex>
-          </a-flex>
+            </template>
+            <a-empty v-else />
           </template>
           <template v-else>
-            <l-attachment-masonry bucket="temp" v-model:data-source="fileOptions.dataSource" :check-value="fileOptions.checkValue" />
+            <template v-if="computedFileDataSource.length > 0">
+              <div v-for="group in computedFileDataSource" :key="group.key">
+                <a-divider orientation="left" plain>
+                  <a-space>
+                    <icon-font type="loncra-calendar-clock"/>
+                    {{ group.key }}
+                  </a-space>
+                </a-divider>
+                <l-attachment-masonry
+                  bucket="temp"
+                  :data-source="group.items"
+                  :check-value="fileOptions.checkValue"
+                />
+              </div>
+            </template>
+            <a-empty v-else />
           </template>
         </a-flex>
         <a-pagination
@@ -203,7 +285,6 @@ watch(() => props.roomId, () => loadingDataSource())
           hide-on-single-page
         />
       </a-flex>
-      <a-empty v-else />
     </a-spin>
   </a-flex>
 </template>

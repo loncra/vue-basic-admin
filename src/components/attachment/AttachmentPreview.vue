@@ -178,6 +178,7 @@ const classes = computed(() => ({
           :key="file.uid"
           :src="file.thumbUrl || file.url"
           :alt="file.name"
+          loading="lazy"
         />
 
       </a-image-preview-group>

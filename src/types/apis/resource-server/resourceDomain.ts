@@ -166,4 +166,5 @@ export interface ObjectItemInfo extends BasicIdMetadata<string> {
    * @return true 表示是目录，否则 false
    */
   dir: string
+  [key:string]: unknown
 }
