@@ -12,7 +12,7 @@ import {
   useSlots,
   watch
 } from "vue";
-import { useMergeSemantic, useToArr, useToProps } from 'antdv-next/dist/_util/hooks/useMergeSemantic'
+import {useMergeSemantic, useToArr, useToProps} from 'antdv-next/dist/_util/hooks/useMergeSemantic'
 import {useFormItemContext} from "antdv-next/dist/form/context";
 import type {ObjectWriteResult} from "@/types/apis";
 import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
@@ -162,7 +162,7 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
 
 
 function mounted() {
-  uploadOptionsRef.value = {...props.uploadOptions || {}, param: {}, headers: {}}
+  uploadOptionsRef.value = {param: {}, headers: {}, ...props.uploadOptions || {}}
 }
 
 onMounted(mounted)

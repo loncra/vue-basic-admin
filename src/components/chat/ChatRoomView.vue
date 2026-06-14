@@ -257,7 +257,7 @@ function onOpenHistories() {
   }
 
   modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES
-  modalOptions.value.title = globalProperties.$t("chat.roomView.histories",{name:conversation.value.name})
+  modalOptions.value.title = globalProperties.$t("chat.roomView.histories.title",{name:conversation.value.name})
   modalOptions.value.open = true
   modalOptions.value.footer = false
 }

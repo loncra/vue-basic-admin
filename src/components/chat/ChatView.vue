@@ -593,6 +593,7 @@ defineExpose({
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
       <l-chat-message-sender
         ref="senderRef"
+        :upload-options="{param:{prefix:'user_chat_room/' + conversation.item.data.room.id}}"
         v-if="conversation?.item?.data"
         v-model:ref-messages="refMessages"
         :placeholder="placeholderText"

@@ -1,17 +1,15 @@
 <script setup lang="ts">
 
 import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
-import {byteFormat, createIcon, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from "vue";
 import type {ObjectItemInfo, RestResult} from "@/types/apis";
 import type {ResolvedAction} from "@/types/composables";
 import useApp from "antdv-next/dist/app/useApp";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {MyResourceService} from "@/apis/resource-server/myResourceService.ts";
-import LBasicImage from "@/components/basic/BasicImage.vue";
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LActionButton from "@/components/basic/ActionButton.vue";
-import type {CheckboxChangeEvent} from '@v-c/checkbox'
+import LAttachmentMasonry from "@/components/basic/AttachmentMasonry.vue";
 
 defineOptions({
   name: 'CommonUserExport',
@@ -20,7 +18,6 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
-const configProviderStore = useConfigProviderStore();
 
 const service = new MyResourceService();
 const dataSource = ref<ObjectItemInfo[]>([]);
@@ -99,17 +96,6 @@ async function loadDataSource() {
   }
 }
 
-function onCheckChange(id: string, checked: boolean) {
-  if (checked && !checkValue.value.map(r => r.id).includes(id)) {
-    const data = dataSource.value.find(r => r.id === id)
-    if (data) {
-      checkValue.value = [...checkValue.value, data]
-    }
-  } else {
-    checkValue.value = checkValue.value.filter((s) => s.id !== id)
-  }
-}
-
 onMounted(() => loadDataSource())
 
 </script>
@@ -120,48 +106,7 @@ onMounted(() => loadDataSource())
       <template #extra>
         <l-action-button :actions="actions"/>
       </template>
-      <a-masonry
-        v-if="dataSource.length > 0"
-        :columns="{ xs: 1, sm: 2, md: 3, lg: 4 }"
-        :gutter="configProviderStore.getToken().sizeMD"
-        :items="dataSource"
-      >
-        <template #itemRender="item">
-          <a-card size="small">
-            <template #cover>
-              <l-basic-image class="w-full" v-if="(item.userMetadata?.['content-type'] || '').startsWith('image/')" :src="AttachmentService.query('user.file',item.objectName)"/>
-              <div
-                v-else
-                class="aspect-[4/3] w-full flex items-center justify-center bg-fill-tertiary"
-              >
-                <icon-font class="icon text-3xl" type="loncra-file-text"/>
-              </div>
-            </template>
-            <a-card-meta >
-              <template #title>
-                {{item.userMetadata?.['X-Amz-Meta-Original-Filename'] || item.objectName}}
-              </template>
-              <template #description>
-                <a-flex justify="space-between" align="center">
-                  <a-checkbox
-                    :checked="checkValue.map(r => r.id).includes(item.id)"
-                    @change="(e:CheckboxChangeEvent) => onCheckChange(item.id, e.target.checked)"
-                  >
-                    {{byteFormat(item.size)}}
-                  </a-checkbox>
-                  <a-tooltip :title="dateTimeFormat(item.lastModified)">
-                    <span>
-                      {{globalProperties.$dayjs(item.lastModified).fromNow()}}
-                    </span>
-                  </a-tooltip>
-                </a-flex>
-              </template>
-            </a-card-meta>
-          </a-card>
-
-        </template>
-      </a-masonry>
-      <a-empty v-else />
+      <l-attachment-masonry v-model:data-source="dataSource" :check-value="checkValue" />
     </l-menu-title-card>
   </div>
 </template>

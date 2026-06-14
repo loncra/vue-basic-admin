@@ -496,7 +496,10 @@ const locale: LanguagePack = {
     roomView:{
       addParticipant: '发起群聊',
       memberManager:'成员管理',
-      histories:'与 {name} 的聊天记录',
+      histories:{
+        title:'与 {name} 的聊天记录',
+        positioning:'定位到聊天为止'
+      },
       exitRoom:{
         title:'退群确认',
         content: '确定要退出 {name} 群聊吗?',

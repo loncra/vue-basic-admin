@@ -40,11 +40,13 @@ const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {d
 
 const props = withDefaults(defineProps<{
   slotConfig?:SlotConfigType[]
-  placeholder:string
+  placeholder:string,
+  uploadOptions?:Record<string, unknown>,
   disabled:boolean
 }>(),{
   slotConfig:() => [],
   placeholder:'',
+  uploadBucket:'system.file',
   disabled:false
 })
 
@@ -191,6 +193,8 @@ function fileCustomRender(
     {
       default: () =>
         h(LAttachmentUpload, {
+          bucket:'temp',
+          uploadOptions:props.uploadOptions,
           ref: (inst) => bindUploadRef(slotKey, inst),
           value,
           multiple: true,
