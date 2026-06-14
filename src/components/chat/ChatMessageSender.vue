@@ -20,7 +20,6 @@ import {isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {TYPING_ANCHOR} from "@/constants/messageConstant.ts";
 import type {ObjectWriteResult, UserChatMessageResponseBody} from "@/types/apis";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LChatMessageReference from "@/components/chat/MessageReference.vue";
 
 defineOptions({
@@ -30,7 +29,6 @@ defineOptions({
 const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
 
 const configProviderStore = useConfigProviderStore()
-const principalStore = usePrincipalStore()
 
 const uploadRefMap = new Map<string, AttachmentUploadExpose>()
 const senderRef = ref<SenderRef>()

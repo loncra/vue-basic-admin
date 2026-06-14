@@ -4,6 +4,10 @@ import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import LChatMessageReference from "@/components/chat/MessageReference.vue";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 
+defineOptions({
+  name: 'LChatMessageBubbleContent',
+})
+
 defineProps<{
   content: ChatContentBlock[]
 }>()

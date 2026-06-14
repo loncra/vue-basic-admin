@@ -104,7 +104,7 @@ async function loadConversationData(
   }
   const request = {
     number:number,
-    readableAnchor: conversationActive.value.readableAnchorLoading,
+    withoutReadableAnchor: conversationActive.value.readableAnchorLoading,
   }
   try {
     conversationActive.value.loadConversationDataLock = true

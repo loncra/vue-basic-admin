@@ -4,6 +4,7 @@ import type {
   PageRequest,
   PageResult,
   RestResult,
+  TotalPage,
   UserChatConversationEntity,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
@@ -80,7 +81,10 @@ export class ChatMessageService  {
     return axios.put(ChatMessageService.CREATE_SEND_URL + '/' + roomId, body)
   }
 
-  static histories(request: PageRequest, roomId:number): Promise<RestResult<PageResult<UserChatMessageResponseBody>>> {
+  static histories(
+    request: PageRequest,
+    roomId:number
+  ): Promise<RestResult<PageResult<UserChatMessageResponseBody> | TotalPage<UserChatMessageResponseBody>>> {
     return axios.post(ChatMessageService.CREATE_HISTORIES_URL + '/' + roomId, formUrlEncoded(request))
   }
 

@@ -502,6 +502,7 @@ const locale: LanguagePack = {
     roomView: {
       addParticipant: 'Start group chat',
       memberManager: 'Manage members',
+      histories:'{name}',
       exitRoom: {
         title: 'Withdrawal Confirmation',
         content: 'Are you sure you want to leave {name}?',

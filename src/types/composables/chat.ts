@@ -17,6 +17,7 @@ export type TextSegment =
 export type ChatRoomViewModalOpenType =
   | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
   | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
+  | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES
 
 export interface TextSegmentContentBlock {
   type: 'custom',

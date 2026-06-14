@@ -11,7 +11,8 @@ export const MESSAGE_GROUP = {
 
 export const CHAAT_ROOM_VIEW_MODAL_TYPE = {
   ADD_PARTICIPANT: 'addParticipant',
-  MEMBER_SETTING: 'memberSetting'
+  MEMBER_SETTING: 'memberSetting',
+  HISTORIES: 'histories',
 } as const
 
 /** Socket.IO 事件名 */

@@ -25,6 +25,7 @@ import {CHAAT_ROOM_VIEW_MODAL_TYPE, SOCKET_EVENT_TYPE} from "@/constants/message
 import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {AuthServerService} from "@/apis";
+import LChatMessageHistories from "@/components/chat/ChatMessageHistories.vue";
 
 defineOptions({
   name: 'LChatRoomView',
@@ -57,10 +58,12 @@ const options = ref<{
 const modalOptions = ref<{
   open: boolean
   title?:string
+  footer:boolean
   type?:ChatRoomViewModalOpenType
   confirmLoading?:boolean
 }>({
-  open:false
+  open:false,
+  footer:true
 })
 
 const conversation = defineModel<UserChatConversationResponseBody>("conversation")
@@ -227,15 +230,34 @@ function onModalCancel() {
 }
 
 function onAddParticipant() {
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
   modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
   modalOptions.value.title = globalProperties.$t("chat.roomView.addParticipant")
   modalOptions.value.open = true
+  modalOptions.value.footer = true
 }
 
 function onMemberSetting() {
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
   modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
   modalOptions.value.title = globalProperties.$t("chat.roomView.memberManager")
   modalOptions.value.open = true
+  modalOptions.value.footer = true
+}
+
+function onOpenHistories() {
+  if (!conversation.value || !conversation.value.room?.id) {
+    return
+  }
+
+  modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES
+  modalOptions.value.title = globalProperties.$t("chat.roomView.histories",{name:conversation.value.name})
+  modalOptions.value.open = true
+  modalOptions.value.footer = false
 }
 
 async function onUpdateParticipantType(type:number) {
@@ -427,7 +449,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
 
       <a-flex vertical class="shrink-0">
         <a-divider />
-        <a-button block type="text">
+        <a-button block type="text" @click="onOpenHistories">
           <template #icon>
             <icon-font type="loncra-calendar-clock"/>
           </template>
@@ -565,14 +587,23 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
         xl: '60%',
         xxl: '60%',
       }"
+      :footer="modalOptions.footer ? true : null"
       :open="modalOptions.open"
       :title="modalOptions.title"
       @cancel="onModalCancel()"
       @ok="confirmAddParticipant()"
       :confirm-loading="modalOptions.confirmLoading"
     >
-      <l-system-user-panel v-model:value="options.selectedUser" :filter="onFilterSystemUser" :data-source="systemUserPanelDataSource" />
-      <template #footer="{extra}" v-if="modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING">
+      <l-chat-message-histories
+        v-if="conversation && modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES"
+        :room-id="Number(conversation.room.id)"
+      />
+      <l-system-user-panel v-else v-model:value="options.selectedUser" :filter="onFilterSystemUser" :data-source="systemUserPanelDataSource" />
+
+      <template
+        #footer="{extra}"
+        v-if="modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING"
+      >
         <a-space>
           <a-space-compact>
             <a-button @click="onUpdateParticipantType(30)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === 20).length <= 0">

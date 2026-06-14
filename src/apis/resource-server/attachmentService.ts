@@ -127,6 +127,9 @@ export class AttachmentService {
   }
 
   static getAvatarUrlIfNotNull(item: FileObject) {
+    if (!item) {
+      return undefined
+    }
     return item ? AttachmentService.query(item.bucketName, item.objectName) : ''
   }
 }
