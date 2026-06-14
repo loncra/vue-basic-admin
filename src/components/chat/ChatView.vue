@@ -520,7 +520,7 @@ defineExpose({
               </template>
 
               <a-button
-                :color="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCoun ? undefined : 'lime'"
+                :color="Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCount ? undefined : 'lime'"
                 size="small"
                 :variant="Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount ? 'filled' : undefined"
                 type="dashed"

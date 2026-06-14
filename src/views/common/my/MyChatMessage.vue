@@ -404,7 +404,7 @@ async function onHistoryClick(data:UserChatMessageResponseBody) {
     chatViewRef.value?.scrollTo({ key: anchorBubble.key, behavior: 'auto', block: 'start' })
   } else {
     try {
-      conversationActive.value.loading = false
+      conversationActive.value.loading = true
       const result:RestResult<number> = await ChatMessageService.positioningMessagePageNumber(
         Number(conversationActive.value.item?.data?.room?.id),
         Number(data.id),
