@@ -12,6 +12,7 @@ import type {
   ContactItem,
   RestResult,
   UserChatConversationResponseBody,
+  UserChatMessageResponseBody,
   UserChatParticipantEntity
 } from "@/types/apis";
 import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
@@ -73,7 +74,8 @@ const loading = ref<boolean>(false);
 
 const emit = defineEmits<{
   addParticipant: [info: ContactItem[], restResult:RestResult<UserChatConversationResponseBody>],
-  deleteConversation:[body:UserChatConversationResponseBody]
+  deleteConversation:[body:UserChatConversationResponseBody],
+  historyClick:[data:UserChatMessageResponseBody]
 }>()
 
 const systemUserPanelDataSource = computed<ContactItem[]>(() => {
@@ -258,6 +260,11 @@ function onOpenHistories() {
   modalOptions.value.title = globalProperties.$t("chat.roomView.histories",{name:conversation.value.name})
   modalOptions.value.open = true
   modalOptions.value.footer = false
+}
+
+function onHistoryClick(data:UserChatMessageResponseBody) {
+  emit('historyClick', data)
+  onModalCancel()
 }
 
 async function onUpdateParticipantType(type:number) {
@@ -596,6 +603,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
     >
       <l-chat-message-histories
         v-if="conversation && modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES"
+        @click="onHistoryClick"
         :room-id="Number(conversation.room.id)"
       />
       <l-system-user-panel v-else v-model:value="options.selectedUser" :filter="onFilterSystemUser" :data-source="systemUserPanelDataSource" />

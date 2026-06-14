@@ -26,6 +26,10 @@ const globalProperties =
 const dataSource = ref<TotalPage<UserChatMessageResponseBody>>()
 const loading = ref<boolean>(false)
 
+const emit = defineEmits<{
+  click: [data: UserChatMessageResponseBody]
+}>()
+
 async function loadHistories(number:number) {
   if (!props.roomId) {
     return ;
@@ -57,36 +61,36 @@ watch(() => props.roomId, () => loadHistories(1))
 <template>
   <a-flex vertical gap="middle">
     <a-input-search />
-    <a-flex vertical v-if="dataSource" gap="middle" >
-      <a-spin :spinning="loading">
-        <a-flex vertical gap="middle" class="max-h-120 overflow-y-auto">
-          <a-flex gap="middle" class="w-ful" v-for="data in dataSource.elements" :key="data.id">
-            <l-user-avatar v-if="data.participant?.metadata?.details" :user="data.participant?.metadata?.details" size="large" />
-            <a-flex vertical class="w-full">
-              <a-flex>
-                <a-typography-text strong class="flex-1">
-                  {{AuthServerService.getPrincipalNameByPlatformUser(data.participant?.metadata?.details)}}
-                </a-typography-text>
-                <a-typography-text type="secondary">
-                  {{globalProperties.$dayjs(data.creationTime).fromNow()}}
-                </a-typography-text>
-              </a-flex>
-              <a-flex flex="1">
-                <l-chat-message-bubble-content :content="data.content" />
+    <a-spin :spinning="loading">
+      <a-flex vertical v-if="dataSource" gap="middle" >
+          <a-flex vertical gap="middle" class="max-h-120 overflow-y-auto">
+            <a-flex gap="middle" @click="emit('click', data)" class="w-ful hover:bg-layout p-xs rounded-lg cursor-pointer" v-for="data in dataSource.elements" :key="data.id">
+              <l-user-avatar v-if="data.participant?.metadata?.details" :user="data.participant?.metadata?.details" size="large" />
+              <a-flex vertical class="w-full">
+                <a-flex>
+                  <a-typography-text strong class="flex-1">
+                    {{AuthServerService.getPrincipalNameByPlatformUser(data.participant?.metadata?.details)}}
+                  </a-typography-text>
+                  <a-typography-text type="secondary">
+                    {{globalProperties.$dayjs(data.creationTime).fromNow()}}
+                  </a-typography-text>
+                </a-flex>
+                <a-flex flex="1">
+                  <l-chat-message-bubble-content :content="data.content" />
+                </a-flex>
               </a-flex>
             </a-flex>
           </a-flex>
-        </a-flex>
-        <a-pagination
-          align="center"
-          :page-size="dataSource?.size"
-          :current="dataSource?.number"
-          :total="dataSource?.totalCount"
-          @change="onChangePage"
-          hide-on-single-page
-        />
-      </a-spin>
-    </a-flex>
-    <a-empty v-else />
+          <a-pagination
+            align="center"
+            :page-size="dataSource?.size"
+            :current="dataSource?.number"
+            :total="dataSource?.totalCount"
+            @change="onChangePage"
+            hide-on-single-page
+          />
+      </a-flex>
+      <a-empty v-else />
+    </a-spin>
   </a-flex>
 </template>

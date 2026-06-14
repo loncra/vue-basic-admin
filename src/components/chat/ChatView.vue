@@ -136,9 +136,8 @@ function buildBubbleListWithDividers(messages: ChatBubbleItem[]): BubbleItemType
     }
     result.push({
       ...msg,
-      rootClass: msg.highlight ? 'bg-flash' : undefined,
+      rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
     } as BubbleItemType)
-    //result.push(msg as BubbleItemType)
   }
   return result
 }
@@ -416,7 +415,6 @@ function jumpToMessage(
     return ;
   }
   bubble.flashPending = flashPending
-  bubble.highlight = false// 目标本来就在视口里时，smooth 可能几乎不触发 scroll
   nextTick(() => tryFlashPendingItems(bubbleListRef.value?.scrollBoxNativeElement))
 }
 
@@ -430,9 +428,7 @@ function tryFlashPendingItems(scrollBox: HTMLElement | undefined) {
     if (!bubble) {
       continue
     }
-    bubble.flashPending = false
-    bubble.highlight = false
-    nextTick(() => bubble.highlight = true)
+    nextTick(() => setTimeout(() => bubble.flashPending = false, 2000))
     break
   }
 }

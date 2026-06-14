@@ -334,6 +334,7 @@ function onChatConversationReceived(result: RestResult<UserChatConversationRespo
 }
 
 async function onChatViewLoadPage(tag:'next' | 'previous') {
+  await nextTick()
   if (conversationActive.value.loadConversationDataLock) {
     return
   }
@@ -387,16 +388,50 @@ async function onAddParticipant(user:ContactItem[], restResult:RestResult<UserCh
   await setActiveConversationItemByEntity(restResult.data)
 }
 
+async function onHistoryClick(data:UserChatMessageResponseBody) {
+  if (!conversationActive.value.item) {
+    return ;
+  }
+  conversationActive.value.drawerOpen = false
+  await nextTick()
+  const index = conversationActive.value.bubbleList.findIndex(d => d.key === String(data.id))
+  if (index >= 0) {
+    const anchorBubble = conversationActive.value.bubbleList[index]
+    if (!anchorBubble) {
+      return ;
+    }
+    anchorBubble.flashPending = true
+    chatViewRef.value?.scrollTo({ key: anchorBubble.key, behavior: 'auto', block: 'start' })
+  } else {
+    try {
+      conversationActive.value.loading = false
+      const result:RestResult<number> = await ChatMessageService.positioningMessagePageNumber(
+        Number(conversationActive.value.item?.data?.room?.id),
+        Number(data.id),
+        conversationActive.value.dataSource.size
+      )
+      if (result.data) {
+        await toMessageAnchorPage(
+          Number(data.id),
+          result.data
+        )
+      }
+    } finally {
+      conversationActive.value.loading = false
+    }
+  }
+}
+
 function showReadableAnchorButton() {
   return !conversationActive.value.loading
     && conversationActive.value.dataSource?.metadata?.readableAnchorId
 }
 
 async function toReadableAnchor() {
-  const roomId = Number(conversationActive.value.item?.data?.room?.id)
-  if (!roomId) {
+  if (!conversationActive.value.item) {
     return
   }
+
   if (!conversationActive.value.dataSource?.metadata?.readableAnchorPage) {
     return
   }
@@ -406,48 +441,68 @@ async function toReadableAnchor() {
   }
 
   conversationActive.value.readableAnchorLoading = true
+  await toMessageAnchorPage(
+    Number(readableAnchorId),
+    Number(conversationActive.value.dataSource?.metadata?.readableAnchorPage),
+    globalProperties.$t('chat.view.readable.systemMessage')
+  )
+}
+
+async function toMessageAnchorPage(
+  messageId:number,
+  pageNumber:number,
+  systemMessage?:string
+) {
   conversationActive.value.isOnLastPage = false;
   conversationActive.value.isOnFirstPage = false;
 
-  await loadConversationData(
-    roomId,
-    Number(conversationActive.value.dataSource?.metadata?.readableAnchorPage),
-    false,
-    true
-  )
+  conversationActive.value.loading = true
+  try {
+    await loadConversationData(
+      Number(conversationActive.value.item?.data?.room?.id),
+      pageNumber,
+      false,
+      true
+    )
 
-  if (conversationActive.value.bubbleList.length <= 0) {
-    return ;
-  }
-
-  const anchorIndex = conversationActive.value.bubbleList.findIndex(b => b.key === String(readableAnchorId))
-  let key
-
-  if (anchorIndex < 0 ) {
-    key = conversationActive.value.bubbleList.at(0)?.key;
-  } else {
-    key = globalProperties.$dayjs().unix()
-    const anchorBubble = conversationActive.value.bubbleList[anchorIndex]
-    if (anchorBubble) {
-      anchorBubble.flashPending = true
-      anchorBubble.highlight = false
+    if (conversationActive.value.bubbleList.length <= 0) {
+      return ;
     }
-    const anchorTime = anchorBubble?.data?.creationTime ?? 0
-    const newBubble = {
-      key: key,
-      role: CHAT_BUBBLE_TYPE.SYSTEM,
-      content: globalProperties.$t('chat.view.readable.systemMessage'),
-      data: { creationTime: anchorTime - 1 } as UserChatMessageResponseBody,
+
+    const anchorIndex = conversationActive.value.bubbleList.findIndex(b => b.key === String(messageId))
+    let key
+
+    if (anchorIndex < 0 ) {
+      key = conversationActive.value.bubbleList.at(0)?.key;
+    } else {
+      const anchorBubble = conversationActive.value.bubbleList[anchorIndex]
+      if (anchorBubble) {
+        anchorBubble.flashPending = true
+        key = anchorBubble.key
+      }
+      if (systemMessage) {
+        key = globalProperties.$dayjs().unix()
+        const anchorTime = anchorBubble?.data?.creationTime ?? 0
+        const newBubble = {
+          key: key,
+          role: CHAT_BUBBLE_TYPE.SYSTEM,
+          content: systemMessage,
+          data: { creationTime: anchorTime - 1 } as UserChatMessageResponseBody,
+        }
+        conversationActive.value.bubbleList.splice(anchorIndex, 0, newBubble)
+      }
     }
-    conversationActive.value.bubbleList.splice(anchorIndex, 0, newBubble)
+
+    await nextTick()
+
+    if (!chatViewRef.value) {
+      return
+    }
+    chatViewRef.value?.scrollTo({ key: key, behavior: 'auto', block: 'start' })
+  } finally {
+    conversationActive.value.loading = false
   }
 
-  await nextTick()
-
-  if (!chatViewRef.value) {
-    return
-  }
-  chatViewRef.value?.scrollTo({ key: key, behavior: 'auto', block: 'start' })
 }
 
 onUnmounted(() => socketListener.value.forEach(f => f?.()));
@@ -523,6 +578,7 @@ onMounted(mounted)
             <l-chat-room-view
               @delete-conversation="onConversationDelete"
               @add-participant="onAddParticipant"
+              @history-click="onHistoryClick"
               :contact-data-source="options.contactDataSource"
               v-model:conversation="conversationActive.item.data" />
           </a-drawer>

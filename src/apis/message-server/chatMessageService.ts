@@ -45,6 +45,8 @@ export class ChatMessageService  {
 
   static readonly MESSAGE_UNDO_URL = ChatMessageService.SERVICE_URL + '/message/undo'
 
+  static readonly MESSAGE_POSITIONING_PAGE_NUMBER_URL = ChatMessageService.SERVICE_URL + '/message/positioning/page/number'
+
   static readonly CREATE_PINNED_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation/pinned'
 
   static readonly CREATE_MUTED_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation/muted'
@@ -94,6 +96,14 @@ export class ChatMessageService  {
 
   static undoMessage(ids:number[]): Promise<RestResult<void>> {
     return axios.delete(ChatMessageService.MESSAGE_UNDO_URL, {params:formUrlEncoded({ids})})
+  }
+
+  static positioningMessagePageNumber(
+    chatRoomId: number,
+    messageId: number,
+    size: number
+  ):Promise<RestResult<number>> {
+    return axios.get(ChatMessageService.MESSAGE_POSITIONING_PAGE_NUMBER_URL + "/" + chatRoomId + "/" + messageId + "/" + size)
   }
 
   static pinnedConversation(ids:number[]): Promise<RestResult<BasicUserChatConversation[]>> {
