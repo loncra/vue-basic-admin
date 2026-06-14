@@ -20,11 +20,16 @@ const emit = defineEmits<{
       <span v-if="block.type === 'text'">
         {{block.value}}
       </span>
-
+      <a-tooltip :title="block.tooltip" v-else-if="block.type === 'custom' && block.slotKind === 'undo'">
+        <a-typography-text disabled delete>
+            {{block.value}}
+        </a-typography-text>
+      </a-tooltip>
       <l-attachment-upload preview v-else-if="block.type === 'custom' && block.slotKind === 'files'" v-model:value="block.files" />
       <a-flex vertical gap="small" v-else-if="block.type === 'custom' && block.slotKind === 'reference'">
         <l-chat-message-reference
-          @click="emit('jumpToReference', r)" class="w-50 cursor-pointer"
+          variant="outlined"
+          @click="emit('jumpToReference', r)"
           :message="r"
           :key="r.id"
           v-for="r of block.value"

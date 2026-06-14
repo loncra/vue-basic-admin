@@ -33,6 +33,7 @@ import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.t
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {throttle} from 'lodash-es';
+import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({
   name: 'LChatView',
@@ -52,6 +53,8 @@ const props = withDefaults(
     scrollToBottomThreshold:100
   }
 )
+
+const {message,modal} = useApp()
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -131,7 +134,11 @@ function buildBubbleListWithDividers(messages: ChatBubbleItem[]): BubbleItemType
       })
       lastDividerTime = msgTime
     }
-    result.push(msg as BubbleItemType)
+    result.push({
+      ...msg,
+      rootClass: msg.highlight ? 'bg-flash' : undefined,
+    } as BubbleItemType)
+    //result.push(msg as BubbleItemType)
   }
   return result
 }
@@ -153,7 +160,13 @@ const placeholderText = computed(() => {
 })
 
 function renderBubbleContent(content: ChatContentBlock[]) {
-  return h(ChatMessageBubbleContent, {content: content, onJumpToReference:(r) => bubbleListRef?.value?.scrollTo({ key: String(r.id), behavior: 'auto', block: 'start' })})
+  return h(
+    ChatMessageBubbleContent,
+    {
+      content: content,
+      onJumpToReference:jumpToMessage
+    }
+  )
 }
 async function onSendMessage(content: ChatContentBlock[]) {
   const conversationItem = conversation.value.item as ConversationItemType | undefined
@@ -190,7 +203,18 @@ function isNearNewest(scrollBox: HTMLElement) {
 }
 
 function collectVisibleUnread(scrollBox: HTMLElement) {
-  for (const id of getVisibleUnreadMessageIds(scrollBox)) {
+  const items:ChatBubbleItem[] = getVisibleChatBubbleItems(
+    scrollBox,
+    item => isReadableMessage(item?.data as UserChatMessageResponseBody)
+  )
+  if (items.length <= 0) {
+    return
+  }
+  for (const data of items.map(i => i.data)) {
+    if (!data) {
+      continue
+    }
+    const id = Number(data.id)
     // sentIds 拦截已提交但本地 readable 尚未被 socket 回包更新的消息，避免重复提交
     if (!sentIds.has(id)) {
       readingSet.add(id)
@@ -215,7 +239,7 @@ async function flushReadQueue() {
       const batch = Array.from(readingSet)
       readingSet.clear()
       try {
-        await ChatMessageService.read(batch)
+        await ChatMessageService.readMessage(batch)
         batch.forEach(id => sentIds.add(id))
         await messageServerStore.fetchUnreadQuantity()
       } catch (error) {
@@ -251,28 +275,30 @@ function throttleBubbleScroll(event: Event) {
 function onBubbleScroll(event: Event) {
   const scrollBox = event.target as HTMLElement
   showScrollToBottom.value = scrollBox.scrollTop <= -props.scrollToBottomThreshold
+  tryFlashPendingItems(scrollBox)
+
   handleThrottleBubbleScroll(event)
 }
 
-function isUnreadMessage(message: UserChatMessageResponseBody | UserChatMessageEntity) {
-  if (!message) {
+function isReadableMessage(message: UserChatMessageResponseBody | UserChatMessageEntity) {
+  if (!message || getEnumValue(message.type) === 20) {
     return false
   }
   const readable = (message as UserChatMessageResponseBody).readable
   if (readable === undefined) {
     return false
   }
-  return getEnumValue(readable) === 1
+  return getEnumValue(readable) === 1 && message.principal !== principalStore.state.name
 }
 
-function getVisibleUnreadMessageIds(scrollBox: HTMLElement) {
+function getVisibleChatBubbleItems(scrollBox: HTMLElement, filter:(item: ChatBubbleItem) => boolean | undefined) {
   const scrollRect = scrollBox.getBoundingClientRect()
   const content = scrollBox.querySelector('.antd-bubble-list-scroll-content')
   if (!content) {
     return []
   }
 
-  const ids: number[] = []
+  const items: ChatBubbleItem[] = []
   const children = content.children
 
   for (let i = 0; i < children.length && i < bubbleListItems.value.length; i++) {
@@ -280,16 +306,16 @@ function getVisibleUnreadMessageIds(scrollBox: HTMLElement) {
     if (!item || item.role === 'divider') {
       continue
     }
-    if (!isUnreadMessage((item as ChatBubbleItem)?.data as UserChatMessageResponseBody)) {
+    if (!filter((item as ChatBubbleItem))) {
       continue
     }
     const element = children[i] as HTMLElement
     const rect = element.getBoundingClientRect()
     if (rect.bottom > scrollRect.top && rect.top < scrollRect.bottom) {
-      ids.push(Number(item.key))
+      items.push(item)
     }
   }
-  return ids
+  return items
 }
 
 function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBody>) {
@@ -304,7 +330,32 @@ function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBod
   if (!bubble) {
     return
   }
-  bubble.data = result?.data
+  bubble.data = result.data
+}
+
+function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
+  if (!result.data) {
+    return
+  }
+
+  const index = conversation.value.bubbleList.findIndex(b => b?.data?.id === result?.data?.id)
+  if (index < 0) {
+    return
+  }
+  const bubble = conversation.value.bubbleList[index]
+  if (!bubble || !bubble.data) {
+    return
+  }
+  bubble.data.undo = result.data.undo
+  bubble.data.undoTime = result.data.undoTime
+  const undoContent: ChatContentBlock[] = [{
+    type: 'custom',
+    slotKind: 'undo',
+    value: globalProperties.$t('chat.view.undo.messageValue'),
+    tooltip:globalProperties.$t('chat.view.undo.time', {time:':' + globalProperties.$dayjs(bubble.data.undoTime).fromNow()})
+  }]
+  bubble.data.content = undoContent
+  bubble.content = undoContent
 }
 
 function addRefMessage(item:UserChatMessageResponseBody) {
@@ -316,6 +367,74 @@ function addRefMessage(item:UserChatMessageResponseBody) {
   }
 
   refMessages.value.push(item)
+}
+
+function onUndoMessage(item:UserChatMessageResponseBody) {
+  modal.confirm({
+    title: globalProperties.$t('chat.view.undo.confirmTitle'),
+    content: globalProperties.$t('chat.view.undo.confirmContent'),
+    onOk: () => doUndoMessage(Number(item.id))
+  })
+}
+
+function doUndoMessage(id:number): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result:RestResult<void> = await ChatMessageService.undoMessage([id])
+      message.success(result.message)
+      resolve()
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : String(error))
+      reject(error)
+    }
+  })
+}
+
+function jumpToMessage(
+  body: UserChatMessageResponseBody,
+  flashPending: boolean = true,
+  behavior:ScrollBehavior = 'smooth',
+  block:ScrollLogicalPosition = 'start'
+) {
+
+  const bubble = conversation.value.bubbleList.find(b => b.data?.id === body.id)
+
+  if (!bubble) {
+    return
+  }
+
+  bubbleListRef.value?.scrollTo({
+    key: String(body.id),
+    behavior: behavior,
+    block: block,
+  })
+  if (!flashPending) {
+    return
+  }
+
+  if (!bubbleListRef.value) {
+    return ;
+  }
+  bubble.flashPending = flashPending
+  bubble.highlight = false// 目标本来就在视口里时，smooth 可能几乎不触发 scroll
+  nextTick(() => tryFlashPendingItems(bubbleListRef.value?.scrollBoxNativeElement))
+}
+
+function tryFlashPendingItems(scrollBox: HTMLElement | undefined) {
+  if (!scrollBox){
+    return
+  }
+  const items = getVisibleChatBubbleItems(scrollBox, item => item.flashPending === true)
+  for (const visibleItem of items) {
+    const bubble = conversation.value.bubbleList.find(b => String(b.key) === String(visibleItem.key))
+    if (!bubble) {
+      continue
+    }
+    bubble.flashPending = false
+    bubble.highlight = false
+    nextTick(() => bubble.highlight = true)
+    break
+  }
 }
 
 // 数据变化（首屏加载、切换会话、socket 新消息、历史分页）后检查可见区未读。
@@ -344,6 +463,10 @@ function mounted() {
     SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ,
     (payload) => onChatMessageReadReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
   ))
+  socketListener.value.push(socketStore.subscribe(
+    SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
+    (payload) => onChatMessageUndo(parseSocketRestPayload<UserChatMessageEntity>(payload))
+  ))
 }
 
 onMounted(mounted)
@@ -355,6 +478,7 @@ onUnmounted(() => {
 
 defineExpose({
   getScrollBox: () => bubbleListRef.value?.scrollBoxNativeElement,
+  jumpToMessage,
   scrollTo: (options: {
     key?: string | number;
     top?: number | "bottom" | "top";
@@ -449,10 +573,10 @@ defineExpose({
         </template>
         <template #footer="{role, item}">
           <a-flex class="w-full" gap="small" :class="role === CHAT_BUBBLE_TYPE.USER ? '' : 'flex-row-reverse'">
-            <a-button size="small" type="text" @click="addRefMessage(item.data)">
+            <a-button :disabled="getEnumValue(item.data.undo) === 1" size="small" type="text" @click="addRefMessage(item.data)">
               <icon-font type="loncra-text-quote"/>
             </a-button>
-            <a-button size="small" type="text" danger >
+            <a-button size="small" :disabled="getEnumValue(item.data.undo) === 1" type="text" danger @click="onUndoMessage(item.data)" v-if="role === CHAT_BUBBLE_TYPE.USER">
               <icon-font type="loncra-undo"/>
             </a-button>
           </a-flex>
@@ -478,7 +602,7 @@ defineExpose({
         :placeholder="placeholderText"
         :disabled="getEnumValue(conversation.item.data.status) !== 10"
         :sending="conversation.sending"
-        @jump-to-reference="(body) => bubbleListRef?.scrollTo({ key: String(body.id), behavior: 'auto', block: 'start' })"
+        @jump-to-reference="(body) => jumpToMessage(body)"
         @submit="onSendMessage"
       />
     </div>

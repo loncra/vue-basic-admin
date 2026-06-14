@@ -475,6 +475,13 @@ const locale: LanguagePack = {
     },
     history: '聊天记录',
     view:{
+      undo:{
+        confirmTitle:'撤销确认',
+        confirmContent:'确定要撤销该消息吗？',
+        action:'撤销',
+        time:'撤销时间{time}',
+        messageValue:'该消息已撤销'
+      },
       placeholder:{
         exitRoom:'您已退出本群',
         roomRemove:'您已被本群移除',
@@ -490,12 +497,12 @@ const locale: LanguagePack = {
       addParticipant: '发起群聊',
       memberManager:'成员管理',
       exitRoom:{
-        title:'退群提示',
+        title:'退群确认',
         content: '确定要退出 {name} 群聊吗?',
         action:'退出群聊'
       },
       disbandRoom:{
-        title:'解散提示',
+        title:'解散确认',
         content: '确定要解散 {name} 群聊吗?',
         action:'解散群聊'
       },

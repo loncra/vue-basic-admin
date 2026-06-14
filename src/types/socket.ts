@@ -13,6 +13,7 @@ export type SocketBusinessEventPayloadMap = {
   [SOCKET_EVENT_TYPE.RUN_COMMAND]: RestResult<string>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE]: RestResult<UserChatMessageEntity>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ]: RestResult<UserChatMessageResponseBody>
+  [SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO]: RestResult<UserChatMessageEntity>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ_UPDATE]: RestResult<IdValueMetadata<number, number>[]>
 
   [SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH]: RestResult<number>

@@ -26,6 +26,7 @@ export const SOCKET_EVENT_TYPE = {
   RUN_COMMAND: 'run_command',
   CHAT_MESSAGE: 'chat_message',
   CHAT_MESSAGE_READ:'chat_message_read',
+  CHAT_MESSAGE_UNDO:'chat_message_undo',
   CHAT_MESSAGE_READ_UPDATE:'chat_message_read_update',
 
   CHAT_CONVERSATION_CREATE:'chat_conversation_create',

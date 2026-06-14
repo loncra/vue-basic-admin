@@ -28,7 +28,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <a-tag v-bind="$attrs" :color="getEnumValue(props.message.participant.type) !== 30 ? 'gold' : 'green'">
+  <a-tag v-bind="$attrs" :color="getEnumValue(props.message.participant.type) !== 30 ? 'gold' : undefined">
     <a-space>
       <template v-if="getEnumValue(props.message.participant.type) !== 30">
         [{{getEnumName(props.message.participant.type)}}]
@@ -40,7 +40,7 @@ const emit = defineEmits<{
         {{ AuthServerService.getPrincipalNameByPlatformUser(props.message.participant.metadata.details) }}
       </template>
       :
-      <a-typography-text type="secondary" @click="emit('click', props.message)" class="w-50 cursor-pointer" ellipsis>
+      <a-typography-text type="secondary" @click="emit('click', props.message)" class="max-w-50 cursor-pointer" ellipsis>
         {{ ChatMessageService.getMessageContent(props.message)}}
       </a-typography-text>
     </a-space>

@@ -482,6 +482,12 @@ const locale: LanguagePack = {
     },
     history: 'Chat history',
     view: {
+      undo:{
+        confirmTitle:'Undo Confirmation',
+        confirmContent:'Are you sure you want to undo this message?',
+        action:'undo',
+        messageValue: 'this message has been undo'
+      },
       placeholder: {
         exitRoom: 'You have left this group',
         roomRemove: 'You were removed from this group',
@@ -497,12 +503,12 @@ const locale: LanguagePack = {
       addParticipant: 'Start group chat',
       memberManager: 'Manage members',
       exitRoom: {
-        title: 'Leave group',
+        title: 'Withdrawal Confirmation',
         content: 'Are you sure you want to leave {name}?',
         action: 'Leave group',
       },
       disbandRoom: {
-        title: 'Disband group',
+        title: 'Dissolution Confirmation',
         content: 'Are you sure you want to disband {name}?',
         action: 'Disband group',
       },
@@ -510,7 +516,7 @@ const locale: LanguagePack = {
         changeMember: 'Set as member',
         changeCoOwner: 'Set as co-admin',
         removeMember: {
-          confirmTitle: 'Confirm removal',
+          confirmTitle: 'Removal Member Confirmation',
           content: 'Remove {count} selected member(s)?',
           action: 'Remove members',
         },

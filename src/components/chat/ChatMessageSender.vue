@@ -448,6 +448,7 @@ defineExpose({
     <template #header>
       <a-flex gap="small" wrap class="w-full p-xs bg-layout border-b border-b-border-secondary rounded-t-xl">
         <l-chat-message-reference
+          variant="outlined"
           closable
           @click="emit('jumpToReference', r)"
           @close="() => refMessages = refMessages.filter(m => m.id !== r.id)"
@@ -466,15 +467,10 @@ defineExpose({
               <icon-font type="loncra-smile" />
             </template>
           </a-button>
-          <a-button type="text" >
-            <template #icon>
-              <icon-font type="loncra-hard-drive-upload" />
-            </template>
-          </a-button>
         </a-space>
         <a-flex justify="space-between" align="center" gap="small">
           <component :is="components.ClearButton" @click="clear" />
-          <component :is="components.SpeechButton" />
+<!--          <component :is="components.SpeechButton" />-->
           <component
             :is="uploading || sending ? components.LoadingButton : components.SendButton"
             type="primary"

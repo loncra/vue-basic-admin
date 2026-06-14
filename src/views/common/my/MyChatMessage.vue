@@ -428,6 +428,10 @@ async function toReadableAnchor() {
   } else {
     key = globalProperties.$dayjs().unix()
     const anchorBubble = conversationActive.value.bubbleList[anchorIndex]
+    if (anchorBubble) {
+      anchorBubble.flashPending = true
+      anchorBubble.highlight = false
+    }
     const anchorTime = anchorBubble?.data?.creationTime ?? 0
     const newBubble = {
       key: key,

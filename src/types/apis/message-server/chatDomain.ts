@@ -30,9 +30,9 @@ export interface UserChatMessageEntity extends VersionEntityMetadata {
   /** 发送者 */
   principal: string;
   /** 是否撤销 */
-  revoke: NameValueEnumMetadata<number> | number;
+  undo: NameValueEnumMetadata<number> | number;
   /** 撤销时间 */
-  revocationTime: number;
+  undoTime: number;
   metadata: Record<string, unknown>;
   type: NameValueEnumMetadata<number> | number;
 }

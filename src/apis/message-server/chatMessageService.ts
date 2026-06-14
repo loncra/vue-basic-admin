@@ -40,7 +40,9 @@ export class ChatMessageService  {
 
   static readonly CREATE_HISTORIES_URL = ChatMessageService.SERVICE_URL + '/message/histories'
 
-  static readonly CREATE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read'
+  static readonly MESSAGE_READ_URL = ChatMessageService.SERVICE_URL + '/message/read'
+
+  static readonly MESSAGE_UNDO_URL = ChatMessageService.SERVICE_URL + '/message/undo'
 
   static readonly CREATE_PINNED_CONVERSATION_URL = ChatMessageService.SERVICE_URL + '/conversation/pinned'
 
@@ -82,8 +84,12 @@ export class ChatMessageService  {
     return axios.post(ChatMessageService.CREATE_HISTORIES_URL + '/' + roomId, formUrlEncoded(request))
   }
 
-  static read(messageIds:number[]): Promise<RestResult<PageResult<UserChatMessageResponseBody>>> {
-    return axios.post(ChatMessageService.CREATE_READ_URL, formUrlEncoded({messageIds}))
+  static readMessage(messageIds:number[]): Promise<RestResult<PageResult<UserChatMessageResponseBody>>> {
+    return axios.post(ChatMessageService.MESSAGE_READ_URL, formUrlEncoded({messageIds}))
+  }
+
+  static undoMessage(ids:number[]): Promise<RestResult<void>> {
+    return axios.delete(ChatMessageService.MESSAGE_UNDO_URL, {params:formUrlEncoded({ids})})
   }
 
   static pinnedConversation(ids:number[]): Promise<RestResult<BasicUserChatConversation[]>> {
