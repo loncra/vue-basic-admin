@@ -182,7 +182,7 @@ onMounted(mounted);
                   <template v-if="option.data.payload">
                     <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.phoneNumberVerified)})">
                       <a-typography-text :type="getEnumValue(option.data?.payload.phoneNumberVerified) === 1 ? 'success' : 'warning'">
-                        {{ AuthServerService.getPrincipalNameByPlatformUser(option.data?.payload) }}
+                        {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload) }}
                         ({{ option.data?.payload?.phoneNumber }})
                       </a-typography-text>
                     </a-tooltip>

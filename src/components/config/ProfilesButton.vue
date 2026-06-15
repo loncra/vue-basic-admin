@@ -7,6 +7,7 @@ import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {MenuInfo} from '@v-c/menu'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 const menuPrincipalStore = useMenuPrincipalStore()
 
@@ -61,9 +62,7 @@ onMounted(mounted)
     @menu-click="onOperateClickItem"
   >
     <a-badge :classes="{root: 'hover:cursor-pointer flex'}" :status="socketStore.isConnected ? 'success' : 'error'" :offset="[-3, 28]" dot show-zero>
-      <a-avatar :src="principalStore.getAvatarUrl()" >
-        {{principalStore.getAvatarPrefix()}}
-      </a-avatar>
+      <l-user-avatar :user="principalStore.state.details.metadata" />
     </a-badge>
   </a-dropdown>
 </template>

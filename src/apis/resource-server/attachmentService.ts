@@ -126,7 +126,7 @@ export class AttachmentService {
     return axios.post(url)
   }
 
-  static getAvatarUrlIfNotNull(item: FileObject) {
+  static getAvatarUrlIfNotNull(item: FileObject | undefined) {
     if (!item) {
       return undefined
     }

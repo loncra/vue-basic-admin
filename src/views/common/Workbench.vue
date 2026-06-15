@@ -7,6 +7,7 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {OperationDataTraceAuditEventService} from "@/apis";
 import type {AuditEventEntity, RestResult, TotalPage} from "@/types/apis";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 defineOptions({
   name: 'CommonWorkbench'
@@ -77,9 +78,7 @@ onMounted(mounted)
 
         <a-card>
           <a-flex gap="small" vertical justify="space-between" align="center">
-            <a-avatar :size="configProviderStore.getToken().sizeXXL" :src="principalStore.getAvatarUrl()" >
-              {{principalStore.getAvatarPrefix()}}
-            </a-avatar>
+            <l-user-avatar :size="configProviderStore.getToken().sizeXXL" :user="principalStore.state.details.metadata" />
             <a-typography-text class="text-xl block">
               {{ principalStore.getName() }}
             </a-typography-text>

@@ -38,20 +38,23 @@ const globalProperties =
 const setMessageExtraContent =  inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
 
 const types = ref<IdNameMetadata[]>([])
-const activeTagKey = ref<string>()
+const activeTagKey = ref<string>('30')
 const siteMessages = ref<MySiteMessageProps[]>([])
 const messageServerStore = useMessageServerStore()
 const siteMessageService = new SiteMessageService()
 
 const typeIcons:IdNameMetadata[] = [{
   id:"30",
-  name:'loncra-message-square-dot'
-},{
-  id:"20",
-  name:'loncra-message-square-more'
+  name:'loncra-message-square-dot',
+  class:'bg-primary',
 },{
   id:"10",
-  name:'loncra-message-square-warning'
+  name:'loncra-message-square-more',
+  class:'bg-success',
+},{
+  id:"20",
+  name:'loncra-message-square-warning',
+  class:'bg-warning',
 }]
 
 const actions = computed<ResolvedAction[]>(() => {
@@ -284,8 +287,11 @@ onMounted(mounted)
     <a-spin :spinning="getCurrentItem(activeTagKey)?.loading">
       <a-flex vertical flex="1" class="min-w-0" :key="item.id" v-for="item of (getCurrentItem(activeTagKey)?.dataSource?.elements || [])">
         <a-flex flex="1" class="min-w-0" gap="middle" align="top">
-          <a-avatar>
-            <icon-font class="icon" type="loncra-file-pen-line"/>
+          <a-avatar :class="typeIcons.find(s => s.id === activeTagKey)?.class">
+            <icon-font
+              class="icon align"
+              :type="typeIcons.find(s => s.id === activeTagKey)?.name || 'loncra-file-question-mark'"
+            />
           </a-avatar>
           <a-flex vertical flex="1" class="min-w-0">
             <a-typography-text @click="getEnumValue(item.readable) === 1 ? onRead(item.id) : undefined" :strong="getEnumValue(item.readable) === 1" ellipsis class="min-w-0 m-0 text-md cursor-pointer">

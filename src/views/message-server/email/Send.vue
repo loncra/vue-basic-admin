@@ -105,7 +105,7 @@ onMounted(mounted);
                   <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.emailVerified)})">
                     <a-typography-text :type="getEnumValue(option.data?.payload.emailVerified) === 1 ? 'success' : 'warning'">
 
-                      {{ AuthServerService.getPrincipalNameByPlatformUser(option.data?.payload) }}
+                      {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload) }}
                       ({{ option.data?.payload?.email }})
                     </a-typography-text>
                   </a-tooltip>

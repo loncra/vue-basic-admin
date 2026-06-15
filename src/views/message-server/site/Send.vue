@@ -158,7 +158,7 @@ onMounted(mounted);
             <l-user-select v-model:value="options.form.toUsers" mode="multiple">
               <template #optionRender="{ option }">
                 <template v-if="option.data.payload">
-                  {{ AuthServerService.getPrincipalNameByPlatformUser(option.data?.payload) }}
+                  {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload) }}
                 </template>
                 <template v-else>
                   {{option.data.label}}

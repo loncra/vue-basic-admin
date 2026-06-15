@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {AttachmentService, AuthServerService} from "@/apis";
-import type {PlatformUser} from "@/types/apis";
+import type {PlatformUser, UserMetadata} from "@/types/apis";
 import {useSlots} from "vue";
 
 defineOptions({
@@ -9,8 +9,7 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<{
-  user:PlatformUser
-  size?:string
+  user:PlatformUser | UserMetadata
   fallback?:string
 }>(),{
 })
@@ -21,13 +20,12 @@ const slots = useSlots()
 
 <template>
   <a-avatar
-    v-if="props.user.avatar"
-    :src="AttachmentService.getAvatarUrlIfNotNull(props.user.avatar) || props.fallback"
-    :size="props.size"
+    :src="AttachmentService.getAvatarUrlIfNotNull(props.user?.avatar) || props.fallback"
+    v-bind="$attrs"
   >
     <slot v-if="slots.text" name="text" />
     <template v-else>
-      {{AuthServerService.getPrincipalNameByPlatformUser(props.user).substring(0, 1)}}
+      {{ AuthServerService.getPrincipalNameByUserDetails(props.user).substring(0, 1) }}
     </template>
   </a-avatar>
 </template>

@@ -15,7 +15,6 @@ import type {
   UserChatMessageResponseBody,
   UserChatParticipantEntity
 } from "@/types/apis";
-import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
@@ -27,6 +26,7 @@ import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {AuthServerService} from "@/apis";
 import LChatMessageHistories from "@/components/chat/ChatMessageHistories.vue";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 defineOptions({
   name: 'LChatRoomView',
@@ -93,7 +93,7 @@ const systemUserPanelDataSource = computed<ContactItem[]>(() => {
 function toContactItem(p: UserChatParticipantEntity): ContactItem {
   return {
     key: String(p.metadata.details.id),
-    label: String(AuthServerService.getPrincipalNameByPlatformUser(p.metadata.details)),
+    label: String(AuthServerService.getPrincipalNameByUserDetails(p.metadata.details)),
     data: p.metadata.details,
     participantType:p.type
   }
@@ -405,31 +405,13 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
           >
 
             <a-badge-ribbon :color="getEnumValue(c.type) === 10 ? 'gold' : 'yellow'" class="text-xs top-0 opacity-80" v-if="[10,20].includes(getEnumValue(c.type))" :text="getEnumName(c.type)">
-              <a-avatar
-                size="large"
-                shape="square"
-                v-if="c.metadata.details.avatar"
-                :src="AttachmentService.query(c.metadata.details.avatar.bucketName, c.metadata.details.avatar.objectName)"
-              />
-              <a-avatar size="large" shape="square" v-else>
-                {{AuthServerService.getPrincipalNameByPlatformUser(c.metadata.details).substring(0, 1)}}
-              </a-avatar>
+              <l-user-avatar :user="c.metadata.details" size="large" shape="square" />
             </a-badge-ribbon>
             <span v-else>
-            <a-avatar
-              size="large"
-              shape="square"
-              v-if="c.metadata.details.avatar"
-              :src="AttachmentService.query(c.metadata.details.avatar.bucketName, c.metadata.details.avatar.objectName)"
-            />
-            <a-avatar size="large" shape="square" v-else>
-              {{
-                AuthServerService.getPrincipalNameByPlatformUser(c?.metadata?.details).substring(0, 1)
-              }}
-            </a-avatar>
-          </span>
-            <a-typography-text :ellipsis="{tooltip:AuthServerService.getPrincipalNameByPlatformUser(c?.metadata?.details)}">
-              {{ AuthServerService.getPrincipalNameByPlatformUser(c?.metadata?.details) }}
+              <l-user-avatar :user="c.metadata.details" size="large" shape="square" />
+            </span>
+            <a-typography-text :ellipsis="{tooltip:AuthServerService.getPrincipalNameByUserDetails(c?.metadata?.details)}">
+              {{ AuthServerService.getPrincipalNameByUserDetails(c?.metadata?.details) }}
             </a-typography-text>
           </a-flex>
 

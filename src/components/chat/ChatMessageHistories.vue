@@ -3,7 +3,8 @@
 import {
   type ComponentInternalInstance,
   computed,
-  getCurrentInstance, nextTick,
+  getCurrentInstance,
+  nextTick,
   onMounted,
   ref,
   watch
@@ -23,7 +24,8 @@ import LChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleConten
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
 import {DEFAULT_PAGE_RESULT_VALUE} from "@/constants/systemConstant.ts";
 import LAttachmentMasonry from "@/components/basic/AttachmentMasonry.vue";
-import { Dayjs } from "dayjs";
+import {Dayjs} from "dayjs";
+
 defineOptions({
   name: 'LChatMessageHistories',
 })
@@ -43,7 +45,7 @@ const loading = ref<boolean>(false)
 const filterRequest = ref<FilterRequest>({})
 const search = ref<{
   content:string,
-  date:[Dayjs, Dayjs] | null 
+  date:[Dayjs, Dayjs] | null
 }>({
   content:'',
   date:null
@@ -104,7 +106,7 @@ const computedFileDataSource = computed(():{key:string, items:ObjectItemInfo[]}[
   if (search.value.content !== '') {
     result = result.filter(d => (d.userMetadata?.['X-Amz-Meta-Original-Filename'] || d.objectName).includes(search.value.content))
   }
-  
+
   const range = search.value.date
   if (range?.[0] && range?.[1]) {
     const start = globalProperties.$dayjs(range[0]).valueOf()
@@ -228,7 +230,7 @@ watch(segmentedActive, async (key) => {
                 <a-flex vertical class="w-full">
                   <a-flex>
                     <a-typography-text strong class="flex-1">
-                      {{AuthServerService.getPrincipalNameByPlatformUser(data.participant?.metadata?.details)}}
+                      {{ AuthServerService.getPrincipalNameByUserDetails(data.participant?.metadata?.details) }}
                     </a-typography-text>
                     <a-space>
                       <a-button

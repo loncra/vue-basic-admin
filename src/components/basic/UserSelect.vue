@@ -60,7 +60,7 @@ async function searchUser(value:string){
       label: d.name,
       value: d.id,
       options:d.value.map(d => ({
-        label: AuthServerService.getPrincipalNameByPlatformUser(d),
+        label: AuthServerService.getPrincipalNameByUserDetails(d),
         value: d.systemName,
         payload:d
       }))
@@ -120,7 +120,7 @@ onMounted(mounted)
     <template #optionRender="{ option }">
       <slot v-if="slots.optionRender" name="optionRender" :option="option" />
       <template v-else>
-        {{ AuthServerService.getPrincipalNameByPlatformUser(option.data?.payload, option.data.label) }}
+        {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload, option.data.label) }}
       </template>
     </template>
     <template #popupRender="menu" v-if="slots.popupRender">

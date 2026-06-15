@@ -11,11 +11,12 @@ import type {IdValueMetadata, RestResult, UserChatMessageReadResponseBody} from 
 import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {AttachmentService, AuthServerService} from "@/apis";
+import {AuthServerService} from "@/apis";
 import type {TableProps} from "antdv-next";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 defineOptions({
   name: 'LChatMessageReadTable',
@@ -161,25 +162,13 @@ onUnmounted(() => socketListener.value.forEach(f => f?.()));
       <template #bodyCell="{column, record }">
         <template v-if="column.key === 'name'">
           <a-space>
-            <a-avatar
-              :src="AttachmentService.getAvatarUrlIfNotNull(record.participant?.metadata?.details?.avatar)"
-              v-if="principalStore.state.name !== record.principal"
-              size="large"
-            >
-              {{
-                AuthServerService.getPrincipalNameByPlatformUser(record.participant?.metadata?.details).substring(0, 1)
-              }}
-            </a-avatar>
-            <a-avatar
-              :src="principalStore.getAvatarUrl()"
-              v-else
-              size="large"
-            >
+            <l-user-avatar :user="record.participant?.metadata?.details" />
+            <template v-if="principalStore.state.name === record.principal">
               {{globalProperties.$t('common.me')}}
-            </a-avatar>
-            {{
-              AuthServerService.getPrincipalNameByPlatformUser(record.participant?.metadata?.details)
-            }}
+            </template>
+            <template v-else>
+              {{ AuthServerService.getPrincipalNameByUserDetails(record.participant?.metadata?.details) }}
+            </template>
           </a-space>
         </template>
         <template v-if="column.key === 'readTime'">

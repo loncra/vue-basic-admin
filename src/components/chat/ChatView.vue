@@ -3,7 +3,7 @@
 import type {BubbleItemType, BubbleListRef, RoleType} from "@antdv-next/x/dist/bubble/interface";
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
 import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps} from "@/types/composables";
-import {AttachmentService, AuthServerService} from "@/apis";
+import {AuthServerService} from "@/apis";
 import {
   type ComponentInternalInstance,
   computed,
@@ -34,6 +34,7 @@ import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {throttle} from 'lodash-es';
 import useApp from "antdv-next/dist/app/useApp";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 defineOptions({
   name: 'LChatView',
@@ -181,7 +182,7 @@ async function onSendMessage(content: ChatContentBlock[]) {
       return
     }
     const body: UserChatMessageResponseBody = result.data
-    ChatMessageService.addBubbleListMessage(body, 'user', conversation.value.bubbleList)
+    ChatMessageService.addBubbleListMessage(body, CHAT_BUBBLE_TYPE.USER, conversation.value.bubbleList)
     senderRef.value?.clear()
     emit("send", body)
     await nextTick()
@@ -503,7 +504,7 @@ defineExpose({
         <template #extra="{item}" >
           <a-flex class="h-full" justify="end" align="end">
             <a-tooltip
-              v-if="getEnumValue(conversation.item?.data?.room?.type) === 20 && item.role === 'user'"
+              v-if="getEnumValue(conversation.item?.data?.room?.type) === 20 && item.role === CHAT_BUBBLE_TYPE.USER"
               :title="item.data.readableCount === 1 ? globalProperties.$t('common.read.readable') : globalProperties.$t('common.read.unreadable')"
             >
               <a-typography-text :type="item.data.readableCount === 1 ? 'secondary' : 'success'">
@@ -511,7 +512,7 @@ defineExpose({
               </a-typography-text>
             </a-tooltip>
             <a-popover
-              :placement="item.role === 'user' ? 'left' : 'right'"
+              :placement="item.role === CHAT_BUBBLE_TYPE.USER ? 'left' : 'right'"
               v-else-if="getEnumValue(conversation.item?.data?.room?.type) === 10 && item.data"
               trigger="click"
             >
@@ -537,27 +538,15 @@ defineExpose({
           </a-flex>
         </template>
         <template #avatar="{ item }">
-          <a-avatar
-            :src="AttachmentService.getAvatarUrlIfNotNull(item.data?.participant?.metadata?.details?.avatar)"
-            v-if="item.role === 'ai'"
+          <l-user-avatar
             size="large"
-          >
-            <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
-              {{AuthServerService.getPrincipalNameByPlatformUser(item.data?.participant?.metadata?.details).substring(0, 1)}}
-            </template>
-          </a-avatar>
-          <a-avatar
-            :src="principalStore.getAvatarUrl()"
-            v-else
-            size="large"
-          >
-            {{globalProperties.$t('common.me')}}
-          </a-avatar>
+            :user="item.data?.participant?.metadata?.details"
+          />
         </template>
         <template #header="{ item }">
           <a-typography-text v-if="item.role === 'ai'">
             <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
-              {{AuthServerService.getPrincipalNameByPlatformUser(item.data.participant.metadata.details)}}
+              {{ AuthServerService.getPrincipalNameByUserDetails(item.data.participant.metadata.details) }}
             </template>
             <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 20">
               {{ (conversation.item?.label || globalProperties.$t('common.unname'))}}

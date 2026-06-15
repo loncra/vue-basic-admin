@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {AttachmentService, AuthServerService} from "@/apis";
+import {AuthServerService} from "@/apis";
 import type {ContactItem, PlatformUser} from "@/types/apis";
 import type {ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {Conversations as AxConversations,} from '@antdv-next/x'
@@ -12,6 +12,7 @@ import {
   ref,
   watch
 } from "vue";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 defineOptions({
   name: 'LSystemUserPanel',
@@ -48,7 +49,7 @@ const searchValue = ref<string>('')
 
 const filterDataSource = computed(() => {
   return dataSource.value
-    .filter(s => searchValue.value === '' ? s : AuthServerService.getPrincipalNameByPlatformUser(s.data).includes(searchValue.value))
+    .filter(s => searchValue.value === '' ? s : AuthServerService.getPrincipalNameByUserDetails(s.data).includes(searchValue.value))
     .filter(s => props.filter(s))
 })
 
@@ -94,12 +95,7 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
         <template #iconRender="{ item }">
           <a-space>
             <a-checkbox v-if="props.selected" :checked="modelValue.some(d => d.key === item.key)" />
-            <a-avatar
-              :src="AttachmentService.getAvatarUrlIfNotNull(item.data.avatar)"
-              :size="props.avatarSize"
-            >
-              {{ item.label.substring(0, 1) }}
-            </a-avatar>
+            <l-user-avatar :user="item.data" :size="props.avatarSize"/>
           </a-space>
         </template>
         <template #labelRender="{item}">
@@ -139,17 +135,9 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
             v-for="c of modelValue"
             :key="c.data.id"
           >
-            <a-avatar
-              size="large"
-              shape="square"
-              v-if="c.data.avatar"
-              :src="AttachmentService.getAvatarUrlIfNotNull(c.data.avatar)"
-            />
-            <a-avatar size="large" shape="square" v-else>
-              {{ AuthServerService.getPrincipalNameByPlatformUser(c.data).substring(0, 1) }}
-            </a-avatar>
-            <a-typography-text :ellipsis="{tooltip:AuthServerService.getPrincipalNameByPlatformUser(c.data)}">
-              {{ AuthServerService.getPrincipalNameByPlatformUser(c.data) }}
+            <l-user-avatar :user="c.data" size="large" shape="square"/>
+            <a-typography-text :ellipsis="{tooltip:AuthServerService.getPrincipalNameByUserDetails(c.data)}">
+              {{ AuthServerService.getPrincipalNameByUserDetails(c.data) }}
             </a-typography-text>
           </a-flex>
         </a-space>

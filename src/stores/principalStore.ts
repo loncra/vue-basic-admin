@@ -119,10 +119,15 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return state.value
   }
 
+  /**
+   * @deprecated
+   */
   function getAvatarPrefix() {
     return (state.value.details?.metadata?.realName || state.value?.name).substring(0,1)
   }
-
+  /**
+   * @deprecated
+   */
   function getAvatarUrl() {
     if (!state.value.details?.metadata?.avatar) {
       return undefined

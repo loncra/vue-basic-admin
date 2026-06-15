@@ -4,7 +4,11 @@ import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, getCurrentInstance, inject, onMounted, ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {APP_RELOAD_PROVIDE_KEY, ATTACHMENT_UPLOAD_MODE, VALID_REGX} from "@/constants/systemConstant.ts";
+import {
+  APP_RELOAD_PROVIDE_KEY,
+  ATTACHMENT_UPLOAD_MODE,
+  VALID_REGX
+} from "@/constants/systemConstant.ts";
 import type {UploadChangeParam} from "antdv-next";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {ObjectWriteResult, RestResult} from "@/types/apis";
@@ -14,6 +18,7 @@ import {AttachmentService, AuthServerService} from "@/apis";
 import LBasicImage from "@/components/basic/BasicImage.vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import {AvatarServerService} from "@/apis/auth-server/avatarService.ts";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 defineOptions({
   name: 'LAccountSetting',
@@ -151,8 +156,8 @@ onMounted(mounted)
           <span>{{ globalProperties.$t('systemSetting.account.avatar.history') }}</span>
         </a-space>
       </template>
-      <a-card-grid :hoverable="false" class="p-0 w-1/5" :key="v.etag" v-for="v of historyAvatar" >
-        <l-basic-image class="h-[80px] w-full" :src="AttachmentService.resourceByFileObject(v)">
+      <a-card-grid :hoverable="false" class="p-0 w-1/7" :key="v.etag" v-for="v of historyAvatar" >
+        <l-basic-image class="h-15 w-full" :src="AttachmentService.resourceByFileObject(v)">
           <template #cover>
             <a-space-compact >
               <a-button @click.stop="selectHistory(v)" size="small" type="text" class="text-white">
@@ -178,9 +183,7 @@ onMounted(mounted)
 
     >
       <span class="relative inline-block cursor-pointer">
-        <a-avatar :size="configProviderStore.getToken().sizeXXL * 2" :src="principalStore.getAvatarUrl()" >
-          {{principalStore.getAvatarPrefix()}}
-        </a-avatar>
+        <l-user-avatar :user="principalStore.state.details.metadata" :size="configProviderStore.getToken().sizeXL * 2" />
         <icon-font class="icon text-text-secondary absolute bottom-0 right-0" type="loncra-camera" />
       </span>
     </l-attachment-upload>

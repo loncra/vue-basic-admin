@@ -37,7 +37,7 @@ const emit = defineEmits<{
         {{ globalProperties.$t('common.me') }}
       </template>
       <template v-else>
-        {{ AuthServerService.getPrincipalNameByPlatformUser(props.message.participant.metadata.details) }}
+        {{ AuthServerService.getPrincipalNameByUserDetails(props.message.participant.metadata.details) }}
       </template>
       :
       <a-typography-text type="secondary" @click="emit('click', props.message)" class="max-w-50 cursor-pointer" ellipsis>

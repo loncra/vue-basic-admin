@@ -14,7 +14,8 @@ import type {
   PlatformUser,
   PrepareData,
   ResourceEntity,
-  RestResult
+  RestResult,
+  UserMetadata
 } from '@/types/apis'
 import i18n from '@/i18n'
 
@@ -109,11 +110,11 @@ export class AuthServerService {
     })
   }
 
-  static getPrincipalNameByPlatformUser(details:PlatformUser, defaultValue:String = i18n.global.t('common.unname')) {
+  static getPrincipalNameByUserDetails(details:PlatformUser | UserMetadata, defaultValue:string = i18n.global.t('common.unname')):string {
     if (!details) {
       return ''
     }
-    return details.realName || details.username || defaultValue
+    return String(details.realName || details.username || defaultValue)
   }
 
 }
