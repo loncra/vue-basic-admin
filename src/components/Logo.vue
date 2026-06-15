@@ -14,13 +14,12 @@ const props = withDefaults(defineProps<LogoProps>(), {
 </script>
 
 <template>
-  <a-space size="small">
+  <a-flex align="center" gap="small">
     <slot name="icon">
-      <icon-font class="icon text-h1!" :type="props.icon"/>
+      <icon-font class="icon shrink-0 text-h1! leading-none" :type="props.icon"/>
     </slot>
-    <a-typography-title class="mb-0" v-if="!props.hideText" :level="4">{{
-        props.text
-      }}
+    <a-typography-title class="mb-0!" v-if="!props.hideText" :level="4">
+      {{props.text}}
     </a-typography-title>
-  </a-space>
+  </a-flex>
 </template>
