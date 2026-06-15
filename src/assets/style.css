@@ -3,16 +3,15 @@
 @import "tailwindcss";
 @import "@antdv-next/tailwind/theme.css";
 
-/* 主题级动画：keyframes 内不能使用 @apply，需保留原生属性 */
+
 @theme {
-  --animate-auth-banner: fadeInFloat 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-  smoothFloat 4s ease-in-out 1.2s infinite;
+  --animate-auth-banner: fadeInFloat 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards, smoothFloat 4s ease-in-out 1.2s infinite;
 
   --animate-layout-content-fullscreen-in: layout-content-fullscreen-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  /* 退出要比进入更短，否则「缩完再等嵌回布局」体感拖沓 */
+
   --animate-layout-content-fullscreen-out: layout-content-fullscreen-out 0.18s cubic-bezier(0.4, 0, 0.6, 1) forwards;
 
-  --animate-bg-flash: bg-flash 0.5s ease-in-out 2;
+  --animate-bg-flash: bg-flash 0.9s ease-in-out 2;
 
   @keyframes fadeInFloat {
     0% {
@@ -45,7 +44,6 @@
     }
   }
 
-  /* 仅用缩放：避免 opacity 造成「先消失再出现 / 退出时慢慢没了」的观感 */
   @keyframes layout-content-fullscreen-in {
     from {
       opacity: 1;
