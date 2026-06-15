@@ -140,7 +140,8 @@ async function loadHistories(number:number) {
     ...filterRequest.value,
     number:number,
     withoutReadableAnchor:true,
-    totalPage:true
+    totalPage:true,
+    "filter_[type_eq]":10
   }
   loading.value = true
   try {

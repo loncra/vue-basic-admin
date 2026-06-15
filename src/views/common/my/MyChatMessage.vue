@@ -178,7 +178,9 @@ async function onConversationsChange(conversationItem:ServerConversationItem) {
     conversationActive.value.bubbleList = []
     await loadConversationData(Number(conversationActive.value.item?.data?.room?.id),1)
     await nextTick()
-    requestAnimationFrame(() => chatViewRef.value?.scrollTo({ top: "bottom", behavior: "smooth" }));
+    if (chatViewRef.value) {
+      chatViewRef.value?.scrollTo({ top: "bottom", behavior: "smooth" })
+    }
   } finally {
     conversationActive.value.loading = false
   }
@@ -365,8 +367,7 @@ async function onChatViewLoadPage(tag:'next' | 'previous') {
   )
   await nextTick()
   if (anchor) {
-    // behavior 必须用 'auto'（即 instant），否则平滑动画会很怪
-    chatViewRef.value?.scrollTo({ key: anchor.key, behavior: 'auto', block: 'start' })
+    chatViewRef.value?.jumpToMessage(anchor.key, false)
   }
   if (conversationActive.value.dataSource.last && tag === 'next') {
     conversationActive.value.bubbleList.unshift({
@@ -400,8 +401,7 @@ async function onHistoryClick(data:UserChatMessageResponseBody) {
     if (!anchorBubble) {
       return ;
     }
-    anchorBubble.flashPending = true
-    chatViewRef.value?.scrollTo({ key: anchorBubble.key, behavior: 'auto', block: 'start' })
+    chatViewRef.value?.jumpToMessage(anchorBubble.key)
   } else {
     try {
       conversationActive.value.loading = true
@@ -477,7 +477,6 @@ async function toMessageAnchorPage(
     } else {
       const anchorBubble = conversationActive.value.bubbleList[anchorIndex]
       if (anchorBubble) {
-        anchorBubble.flashPending = true
         key = anchorBubble.key
       }
       if (systemMessage) {
@@ -498,7 +497,7 @@ async function toMessageAnchorPage(
     if (!chatViewRef.value) {
       return
     }
-    chatViewRef.value?.scrollTo({ key: key, behavior: 'auto', block: 'start' })
+    chatViewRef.value?.jumpToMessage(key)
   } finally {
     conversationActive.value.loading = false
   }

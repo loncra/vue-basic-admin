@@ -462,6 +462,17 @@ const locale: LanguagePack = {
     }
   },
   chat:{
+    emoji:{
+      smileys_emotion:'笑脸与情感',
+      people_body:'人物与身体',
+      animals_nature:'动物与自然',
+      food_drink:'食物与饮品',
+      travel_places:'旅行与地点',
+      activities:'活动',
+      objects:'物品',
+      symbols:'符号',
+      flags:'旗帜',
+    },
     conversation:{
       delete:'删除会话'
     },

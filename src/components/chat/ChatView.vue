@@ -164,7 +164,7 @@ function renderBubbleContent(content: ChatContentBlock[]) {
     ChatMessageBubbleContent,
     {
       content: content,
-      onJumpToReference:jumpToMessage
+      onJumpToReference: (body) => jumpToMessage(String(body.id))
     }
   )
 }
@@ -259,6 +259,9 @@ const handleScrollRead = throttle(collectVisibleUnread, props.throttleCollectVis
 const handleThrottleBubbleScroll = throttle(throttleBubbleScroll, props.throttleOnScrollWait, { leading: true, trailing: false });
 
 function throttleBubbleScroll(event: Event) {
+  if (conversation.value.loadConversationDataLock || conversation.value.loading) {
+    return
+  }
   const scrollBox = event.target as HTMLElement
   handleScrollRead(scrollBox)
   const { first, last } = conversation.value.dataSource
@@ -276,7 +279,6 @@ function onBubbleScroll(event: Event) {
   const scrollBox = event.target as HTMLElement
   showScrollToBottom.value = scrollBox.scrollTop <= -props.scrollToBottomThreshold
   tryFlashPendingItems(scrollBox)
-
   handleThrottleBubbleScroll(event)
 }
 
@@ -391,32 +393,39 @@ function doUndoMessage(id:number): Promise<void> {
 }
 
 function jumpToMessage(
-  body: UserChatMessageResponseBody,
+  key: string,
   flashPending: boolean = true,
-  behavior:ScrollBehavior = 'smooth',
-  block:ScrollLogicalPosition = 'start'
+  block:ScrollLogicalPosition = "nearest",
+  behavior:ScrollBehavior = "auto",
 ) {
+  if (!bubbleListRef.value) {
+    return
+  }
+  const index = conversation.value.bubbleList.findIndex(b => b.key === key)
 
-  const bubble = conversation.value.bubbleList.find(b => b.data?.id === body.id)
+  if (index < 0) {
+    return
+  }
 
+  const bubble = conversation.value.bubbleList[index]
   if (!bubble) {
     return
   }
-
-  bubbleListRef.value?.scrollTo({
-    key: String(body.id),
-    behavior: behavior,
-    block: block,
-  })
-  if (!flashPending) {
-    return
-  }
-
-  if (!bubbleListRef.value) {
-    return ;
-  }
   bubble.flashPending = flashPending
-  nextTick(() => tryFlashPendingItems(bubbleListRef.value?.scrollBoxNativeElement))
+
+  try {
+    bubbleListRef.value?.scrollTo({
+      key: key,
+      behavior:behavior,
+      block: block,
+    })
+    if (!flashPending) {
+      return
+    }
+    nextTick(() => tryFlashPendingItems(bubbleListRef.value?.scrollBoxNativeElement))
+  } finally {
+  }
+
 }
 
 function tryFlashPendingItems(scrollBox: HTMLElement | undefined) {
@@ -493,7 +502,6 @@ defineExpose({
   >
     <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
       <ax-bubble-list
-        auto-scroll
         ref="bubbleListRef"
         class="min-h-0 h-full flex"
         :classes="{scroll:'pl-xs pr-xs'}"
@@ -568,8 +576,9 @@ defineExpose({
         </template>
       </ax-bubble-list>
       <slot name="bubbleListAfter"></slot>
+      <!-- FIXME 如有新消息进来时，这里要提出有新消息，并点击该按钮跳转值最新消息 -->
       <a-button
-        shape="circle"
+        shape="'circle'"
         v-if="showScrollToBottom"
         @click="bubbleListRef?.scrollTo({ top: 'bottom' });"
         class="shadow-card absolute bottom-0 mb-sm left-1/2 -translate-x-1/2"
@@ -588,7 +597,7 @@ defineExpose({
         :placeholder="placeholderText"
         :disabled="getEnumValue(conversation.item.data.status) !== 10"
         :sending="conversation.sending"
-        @jump-to-reference="(body) => jumpToMessage(body)"
+        @jump-to-reference="(body) => jumpToMessage(String(body.id))"
         @submit="onSendMessage"
       />
     </div>
