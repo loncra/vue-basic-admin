@@ -27,6 +27,7 @@ defineOptions({
 const props = withDefaults(defineProps<AttachmentPreviewProps>(),{
   mode: ATTACHMENT_PREVIEW_MODE.LIST,
   changeThumbUrl: true,
+  showFilename: true,
   preview:false,
 })
 
@@ -216,7 +217,7 @@ const classes = computed(() => ({
           <template #title>
             <a-flex justify="space-between" align="center" :gap="configProviderStore.getToken().sizeXS">
               <l-attachment-file-preview
-                :tooltip-filename="false"
+                :show-progress="false"
                 :item-class="classes?.item"
                 :item-style="props.styles?.item"
                 @preview="openPreview"
@@ -259,9 +260,30 @@ const classes = computed(() => ({
       :style="props.styles?.list"
       v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
     >
-      <a-card :classes="{body:'p-xs!'}" size="small" :key="file.uid" v-for="file in fileList" :type="getAlertType(file.status)">
+      <a-card
+        :classes="{
+          root:!props.preview ? [
+            file.status === undefined ? 'border-warning-border' : '',
+            file.status === 'uploading' ? 'border-info-border' : '',
+            file.status === 'done' ? 'border-success-border' : '',
+            file.status === 'error' ? 'border-error-border' : '',
+          ] : '',
+          body:props.preview ? 'p-xs' : [
+            'p-xs!',
+            file.status === undefined ? 'bg-warning-bg' : '',
+            file.status === 'uploading' ? 'bg-info-bg' : '',
+            file.status === 'done' ? 'bg-success-bg' : '',
+            file.status === 'error' ? 'bg-error-bg' : '',
+          ]
+        }"
+        size="small"
+        :key="file.uid"
+        v-for="file in fileList"
+        :type="getAlertType(file.status)"
+      >
         <l-attachment-file-preview
           :enabled-delete="!preview"
+          :border="!preview"
           :item-class="classes?.item"
           :item-style="props.styles?.item"
           @delete="(_file) => postRemove(_file)"
@@ -275,6 +297,11 @@ const classes = computed(() => ({
         <a-card-meta :class="classes?.meta" v-if="slots.itemTitle || slots.itemDescription">
           <template #title v-if="slots.itemTitle">
             <slot name="itemTitle" :file="file" />
+          </template>
+          <template #title v-else-if="showFilename">
+            <a-typography-text ellipsis>
+              {{file.name}}
+            </a-typography-text>
           </template>
           <template #description v-if="slots.itemDescription">
             <slot name="itemDescription" :file="file" />

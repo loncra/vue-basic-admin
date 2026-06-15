@@ -15,8 +15,9 @@ defineOptions({
 
 const props = withDefaults(defineProps<AttachmentPreviewFileProps>(),{
   enabledDelete: true,
+  border:false,
+  showProgress: true,
   enabledDownload: true,
-  tooltipFilename:true,
 })
 
 const slots = useSlots()
@@ -95,37 +96,48 @@ defineExpose({
 
   <div
     :class="[
-      'group relative shrink-0 overflow-hidden rounded border border-border-secondary',
+      'group relative shrink-0 overflow-hidden rounded border',
+      border ? [
+      file.status === undefined ? 'border-warning-border' : '',
+      file.status === 'uploading' ? 'border-info-border' : '',
+      file.status === 'done' ? 'border-success-border' : '',
+      file.status === 'error' ? 'border-error-border' : '',
+      ] : 'border-border-secondary',
       itemClass,
     ]"
     :style="itemStyle"
   >
 
     <slot name="itemRender" v-if="slots.itemRender" :file="file" />
-    <a-tooltip v-else :title="tooltipFilename ? file.name : null">
-      <l-basic-image
-        v-if="file.thumbUrl"
-        class="size-full object-cover"
-        :src="file.thumbUrl"
-        loading="lazy"
-      >
-        <template #cover>
-          <a-space >
-            <a-button size="small" @click.stop="onClickPreview" type="text" class="text-white! p-0">
-              <icon-font type="loncra-view" />
-            </a-button>
-            <a-button size="small" v-if="enabledDelete" @click.stop="onRemove" type="text" class="text-white! p-0" >
-              <icon-font type="loncra-archive-x" />
-            </a-button>
-            <a-button size="small" v-if="file.response" @click.stop="onDownload(file.response)" type="text" class="text-white! p-0" >
-              <icon-font type="loncra-download" />
-            </a-button>
-          </a-space>
-        </template>
-      </l-basic-image>
-      <div v-else class="flex items-center justify-center h-full w-full">
-        <icon-font class="text-2xl" :type="getFileIcon()" />
+    <l-basic-image
+      :preview="false"
+      v-if="file.thumbUrl"
+      class="size-full object-cover"
+      :src="file.thumbUrl"
+      loading="lazy"
+    >
+
+    </l-basic-image>
+    <div v-else class="flex items-center justify-center h-full w-full">
+      <icon-font class="text-2xl" :type="getFileIcon()" />
+    </div>
+    <div
+      :class="'absolute inset-0 flex items-center justify-center ' + (file.status === undefined || file.response ? ' transition-opacity bg-black/30 opacity-0 group-hover:opacity-100' : '')"
+    >
+      <a-space v-if="file.status === undefined || file.status !== 'uploading'">
+        <a-button size="small" @click.stop="onClickPreview" type="text" class="text-white! p-0">
+          <icon-font type="loncra-view" />
+        </a-button>
+        <a-button size="small" v-if="enabledDelete" @click.stop="onRemove" type="text" class="text-white! p-0" >
+          <icon-font type="loncra-archive-x" />
+        </a-button>
+        <a-button size="small" v-if="file.response" @click.stop="onDownload(file.response)" type="text" class="text-white! p-0" >
+          <icon-font type="loncra-download" />
+        </a-button>
+      </a-space>
+      <div class="p-xs w-full" v-else-if="!file.response && showProgress">
+        <a-progress :percent="file.percent" size="small" />
       </div>
-    </a-tooltip>
+    </div>
   </div>
 </template>

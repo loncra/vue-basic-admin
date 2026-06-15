@@ -3,7 +3,6 @@ import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {
-  BatchResponse,
   EnumBucketsResponseBody,
   NameValueEnumMetadata,
   ObjectWriteResult,
@@ -13,7 +12,6 @@ import {AuthServerService, ResourceServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {requireNonNullOrUndefined} from "@/utils";
-import {SiteMessageService} from "@/apis/message-server";
 import useApp from "antdv-next/dist/app/useApp";
 import type {SiteMessageSendPayload} from "@/types/apis/message-server/siteDomain.ts";
 import LTipTap from "@/components/tiptap/TipTap.vue";
@@ -33,7 +31,6 @@ const configProviderStore = useConfigProviderStore()
 const {message} = useApp()
 
 const formRef = ref()
-const service = new SiteMessageService()
 const coverUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
 const attachmentUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
 
@@ -67,7 +64,7 @@ async function doSubmit(){
   options.value.loading = true;
   try {
     await Promise.all([coverUploadRef.value?.upload(), attachmentUploadRef.value?.upload()])
-    const result = await service.send(options.value.form);
+    /*const result = await service.send(options.value.form);
     const data = result.data
     if (Array.isArray(data)) {
       globalProperties.$router.push({name:'message_server_site'})
@@ -75,7 +72,7 @@ async function doSubmit(){
       const response = data as BatchResponse;
       globalProperties.$router.push({name:'message_server_batch_detail', query:{id:response.batchId}})
     }
-    message.success(result.message)
+    message.success(result.message)*/
   } catch (error) {
     message.error(error instanceof Error ? error.message : String(error))
   } finally {

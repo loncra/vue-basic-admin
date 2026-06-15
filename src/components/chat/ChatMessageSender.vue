@@ -20,7 +20,7 @@ import {isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {TYPING_ANCHOR} from "@/constants/messageConstant.ts";
 import type {ObjectWriteResult, UserChatMessageResponseBody} from "@/types/apis";
-import LChatMessageReference from "@/components/chat/MessageReference.vue";
+import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import emojiGroups from 'unicode-emoji-json/data-by-group.json'
 
 defineOptions({

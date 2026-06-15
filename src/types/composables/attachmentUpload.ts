@@ -88,6 +88,7 @@ export interface AttachmentUploadProps extends BasicAttachmentProps, AttachmentU
   mode?:AttachmentUploadMode
   postFilename?:string
   autoUpload?:boolean
+  showFilename?:boolean
   action?:string
   promiseLimit?:number
   bucket?:string
@@ -98,6 +99,7 @@ export interface AttachmentUploadProps extends BasicAttachmentProps, AttachmentU
 export interface AttachmentPreviewProps extends AttachmentUploadDomProps {
   mode?: AttachmentPreviewMode
   changeThumbUrl?: boolean
+  showFilename?:boolean
   preview?:boolean
   height?:string
   width?:string,
@@ -105,9 +107,10 @@ export interface AttachmentPreviewProps extends AttachmentUploadDomProps {
 
 export interface AttachmentPreviewFileProps {
   file: UploadFile
-  tooltipFilename?:boolean,
+  border?:boolean
   enabledDelete?:boolean
   enabledDownload?:boolean
+  showProgress?:boolean
   itemClass?: string
   itemStyle?: CSSProperties
 }

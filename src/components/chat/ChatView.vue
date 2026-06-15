@@ -578,10 +578,11 @@ defineExpose({
       <slot name="bubbleListAfter"></slot>
       <!-- FIXME 如有新消息进来时，这里要提出有新消息，并点击该按钮跳转值最新消息 -->
       <a-button
-        shape="'circle'"
+        shape="circle"
+        size="small"
         v-if="showScrollToBottom"
         @click="bubbleListRef?.scrollTo({ top: 'bottom' });"
-        class="shadow-card absolute bottom-0 mb-sm left-1/2 -translate-x-1/2"
+        class="shadow-card absolute bottom-0 mb-sm left-1/2 -translate-x-1/2 animate-bounce"
       >
         <template #icon>
           <icon-font type="loncra-hard-drive-download"/>

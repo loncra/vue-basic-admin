@@ -367,7 +367,7 @@ async function onChatViewLoadPage(tag:'next' | 'previous') {
   )
   await nextTick()
   if (anchor) {
-    chatViewRef.value?.jumpToMessage(anchor.key, false)
+    chatViewRef.value?.jumpToMessage(anchor.key, false, "nearest")
   }
   if (conversationActive.value.dataSource.last && tag === 'next') {
     conversationActive.value.bubbleList.unshift({
@@ -480,10 +480,9 @@ async function toMessageAnchorPage(
         key = anchorBubble.key
       }
       if (systemMessage) {
-        key = globalProperties.$dayjs().unix()
         const anchorTime = anchorBubble?.data?.creationTime ?? 0
         const newBubble = {
-          key: key,
+          key: 'system-anchor-message-' + globalProperties.$dayjs().unix(),
           role: CHAT_BUBBLE_TYPE.SYSTEM,
           content: systemMessage,
           data: { creationTime: anchorTime - 1 } as UserChatMessageResponseBody,
@@ -555,10 +554,10 @@ onMounted(mounted)
                 <a-button
                   @click="toReadableAnchor()"
                   v-if="showReadableAnchorButton()"
-                  class="shadow-card absolute mt-sm left-1/2 -translate-x-1/2"
+                  class="shadow-card absolute mt-sm left-1/2 -translate-x-1/2 animate-bounce"
                 >
                   <template #icon>
-                    <icon-font type="loncra-map-pin-search"/>
+                    <icon-font type="loncra-hard-drive-upload"/>
                   </template>
                   <span>{{globalProperties.$t('chat.view.readable.jumpTo')}}</span>
                 </a-button>

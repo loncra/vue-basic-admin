@@ -12,6 +12,8 @@
   /* 退出要比进入更短，否则「缩完再等嵌回布局」体感拖沓 */
   --animate-layout-content-fullscreen-out: layout-content-fullscreen-out 0.18s cubic-bezier(0.4, 0, 0.6, 1) forwards;
 
+  --animate-bg-flash: bg-flash 0.5s ease-in-out 2;
+
   @keyframes fadeInFloat {
     0% {
       opacity: 0;
@@ -23,12 +25,13 @@
     }
   }
 
-  @keyframes background-flash {
-    0%, 100% {
-      background-color: transparent;
+  @keyframes bg-flash {
+    0%,
+    100% {
+      opacity: 1;
     }
-    40% {
-      background-color: var(--ant-color-primary-bg-hover);
+    50% {
+      opacity: 0;
     }
   }
 
@@ -69,8 +72,7 @@
 
 @layer components {
   .bg-flash {
-    animation: background-flash 1.1s ease-out 2;
-    border-radius: inherit;
+    @apply animate-bg-flash rounded-[inherit];
   }
   .ant-app {
     @apply bg-layout min-h-screen;
@@ -153,10 +155,6 @@
     @apply text-lg;
   }
 
-  /*.layout-header .ant-menu-horizontal .ant-badge.ant-menu-item-icon .icon {
-    @apply mt-[1.6rem];
-  }*/
-
   .layout-header .ant-menu-item:hover::after,
   .layout-header .ant-menu-submenu:hover::after,
   .layout-header .ant-menu-item-active::after,
@@ -171,12 +169,6 @@
   /* ========== 内容操作区域 ========== */
   .layout-content-operation {
     @apply sticky top-0 z-(--ant-z-index-popup-base) mb-md min-w-0 max-w-full pl-md pr-md;
-  }
-
-  .layout-content-operation::after {
-    @apply absolute inset-x-0 top-0 z-[-1] h-full bg-repeat content-[''] backdrop-blur-[10px];
-    mask-image: linear-gradient(black, black 85%, transparent 100%);
-    -webkit-mask-image: linear-gradient(black, black 85%, transparent 100%);
   }
 
   .layout-content-operation > .tool-bar {

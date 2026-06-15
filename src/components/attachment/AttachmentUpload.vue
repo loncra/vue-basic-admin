@@ -180,66 +180,64 @@ defineExpose({
 </script>
 
 <template>
-  <div>
 
-    <a-spin :description="spin.description" :spinning="spin.spinning" v-if="props.mode !== ATTACHMENT_UPLOAD_MODE.CUSTOMIZE" >
-      <l-attachment-dragger-upload
-        v-model:file-list="fileList"
-        :preview="props.preview"
-        v-bind="$attrs"
-        :classes="mergedClasses"
-        :styles="mergedStyles"
-        :max-count="props.maxCount"
-        :multiple="props.multiple"
-        :accept="props.accept"
-        :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.LIST"
-        v-if="props.mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
-      >
-        <template #itemRender="{file}" v-if="slots.itemRender">
-          <slot name="itemRender" :file="file" />
-        </template>
-        <template #itemTitle="{file}" v-if="slots.itemTitle" >
-          <slot name="itemTitle" :file="file" />
-        </template>
-        <template #itemDescription="{file}" v-if="slots.itemDescription">
-          <slot name="itemDescription" :file="file" />
-        </template>
-      </l-attachment-dragger-upload>
-      <l-attachment-picture-card-upload
-        v-model:file-list="fileList"
-        :preview="props.preview"
-        v-bind="$attrs"
-        :max-count="props.maxCount"
-        :multiple="props.multiple"
-        :accept="props.accept"
-        :classes="mergedClasses"
-        :styles="mergedStyles"
-        :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
-        v-else-if="props.mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
-      >
-        <template #uploadDescription v-if="slots.uploadDescription">
-          <slot name="uploadDescription" />
-        </template>
-        <template #itemRender="{file}" v-if="slots.itemRender">
-          <slot name="itemRender" :file="file" />
-        </template>
-        <template #itemTitle="{file}" v-if="slots.itemTitle" >
-          <slot name="itemTitle" :file="file" />
-        </template>
-        <template #itemDescription="{file}" v-if="slots.itemDescription">
-          <slot name="itemDescription" :file="file" />
-        </template>
-      </l-attachment-picture-card-upload>
-    </a-spin>
-    <a-upload
-      v-else
-      v-bind="$attrs"
-      :accept="props.accept"
-      :action="props.action"
-      :max-count="props.maxCount"
-      :multiple="props.multiple"
-    >
-      <slot/>
-    </a-upload>
-  </div>
+  <l-attachment-dragger-upload
+    v-model:file-list="fileList"
+    :preview="props.preview"
+    v-bind="$attrs"
+    :classes="mergedClasses"
+    :styles="mergedStyles"
+    :max-count="props.maxCount"
+    :multiple="props.multiple"
+    :accept="props.accept"
+    :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.LIST"
+    v-if="props.mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
+  >
+    <template #itemRender="{file}" v-if="slots.itemRender">
+      <slot name="itemRender" :file="file" />
+    </template>
+    <template #itemTitle="{file}" v-if="slots.itemTitle" >
+      <slot name="itemTitle" :file="file" />
+    </template>
+    <template #itemDescription="{file}" v-if="slots.itemDescription">
+      <slot name="itemDescription" :file="file" />
+    </template>
+  </l-attachment-dragger-upload>
+
+  <l-attachment-picture-card-upload
+    v-model:file-list="fileList"
+    :preview="props.preview"
+    v-bind="$attrs"
+    :max-count="props.maxCount"
+    :multiple="props.multiple"
+    :accept="props.accept"
+    :classes="mergedClasses"
+    :styles="mergedStyles"
+    :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
+    v-else-if="props.mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
+  >
+    <template #uploadDescription v-if="slots.uploadDescription">
+      <slot name="uploadDescription" />
+    </template>
+    <template #itemRender="{file}" v-if="slots.itemRender">
+      <slot name="itemRender" :file="file" />
+    </template>
+    <template #itemTitle="{file}" v-if="slots.itemTitle" >
+      <slot name="itemTitle" :file="file" />
+    </template>
+    <template #itemDescription="{file}" v-if="slots.itemDescription">
+      <slot name="itemDescription" :file="file" />
+    </template>
+  </l-attachment-picture-card-upload>
+
+  <a-upload
+    v-else
+    v-bind="$attrs"
+    :accept="props.accept"
+    :action="props.action"
+    :max-count="props.maxCount"
+    :multiple="props.multiple"
+  >
+    <slot/>
+  </a-upload>
 </template>
