@@ -110,7 +110,6 @@ export interface AttachmentPreviewFileProps {
   border?:boolean
   enabledDelete?:boolean
   enabledDownload?:boolean
-  showProgress?:boolean
   itemClass?: string
   itemStyle?: CSSProperties
 }

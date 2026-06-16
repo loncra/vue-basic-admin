@@ -123,7 +123,6 @@ onMounted(mounted);
             <l-tip-tap
               v-model:value="options.form.content"
               model="html"
-              :placeholder="globalProperties.$()"
               class="min-h-100 max-h-120"
               :toolbar="{ items: ['undo', 'redo', 'divider', 'bold', 'italic', 'underline', 'blockquote', 'heading', 'divider', 'list', 'align', 'divider', 'link', 'picture'] }"
             />

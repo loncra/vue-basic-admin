@@ -44,7 +44,6 @@ async function singleUpload(
         return
       }
       file.percent = Math.floor((event.loaded * 100) / file.size)
-      file.status = file.percent >= 100 ? 'done' : 'uploading'
     },
     headers: {'Content-Type': 'multipart/form-data', ...options.headers},
   }
@@ -54,6 +53,7 @@ async function singleUpload(
   appendFormParams(formData, options)
 
   try {
+    file.status = 'uploading'
     const result = await AttachmentService.singleUpload(bucket, formData, config)
     file.status = 'done'
     return extractObjectWriteResult(result)
@@ -92,7 +92,7 @@ async function createMultipartUploadSuccess(
         file.percent = Math.floor(
           (chunks.reduce((sum, item) => sum + item.uploadSize, 0) * 100) / file.size,
         )
-        file.status = file.percent >= 100 ? 'done' : 'uploading'
+        //file.status = file.percent >= 100 ? 'done' : 'uploading'
       },
     }
 
@@ -138,6 +138,7 @@ async function multipartUpload(
   }
 
   try {
+    file.status = 'uploading'
     const initResult = await AttachmentService.createMultipartUpload(bucket, formUrlEncoded(param))
     return await createMultipartUploadSuccess(initResult, file, options)
   } catch (reason) {
@@ -146,7 +147,6 @@ async function multipartUpload(
 }
 
 export async function uploadFile(
-  service: AttachmentService,
   file: UploadFile,
   bucket: string,
   options: AttachmentUploadExecutorOptions,

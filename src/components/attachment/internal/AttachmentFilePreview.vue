@@ -16,7 +16,6 @@ defineOptions({
 const props = withDefaults(defineProps<AttachmentPreviewFileProps>(),{
   enabledDelete: true,
   border:false,
-  showProgress: true,
   enabledDownload: true,
 })
 
@@ -94,9 +93,9 @@ defineExpose({
 
 <template>
 
-  <div
+  <span
     :class="[
-      'group relative shrink-0 overflow-hidden rounded border',
+      'group relative inline-block shrink-0 overflow-hidden rounded-sm border align-middle',
       border ? [
       file.status === undefined ? 'border-warning-border' : '',
       file.status === 'uploading' ? 'border-info-border' : '',
@@ -118,26 +117,43 @@ defineExpose({
     >
 
     </l-basic-image>
-    <div v-else class="flex items-center justify-center h-full w-full">
+    <span v-else class="inline-flex size-full items-center justify-center">
       <icon-font class="text-2xl" :type="getFileIcon()" />
-    </div>
-    <div
-      :class="'absolute inset-0 flex items-center justify-center ' + (file.status === undefined || file.response ? ' transition-opacity bg-black/30 opacity-0 group-hover:opacity-100' : '')"
+    </span>
+    <span
+      :class="'absolute gap-2 inset-0 flex items-center justify-center bg-black/30 ' + (file.status !== 'uploading' ? ' transition-opacity opacity-0 group-hover:opacity-100' : '')"
     >
-      <a-space v-if="file.status === undefined || file.status !== 'uploading'">
-        <a-button size="small" @click.stop="onClickPreview" type="text" class="text-white! p-0">
-          <icon-font type="loncra-view" />
-        </a-button>
-        <a-button size="small" v-if="enabledDelete" @click.stop="onRemove" type="text" class="text-white! p-0" >
-          <icon-font type="loncra-archive-x" />
-        </a-button>
-        <a-button size="small" v-if="file.response" @click.stop="onDownload(file.response)" type="text" class="text-white! p-0" >
-          <icon-font type="loncra-download" />
-        </a-button>
-      </a-space>
-      <div class="p-xs w-full" v-else-if="!file.response && showProgress">
-        <a-progress :percent="file.percent" size="small" />
-      </div>
-    </div>
-  </div>
+      <span
+        role="button"
+        tabindex="-1"
+        v-if="file.status !== 'uploading'"
+        class="cursor-pointer p-0.5 text-white"
+        @click.stop="onClickPreview"
+      >
+        <icon-font type="loncra-view" />
+      </span>
+      <span
+        v-if="enabledDelete && file.status !== 'uploading'"
+        role="button"
+        tabindex="-1"
+        class="cursor-pointer p-0.5 text-white"
+        @click.stop="onRemove"
+      >
+        <icon-font type="loncra-archive-x" />
+      </span>
+      <span
+        v-if="file.response && file.status !== 'uploading'"
+        role="button"
+        tabindex="-1"
+        class="cursor-pointer p-0.5 text-white"
+        @click.stop="onDownload(file.response)"
+      >
+        <icon-font type="loncra-download" />
+      </span>
+      <span class="flex flex-col gap-2 items-center justify-center opacity-75" v-else-if="!file.response && file.status === 'uploading'">
+        <icon-font class="text-lg text-white" type="loncra-loader-pinwheel" spin/>
+        <span class="text-xs text-white">{{globalProperties.$t('attachment.uploading',{percent:' ' + file.percent + '%'})}}</span>
+      </span>
+    </span>
+  </span>
 </template>

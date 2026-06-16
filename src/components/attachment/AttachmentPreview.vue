@@ -164,7 +164,139 @@ const classes = computed(() => ({
 </script>
 
 <template>
-  <div :class="props.classes?.container" :style="props.styles?.container">
+  <span :class="props.classes?.container" :style="props.styles?.container">
+    <a-flex
+      vertical
+      :class="['w-full', classes?.list]"
+      gap="middle"
+      :style="props.styles?.list"
+      v-if="props.mode === ATTACHMENT_PREVIEW_MODE.LIST"
+    >
+      <slot name="listBefore" />
+      <template :key="file.uid" v-for="file in fileList">
+        <a-alert v-if="!slots.itemRender" :type="getAlertType(file.status)">
+          <template #title>
+            <a-flex justify="space-between" align="center" :gap="configProviderStore.getToken().sizeXS">
+              <l-attachment-file-preview
+                :show-progress="false"
+                :item-class="classes?.item"
+                :item-style="props.styles?.item"
+                @preview="openPreview"
+                :file="file"
+                :enabled-download="false"
+                :enabled-delete="false"
+              />
+              <a-flex vertical flex="1" class="min-w-0">
+                <a-flex flex="1" class="min-w-0">
+                  <a-flex vertical flex="1" class="min-w-0">
+                    <a-typography-text ellipsis class="min-w-0">
+                      {{ file.name }}
+                    </a-typography-text>
+                    <a-typography-text type="secondary" class="hidden md:inline shrink-0 ml-1">
+                      ({{ byteFormat(file.size || 0) }})
+                    </a-typography-text>
+                  </a-flex>
+
+                  <a-flex gap="small">
+                    <a-button danger v-if="!preview" @click="onRemove(file)" type="text" :disabled="file.status === 'uploading'">
+                      <icon-font type="loncra-archive-x" />
+                    </a-button>
+                    <a-button @click="onDownload(file.response as ObjectWriteResult)" type="text" v-if="file.response">
+                      <icon-font type="loncra-download" />
+                    </a-button>
+                  </a-flex>
+                </a-flex>
+
+                <a-progress v-if="!file.response" :percent="file.percent" size="small" />
+              </a-flex>
+            </a-flex>
+          </template>
+        </a-alert>
+        <slot v-else name="itemRender" :file="file" />
+      </template>
+    </a-flex>
+    <span
+      gap="small"
+      :class="['flex flex-row gap-2', classes?.list]"
+      :style="props.styles?.list"
+      v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
+    >
+      <span
+        :key="file.uid"
+        v-for="file in fileList"
+        :class="[
+          'flex flex-inline flex-col p-xs border rounded-lg',
+          preview ? 'border-border-secondary bg-container' : [
+            file.status === undefined ? 'border-warning-border bg-warning-bg' : '',
+            file.status === 'uploading' ? 'border-info-border bg-info-bg' : '',
+            file.status === 'done' ? 'border-success-border bg-success-bg' : '',
+            file.status === 'error' ? 'border-error-border bg-error-bg' : '',
+          ]
+        ]">
+        <l-attachment-file-preview
+          :enabled-delete="!preview"
+          :border="!preview"
+          :item-class="classes?.item"
+          :item-style="props.styles?.item"
+          @delete="(_file) => postRemove(_file)"
+          @preview="openPreview"
+          :file="file"
+        >
+          <template #itemRender="{file}" v-if="slots.itemRender">
+            <slot name="itemRender" :file="file" />
+          </template>
+        </l-attachment-file-preview>
+        <span :class="['flex flex-col gap-1',classes?.meta]" v-if="slots.itemTitle || slots.itemDescription">
+          <a-typography-text strong v-if="slots.itemTitle" >
+            <slot name="itemTitle" :file="file" />
+          </a-typography-text>
+          <a-typography-text v-else-if="showFilename" ellipsis>
+            {{file.name}}
+          </a-typography-text>
+          <a-typography-text v-if="slots.itemDescription">
+            <slot name="itemDescription" :file="file" />
+          </a-typography-text>
+        </span>
+      </span>
+      <slot name="pictureCardAfter" />
+    </span>
+<!--    <a-flex
+      wrap
+      gap="small"
+      :class="classes?.list"
+      :style="props.styles?.list"
+      v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
+    >
+      <a-flex
+        :class="[
+          'p-sm border rounded-lg',
+          file.status === undefined ? 'border-warning-border bg-warning-bg' : '',
+          file.status === 'uploading' ? 'border-info-border bg-info-bg' : '',
+          file.status === 'done' ? 'border-success-border bg-success-bg' : '',
+          file.status === 'error' ? 'border-error-border bg-error-bg' : '',
+        ]"
+        :key="file.uid"
+        v-for="file in fileList"
+      >
+        <l-attachment-file-preview
+          :enabled-delete="!preview"
+          :border="!preview"
+          :item-class="classes?.item"
+          :item-style="props.styles?.item"
+          @delete="(_file) => postRemove(_file)"
+          @preview="openPreview"
+          :file="file"
+        >
+          <template #itemRender="{file}" v-if="slots.itemRender">
+            <slot name="itemRender" :file="file" />
+          </template>
+        </l-attachment-file-preview>
+      </a-flex>
+      <slot name="pictureCardAfter" />
+    </a-flex>-->
+  </span>
+
+  <teleport to="body">
     <div class="hidden">
       <a-image-preview-group
         :preview="{
@@ -203,112 +335,5 @@ const classes = computed(() => ({
         您的浏览器不支持视频播放。
       </video>
     </a-modal>
-
-    <a-space
-      direction="vertical"
-      :class="['w-full', classes?.list]"
-      size="middle"
-      :style="props.styles?.list"
-      v-if="props.mode === ATTACHMENT_PREVIEW_MODE.LIST"
-    >
-      <slot name="listBefore" />
-      <template :key="file.uid" v-for="file in fileList">
-        <a-alert v-if="!slots.itemRender" :type="getAlertType(file.status)">
-          <template #title>
-            <a-flex justify="space-between" align="center" :gap="configProviderStore.getToken().sizeXS">
-              <l-attachment-file-preview
-                :show-progress="false"
-                :item-class="classes?.item"
-                :item-style="props.styles?.item"
-                @preview="openPreview"
-                :file="file"
-                :enabled-download="false"
-                :enabled-delete="false"
-              />
-              <a-flex vertical flex="1" class="min-w-0">
-                <a-flex flex="1" class="min-w-0">
-                  <a-flex vertical flex="1" class="min-w-0">
-                    <a-typography-text ellipsis class="min-w-0">
-                      {{ file.name }}
-                    </a-typography-text>
-                    <a-typography-text type="secondary" class="hidden md:inline shrink-0 ml-1">
-                      ({{ byteFormat(file.size || 0) }})
-                    </a-typography-text>
-                  </a-flex>
-
-                  <a-space>
-                    <a-button danger v-if="!preview" @click="onRemove(file)" type="text" :disabled="file.status === 'uploading'">
-                      <icon-font type="loncra-archive-x" />
-                    </a-button>
-                    <a-button @click="onDownload(file.response as ObjectWriteResult)" type="text" v-if="file.response">
-                      <icon-font type="loncra-download" />
-                    </a-button>
-                  </a-space>
-                </a-flex>
-
-                <a-progress v-if="!file.response" :percent="file.percent" size="small" />
-              </a-flex>
-            </a-flex>
-          </template>
-        </a-alert>
-        <slot v-else name="itemRender" :file="file" />
-      </template>
-    </a-space>
-    <a-space
-      wrap
-      :class="classes?.list"
-      :style="props.styles?.list"
-      v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
-    >
-      <a-card
-        :classes="{
-          root:!props.preview ? [
-            file.status === undefined ? 'border-warning-border' : '',
-            file.status === 'uploading' ? 'border-info-border' : '',
-            file.status === 'done' ? 'border-success-border' : '',
-            file.status === 'error' ? 'border-error-border' : '',
-          ] : '',
-          body:props.preview ? 'p-xs' : [
-            'p-xs!',
-            file.status === undefined ? 'bg-warning-bg' : '',
-            file.status === 'uploading' ? 'bg-info-bg' : '',
-            file.status === 'done' ? 'bg-success-bg' : '',
-            file.status === 'error' ? 'bg-error-bg' : '',
-          ]
-        }"
-        size="small"
-        :key="file.uid"
-        v-for="file in fileList"
-        :type="getAlertType(file.status)"
-      >
-        <l-attachment-file-preview
-          :enabled-delete="!preview"
-          :border="!preview"
-          :item-class="classes?.item"
-          :item-style="props.styles?.item"
-          @delete="(_file) => postRemove(_file)"
-          @preview="openPreview"
-          :file="file"
-        >
-          <template #itemRender="{file}" v-if="slots.itemRender">
-            <slot name="itemRender" :file="file" />
-          </template>
-        </l-attachment-file-preview>
-        <a-card-meta :class="classes?.meta" v-if="slots.itemTitle || slots.itemDescription">
-          <template #title v-if="slots.itemTitle">
-            <slot name="itemTitle" :file="file" />
-          </template>
-          <template #title v-else-if="showFilename">
-            <a-typography-text ellipsis>
-              {{file.name}}
-            </a-typography-text>
-          </template>
-          <template #description v-if="slots.itemDescription">
-            <slot name="itemDescription" :file="file" />
-          </template>
-        </a-card-meta>
-      </a-card>
-      <slot name="pictureCardAfter" />
-    </a-space>
-  </div>
+  </teleport>
 </template>

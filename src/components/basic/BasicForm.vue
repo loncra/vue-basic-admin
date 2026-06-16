@@ -134,7 +134,7 @@ function createdAfterSetting(result:RestResult<TId>) {
             checked:rememberMe.value,
             'onUpdate:checked': (v: boolean) => rememberMe.value = v,
             class: 'mr',
-          }, { default: () => globalProperties.$("commons.rememberOperate") }),
+          }, { default: () => globalProperties.$t("common.rememberOperate") }),
           h(extra.OkBtn),
           h(extra.CancelBtn)
         ]

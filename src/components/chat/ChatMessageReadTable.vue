@@ -104,7 +104,7 @@ function onChatMessageReadReceived(result: RestResult<IdValueMetadata<number, nu
     }
     find.readable = {
       value:0,
-      name:globalProperties.$t("commons.read.unreadable")
+      name:globalProperties.$t("common.read.unreadable")
     }
     find.readTime = s.value
   }

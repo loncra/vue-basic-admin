@@ -293,7 +293,7 @@ const locale: LanguagePack = {
   },
   attachment: {
     text: 'Attachment',
-    uploading: 'Uploading…',
+    uploading: 'Uploading{percent}',
     dragger: {
       title: 'Click or drag files to this area to upload',
       subTitle: 'Up to {maxCount} file(s); {count} uploaded',

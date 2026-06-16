@@ -1,17 +1,6 @@
 <script setup lang="ts">
 
-import {requireNonNullOrUndefined} from "@/utils";
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  nextTick,
-  onMounted,
-  ref,
-  toRef,
-  useSlots,
-  watch
-} from "vue";
+import {computed, nextTick, onMounted, ref, toRef, useSlots, watch} from "vue";
 import {useMergeSemantic, useToArr, useToProps} from 'antdv-next/dist/_util/hooks/useMergeSemantic'
 import {useFormItemContext} from "antdv-next/dist/form/context";
 import type {ObjectWriteResult} from "@/types/apis";
@@ -54,17 +43,7 @@ const props = withDefaults(defineProps<AttachmentUploadProps>(),{
   maxCount:20
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const attachmentService = new AttachmentService()
 const uploadOptionsRef = ref<Record<string, unknown>>({})
-
-const spin = defineModel<{
-  description:string | undefined,
-  spinning:boolean
-}>('spin', {default:() => ({spinning:false})});
 
 const value = defineModel<AttachmentValue>('value');
 const fileList = ref<AttachmentFileItem[]>([])
@@ -124,40 +103,30 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
     return resolveUploadResult(existing)
   }
 
-  spin.value = {
-    ...spin.value,
-    spinning: true,
-    description: globalProperties.$t('attachment.uploading'),
-  }
+  const options = buildExecutorOptions()
+  await Promise.all(
+    pending.map(async (file) => file.response = await uploadAttachmentFile(file, props.bucket, options)),
+  )
 
-  try {
-    const options = buildExecutorOptions()
-    await Promise.all(
-      pending.map(async (file) => file.response = await uploadAttachmentFile(attachmentService, file, props.bucket, options)),
-    )
+  const results = list
+    .map((item) => {
+      if (isObjectWriteResult(item)) {
+        return item
+      }
+      if (isUploadFile(item) && item.response) {
+        return item.response
+      }
+      return null
+    })
+    .filter((item): item is ObjectWriteResult => item !== null)
 
-    const results = list
-      .map((item) => {
-        if (isObjectWriteResult(item)) {
-          return item
-        }
-        if (isUploadFile(item) && item.response) {
-          return item.response
-        }
-        return null
-      })
-      .filter((item): item is ObjectWriteResult => item !== null)
+  syncing.value = true
+  fileList.value = results
+  value.value = denormalizeAttachmentFromList(results, value.value ?? undefined, props.maxCount)
+  await nextTick()
+  syncing.value = false
 
-    syncing.value = true
-    fileList.value = results
-    value.value = denormalizeAttachmentFromList(results, value.value ?? undefined, props.maxCount)
-    await nextTick()
-    syncing.value = false
-
-    return resolveUploadResult(results)
-  } finally {
-    spin.value = {...spin.value, spinning: false}
-  }
+  return resolveUploadResult(results)
 }
 
 
@@ -170,7 +139,6 @@ onMounted(mounted)
 defineExpose({
   upload,
   uploadFile: (file: UploadFile) => uploadAttachmentFile(
-    attachmentService,
     file,
     props.bucket,
     buildExecutorOptions(),
