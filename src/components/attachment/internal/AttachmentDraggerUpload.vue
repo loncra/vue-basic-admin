@@ -18,6 +18,7 @@ defineOptions({
 const props = withDefaults(defineProps<AttachmentDraggerUploadProps>(), {
   mode: ATTACHMENT_PREVIEW_MODE.LIST,
   preview:false,
+  disabled:false,
   changeThumbUrl: true
 })
 
@@ -64,7 +65,7 @@ const uploadStyles = computed(() => ({
         :max-count="props.maxCount"
         :multiple="props.multiple"
         :accept="props.accept"
-        v-if="!preview"
+        v-if="!preview && !props.disabled"
         v-model:file-list="uploadFiles"
         :before-upload="() => false"
         :show-upload-list="false"

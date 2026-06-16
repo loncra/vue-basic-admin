@@ -217,7 +217,7 @@ const classes = computed(() => ({
     </a-flex>
     <span
       gap="small"
-      :class="['flex flex-row gap-2', classes?.list]"
+      :class="['flex flex-row gap-2 flex-wrap', classes?.list]"
       :style="props.styles?.list"
       v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
     >

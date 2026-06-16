@@ -32,6 +32,7 @@ export interface BasicAttachmentProps {
   multiple?: boolean
   preview?:boolean
   accept?:string
+  disabled?:boolean
   maxCount?:number
 }
 

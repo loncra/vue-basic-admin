@@ -15,7 +15,6 @@ import type {
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import LAttachmentPictureCardUpload
   from "@/components/attachment/internal/AttachmentPictureCardUpload.vue";
-import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
 import {
   uploadFile as uploadAttachmentFile
 } from "@/composables/attachment/useAttachmentUploadExecutor.js";
@@ -38,6 +37,7 @@ const props = withDefaults(defineProps<AttachmentUploadProps>(),{
   mode:ATTACHMENT_UPLOAD_MODE.PICTURE_CARD,
   promiseLimit:3,
   bucket:'user.file',
+  disabled:false,
   preview: false,
   multiple:true,
   maxCount:20
@@ -158,6 +158,7 @@ defineExpose({
     :max-count="props.maxCount"
     :multiple="props.multiple"
     :accept="props.accept"
+    :disabled="props.disabled"
     :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.LIST"
     v-if="props.mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
   >
@@ -176,6 +177,7 @@ defineExpose({
     v-model:file-list="fileList"
     :preview="props.preview"
     v-bind="$attrs"
+    :disabled="props.disabled"
     :max-count="props.maxCount"
     :multiple="props.multiple"
     :accept="props.accept"
@@ -200,6 +202,7 @@ defineExpose({
 
   <a-upload
     v-else
+    :disabled="props.disabled"
     v-bind="$attrs"
     :accept="props.accept"
     :action="props.action"

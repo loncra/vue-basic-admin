@@ -1,5 +1,5 @@
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
-export const TYPING_ANCHOR = '\u200B'
+
 /**
  * 消息分组
  */
