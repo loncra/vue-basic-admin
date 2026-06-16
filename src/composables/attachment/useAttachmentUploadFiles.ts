@@ -1,4 +1,3 @@
-import {AttachmentService} from '@/apis'
 import {convertUploadFiles, displayUploadFileToListItem} from '@/utils'
 import type {AttachmentFileItem,} from '@/types/composables/attachmentUpload.ts'
 import {nextTick, ref, type Ref, watch} from 'vue'
@@ -11,7 +10,6 @@ import type {ObjectWriteResult} from "@/types/apis";
  */
 export function useAttachmentUploadFiles(
   fileList: Ref<AttachmentFileItem[] | undefined>,
-  service = new AttachmentService(),
 ) {
   const uploadFiles = ref<UploadFile<ObjectWriteResult>[]>([])
   let syncingFromChild = false
