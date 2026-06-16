@@ -54,6 +54,7 @@ async function singleUpload(
 
   try {
     file.status = 'uploading'
+    file.percent = 0
     const result = await AttachmentService.singleUpload(bucket, formData, config)
     file.status = 'done'
     return extractObjectWriteResult(result)
@@ -139,6 +140,7 @@ async function multipartUpload(
 
   try {
     file.status = 'uploading'
+    file.percent = 0
     const initResult = await AttachmentService.createMultipartUpload(bucket, formUrlEncoded(param))
     return await createMultipartUploadSuccess(initResult, file, options)
   } catch (reason) {

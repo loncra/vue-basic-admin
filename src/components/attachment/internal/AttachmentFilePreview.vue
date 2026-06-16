@@ -151,8 +151,8 @@ defineExpose({
         <icon-font type="loncra-download" />
       </span>
       <span class="flex flex-col gap-2 items-center justify-center opacity-75" v-else-if="!file.response && file.status === 'uploading'">
-        <icon-font class="text-lg text-white" type="loncra-loader-pinwheel" spin/>
-        <span class="text-xs text-white">{{globalProperties.$t('attachment.uploading',{percent:' ' + file.percent + '%'})}}</span>
+        <icon-font class="text-lg! text-white!" type="loncra-loader-pinwheel" spin/>
+        <span class="text-xs! text-white!">{{file.percent + '%'}}</span>
       </span>
     </span>
   </span>

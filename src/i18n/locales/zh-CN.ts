@@ -288,7 +288,7 @@ const locale: LanguagePack = {
   },
   attachment: {
     text:'附件',
-    uploading: '文件上传中{percent}',
+    uploading: '上传中{percent}',
     dragger:{
       title:'点击或拖动文件至该区域进行上传',
       subTitle:'可上传 {maxCount} 个文件内容，当前已上传 {count}'
