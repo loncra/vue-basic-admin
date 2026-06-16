@@ -158,16 +158,6 @@ function providerTheme() {
   return {algorithm, token: configProviderStore.state.token}
 }
 
-function getEditableRoot(sender: SenderRef): HTMLElement | null {
-  const root = sender.nativeElement
-  if (root.isContentEditable) {
-    return root
-  }
-  return (
-    root.querySelector<HTMLElement>('[contenteditable="true"]')
-  )
-}
-
 function onPasteFiles(fileList: FileList) {
   const sender = senderRef.value
   if (!sender) {
@@ -181,18 +171,6 @@ function onPasteFiles(fileList: FileList) {
   const slot = createFilesSlot(files.map(toUploadFile))
 
   sender.insert([slot], 'cursor')
-}
-
-function focusAndScrollToEnd(sender: SenderRef) {
-  sender.focus({cursor: 'end'})
-  nextTick(() => {
-    const el = getEditableRoot(sender)
-    if (!el) {
-      return
-    }
-    el.scrollTop = el.scrollHeight
-    requestAnimationFrame(() => el.scrollTop = el.scrollHeight)
-  })
 }
 
 async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
@@ -244,7 +222,7 @@ function clear() {
     return
   }
   sender.clear()
-  focusAndScrollToEnd(sender)
+  sender.focus({cursor: 'end'})
 }
 
 defineExpose({
