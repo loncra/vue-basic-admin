@@ -337,10 +337,15 @@ const locale: LanguagePack = {
     log: 'Sign-in log',
     phoneLogin: 'Sign in with phone',
     qrCodeLogin: 'QR code sign-in',
+    accountLogin: 'Sign in with account',
     noAccount: "Don't have an account?",
     createAccount: 'Create account',
     reLogin: 'Sign in again',
     page: 'Sign in',
+  },
+  captcha:{
+    text:'captcha',
+    sendTo:'send to {target}',
   },
   workbench: {
     personalActivity: 'Personal activity',

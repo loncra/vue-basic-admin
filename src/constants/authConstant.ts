@@ -38,7 +38,7 @@ export const LOGIN_TYPE = {
   /** 用户名密码登录 */
   USERNAME_PASSWORD: 'USERNAME_PASSWORD',
   /** 手机号登录 */
-  PHONE_NUMBER: 'PHONE_NUMBER',
+  PHONE_CAPTCHA: 'PHONE_CAPTCHA',
   /** 二维码登录 */
   QR_CODE: 'QR_CODE',
 } as const

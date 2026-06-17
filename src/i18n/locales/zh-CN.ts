@@ -55,6 +55,7 @@ const locale: LanguagePack = {
     send: '发送{name}',
     name:'名称',
     enabled: '启用',
+
     verified: '是否认证{name}',
     disabled: '禁用',
     type:'类型',
@@ -113,6 +114,10 @@ const locale: LanguagePack = {
       confirmSingle:'确定要撤销该记录吗？',
       confirmBatch:'确定要撤销 {count} 条记录吗？',
     },
+  },
+  captcha:{
+    text:'验证码',
+    sendTo:'已经发送至 {target}',
   },
   operation:{
     time:'操作时间',
@@ -331,6 +336,7 @@ const locale: LanguagePack = {
     log:'登录日志',
     phoneLogin: '手机号码登录',
     qrCodeLogin: '扫码登录',
+    accountLogin: '账户密码',
     noAccount: '没有账户？',
     createAccount: '创建账户',
     reLogin:'重新登录',

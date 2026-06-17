@@ -1,4 +1,10 @@
-import type {BasicIdMetadata, IdValueMetadata, NameValueEnumMetadata} from "@/types/apis/common";
+import type {
+  BasicIdMetadata,
+  IdValueMetadata,
+  NameValueEnumMetadata,
+  TimeProperties
+} from "@/types/apis/common";
+import {CAPTCHA_TOKEN_TYPE} from "@/constants/messageConstant.ts";
 
 export type EnumBucketsResponseBody = Record<string, Record<string, NameValueEnumMetadata<number | string>[]>>
 
@@ -166,5 +172,59 @@ export interface ObjectItemInfo extends BasicIdMetadata<string> {
    * @return true 表示是目录，否则 false
    */
   dir: string
+
   [key:string]: unknown
 }
+
+/**
+ * 验证码拦截 token
+ */
+export interface CaptchaInterceptToken {
+  /**
+     * 验证码类型
+     */
+  type: string;
+
+  /**
+   * 构造参数
+   */
+  args: Record<string, unknown>;
+  /**
+     * 唯一识别
+     */
+  id: string;
+
+  /**
+   * 创建时间
+   */
+  creationTime: number;
+
+  /**
+   * 绑定 token 值
+   */
+  token: {
+    name:string
+    expiresTime: TimeProperties
+  };
+
+  /**
+   * 对应的 token 参数名称
+   */
+  tokenParamName: string;
+}
+
+export interface CaptchaToken extends CaptchaInterceptToken {
+  /**
+   * 拦截 token
+   */
+  interceptToken:CaptchaInterceptToken;
+}
+
+export interface SmsCaptchaGenerationResult {
+  codeLength:number
+  expired:TimeProperties
+}
+
+export type CaptchaTokenType = | typeof CAPTCHA_TOKEN_TYPE.SMS
+  | typeof CAPTCHA_TOKEN_TYPE.EMAIL
+  | typeof CAPTCHA_TOKEN_TYPE.TIANAI

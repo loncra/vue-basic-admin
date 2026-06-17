@@ -104,14 +104,7 @@ const emit = defineEmits<{
 const bubbleListItems = computed(() =>
   buildBubbleListWithDividers(conversation.value.bubbleList ?? []),
 )
-/*const newMessageCount = computed(() => {
-  const record = messageServerStore.state?.record?.[MESSAGE_GROUP.USER_CHAT]
-  if (!record) {
-    return 0
-  }
-  const number = record[Number(conversation.value?.item?.key)]
-  return Number(number)
-})*/
+
 // 节流后的处理函数，props.throttleCollectVisibleUnreadWait 内最多触发一次
 const handleThrottleBubbleScroll = throttle(throttleBubbleScroll, props.throttleOnScrollWait, { leading: true, trailing: false });
 // 节流后的处理函数，props.throttleCollectVisibleUnreadWait 内最多触发一次

@@ -43,3 +43,9 @@ export const CHAT_BUBBLE_TYPE = {
   USER:'user',
   DIVIDER:"divider"
 }
+
+export const CAPTCHA_TOKEN_TYPE = {
+  SMS:'sms',
+  EMAIL:'email',
+  TIANAI:'tianai'
+}

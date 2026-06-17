@@ -17,7 +17,7 @@ export type AuthenticationType = typeof AUTHENTICATION_TYPE.CONSOLE
  */
 export type LoginType =
   | typeof LOGIN_TYPE.USERNAME_PASSWORD
-  | typeof LOGIN_TYPE.PHONE_NUMBER
+  | typeof LOGIN_TYPE.PHONE_CAPTCHA
   | typeof LOGIN_TYPE.QR_CODE
 
 /**
@@ -27,6 +27,7 @@ export interface AuthCredentials {
   username: string
   password: string
   loginType: LoginType
+  captchaType?: string
   [key: string]: unknown
 }
 
@@ -177,4 +178,9 @@ export interface PlatformUser extends BasicSystemUser, VersionEntityMetadata {
 export interface UserInitializationMetadata {
   randomPassword: NameValueEnumMetadata<number>,
   randomUsername: NameValueEnumMetadata<number>,
+}
+
+export interface AuthFormProp {
+  enablePhoneAuth?: boolean
+  enableQrCodeAuth?: boolean
 }
