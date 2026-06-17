@@ -474,7 +474,8 @@ const locale: LanguagePack = {
       flags:'旗帜',
     },
     conversation:{
-      delete:'删除会话'
+      delete:'删除会话',
+      newMessage:'有{count}条未读消息'
     },
     pinned:{
       action:'置顶聊天',

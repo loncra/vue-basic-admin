@@ -482,6 +482,7 @@ const locale: LanguagePack = {
     },
     conversation: {
       delete: 'Delete conversation',
+      newMessage:'There are {count} unread messages'
     },
     pinned: {
       action: 'Pin chat',

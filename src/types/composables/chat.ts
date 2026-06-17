@@ -19,12 +19,6 @@ export type ChatRoomViewModalOpenType =
   | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
   | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES
 
-export interface TextSegmentContentBlock {
-  type: 'custom',
-  slotKind: 'textSegment',
-  segments: TextSegment[]
-}
-
 export interface AttachmentBlock {
   type: 'custom',
   slotKind: 'files',
@@ -50,7 +44,6 @@ export interface TextBlock {
 }
 
 export type ChatContentBlock =
-  | TextSegmentContentBlock
   | AttachmentBlock
   | TextBlock
   | ReferenceBlock
@@ -72,6 +65,7 @@ export type ChatBubbleItem = {
   role: BubbleItemType["role"]
   content: ChatContentBlock[] | ChatContentBlock | string
   data?:UserChatMessageResponseBody | UserChatMessageEntity,
+  hide?:boolean
   flashPending?: boolean   // jump 时设为 true
   highlight?: boolean      // 进入可视区后设为 true，动画结束后清 false
 }

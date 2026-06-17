@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, h, nextTick, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {
   AttachmentBlock,
@@ -159,23 +159,21 @@ function providerTheme() {
 }
 
 function onPasteFiles(fileList: FileList) {
-  const sender = senderRef.value
-  if (!sender) {
-    return
-  }
   const files = Array.from(fileList) as File[]
   if (files.length === 0) {
     return
   }
 
   const slot = createFilesSlot(files.map(toUploadFile))
-
+  const sender = senderRef.value
+  if (!sender) {
+    return
+  }
   sender.insert([slot], 'cursor')
 }
 
 async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
-  const sender = senderRef.value
-  if (!sender || !_slotConfig?.length) {
+  if (!_slotConfig?.length) {
     return
   }
   uploading.value = true

@@ -32,6 +32,7 @@ import type {ConfigProviderState, ConfigProviderStoredState,} from '@/types/comp
 
 import type {ComposerTranslation} from 'vue-i18n'
 import dayjs from 'dayjs'
+import type {MappingAlgorithm} from "antdv-next/dist/theme";
 
 /**
  * 配置提供者 Store
@@ -142,7 +143,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     return token.value[key as keyof typeof token.value] as string
   }
 
-  function getAlgorithm() {
+  function getAlgorithm():MappingAlgorithm | MappingAlgorithm[] | undefined {
     return state.value.compact ? [state.value.algorithm, theme.compactAlgorithm] : state.value.algorithm;
   }
 
@@ -211,7 +212,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    * @param algorithm Ant Design Vue 的主题算法（深色/浅色）
    */
   function setAlgorithm(
-    algorithm: typeof theme.darkAlgorithm | typeof theme.defaultAlgorithm | null,
+    algorithm: MappingAlgorithm,
   ): void {
     state.value.algorithm = algorithm
     saveLocalStorage()

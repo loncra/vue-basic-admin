@@ -14,6 +14,7 @@ import type {
 } from "@/types/apis";
 
 import axios from "@/requests/http.ts";
+import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 
 /**
  * 数据字典领域服务：`/api[/resource-server]/data/dictionary`
@@ -31,7 +32,7 @@ export class DataDictionaryService extends PageRestfulCrudService<DataDictionary
     super(DataDictionaryService.SERVICE_URL)
   }
 
-  sort(sorts:TreeSortMetadata<number>[]):Promise<RestResult<void>> {
+  sort(sorts:TreeSortMetadata<DataDictionaryEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[]):Promise<RestResult<void>> {
     return axios.put(DataDictionaryService.SERVICE_SORT, sorts)
   }
 }

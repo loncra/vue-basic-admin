@@ -237,7 +237,6 @@ watch(segmentedActive, async (key) => {
                       <a-button
                         @click="emit('click', data)"
                         type="text"
-                        size="small"
                         class="opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
                       >
                         <template #icon>
@@ -251,7 +250,7 @@ watch(segmentedActive, async (key) => {
                     </a-space>
 
                   </a-flex>
-                  <a-flex flex="1">
+                  <a-flex flex="1" vertical>
                     <l-chat-message-bubble-content :content="data.content" />
                   </a-flex>
                 </a-flex>

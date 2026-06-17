@@ -164,11 +164,11 @@ async function onContactSelected(value: UserChatConversationResponseBody) {
   await setActiveConversationItemByEntity(find)
 }
 
-async function onConversationsChange(conversationItem:ServerConversationItem) {
+async function onConversationsChange(conversationItem:ServerConversationItem, reload:boolean = false) {
   if (conversationActive.value.loading) {
     return;
   }
-  if (conversationActive.value?.item?.key === conversationItem.key) {
+  if (conversationActive.value?.item?.key === conversationItem.key && !reload) {
     conversationActive.value.item = conversationItem
     return
   }
@@ -176,7 +176,7 @@ async function onConversationsChange(conversationItem:ServerConversationItem) {
   try {
     conversationActive.value.item = conversationItem
     conversationActive.value.bubbleList = []
-    await loadConversationData(Number(conversationActive.value.item?.data?.room?.id),1)
+    await loadConversationData(Number(conversationActive.value.item?.data?.room?.id),1, false, reload)
     await nextTick()
     if (chatViewRef.value) {
       chatViewRef.value?.scrollTo({ top: "bottom", behavior: "smooth" })
@@ -317,7 +317,7 @@ async function onChatMessageReceived(result: RestResult<UserChatMessageResponseB
 
   if (conversationActive.value.item?.data?.room?.id === result.data.chatRoomId && chatViewRef.value) {
     const role = getEnumValue(result.data.type) === 20 ? CHAT_BUBBLE_TYPE.SYSTEM : CHAT_BUBBLE_TYPE.AI;
-    ChatMessageService.addBubbleListMessage(result.data, role, conversationActive.value.bubbleList)
+    ChatMessageService.addBubbleListMessage(result.data, role, conversationActive.value.bubbleList, false, !conversationActive.value.isOnFirstPage)
   }
 
   await onSendMessage(result.data)
@@ -367,7 +367,7 @@ async function onChatViewLoadPage(tag:'next' | 'previous') {
   )
   await nextTick()
   if (anchor) {
-    chatViewRef.value?.jumpToMessage(anchor.key, false, "nearest")
+    chatViewRef.value?.jumpToMessage(anchor.key, false, tag === 'next' ? "nearest" : 'end')
   }
   if (conversationActive.value.dataSource.last && tag === 'next') {
     conversationActive.value.bubbleList.unshift({
@@ -514,7 +514,6 @@ onMounted(mounted)
       <a-splitter-panel class="h-full p-0 overflow-hiddenl" default-size="20%" min="15%" max="25%">
         <a-spin :spinning="options.loading" class="size-full-spin">
           <a-flex vertical class="size-full min-h-0">
-
             <l-chat-conversation
               ref="conversationRef"
               @delete="onConversationDelete"
@@ -545,6 +544,7 @@ onMounted(mounted)
         <div class="h-full min-h-0 overflow-hidden relative" v-if="conversationActive.item">
           <a-spin :spinning="conversationActive.loading" class="size-full-spin">
             <l-chat-view
+              @reload-last-page="onConversationsChange(conversationActive.item, true)"
               @load-page="onChatViewLoadPage"
               ref="chatViewRef"
               v-model:conversation="conversationActive"
@@ -554,7 +554,7 @@ onMounted(mounted)
                 <a-button
                   @click="toReadableAnchor()"
                   v-if="showReadableAnchorButton()"
-                  class="shadow-card absolute mt-sm left-1/2 -translate-x-1/2 animate-bounce"
+                  class="shadow-card absolute top-2 mt-sm left-1/2 -translate-x-1/2 animate-bounce"
                 >
                   <template #icon>
                     <icon-font type="loncra-hard-drive-upload"/>

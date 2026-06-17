@@ -1,4 +1,6 @@
-import type {VersionEntityMetadata} from "@/types/apis/common";
+import type {PageRequest, VersionEntityMetadata} from "@/types/apis/common";
+import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
+import type {DataDictionaryEntity} from "@/types/apis";
 
 /**
  * 字典类型保存请求体
@@ -38,4 +40,21 @@ export interface DictionaryTypeEntity extends DictionaryTypeSavePayload {
    * 子节点
    */
   children:DictionaryTypeEntity[];
+}
+
+export interface DictionaryTypeProps {
+  columns: SearchableColumnType[]
+  openKeys: number[]
+  parent?: DictionaryTypeEntity
+  dataSource: DictionaryTypeEntity[]
+  formOpen: boolean
+  selectedRows: DictionaryTypeEntity[]
+  entity: DictionaryTypeSavePayload
+  rowActions: ActionDefinition<DictionaryTypeEntity>[]
+}
+
+export interface DataDictionary {
+  query:PageRequest
+  selectedRows: DataDictionaryEntity[]
+  columns: SearchableColumnType[]
 }

@@ -1,11 +1,10 @@
 import type {NameValueEnumMetadata} from "@/types/apis";
-
-import {theme} from 'antdv-next'
 import {
   type CreateSuccessBackValue,
   type ThemeMode,
   type ThemeValue
 } from "@/constants/configProviderConstant.ts";
+import type {MappingAlgorithm} from "antdv-next/dist/theme";
 
 /**
  * 存储在 localStorage 中的状态值
@@ -46,7 +45,7 @@ export interface ConfigProviderStoredState {
  */
 export interface ConfigProviderState extends ConfigProviderStoredState {
   /** Ant Design Vue 主题算法（深色/浅色） */
-  algorithm: typeof theme.darkAlgorithm | typeof theme.defaultAlgorithm | null
+  algorithm: MappingAlgorithm
   /** 当前屏幕断点信息，根据窗口宽度自动计算 */
   screen: NameValueEnumMetadata<number>
 }

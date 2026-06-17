@@ -14,20 +14,17 @@ import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeServic
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 import {App, Input, Select, type TableProps} from "antdv-next";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
-import type {PageRequest, RestResult, TreeSortMetadata} from "@/types/apis";
+import type {DataDictionary, DictionaryTypeProps, RestResult, TreeSortMetadata} from "@/types/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.ts";
 import {ResourceServerService} from "@/apis";
-import type {
-  DictionaryTypeEntity,
-  DictionaryTypeSavePayload
-} from "@/types/apis/resource-server/dictionaryTypeDomain.ts";
+import type {DictionaryTypeEntity} from "@/types/apis/resource-server/dictionaryTypeDomain.ts";
 import {getEnumName} from "@/utils/commonUtils.ts";
 import {createIcon} from "@/utils/resourceUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LModalForm from "@/components/basic/ModalForm.vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import LCrudTable from "@/components/basic/CrudTable.vue";
-import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
+import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 
 const { message } = App.useApp()
 const DEFAULT_DICTIONARY_TYPE_DEFAULT = {
@@ -35,23 +32,6 @@ const DEFAULT_DICTIONARY_TYPE_DEFAULT = {
   name: "",
   id:null as unknown as number,
   version:null as unknown as number,
-}
-
-interface DictionaryTypeProps {
-  columns: SearchableColumnType[]
-  openKeys: number[]
-  parent?: DictionaryTypeEntity
-  dataSource: DictionaryTypeEntity[]
-  formOpen: boolean
-  selectedRows: DictionaryTypeEntity[]
-  entity: DictionaryTypeSavePayload
-  rowActions: ActionDefinition<DictionaryTypeEntity>[]
-}
-
-interface DataDictionary {
-  query:PageRequest
-  selectedRows: DataDictionaryEntity[]
-  columns: SearchableColumnType[]
 }
 
 defineOptions({
@@ -247,7 +227,7 @@ function formatDataDictionaryDragPreview(record: DataDictionaryEntity) {
 }
 
 async function onDrop(
-  sorts: TreeSortMetadata<number>[]
+  sorts: TreeSortMetadata<DataDictionaryEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[]
 ) {
   const result: RestResult<void> = await dataDictionaryService.sort(sorts)
   message.success(result.message)
@@ -273,7 +253,8 @@ async function activated(typeId:string | number) {
   if (parents.length <= 0) {
     return ;
   }
-  options.value.dictionaryType.openKeys = unmergeTree(parents).map(r => r.id);
+  options.value.dictionaryType.openKeys = unmergeTree(parents).map(r => r.id)
+    .filter((id): id is number => id !== undefined);
 }
 
 onActivated(() => activated(globalProperties.$route.query.typeId as string))

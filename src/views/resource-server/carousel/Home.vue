@@ -35,6 +35,7 @@ import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
 import type {ActionDefinition, GridExposed} from '@/types/composables'
 import LBasicImage from "@/components/basic/BasicImage.vue";
+import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 
 interface TabDataSource {
   key: string
@@ -236,7 +237,7 @@ async function onGridDeleted() {
   }
 }
 
-async function onCardDrop(sorts: FlatSortMetadata<number>[]) {
+async function onCardDrop(sorts: FlatSortMetadata<CarouselEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[]) {
   try {
     const result = await carouselService.sort(sorts)
     message.success(result.message)

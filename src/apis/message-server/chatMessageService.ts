@@ -184,10 +184,18 @@ export class ChatMessageService  {
     body: UserChatMessageEntity,
     role:BubbleItemType["role"],
     bubbleList:ChatBubbleItem[],
-    append:boolean = false
+    append:boolean = false,
+    hide:boolean = false,
   ) {
-
-    if (bubbleList.some(b => b.key === String(body.id))) {
+    const index = bubbleList.findIndex(b => b.key === String(body.id))
+    if (index >= 0) {
+      bubbleList[index] = {
+        key: String(body.id),
+        role,
+        content: body.content,
+        data: body,
+        hide
+      }
       return
     }
 
@@ -197,12 +205,14 @@ export class ChatMessageService  {
         role,
         content: (c as TextBlock).value as unknown as ChatContentBlock,
         data: body,
+        hide
       }))
     : [{
         key: String(body.id),
         role,
         content: body.content,
         data: body,
+        hide
       }]
 
     if (!append) {

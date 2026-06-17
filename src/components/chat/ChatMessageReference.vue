@@ -28,21 +28,30 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <a-tag @click="emit('click', props.message)" class="cursor-pointer" v-bind="$attrs" :color="getEnumValue(props.message.participant.type) !== 30 ? 'gold' : undefined">
-    <a-space>
-      <template v-if="getEnumValue(props.message.participant.type) !== 30">
-        [{{getEnumName(props.message.participant.type)}}]
-      </template>
-      <template v-if="principalStore.state.name === props.message.principal">
-        {{ globalProperties.$t('common.me') }}
-      </template>
-      <template v-else>
-        {{ AuthServerService.getPrincipalNameByUserDetails(props.message.participant.metadata.details) }}
-      </template>
-      :
-      <a-typography-text type="secondary" class="max-w-50" ellipsis>
-        {{ ChatMessageService.getMessageContent(props.message)}}
-      </a-typography-text>
-    </a-space>
+  <a-tag
+    @click="emit('click', props.message)"
+    class="cursor-pointer max-w-80"
+    v-bind="$attrs"
+    :color="getEnumValue(props.message.participant.type) !== 30 ? 'gold' : undefined"
+  >
+    <a-flex>
+      <span class="flex flex-inline shrink-0">
+        <template v-if="getEnumValue(props.message.participant.type) !== 30">
+          [{{getEnumName(props.message.participant.type)}}]
+        </template>
+        <template v-if="principalStore.state.name === props.message.principal">
+          {{ globalProperties.$t('common.me') }}
+        </template>
+        <template v-else>
+          {{ AuthServerService.getPrincipalNameByUserDetails(props.message.participant.metadata.details) }}
+        </template>
+        :
+      </span>
+      <a-flex flex="1" class="min-w-0 w-full" >
+        <a-typography-text type="secondary" ellipsis>
+          {{ ChatMessageService.getMessageContent(props.message)}}
+        </a-typography-text>
+      </a-flex>
+    </a-flex>
   </a-tag>
 </template>

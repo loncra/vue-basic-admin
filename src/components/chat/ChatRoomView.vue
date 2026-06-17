@@ -592,10 +592,10 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
 
       <template
         #footer="{extra}"
-        v-if="modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING"
+        v-if="modalOptions.type !== CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES"
       >
         <a-space>
-          <a-space-compact>
+          <a-space-compact v-if="modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING">
             <a-button @click="onUpdateParticipantType(30)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === 20).length <= 0">
               {{ globalProperties.$t('chat.roomView.modal.changeMember') }}
             </a-button>
@@ -613,6 +613,7 @@ watch(() => conversation.value, () => loadParticipant(), { deep: true })
               </a-button>
             </a-popconfirm>
           </a-space-compact>
+          <component v-else :is="extra.OkBtn" />
           <component :is="extra.CancelBtn" />
         </a-space>
       </template>
