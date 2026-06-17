@@ -82,6 +82,9 @@ const principalStore = usePrincipalStore()
 const socketStore = useSocketStore()
 
 function onAuth() {
+  if (loading.value || sendPhoneNumberCaptchaRef.value.sending) {
+    return
+  }
   formRef.value.validate().then(onValidateThen)
 }
 
@@ -167,6 +170,7 @@ function onSendPhoneNumberCaptcha(result: { data:string }) {
       ...createPostCaptchaParam(result, sendPhoneNumberCaptchaRef.value.captchaToken.interceptToken as CaptchaToken),
       ...post
   }
+  sendPhoneNumberCaptchaRef.value.instance.hide()
   doSendPhoneNumberCaptcha(params)
 }
 
@@ -206,7 +210,12 @@ function createPostCaptchaParam(result: { data:string | null | undefined}, captc
     [(captchaToken.args.post as {captchaParamName:string}).captchaParamName]:result.data
   }
 }
-
+function onOtpComplete(value:string) {
+  if (loading.value || sendPhoneNumberCaptchaRef.value.sending) {
+    return
+  }  // v-model 一般已同步，可省略
+  onAuth()
+}
 </script>
 
 <template>
@@ -249,7 +258,14 @@ function createPostCaptchaParam(result: { data:string | null | undefined}, captc
             {{$t('captcha.sendTo',{target:sendPhoneNumberCaptchaRef.sendPhoneNumber})}}
             </div>
           </template>
-          <a-input-otp class="flex justify-between" v-model:value="authForm.password" :length="sendPhoneNumberCaptchaRef.result.codeLength"  />
+          <a-input-otp
+            @change="onOtpComplete"
+            class="flex justify-between"
+            v-model:value="authForm.password"
+            input-mode="numeric"
+            :formatter="(value:string) => value.replace(/[^0-9]/g, '')"
+            :length="sendPhoneNumberCaptchaRef.result.codeLength"
+          />
         </a-form-item>
       </template>
       <a-button html-type="submit" block type="primary" :loading="sendPhoneNumberCaptchaRef.sending">
