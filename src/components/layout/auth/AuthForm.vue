@@ -210,10 +210,10 @@ function createPostCaptchaParam(result: { data:string | null | undefined}, captc
     [(captchaToken.args.post as {captchaParamName:string}).captchaParamName]:result.data
   }
 }
-function onOtpComplete(value:string) {
+function onOtpComplete() {
   if (loading.value || sendPhoneNumberCaptchaRef.value.sending) {
     return
-  }  // v-model 一般已同步，可省略
+  }  
   onAuth()
 }
 </script>
