@@ -16,7 +16,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {AttachmentService, AuthServerService} from "@/apis";
 import LBasicImage from "@/components/basic/BasicImage.vue";
-import {requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 import {AvatarServerService} from "@/apis/auth-server/avatarService.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
@@ -47,21 +47,6 @@ const loading = ref<boolean>(false);
 const formRef = ref();
 
 const historyAvatar = ref<ObjectWriteResult[] | undefined>([]);
-
-function validatePassword() {
-  if (form.value.confirmPassword !== form.value.newPassword) {
-    const message = globalProperties.$t(
-      'error.notEq',
-      {
-        target:globalProperties.$t('auth.newPassword'),
-        source:globalProperties.$t('common.confirmPassword')
-      }
-    )
-    return Promise.reject(message);
-  } else {
-    return Promise.resolve();
-  }
-}
 
 async function fileListChange(info:UploadChangeParam) {
   if (info.file.status !== "done") {
@@ -201,7 +186,7 @@ onMounted(mounted)
           <a-input-password v-model:value="form.newPassword" autocomplete="new-password"/>
         </a-form-item>
 
-        <a-form-item :label="globalProperties.$t('common.confirmPassword')" name="confirmPassword" :rules="[{required: true, trigger: 'change'}, {validator: validatePassword, trigger: 'change'}]">
+        <a-form-item :label="globalProperties.$t('common.confirmPassword')" name="confirmPassword" :rules="[{required: true, trigger: 'change'}, {validator: validatePassword(form.newPassword,form.confirmPassword), trigger: 'change'}]">
           <a-input-password v-model:value="form.confirmPassword" autocomplete="new-password"/>
         </a-form-item>
 

@@ -115,6 +115,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    */
   async function logout(): Promise<AuthenticationInfo> {
     await AuthServerService.logout()
+    localStorage.removeItem(import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME)
     $reset()
     return state.value
   }

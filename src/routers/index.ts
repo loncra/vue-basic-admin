@@ -22,6 +22,7 @@ import Setting from '@/views/common/Setting.vue'
 import NotFound from '@/views/error/NotFound.vue';
 import Forbidden from '@/views/error/Forbidden.vue';
 import BadRequest from '@/views/error/BadRequest.vue';
+import ForgotPassword from '@/views/ForgotPassword.vue';
 
 import MySiteMessage from "@/views/common/my/MySiteMessage.vue";
 import MyChatMessage from "@/views/common/my/MyChatMessage.vue";
@@ -132,6 +133,12 @@ const routes: RouteRecordRaw[] = [
     component: Auth
   },
   {
+    // 忘记密码路由
+    path: '/forgot/password',
+    name: 'forgot_password',
+    component: ForgotPassword
+  },
+  {
     path: '/error/404',
     name: '404',
     component: NotFound
@@ -142,12 +149,12 @@ const routes: RouteRecordRaw[] = [
     name: import.meta.env.VITE_APP_HOME_PAGE_NAME,
     component: Home,
     children: childrenRoutes
-  }/*,
+  },
   {
     path: "/:pathMatch(.*)*",
-    name: 'NotFound',
+    name: 'not_found',
     redirect: "/error/404"
-  }*/
+  }
 ]
 
 /**
@@ -336,6 +343,8 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
     await principalStore.logout()
     clearRoute()
     return // 继续导航
+  } else if (routes.some(route => route.name === to.name)) {
+    return
   }
 
   // 仅在初始状态时尝试加载动态路由

@@ -107,8 +107,8 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
               <template v-if="item?.data?.phoneNumber">
                 {{globalProperties.$t('common.phoneNumber')}}: {{item?.data?.phoneNumber}}
               </template>
-              <template v-if="item?.data?.emai">
-                {{globalProperties.$t('common.email')}}: {{item?.data?.emai}}
+              <template v-if="item?.data?.email">
+                {{globalProperties.$t('common.email')}}: {{item?.data?.email}}
               </template>
             </a-typography-text>
           </a-flex>

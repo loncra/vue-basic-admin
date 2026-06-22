@@ -345,7 +345,27 @@ const locale: LanguagePack = {
   },
   captcha:{
     text:'captcha',
-    sendTo:'send to {target}',
+    sendTo:'The verification code has been sent to {target}. Please check your inbox',
+    countdown:'Can retry after s seconds',
+    resend:{
+      prompt:'Didn\'t get it?',
+      action:'Resend'
+    }
+  },
+  forgotPassword:{
+    title:'🔒Forgot password? ',
+    subSelectTypeTitle:'Choose email or phone number to retrieve, we will send instructions for resetting the password',
+    step:{
+      sendCaptcha:{
+        action:'Retrieve password',
+        subTitle:'Choose email or phone number to retrieve, and we will send instructions for resetting the password.',
+      },
+      backRestPassword:'Reset Password',
+      multiUsersSelected:{
+        subTitle:'The system has found multiple accounts under {type}: {target}. Please select the account that needs to retrieve the password.',
+        action:'Confirm'
+      }
+    },
   },
   workbench: {
     personalActivity: 'Personal activity',

@@ -4,6 +4,7 @@ import type {Router} from 'vue-router'
 import dayjs from 'dayjs'
 import {dayjsFormat} from './dateUtils'
 import type {NameValueEnumMetadata} from '@/types/apis'
+import i18n from '@/i18n'
 
 /**
  * 值转换函数类型
@@ -321,4 +322,19 @@ export function getEnumName<TValue>(value: NameValueEnumMetadata<TValue> | TValu
     return value.name
   }
   return String(value)
+}
+
+export function validatePassword(newPassword:string, confirmPassword:string) {
+  if (confirmPassword !== newPassword) {
+    const message = i18n.global.t(
+      'error.notEq',
+      {
+        target:i18n.global.t('auth.newPassword'),
+        source:i18n.global.t('common.confirmPassword')
+      }
+    )
+    return Promise.reject(message);
+  } else {
+    return Promise.resolve();
+  }
 }

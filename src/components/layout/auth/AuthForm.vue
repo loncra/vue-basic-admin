@@ -22,6 +22,12 @@ defineOptions({
   name: 'LAuthForm',
 })
 
+const globalProperties =
+  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
+    .globalProperties
+const principalStore = usePrincipalStore()
+const socketStore = useSocketStore()
+
 
 const props = withDefaults(defineProps<AuthFormProp>(), {
   enablePhoneAuth: true,
@@ -74,12 +80,6 @@ const authForm = ref<AuthCredentials>({
   password: '',
   loginType: LOGIN_TYPE.USERNAME_PASSWORD,
 })
-
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-const principalStore = usePrincipalStore()
-const socketStore = useSocketStore()
 
 function onAuth() {
   if (loading.value || sendPhoneNumberCaptchaRef.value.sending) {
@@ -137,8 +137,8 @@ function onAccountCaptchaSuccess(result: { data:string }) {
 }
 
 async function sendPhoneNumberCaptcha() {
+  loading.value = true
   try {
-    loading.value = true
     const result:RestResult<CaptchaToken> = await ResourceServerService.generateCaptchaToken(CAPTCHA_TOKEN_TYPE.SMS)
     if (!result.data) {
       return
@@ -213,7 +213,7 @@ function createPostCaptchaParam(result: { data:string | null | undefined}, captc
 function onOtpComplete() {
   if (loading.value || sendPhoneNumberCaptchaRef.value.sending) {
     return
-  }  
+  }
   onAuth()
 }
 </script>
@@ -242,20 +242,20 @@ function onOtpComplete() {
                 <icon-font type="loncra-send"/>
               </template>
               <a-statistic-timer
-                :classes="{content:'text-sm'}"
+                :classes="{content:'text-DEFAULT'}"
                 @finish="() => sendPhoneNumberCaptchaRef.disabledSendButton = false"
                 v-if="sendPhoneNumberCaptchaRef.result && sendPhoneNumberCaptchaRef.disabledSendButton"
                 :value="sendPhoneNumberCaptchaRef.result.expired"
                 type="countdown"
-                format="s 秒后可重试"
+                :format="globalProperties.$t('captcha.countdown')"
               />
             </a-button>
           </a-space-compact>
         </a-form-item>
-        <a-form-item v-if="sendPhoneNumberCaptchaRef.result" name="password" :label="$t('captcha.text')" :rules="[{required: true}]">
+        <a-form-item v-if="sendPhoneNumberCaptchaRef.result" name="password" :label="globalProperties.$t('captcha.text')" :rules="[{required: true}]">
           <template #extra>
             <div class="mt-xs">
-            {{$t('captcha.sendTo',{target:sendPhoneNumberCaptchaRef.sendPhoneNumber})}}
+            {{globalProperties.$t('captcha.sendTo',{target:sendPhoneNumberCaptchaRef.sendPhoneNumber})}}
             </div>
           </template>
           <a-input-otp
@@ -272,7 +272,7 @@ function onOtpComplete() {
         <template #icon>
           <icon-font class="icon" type="loncra-log-in"/>
         </template>
-        {{ $t('auth.login') }}
+        {{ globalProperties.$t('auth.login') }}
       </a-button>
     </l-form>
     <a-segmented block :options="segmentedData" v-model:value="segmentedKey" @change="(value:LoginType) => authForm.loginType = value" />
@@ -280,12 +280,12 @@ function onOtpComplete() {
     <a-divider class="mt-0"/>
     <a-flex justify="space-between" align="center">
       <a-typography class="text-center">
-        {{ $t('auth.noAccount') }}
+        {{ globalProperties.$t('auth.noAccount') }}
         <a-typography-link>
-          {{ $t('auth.createAccount') }}
+          {{ globalProperties.$t('auth.createAccount') }}
         </a-typography-link>
       </a-typography>
-      <a-typography-link>{{ $t('auth.forgotPassword') }}</a-typography-link>
+      <a-typography-link href="/forgot/password">{{ globalProperties.$t('auth.forgotPassword') }}</a-typography-link>
     </a-flex>
   </a-spin>
 </template>

@@ -37,6 +37,8 @@ export class AuthServerService {
 
   static readonly UPDATE_PASSWORD_URL = AuthServerService.BASE_URL + '/user/password/update'
 
+  static readonly REST_PASSWORD_URL = AuthServerService.BASE_URL + '/user/password/reset'
+
   static readonly SYSTEM_USERS_URL = AuthServerService.BASE_URL + '/system/users'
 
   static readonly SYSTEM_USERS_NOT_DESENSITIZE_NAME_URL = AuthServerService.BASE_URL + '/system/users/undesensitize/name'
@@ -46,6 +48,23 @@ export class AuthServerService {
       oldPassword,
       newPassword
     }))
+  }
+
+  static resetPassword(
+    type:string,
+    userId:number,
+    newPassword: string,
+    confirmPassword: string,
+    appendParams?:Record<string, unknown>
+  ):Promise<RestResult<void>> {
+    return axios.post(AuthServerService.REST_PASSWORD_URL, {
+      type,
+      userId,
+      newPassword,
+      confirmPassword
+    }, {
+      params:formUrlEncoded({...appendParams || {}})
+    })
   }
 
   /**
@@ -116,5 +135,4 @@ export class AuthServerService {
     }
     return String(details.realName || details.username || defaultValue)
   }
-
 }

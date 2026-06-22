@@ -5,7 +5,7 @@ import {
   type ComponentInternalInstance,
   getCurrentInstance,
   nextTick,
-  onMounted,
+  onMounted, onUnmounted,
   provide,
   ref,
   watch
@@ -71,11 +71,6 @@ provide(LAYOUT_PANE_TITLE_PROVIDE_KEY, setPaneName)
 function setPaneName(fullPath: string, name: string) {
   const pane = panes.value.find((p) => p.path === fullPath)
   if (pane) pane.name = name
-}
-
-function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
-  const version = routeCacheVersions.value[route.fullPath] || 0
-  return String(route?.meta?.parentKeepAlive || `${route.fullPath}-v${version}`)
 }
 
 function getFixedRoutesFromRouter(): RouteResourceMetadata[] {
@@ -149,14 +144,38 @@ function activateTab(route: RouteResourceMetadata) {
     const toRemove = panes.value.filter(
       (p) => p.page === pageKey && p.path !== keepPath && !isPaneFixed(p),
     )
-    toRemove.forEach((p) => {
-      const v = routeCacheVersions.value[p.path] || 0
-      routeCacheVersions.value[p.path] = v + 1
-    })
+    toRemove.forEach(incrementRouteCacheVersions)
     panes.value = panes.value.filter(
       (p) => !(p.page === pageKey && p.path !== keepPath) || isPaneFixed(p),
     )
   }
+}
+
+function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
+  const key = getRouteCachePrefix(route);
+  const version = getRouteCacheValue(route)
+  return String(`${key}-v${version}`)
+}
+
+function getRouteCachePrefix(route: RouteLocationNormalizedLoaded | RouteResourceMetadata) {
+  if ((route as RouteLocationNormalizedLoaded).meta) {
+    const loaded = (route as RouteLocationNormalizedLoaded)
+    return (String(loaded?.meta?.parentKeepAlive) || loaded.fullPath);
+  } else {
+    const loaded = (route as RouteResourceMetadata)
+    return (String(loaded.parentKeepAlive) || loaded.page);
+  }
+}
+
+function getRouteCacheValue(route: RouteLocationNormalizedLoaded | RouteResourceMetadata) {
+  const key = getRouteCachePrefix(route);
+  return routeCacheVersions.value[key] || 0
+}
+
+function incrementRouteCacheVersions(route:RouteLocationNormalizedLoaded | RouteResourceMetadata) {
+  const key = getRouteCachePrefix(route)
+  const v = getRouteCacheValue(route)
+  routeCacheVersions.value[key] = v + 1
 }
 
 function changeTab(value: string | number) {
@@ -201,8 +220,7 @@ function removePaneByPage(page: string, activatePane:boolean = true): void {
   const index = panes.value.findIndex((p) => p.path === page)
   const targetRoute = panes.value[index]
   if (targetRoute) {
-    const currentVersion = routeCacheVersions.value[targetRoute.path] || 0
-    routeCacheVersions.value[targetRoute.path] = currentVersion + 1
+    incrementRouteCacheVersions(targetRoute)
   }
   panes.value = panes.value.filter((p) => p.path !== page)
   if (!activatePane) {
@@ -281,10 +299,7 @@ function onPin() {
 /** 关闭其他标签页：保留当前标签页和所有 fixed 标签页 */
 function onCloseOthers() {
   const toRemove = panes.value.filter((p) => p.path !== activeKey.value && !isPaneFixed(p))
-  toRemove.forEach((p) => {
-    const v = routeCacheVersions.value[p.path] || 0
-    routeCacheVersions.value[p.path] = v + 1
-  })
+  toRemove.forEach((p) => incrementRouteCacheVersions(p))
   const removedPages = toRemove.map(p => p.path);
   panes.value = panes.value.filter(p => !removedPages.includes(p.path))
 }
@@ -297,10 +312,7 @@ function onCloseRight() {
     return
   }
   const toRemove = panes.value.slice(idx + 1).filter((p) => !isPaneFixed(p))
-  toRemove.forEach((p) => {
-    const v = routeCacheVersions.value[p.path] || 0
-    routeCacheVersions.value[p.path] = v + 1
-  })
+  toRemove.forEach(incrementRouteCacheVersions)
   panes.value = panes.value.filter((p, i) => i <= idx || isPaneFixed(p))
 }
 
@@ -352,8 +364,7 @@ function onRemoveTab(value: string, action: string) {
   const index = panes.value.findIndex((p) => p.path === value)
   const targetRoute = panes.value[index]
   if (targetRoute) {
-    const currentVersion = routeCacheVersions.value[targetRoute.path] || 0
-    routeCacheVersions.value[targetRoute.path] = currentVersion + 1
+    incrementRouteCacheVersions(targetRoute)
   }
   const change = panes.value[index - 1]
   if (change && activeKey.value === value) {
@@ -379,6 +390,8 @@ watch(
 )
 
 onMounted(mounted)
+
+onUnmounted(() => routeCacheVersions.value = {})
 </script>
 
 <template>

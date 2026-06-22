@@ -12,6 +12,8 @@ import type {
   RestResult
 } from "@/types/apis";
 import {formUrlEncoded, loadJs} from "@/utils";
+import {CAPTCHA_TOKEN_TYPE} from "@/constants/messageConstant.ts";
+import type {Ref} from "vue";
 
 /**
  * resource-server 侧通用查询（当前仅封装枚举相关接口）。
@@ -46,15 +48,104 @@ export class ResourceServerService {
     return axios.post(ResourceServerService.CAPTCHA_GENERATE_CAPTCHA_TOKEN_URL,formUrlEncoded(params))
   }
 
-  static async createTianaiCaptchaInstance(captchaToken:CaptchaToken, onSuccess:(result: { data:string }) => void) {
+  static async createTianaiCaptchaInstance(
+    captchaToken:CaptchaToken,
+    onSuccess:(result: { data:string }) => void,
+    onCancel:() => void
+  ) {
     await loadJs(String(captchaToken.type), (captchaToken.args.generate as {jsUrl:string}).jsUrl)
     if (TianaiCaptcha) {
       return new TianaiCaptcha({
         baseUrl:import.meta.env.VITE_APP_SERVER_URL,
         token:captchaToken.token.name,
-        success:onSuccess
+        success:onSuccess,
+        cancel:onCancel
       })
     }
     return undefined
+  }
+
+  static createGenerateTokenParam(captchaToken:CaptchaToken, append?:Record<string, unknown>):Record<string, unknown> {
+    return  {
+      captchaType:captchaToken.type,
+      [captchaToken.tokenParamName]: captchaToken.token.name,
+      ...append
+    }
+  }
+
+  static sendCaptcha(
+    type:CaptchaTokenType,
+    append?:Record<string, unknown>
+  ):Promise<Record<string, unknown>> {
+    return new Promise(async (resolve, reject) => {
+      let instance: { hide: () => void; show: () => void; } | undefined = undefined
+      try {
+        const generateTokenResult:RestResult<CaptchaToken> = await ResourceServerService.generateCaptchaToken(type)
+        if (!generateTokenResult.data) {
+          return reject(generateTokenResult)
+        }
+
+        const generateToken = generateTokenResult.data
+
+        if (!generateTokenResult.data.interceptToken) {
+          const params = ResourceServerService.createGenerateTokenParam(generateToken,append || {})
+          const result:RestResult<Record<string, unknown>> = await ResourceServerService.generateCaptcha(params)
+          resolve({
+            generateResult:result.data,
+            token:generateToken
+          })
+        } else if (generateTokenResult.data.interceptToken.type === 'tianai') {
+          instance = await ResourceServerService.createTianaiCaptchaInstance(
+            generateTokenResult.data.interceptToken as CaptchaToken,
+            async (instanceResult) => {
+              if (!generateToken.interceptToken) {
+                return reject(generateToken.interceptToken)
+              }
+              const tianaiParams = ResourceServerService.createGenerateTokenParam(
+                generateToken.interceptToken as CaptchaToken,
+                {
+                  [(generateToken.interceptToken.args.post as {captchaParamName:string}).captchaParamName]:instanceResult.data
+                }
+              )
+              const params = ResourceServerService.createGenerateTokenParam(
+                generateToken,
+                {
+                  ...append || {},
+                }
+              )
+              instance?.hide()
+              try {
+                const result:RestResult<Record<string, unknown>> = await ResourceServerService.generateCaptcha({...tianaiParams, ...params})
+
+                resolve({
+                  generateResult:result.data,
+                  token:generateTokenResult.data
+                })
+              } catch (e) {
+                reject(e)
+              }
+            },
+            () => reject(new Error('cancel'))
+          )
+          instance?.show()
+        }
+      } catch (e) {
+        reject(e)
+      }
+    })
+  }
+
+  static sendEmailCaptcha(
+    email:string,
+    messageType:string
+  ) {
+    return ResourceServerService.sendCaptcha(CAPTCHA_TOKEN_TYPE.EMAIL, {email, messageType})
+  }
+
+  static sendPhoneNumberCaptcha(
+    phoneNumber:string,
+    messageType:string
+  ) {
+    return ResourceServerService.sendCaptcha(CAPTCHA_TOKEN_TYPE.SMS, {phoneNumber, messageType})
   }
 }

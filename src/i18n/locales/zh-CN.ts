@@ -55,7 +55,6 @@ const locale: LanguagePack = {
     send: '发送{name}',
     name:'名称',
     enabled: '启用',
-
     verified: '是否认证{name}',
     disabled: '禁用',
     type:'类型',
@@ -117,7 +116,27 @@ const locale: LanguagePack = {
   },
   captcha:{
     text:'验证码',
-    sendTo:'已经发送至 {target}',
+    sendTo:'验证码已经发送至{type} {target} 请注意查收。',
+    countdown:'s 秒后可重试',
+    resend:{
+      prompt:'没收到?',
+      action:'重新发送'
+    }
+  },
+  forgotPassword:{
+    title:'🔒忘记密码?',
+    subSelectTypeTitle:'选择电子邮箱或手机号码方式找回，我们将发送重置密码的说明',
+    step:{
+      sendCaptcha:{
+        action:'找回密码',
+        subTitle:'选择电子邮箱或手机号码方式找回，我们将发送重置密码的说明',
+      },
+      backRestPassword:'重置密码',
+      multiUsersSelected:{
+        subTitle:'系统发现 {type}: {target} 下存在多个账户，请选择需要找回密码的账户',
+        action:'确认选择'
+      }
+    },
   },
   operation:{
     time:'操作时间',
