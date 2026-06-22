@@ -5,18 +5,15 @@ import {
   type AuthCredentials,
   type AuthFormProp,
   BusinessError,
+  type CaptchaGenerationResult,
   type CaptchaToken,
-  type LoginType,
-  type RestResult,
-  type SmsCaptchaGenerationResult,
-  type TimeProperties
+  type LoginType
 } from '@/types/apis'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.js'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import {ResourceServerService} from "@/apis";
-import {CAPTCHA_TOKEN_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'LAuthForm',
@@ -72,7 +69,7 @@ const sendPhoneNumberCaptchaRef = ref<{
   disabledSendButton?:boolean,
   captchaToken?:CaptchaToken
   sending?:boolean,
-  result?:SmsCaptchaGenerationResult
+  result?:CaptchaGenerationResult
 }>({});
 
 const authForm = ref<AuthCredentials>({
@@ -88,24 +85,25 @@ function onAuth() {
   formRef.value.validate().then(onValidateThen)
 }
 
-function onValidateThen() {
-  if (accountLoginCaptchaRef.value?.instance) {
+async function onValidateThen() {
+
+  if (accountLoginCaptchaRef.value.instance) {
     accountLoginCaptchaRef.value.instance.show()
   } else {
-    doAuth()
+    await doAuth()
   }
+
 }
 
 const doAuth = async (): Promise<void> => {
-  if (authForm.value.loginType === LOGIN_TYPE.PHONE_CAPTCHA && sendPhoneNumberCaptchaRef.value.captchaToken) {
-    authForm.value = {...authForm.value, ...createPostCaptchaParam({data:null}, sendPhoneNumberCaptchaRef.value.captchaToken)}
-  }
   loading.value = true
   try {
     const data = await principalStore.login(authForm.value, AUTHENTICATION_TYPE.CONSOLE)
     if (data.authenticated) {
       socketStore.ensureConnected()
       globalProperties.$router.push('/')
+      accountLoginCaptchaRef.value.captchaToken = undefined
+      accountLoginCaptchaRef.value.instance = undefined
     }
   } catch (e) {
     if (!(e instanceof BusinessError)) {
@@ -129,7 +127,12 @@ function onAccountCaptchaSuccess(result: { data:string }) {
   if (!accountLoginCaptchaRef.value.captchaToken) {
     return
   }
-  authForm.value = {...authForm.value, ...createPostCaptchaParam(result, accountLoginCaptchaRef.value.captchaToken)}
+  authForm.value = {
+    ...authForm.value,
+    ...ResourceServerService.createGenerateTokenParam(accountLoginCaptchaRef.value.captchaToken,{
+      [(accountLoginCaptchaRef.value.captchaToken.args.post as {captchaParamName:string}).captchaParamName]:result.data
+    })
+  }
 
   accountLoginCaptchaRef.value.instance.hide()
 
@@ -137,79 +140,20 @@ function onAccountCaptchaSuccess(result: { data:string }) {
 }
 
 async function sendPhoneNumberCaptcha() {
-  loading.value = true
+  sendPhoneNumberCaptchaRef.value.sending = true
   try {
-    const result:RestResult<CaptchaToken> = await ResourceServerService.generateCaptchaToken(CAPTCHA_TOKEN_TYPE.SMS)
-    if (!result.data) {
-      return
-    }
-    sendPhoneNumberCaptchaRef.value.captchaToken = result.data
-    if (!sendPhoneNumberCaptchaRef.value.captchaToken.interceptToken) {
-      const params = createPostPhoneNumberCaptchaParam()
-      await doSendPhoneNumberCaptcha(params)
-    } else if (sendPhoneNumberCaptchaRef.value.captchaToken.interceptToken.type === 'tianai') {
-      sendPhoneNumberCaptchaRef.value.instance = await ResourceServerService.createTianaiCaptchaInstance(
-        sendPhoneNumberCaptchaRef.value.captchaToken.interceptToken as CaptchaToken,
-        onSendPhoneNumberCaptcha
-      )
-      sendPhoneNumberCaptchaRef.value.instance.show()
-    }
-  } finally {
-    loading.value = false
-  }
-
-}
-
-function onSendPhoneNumberCaptcha(result: { data:string }) {
-  if (!sendPhoneNumberCaptchaRef.value.captchaToken) {
-    return
-  }
-  const post = createPostPhoneNumberCaptchaParam()
-  sendPhoneNumberCaptchaRef.value.sendPhoneNumber = post.phoneNumber
-  const params = {
-      ...createPostCaptchaParam(result, sendPhoneNumberCaptchaRef.value.captchaToken.interceptToken as CaptchaToken),
-      ...post
-  }
-  sendPhoneNumberCaptchaRef.value.instance.hide()
-  doSendPhoneNumberCaptcha(params)
-}
-
-function createPostPhoneNumberCaptchaParam() {
-  if (!sendPhoneNumberCaptchaRef.value.captchaToken) {
-    return {};
-  }
-  return  {
-    captchaType:sendPhoneNumberCaptchaRef.value.captchaToken.type,
-    messageType:'system.sms.captcha.login',
-    phoneNumber:authForm.value.username,
-    [sendPhoneNumberCaptchaRef.value.captchaToken.tokenParamName]: sendPhoneNumberCaptchaRef.value.captchaToken.token.name,
-  }
-}
-
-async function doSendPhoneNumberCaptcha(params:Record<string,unknown>) {
-  if (!sendPhoneNumberCaptchaRef.value.captchaToken) {
-    return
-  }
-  try {
-    sendPhoneNumberCaptchaRef.value.sending = true
-    const sendResult:RestResult<Record<string, unknown>> = await ResourceServerService.generateCaptcha(params)
-    if (sendResult.data) {
-      sendPhoneNumberCaptchaRef.value.result = sendResult.data as {codeLength:number, expired:TimeProperties} as SmsCaptchaGenerationResult
-      sendPhoneNumberCaptchaRef.value.disabledSendButton = true
-    }
-    console.info(sendPhoneNumberCaptchaRef.value.result)
+    const result = await ResourceServerService.sendPhoneNumberCaptcha(authForm.value.username, "system.sms.captcha.login")
+    sendPhoneNumberCaptchaRef.value.captchaToken = result.token as CaptchaToken
+    sendPhoneNumberCaptchaRef.value.disabledSendButton = true
+    sendPhoneNumberCaptchaRef.value.result = result.generateResult as CaptchaGenerationResult
+    sendPhoneNumberCaptchaRef.value.sendPhoneNumber = authForm.value.username
+    authForm.value = {...authForm.value, ...ResourceServerService.createGenerateTokenParam(sendPhoneNumberCaptchaRef.value.captchaToken)}
   } finally {
     sendPhoneNumberCaptchaRef.value.sending = false
   }
+
 }
 
-function createPostCaptchaParam(result: { data:string | null | undefined}, captchaToken:CaptchaToken) {
-  return {
-    captchaType:captchaToken.type,
-    [captchaToken.tokenParamName]: captchaToken.token.name,
-    [(captchaToken.args.post as {captchaParamName:string}).captchaParamName]:result.data
-  }
-}
 function onOtpComplete() {
   if (loading.value || sendPhoneNumberCaptchaRef.value.sending) {
     return

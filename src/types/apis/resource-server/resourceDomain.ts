@@ -220,7 +220,7 @@ export interface CaptchaToken extends CaptchaInterceptToken {
   interceptToken:CaptchaInterceptToken;
 }
 
-export interface SmsCaptchaGenerationResult {
+export interface CaptchaGenerationResult {
   codeLength:number
   expired:TimeProperties
 }
