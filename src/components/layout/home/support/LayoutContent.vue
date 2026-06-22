@@ -160,10 +160,10 @@ function getRouteCacheKey(route: RouteLocationNormalizedLoaded): string {
 function getRouteCachePrefix(route: RouteLocationNormalizedLoaded | RouteResourceMetadata) {
   if ((route as RouteLocationNormalizedLoaded).meta) {
     const loaded = (route as RouteLocationNormalizedLoaded)
-    return (String(loaded?.meta?.parentKeepAlive) || loaded.fullPath);
+    return String(loaded?.meta?.parentKeepAlive || loaded.fullPath);
   } else {
     const loaded = (route as RouteResourceMetadata)
-    return (String(loaded.parentKeepAlive) || loaded.page);
+    return String(loaded.parentKeepAlive || loaded.page);
   }
 }
 

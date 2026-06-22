@@ -156,22 +156,24 @@ onMounted(mounted)
         </l-basic-image>
       </a-card-grid>
     </a-card>
+    <div class="text-center mb-md">
+      <l-attachment-upload
+        accept="image/png,image/jpeg,image/jpg,image/bmp"
+        :before-upload="beforeUpload"
+        :show-upload-list="false"
+        :action="AvatarServerService.getUploadUrl(principalStore.state)"
+        @change="fileListChange"
+        :mode="ATTACHMENT_UPLOAD_MODE.CUSTOMIZE"
 
-    <l-attachment-upload
-      accept="image/png,image/jpeg,image/jpg,image/bmp"
-      :before-upload="beforeUpload"
-      :show-upload-list="false"
-      :action="AvatarServerService.getUploadUrl(principalStore.state)"
-      class="text-center mb-md"
-      @change="fileListChange"
-      :mode="ATTACHMENT_UPLOAD_MODE.CUSTOMIZE"
-
-    >
-      <span class="relative inline-block cursor-pointer">
-        <l-user-avatar :user="principalStore.state.details.metadata" :size="configProviderStore.getToken().sizeXL * 2" />
-        <icon-font class="icon text-text-secondary absolute bottom-0 right-0" type="loncra-camera" />
-      </span>
-    </l-attachment-upload>
+      >
+        <span class="relative inline-block cursor-pointer group rounded-full">
+          <l-user-avatar :user="principalStore.state.details.metadata" :size="configProviderStore.getToken().sizeXL * 2" />
+          <span class="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 transition-opacity opacity-0 group-hover:opacity-100">
+            <icon-font class="icon text-white" type="loncra-image-up" />
+          </span>
+        </span>
+      </l-attachment-upload>
+    </div>
 
     <a-typography-title :level="4" class="text-center">
       {{ principalStore.state.details?.metadata?.realName || principalStore.state?.name }}
