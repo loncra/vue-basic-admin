@@ -519,6 +519,8 @@ const locale: LanguagePack = {
     },
     history: 'Chat history',
     view: {
+      reference:'reference',
+      reedit:'re-edit',
       undo:{
         confirmTitle:'Undo Confirmation',
         confirmContent:'Are you sure you want to undo this message?',

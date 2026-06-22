@@ -192,12 +192,6 @@ export function displayUploadFileToListItem(
   return file
 }
 
-export function collectObjectWriteResults(
-  list: AttachmentFileItem[],
-): ObjectWriteResult[] {
-  return list.filter(isObjectWriteResult)
-}
-
 export function detectAttachmentValueMode(
   value: AttachmentValue | null,
   maxCount?: number,

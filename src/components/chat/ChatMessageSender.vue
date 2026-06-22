@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, ref, watch} from "vue";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {
   AttachmentBlock,
@@ -14,7 +14,7 @@ import type {
   AttachmentValue
 } from "@/types/composables/attachmentUpload.ts";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import {isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
+import {convertUploadFiles, isObjectWriteResult, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import type {ObjectWriteResult, UserChatMessageResponseBody} from "@/types/apis";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
@@ -223,8 +223,28 @@ function clear() {
   sender.focus({cursor: 'end'})
 }
 
+function convertContentBlockToSlotConfig(content:ChatContentBlock[]) {
+  const result:SlotConfigType[] = []
+  refMessages.value = []
+  for (const slot of content) {
+    if (slot.type === 'text') {
+      result.push({
+        type: 'text',
+        value: slot.value,
+      })
+    } else if (slot.type === 'custom' && slot.slotKind === 'files') {
+      result.push(createFilesSlot(convertUploadFiles(slot.files)))
+    } else if (slot.type === 'custom' && slot.slotKind === 'reference') {
+      refMessages.value = (slot as ReferenceBlock).value
+    }
+  }
+
+  return result;
+}
+
 defineExpose({
-  clear
+  clear,
+  convertContentBlockToSlotConfig
 })
 
 </script>
@@ -299,7 +319,6 @@ defineExpose({
         </a-space>
         <a-flex justify="space-between" align="center" gap="small">
           <component :is="components.ClearButton" @click="clear"/>
-          <!--          <component :is="components.SpeechButton" />-->
           <component
             :is="uploading || sending ? components.LoadingButton : components.SendButton"
             type="primary"

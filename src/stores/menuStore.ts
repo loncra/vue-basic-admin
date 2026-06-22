@@ -1,4 +1,4 @@
-import {computed, ref} from 'vue'
+import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants/systemConstant.ts'
 import type {
@@ -10,7 +10,7 @@ import type {
 import {AuthServerService} from '@/apis'
 import {isResultSuccess} from '@/requests'
 import {
-  type RouteLocationNormalized, type RouteLocationNormalizedGeneric,
+  type RouteLocationNormalized,
   type RouteMeta,
   type Router,
   type RouteRecordNormalized
@@ -62,10 +62,13 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   function $reset(): MenuState {
     const principalStore = usePrincipalStore();
     const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
-    const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
+    let quickAccess:RouteResourceMetadata[] = []
+    if (principalStore.state.name !== '') {
+      quickAccess = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
+    }
     return {
       ...RESET,
-      ...{quickAccess:quickAccess}
+      ...{quickAccess}
     }
   }
 
@@ -81,15 +84,6 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
     return quickAccessRecord;
   }
-
-  /*const currentPrincipalQuickAccess = computed(() => {
-    const principalStore = usePrincipalStore();
-    if (Number(principalStore.state.principal.id) <= 0) {
-      return []
-    }
-    const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
-    return getCurrentQuickAccess(principalStore.state.name, quickAccessRecord)
-  })*/
 
   function getCurrentQuickAccess(
     principal:string,
@@ -233,6 +227,9 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
   function setQuickAccess(route:RouteResourceMetadata) {
     const principalStore = usePrincipalStore();
+    if (principalStore.state.name === '') {
+      return
+    }
     const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
     const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
 
@@ -251,8 +248,24 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
   }
 
+  function refreshQuickAccess() {
+    state.value.quickAccess = getQuickAccess()
+  }
+
+  function getQuickAccess() {
+    const principalStore = usePrincipalStore();
+    if (principalStore.state.name === '') {
+      return []
+    }
+    const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
+    return getCurrentQuickAccess(principalStore.state.name, quickAccessRecord)
+  }
+
   function removeQuickAccess(path: string) {
     const principalStore = usePrincipalStore();
+    if (principalStore.state.name === '') {
+      return
+    }
     const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
     quickAccessRecord[principalStore.state.name] = (quickAccessRecord[principalStore.state.name] || []).filter(item => item.path !== path)
     localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
@@ -265,8 +278,9 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     resetCurrentBreadcrumbs,
     /*currentPrincipalQuickAccess,*/
     removeQuickAccess,
+    refreshQuickAccess,
     setRouteEnterLoading,
     toResourceRouteMetadata,
-    $reset,
+    reset,
   }
 })

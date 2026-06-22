@@ -24,6 +24,7 @@ import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
+import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 
 defineOptions({
   name: 'LChatView',
@@ -36,10 +37,10 @@ const socketStore = useSocketStore()
 const chatBubbleList = ref<InstanceType<typeof LChatBubbleList>>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const socketListener = ref<((() => void) | undefined)[]>([])
+const refMessages = ref<UserChatMessageResponseBody[]>([])
 
-
+const slotConfig = defineModel<SlotConfigType[]>("slotConfig", {default:() =>[]})
 const conversation = defineModel<ConversationActiveProps>("conversation", {default:{}})
-const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default:() =>[]})
 
 const emit = defineEmits<{
   send: [entity: UserChatMessageEntity],
@@ -120,8 +121,24 @@ function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
     value: globalProperties.$t('chat.view.undo.messageValue'),
     tooltip:globalProperties.$t('chat.view.undo.time', {time:':' + globalProperties.$dayjs(bubble.data.undoTime).fromNow()})
   }]
+  bubble.data.metadata = {oldContent:bubble.data.content}
   bubble.data.content = undoContent
   bubble.content = undoContent
+}
+
+function onReedit(content:ChatContentBlock[]) {
+  if (!senderRef.value) {
+    return
+  }
+  slotConfig.value = senderRef.value.convertContentBlockToSlotConfig(content)
+}
+
+function onReferenceMessage(message:UserChatMessageResponseBody) {
+  if (refMessages.value.some(r => r.id === message.id)) {
+    return
+  }
+
+  refMessages.value.push(message)
 }
 
 function mounted() {
@@ -167,9 +184,10 @@ defineExpose({
     <l-chat-bubble-list
       @reload-last-page="emit('reloadLastPage')"
       @load-page="(tag:'next' | 'previous', scrollBox: HTMLElement) => emit('loadPage', tag, scrollBox)"
+      @reedit="onReedit"
+      @reference-message="onReferenceMessage"
       ref="chatBubbleList"
       :conversation="conversation"
-      :ref-messages="refMessages"
     >
       <template #bubbleListAfter v-if="$slots.bubbleListAfter">
         <slot name="bubbleListAfter" />
@@ -178,9 +196,10 @@ defineExpose({
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
       <l-chat-message-sender
         ref="senderRef"
-        :upload-options="{param:{prefix:'user_chat_room/' + conversation.item.data.room.id}}"
         v-if="conversation?.item?.data"
+        v-model:slot-config="slotConfig"
         v-model:ref-messages="refMessages"
+        :upload-options="{param:{prefix:'user_chat_room/' + conversation.item.data.room.id}}"
         :placeholder="placeholderText"
         :disabled="getEnumValue(conversation.item.data.status) !== 10"
         :sending="conversation.sending"

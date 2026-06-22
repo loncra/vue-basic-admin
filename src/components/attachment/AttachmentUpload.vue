@@ -19,7 +19,6 @@ import {
   uploadFile as uploadAttachmentFile
 } from "@/composables/attachment/useAttachmentUploadExecutor.js";
 import {
-  collectObjectWriteResults,
   denormalizeAttachmentFromList,
   detectAttachmentValueMode,
   isObjectWriteResult,
@@ -84,17 +83,25 @@ function buildExecutorOptions(): AttachmentUploadExecutorOptions {
   }
 }
 
-function resolveUploadResult(results: ObjectWriteResult[]): ObjectWriteResult | ObjectWriteResult[] | undefined {
+function resolveUploadResult(results: AttachmentFileItem[]): ObjectWriteResult | ObjectWriteResult[] | undefined {
   const mode = detectAttachmentValueMode(value.value ?? undefined, props.maxCount)
   if (mode === 'single') {
-    return results[0]
+    return getObjectWriteResult(results[0] as AttachmentFileItem)
   }
-  return results
+  return results.map(s => getObjectWriteResult(s)).filter(s => s) as ObjectWriteResult[]
+}
+
+function getObjectWriteResult(item:AttachmentFileItem): ObjectWriteResult | undefined {
+  if (isObjectWriteResult(item)){
+    return item
+  } else if (isUploadFile(item) && item.response && item.status === 'done') {
+    return item.response
+  }
 }
 
 async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undefined> {
   const list = fileList.value
-  const existing = collectObjectWriteResults(list)
+  const existing = list.filter(s => isObjectWriteResult(s) || (isUploadFile(s) && s.response && s.status === 'done'))
   const pending = list.filter(
     (item): item is UploadFile => isUploadFile(item) && !!item.originFileObj,
   )

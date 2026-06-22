@@ -25,6 +25,7 @@ import type {RestResult, UserChatMessageEntity, UserChatMessageResponseBody} fro
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import useApp from "antdv-next/dist/app/useApp";
+import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 
 defineOptions({
   name: 'LChatBubbleList',
@@ -94,10 +95,11 @@ const bubbleListRole = {
 let readProcessing = false;
 
 const conversation = defineModel<ConversationActiveProps>("conversation", {default:{}})
-const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default:() =>[]})
 
 const emit = defineEmits<{
-  loadPage: [tag:'next' | 'previous', scrollBox: HTMLElement],
+  loadPage: [tag:'next' | 'previous', scrollBox: HTMLElement]
+  reedit:[content: ChatContentBlock[]]
+  referenceMessage:[message:UserChatMessageResponseBody]
   reloadLastPage:[]
 }>()
 
@@ -329,15 +331,15 @@ function tryFlashPendingItems(scrollBox: HTMLElement | undefined) {
   }
 }
 
+function reedit(item:UserChatMessageResponseBody) {
+  emit("reedit", item.metadata.oldContent as ChatContentBlock[])
+}
+
 function addRefMessage(item:UserChatMessageResponseBody) {
   if (!item) {
     return
   }
-  if (refMessages.value.some(r => r.id === item.id)) {
-    return
-  }
-
-  refMessages.value.push(item)
+  emit("referenceMessage", item)
 }
 
 function onUndoMessage(item:UserChatMessageResponseBody) {
@@ -378,7 +380,7 @@ watch(bubbleListItems, async (items) => {
 watch(() => conversation.value.item?.key, () => {
   readingSet.clear()
   sentIds.clear()
-  refMessages.value = []
+  //refMessages.value = []
 })
 
 onUnmounted(() => {
@@ -465,12 +467,21 @@ defineExpose({
       </template>
       <template #footer="{role, item}">
         <a-flex class="w-full" gap="small" :class="role === CHAT_BUBBLE_TYPE.USER ? '' : 'flex-row-reverse'">
-          <a-button :disabled="getEnumValue(item.data.undo) === 1" size="small" type="text" @click="addRefMessage(item.data)">
-            <icon-font type="loncra-text-quote"/>
-          </a-button>
-          <a-button size="small" :disabled="getEnumValue(item.data.undo) === 1" type="text" danger @click="onUndoMessage(item.data)" v-if="role === CHAT_BUBBLE_TYPE.USER">
-            <icon-font type="loncra-undo"/>
-          </a-button>
+          <a-tooltip :title="globalProperties.$t('chat.view.reedit')" v-if="getEnumValue(item.data.undo) === 1" >
+            <a-button size="small" type="text" @click="reedit(item.data)">
+              <icon-font type="loncra-message-square-reply"/>
+            </a-button>
+          </a-tooltip>
+          <a-tooltip :title="globalProperties.$t('chat.view.reference')" >
+            <a-button size="small" :disabled="getEnumValue(item.data.undo) === 1" type="text" @click="addRefMessage(item.data)">
+              <icon-font type="loncra-text-quote"/>
+            </a-button>
+          </a-tooltip>
+          <a-tooltip :title="globalProperties.$t('chat.view.undo.action')">
+            <a-button size="small" :disabled="getEnumValue(item.data.undo) === 1" type="text" danger @click="onUndoMessage(item.data)" v-if="role === CHAT_BUBBLE_TYPE.USER">
+              <icon-font type="loncra-undo"/>
+            </a-button>
+          </a-tooltip>
         </a-flex>
       </template>
     </ax-bubble-list>

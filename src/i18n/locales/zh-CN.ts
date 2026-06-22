@@ -512,6 +512,8 @@ const locale: LanguagePack = {
     },
     history: '聊天记录',
     view:{
+      reference:'引用',
+      reedit:'重新编辑',
       undo:{
         confirmTitle:'撤销确认',
         confirmContent:'确定要撤销该消息吗？',

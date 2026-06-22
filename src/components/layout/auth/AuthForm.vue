@@ -25,7 +25,6 @@ const globalProperties =
 const principalStore = usePrincipalStore()
 const socketStore = useSocketStore()
 
-
 const props = withDefaults(defineProps<AuthFormProp>(), {
   enablePhoneAuth: true,
   enableQrCodeAuth: false,
@@ -99,6 +98,7 @@ const doAuth = async (): Promise<void> => {
   loading.value = true
   try {
     const data = await principalStore.login(authForm.value, AUTHENTICATION_TYPE.CONSOLE)
+
     if (data.authenticated) {
       socketStore.ensureConnected()
       globalProperties.$router.push('/')

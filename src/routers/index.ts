@@ -336,9 +336,10 @@ const reloadRoute = async (): Promise<RouteRecordRaw[]> => {
 const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   // 获取认证状态
   const principalStore = usePrincipalStore()
+  const socketStore = useSocketStore()
+  const menuPrincipalStore = useMenuPrincipalStore()
 
   if (to.name === import.meta.env.VITE_APP_AUTH_PAGE_NAME) {
-    const socketStore = useSocketStore()
     socketStore.disconnect()
     await principalStore.logout()
     clearRoute()
@@ -346,10 +347,10 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   } else if (routes.some(route => route.name === to.name)) {
     return
   }
-
   // 仅在初始状态时尝试加载动态路由
   if (!initialState.value) {
     await reloadRoute()
+    menuPrincipalStore.refreshQuickAccess()
     return {...to, replace: true}
   }
 
@@ -367,10 +368,10 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   }
 
   if (principalStore.isAuthenticated) {
-    useSocketStore().ensureConnected()
+    socketStore.ensureConnected()
   }
 
-  useMenuPrincipalStore().setRouteEnterLoading(to.fullPath, true)
+  menuPrincipalStore.setRouteEnterLoading(to.fullPath, true)
   // 默认继续导航
   return true
 }

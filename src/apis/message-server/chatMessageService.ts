@@ -163,7 +163,7 @@ export class ChatMessageService  {
       if (block.type === 'text') {
         content += block.value || ''
       } else if (block.type === 'custom' && block.slotKind === 'files') {
-        for (const file of block.files) {
+        for (const file of block.files || []) {
           const contentType = file?.extraHeaders?.['Content-Type'] || ''
           if (contentType.startsWith('image/')) {
             content += '[' + i18n.global.t('attachment.type.image') + ']'

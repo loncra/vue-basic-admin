@@ -16,6 +16,8 @@ const checkDataValues: string[] = ['true', '1']
  * @returns 是否为成功响应
  */
 export function isBusinessSuccess<T>(result: RestResult<T>): boolean {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   return result.status === 200 && HTTP.SUCCESS_EXECUTE_CODES.includes(result.executeCode)
 }
 

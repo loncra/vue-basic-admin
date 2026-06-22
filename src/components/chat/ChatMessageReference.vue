@@ -30,12 +30,12 @@ const emit = defineEmits<{
 <template>
   <a-tag
     @click="emit('click', props.message)"
-    class="cursor-pointer max-w-80"
+    class="cursor-pointer max-w-80 flex flex-inline"
     v-bind="$attrs"
     :color="getEnumValue(props.message.participant.type) !== 30 ? 'gold' : undefined"
   >
-    <a-flex>
-      <span class="flex flex-inline shrink-0">
+    <a-flex class="flex-inline">
+      <a-typography-text class="flex flex-inline shrink-0">
         <template v-if="getEnumValue(props.message.participant.type) !== 30">
           [{{getEnumName(props.message.participant.type)}}]
         </template>
@@ -43,15 +43,13 @@ const emit = defineEmits<{
           {{ globalProperties.$t('common.me') }}
         </template>
         <template v-else>
-          {{ AuthServerService.getPrincipalNameByUserDetails(props.message.participant.metadata.details) }}
+          [{{ AuthServerService.getPrincipalNameByUserDetails(props.message.participant.metadata.details) }}]
         </template>
-        :
-      </span>
-      <a-flex flex="1" class="min-w-0 w-full" >
-        <a-typography-text type="secondary" ellipsis>
-          {{ ChatMessageService.getMessageContent(props.message)}}
-        </a-typography-text>
-      </a-flex>
+        : 
+      </a-typography-text>
+      <a-typography-text class="min-w-0 w-full flex flex-inline flex-1" type="secondary" ellipsis>
+        {{ ChatMessageService.getMessageContent(props.message)}}
+      </a-typography-text>
     </a-flex>
   </a-tag>
 </template>
