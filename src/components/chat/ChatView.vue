@@ -78,6 +78,9 @@ async function onSendMessage(content: ChatContentBlock[]) {
     emit("send", body)
     await nextTick()
     chatBubbleList.value?.scrollTo({ top: "bottom", behavior: "smooth" });
+    if (conversation.value?.item?.data?.draft) {
+      conversation.value.item.data.draft = []
+    }
   } finally {
     conversation.value.sending = false
   }
