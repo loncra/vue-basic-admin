@@ -50,7 +50,7 @@ const currentValue = computed(() => {
     :menu="{items:props.options.map(r => ({label: r.label,iconFont:r.icon, key: r.key}))}"
     @menu-click="onMenuClick"
   >
-    <a-button :type="active ? 'primary' : 'text'" :size="size" :disabled="disabled">
+    <a-button :type="active ? 'primary' : 'text'" class="mb-[1px]" :size="size" :disabled="disabled">
       <a-space v-if="currentValue">
         <icon-font v-if="currentValue.icon" class="icon align" :type="currentValue.icon" />
         {{ currentValue?.label }}

@@ -149,12 +149,12 @@ const routes: RouteRecordRaw[] = [
     name: import.meta.env.VITE_APP_HOME_PAGE_NAME,
     component: Home,
     children: childrenRoutes
-  },
+  }/*,
   {
     path: "/:pathMatch(.*)*",
     name: 'not_found',
     redirect: "/error/404"
-  }
+  }*/
 ]
 
 /**

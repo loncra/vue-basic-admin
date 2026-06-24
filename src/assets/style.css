@@ -361,4 +361,12 @@
   .antd-sender-input.antd-sender-input-slot.chat-sender-input > .antd-sender-slot:not(.antd-sender-slot-content) {
     @apply h-auto! align-bottom!
   }
+
+  .ant-form-item.ant-form-item-has-error .loncra-tip-tap{
+    @apply border-error
+  }
+
+  .ant-form-item.ant-form-item-has-error .loncra-tip-tap .l-tip-tap-toolbar {
+    @apply border-b-error
+  }
 }
