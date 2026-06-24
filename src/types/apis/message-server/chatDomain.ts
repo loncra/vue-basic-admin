@@ -1,6 +1,7 @@
 import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common";
 import type {ChatContentBlock} from "@/types/composables";
 import type {FileObject, PlatformUser} from "@/types/apis";
+import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 
 /**
  * 聊天房间
@@ -75,22 +76,28 @@ export interface UserChatMessageResponseBody extends UserChatMessageEntity {
 }
 
 export interface BasicUserChatConversation extends VersionEntityMetadata {
-  /** 所属用户 */
+  /**
+   * 所属用户
+   **/
   principal: string
   name: string
   cover: FileObject[]
-  /** 是否置顶 */
+  /**
+   * 是否置顶
+   * */
   pinned: NameValueEnumMetadata<number> | number
-  /** 置顶时间 */
+  /**
+   * 置顶时间
+   **/
   pinnedTime: number
   /**
    * 状态:10.启用,20.已退出,30.已解散
    */
   status:NameValueEnumMetadata<number> | number
-  /** 是否免打扰 */
+  /**
+   * 是否免打扰
+   **/
   muted: NameValueEnumMetadata<number> | number
-  /** 草稿内容 */
-  draft: Record<string, unknown>[]
 }
 
 export interface UserChatConversationEntity extends BasicUserChatConversation {
@@ -107,6 +114,8 @@ export interface UserChatConversationResponseBody extends BasicUserChatConversat
   room: UserChatRoomEntity
   /** 可读数量 **/
   readableCount: number
+  /** 草稿内容 */
+  draft?: SlotConfigType[]
 }
 
 export interface UserChatMessageReadEntity extends VersionEntityMetadata {

@@ -24,7 +24,6 @@ import {useSocketStore} from "@/stores/socketStore.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
-import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 
 defineOptions({
   name: 'LChatView',
@@ -39,8 +38,7 @@ const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const socketListener = ref<((() => void) | undefined)[]>([])
 const refMessages = ref<UserChatMessageResponseBody[]>([])
 
-const slotConfig = defineModel<SlotConfigType[]>("slotConfig", {default:() =>[]})
-const conversation = defineModel<ConversationActiveProps>("conversation", {default:{}})
+const conversation = defineModel<ConversationActiveProps>("conversation", {default:() => {}})
 
 const emit = defineEmits<{
   send: [entity: UserChatMessageEntity],
@@ -127,10 +125,10 @@ function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
 }
 
 function onReedit(content:ChatContentBlock[]) {
-  if (!senderRef.value) {
+  if (!senderRef.value || !conversation.value?.item?.data) {
     return
   }
-  slotConfig.value = senderRef.value.convertContentBlockToSlotConfig(content)
+  conversation.value.item.data.draft = senderRef.value.convertContentBlockToSlotConfig(content)
 }
 
 function onReferenceMessage(message:UserChatMessageResponseBody) {
@@ -171,7 +169,8 @@ defineExpose({
     top?: number | "bottom" | "top";
     behavior?: ScrollBehavior;
     block?: ScrollLogicalPosition;
-  }) => chatBubbleList.value?.scrollTo(options)
+  }) => chatBubbleList.value?.scrollTo(options),
+  getSenderSlotConfigValue:() => senderRef?.value?.getSlotConfigValue() || []
 })
 </script>
 
@@ -197,7 +196,7 @@ defineExpose({
       <l-chat-message-sender
         ref="senderRef"
         v-if="conversation?.item?.data"
-        v-model:slot-config="slotConfig"
+        :slot-config="conversation.item.data.draft"
         v-model:ref-messages="refMessages"
         :upload-options="{param:{prefix:'user_chat_room/' + conversation.item.data.room.id}}"
         :placeholder="placeholderText"

@@ -500,7 +500,8 @@ const locale: LanguagePack = {
     },
     conversation:{
       delete:'删除会话',
-      newMessage:'有{count}条未读消息'
+      newMessage:'有{count}条未读消息',
+      draft:'草稿'
     },
     pinned:{
       action:'置顶聊天',

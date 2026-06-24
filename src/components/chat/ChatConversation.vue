@@ -283,10 +283,10 @@ defineExpose({
                 }}
               </a-typography-text>
             </a-flex>
-            <a-typography-text ellipsis v-if="item?.data?.draft" type="danger">
-              [草稿]:{{ item?.data?.draft }}
+            <a-typography-text ellipsis v-if="item?.data?.draft && item?.data?.draft.length > 0" type="danger">
+              [{{globalProperties.$t('chat.conversation.draft')}}]:{{ ChatMessageService.getDraftContent(item?.data?.draft) }}
             </a-typography-text>
-            <a-typography-text ellipsis v-if="item?.data?.lastUserMessage" type="secondary">
+            <a-typography-text ellipsis v-else-if="item?.data?.lastUserMessage" type="secondary">
               {{ ChatMessageService.getMessageContent(item?.data?.lastUserMessage) }}
             </a-typography-text>
           </a-flex>

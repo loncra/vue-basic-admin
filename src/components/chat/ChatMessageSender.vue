@@ -244,7 +244,8 @@ function convertContentBlockToSlotConfig(content:ChatContentBlock[]) {
 
 defineExpose({
   clear,
-  convertContentBlockToSlotConfig
+  convertContentBlockToSlotConfig,
+  getSlotConfigValue:() => senderRef?.value?.getValue()?.slotConfig || []
 })
 
 </script>

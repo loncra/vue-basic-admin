@@ -166,10 +166,13 @@ async function onContactSelected(value: UserChatConversationResponseBody) {
 
 async function onConversationsChange(conversationItem:ServerConversationItem, reload:boolean = false) {
   if (conversationActive.value.loading) {
-    return;
+    return
+  }
+  if (conversationActive.value.item?.data && chatViewRef.value) {
+    conversationActive.value.item.data.draft = chatViewRef.value.getSenderSlotConfigValue()
   }
   if (conversationActive.value?.item?.key === conversationItem.key && !reload) {
-    conversationActive.value.item = conversationItem
+    conversationActive.value.item = {...conversationActive.value.item, ...conversationItem}
     return
   }
   conversationActive.value.loading = true
@@ -218,6 +221,7 @@ async function onConversationRefreshByRoomId(result:RestResult<number>) {
 async function onConversationRefresh() {
   const chatRoomResult: RestResult<UserChatConversationResponseBody[]> = await ChatMessageService.my()
   if (chatRoomResult.data) {
+    chatRoomResult.data.filter(d => !d.draft).forEach(d => d.draft = [])
     options.value.conversationDataSource = [...chatRoomResult.data]
   }
 
@@ -292,7 +296,7 @@ async function setActiveConversationItemByEntity(body:UserChatConversationRespon
     const activeConversationItem:ServerConversationItem = {
       key: String(body.id),
       label: body.name,
-      data: body,
+      data: body
     }
     await setActiveConversationItem(activeConversationItem)
   } else {

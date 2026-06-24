@@ -507,7 +507,8 @@ const locale: LanguagePack = {
     },
     conversation: {
       delete: 'Delete conversation',
-      newMessage:'There are {count} unread messages'
+      newMessage:'There are {count} unread messages',
+      draft:'draft'
     },
     pinned: {
       action: 'Pin chat',
