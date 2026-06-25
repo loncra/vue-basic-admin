@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, h, ref, watch} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {
   AttachmentBlock,
@@ -18,7 +18,7 @@ import {convertUploadFiles, isObjectWriteResult, requireNonNullOrUndefined} from
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import type {ObjectWriteResult, UserChatMessageResponseBody} from "@/types/apis";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
-import emojiGroups from 'unicode-emoji-json/data-by-group.json'
+import LEmojiButton from "@/components/basic/EmojiButton.vue";
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -35,13 +35,6 @@ const uploading = ref<boolean>(false)
 
 const sending = defineModel<boolean>("sending", {default: false})
 const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
-const emojiOptions = ref<{
-  activeKey: string
-  open: boolean
-}>({
-  activeKey: 'smileys_emotion',
-  open: false
-})
 
 const props = withDefaults(defineProps<{
   slotConfig?: SlotConfigType[]
@@ -210,7 +203,6 @@ async function onSubmit(_message: string, _slotConfig?: SlotConfigType[]) {
 }
 
 function onSelectedEmoji(emoji: string) {
-  emojiOptions.value.open = false
   senderRef.value?.insert([{type: 'text', value: emoji}], 'cursor')
 }
 
@@ -283,40 +275,7 @@ defineExpose({
     <template #footer="{ components }" v-if="!props.disabled">
       <a-flex justify="space-between" align="center" gap="small">
         <a-space>
-          <a-popover trigger="click" v-model:open="emojiOptions.open">
-            <template #content>
-              <div class="w-100">
-                <a-tabs
-                  :active-key="emojiOptions.activeKey"
-                  :items="emojiGroups.filter(r => !['people_body','symbols', 'flags'].includes(r.slug)).map(e => ({key:e.slug, label:currentInstance.appContext.config.globalProperties.$t('chat.emoji.' + e.slug)}))"
-                  @change="(key:string )=> emojiOptions.activeKey = key "
-                >
-                  <template #contentRender="{item}">
-                    <div class="max-h-80 overflow-auto">
-                      <a-card size="small">
-                        <a-card-grid
-                          class="cursor-pointer p-0 w-1/11 text-center pt-xs pb-xs "
-                          :key="v.name"
-                          v-for="v of emojiGroups.find(e => e.slug === item.key)?.emojis || []"
-                          @click="onSelectedEmoji(v.emoji)"
-                        >
-                          <span class="text-2xl leading-none">
-                            {{ v.emoji }}
-                          </span>
-                        </a-card-grid>
-                      </a-card>
-                    </div>
-                  </template>
-                </a-tabs>
-              </div>
-            </template>
-
-            <a-button type="text">
-              <template #icon>
-                <icon-font type="loncra-smile"/>
-              </template>
-            </a-button>
-          </a-popover>
+          <l-emoji-button @selected="onSelectedEmoji" />
         </a-space>
         <a-flex justify="space-between" align="center" gap="small">
           <component :is="components.ClearButton" @click="clear"/>

@@ -75,7 +75,7 @@ onActivated(activated)
         </div>
       </template>
       <div class="h-full min-h-0 p-xs bg-layout border-r border-r-border-secondary">
-        <a-segmented size="large" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
+        <a-segmented size="large" shape="round" orientation="vertical" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
           <template #iconRender="{ iconText,value }">
             <a-badge dot :count="messageServerStore.getUnreadQuantityByType(value)">
               <icon-font class="icon align" :type="iconText" />
