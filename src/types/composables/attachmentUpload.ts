@@ -107,7 +107,7 @@ export interface AttachmentPreviewProps extends AttachmentUploadDomProps {
 }
 
 export interface AttachmentPreviewFileProps {
-  file: UploadFile
+  file: UploadFile<ObjectWriteResult>
   border?:boolean
   enabledDelete?:boolean
   enabledDownload?:boolean

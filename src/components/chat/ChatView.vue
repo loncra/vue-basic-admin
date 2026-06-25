@@ -1,16 +1,8 @@
 <script setup lang="ts">
 
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
-import type {ChatContentBlock, ConversationActiveProps} from "@/types/composables";
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  nextTick,
-  onMounted,
-  onUnmounted,
-  ref
-} from "vue";
+import type {ChatContentBlock} from "@/types/composables";
+import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
   RestResult,
@@ -20,7 +12,8 @@ import type {
 } from "@/types/apis";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {useSocketStore} from "@/stores/socketStore.ts";
+import {addBubbleListMessage, useChatContext} from "@/composables/chat";
+import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
@@ -32,20 +25,13 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
-const socketStore = useSocketStore()
+
+const {conversationActive: conversation, conversations} = useChatContext()
+const {on} = useSocketSubscriptions()
+
 const chatBubbleList = ref<InstanceType<typeof LChatBubbleList>>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
-const socketListener = ref<((() => void) | undefined)[]>([])
 const refMessages = ref<UserChatMessageResponseBody[]>([])
-
-const conversation = defineModel<ConversationActiveProps>("conversation", {default:() => {}})
-
-const emit = defineEmits<{
-  send: [entity: UserChatMessageEntity],
-  loadPage: [tag:'next' | 'previous', scrollBox: HTMLElement],
-  reloadLastPage:[]
-}>()
-
 
 const placeholderText = computed(() => {
   if (getEnumValue(conversation.value?.item?.data?.status) === 20) {
@@ -61,8 +47,8 @@ const placeholderText = computed(() => {
 
 async function onSendMessage(content: ChatContentBlock[]) {
   const conversationItem = conversation.value.item as ConversationItemType | undefined
-  const body = conversationItem?.data as UserChatConversationResponseBody | undefined
-  const chatRoomId = body?.room?.id
+  const data = conversationItem?.data as UserChatConversationResponseBody | undefined
+  const chatRoomId = data?.room?.id
   if (!chatRoomId || !conversationItem) {
     return
   }
@@ -72,10 +58,10 @@ async function onSendMessage(content: ChatContentBlock[]) {
     if (!result.data) {
       return
     }
-    const body: UserChatMessageResponseBody = result.data
-    ChatMessageService.addBubbleListMessage(body, CHAT_BUBBLE_TYPE.USER, conversation.value.bubbleList)
+    const messageBody: UserChatMessageResponseBody = result.data
+    addBubbleListMessage(messageBody, CHAT_BUBBLE_TYPE.USER, conversation.value.bubbleList)
     senderRef.value?.clear()
-    emit("send", body)
+    conversations.moveToTopByRoomId(messageBody.chatRoomId, (c) => (c.lastUserMessage = messageBody))
     await nextTick()
     chatBubbleList.value?.scrollTo({ top: "bottom", behavior: "smooth" });
     if (conversation.value?.item?.data?.draft) {
@@ -142,22 +128,14 @@ function onReferenceMessage(message:UserChatMessageResponseBody) {
   refMessages.value.push(message)
 }
 
-function mounted() {
-  socketListener.value.push(socketStore.subscribe(
-    SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ,
-    (payload) => onChatMessageReadReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
-  ))
-  socketListener.value.push(socketStore.subscribe(
-    SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
-    (payload) => onChatMessageUndo(parseSocketRestPayload<UserChatMessageEntity>(payload))
-  ))
-}
-
-onMounted(mounted)
-
-onUnmounted(() => {
-  socketListener.value.forEach(f => f?.())
-});
+on(
+  SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ,
+  (payload) => onChatMessageReadReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
+)
+on(
+  SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
+  (payload) => onChatMessageUndo(parseSocketRestPayload<UserChatMessageEntity>(payload))
+)
 
 defineExpose({
   getScrollBox: () => chatBubbleList.value?.getScrollBox(),
@@ -184,12 +162,9 @@ defineExpose({
     class="h-full min-h-0 overflow-hidden"
   >
     <l-chat-bubble-list
-      @reload-last-page="emit('reloadLastPage')"
-      @load-page="(tag:'next' | 'previous', scrollBox: HTMLElement) => emit('loadPage', tag, scrollBox)"
       @reedit="onReedit"
       @reference-message="onReferenceMessage"
       ref="chatBubbleList"
-      :conversation="conversation"
     >
       <template #bubbleListAfter v-if="$slots.bubbleListAfter">
         <slot name="bubbleListAfter" />

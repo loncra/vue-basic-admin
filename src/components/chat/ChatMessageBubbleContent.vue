@@ -19,6 +19,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
+
   <template v-for="(block, index) in content" :key="index">
     <span
       v-if="block.type === 'text'"

@@ -1,32 +1,19 @@
 <script setup lang="ts">
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  onMounted,
-  ref,
-  watch
-} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 import type {
-  BasicUserChatConversation,
   ContactItem,
   RestResult,
   UserChatConversationResponseBody,
-  UserChatMessageResponseBody,
-  UserChatParticipantEntity
+  UserChatMessageResponseBody
 } from "@/types/apis";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import useApp from "antdv-next/dist/app/useApp";
-import type {ChatRoomViewModalOpenType} from "@/types/composables";
-import {CHAAT_ROOM_VIEW_MODAL_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
-import {useSocketStore} from "@/stores/socketStore.ts";
-import {parseSocketRestPayload} from "@/types/socket.ts";
+import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
 import {AuthServerService} from "@/apis";
 import LChatMessageHistories from "@/components/chat/ChatMessageHistories.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {useChatContext, useChatRoomSettings} from "@/composables/chat";
 
 defineOptions({
   name: 'LChatRoomView',
@@ -36,8 +23,6 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const {message, modal} = useApp()
-
 const props = withDefaults(defineProps<{
   contactDataSource:ContactItem[],
 }>(),{
@@ -45,32 +30,7 @@ const props = withDefaults(defineProps<{
 })
 
 const principalStore = usePrincipalStore()
-const socketStore = useSocketStore()
-const participants = ref<UserChatParticipantEntity[]>([])
-const options = ref<{
-  editName:boolean
-  currentConversation?:UserChatConversationResponseBody
-  selectedUser:ContactItem[]
-}>({
-  editName:false,
-  selectedUser:[]
-})
-
-const modalOptions = ref<{
-  open: boolean
-  title?:string
-  footer:boolean
-  type?:ChatRoomViewModalOpenType
-  confirmLoading?:boolean
-}>({
-  open:false,
-  footer:true
-})
-
-const conversation = defineModel<UserChatConversationResponseBody>("conversation")
-
-const socketListener = ref<((() => void) | undefined)[]>([])
-const loading = ref<boolean>(false);
+const {conversationActive} = useChatContext()
 
 const emit = defineEmits<{
   addParticipant: [info: ContactItem[], restResult:RestResult<UserChatConversationResponseBody>],
@@ -78,312 +38,37 @@ const emit = defineEmits<{
   historyClick:[data:UserChatMessageResponseBody]
 }>()
 
-const systemUserPanelDataSource = computed<ContactItem[]>(() => {
-  if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT) {
-    return props.contactDataSource
-  }
-  if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING) {
-    return participants.value
-      .filter(p => p.principal !== principalStore.state.name)
-      .map(toContactItem)
-  }
-  return []
-})
-
-function toContactItem(p: UserChatParticipantEntity): ContactItem {
-  return {
-    key: String(p.metadata.details.id),
-    label: String(AuthServerService.getPrincipalNameByUserDetails(p.metadata.details)),
-    data: p.metadata.details,
-    participantType:p.type
-  }
-}
-
-function onChatParticipantRefreshByRoomId(restResult: RestResult<number>) {
-  if (!options.value.currentConversation || !options.value.currentConversation?.room.id) {
-    return
-  }
-  if (options.value.currentConversation?.room.id !== restResult.data) {
-    return
-  }
-  loadParticipant()
-}
-
-async function mounted() {
-  socketListener.value.push(socketStore.subscribe(
-    SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID,
-    (payload) => onChatParticipantRefreshByRoomId(parseSocketRestPayload<number>(payload))
-  ))
-  if (!conversation.value) {
-    return
-  }
-  if (options.value.currentConversation && options.value.currentConversation.id === conversation.value.id) {
-    return
-  }
-  options.value.currentConversation = {...conversation.value}
-  await loadParticipant()
-}
-
-async function loadParticipant() {
-  if (!conversation.value || getEnumValue(conversation.value?.status) !== 10) {
-    return
-  }
-  try {
-    loading.value = true
-    const result:RestResult<UserChatParticipantEntity[]> = await ChatMessageService.findRoomParticipant(Number(conversation.value.room.id))
-    if (result.data) {
-      participants.value = result.data
-    }
-  } finally {
-    loading.value = false
-  }
-}
-
-function onFilterSystemUser(item:ContactItem) {
-  if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT) {
-    return !participants.value.map(d => d.metadata.details.id).includes(item.data.id)
-  }
-  return true
-}
-
-async function confirmAddParticipant(){
-  if (!conversation.value) {
-    return
-  }
-
-  if (options.value.selectedUser.length <= 0 || !conversation.value.room?.id) {
-    return
-  }
-  const principals = options.value.selectedUser.map(d => d.data).map(u => u.systemName)
-
-  try {
-    modalOptions.value.confirmLoading = true
-    const result:RestResult<UserChatConversationResponseBody> = await ChatMessageService.addRoomParticipant(Number(conversation.value.room.id), principals)
-    emit("addParticipant", options.value.selectedUser, result)
-    onModalCancel()
-  } finally {
-    modalOptions.value.confirmLoading = false;
-  }
-}
-
-async function onRename() {
-  if (!options.value.currentConversation) {
-    return
-  }
-  try {
-    loading.value = true
-    const result:RestResult<void> = await ChatMessageService.roomRename(Number(options.value.currentConversation.room.id), String(options.value.currentConversation.name))
-    message.success(result.message)
-    options.value.editName = false
-  } finally {
-    loading.value = false;
-  }
-}
-
-function onCancelRename() {
-  if (!conversation.value || !options.value.currentConversation) {
-    return
-  }
-  options.value.currentConversation.name = conversation.value.name
-  options.value.editName = false
-}
-
-async function onPinnedChange() {
-  if (!conversation.value) {
-    return
-  }
-  try {
-    loading.value = true
-    const result:RestResult<BasicUserChatConversation[]> = await ChatMessageService.pinnedConversation([Number(conversation.value.id)])
-    if (!result.data || result?.data.length <= 0) {
-      return
-    }
-    const c:BasicUserChatConversation = result?.data?.at(0) as BasicUserChatConversation
-    if (c) {
-      conversation.value.pinned = c.pinned
-    }
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function onMutedChange() {
-  if (!conversation.value) {
-    return
-  }
-  try {
-    loading.value = true
-    const result:RestResult<BasicUserChatConversation[]> = await ChatMessageService.mutedConversation([Number(conversation.value.id)])
-    if (!result.data || result?.data.length <= 0) {
-      return
-    }
-    const c:BasicUserChatConversation = result?.data?.at(0) as BasicUserChatConversation
-    if (c) {
-      conversation.value.muted = c.muted
-    }
-  } finally {
-    loading.value = false;
-  }
-}
-
-function onModalCancel() {
-  modalOptions.value.open = false
-  options.value.selectedUser = [];
-}
-
-function onAddParticipant() {
-  if (!conversation.value || !conversation.value.room?.id) {
-    return
-  }
-  modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
-  modalOptions.value.title = globalProperties.$t("chat.roomView.addParticipant")
-  modalOptions.value.open = true
-  modalOptions.value.footer = true
-}
-
-function onMemberSetting() {
-  if (!conversation.value || !conversation.value.room?.id) {
-    return
-  }
-  modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
-  modalOptions.value.title = globalProperties.$t("chat.roomView.memberManager")
-  modalOptions.value.open = true
-  modalOptions.value.footer = true
-}
-
-function onOpenHistories() {
-  if (!conversation.value || !conversation.value.room?.id) {
-    return
-  }
-
-  modalOptions.value.type = CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES
-  modalOptions.value.title = globalProperties.$t("chat.roomView.histories.title",{name:conversation.value.name})
-  modalOptions.value.open = true
-  modalOptions.value.footer = false
-}
-
-function onHistoryClick(data:UserChatMessageResponseBody) {
-  emit('historyClick', data)
-  onModalCancel()
-}
-
-async function onUpdateParticipantType(type:number) {
-  const principals = options.value.selectedUser.map(d => d.data).map(u => u.systemName)
-  if (principals.length <= 0) {
-    return
-  }
-
-  if (!conversation.value || !conversation.value.room?.id) {
-    return
-  }
-
-  try {
-    modalOptions.value.confirmLoading = true
-    const result:RestResult<void> = await ChatMessageService.updateParticipantType(conversation.value.room.id, type, principals)
-    message.success(result.message)
-    //await loadParticipant()
-    onModalCancel()
-  } finally {
-    modalOptions.value.confirmLoading = false;
-  }
-}
-
-async function onRemoveMember() {
-  const principals = options.value.selectedUser.map(d => d.data).map(u => u.systemName)
-  if (principals.length <= 0) {
-    return
-  }
-
-  if (!conversation.value || !conversation.value.room?.id) {
-    return
-  }
-
-  try {
-    modalOptions.value.confirmLoading = true
-    const result:RestResult<void> = await ChatMessageService.removeRoomParticipant(conversation.value.room.id, principals)
-    message.success(result.message)
-    await loadParticipant()
-    onModalCancel()
-  } finally {
-    modalOptions.value.confirmLoading = false;
-  }
-}
-
-function onExist() {
-
-  if (!conversation.value) {
-    return
-  }
-
-  if (getEnumValue(conversation.value.status) === 10) {
-    modal.confirm({
-      title: globalProperties.$t('chat.roomView.exitRoom.title'),
-      content: globalProperties.$t('chat.roomView.exitRoom.content', {name: conversation.value.name}),
-      onOk: () => doExist(),
-    })
-  } else {
-    modal.confirm({
-      title: globalProperties.$t('common.delete.confirmTitle'),
-      content:globalProperties.$t('common.delete.confirmSingle'),
-      onOk: () => doConversationDelete(conversation.value),
-    })
-  }
-
-}
-
-function onDisbandRoom() {
-  if (!conversation.value || !conversation.value.room?.id) {
-    return
-  }
-  modal.confirm({
-    title: globalProperties.$t('chat.roomView.disbandRoom.title'),
-    content: globalProperties.$t('chat.roomView.disbandRoom.content', {name: conversation.value.name}),
-    onOk: () => doDisbandRoom(),
-  })
-}
-
-async function doDisbandRoom() {
-  if (!conversation.value || !conversation.value.room?.id) {
-    return
-  }
-  try {
-    loading.value = true
-    const result:RestResult<void> = await ChatMessageService.disbandRoom(conversation.value.room.id)
-    message.success(result.message)
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function doConversationDelete(body:UserChatConversationResponseBody | undefined) {
-  if (!body) {
-    return
-  }
-  try {
-    const result:RestResult<void> = await ChatMessageService.deleteConversation([Number(body.id)])
-    message.success(result.message)
-    emit("deleteConversation",body)
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  }
-}
-
-async function doExist() {
-  if (!conversation.value || !conversation.value.room?.id) {
-    return
-  }
-  try {
-    loading.value = true
-    const result:RestResult<void> = await ChatMessageService.existRoom(conversation.value.room.id)
-    message.success(result.message)
-  } finally {
-    loading.value = false;
-  }
-}
-
-onMounted(mounted)
-
-watch(() => conversation.value, () => loadParticipant(), { deep: true })
+const {
+  conversation,
+  participants,
+  loading,
+  options,
+  modalOptions,
+  systemUserPanelDataSource,
+  onFilterSystemUser,
+  confirmAddParticipant,
+  onRename,
+  onCancelRename,
+  onPinnedChange,
+  onMutedChange,
+  onModalCancel,
+  onAddParticipant,
+  onMemberSetting,
+  onOpenHistories,
+  onHistoryClick,
+  onUpdateParticipantType,
+  onRemoveMember,
+  onExist,
+  onDisbandRoom,
+} = useChatRoomSettings(
+  () => conversationActive.value.item?.data,
+  () => props.contactDataSource,
+  {
+    onAddParticipant: (info, result) => emit('addParticipant', info, result),
+    onDeleteConversation: (body) => emit('deleteConversation', body),
+    onHistoryClick: (data) => emit('historyClick', data),
+  },
+)
 
 </script>
 

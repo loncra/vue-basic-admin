@@ -5,40 +5,19 @@ import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
 import {AuthServerService} from "@/apis";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  h,
-  nextTick,
-  onUnmounted,
-  ref,
-  watch
-} from "vue";
-import type {BubbleItemType, BubbleListRef, RoleType} from "@antdv-next/x/dist/bubble/interface";
-import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps} from "@/types/composables";
-import ChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
+import {type ComponentInternalInstance, getCurrentInstance} from "vue";
+import type {ChatContentBlock} from "@/types/composables";
 import {BubbleList as AxBubbleList} from "@antdv-next/x";
-import {throttle} from "lodash-es";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
-import type {RestResult, UserChatMessageEntity, UserChatMessageResponseBody} from "@/types/apis";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import useApp from "antdv-next/dist/app/useApp";
-import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import type {UserChatMessageResponseBody} from "@/types/apis";
+import {useChatBubbleList, useChatContext} from "@/composables/chat";
 
 defineOptions({
   name: 'LChatBubbleList',
 })
 
-const {message,modal} = useApp()
-
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
-
-const principalStore = usePrincipalStore()
-const messageServerStore = useMessageServerStore()
 
 const props = withDefaults(defineProps<{
   scrollToBottomThreshold?:number
@@ -54,349 +33,42 @@ const props = withDefaults(defineProps<{
   timeDividerGap:5 * 60 * 1000
 })
 
-const showScrollToBottom = ref<boolean>(false)
-const bubbleListRef = ref<BubbleListRef>()
-
-const readingSet = new Set<number>();
-const sentIds = new Set<number>();
-const bubbleListRole = {
-  user: {
-    contentRender: renderBubbleContent,
-    variant: 'filled',
-    placement: 'end',
-    shape: 'corner',
-    classes: {content: 'bg-primary-bg!'},
-    footerPlacement:'inner-start',
-  },
-  ai: {
-    contentRender: renderBubbleContent,
-    variant: 'filled',
-    placement: 'start',
-    shape: 'corner',
-    footerPlacement:'inner-start',
-  },
-  system: {
-    variant: 'outlined',
-    shape: 'round',
-    classes: { content: 'text-text-secondary!' },
-  },
-  divider: {
-    dividerProps: {
-      plain: true,
-      dashed:true,
-      size: 'small',
-      classes: {
-        content: 'text-text-secondary! text-xs! font-normal!',
-        root: 'text-text-secondary! text-xs! font-normal! my-xs!',
-      },
-    }
-  },
-} as RoleType
-let readProcessing = false;
-
-const conversation = defineModel<ConversationActiveProps>("conversation", {default:{}})
-
 const emit = defineEmits<{
-  loadPage: [tag:'next' | 'previous', scrollBox: HTMLElement]
   reedit:[content: ChatContentBlock[]]
   referenceMessage:[message:UserChatMessageResponseBody]
-  reloadLastPage:[]
 }>()
 
-const bubbleListItems = computed(() =>
-  buildBubbleListWithDividers(conversation.value.bubbleList ?? []),
-)
+const {conversationActive: conversation, loader} = useChatContext()
 
-// 节流后的处理函数，props.throttleCollectVisibleUnreadWait 内最多触发一次
-const handleThrottleBubbleScroll = throttle(throttleBubbleScroll, props.throttleOnScrollWait, { leading: true, trailing: false });
-// 节流后的处理函数，props.throttleCollectVisibleUnreadWait 内最多触发一次
-const handleScrollRead = throttle(collectVisibleUnread, props.throttleCollectVisibleUnreadWait);
-
-function getMessageTime(item: ChatBubbleItem): number {
-  return item.data?.creationTime ?? 0
-}
-
-function buildBubbleListWithDividers(messages: ChatBubbleItem[]): BubbleItemType[] {
-  // 升序：[旧 → 新]，配合 column-reverse 贴底
-  const sorted = [...messages.filter(s => !s.hide)].sort((a, b) => getMessageTime(a) - getMessageTime(b))
-  const result: BubbleItemType[] = []
-  let lastDividerTime = 0
-  for (const msg of sorted) {
-    const msgTime = getMessageTime(msg)
-    const needDivider = result.length === 0 || (msgTime > 0 && msgTime - lastDividerTime >= props.timeDividerGap)
-    if (needDivider && msgTime > 0) {
-      result.push({
-        key: `divider-${String(msg.key)}-${msgTime}`,
-        role: 'divider',
-        content: globalProperties.$dayjs(msgTime).fromNow(),
-      })
-      lastDividerTime = msgTime
+const {
+  bubbleListRef,
+  bubbleListItems,
+  bubbleListRole,
+  showScrollToBottom,
+  onBubbleScroll,
+  jumpToBottom,
+  jumpToMessage,
+  reedit,
+  addRefMessage,
+  onUndoMessage,
+  getScrollBox,
+  scrollTo,
+} = useChatBubbleList(conversation, props, {
+  onLoadPage: (tag) => loader.loadMore(tag),
+  onReloadLastPage: () => {
+    const item = conversation.value.item
+    if (item) {
+      loader.switchConversation(item, true)
     }
-    result.push({
-      ...msg,
-      rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
-    } as BubbleItemType)
-  }
-  return result
-}
-
-function renderBubbleContent(content: ChatContentBlock[]) {
-  return h(
-    ChatMessageBubbleContent,
-    {
-      content: content,
-      onJumpToReference: (body) => jumpToMessage(String(body.id))
-    }
-  )
-}
-
-function jumpToBottom(type:'reloadLastPage' | 'bottom') {
-  if (type === 'bottom') {
-    bubbleListRef.value?.scrollTo({ top: 'bottom' });
-  } else {
-    emit("reloadLastPage")
-  }
-}
-
-function jumpToMessage(
-  key: string,
-  flashPending: boolean = true,
-  block:ScrollLogicalPosition = "nearest",
-  behavior:ScrollBehavior = "auto",
-) {
-  if (!bubbleListRef.value || !key) {
-    return
-  }
-  const index = conversation.value.bubbleList.findIndex(b => b.key === key)
-
-  if (index < 0) {
-    return
-  }
-
-  const bubble = conversation.value.bubbleList[index]
-  if (!bubble) {
-    return
-  }
-  bubble.flashPending = flashPending
-
-  try {
-    bubbleListRef.value?.scrollTo({
-      key: key,
-      behavior:behavior,
-      block: block,
-    })
-    if (!flashPending) {
-      return
-    }
-    nextTick(() => tryFlashPendingItems(bubbleListRef.value?.scrollBoxNativeElement))
-  } finally {
-  }
-
-}
-
-function throttleBubbleScroll(event: Event) {
-  if (conversation.value.loadConversationDataLock || conversation.value.loading) {
-    return
-  }
-  const scrollBox = event.target as HTMLElement
-  handleScrollRead(scrollBox)
-  const { first, last } = conversation.value.dataSource
-  // 滚到最上方 → 加载更旧（number++）
-  if (!last && isNearOldest(scrollBox)) {
-    emit('loadPage', 'next', scrollBox)
-  }
-  // 滚到最下方 → 加载更新（number--）
-  else if (!first && isNearNewest(scrollBox)) {
-    emit('loadPage', 'previous', scrollBox)
-  }
-}
-/** column-reverse：是否靠近最旧消息一侧（视觉顶部） */
-function isNearOldest(scrollBox: HTMLElement) {
-  return scrollBox.scrollHeight + scrollBox.scrollTop
-    <= scrollBox.clientHeight + props.topThreshold
-}
-/** column-reverse：是否靠近最新消息一侧（视觉底部） */
-function isNearNewest(scrollBox: HTMLElement) {
-  return scrollBox.scrollTop >= -props.topThreshold
-}
-
-function isReadableMessage(message: UserChatMessageResponseBody | UserChatMessageEntity) {
-  if (!message || getEnumValue(message.type) === 20) {
-    return false
-  }
-  const readable = (message as UserChatMessageResponseBody).readable
-  if (readable === undefined) {
-    return false
-  }
-  return getEnumValue(readable) === 1 && message.principal !== principalStore.state.name
-}
-
-function collectVisibleUnread(scrollBox: HTMLElement) {
-  const items:ChatBubbleItem[] = getVisibleChatBubbleItems(
-    scrollBox,
-    item => isReadableMessage(item?.data as UserChatMessageResponseBody)
-  )
-  if (items.length <= 0) {
-    return
-  }
-  for (const data of items.map(i => i.data)) {
-    if (!data) {
-      continue
-    }
-    const id = Number(data.id)
-    // sentIds 拦截已提交但本地 readable 尚未被 socket 回包更新的消息，避免重复提交
-    if (!sentIds.has(id)) {
-      readingSet.add(id)
-    }
-
-    if (id === conversation.value.dataSource?.metadata?.readableAnchorId) {
-      delete conversation.value.dataSource?.metadata?.readableAnchorId
-    }
-
-  }
-  void flushReadQueue()
-}
-
-async function flushReadQueue() {
-  if (readProcessing || readingSet.size === 0) {
-    return
-  }
-  readProcessing = true
-  try {
-    // while 循环：await 期间新收集的 ID 由下一轮批次带走
-    while (readingSet.size > 0) {
-      const batch = Array.from(readingSet)
-      readingSet.clear()
-      try {
-        await ChatMessageService.readMessage(batch)
-        batch.forEach(id => sentIds.add(id))
-        await messageServerStore.fetchUnreadQuantity()
-      } catch (error) {
-        console.error('标记已读失败:', error)
-        // 丢弃本批：本地 readable 仍为未读，下次滚动会重新收集，避免服务端故障时无限重试
-        break
-      }
-    }
-  } finally {
-    readProcessing = false
-  }
-}
-
-function onBubbleScroll(event: Event) {
-  const scrollBox = event.target as HTMLElement
-  showScrollToBottom.value = scrollBox.scrollTop <= -props.scrollToBottomThreshold
-  tryFlashPendingItems(scrollBox)
-  handleThrottleBubbleScroll(event)
-}
-
-function getVisibleChatBubbleItems(scrollBox: HTMLElement, filter:(item: ChatBubbleItem) => boolean | undefined) {
-  const scrollRect = scrollBox.getBoundingClientRect()
-  const content = scrollBox.querySelector('.antd-bubble-list-scroll-content')
-  if (!content) {
-    return []
-  }
-
-  const items: ChatBubbleItem[] = []
-  const children = content.children
-
-  for (let i = 0; i < children.length && i < bubbleListItems.value.length; i++) {
-    const item = bubbleListItems.value[i]
-    if (!item || item.role === 'divider') {
-      continue
-    }
-    if (!filter((item as ChatBubbleItem))) {
-      continue
-    }
-    const element = children[i] as HTMLElement
-    const rect = element.getBoundingClientRect()
-    if (rect.bottom > scrollRect.top && rect.top < scrollRect.bottom) {
-      items.push(item)
-    }
-  }
-  return items
-}
-
-function tryFlashPendingItems(scrollBox: HTMLElement | undefined) {
-  if (!scrollBox){
-    return
-  }
-  const items = getVisibleChatBubbleItems(scrollBox, item => item.flashPending === true)
-  for (const visibleItem of items) {
-    const bubble = conversation.value.bubbleList.find(b => String(b.key) === String(visibleItem.key))
-    if (!bubble) {
-      continue
-    }
-    nextTick(() => setTimeout(() => bubble.flashPending = false, 2000))
-    break
-  }
-}
-
-function reedit(item:UserChatMessageResponseBody) {
-  emit("reedit", item.metadata.oldContent as ChatContentBlock[])
-}
-
-function addRefMessage(item:UserChatMessageResponseBody) {
-  if (!item) {
-    return
-  }
-  emit("referenceMessage", item)
-}
-
-function onUndoMessage(item:UserChatMessageResponseBody) {
-  modal.confirm({
-    title: globalProperties.$t('chat.view.undo.confirmTitle'),
-    content: globalProperties.$t('chat.view.undo.confirmContent'),
-    onOk: () => doUndoMessage(Number(item.id))
-  })
-}
-
-function doUndoMessage(id:number): Promise<void> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const result:RestResult<void> = await ChatMessageService.undoMessage([id])
-      message.success(result.message)
-      resolve()
-    } catch (error) {
-      message.error(error instanceof Error ? error.message : String(error))
-      reject(error)
-    }
-  })
-}
-// 数据变化（首屏加载、切换会话、socket 新消息、历史分页）后检查可见区未读。
-// 不能依赖 mounted：挂载时 bubbleList 尚未加载，且切换会话不会重新挂载；
-// 贴底收到新消息时 scrollTop 不变，也不会触发 scroll 事件
-watch(bubbleListItems, async (items) => {
-  if (items.length === 0) {
-    return
-  }
-  await nextTick()
-  const scrollBox = bubbleListRef.value?.scrollBoxNativeElement
-  if (scrollBox) {
-    handleScrollRead(scrollBox)
-  }
-})
-
-// 切换会话时重置已读队列状态
-watch(() => conversation.value.item?.key, () => {
-  readingSet.clear()
-  sentIds.clear()
-  //refMessages.value = []
-})
-
-onUnmounted(() => {
-  handleScrollRead.cancel()
-  handleThrottleBubbleScroll.cancel()
+  },
+  onReedit: (content) => emit('reedit', content),
+  onReferenceMessage: (message) => emit('referenceMessage', message),
 })
 
 defineExpose({
-  getScrollBox: () => bubbleListRef.value?.scrollBoxNativeElement,
+  getScrollBox,
   jumpToMessage,
-  scrollTo: (options: {
-    key?: string | number;
-    top?: number | "bottom" | "top";
-    behavior?: ScrollBehavior;
-    block?: ScrollLogicalPosition;
-  }) => bubbleListRef.value?.scrollTo(options)
+  scrollTo,
 })
 </script>
 

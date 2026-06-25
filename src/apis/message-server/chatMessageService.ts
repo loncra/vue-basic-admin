@@ -1,30 +1,19 @@
 import type {
   BasicUserChatConversation,
-  FileObject, ObjectWriteResult,
   PageRequest,
   PageResult,
   RestResult,
   TotalPage,
   UserChatConversationEntity,
   UserChatConversationResponseBody,
-  UserChatMessageEntity,
   UserChatMessageReadResponseBody,
   UserChatMessageResponseBody,
   UserChatParticipantEntity,
   UserChatRoomEntity,
 } from "@/types/apis";
-import type {ChatBubbleItem, ChatContentBlock, TextBlock} from "@/types/composables";
+import type {ChatContentBlock} from "@/types/composables";
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
-import {h, type VNode} from "vue";
-import {AttachmentService} from "@/apis";
-import {Avatar, AvatarGroup} from 'antdv-next'
-import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
-import i18n from "@/i18n";
-import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
-import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
-import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import type {UploadFile} from "antdv-next/dist/upload/interface";
 
 /**
  * 用户聊天消息领域服务：`/api[/message-server]/user/chat`
@@ -154,204 +143,5 @@ export class ChatMessageService  {
 
   static getConversation(roomId:number, convertBody:boolean = false):Promise<RestResult<UserChatConversationEntity | UserChatConversationResponseBody>> {
     return axios.get(ChatMessageService.GET_CONVERSATION_URL + "/" + roomId, {params:formUrlEncoded({convertBody})})
-  }
-
-  static getMessageContent(lastUserMessage: UserChatMessageEntity | undefined) {
-    if (!lastUserMessage) {
-      return ''
-    }
-    let content = ""
-    for (const block of lastUserMessage.content) {
-      if (block.type === 'text') {
-        content += block.value || ''
-      } else if (block.type === 'custom' && block.slotKind === 'files') {
-        for (const file of block.files || []) {
-          const contentType = file?.extraHeaders?.['Content-Type'] || ''
-          if (contentType.startsWith('image/')) {
-            content += '[' + i18n.global.t('attachment.type.image') + ']'
-          } else if (contentType.startsWith('video/')) {
-            content += '[' + i18n.global.t('attachment.type.video') + ']'
-          } else if (contentType.startsWith('audio/')) {
-              content += '[' + i18n.global.t('attachment.type.audio') + ']'
-          } else {
-            content += '[' + i18n.global.t('attachment.type.unknown') + ']'
-          }
-        }
-      }
-    }
-    return content
-  }
-
-  /** 会话列表草稿预览 */
-  static getDraftContent(draft: SlotConfigType[] | undefined): string {
-    if (!draft?.length) {
-      return ''
-    }
-    return this.convertSlotConfigToText(draft)
-  }
-
-  // ---------- SlotConfigType（Sender 草稿 / 词槽）----------
-  static convertSlotConfigToText(slots: SlotConfigType[]): string {
-    let result = ''
-    for (const slot of slots) {
-      result += this.slotConfigItemToText(slot)
-    }
-    return result
-  }
-
-  private static slotConfigItemToText(slot: SlotConfigType): string {
-    switch (slot.type) {
-      case 'text':
-        return slot.value ?? ''
-      case 'input':
-      case 'content': {
-        const value = slot.props?.defaultValue
-        if (value != null && value !== '') {
-          return String(value)
-        }
-        const placeholder = slot.props?.placeholder
-        return placeholder ? `[${placeholder}]` : ''
-      }
-      case 'select': {
-        const value = slot.props?.defaultValue
-        const options = slot.props?.options as Array<{ label?: string; value?: string }> | undefined
-        if (value != null && options?.length) {
-          const matched = options.find(o => o.value === value)
-          if (matched?.label) {
-            return String(matched.label)
-          }
-        }
-        return value != null ? String(value) : ''
-      }
-      case 'tag':
-        return slot.props?.label != null ? String(slot.props.label) : ''
-      case 'custom':
-        return this.customSlotToText(slot)
-    }
-  }
-
-  private static customSlotToText(
-    slot: Extract<SlotConfigType, { type: 'custom' }>,
-  ): string {
-    const props = slot.props as Record<string, unknown> | undefined
-    const slotKind = props?.slotKind
-    if (slotKind === 'files') {
-      const files = props?.defaultValue as UploadFile<ObjectWriteResult>[] | undefined
-      return this.filesToTypeLabels(files)
-    }
-    return ''
-  }
-
-  private static filesToTypeLabels(
-    files: Array<ObjectWriteResult | UploadFile<ObjectWriteResult>> | undefined,
-  ): string {
-    if (!files?.length) {
-      return ''
-    }
-    let result = ''
-    for (const file of files) {
-      result += this.fileToTypeLabel(file)
-    }
-    return result
-  }
-  private static fileToTypeLabel(
-    file: ObjectWriteResult | UploadFile<ObjectWriteResult> | undefined,
-  ): string {
-    const contentType =
-      (file as ObjectWriteResult)?.extraHeaders?.['Content-Type']
-      ?? (file as UploadFile<ObjectWriteResult>)?.type
-      ?? (file as UploadFile<ObjectWriteResult>)?.originFileObj?.type
-      ?? ''
-    if (contentType.startsWith('image/')) {
-      return `[${i18n.global.t('attachment.type.image')}]`
-    }
-    if (contentType.startsWith('video/')) {
-      return `[${i18n.global.t('attachment.type.video')}]`
-    }
-    if (contentType.startsWith('audio/')) {
-      return `[${i18n.global.t('attachment.type.audio')}]`
-    }
-    return `[${i18n.global.t('attachment.type.unknown')}]`
-  }
-
-  static addBubbleListMessage(
-    body: UserChatMessageEntity,
-    role:BubbleItemType["role"],
-    bubbleList:ChatBubbleItem[],
-    append:boolean = false,
-    hide:boolean = false,
-  ) {
-    const index = bubbleList.findIndex(b => b.key === String(body.id))
-    if (index >= 0) {
-      bubbleList[index] = {
-        key: String(body.id),
-        role,
-        content: body.content,
-        data: body,
-        hide
-      }
-      return
-    }
-
-    const items = role === CHAT_BUBBLE_TYPE.SYSTEM
-    ? body.content.map(c => ({
-        key: String(body.id),
-        role,
-        content: (c as TextBlock).value as unknown as ChatContentBlock,
-        data: body,
-        hide
-      }))
-    : [{
-        key: String(body.id),
-        role,
-        content: body.content,
-        data: body,
-        hide
-      }]
-
-    if (!append) {
-      bubbleList.splice(0, 0, ...items)
-    } else {
-      bubbleList.push(...items)
-    }
-  }
-
-  static createAvatarNode(
-    cover:FileObject[],
-    defaultLabel:string,
-    size:AvatarSize = 'medium',
-    groupClass:string="[&>*:not(:first-child)]:-ms-6!"
-  ) {
-    let avatar;
-    const avatars:VNode[] = []
-    for (const c of cover) {
-      const a = h(
-        Avatar,
-        {src: AttachmentService.query(c.bucketName, c.objectName), size}
-      )
-      avatars.push(a)
-    }
-    if (avatars.length > 0) {
-      avatar = h(
-        AvatarGroup,
-        {
-          max:{
-            count:3
-          },
-          size,
-          class:groupClass ? groupClass : undefined
-        },
-        {
-          default: () => avatars
-        }
-      )
-    } else {
-      avatar = h(
-        Avatar,
-        {size},
-        { default: () => defaultLabel.substring(0, 1) }
-      )
-    }
-    return avatar
   }
 }

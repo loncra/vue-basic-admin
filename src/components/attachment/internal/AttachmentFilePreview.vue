@@ -75,6 +75,10 @@ async function doRemove(file: UploadFile<ObjectWriteResult>) {
   }
 }
 
+function canPreview(file:UploadFile<ObjectWriteResult>) {
+  return file.type?.includes('image/') || file.type?.includes('video/')
+}
+
 function onDownload(file: ObjectWriteResult) {
   download(file);
   emit("download", file)
@@ -126,7 +130,7 @@ defineExpose({
       <span
         role="button"
         tabindex="-1"
-        v-if="file.status !== 'uploading'"
+        v-if="file.status !== 'uploading' && canPreview(file)"
         class="cursor-pointer p-0.5 text-white"
         @click.stop="onClickPreview"
       >

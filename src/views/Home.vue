@@ -1,21 +1,31 @@
 <script setup lang="ts">
 import HomeLayout from '@/components/layout/HomeLayout.vue'
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, onUnmounted, ref} from "vue";
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  h,
+  onMounted,
+  onUnmounted,
+  ref
+} from "vue";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {
   RestResult,
-  UserChatConversationEntity, UserChatConversationResponseBody,
+  UserChatConversationEntity,
+  UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from "@/types/apis";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import useApp from "antdv-next/dist/app/useApp";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
+import {getMessageContent} from "@/composables/chat/chatContentFormat.ts";
+import {createAvatarNode} from "@/composables/chat/chatAvatar.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import { Typography } from 'antdv-next'
-import { h } from 'vue'
+import {Typography} from 'antdv-next'
+
 defineOptions({
   name: 'IndexHome',
 })
@@ -65,8 +75,8 @@ async function onChatMessageReceived(result: RestResult<UserChatMessageResponseB
 
   notification.info({
     title: body.name,
-    description:createNotificationDescription(ChatMessageService.getMessageContent(result.data)),
-    icon: ChatMessageService.createAvatarNode(body.cover, body.name,'large', '[&>*:not(:first-child)]:-ms-8!'),
+    description:createNotificationDescription(getMessageContent(result.data)),
+    icon: createAvatarNode(body.cover, body.name,'large', '[&>*:not(:first-child)]:-ms-8!'),
     classes:{
       root: 'cursor-pointer',
       icon: 'leading-normal! text-inherit flex items-center',

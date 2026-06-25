@@ -1,0 +1,227 @@
+import {type ComponentInternalInstance, getCurrentInstance, h, type Ref, ref} from 'vue'
+import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
+import type {
+  AttachmentBlock,
+  ChatContentBlock,
+  FilesSlotProps,
+  ReferenceBlock,
+} from '@/types/composables'
+import {XProvider as AxConfigProvider} from '@antdv-next/x'
+import LAttachmentUpload from '@/components/attachment/AttachmentUpload.vue'
+import type {
+  AttachmentUploadExpose,
+  AttachmentValue,
+} from '@/types/composables/attachmentUpload.ts'
+import type {UploadFile} from 'antdv-next/dist/upload/interface'
+import {convertUploadFiles, isObjectWriteResult, requireNonNullOrUndefined} from '@/utils'
+import {useConfigProviderStore} from '@/stores/configProviderStore'
+import type {ObjectWriteResult, UserChatMessageResponseBody} from '@/types/apis'
+
+export interface UseChatMessageSenderParams {
+  refMessages: Ref<UserChatMessageResponseBody[]>
+  getUploadOptions: () => Record<string, unknown> | undefined
+  onSubmit: (content: ChatContentBlock[]) => void,
+  sending:Ref<boolean>
+}
+
+/**
+ * 发送器逻辑：files 词槽创建/渲染/上传、粘贴文件、提交组装（附件 + 引用）、
+ * 草稿与内容块互转、清空。
+ */
+export function useChatMessageSender(params: UseChatMessageSenderParams) {
+  const {sending, refMessages, getUploadOptions, onSubmit: emitSubmit} = params
+  const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
+  const configProviderStore = useConfigProviderStore()
+
+  const uploadRefMap = new Map<string, AttachmentUploadExpose>()
+  const senderRef = ref<SenderRef>()
+
+  function bindUploadRef(slotKey: string, inst: unknown): void {
+    if (!slotKey) return
+    const exposed = (inst as AttachmentUploadExpose | null)?.upload
+      ? (inst as AttachmentUploadExpose)
+      : (inst as {exposed?: AttachmentUploadExpose} | null)?.exposed
+    if (exposed?.upload) {
+      uploadRefMap.set(slotKey, exposed)
+    } else {
+      uploadRefMap.delete(slotKey)
+    }
+  }
+
+  function isFilesSlot(
+    slot: SlotConfigType,
+  ): slot is SlotConfigType & {key: string; props: FilesSlotProps} {
+    return slot.type === 'custom' && slot.props?.slotKind === 'files'
+  }
+
+  function toUploadFile(file: File): UploadFile<ObjectWriteResult> {
+    return {
+      uid: crypto.randomUUID(),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      originFileObj: file as UploadFile<ObjectWriteResult>['originFileObj'],
+    }
+  }
+
+  function createFilesSlot(
+    files: UploadFile<ObjectWriteResult>[],
+    key: string = crypto.randomUUID(),
+  ): SlotConfigType {
+    return {
+      type: 'custom',
+      key,
+      props: {slotKind: 'files', defaultValue: files},
+      customRender: fileCustomRender,
+    }
+  }
+
+  function handleFilesSlotChange(
+    item: SlotConfigType,
+    next: AttachmentValue,
+    senderOnChange: (value: AttachmentValue) => void,
+  ): void {
+    const files = Array.isArray(next) ? next : next ? [next] : []
+    const sender = senderRef.value
+    if (!sender || !('key' in item) || !item.key) {
+      return
+    }
+    senderOnChange(files)
+  }
+
+  function fileCustomRender(
+    value: UploadFile<ObjectWriteResult>[],
+    onChange: (value: AttachmentValue) => void,
+    _props: {disabled?: boolean; readOnly?: boolean},
+    item: SlotConfigType,
+  ) {
+    const slotKey = 'key' in item && item.key ? item.key : ''
+    const node = h(
+      AxConfigProvider,
+      {
+        locale: (configProviderStore.localeMessage as {antDesign?: object}).antDesign,
+        componentSize: configProviderStore.state.componentSize,
+        theme: providerTheme(),
+      },
+      {
+        default: () =>
+          h(LAttachmentUpload, {
+            bucket: 'temp',
+            uploadOptions: getUploadOptions(),
+            ref: (inst) => bindUploadRef(slotKey, inst),
+            value,
+            multiple: true,
+            maxCount: value.length,
+            'onUpdate:value': (next: AttachmentValue) => handleFilesSlotChange(item, next, onChange),
+          }),
+      },
+    )
+    node.appContext = currentInstance.appContext
+    return node
+  }
+
+  function providerTheme() {
+    const raw = configProviderStore.getAlgorithm()
+    const algorithm =
+      raw == null ? undefined : Array.isArray(raw) ? raw.filter((item) => item != null) : raw
+    return {algorithm, token: configProviderStore.state.token}
+  }
+
+  function onPasteFiles(fileList: FileList): void {
+    const files = Array.from(fileList) as File[]
+    if (files.length === 0) {
+      return
+    }
+    const slot = createFilesSlot(files.map(toUploadFile))
+    const sender = senderRef.value
+    if (!sender) {
+      return
+    }
+    sender.insert([slot], 'cursor')
+  }
+
+  async function handleSubmit(_message: string, _slotConfig?: SlotConfigType[]): Promise<void> {
+    if (!_slotConfig?.length) {
+      return
+    }
+    sending.value = true
+    try {
+      const blocks: ChatContentBlock[] = []
+      // 1. 逐个 files 词槽上传
+      for (const slot of _slotConfig) {
+        if (isFilesSlot(slot) && slot.key) {
+          const uploaded = await uploadRefMap.get(slot.key)?.upload()
+          const files: ObjectWriteResult[] = (
+            Array.isArray(uploaded) ? uploaded : uploaded ? [uploaded] : []
+          ).filter((f): f is ObjectWriteResult => isObjectWriteResult(f))
+          const attachmentBlock: AttachmentBlock = {
+            files: files,
+            type: 'custom',
+            slotKind: 'files',
+          }
+          blocks.push(attachmentBlock)
+        }
+        blocks.push(slot as ChatContentBlock)
+      }
+      if (refMessages.value.length > 0) {
+        const referenceBlock: ReferenceBlock = {
+          type: 'custom',
+          slotKind: 'reference',
+          value: refMessages.value,
+        }
+        blocks.push(referenceBlock)
+      }
+      emitSubmit(blocks)
+      refMessages.value = []
+    } finally {
+      sending.value = false
+    }
+  }
+
+  function onSelectedEmoji(emoji: string): void {
+    senderRef.value?.insert([{type: 'text', value: emoji}], 'cursor')
+  }
+
+  function clear(): void {
+    const sender = senderRef.value
+    if (!sender) {
+      return
+    }
+    sender.clear()
+    sender.focus({cursor: 'end'})
+  }
+
+  function convertContentBlockToSlotConfig(content: ChatContentBlock[]): SlotConfigType[] {
+    const result: SlotConfigType[] = []
+    refMessages.value = []
+    for (const slot of content) {
+      if (slot.type === 'text') {
+        result.push({
+          type: 'text',
+          value: slot.value,
+        })
+      } else if (slot.type === 'custom' && slot.slotKind === 'files') {
+        result.push(createFilesSlot(convertUploadFiles(slot.files)))
+      } else if (slot.type === 'custom' && slot.slotKind === 'reference') {
+        refMessages.value = (slot as ReferenceBlock).value
+      }
+    }
+    return result
+  }
+
+  function getSlotConfigValue(): SlotConfigType[] {
+    return senderRef.value?.getValue()?.slotConfig || []
+  }
+
+  return {
+    senderRef,
+    onPasteFiles,
+    handleSubmit,
+    onSelectedEmoji,
+    clear,
+    convertContentBlockToSlotConfig,
+    getSlotConfigValue,
+  }
+}
+
+export type ChatMessageSenderApi = ReturnType<typeof useChatMessageSender>

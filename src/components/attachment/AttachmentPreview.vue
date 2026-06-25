@@ -260,40 +260,6 @@ const classes = computed(() => ({
       </span>
       <slot name="pictureCardAfter" />
     </span>
-<!--    <a-flex
-      wrap
-      gap="small"
-      :class="classes?.list"
-      :style="props.styles?.list"
-      v-else-if="props.mode === ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
-    >
-      <a-flex
-        :class="[
-          'p-sm border rounded-lg',
-          file.status === undefined ? 'border-warning-border bg-warning-bg' : '',
-          file.status === 'uploading' ? 'border-info-border bg-info-bg' : '',
-          file.status === 'done' ? 'border-success-border bg-success-bg' : '',
-          file.status === 'error' ? 'border-error-border bg-error-bg' : '',
-        ]"
-        :key="file.uid"
-        v-for="file in fileList"
-      >
-        <l-attachment-file-preview
-          :enabled-delete="!preview"
-          :border="!preview"
-          :item-class="classes?.item"
-          :item-style="props.styles?.item"
-          @delete="(_file) => postRemove(_file)"
-          @preview="openPreview"
-          :file="file"
-        >
-          <template #itemRender="{file}" v-if="slots.itemRender">
-            <slot name="itemRender" :file="file" />
-          </template>
-        </l-attachment-file-preview>
-      </a-flex>
-      <slot name="pictureCardAfter" />
-    </a-flex>-->
   </span>
 
   <teleport to="body">

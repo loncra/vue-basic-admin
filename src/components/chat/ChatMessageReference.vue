@@ -2,7 +2,7 @@
 
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
+import {getMessageContent} from "@/composables/chat/chatContentFormat.ts";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
@@ -48,7 +48,7 @@ const emit = defineEmits<{
         : 
       </a-typography-text>
       <a-typography-text class="min-w-0 w-full flex flex-inline flex-1" type="secondary" ellipsis>
-        {{ ChatMessageService.getMessageContent(props.message)}}
+        {{ getMessageContent(props.message)}}
       </a-typography-text>
     </a-flex>
   </a-tag>

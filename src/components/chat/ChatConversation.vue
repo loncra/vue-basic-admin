@@ -11,11 +11,7 @@ import {
   resolveComponent,
   type VNode
 } from "vue";
-import type {
-  BasicUserChatConversation,
-  RestResult,
-  UserChatConversationResponseBody
-} from "@/types/apis";
+import type {UserChatConversationResponseBody} from "@/types/apis";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {Conversations as AxConversations,} from '@antdv-next/x'
@@ -24,13 +20,19 @@ import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
 import type {MenuItemType} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
+import {
+  createAvatarNode,
+  getDraftContent,
+  getMessageContent,
+  useChatContext,
+  useConversationActions
+} from "@/composables/chat";
 
 defineOptions({
   name: 'LChatConversation',
 })
 
-const {message, modal} = useApp()
+const {modal} = useApp()
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -38,14 +40,15 @@ const globalProperties =
 const setMessageExtraContent = inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
 
 const messageServerStore = useMessageServerStore()
+const {conversations, conversationActive, loader} = useChatContext()
+const conversationActions = useConversationActions()
+
 const moreButtonActive = ref(false)
-const activeKey = defineModel<string>('activeKey');
-const dataSource = defineModel<UserChatConversationResponseBody[]>('dataSource', {default:() => []})
 const searchValue = ref<string>('')
 
+const activeKey = computed(() => conversationActive.value.item?.key)
+
 const emit = defineEmits<{
-  change: [item: ServerConversationItem],
-  moreClick: [data: UserChatConversationResponseBody],
   delete: [item:UserChatConversationResponseBody]
 }>()
 
@@ -97,7 +100,7 @@ function onMoreClick(item: ServerConversationItem) {
     return
   }
   moreButtonActive.value = !moreButtonActive.value
-  emit("moreClick", item.data)
+  conversationActive.value.drawerOpen = !conversationActive.value.drawerOpen
 }
 
 function createMoreButton(activeConversationItem:ServerConversationItem) {
@@ -113,7 +116,6 @@ function createMoreButton(activeConversationItem:ServerConversationItem) {
 }
 
 function onConversationsActiveChange(value: string, item: ItemType | undefined): void {
-  activeKey.value = value
   if (!item || !(item as ConversationItemType)) {
     return;
   }
@@ -124,8 +126,7 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
     data: conversationItem.data as UserChatConversationResponseBody,
   }
   changeMessageExtraContent(activeConversationItem)
-  emit("change", activeConversationItem)
-
+  loader.switchConversation(activeConversationItem)
 }
 
 function changeMessageExtraContent(activeConversationItem:ServerConversationItem | undefined) {
@@ -135,7 +136,7 @@ function changeMessageExtraContent(activeConversationItem:ServerConversationItem
   }
   const label = h('span', {}, {default: () => activeConversationItem.label})
   const space = resolveComponent('ASpace')
-  const avatar = ChatMessageService.createAvatarNode(activeConversationItem.data?.cover || [], String(activeConversationItem.label))
+  const avatar = createAvatarNode(activeConversationItem.data?.cover || [], String(activeConversationItem.label))
   const button = createMoreButton(activeConversationItem)
   const node: VNode = h(
     space,
@@ -154,80 +155,31 @@ async function onMenuClick(e: { key: string}, item:UserChatConversationResponseB
       onOk: () => doDelete(item),
     })
   } else if (e.key === 'pinned') {
-    const result:RestResult<BasicUserChatConversation[]> = await ChatMessageService.pinnedConversation([Number(item.id)])
-    if (!result.data) {
-      return
-    }
-    for (const c of result.data) {
-      const index = dataSource.value.findIndex(v => v.id === c.id)
-      const data = dataSource.value[index]
-      if (!data) {
-        continue ;
-      }
-      data.pinned = c.pinned
-    }
+    const data = await conversationActions.togglePinned([Number(item.id)])
+    conversations.patchFlags(data)
   } else if (e.key === 'muted') {
-    const result:RestResult<BasicUserChatConversation[]> = await ChatMessageService.mutedConversation([Number(item.id)])
-    if (!result.data) {
-      return
-    }
-    for (const c of result.data) {
-      const index = dataSource.value.findIndex(v => v.id === c.id)
-      const data = dataSource.value[index]
-      if (!data) {
-        continue ;
-      }
-      data.muted = c.muted
-      await messageServerStore.fetchUnreadQuantity()
-    }
+    const data = await conversationActions.toggleMuted([Number(item.id)])
+    conversations.patchFlags(data)
   }
 }
 
 async function doDelete(item: UserChatConversationResponseBody) {
-  try {
-    const result:RestResult<void> = await ChatMessageService.deleteConversation([Number(item.id)])
-    message.success(result.message)
-    emit("delete",item)
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
+  const success = await conversationActions.removeConversations([Number(item.id)])
+  if (success) {
+    emit("delete", item)
   }
 }
 
-function getConversationActiveTime(
-  item: UserChatConversationResponseBody,
-): number {
-  return item.lastUserMessage?.creationTime ?? item.creationTime ?? 0
-}
-
-function isPinned(item: UserChatConversationResponseBody): boolean {
-  return getEnumValue(item.pinned) === 1
-}
-
-function compareConversations(
-  a: UserChatConversationResponseBody,
-  b: UserChatConversationResponseBody,
-): number {
-  const aPinned = isPinned(a)
-  const bPinned = isPinned(b)
-  // 1. 置顶优先
-  if (aPinned !== bPinned) {
-    return aPinned ? -1 : 1
-  }
-  // 2. 同为置顶 → pinnedTime 降序
-  if (aPinned && bPinned) {
-    return (b.pinnedTime ?? 0) - (a.pinnedTime ?? 0)
-  }
-  // 3. 非置顶 → 活跃时间降序
-  return getConversationActiveTime(b) - getConversationActiveTime(a)
-}
+const conversationCount = computed(() => conversations.dataSource.value.length)
 
 const conversationItems = computed(() =>
-  [...(dataSource.value ?? [])].filter(s => searchValue.value === '' ? s : s.name.includes(searchValue.value))
-    .sort(compareConversations).map(r => ({
-    label: r.name,
-    key: String(r.id),
-    data: r
-  })),
+  conversations.sortedDataSource.value
+    .filter(s => searchValue.value === '' ? s : s.name.includes(searchValue.value))
+    .map(r => ({
+      label: r.name,
+      key: String(r.id),
+      data: r
+    })),
 )
 
 defineExpose({
@@ -250,7 +202,7 @@ defineExpose({
       :classes="{item:'p-xs! h-auto! min-h-auto! rounded-none!'}"
       :items="conversationItems"
       :onActiveChange="onConversationsActiveChange"
-      v-if="dataSource.length > 0"
+      v-if="conversationCount > 0"
       class="min-h-0 size-full flex-[1_1_0] p-0! gap-0!">
       <template #iconRender="{ item }">
         <a-flex justify="center" align="center" :class="'h-full relative ' + (getEnumValue(item.data.muted) === 1 ? 'opacity-80' : '')">
@@ -284,10 +236,10 @@ defineExpose({
               </a-typography-text>
             </a-flex>
             <a-typography-text ellipsis v-if="item?.data?.draft && item?.data?.draft.length > 0" type="danger">
-              [{{globalProperties.$t('chat.conversation.draft')}}]:{{ ChatMessageService.getDraftContent(item?.data?.draft) }}
+              [{{globalProperties.$t('chat.conversation.draft')}}]:{{ getDraftContent(item?.data?.draft) }}
             </a-typography-text>
             <a-typography-text ellipsis v-else-if="item?.data?.lastUserMessage" type="secondary">
-              {{ ChatMessageService.getMessageContent(item?.data?.lastUserMessage) }}
+              {{ getMessageContent(item?.data?.lastUserMessage) }}
             </a-typography-text>
           </a-flex>
         </a-dropdown>
