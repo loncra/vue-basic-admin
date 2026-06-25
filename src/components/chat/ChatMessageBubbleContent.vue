@@ -33,7 +33,7 @@ const emit = defineEmits<{
       v-model:value="block.files" />
     </div>
     <a-tooltip :title="block.tooltip" v-else-if="block.type === 'custom' && block.slotKind === 'undo'">
-      <a-typography-text disabled delete>
+      <a-typography-text delete>
         {{block.value}}
       </a-typography-text>
     </a-tooltip>

@@ -1,15 +1,17 @@
 <script setup lang="ts">
 
-import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
 import {AuthServerService} from "@/apis";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
-import type {ChatContentBlock} from "@/types/composables";
+import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables";
 import {BubbleList as AxBubbleList} from "@antdv-next/x";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import {useChatBubbleList, useChatContext} from "@/composables/chat";
+import type {MenuItemType} from "antdv-next";
+import LChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 
 defineOptions({
   name: 'LChatBubbleList',
@@ -64,6 +66,40 @@ const {
   onReedit: (content) => emit('reedit', content),
   onReferenceMessage: (message) => emit('referenceMessage', message),
 })
+function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
+  const data = item.data as UserChatMessageResponseBody
+  const isUndone = getEnumValue(data?.undo) === 1
+  const items: MenuItemType[] = []
+  if (isUndone) {
+    items.push({
+      key: 'reedit',
+      label: globalProperties.$t('chat.view.reedit'),
+      icon: createIcon('loncra-message-square-reply', 'text-lg'),
+    })
+  } else {
+    items.push({
+      key: 'reference',
+      label: globalProperties.$t('chat.view.reference'),
+      icon: createIcon('loncra-text-quote', 'text-lg'),
+    })
+    if (role === CHAT_BUBBLE_TYPE.USER) {
+      items.push({
+        key: 'undo',
+        label: globalProperties.$t('chat.view.undo.action'),
+        icon: createIcon('loncra-undo', 'text-lg'),
+        danger: true,
+      })
+    }
+  }
+  return items
+}
+
+function onMessageMenuClick(e: { key: string }, item: ChatBubbleItem) {
+  const data = item.data as UserChatMessageResponseBody
+  if (e.key === 'reedit') reedit(data)
+  else if (e.key === 'reference') addRefMessage(data)
+  else if (e.key === 'undo') onUndoMessage(data)
+}
 
 defineExpose({
   getScrollBox,
@@ -137,24 +173,20 @@ defineExpose({
           {{globalProperties.$t('common.me')}}
         </a-typography-text>
       </template>
-      <template #footer="{role, item}">
-        <a-flex class="w-full" gap="small" :class="role === CHAT_BUBBLE_TYPE.USER ? '' : 'flex-row-reverse'">
-          <a-tooltip :title="globalProperties.$t('chat.view.reedit')" v-if="getEnumValue(item.data.undo) === 1" >
-            <a-button size="small" type="text" @click="reedit(item.data)">
-              <icon-font type="loncra-message-square-reply"/>
-            </a-button>
-          </a-tooltip>
-          <a-tooltip :title="globalProperties.$t('chat.view.reference')" >
-            <a-button size="small" :disabled="getEnumValue(item.data.undo) === 1" type="text" @click="addRefMessage(item.data)">
-              <icon-font type="loncra-text-quote"/>
-            </a-button>
-          </a-tooltip>
-          <a-tooltip :title="globalProperties.$t('chat.view.undo.action')">
-            <a-button size="small" :disabled="getEnumValue(item.data.undo) === 1" type="text" danger @click="onUndoMessage(item.data)" v-if="role === CHAT_BUBBLE_TYPE.USER">
-              <icon-font type="loncra-undo"/>
-            </a-button>
-          </a-tooltip>
-        </a-flex>
+      <template #contentRender="{ item, role, content }">
+        <a-dropdown
+          v-if="item.data && [CHAT_BUBBLE_TYPE.USER, CHAT_BUBBLE_TYPE.AI].includes(role)"
+          :menu="{ items: createMessageMenu(item, role) }"
+          :trigger="['contextmenu']"
+          @menuClick="onMessageMenuClick($event, item)"
+        >
+          <div class="cursor-default">
+            <l-chat-message-bubble-content
+              :content="content"
+              @jump-to-reference="(body) => jumpToMessage(String(body.id))"
+            />
+          </div>
+        </a-dropdown>
       </template>
     </ax-bubble-list>
     <slot name="bubbleListAfter"></slot>
