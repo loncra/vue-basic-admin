@@ -78,11 +78,13 @@ export type AttachmentUploadResolvedStyles = Readonly<AttachmentUploadSemanticSt
 export interface AttachmentUploadPublicDomProps {
   classes?: AttachmentUploadClassNamesType
   styles?: AttachmentUploadStylesType
+  disabled?:boolean
 }
 
 export interface AttachmentUploadDomProps {
   classes?: AttachmentUploadResolvedClassNames
   styles?: AttachmentUploadResolvedStyles
+  disabled?:boolean
 }
 
 export interface AttachmentUploadProps extends BasicAttachmentProps, AttachmentUploadPublicDomProps {
@@ -109,6 +111,7 @@ export interface AttachmentPreviewProps extends AttachmentUploadDomProps {
 export interface AttachmentPreviewFileProps {
   file: UploadFile<ObjectWriteResult>
   border?:boolean
+  disabled?:boolean
   enabledDelete?:boolean
   enabledDownload?:boolean
   itemClass?: string

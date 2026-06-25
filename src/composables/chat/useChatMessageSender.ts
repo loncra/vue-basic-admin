@@ -1,4 +1,7 @@
-import {type ComponentInternalInstance, getCurrentInstance, h, type Ref, ref} from 'vue'
+import {
+  type ComponentInternalInstance, computed, getCurrentInstance, h,
+  type MaybeRef, type Ref, ref, unref
+} from 'vue'
 import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {
   AttachmentBlock,
@@ -19,9 +22,9 @@ import type {ObjectWriteResult, UserChatMessageResponseBody} from '@/types/apis'
 
 export interface UseChatMessageSenderParams {
   refMessages: Ref<UserChatMessageResponseBody[]>
+  sending:MaybeRef<boolean>
   getUploadOptions: () => Record<string, unknown> | undefined
-  onSubmit: (content: ChatContentBlock[]) => void,
-  sending:Ref<boolean>
+  onSubmit: (content: ChatContentBlock[]) => void
 }
 
 /**
@@ -34,7 +37,10 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
   const configProviderStore = useConfigProviderStore()
 
   const uploadRefMap = new Map<string, AttachmentUploadExpose>()
+  const uploading = ref<boolean>(false)
   const senderRef = ref<SenderRef>()
+
+  const isSending = computed(() => unref(sending)  || uploading.value)
 
   function bindUploadRef(slotKey: string, inst: unknown): void {
     if (!slotKey) return
@@ -107,6 +113,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
         default: () =>
           h(LAttachmentUpload, {
             bucket: 'temp',
+            disabled: isSending.value,
             uploadOptions: getUploadOptions(),
             ref: (inst) => bindUploadRef(slotKey, inst),
             value,
@@ -144,7 +151,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     if (!_slotConfig?.length) {
       return
     }
-    sending.value = true
+    uploading.value = true
     try {
       const blocks: ChatContentBlock[] = []
       // 1. 逐个 files 词槽上传
@@ -174,7 +181,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
       emitSubmit(blocks)
       refMessages.value = []
     } finally {
-      sending.value = false
+      uploading.value = false
     }
   }
 
@@ -215,6 +222,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
 
   return {
     senderRef,
+    isSending,
     onPasteFiles,
     handleSubmit,
     onSelectedEmoji,

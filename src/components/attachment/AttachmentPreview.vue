@@ -28,6 +28,7 @@ const props = withDefaults(defineProps<AttachmentPreviewProps>(),{
   mode: ATTACHMENT_PREVIEW_MODE.LIST,
   changeThumbUrl: true,
   showFilename: true,
+  disabled:false,
   preview:false,
 })
 
@@ -182,6 +183,7 @@ const classes = computed(() => ({
                 :item-class="classes?.item"
                 :item-style="props.styles?.item"
                 @preview="openPreview"
+                :disabled="disabled"
                 :file="file"
                 :enabled-download="false"
                 :enabled-delete="false"
@@ -197,7 +199,7 @@ const classes = computed(() => ({
                     </a-typography-text>
                   </a-flex>
 
-                  <a-flex gap="small">
+                  <a-flex gap="small" v-if="!props.disabled">
                     <a-button danger v-if="!preview" @click="onRemove(file)" type="text" :disabled="file.status === 'uploading'">
                       <icon-font type="loncra-archive-x" />
                     </a-button>
@@ -207,7 +209,7 @@ const classes = computed(() => ({
                   </a-flex>
                 </a-flex>
 
-                <a-progress v-if="!file.response" :percent="file.percent" size="small" />
+                <a-progress v-if="!file.response || !props.disabled" :percent="file.percent" size="small" />
               </a-flex>
             </a-flex>
           </template>
@@ -239,6 +241,7 @@ const classes = computed(() => ({
           :item-class="classes?.item"
           :item-style="props.styles?.item"
           @delete="(_file) => postRemove(_file)"
+          :disabled="disabled"
           @preview="openPreview"
           :file="file"
         >

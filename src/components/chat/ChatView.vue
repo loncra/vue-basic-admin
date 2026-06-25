@@ -176,10 +176,10 @@ defineExpose({
         v-if="conversation?.item?.data"
         :slot-config="conversation.item.data.draft"
         v-model:ref-messages="refMessages"
+        :sending="conversation.sending"
         :upload-options="{param:{prefix:'user_chat_room/' + conversation.item.data.room.id}}"
         :placeholder="placeholderText"
         :disabled="getEnumValue(conversation.item.data.status) !== 10"
-        :sending="conversation.sending"
         @jump-to-reference="(body) => chatBubbleList?.jumpToMessage(String(body.id))"
         @submit="onSendMessage"
       />

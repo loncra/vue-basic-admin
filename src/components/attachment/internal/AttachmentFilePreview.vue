@@ -16,6 +16,7 @@ defineOptions({
 const props = withDefaults(defineProps<AttachmentPreviewFileProps>(),{
   enabledDelete: true,
   border:false,
+  disabled:false,
   enabledDownload: true,
 })
 
@@ -125,6 +126,7 @@ defineExpose({
       <icon-font class="text-2xl" :type="getFileIcon()" />
     </span>
     <span
+      v-if="!props.disabled"
       :class="'absolute gap-2 inset-0 flex items-center justify-center bg-black/30 ' + (file.status !== 'uploading' ? ' transition-opacity opacity-0 group-hover:opacity-100' : '')"
     >
       <span

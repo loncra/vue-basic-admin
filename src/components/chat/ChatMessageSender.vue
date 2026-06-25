@@ -6,22 +6,24 @@ import type {UserChatMessageResponseBody} from "@/types/apis";
 import {useChatMessageSender} from "@/composables/chat";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import LEmojiButton from "@/components/basic/EmojiButton.vue";
+import {toRef, unref} from "vue";
 
 defineOptions({
   name: 'LChatMessageSender',
 })
 
-const sending = defineModel<boolean>("sending", {default: false})
 const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
 
 const props = withDefaults(defineProps<{
   slotConfig?: SlotConfigType[]
-  placeholder: string,
+  placeholder: string
+  sending?:boolean
   uploadOptions?: Record<string, unknown>,
   disabled: boolean
 }>(), {
   slotConfig: () => [],
   placeholder: '',
+  sending:false,
   uploadBucket: 'system.file',
   disabled: false
 })
@@ -33,6 +35,7 @@ const emit = defineEmits<{
 
 const {
   senderRef,
+  isSending,
   onPasteFiles,
   handleSubmit,
   onSelectedEmoji,
@@ -41,7 +44,7 @@ const {
   getSlotConfigValue,
 } = useChatMessageSender({
   refMessages,
-  sending,
+  sending: toRef(props, 'sending'),
   getUploadOptions: () => props.uploadOptions,
   onSubmit: (content) => emit('submit', content),
 })
@@ -61,11 +64,11 @@ defineExpose({
     :suffix="false"
     allow-speech
     :disabled="props.disabled"
+    :read-only="unref(isSending) || props.disabled"
     :class-names="{
       input: 'chat-sender-input',
       footer:'p-xs! border-t border-t-border-secondary'
     }"
-    :loading="sending"
     @paste-file="onPasteFiles"
     @submit="handleSubmit"
   >
@@ -87,12 +90,17 @@ defineExpose({
     <template #footer="{ components }" v-if="!props.disabled">
       <a-flex justify="space-between" align="center" gap="small">
         <a-space>
-          <l-emoji-button @selected="onSelectedEmoji" />
+          <l-emoji-button :disabled="isSending" @selected="onSelectedEmoji" />
         </a-space>
         <a-flex justify="space-between" align="center" gap="small">
-          <component :is="components.ClearButton" @click="clear"/>
           <component
-            :is="sending ? components.LoadingButton : components.SendButton"
+            :disabled="isSending"
+            :is="components.ClearButton"
+            @click="clear"
+          />
+          <component
+            :disabled="isSending"
+            :is="isSending ? components.LoadingButton : components.SendButton"
             type="primary"
           />
         </a-flex>

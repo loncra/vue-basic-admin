@@ -362,6 +362,10 @@
     @apply h-auto! align-bottom!
   }
 
+  .antd-sender-input.antd-sender-input-slot.chat-sender-input[contenteditable="false"] {
+    @apply opacity-50 cursor-not-allowed!
+  }
+
   .ant-form-item.ant-form-item-has-error .loncra-tip-tap{
     @apply border-error
   }

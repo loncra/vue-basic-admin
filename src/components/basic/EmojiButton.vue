@@ -59,7 +59,7 @@ function onSelectedEmoji(emoji: string) {
       </div>
     </template>
 
-    <a-button type="text">
+    <a-button type="text" v-bind="$attrs">
       <template #icon>
         <icon-font type="loncra-smile"/>
       </template>
