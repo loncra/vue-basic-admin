@@ -1,12 +1,93 @@
-import type {ObjectWriteResult, UserChatMessageEntity} from '@/types/apis'
-import type {SlotConfigType} from '@antdv-next/x/dist/sender/interface'
-import type {UploadFile} from 'antdv-next/dist/upload/interface'
+import type {FileObject, ObjectWriteResult, UserChatMessageEntity} from "@/types/apis";
+import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
+import {h, type VNode} from "vue";
+import {Avatar, AvatarGroup} from "antdv-next";
+import {AttachmentService} from "@/apis";
+import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
+import type {ChatBubbleItem, ChatContentBlock, TextBlock} from "@/types/composables";
+import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
 import i18n from '@/i18n'
+import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import type {UploadFile} from "antdv-next/dist/upload/interface";
 
 /**
- * 聊天内容格式化纯函数集合（从 ChatMessageService 视图职责中抽离）。
- * 无响应式状态/生命周期，内部使用 i18n.global.t（本身响应式），故以模块而非 use* hook 形式提供。
+ * 根据会话封面构建头像 VNode（多封面用 AvatarGroup，无封面回退首字母）。
+ * 纯渲染函数，由会话列表 / 通知等场景复用。
  */
+export function createAvatarNode(
+  cover: FileObject[],
+  defaultLabel: string,
+  size: AvatarSize = 'medium',
+  groupClass: string = '[&>*:not(:first-child)]:-ms-6!',
+): VNode {
+  const avatars: VNode[] = []
+  for (const c of cover) {
+    avatars.push(
+      h(Avatar, {src: AttachmentService.query(c.bucketName, c.objectName), size}),
+    )
+  }
+  if (avatars.length > 0) {
+    return h(
+      AvatarGroup,
+      {
+        max: {count: 3},
+        size,
+        class: groupClass ? groupClass : undefined,
+      },
+      {default: () => avatars},
+    )
+  }
+  return h(Avatar, {size}, {default: () => defaultLabel.substring(0, 1)})
+}
+
+/**
+ * 将一条消息合入气泡列表（去重 + 系统消息拆条 + 头/尾插）。
+ * 纯数组变换，无响应式依赖；由 useChatMessageLoader / useChatSocketEvents / 发送流程复用。
+ */
+export function addBubbleListMessage(
+  body: UserChatMessageEntity,
+  role: BubbleItemType['role'],
+  bubbleList: ChatBubbleItem[],
+  append: boolean = false,
+  hide: boolean = false,
+): void {
+  const index = bubbleList.findIndex((b) => b.key === String(body.id))
+  if (index >= 0) {
+    bubbleList[index] = {
+      key: String(body.id),
+      role,
+      content: body.content,
+      data: body,
+      hide,
+    }
+    return
+  }
+
+  const items =
+    role === CHAT_BUBBLE_TYPE.SYSTEM
+      ? body.content.map((c) => ({
+        key: String(body.id),
+        role,
+        content: (c as TextBlock).value as unknown as ChatContentBlock,
+        data: body,
+        hide,
+      }))
+      : [
+        {
+          key: String(body.id),
+          role,
+          content: body.content,
+          data: body,
+          hide,
+        },
+      ]
+
+  if (!append) {
+    bubbleList.splice(0, 0, ...items)
+  } else {
+    bubbleList.push(...items)
+  }
+}
 
 /** 会话列表最后一条消息预览 */
 export function getMessageContent(lastUserMessage: UserChatMessageEntity | undefined): string {

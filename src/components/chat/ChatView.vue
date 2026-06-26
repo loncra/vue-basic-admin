@@ -11,8 +11,8 @@ import type {
   UserChatMessageResponseBody
 } from "@/types/apis";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
-import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {addBubbleListMessage, useChatContext} from "@/composables/chat";
+import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {useChatContext} from "@/composables/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";

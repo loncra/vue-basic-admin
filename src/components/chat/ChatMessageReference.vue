@@ -1,8 +1,7 @@
 <script setup lang="ts">
 
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {getEnumName, getEnumValue, getMessageContent, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
-import {getMessageContent} from "@/composables/chat/chatContentFormat.ts";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";

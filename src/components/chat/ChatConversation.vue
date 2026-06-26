@@ -13,7 +13,13 @@ import {
 } from "vue";
 import type {UserChatConversationResponseBody} from "@/types/apis";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {
+  createAvatarNode,
+  createIcon,
+  getDraftContent,
+  getEnumValue, getMessageContent,
+  requireNonNullOrUndefined
+} from "@/utils";
 import {Conversations as AxConversations,} from '@antdv-next/x'
 import type {ServerConversationItem} from "@/types/composables";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
@@ -21,9 +27,6 @@ import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/m
 import type {MenuItemType} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
 import {
-  createAvatarNode,
-  getDraftContent,
-  getMessageContent,
   useChatContext,
   useConversationActions
 } from "@/composables/chat";

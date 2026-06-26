@@ -17,3 +17,6 @@ export * from './resourceUtils'
 
 // 通用工具
 export * from './commonUtils'
+
+// 聊天工具
+export * from './chatUtils'
