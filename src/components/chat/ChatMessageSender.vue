@@ -62,7 +62,7 @@ defineExpose({
     ref="senderRef"
     :slot-config="props.disabled ? undefined : props.slotConfig"
     :suffix="false"
-    allow-speech
+    :placeholder="placeholder"
     :disabled="props.disabled"
     :read-only="unref(isSending) || props.disabled"
     :class-names="{

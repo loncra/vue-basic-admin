@@ -56,7 +56,9 @@ export function useChatConversations() {
     if (roomId == null) {
       return undefined
     }
-    return dataSource.value.find((d) => d.room.id === roomId)
+    return dataSource.value
+      .filter(d => d?.room?.id)
+      .find((d) => d.room.id === roomId)
   }
 
   /** 整体替换（首屏 / 全量刷新），并为缺省 draft 补空数组 */
@@ -79,14 +81,14 @@ export function useChatConversations() {
   function moveToTopByRoomId(
     roomId: number | undefined,
     mutate?: (conversation: UserChatConversationResponseBody) => void,
-  ): UserChatConversationResponseBody | undefined {
+  ) {
     const find = findByRoomId(roomId)
     if (!find) {
-      return undefined
+      return
     }
     mutate?.(find)
     dataSource.value = [find, ...dataSource.value.filter((d) => d.room.id !== roomId)]
-    return find
+
   }
 
   /** 不存在时头插（socket 新建会话推送） */
@@ -102,7 +104,9 @@ export function useChatConversations() {
     roomId: number,
     body: UserChatConversationResponseBody,
   ): UserChatConversationResponseBody | undefined {
-    const index = dataSource.value.findIndex((s) => s.room.id === roomId)
+    const index = dataSource.value
+      .filter(d => d?.room?.id)
+      .findIndex((s) => s.room.id === roomId)
     if (index < 0) {
       return undefined
     }

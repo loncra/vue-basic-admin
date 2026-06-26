@@ -177,7 +177,7 @@ defineExpose({
         :slot-config="conversation.item.data.draft"
         v-model:ref-messages="refMessages"
         :sending="conversation.sending"
-        :upload-options="{param:{prefix:'user_chat_room/' + conversation.item.data.room.id}}"
+        :upload-options="conversation.item.data?.room?.id ? {param:{prefix:'user_chat_room/' + conversation.item.data.room.id}} : undefined"
         :placeholder="placeholderText"
         :disabled="getEnumValue(conversation.item.data.status) !== 10"
         @jump-to-reference="(body) => chatBubbleList?.jumpToMessage(String(body.id))"
