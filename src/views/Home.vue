@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import HomeLayout from '@/components/layout/HomeLayout.vue'
-import {
-  type ComponentInternalInstance,
-  getCurrentInstance,
-  h,
-  onMounted,
-  onUnmounted,
-  ref
-} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h} from "vue";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {
@@ -16,22 +9,23 @@ import type {
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from "@/types/apis";
-import {useSocketStore} from "@/stores/socketStore.ts";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import useApp from "antdv-next/dist/app/useApp";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
-import {getMessageContent} from "@/composables/chat/chatContentFormat.ts";
-import {createAvatarNode} from "@/composables/chat/chatAvatar.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {
+  createAvatarNode,
+  getEnumValue,
+  getMessageContent,
+  requireNonNullOrUndefined
+} from "@/utils";
 import {Typography} from 'antdv-next'
+import {useSocketSubscriptions} from "@/composables";
 
 defineOptions({
   name: 'IndexHome',
 })
 
-const socketListener = ref<((() => void) | undefined)[]>([])
-const socketStore = useSocketStore();
 const principalStore = usePrincipalStore();
 const messageServerStore = useMessageServerStore();
 const { notification } = useApp();
@@ -39,6 +33,8 @@ const { notification } = useApp();
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+
+const {on} = useSocketSubscriptions()
 
 function createNotificationDescription(text: string) {
   if (!text) {
@@ -86,15 +82,11 @@ async function onChatMessageReceived(result: RestResult<UserChatMessageResponseB
   })
 }
 
-function mounted(){
-  socketListener.value.push(socketStore.subscribe(
-    SOCKET_EVENT_TYPE.CHAT_MESSAGE,
-    (payload) => onChatMessageReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
-  ))
-}
+on(
+  SOCKET_EVENT_TYPE.CHAT_MESSAGE,
+  (payload) => onChatMessageReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
+)
 
-onMounted(mounted)
-onUnmounted(() => socketListener.value.forEach(s => s?.()))
 </script>
 
 <template>

@@ -13,7 +13,7 @@ import type {
 } from "@/types/apis";
 import {formUrlEncoded, loadJs} from "@/utils";
 import {CAPTCHA_TOKEN_TYPE} from "@/constants/messageConstant.ts";
-import type {Ref} from "vue";
+import type {TianaiCaptchaInstance} from "../../../env";
 
 /**
  * resource-server 侧通用查询（当前仅封装枚举相关接口）。
@@ -52,7 +52,7 @@ export class ResourceServerService {
     captchaToken:CaptchaToken,
     onSuccess:(result: { data:string }) => void,
     onCancel:() => void
-  ) {
+  ): Promise<TianaiCaptchaInstance | undefined> {
     await loadJs(String(captchaToken.type), (captchaToken.args.generate as {jsUrl:string}).jsUrl)
     if (TianaiCaptcha) {
       return new TianaiCaptcha({

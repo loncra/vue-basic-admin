@@ -14,6 +14,7 @@ import {useSocketStore} from '@/stores/socketStore'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.js'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import {ResourceServerService} from "@/apis";
+import type {TianaiCaptchaInstance} from "../../../../env";
 
 defineOptions({
   name: 'LAuthForm',
@@ -58,12 +59,12 @@ const segmentedKey = ref<string>(LOGIN_TYPE.USERNAME_PASSWORD)
 const formRef = ref()
 const loading = ref(false)
 const accountLoginCaptchaRef = ref<{
-  instance?:any
+  instance?:TianaiCaptchaInstance
   captchaToken?:CaptchaToken
 }>({});
 
 const sendPhoneNumberCaptchaRef = ref<{
-  instance?:any
+  instance?:TianaiCaptchaInstance
   sendPhoneNumber?:string,
   disabledSendButton?:boolean,
   captchaToken?:CaptchaToken
@@ -114,7 +115,8 @@ const doAuth = async (): Promise<void> => {
       accountLoginCaptchaRef.value.captchaToken = (error.data as {captchaToken:CaptchaToken}).captchaToken
       accountLoginCaptchaRef.value.instance = await ResourceServerService.createTianaiCaptchaInstance(
         accountLoginCaptchaRef.value.captchaToken,
-        onAccountCaptchaSuccess
+        onAccountCaptchaSuccess,
+        () => {}
       )
     }
   } finally {
@@ -134,7 +136,7 @@ function onAccountCaptchaSuccess(result: { data:string }) {
     })
   }
 
-  accountLoginCaptchaRef.value.instance.hide()
+  accountLoginCaptchaRef.value.instance?.hide()
 
   doAuth()
 }

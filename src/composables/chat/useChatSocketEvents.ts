@@ -8,12 +8,11 @@ import type {
 } from '@/types/apis'
 import type {ConversationActiveProps, ServerConversationItem} from '@/types/composables'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
-import {addBubbleListMessage} from '@/composables/chat/chatBubbleHelper.ts'
 import type {ChatConversationsApi} from '@/composables/chat/useChatConversations.ts'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
-import {getEnumValue} from '@/utils'
+import {addBubbleListMessage, getEnumValue} from '@/utils'
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from '@/constants/messageConstant.ts'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 
