@@ -108,7 +108,7 @@ async function mounted() {
             key: String(v.id),
             label: v.realName || v.username,
             group: r.name,
-            disabled: principalStore.state.name === v.systemName,
+            disabled: principalStore.isCurrentPrincipal(v.systemName),
             data: v,
           }),
         )

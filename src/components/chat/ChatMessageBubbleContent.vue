@@ -3,6 +3,7 @@ import type {ChatContentBlock} from '@/types/composables'
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
+import {useSlots} from "vue";
 
 defineOptions({
   name: 'LChatMessageBubbleContent',
@@ -12,8 +13,10 @@ defineProps<{
   content: ChatContentBlock[]
 }>()
 
+const slots = useSlots()
+
 const emit = defineEmits<{
-  jumpToReference: [message: UserChatMessageResponseBody]
+  jumpToReference: [message: UserChatMessageResponseBody],
 }>()
 
 </script>
@@ -33,7 +36,8 @@ const emit = defineEmits<{
       v-model:value="block.files" />
     </div>
     <a-tooltip :title="block.tooltip" v-else-if="block.type === 'custom' && block.slotKind === 'undo'">
-      <a-typography-text delete>
+      <slot v-if="slots.undo" name="undo" :text="block.value"/>
+      <a-typography-text v-else delete type="secondary">
         {{block.value}}
       </a-typography-text>
     </a-tooltip>

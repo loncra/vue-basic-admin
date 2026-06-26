@@ -522,6 +522,7 @@ const locale: LanguagePack = {
     view: {
       reference:'reference',
       reedit:'re-edit',
+      selfUndo:'You have undo this message',
       undo:{
         confirmTitle:'Undo Confirmation',
         confirmContent:'Are you sure you want to undo this message?',

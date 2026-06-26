@@ -12,6 +12,7 @@ import type {UserChatMessageResponseBody} from "@/types/apis";
 import {useChatBubbleList, useChatContext} from "@/composables/chat";
 import type {MenuItemType} from "antdv-next";
 import LChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'LChatBubbleList',
@@ -41,6 +42,7 @@ const emit = defineEmits<{
 }>()
 
 const {conversationActive: conversation, loader} = useChatContext()
+const principalStore = usePrincipalStore()
 
 const {
   bubbleListRef,
@@ -68,15 +70,8 @@ const {
 })
 function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
   const data = item.data as UserChatMessageResponseBody
-  const isUndone = getEnumValue(data?.undo) === 1
   const items: MenuItemType[] = []
-  if (isUndone) {
-    items.push({
-      key: 'reedit',
-      label: globalProperties.$t('chat.view.reedit'),
-      icon: createIcon('loncra-message-square-reply', 'text-lg'),
-    })
-  } else {
+  if (getEnumValue(data?.undo) === 0) {
     items.push({
       key: 'reference',
       label: globalProperties.$t('chat.view.reference'),
@@ -91,14 +86,18 @@ function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
       })
     }
   }
+
   return items
 }
 
 function onMessageMenuClick(e: { key: string }, item: ChatBubbleItem) {
   const data = item.data as UserChatMessageResponseBody
-  if (e.key === 'reedit') reedit(data)
-  else if (e.key === 'reference') addRefMessage(data)
-  else if (e.key === 'undo') onUndoMessage(data)
+  if (e.key === 'reference') {
+    addRefMessage(data)
+  }
+  else if (e.key === 'undo') {
+    onUndoMessage(data)
+  }
 }
 
 defineExpose({
@@ -184,7 +183,24 @@ defineExpose({
             <l-chat-message-bubble-content
               :content="content"
               @jump-to-reference="(body) => jumpToMessage(String(body.id))"
-            />
+            >
+              <template #undo="{text}">
+                <a-space>
+                  <a-typography-text delete type="secondary">
+                    <template v-if="principalStore.isCurrentPrincipal(item.data.principal)">
+                      {{globalProperties.$t('chat.view.selfUndo')}}
+                    </template>
+                    <template v-else>
+                      {{text}}
+                    </template>
+                  </a-typography-text>
+
+                  <a-typography-link v-if="principalStore.isCurrentPrincipal(item.data.principal)" href="javascript:;" @click="reedit(item.data)">
+                    {{globalProperties.$t('chat.view.reedit')}}
+                  </a-typography-link>
+                </a-space>
+              </template>
+            </l-chat-message-bubble-content>
           </div>
         </a-dropdown>
       </template>

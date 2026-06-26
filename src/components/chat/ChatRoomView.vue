@@ -219,7 +219,7 @@ const {
                   block
                   danger
                   @click="onDisbandRoom"
-                  v-if="participants.some(c => getEnumValue(c.type) === 10 && principalStore.state.name === c.principal) && getEnumValue(conversation.status) === 10"
+                  v-if="participants.some(c => getEnumValue(c.type) === 10 && principalStore.isCurrentPrincipal(c.principal)) && getEnumValue(conversation.status) === 10"
                 >
                   <template #icon>
                     <icon-font type="loncra-message-square-x"/>

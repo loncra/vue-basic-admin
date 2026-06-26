@@ -515,6 +515,7 @@ const locale: LanguagePack = {
     view:{
       reference:'引用',
       reedit:'重新编辑',
+      selfUndo:'您已撤回此消息',
       undo:{
         confirmTitle:'撤销确认',
         confirmContent:'确定要撤销该消息吗？',

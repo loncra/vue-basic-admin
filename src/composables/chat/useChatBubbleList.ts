@@ -2,7 +2,6 @@ import {
   type ComponentInternalInstance,
   computed,
   getCurrentInstance,
-  h,
   nextTick,
   onUnmounted,
   type Ref,
@@ -14,7 +13,6 @@ import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps,} from '@
 import type {RestResult, UserChatMessageResponseBody} from '@/types/apis'
 import {throttle} from 'lodash-es'
 import useApp from 'antdv-next/dist/app/useApp'
-import ChatMessageBubbleContent from '@/components/chat/ChatMessageBubbleContent.vue'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {requireNonNullOrUndefined} from '@/utils'
 import {useChatReadMarker} from '@/composables/chat/useChatReadMarker.ts'
@@ -46,6 +44,7 @@ export function useChatBubbleList(
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
+
   const {message, modal} = useApp()
   const readMarker = useChatReadMarker(conversation)
 
@@ -54,19 +53,15 @@ export function useChatBubbleList(
 
   const bubbleListRole = {
     user: {
-      contentRender: renderBubbleContent,
       variant: 'filled',
       placement: 'end',
       shape: 'corner',
       classes: {content: 'bg-primary-bg!'},
-      footerPlacement: 'inner-start',
     },
     ai: {
-      contentRender: renderBubbleContent,
       variant: 'filled',
       placement: 'start',
       shape: 'corner',
-      footerPlacement: 'inner-start',
     },
     system: {
       variant: 'outlined',
@@ -127,14 +122,6 @@ export function useChatBubbleList(
       } as BubbleItemType)
     }
     return result
-  }
-
-  function renderBubbleContent(content: ChatContentBlock[]) {
-
-    return h(ChatMessageBubbleContent, {
-      content: content,
-      onJumpToReference: (body) => jumpToMessage(String(body.id)),
-    })
   }
 
   function jumpToBottom(type: 'reloadLastPage' | 'bottom'): void {
@@ -257,6 +244,7 @@ export function useChatBubbleList(
   }
 
   function reedit(item: UserChatMessageResponseBody): void {
+    conversation.value.bubbleList = conversation.value.bubbleList.filter(d => d.key !== String(item.id))
     callbacks.onReedit(item.metadata.oldContent as ChatContentBlock[])
   }
 

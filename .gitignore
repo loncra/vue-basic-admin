@@ -15,9 +15,6 @@ coverage
 *.local
 
 # Editor directories and files
-vue-basic-admin/.vscode/settings.json
-!.vscode/extensions.json
-.idea
 *.suo
 *.ntvs*
 *.njsproj
@@ -38,10 +35,12 @@ __screenshots__/
 # Vite
 *.timestamp-*-*.mjs
 components.d.ts
-/package-lock.json
-/.agents/
-/.cursor/
-/skills-lock.json
+.vscode
+.agents
+.cursor
+.idea
+.codegraph
+
 /pnpm-lock.yaml
-/.codegraph/.gitignore
-/.codegraph/daemon.pid
+/package-lock.json
+/skills-lock.json

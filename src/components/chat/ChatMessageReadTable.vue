@@ -163,7 +163,7 @@ onUnmounted(() => socketListener.value.forEach(f => f?.()));
         <template v-if="column.key === 'name'">
           <a-space>
             <l-user-avatar :user="record.participant?.metadata?.details" />
-            <template v-if="principalStore.state.name === record.principal">
+            <template v-if="principalStore.isCurrentPrincipal(record.principal)">
               {{globalProperties.$t('common.me')}}
             </template>
             <template v-else>

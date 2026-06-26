@@ -39,13 +39,13 @@ const emit = defineEmits<{
         <template v-if="getEnumValue(props.message.participant.type) !== 30">
           [{{getEnumName(props.message.participant.type)}}]
         </template>
-        <template v-if="principalStore.state.name === props.message.principal">
+        <template v-if="principalStore.isCurrentPrincipal(props.message.principal)">
           {{ globalProperties.$t('common.me') }}
         </template>
         <template v-else>
           [{{ AuthServerService.getPrincipalNameByUserDetails(props.message.participant.metadata.details) }}]
         </template>
-        : 
+        :
       </a-typography-text>
       <a-typography-text class="min-w-0 w-full flex flex-inline flex-1" type="secondary" ellipsis>
         {{ getMessageContent(props.message)}}
