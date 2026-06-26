@@ -31,11 +31,13 @@ export interface UserChatMessageEntity extends VersionEntityMetadata {
   /** 发送者 */
   principal: string;
   /** 是否撤销 */
-  undo: NameValueEnumMetadata<number> | number;
+  undo: NameValueEnumMetadata<number> | number
+  /** 可撤销时间 */
+  undoableTime:number
   /** 撤销时间 */
   undoTime: number;
   metadata: Record<string, unknown>;
-  type: NameValueEnumMetadata<number> | number;
+  type: NameValueEnumMetadata<number> | number
 }
 
 export interface UserChatParticipantDetails {

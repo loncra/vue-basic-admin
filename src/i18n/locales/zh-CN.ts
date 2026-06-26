@@ -521,7 +521,8 @@ const locale: LanguagePack = {
         confirmContent:'确定要撤销该消息吗？',
         action:'撤销',
         time:'撤销时间{time}',
-        messageValue:'该消息已撤销'
+        messageValue:'该消息已撤销',
+        countdown: '(s 秒后不可撤销)'
       },
       placeholder:{
         exitRoom:'您已退出本群',

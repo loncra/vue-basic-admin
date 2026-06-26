@@ -527,7 +527,8 @@ const locale: LanguagePack = {
         confirmTitle:'Undo Confirmation',
         confirmContent:'Are you sure you want to undo this message?',
         action:'undo',
-        messageValue: 'this message has been undo'
+        messageValue: 'this message has been undo',
+        countdown: '(Irrevocable after s seconds)'
       },
       placeholder: {
         exitRoom: 'You have left this group',

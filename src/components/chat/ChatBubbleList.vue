@@ -5,9 +5,10 @@ import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
 import {AuthServerService} from "@/apis";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
-import {type ComponentInternalInstance, getCurrentInstance} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
 import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables";
 import {BubbleList as AxBubbleList} from "@antdv-next/x";
+import {StatisticTimer, Space} from "antdv-next";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import {useChatBubbleList, useChatContext} from "@/composables/chat";
 import type {MenuItemType} from "antdv-next";
@@ -72,17 +73,41 @@ function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
   const data = item.data as UserChatMessageResponseBody
   const items: MenuItemType[] = []
   if (getEnumValue(data?.undo) === 0) {
+
     items.push({
       key: 'reference',
       label: globalProperties.$t('chat.view.reference'),
       icon: createIcon('loncra-text-quote', 'text-lg'),
     })
-    if (role === CHAT_BUBBLE_TYPE.USER) {
+
+    if (role === CHAT_BUBBLE_TYPE.USER && globalProperties.$dayjs().isBefore(globalProperties.$dayjs(item?.data?.undoableTime))) {
+      const disabled = ref<boolean>(false)
+      const timer = h(
+        StatisticTimer,
+        {
+          classes:{
+            content:'text-DEFAULT text-text-secondary'
+          },
+          onFinish: () => disabled.value = true,
+          type:'countdown',
+          value:item?.data?.undoableTime,
+          format:globalProperties.$t('chat.view.undo.countdown')
+        }
+      )
+      const label = h(
+        Space,
+        {},
+        [
+          globalProperties.$t('chat.view.undo.action'),
+          timer
+        ]
+      )
       items.push({
         key: 'undo',
-        label: globalProperties.$t('chat.view.undo.action'),
+        label: label,
         icon: createIcon('loncra-undo', 'text-lg'),
         danger: true,
+        disabled:disabled.value
       })
     }
   }
