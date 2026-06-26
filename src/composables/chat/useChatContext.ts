@@ -69,6 +69,7 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
     } else {
       conversationActive.value.item = undefined
       options.refreshActiveHeader(undefined)
+      conversationActive.value.drawerOpen = false
     }
   }
 

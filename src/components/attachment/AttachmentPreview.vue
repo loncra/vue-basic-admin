@@ -266,7 +266,7 @@ const classes = computed(() => ({
   </span>
 
   <teleport to="body">
-    <div class="hidden">
+    <div class="hidden" v-if="previewImageGroup.open">
       <a-image-preview-group
         :preview="{
           open: previewImageGroup.open,
@@ -287,6 +287,7 @@ const classes = computed(() => ({
     </div>
 
     <a-modal
+      v-if="previewImageGroup.open"
       :footer="null"
       destroy-on-hidden
       v-model:open="modalOptions.open"

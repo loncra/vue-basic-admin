@@ -49,7 +49,7 @@ const conversationActions = useConversationActions()
 const moreButtonActive = ref(false)
 const searchValue = ref<string>('')
 
-const activeKey = computed(() => conversationActive.value.item?.key)
+const activeKey = computed(() => conversationActive.value.item?.key ?? "")
 
 const emit = defineEmits<{
   delete: [item:UserChatConversationResponseBody]
