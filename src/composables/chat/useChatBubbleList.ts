@@ -185,6 +185,9 @@ export function useChatBubbleList(
   }
 
   function collectVisibleUnread(scrollBox: HTMLElement): void {
+    if (!isActiveForRead()) {
+      return
+    }
     const items: ChatBubbleItem[] = getVisibleChatBubbleItems(scrollBox, (item) =>
       readMarker.isReadableMessage(item?.data as UserChatMessageResponseBody),
     )
@@ -276,6 +279,17 @@ export function useChatBubbleList(
     })
   }
 
+  function isActiveForRead(): boolean {
+    return document.visibilityState === 'visible' && document.hasFocus()
+  }
+
+  function tryCollectVisibleUnread(): void {
+    const scrollBox = bubbleListRef.value?.scrollBoxNativeElement
+    if (scrollBox && isActiveForRead()) {
+      handleScrollRead(scrollBox)
+    }
+  }
+
   // 数据变化（首屏加载、切换会话、socket 新消息、历史分页）后检查可见区未读。
   // 不能依赖 mounted：挂载时 bubbleList 尚未加载，且切换会话不会重新挂载；
   // 贴底收到新消息时 scrollTop 不变，也不会触发 scroll 事件
@@ -295,10 +309,15 @@ export function useChatBubbleList(
     () => conversation.value.item?.key,
     () => readMarker.reset(),
   )
-
+  
+  window.addEventListener('focus', tryCollectVisibleUnread)
+  document.addEventListener('visibilitychange', tryCollectVisibleUnread)
+  
   onUnmounted(() => {
     handleScrollRead.cancel()
     handleThrottleBubbleScroll.cancel()
+    window.removeEventListener('focus', tryCollectVisibleUnread)
+    document.removeEventListener('visibilitychange', tryCollectVisibleUnread)
   })
 
   function getScrollBox(): HTMLElement | undefined {
