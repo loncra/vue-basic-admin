@@ -1,7 +1,7 @@
 import {inject, type InjectionKey, provide, type Ref, ref} from 'vue'
 import type {ConversationActiveProps, ServerConversationItem} from '@/types/composables'
 import type {UserChatConversationResponseBody} from '@/types/apis'
-import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
+import {CHAT_CONTEXT_KEY, DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
 import {useChatConversations} from '@/composables/chat/useChatConversations.ts'
 import {
   type ChatViewController,
@@ -25,8 +25,6 @@ export interface ChatContext {
   /** 全量刷新会话列表并保持当前激活态 */
   refreshConversations: () => Promise<void>
 }
-
-const CHAT_CONTEXT_KEY: InjectionKey<ChatContext> = Symbol('chat-context')
 
 function createDefaultActive(): ConversationActiveProps {
   return {
@@ -93,7 +91,7 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
 }
 
 export function useChatContext(): ChatContext {
-  const ctx = inject(CHAT_CONTEXT_KEY)
+  const ctx = inject<ChatContext>(CHAT_CONTEXT_KEY)
   if (!ctx) {
     throw new Error('useChatContext() 必须在 provideChatContext() 的组件子树内调用')
   }

@@ -3,7 +3,7 @@ import type {
   PageResult,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
-  UserChatMessageResponseBody
+  UserChatMessageResponseBody, UserChatParticipantEntity
 } from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
