@@ -52,7 +52,7 @@ export function useCrudDelete<
     try {
       const result: RestResult<void> = await (
         options.service as BasicCrudService<TBody, TEntity, TId>
-      ).delete(records.map((r) => r.id))
+      ).delete(records.map(r => r.id as TId))
       options.message.success(result.message)
       await options.onDeleted?.(records)
       await options.refresh()
