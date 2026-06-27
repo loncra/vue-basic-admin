@@ -38,6 +38,7 @@ function createDefaultActive(): ConversationActiveProps {
     dataSource: DEFAULT_PAGE_RESULT_VALUE,
     drawerOpen: false,
     bubbleList: [],
+    participants:[]
   }
 }
 
@@ -56,6 +57,7 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
   async function activateConversation(
     body: UserChatConversationResponseBody | undefined,
   ): Promise<void> {
+    conversationActive.value.drawerOpen = false
     if (body) {
       const item: ServerConversationItem = {
         key: String(body.id),
@@ -67,7 +69,6 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
     } else {
       conversationActive.value.item = undefined
       options.refreshActiveHeader(undefined)
-      conversationActive.value.drawerOpen = false
     }
   }
 

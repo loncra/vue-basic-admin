@@ -1,36 +1,27 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 import type {
   ContactItem,
   RestResult,
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from "@/types/apis";
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {getEnumName, getEnumValue} from "@/utils";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
 import {AuthServerService} from "@/apis";
 import LChatMessageHistories from "@/components/chat/ChatMessageHistories.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
-import {useChatContext, useChatRoomSettings} from "@/composables/chat";
+import {useChatRoomSettings} from "@/composables/chat";
 
 defineOptions({
   name: 'LChatRoomView',
 })
-
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
 
 const props = withDefaults(defineProps<{
   contactDataSource:ContactItem[],
 }>(),{
 
 })
-
-const principalStore = usePrincipalStore()
-const {conversationActive} = useChatContext()
 
 const emit = defineEmits<{
   addParticipant: [info: ContactItem[], restResult:RestResult<UserChatConversationResponseBody>],
@@ -42,6 +33,8 @@ const {
   conversation,
   participants,
   loading,
+  principalStore,
+  globalProperties,
   options,
   modalOptions,
   systemUserPanelDataSource,
@@ -61,7 +54,6 @@ const {
   onExist,
   onDisbandRoom,
 } = useChatRoomSettings(
-  () => conversationActive.value.item?.data,
   () => props.contactDataSource,
   {
     onAddParticipant: (info, result) => emit('addParticipant', info, result),

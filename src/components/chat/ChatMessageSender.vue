@@ -2,11 +2,12 @@
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {ChatContentBlock} from "@/types/composables";
 import {Sender as AxSender} from '@antdv-next/x'
-import type {UserChatMessageResponseBody} from "@/types/apis";
+import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
 import {useChatMessageSender} from "@/composables/chat";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import LEmojiButton from "@/components/basic/EmojiButton.vue";
 import {toRef, unref} from "vue";
+import {useChatMessageSendInstruction} from "@/composables/chat/useChatMessageSendInstruction.ts";
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -18,14 +19,16 @@ const props = withDefaults(defineProps<{
   slotConfig?: SlotConfigType[]
   placeholder: string
   sending?:boolean
-  uploadOptions?: Record<string, unknown>,
+  uploadOptions?: Record<string, unknown>
   disabled: boolean
+  instructionMap?:Record<string, IdValueMetadata<string, string>[]>
 }>(), {
   slotConfig: () => [],
   placeholder: '',
   sending:false,
   uploadBucket: 'system.file',
-  disabled: false
+  disabled: false,
+  instructionMap: () => ({})
 })
 
 const emit = defineEmits<{
@@ -49,6 +52,12 @@ const {
   onSubmit: (content) => emit('submit', content),
 })
 
+const {
+  handleChange,
+  handleInstructionPick,
+  instructionOption
+} = useChatMessageSendInstruction(props.instructionMap)
+
 defineExpose({
   clear,
   convertContentBlockToSlotConfig,
@@ -69,6 +78,7 @@ defineExpose({
       input: 'chat-sender-input',
       footer:'p-xs! border-t border-t-border-secondary'
     }"
+    @change="handleChange"
     @paste-file="onPasteFiles"
     @submit="handleSubmit"
   >
@@ -107,4 +117,31 @@ defineExpose({
       </a-flex>
     </template>
   </ax-sender>
+  <teleport to="body">
+    <a-popover
+      v-model:open="instructionOption.open"
+      :trigger="[]"
+      :destroy-tooltip-on-hide="false"
+    >
+      <template #content>
+        <div v-if="instructionOption.dataSource.length > 0" class="max-h-60 overflow-auto" @mousedown.prevent>
+          <div
+            v-for="(item, index) in instructionOption.dataSource"
+            :key="item.value"
+            class="px-3 py-2 cursor-pointer rounded-sm"
+            :class="index === instructionOption.activeIndex ? 'bg-primary-bg' : 'hover:bg-fill-secondary'"
+            @mouseenter="handleInstructionPick(item)"
+            @click="handleInstructionPick(item)"
+          >
+            {{ item.value }}
+          </div>
+        </div>
+        <a-empty v-else/>
+      </template>
+      <span
+        class="fixed w-px h-[1em] pointer-events-none"
+        :style="instructionOption.anchorStyle"
+      />
+    </a-popover>
+  </teleport>
 </template>

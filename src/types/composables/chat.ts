@@ -69,6 +69,7 @@ export interface ServerConversationItem {
   key: string
   label?: string
   data?: UserChatConversationResponseBody
+
 }
 
 export interface ConversationActiveProps {
@@ -84,4 +85,5 @@ export interface ConversationActiveProps {
   readableAnchorLoading:boolean | undefined
   dataSource: PageResult<UserChatMessageResponseBody>
   bubbleList: ChatBubbleItem[]
+  participants:UserChatParticipantEntity[]
 }

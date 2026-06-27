@@ -220,126 +220,12 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     return senderRef.value?.getValue()?.slotConfig || []
   }
 
-  function getEditableRoot(): HTMLElement | null {
-    if (!senderRef.value) {
-      return null
-    }
-    const root = senderRef.value.nativeElement
-    if (root.isContentEditable) {
-      return root
-    }
-    return (
-      root.querySelector<HTMLElement>('[contenteditable="true"]')
-    )
-  }
-
-  function advanceSlotIdx(slots: SlotConfigType[], slotIdx: number, child: Node): number {
-    if (child.nodeType === Node.TEXT_NODE) {
-      const text = child.textContent ?? ''
-      if (!text) {
-        return slotIdx
-      }
-      return slots[slotIdx]?.type === 'text' ? slotIdx + 1 : slotIdx
-    }
-    if (child instanceof HTMLElement && child.dataset.slotKey && child.dataset.nodeType !== 'nbsp') {
-      return slotIdx + 1
-    }
-    return slotIdx
-  }
-
-  function findDirectChildContaining(editable: HTMLElement, node: Node): ChildNode | null {
-    let cur: Node | null = node
-    while (cur && cur !== editable) {
-      if (cur.parentNode === editable) {
-        return cur as ChildNode
-      }
-      cur = cur.parentNode
-    }
-    return null
-  }
-
-  function focusSlot(slotKey: string, cursor: "start" | "end" | "all" | "slot") {
-
-    const editable = getEditableRoot()
-    if (!editable) {
-      return
-    }
-    const slotEl = editable.querySelector<HTMLElement>(
-      `[data-slot-key="${slotKey}"]:not([data-node-type="nbsp"])`,
-    )
-    if (!slotEl) {
-      senderRef?.value?.focus({ cursor })
-      return
-    }
-    editable.focus()
-    const sel = window.getSelection()
-    if (!sel) return
-    const range = document.createRange()
-    range.setStartAfter(slotEl)
-    range.collapse(true)
-    sel.removeAllRanges()
-    sel.addRange(range)
-  }
-
-  function resolveCursorContext(): CursorContext | null {
-
-    const editable = getEditableRoot()
-    const sel = window.getSelection()
-    if (!editable || !sel?.rangeCount || !sel.anchorNode || !editable.contains(sel.anchorNode)) {
-      return null
-    }
-    const slots = senderRef?.value?.getValue()?.slotConfig ?? []
-    const { anchorNode, anchorOffset } = sel
-    // 容器选区：光标在 editable 子节点缝隙里（空行、块后最常见）
-    if (anchorNode === editable) {
-      let slotIdx = 0
-      for (let i = 0; i < anchorOffset; i++) {
-        const child = editable.childNodes[i]
-        if (child) {
-          slotIdx = advanceSlotIdx(slots, slotIdx, child)
-        }
-      }
-      return { slotIdx, textOffset: 0, isAtLineStart: true }
-    }
-    const directChild = findDirectChildContaining(editable, anchorNode)
-    if (!directChild) {
-      return null
-    }
-    let slotIdx = 0
-    for (const child of editable.childNodes) {
-      if (child !== directChild) {
-        slotIdx = advanceSlotIdx(slots, slotIdx, child)
-        continue
-      }
-      if (child.nodeType === Node.TEXT_NODE) {
-        const textNode = child as Text
-        const offset =
-          anchorNode.nodeType === Node.TEXT_NODE && anchorNode === textNode
-            ? anchorOffset
-            : 0
-        return {
-          slotIdx,
-          textOffset: offset,
-          isAtLineStart: offset === 0,
-        }
-      }
-      if (child instanceof HTMLBRElement) {
-        return { slotIdx, textOffset: 0, isAtLineStart: true }
-      }
-      // custom / content 词槽（含 AttachmentUpload portal）
-      return { slotIdx, textOffset: 0, isAtLineStart: true }
-    }
-    return null
-  }
-
   return {
     senderRef,
     isSending,
     onPasteFiles,
     handleSubmit,
     onSelectedEmoji,
-    focusSlot,
-    resolveCursorContext,
     clear,
     convertContentBlockToSlotConfig,
     getSlotConfigValue,

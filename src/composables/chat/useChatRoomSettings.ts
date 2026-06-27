@@ -24,6 +24,7 @@ import useApp from 'antdv-next/dist/app/useApp'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {CHAAT_ROOM_VIEW_MODAL_TYPE, SOCKET_EVENT_TYPE} from '@/constants/messageConstant.ts'
 import {parseSocketRestPayload} from '@/types/socket.ts'
+import {useChatContext} from "@/composables";
 
 export interface ChatRoomSettingsCallbacks {
   onAddParticipant: (
@@ -38,7 +39,6 @@ export interface ChatRoomSettingsCallbacks {
  * 房间设置抽屉逻辑：成员加载、改名、置顶/免打扰、增删成员、退出/解散、弹窗与历史入口。
  */
 export function useChatRoomSettings(
-  getConversation: () => UserChatConversationResponseBody | undefined,
   getContacts: () => ContactItem[],
   callbacks: ChatRoomSettingsCallbacks,
 ) {
@@ -46,13 +46,15 @@ export function useChatRoomSettings(
     getCurrentInstance(),
   ).appContext.config.globalProperties
   const {message, modal} = useApp()
+
+  const {conversationActive, loader} = useChatContext()
   const principalStore = usePrincipalStore()
   const conversationActions = useConversationActions()
   const {on} = useSocketSubscriptions()
 
-  const conversation = computed(getConversation)
-
-  const participants = ref<UserChatParticipantEntity[]>([])
+  const conversation = computed(() => conversationActive.value.item?.data)
+  const participants = computed(() => conversationActive.value.participants)
+  //const participants = ref<UserChatParticipantEntity[]>([])
   const loading = ref<boolean>(false)
   // 显式断言为 Ref<T>，避免 UnwrapRef 对 currentConversation 深度递归（TS2589）
   const options = ref<{
@@ -83,8 +85,8 @@ export function useChatRoomSettings(
       return getContacts()
     }
     if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING) {
-      return participants.value
-        .filter((p) => p.principal !== principalStore.state.name)
+      return conversationActive.value.participants
+        .filter((p) => !principalStore.isCurrentPrincipal(p.principal))
         .map(toContactItem)
     }
     return []
@@ -109,7 +111,7 @@ export function useChatRoomSettings(
     loadParticipant()
   }
 
-  async function mounted(): Promise<void> {
+  /*async function mounted(): Promise<void> {
     if (!conversation.value) {
       return
     }
@@ -121,7 +123,7 @@ export function useChatRoomSettings(
     }
     options.value.currentConversation = {...conversation.value}
     await loadParticipant()
-  }
+  }*/
 
   async function loadParticipant(): Promise<void> {
     if (!conversation.value || getEnumValue(conversation.value?.status) !== 10) {
@@ -129,11 +131,7 @@ export function useChatRoomSettings(
     }
     try {
       loading.value = true
-      const result: RestResult<UserChatParticipantEntity[]> =
-        await ChatMessageService.findRoomParticipant(Number(conversation.value.room.id))
-      if (result.data) {
-        participants.value = result.data
-      }
+      await loader.loadParticipant(Number(conversation.value?.room?.id))
     } finally {
       loading.value = false
     }
@@ -141,7 +139,7 @@ export function useChatRoomSettings(
 
   function onFilterSystemUser(item: ContactItem): boolean {
     if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT) {
-      return !participants.value.map((d) => d.metadata.details.id).includes(item.data.id)
+      return !conversationActive.value.participants.map((d) => d.metadata.details.id).includes(item.data.id)
     }
     return true
   }
@@ -387,12 +385,14 @@ export function useChatRoomSettings(
   on(SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID, (payload) =>
     onChatParticipantRefreshByRoomId(parseSocketRestPayload<number>(payload)),
   )
-  onMounted(mounted)
-  watch(() => conversation.value, () => loadParticipant(), {deep: true})
+  //onMounted(mounted)
+  //watch(() => conversation.value, () => loadParticipant(), {deep: true})
 
   return {
     conversation,
     participants,
+    globalProperties,
+    principalStore,
     loading,
     options,
     modalOptions,

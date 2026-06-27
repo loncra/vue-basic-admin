@@ -1,5 +1,10 @@
 import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref,} from 'vue'
-import type {PageResult, RestResult, UserChatMessageResponseBody,} from '@/types/apis'
+import type {
+  PageResult,
+  RestResult,
+  UserChatMessageResponseBody,
+  UserChatParticipantEntity,
+} from '@/types/apis'
 import type {
   ChatBubbleItem,
   ConversationActiveProps,
@@ -89,7 +94,13 @@ export function useChatMessageLoader(
       active.loadConversationDataLock = false
     }
   }
-
+  async function loadParticipant(roomId:number): Promise<void> {
+    const result: RestResult<UserChatParticipantEntity[]> =
+      await ChatMessageService.findRoomParticipant(roomId)
+    if (result.data) {
+      conversationActive.value.participants = result.data
+    }
+  }
   /** 切换 / 重载活跃会话（含草稿暂存与滚动到底） */
   async function switchConversation(
     item: ServerConversationItem,
@@ -107,10 +118,14 @@ export function useChatMessageLoader(
       return
     }
     active.loading = true
+    active.drawerOpen = false
     try {
       active.item = item
       active.bubbleList = []
-      await loadPage(Number(active.item?.data?.room?.id), 1, false, reload)
+      if (active.item?.data?.room) {
+        await loadPage(Number(active.item.data.room.id), 1, false, reload)
+        await loadParticipant(Number(active.item?.data?.room?.id))
+      }
       await nextTick()
       view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
     } finally {
@@ -275,6 +290,7 @@ export function useChatMessageLoader(
     loadMore,
     jumpToAnchorPage,
     showReadableAnchorButton,
+    loadParticipant,
     toReadableAnchor,
     jumpToHistoryMessage,
   }

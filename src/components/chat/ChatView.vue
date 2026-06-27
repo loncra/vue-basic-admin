@@ -32,6 +32,7 @@ const {on} = useSocketSubscriptions()
 const chatBubbleList = ref<InstanceType<typeof LChatBubbleList>>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const refMessages = ref<UserChatMessageResponseBody[]>([])
+const instructionMap = computed(() => ({'@':conversation.value.participants.map(p =>({id:String(p.id), value:p.principal, metadata: p as unknown as Record<string, unknown>}))}))
 
 const placeholderText = computed(() => {
   if (getEnumValue(conversation.value?.item?.data?.status) === 20) {
@@ -176,6 +177,7 @@ defineExpose({
         v-if="conversation?.item?.data"
         :slot-config="conversation.item.data.draft"
         v-model:ref-messages="refMessages"
+        :instruction-map="instructionMap"
         :sending="conversation.sending"
         :upload-options="conversation.item.data?.room?.id ? {param:{prefix:'user_chat_room/' + conversation.item.data.room.id}} : undefined"
         :placeholder="placeholderText"
