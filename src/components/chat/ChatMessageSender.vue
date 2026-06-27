@@ -14,21 +14,24 @@ defineOptions({
 })
 
 const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
+const slots = defineSlots()
 
 const props = withDefaults(defineProps<{
   slotConfig?: SlotConfigType[]
   placeholder: string
-  sending?:boolean
+  sending?: boolean
   uploadOptions?: Record<string, unknown>
   disabled: boolean
-  instructionMap?:Record<string, IdValueMetadata<string, string>[]>
+  instructionMap?: Record<string, IdValueMetadata<string, string>[]>
+  filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[]) => IdValueMetadata<string, string>[]
 }>(), {
   slotConfig: () => [],
   placeholder: '',
-  sending:false,
+  sending: false,
   uploadBucket: 'system.file',
   disabled: false,
-  instructionMap: () => ({})
+  instructionMap: () => ({}),
+  filterInstruction: (_keyword, dataSource) => dataSource,
 })
 
 const emit = defineEmits<{
@@ -53,10 +56,17 @@ const {
 })
 
 const {
-  handleChange,
+  instructionPopoverRef,
+  handleSenderChange,
+  handleSenderKeyDown,
   handleInstructionPick,
   instructionOption
-} = useChatMessageSendInstruction(props.instructionMap)
+} = useChatMessageSendInstruction({
+  instructionMap: toRef(props, "instructionMap"),
+  disabled: toRef(props, "disabled"),
+  senderRef: senderRef,
+  onFilterDataSource: (keyword, dataSource) => props.filterInstruction(keyword, dataSource),
+})
 
 defineExpose({
   clear,
@@ -78,8 +88,9 @@ defineExpose({
       input: 'chat-sender-input',
       footer:'p-xs! border-t border-t-border-secondary'
     }"
-    @change="handleChange"
+    @change="handleSenderChange"
     @paste-file="onPasteFiles"
+    @key-down="handleSenderKeyDown"
     @submit="handleSubmit"
   >
     <template #header>
@@ -100,7 +111,7 @@ defineExpose({
     <template #footer="{ components }" v-if="!props.disabled">
       <a-flex justify="space-between" align="center" gap="small">
         <a-space>
-          <l-emoji-button :disabled="isSending" @selected="onSelectedEmoji" />
+          <l-emoji-button :disabled="isSending" @selected="onSelectedEmoji"/>
         </a-space>
         <a-flex justify="space-between" align="center" gap="small">
           <component
@@ -119,24 +130,28 @@ defineExpose({
   </ax-sender>
   <teleport to="body">
     <a-popover
-      v-model:open="instructionOption.open"
+      ref="instructionPopoverRef"
+      :open="instructionOption.open && instructionOption.displayDataSource.length > 0"
       :trigger="[]"
       :destroy-tooltip-on-hide="false"
     >
       <template #content>
-        <div v-if="instructionOption.dataSource.length > 0" class="max-h-60 overflow-auto" @mousedown.prevent>
+        <div class="max-h-60 max-w-60 overflow-auto"
+             @mousedown.prevent>
           <div
-            v-for="(item, index) in instructionOption.dataSource"
-            :key="item.value"
-            class="px-3 py-2 cursor-pointer rounded-sm"
+            v-for="(item, index) in instructionOption.displayDataSource"
+            :key="item.id"
+            class="p-xs cursor-pointer rounded-sm"
             :class="index === instructionOption.activeIndex ? 'bg-primary-bg' : 'hover:bg-fill-secondary'"
-            @mouseenter="handleInstructionPick(item)"
+            @mouseenter="instructionOption.activeIndex = index"
             @click="handleInstructionPick(item)"
           >
-            {{ item.value }}
+            <slot v-if="slots.instructionItemRender" name="instructionItemRender" :index="index" :item="item" :prefix="instructionOption.measure.prefix" />
+            <template v-else>
+              {{ item.value }}
+            </template>
           </div>
         </div>
-        <a-empty v-else/>
       </template>
       <span
         class="fixed w-px h-[1em] pointer-events-none"

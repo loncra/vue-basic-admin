@@ -1,4 +1,5 @@
 import type {
+  IdValueMetadata,
   ObjectWriteResult,
   PageResult,
   UserChatConversationResponseBody,
@@ -18,6 +19,12 @@ export interface AttachmentBlock {
   type: 'custom',
   slotKind: 'files',
   files: ObjectWriteResult[]
+}
+
+export interface InstructionBlock {
+  type: 'custom',
+  slotKind: 'instruction',
+  value: IdValueMetadata<string, string>
 }
 
 export interface ReferenceBlock {
@@ -43,6 +50,7 @@ export type ChatContentBlock =
   | TextBlock
   | ReferenceBlock
   | UndoBlock
+  | InstructionBlock
 
 export type FilesSlotProps = {
   slotKind: 'files'

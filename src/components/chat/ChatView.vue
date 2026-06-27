@@ -5,10 +5,11 @@ import type {ChatContentBlock} from "@/types/composables";
 import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
+  IdValueMetadata,
   RestResult,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
-  UserChatMessageResponseBody
+  UserChatMessageResponseBody, UserChatParticipantEntity
 } from "@/types/apis";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/utils";
@@ -17,6 +18,8 @@ import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {AuthServerService} from "@/apis";
 
 defineOptions({
   name: 'LChatView',
@@ -71,6 +74,11 @@ async function onSendMessage(content: ChatContentBlock[]) {
   } finally {
     conversation.value.sending = false
   }
+}
+
+function onInstructionFilter(keyword:string, dataSource:IdValueMetadata<string, string>[]) {
+  return dataSource
+    .filter(s => keyword === '' ? s : AuthServerService.getPrincipalNameByUserDetails((s.metadata as unknown as UserChatParticipantEntity).metadata.details).includes(keyword))
 }
 
 function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBody>) {
@@ -184,7 +192,17 @@ defineExpose({
         :disabled="getEnumValue(conversation.item.data.status) !== 10"
         @jump-to-reference="(body) => chatBubbleList?.jumpToMessage(String(body.id))"
         @submit="onSendMessage"
-      />
+        :filter-instruction="onInstructionFilter"
+      >
+        <template #instructionItemRender="{item, prefix}">
+          <a-space v-if="prefix === '@'">
+            <l-user-avatar :user="(item.metadata as  UserChatParticipantEntity).metadata.details"/>
+            <a-typography-text :ellipsis="{tooltip:AuthServerService.getPrincipalNameByUserDetails((item.metadata as  UserChatParticipantEntity).metadata.details)}">
+              {{ AuthServerService.getPrincipalNameByUserDetails((item.metadata as  UserChatParticipantEntity).metadata.details) }}
+            </a-typography-text>
+          </a-space>
+        </template>
+      </l-chat-message-sender>
     </div>
   </a-flex>
 
