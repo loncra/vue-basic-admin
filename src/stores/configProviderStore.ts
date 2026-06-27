@@ -419,6 +419,13 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     saveLocalStorage()
   }
 
+  function providerTheme() {
+    const raw = getAlgorithm()
+    const algorithm =
+      raw == null ? undefined : Array.isArray(raw) ? raw.filter((item) => item != null) : raw
+    return {algorithm, token: state.value.token}
+  }
+
   /**
    * 组件挂载时的初始化
    *
@@ -479,5 +486,6 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     highlightedText,
     /** 重置状态为初始值 */
     $reset,
+    providerTheme
   }
 })

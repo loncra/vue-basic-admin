@@ -6,15 +6,15 @@ import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
 import {useChatMessageSender} from "@/composables/chat";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import LEmojiButton from "@/components/basic/EmojiButton.vue";
-import {toRef, unref} from "vue";
-import {useChatMessageSendInstruction} from "@/composables/chat/useChatMessageSendInstruction.ts";
+import {h, toRef, unref, type VNode} from "vue";
+import {
+  type ChatInstructionMeasure,
+  useChatMessageSendInstruction
+} from "@/composables/chat/useChatMessageSendInstruction.ts";
 
 defineOptions({
   name: 'LChatMessageSender',
 })
-
-const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
-const slots = defineSlots()
 
 const props = withDefaults(defineProps<{
   slotConfig?: SlotConfigType[]
@@ -24,15 +24,19 @@ const props = withDefaults(defineProps<{
   disabled: boolean
   instructionMap?: Record<string, IdValueMetadata<string, string>[]>
   filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[]) => IdValueMetadata<string, string>[]
+  onCreateSlotConfig?: (option:IdValueMetadata<string, string>, measure:ChatInstructionMeasure) => VNode
 }>(), {
-  slotConfig: () => [],
   placeholder: '',
   sending: false,
   uploadBucket: 'system.file',
   disabled: false,
   instructionMap: () => ({}),
   filterInstruction: (_keyword, dataSource) => dataSource,
+  onCreateSlotConfig: (option:IdValueMetadata<string, string>, measure:ChatInstructionMeasure) => h('span',{},[option.value])
 })
+
+const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
+const slots = defineSlots()
 
 const emit = defineEmits<{
   submit: [content: ChatContentBlock[]]
@@ -66,6 +70,7 @@ const {
   disabled: toRef(props, "disabled"),
   senderRef: senderRef,
   onFilterDataSource: (keyword, dataSource) => props.filterInstruction(keyword, dataSource),
+  onCreateSlotConfig: (option, measure) => props.onCreateSlotConfig(option, measure),
 })
 
 defineExpose({

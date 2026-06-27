@@ -1,13 +1,28 @@
 import type {IdValueMetadata} from "@/types/apis";
-import {nextTick, onUnmounted, type Ref, ref} from "vue";
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  h,
+  nextTick,
+  onUnmounted,
+  type Ref,
+  ref,
+  type VNode
+} from "vue";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import type {ChatContentBlock, CursorContext} from "@/types/composables";
+import {XProvider as AxConfigProvider} from '@antdv-next/x'
+import {requireNonNullOrUndefined} from "@/utils";
+import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
+import {Tag} from "antdv-next";
+
+const ZERO_WIDTH_SPACE = "\u200B"
 
 export interface UseChatMessageSenderInstructionParams {
   instructionMap:Ref<Record<string, IdValueMetadata<string, string>[]>>,
   disabled:Ref<boolean>,
   senderRef:Ref<SenderRef | undefined>,
   onFilterDataSource: (keyword:string,dataSource: IdValueMetadata<string, string>[]) => IdValueMetadata<string, string>[]
+  onCreateSlotConfig: (option:IdValueMetadata<string, string>, measure:ChatInstructionMeasure) => VNode
 }
 
 export interface InstructionProps {
@@ -25,11 +40,12 @@ export interface ChatInstructionMeasure {
   dataSource:IdValueMetadata<string, string>[]
 }
 
-const ZERO_WIDTH_SPACE = "\u200B"
-
 export function useChatMessageSendInstruction(
   params:UseChatMessageSenderInstructionParams,
 ) {
+
+  const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
+  const configProviderStore = useConfigProviderStore()
 
   let editorScrollTarget: HTMLElement | null = null
   let senderVisibilityObserver: IntersectionObserver | undefined
@@ -64,107 +80,6 @@ export function useChatMessageSendInstruction(
     return (
       root.querySelector<HTMLElement>('[contenteditable="true"]')
     )
-  }
-
-  function advanceSlotIdx(slots: SlotConfigType[], slotIdx: number, child: Node): number {
-    if (child.nodeType === Node.TEXT_NODE) {
-      const text = child.textContent ?? ''
-      if (!text) {
-        return slotIdx
-      }
-      return slots[slotIdx]?.type === 'text' ? slotIdx + 1 : slotIdx
-    }
-    if (child instanceof HTMLElement && child.dataset.slotKey && child.dataset.nodeType !== 'nbsp') {
-      return slotIdx + 1
-    }
-    return slotIdx
-  }
-
-  function findDirectChildContaining(editable: HTMLElement, node: Node): ChildNode | null {
-    let cur: Node | null = node
-    while (cur && cur !== editable) {
-      if (cur.parentNode === editable) {
-        return cur as ChildNode
-      }
-      cur = cur.parentNode
-    }
-    return null
-  }
-
-  function focusSlot(slotKey: string, cursor: "start" | "end" | "all" | "slot") {
-
-    const editable = getEditableRoot()
-    if (!editable) {
-      return
-    }
-    const slotEl = editable.querySelector<HTMLElement>(
-      `[data-slot-key="${slotKey}"]:not([data-node-type="nbsp"])`,
-    )
-    if (!slotEl) {
-      params.senderRef?.value?.focus({ cursor })
-      return
-    }
-    editable.focus()
-    const sel = window.getSelection()
-    if (!sel) {
-      return
-    }
-    const range = document.createRange()
-    range.setStartAfter(slotEl)
-    range.collapse(true)
-    sel.removeAllRanges()
-    sel.addRange(range)
-  }
-
-  function resolveCursorContext(): CursorContext | null {
-
-    const editable = getEditableRoot()
-    const sel = window.getSelection()
-    if (!editable || !sel?.rangeCount || !sel.anchorNode || !editable.contains(sel.anchorNode)) {
-      return null
-    }
-    const slots = params.senderRef?.value?.getValue()?.slotConfig ?? []
-    const { anchorNode, anchorOffset } = sel
-    // 容器选区：光标在 editable 子节点缝隙里（空行、块后最常见）
-    if (anchorNode === editable) {
-      let slotIdx = 0
-      for (let i = 0; i < anchorOffset; i++) {
-        const child = editable.childNodes[i]
-        if (child) {
-          slotIdx = advanceSlotIdx(slots, slotIdx, child)
-        }
-      }
-      return { slotIdx, textOffset: 0, isAtLineStart: true }
-    }
-    const directChild = findDirectChildContaining(editable, anchorNode)
-    if (!directChild) {
-      return null
-    }
-    let slotIdx = 0
-    for (const child of editable.childNodes) {
-      if (child !== directChild) {
-        slotIdx = advanceSlotIdx(slots, slotIdx, child)
-        continue
-      }
-      if (child.nodeType === Node.TEXT_NODE) {
-        const textNode = child as Text
-        const offset =
-          anchorNode.nodeType === Node.TEXT_NODE && anchorNode === textNode
-            ? anchorOffset
-            : 0
-        return {
-          slotIdx,
-          textOffset: offset,
-          isAtLineStart: offset === 0,
-        }
-      }
-      if (child instanceof HTMLBRElement) {
-        return { slotIdx, textOffset: 0, isAtLineStart: true }
-      }
-      // custom / content 词槽（含 AttachmentUpload portal）
-      return { slotIdx, textOffset: 0, isAtLineStart: true }
-    }
-    return null
   }
 
   function closeInstruction() {
@@ -485,13 +400,143 @@ export function useChatMessageSendInstruction(
     nextTick(syncInstruction)
   }
 
+  function instructionCustomRender(
+    value: IdValueMetadata<string, string>,
+    onChange: (value: IdValueMetadata<string, string>) => void,
+    _props: {disabled?: boolean; readOnly?: boolean},
+    item: SlotConfigType,
+  ){
+    const slotKey = 'key' in item && item.key ? item.key : ''
+    const node = h(
+      AxConfigProvider,
+      {
+        locale: (configProviderStore.localeMessage as {antDesign?: object}).antDesign,
+        componentSize: configProviderStore.state.componentSize,
+        theme: configProviderStore.providerTheme(),
+      },
+      {
+        default: () =>
+          h(
+            Tag,
+            {
+              key:slotKey,
+              class: "mr-xxs"
+            },
+            [
+              params.onCreateSlotConfig(value, instructionOption.value.measure)
+            ]
+          ),
+      },
+    )
+    node.appContext = currentInstance.appContext
+    return node
+  }
+
   function handleInstructionPick(option:IdValueMetadata<string, string>){
-    const block:ChatContentBlock = {
-      type:'custom',
-      slotKind:'instruction',
-      value:option
+    const sender = params.senderRef.value
+    const editor = getEditableRoot()
+    if (!sender || !editor) {
+      return
     }
+    const measure = { ...instructionOption.value.measure } // 快照
+    removeInstructionTriggerText(editor, measure)
+    const block:SlotConfigType = {
+      type: 'custom',
+      key:crypto.randomUUID(),
+      props: {
+        slotKind: 'instruction',
+        defaultValue: option,
+        prefix:instructionOption.value.measure.prefix
+      },
+      customRender: instructionCustomRender,
+    }
+    sender.insert([block], 'cursor')
     closeInstruction()
+  }
+
+  function removeInstructionTriggerText(
+    editor: HTMLElement,
+    measure: ChatInstructionMeasure,
+  ) {
+    const triggerText = measure.prefix + measure.keyword
+    if (!triggerText) {
+      return
+    }
+    const sel = window.getSelection()
+    if (!sel?.rangeCount || !sel.isCollapsed) {
+      return
+    }
+    const range = sel.getRangeAt(0)
+    if (!editor.contains(range.startContainer)) {
+      return
+    }
+    // 校验：光标前文本确实以 [快捷执行]内容 结尾（与 parseInstructionMeasure 一致）
+    const textBefore = getTextBeforeCursor(editor)
+    if (!textBefore.endsWith(triggerText)) {
+      return
+    }
+    // 常见情况：[快捷执行]内容 都在同一个 Text 节点里
+    if (range.startContainer.nodeType === Node.TEXT_NODE) {
+      const textNode = range.startContainer as Text
+      const before = (textNode.textContent ?? '').slice(0, range.startOffset)
+      if (before.endsWith(triggerText)) {
+        const deleteRange = document.createRange()
+        deleteRange.setStart(textNode, range.startOffset - triggerText.length)
+        deleteRange.setEnd(textNode, range.startOffset)
+        deleteRange.deleteContents()
+        sel.removeAllRanges()
+        sel.addRange(deleteRange)
+        return
+      }
+    }
+    // 跨节点时：按字符下标删（与 getTextBeforeCursor 对齐）
+    deleteTextBeforeCursorByLength(editor, triggerText.length)
+  }
+
+
+  /** 从光标向前删 n 个字符（walk 文本节点） */
+  function deleteTextBeforeCursorByLength(editor: HTMLElement, length: number) {
+    const sel = window.getSelection()
+    if (!sel?.rangeCount) return
+    const endRange = sel.getRangeAt(0).cloneRange()
+    const textBefore = getTextBeforeCursor(editor)
+    const startIndex = textBefore.length - length
+    if (startIndex < 0) return
+    const startPoint = getRangeAtCharOffset(editor, startIndex)
+    if (!startPoint) return
+    const deleteRange = document.createRange()
+    deleteRange.setStart(startPoint.startContainer, startPoint.startOffset)
+    deleteRange.setEnd(endRange.startContainer, endRange.startOffset)
+    deleteRange.deleteContents()
+    sel.removeAllRanges()
+    sel.addRange(deleteRange)
+    deleteRange.collapse(true)
+    sel.addRange(deleteRange)
+  }
+
+  /** 与之前定位锚点同一套：字符下标 → Range 起点 */
+  function getRangeAtCharOffset(editor: HTMLElement, charIndex: number): Range | null {
+    const range = document.createRange()
+    let offset = 0
+    const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT)
+    let node: Node | null = walker.nextNode()
+    while (node) {
+      const text = node.textContent ?? ''
+      const len = text.length
+      if (offset + len > charIndex) {
+        range.setStart(node, charIndex - offset)
+        range.collapse(true)
+        return range
+      }
+      offset += len
+      node = walker.nextNode()
+    }
+    if (charIndex === offset) {
+      range.selectNodeContents(editor)
+      range.collapse(false)
+      return range
+    }
+    return null
   }
 
   function handleSenderKeyDown(e: KeyboardEvent) {

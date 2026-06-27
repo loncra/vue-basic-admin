@@ -1,11 +1,17 @@
 import {
-  type ComponentInternalInstance, computed, getCurrentInstance, h,
-  type MaybeRef, type Ref, ref, unref
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  h,
+  type MaybeRef,
+  type Ref,
+  ref,
+  unref
 } from 'vue'
 import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {
   AttachmentBlock,
-  ChatContentBlock, CursorContext,
+  ChatContentBlock,
   FilesSlotProps,
   ReferenceBlock,
 } from '@/types/composables'
@@ -107,7 +113,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
       {
         locale: (configProviderStore.localeMessage as {antDesign?: object}).antDesign,
         componentSize: configProviderStore.state.componentSize,
-        theme: providerTheme(),
+        theme: configProviderStore.providerTheme(),
       },
       {
         default: () =>
@@ -125,13 +131,6 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     )
     node.appContext = currentInstance.appContext
     return node
-  }
-
-  function providerTheme() {
-    const raw = configProviderStore.getAlgorithm()
-    const algorithm =
-      raw == null ? undefined : Array.isArray(raw) ? raw.filter((item) => item != null) : raw
-    return {algorithm, token: configProviderStore.state.token}
   }
 
   function onPasteFiles(fileList: FileList): void {
