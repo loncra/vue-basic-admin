@@ -24,7 +24,12 @@ import type {
   AttachmentValue,
 } from '@/types/composables/attachmentUpload.ts'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
-import {convertUploadFiles, isObjectWriteResult, requireNonNullOrUndefined} from '@/utils'
+import {
+  convertUploadFiles,
+  createInstructionSlot,
+  isObjectWriteResult,
+  requireNonNullOrUndefined
+} from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import type {ObjectWriteResult, UserChatMessageResponseBody} from '@/types/apis'
 
@@ -84,31 +89,6 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     }
   }
 
-  function createFilesSlot(
-    files: UploadFile<ObjectWriteResult>[],
-    key: string = crypto.randomUUID(),
-  ): SlotConfigType {
-    return {
-      type: 'custom',
-      key,
-      props: {slotKind: 'files', defaultValue: files},
-      customRender: fileCustomRender,
-    }
-  }
-
-  function handleFilesSlotChange(
-    item: SlotConfigType,
-    next: AttachmentValue,
-    senderOnChange: (value: AttachmentValue) => void,
-  ): void {
-    const files = Array.isArray(next) ? next : next ? [next] : []
-    const sender = senderRef.value
-    if (!sender || !('key' in item) || !item.key) {
-      return
-    }
-    senderOnChange(files)
-  }
-
   function fileCustomRender(
     value: UploadFile<ObjectWriteResult>[],
     onChange: (value: AttachmentValue) => void,
@@ -139,6 +119,31 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     )
     node.appContext = currentInstance.appContext
     return node
+  }
+
+  function createFilesSlot(
+    files: UploadFile<ObjectWriteResult>[],
+    key: string = crypto.randomUUID(),
+  ): SlotConfigType {
+    return {
+      type: 'custom',
+      key,
+      props: {slotKind: 'files', defaultValue: files},
+      customRender: fileCustomRender,
+    }
+  }
+
+  function handleFilesSlotChange(
+    item: SlotConfigType,
+    next: AttachmentValue,
+    senderOnChange: (value: AttachmentValue) => void,
+  ): void {
+    const files = Array.isArray(next) ? next : next ? [next] : []
+    const sender = senderRef.value
+    if (!sender || !('key' in item) || !item.key) {
+      return
+    }
+    senderOnChange(files)
   }
 
   function onPasteFiles(fileList: FileList): void {
@@ -229,6 +234,8 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
         result.push(createFilesSlot(convertUploadFiles(slot.files)))
       } else if (slot.type === 'custom' && slot.slotKind === 'reference') {
         refMessages.value = (slot as ReferenceBlock).value
+      } else if (slot.type === 'custom' && slot.slotKind === 'instruction') {
+        result.push(createInstructionSlot(slot, configProviderStore, currentInstance))
       }
     }
     return result

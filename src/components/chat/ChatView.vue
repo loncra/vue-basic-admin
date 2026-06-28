@@ -17,11 +17,16 @@ import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/u
 import {useChatContext} from "@/composables/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
-import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {
+  CHAT_BUBBLE_TYPE,
+  CHAT_EVERYONE_ID,
+  SOCKET_EVENT_TYPE
+} from "@/constants/messageConstant.ts";
 import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 
 defineOptions({
   name: 'LChatView',
@@ -39,10 +44,13 @@ const chatBubbleList = ref<InstanceType<typeof LChatBubbleList>>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const refMessages = ref<UserChatMessageResponseBody[]>([])
 const instructionMap = computed(() => ({
-  '@':conversation.value
+  '@':[
+    ...conversation.value
     .participants
     .filter(d => !principalStore.isCurrentPrincipal(d.principal))
-    .map(p =>({id:p.principal, value:AuthServerService.getPrincipalNameByUserDetails(p.metadata.details), metadata: p as unknown as Record<string, unknown>}))
+    .map(p =>({id:p.principal, value:AuthServerService.getPrincipalNameByUserDetails(p.metadata.details), metadata: p as unknown as Record<string, unknown>})),
+    ...[{id:CHAT_EVERYONE_ID,value:globalProperties.$t('chat.everyone')}]
+  ]
 }))
 
 const placeholderText = computed(() => {
@@ -84,9 +92,28 @@ async function onSendMessage(content: ChatContentBlock[]) {
   }
 }
 
-function onInstructionFilter(keyword:string, dataSource:IdValueMetadata<string, string>[]) {
+function onInstructionFilter(keyword:string, dataSource:IdValueMetadata<string, string>[], prefix:string) {
+  if (!senderRef.value) {
+    return dataSource
+  }
+  if (prefix === '@') {
+    const slotConfig:SlotConfigType[] = senderRef.value.getSlotConfigValue()
+    const existIds = slotConfig.filter(s => s.type === 'custom')
+      .filter(s => s.props?.slotKind === 'instruction')
+      .map(s => s.props?.defaultValue.id)
+    const notExistDataSource = dataSource
+      .filter(s => !existIds.includes(s.id))
+    if (notExistDataSource.length === 1 && notExistDataSource.at(-1)?.id === CHAT_EVERYONE_ID) {
+      return []
+    }
+    return [
+      ...notExistDataSource.filter(s => s.id === CHAT_EVERYONE_ID).filter(s => keyword === '' ? s : s.value.includes(keyword)),
+      ...notExistDataSource
+      .filter(s => (s.metadata as unknown as UserChatParticipantEntity)?.metadata?.details)
+      .filter(s => keyword === '' ? s : AuthServerService.getPrincipalNameByUserDetails((s.metadata as unknown as UserChatParticipantEntity).metadata.details).includes(keyword))
+    ]
+  }
   return dataSource
-    .filter(s => keyword === '' ? s : AuthServerService.getPrincipalNameByUserDetails((s.metadata as unknown as UserChatParticipantEntity).metadata.details).includes(keyword))
 }
 
 function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBody>) {
@@ -104,7 +131,7 @@ function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBod
   bubble.data = result.data
 }
 
-function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
+async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
   if (!result.data) {
     return
   }
@@ -204,10 +231,22 @@ defineExpose({
       >
         <template #instructionItemRender="{item, prefix}">
           <a-space v-if="prefix === '@'">
-            <l-user-avatar :user="(item.metadata as  UserChatParticipantEntity).metadata.details"/>
-            <a-typography-text :ellipsis="{tooltip:AuthServerService.getPrincipalNameByUserDetails((item.metadata as  UserChatParticipantEntity).metadata.details)}">
-              {{ AuthServerService.getPrincipalNameByUserDetails((item.metadata as  UserChatParticipantEntity).metadata.details) }}
-            </a-typography-text>
+            <template v-if="(item.metadata as UserChatParticipantEntity)?.metadata?.details" >
+              <l-user-avatar
+                :user="(item.metadata as UserChatParticipantEntity).metadata.details"
+              />
+              <a-typography-text :ellipsis="{tooltip:AuthServerService.getPrincipalNameByUserDetails((item.metadata as  UserChatParticipantEntity).metadata.details)}">
+                {{ AuthServerService.getPrincipalNameByUserDetails((item.metadata as  UserChatParticipantEntity).metadata.details) }}
+              </a-typography-text>
+            </template>
+            <template v-else>
+              <a-avatar>
+                {{item.value.substring(0,1)}}
+              </a-avatar>
+              <a-typography-text>
+                {{ item.value }}
+              </a-typography-text>
+            </template>
           </a-space>
         </template>
       </l-chat-message-sender>

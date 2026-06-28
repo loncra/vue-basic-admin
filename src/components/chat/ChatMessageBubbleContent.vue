@@ -36,12 +36,10 @@ const emit = defineEmits<{
         v-model:value="block.files" />
     </div>
     <a-tag variant="outlined" v-else-if="block.type === 'custom' && block.slotKind === 'instruction'">
-      <span>
-        <template v-if="block.prefix === '@'">
-          {{ block.prefix }}
-        </template>
-        {{ block.value.value }}
-      </span>
+      <template #icon v-if="block.prefix === '@'">
+        <icon-font type="loncra-at-sign" />
+      </template>
+      {{ block.value.value }}
     </a-tag>
     <a-tooltip :title="block.tooltip" v-else-if="block.type === 'custom' && block.slotKind === 'undo'">
       <slot v-if="slots.undo" name="undo" :text="block.value"/>

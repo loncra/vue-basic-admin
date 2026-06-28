@@ -2,17 +2,15 @@ import type {IdValueMetadata} from "@/types/apis";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
-  h,
   nextTick,
   onUnmounted,
   type Ref,
   ref
 } from "vue";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import {XProvider as AxConfigProvider} from '@antdv-next/x'
-import {requireNonNullOrUndefined} from "@/utils";
+import {createInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {Tag} from "antdv-next";
+import type {InstructionBlock} from "@/types/composables";
 
 const ZERO_WIDTH_SPACE = "\u200B"
 
@@ -20,7 +18,8 @@ export interface UseChatMessageSenderInstructionParams {
   instructionMap:Ref<Record<string, IdValueMetadata<string, string>[]>>,
   disabled:Ref<boolean>,
   senderRef:Ref<SenderRef | undefined>,
-  onFilterDataSource: (keyword:string,dataSource: IdValueMetadata<string, string>[]) => IdValueMetadata<string, string>[]
+  contextVisibleMargin:Ref<number>
+  onFilterDataSource: (keyword:string,dataSource: IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[]
 }
 
 export interface InstructionProps {
@@ -119,12 +118,11 @@ export function useChatMessageSendInstruction(
     if (!editor || !senderEl) return false
     // sender 整体是否还在视口内（留一点 margin）
     const senderRect = senderEl.getBoundingClientRect()
-    const margin = 8
     const inViewport =
-      senderRect.bottom > margin &&
-      senderRect.top < window.innerHeight - margin &&
-      senderRect.right > margin &&
-      senderRect.left < window.innerWidth - margin
+      senderRect.bottom > params.contextVisibleMargin.value &&
+      senderRect.top < window.innerHeight - params.contextVisibleMargin.value &&
+      senderRect.right > params.contextVisibleMargin.value &&
+      senderRect.left < window.innerWidth - params.contextVisibleMargin.value
     if (!inViewport) return false
     // 光标是否还在 editor 内
     const sel = window.getSelection()
@@ -368,7 +366,11 @@ export function useChatMessageSendInstruction(
     instructionOption.value.measure = measure
     instructionOption.value.activeIndex = isNewSession ? 0 : instructionOption.value.activeIndex
     updateInstructionAnchor()
-    instructionOption.value.displayDataSource = params.onFilterDataSource(instructionOption.value.measure.keyword, [...instructionOption.value.measure.dataSource])
+    instructionOption.value.displayDataSource = params.onFilterDataSource(
+      instructionOption.value.measure.keyword,
+      [...instructionOption.value.measure.dataSource],
+      instructionOption.value.measure.prefix
+    )
 
     instructionOption.value.open = true
     bindInstructionViewportWatchers()
@@ -398,29 +400,6 @@ export function useChatMessageSendInstruction(
     nextTick(syncInstruction)
   }
 
-  function instructionCustomRender(
-    value: IdValueMetadata<string, string>,
-    onChange: (value: IdValueMetadata<string, string>) => void,
-    _props: {disabled?: boolean; readOnly?: boolean},
-    item: SlotConfigType,
-  ){
-    const slotKey = 'key' in item && item.key ? item.key : ''
-    const node = h(
-      AxConfigProvider,
-      {
-        locale: (configProviderStore.localeMessage as { antDesign?: object }).antDesign,
-        componentSize: configProviderStore.state.componentSize,
-        theme: configProviderStore.providerTheme(),
-      },
-      {
-        default: () =>
-          h(Tag, { key: slotKey, variant: 'outlined' }, {default: () => value.value}),
-      },
-    )
-    node.appContext = currentInstance.appContext
-    return node
-  }
-
   function handleInstructionPick(option:IdValueMetadata<string, string>){
     const sender = params.senderRef.value
     const editor = getEditableRoot()
@@ -429,16 +408,11 @@ export function useChatMessageSendInstruction(
     }
     const measure = { ...instructionOption.value.measure } // 快照
     removeInstructionTriggerText(editor, measure)
-    const block:SlotConfigType = {
-      type: 'custom',
-      key:crypto.randomUUID(),
-      props: {
-        slotKind: 'instruction',
-        defaultValue: option,
-        prefix:instructionOption.value.measure.prefix
-      },
-      customRender: instructionCustomRender,
-    }
+    const block:SlotConfigType = createInstructionSlot({
+      id:String(crypto.randomUUID()),
+      value:option,
+      prefix:instructionOption.value.measure.prefix
+    } as InstructionBlock, configProviderStore, currentInstance)
     sender.insert([block,{type:'text',value:' '}], 'cursor')
     closeInstruction()
   }
@@ -486,13 +460,19 @@ export function useChatMessageSendInstruction(
   /** 从光标向前删 n 个字符（walk 文本节点） */
   function deleteTextBeforeCursorByLength(editor: HTMLElement, length: number) {
     const sel = window.getSelection()
-    if (!sel?.rangeCount) return
+    if (!sel?.rangeCount) {
+      return
+    }
     const endRange = sel.getRangeAt(0).cloneRange()
     const textBefore = getTextBeforeCursor(editor)
     const startIndex = textBefore.length - length
-    if (startIndex < 0) return
+    if (startIndex < 0) {
+      return
+    }
     const startPoint = getRangeAtCharOffset(editor, startIndex)
-    if (!startPoint) return
+    if (!startPoint) {
+      return
+    }
     const deleteRange = document.createRange()
     deleteRange.setStart(startPoint.startContainer, startPoint.startOffset)
     deleteRange.setEnd(endRange.startContainer, endRange.startOffset)

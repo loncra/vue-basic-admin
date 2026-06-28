@@ -8,10 +8,10 @@ import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
 import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
 import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables";
 import {BubbleList as AxBubbleList} from "@antdv-next/x";
-import {StatisticTimer, Space} from "antdv-next";
+import type {MenuItemType} from "antdv-next";
+import {Space, StatisticTimer} from "antdv-next";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import {useChatBubbleList, useChatContext} from "@/composables/chat";
-import type {MenuItemType} from "antdv-next";
 import LChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
@@ -63,7 +63,7 @@ const {
   onReloadLastPage: () => {
     const item = conversation.value.item
     if (item) {
-      loader.switchConversation(item, true)
+      loader.switchConversation(item, undefined,true)
     }
   },
   onReedit: (content) => emit('reedit', content),

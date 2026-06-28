@@ -145,7 +145,10 @@ on(
   SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION,
   (payload) => onChatMessageReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload), SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION)
 )
-
+on(
+  SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
+  () => messageServerStore.fetchUnreadQuantity()
+)
 </script>
 
 <template>

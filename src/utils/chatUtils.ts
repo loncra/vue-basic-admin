@@ -1,21 +1,33 @@
 import type {
   FileObject,
+  IdValueMetadata,
   ObjectWriteResult,
   ParticipantMetadataMessageResponseBody,
   UserChatConversationResponseBody,
   UserChatMessageEntity
 } from "@/types/apis";
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
-import {h, type VNode} from "vue";
-import {Avatar, AvatarGroup} from "antdv-next";
+import {type ComponentInternalInstance, h, type VNode} from "vue";
+import {Avatar, AvatarGroup, Tag} from "antdv-next";
 import {AttachmentService, AuthServerService} from "@/apis";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
-import type {ChatBubbleItem, ChatContentBlock, TextBlock} from "@/types/composables";
+import type {
+  ChatBubbleItem,
+  ChatContentBlock,
+  InstructionBlock,
+  TextBlock
+} from "@/types/composables";
 import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {getEnumValue} from "@/utils/commonUtils.ts";
+import {createIcon} from "@/utils/resourceUtils.ts";
+import {XProvider as AxConfigProvider} from "@antdv-next/x";
+import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
+import {usePrincipalStore} from "@/stores/principalStore.ts";
+
+const instructionIconMap:Record<string, string> = {"@":"loncra-at-sign"}
 
 /**
  * 根据会话封面构建头像 VNode（多封面用 AvatarGroup，无封面回退首字母）。
@@ -105,6 +117,16 @@ export function getMessageContent(lastUserMessage: UserChatMessageEntity | undef
   if (conversation && getEnumValue(conversation.room.type) === 10 && (lastUserMessage as ParticipantMetadataMessageResponseBody).participant) {
     const p = (lastUserMessage as ParticipantMetadataMessageResponseBody).participant
     content += '[' + AuthServerService.getPrincipalNameByUserDetails(p.metadata.details) + ']: '
+  }
+  if (getEnumValue(lastUserMessage.undo)) {
+    const principalStore = usePrincipalStore()
+    if (principalStore.isCurrentPrincipal(lastUserMessage.principal)) {
+      content += i18n.global.t('chat.view.selfUndo')
+    } else {
+      content += i18n.global.t('chat.view.undo.messageValue')
+    }
+
+    return content
   }
   for (const block of lastUserMessage.content) {
     if (block.type === 'text') {
@@ -218,4 +240,71 @@ function fileToTypeLabel(
     return `[${i18n.global.t('attachment.type.audio')}]`
   }
   return `[${i18n.global.t('attachment.type.unknown')}]`
+}
+
+export function getSendInstructionIcon(prefix:string, vnode?:boolean):string | undefined | VNode {
+  const string = instructionIconMap[prefix]
+  if (!string) {
+    return string
+  }
+
+  if (!vnode) {
+    return string;
+  } else {
+    return createIcon(string)
+  }
+}
+
+export function createInstructionSlot(
+  slot:InstructionBlock,
+  configProviderStore:ReturnType<typeof useConfigProviderStore>,
+  currentInstance:ComponentInternalInstance,
+): SlotConfigType {
+  return {
+    type: 'custom',
+    key: slot.id,
+    props: {slotKind: 'instruction', defaultValue: slot.value, prefix:slot.prefix},
+    customRender:(
+      value: IdValueMetadata<string, string>,
+      onChange: (value: IdValueMetadata<string, string>) => void,
+      _props: {disabled?: boolean; readOnly?: boolean},
+      item: SlotConfigType,
+    ) =>  instructionCustomRender(value, _props, item, configProviderStore, currentInstance),
+  }
+}
+
+function instructionCustomRender(
+  value: IdValueMetadata<string, string>,
+  _props: {disabled?: boolean; readOnly?: boolean},
+  item: SlotConfigType,
+  configProviderStore:ReturnType<typeof useConfigProviderStore>,
+  currentInstance:ComponentInternalInstance,
+){
+  const slotKey = 'key' in item && item.key ? item.key : ''
+  const prefix = ((item as {props:Record<string, unknown>}).props as { prefix?: string })?.prefix ?? ''
+  const iconType = getSendInstructionIcon(prefix, false) as string | undefined
+  const node = h(
+    AxConfigProvider,
+    {
+      locale: (configProviderStore.localeMessage as { antDesign?: object }).antDesign,
+      componentSize: configProviderStore.state.componentSize,
+      theme: configProviderStore.providerTheme(),
+    },
+    {
+      default: () =>
+        h(
+          Tag,
+          {
+            key: slotKey,
+            variant: 'outlined'
+          },
+          {
+            icon: iconType ? () => createIcon(iconType) : undefined,
+            default: () => value.value
+          }
+        ),
+    },
+  )
+  node.appContext = currentInstance.appContext
+  return node
 }

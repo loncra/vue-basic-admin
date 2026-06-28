@@ -515,6 +515,7 @@ const locale: LanguagePack = {
       action: 'Pin chat',
       cancel: 'Unpin chat',
     },
+    everyone:'Everyone',
     notification:{
       mention:'{principal} mentioned you in the message'
     },

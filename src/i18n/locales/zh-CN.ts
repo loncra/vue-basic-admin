@@ -507,6 +507,7 @@ const locale: LanguagePack = {
       draft:'草稿',
       mention:'{count}条消息中提到了你'
     },
+    everyone:'所有人',
     pinned:{
       action:'置顶聊天',
       cancel:'取消置顶聊天'

@@ -50,3 +50,5 @@ export const CAPTCHA_TOKEN_TYPE = {
   EMAIL:'email',
   TIANAI:'tianai'
 }
+
+export const CHAT_EVERYONE_ID = 'EVERYONE'

@@ -5,7 +5,7 @@ import {
   type ThemeValue
 } from "@/constants/configProviderConstant.ts";
 import type {MappingAlgorithm} from "antdv-next/dist/theme";
-import type {NotificationConfig} from "antdv-next/dist/notification/interface";
+import type {GlobalConfigProps} from "antdv-next/dist/notification/interface";
 import type {ConfigOptions} from "antdv-next/dist/message/interface";
 
 /**
@@ -40,7 +40,7 @@ export interface ConfigProviderStoredState {
    */
   createSuccessBack?:CreateSuccessBackValue
   messageConfig:ConfigOptions
-  notificationConfig:NotificationConfig
+  notificationConfig:GlobalConfigProps
 }
 
 /**

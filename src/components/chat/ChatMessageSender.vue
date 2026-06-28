@@ -19,13 +19,15 @@ const props = withDefaults(defineProps<{
   sending?: boolean
   uploadOptions?: Record<string, unknown>
   disabled: boolean
+  instructionContextVisibleMargin?:number
   instructionMap?: Record<string, IdValueMetadata<string, string>[]>
-  filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[]) => IdValueMetadata<string, string>[]
+  filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[]
 }>(), {
   placeholder: '',
   sending: false,
   uploadBucket: 'system.file',
   disabled: false,
+  instructionContextVisibleMargin:8,
   instructionMap: () => ({}),
   filterInstruction: (_keyword, dataSource) => dataSource
 })
@@ -62,9 +64,10 @@ const {
   instructionOption
 } = useChatMessageSendInstruction({
   instructionMap: toRef(props, "instructionMap"),
+  contextVisibleMargin:toRef(props, "instructionContextVisibleMargin"),
   disabled: toRef(props, "disabled"),
   senderRef: senderRef,
-  onFilterDataSource: (keyword, dataSource) => props.filterInstruction(keyword, dataSource)
+  onFilterDataSource: (keyword, dataSource, prefix) => props.filterInstruction(keyword, dataSource, prefix)
 })
 
 defineExpose({
