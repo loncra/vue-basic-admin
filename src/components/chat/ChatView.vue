@@ -26,7 +26,7 @@ import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 
 defineOptions({
   name: 'LChatView',
@@ -92,6 +92,49 @@ async function onSendMessage(content: ChatContentBlock[]) {
   }
 }
 
+function isInstructionSlot(slot: SlotConfigType): boolean {
+  return slot.type === 'custom' && slot.props?.slotKind === 'instruction'
+}
+/** 选 @所有人 时：去掉所有单人 @ tag，保留文本/附件等 */
+function stripIndividualMentions(slots: SlotConfigType[]): SlotConfigType[] {
+  return slots.filter((slot) => {
+    if (!isInstructionSlot(slot)) {
+      return true
+    }
+    // 已有 @所有人 也一并去掉，后面只插一个新的
+    return false
+  })
+}
+
+function onSenderInsertInstruction(
+  sender:SenderRef,
+  block:SlotConfigType
+) {
+  const props = (block as {
+      type:'custom',
+      key:string,
+      props:{
+        slotKind:'instruction',
+        defaultValue: IdValueMetadata<string, string>;
+        prefix: string;
+      }
+    }
+  ).props
+  if (props.prefix === '@' && props.defaultValue.id === CHAT_EVERYONE_ID) {
+    const slotConfig = sender.getValue().slotConfig ?? []
+    const kept = stripIndividualMentions(slotConfig)
+    sender.clear()
+    if (kept.length > 0) {
+      sender.insert(kept, 'start')
+    }
+    sender.insert([block, { type: 'text', value: ' ' }], 'end')
+    sender.focus({ cursor: 'end' })
+  } else {
+    // 单人 @：沿用原来的 insert
+    sender.insert([block, { type: 'text', value: ' ' }], 'cursor')
+  }
+}
+
 function onInstructionFilter(keyword:string, dataSource:IdValueMetadata<string, string>[], prefix:string) {
   if (!senderRef.value) {
     return dataSource
@@ -101,6 +144,11 @@ function onInstructionFilter(keyword:string, dataSource:IdValueMetadata<string, 
     const existIds = slotConfig.filter(s => s.type === 'custom')
       .filter(s => s.props?.slotKind === 'instruction')
       .map(s => s.props?.defaultValue.id)
+
+    if (existIds.includes(CHAT_EVERYONE_ID)) {
+      return []
+    }
+
     const notExistDataSource = dataSource
       .filter(s => !existIds.includes(s.id))
     if (notExistDataSource.length === 1 && notExistDataSource.at(-1)?.id === CHAT_EVERYONE_ID) {
@@ -227,6 +275,7 @@ defineExpose({
         :disabled="getEnumValue(conversation.item.data.status) !== 10"
         @jump-to-reference="(body) => chatBubbleList?.jumpToMessage(String(body.id))"
         @submit="onSendMessage"
+        :sender-insert-instruction="onSenderInsertInstruction"
         :filter-instruction="onInstructionFilter"
       >
         <template #instructionItemRender="{item, prefix}">

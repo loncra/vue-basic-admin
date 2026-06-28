@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {ChatContentBlock} from "@/types/composables";
 import {Sender as AxSender} from '@antdv-next/x'
 import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
@@ -21,7 +21,8 @@ const props = withDefaults(defineProps<{
   disabled: boolean
   instructionContextVisibleMargin?:number
   instructionMap?: Record<string, IdValueMetadata<string, string>[]>
-  filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[]
+  filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[],
+  senderInsertInstruction?:(sender:SenderRef, block:SlotConfigType) => void
 }>(), {
   placeholder: '',
   sending: false,
@@ -29,7 +30,8 @@ const props = withDefaults(defineProps<{
   disabled: false,
   instructionContextVisibleMargin:8,
   instructionMap: () => ({}),
-  filterInstruction: (_keyword, dataSource) => dataSource
+  filterInstruction: (_keyword, dataSource) => dataSource,
+  senderInsertInstruction:(sender:SenderRef, block:SlotConfigType) => sender.insert([block,{type:'text',value:' '}], 'cursor')
 })
 
 const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
@@ -67,7 +69,8 @@ const {
   contextVisibleMargin:toRef(props, "instructionContextVisibleMargin"),
   disabled: toRef(props, "disabled"),
   senderRef: senderRef,
-  onFilterDataSource: (keyword, dataSource, prefix) => props.filterInstruction(keyword, dataSource, prefix)
+  onFilterDataSource: props.filterInstruction,
+  senderInsertInstruction: props.senderInsertInstruction
 })
 
 defineExpose({

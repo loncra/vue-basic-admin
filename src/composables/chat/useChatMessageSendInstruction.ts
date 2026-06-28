@@ -20,6 +20,7 @@ export interface UseChatMessageSenderInstructionParams {
   senderRef:Ref<SenderRef | undefined>,
   contextVisibleMargin:Ref<number>
   onFilterDataSource: (keyword:string,dataSource: IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[]
+  senderInsertInstruction:(sender:SenderRef, block:SlotConfigType) => void
 }
 
 export interface InstructionProps {
@@ -413,7 +414,7 @@ export function useChatMessageSendInstruction(
       value:option,
       prefix:instructionOption.value.measure.prefix
     } as InstructionBlock, configProviderStore, currentInstance)
-    sender.insert([block,{type:'text',value:' '}], 'cursor')
+    params.senderInsertInstruction(sender, block)
     closeInstruction()
   }
 
