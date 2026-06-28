@@ -22,9 +22,7 @@ export function useConversationActions() {
     const result: RestResult<BasicUserChatConversation[]> =
       await ChatMessageService.mutedConversation(ids)
     const data = result.data ?? []
-    if (data.length > 0) {
-      await messageServerStore.fetchUnreadQuantity()
-    }
+    data.forEach(d => messageServerStore.setUserChatMessageMutedValue(Number(d.id), d.muted))
     return data
   }
 

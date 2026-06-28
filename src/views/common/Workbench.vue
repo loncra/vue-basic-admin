@@ -38,7 +38,6 @@ async function mounted() {
   if (elements && elements.length > 0) {
     personalActivityItems.value = elements
   }
-  console.info(menuStore.state.quickAccess)
 }
 
 onMounted(mounted)

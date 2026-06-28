@@ -4,7 +4,8 @@ import type {
   PageResult,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
-  UserChatMessageResponseBody, UserChatParticipantEntity
+  UserChatMessageResponseBody,
+  UserChatParticipantEntity
 } from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
@@ -16,15 +17,18 @@ export type ChatRoomViewModalOpenType =
   | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES
 
 export interface AttachmentBlock {
-  type: 'custom',
-  slotKind: 'files',
+  id:string
+  type: 'custom'
+  slotKind: 'files'
   files: ObjectWriteResult[]
 }
 
 export interface InstructionBlock {
+  id:string
   type: 'custom',
   slotKind: 'instruction',
   value: IdValueMetadata<string, string>
+  prefix: string
 }
 
 export interface ReferenceBlock {
@@ -55,6 +59,12 @@ export type ChatContentBlock =
 export type FilesSlotProps = {
   slotKind: 'files'
   defaultValue: UploadFile<ObjectWriteResult>[]
+}
+
+export type InstructionSlotProps = {
+  slotKind: 'instruction'
+  defaultValue: IdValueMetadata<string, string>
+  prefix:string
 }
 
 export type CursorContext = {

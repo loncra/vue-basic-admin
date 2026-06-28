@@ -26,6 +26,7 @@ export const SOCKET_EVENT_TYPE = {
   /** 服务端推送的执行系统命令事件，payload 为 RestResult<string> */
   RUN_COMMAND: 'run_command',
   CHAT_MESSAGE: 'chat_message',
+  CHAT_MESSAGE_MENTION: 'chat_message_mention',
   CHAT_MESSAGE_READ:'chat_message_read',
   CHAT_MESSAGE_UNDO:'chat_message_undo',
   CHAT_MESSAGE_READ_UPDATE:'chat_message_read_update',

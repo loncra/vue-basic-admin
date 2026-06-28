@@ -508,11 +508,15 @@ const locale: LanguagePack = {
     conversation: {
       delete: 'Delete conversation',
       newMessage:'There are {count} unread messages',
-      draft:'draft'
+      draft:'draft',
+      mention:'{count} mentioned you in the message'
     },
     pinned: {
       action: 'Pin chat',
       cancel: 'Unpin chat',
+    },
+    notification:{
+      mention:'{principal} mentioned you in the message'
     },
     muted: {
       action: 'Mute notifications',

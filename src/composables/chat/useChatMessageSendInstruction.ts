@@ -6,8 +6,7 @@ import {
   nextTick,
   onUnmounted,
   type Ref,
-  ref,
-  type VNode
+  ref
 } from "vue";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {XProvider as AxConfigProvider} from '@antdv-next/x'
@@ -22,7 +21,6 @@ export interface UseChatMessageSenderInstructionParams {
   disabled:Ref<boolean>,
   senderRef:Ref<SenderRef | undefined>,
   onFilterDataSource: (keyword:string,dataSource: IdValueMetadata<string, string>[]) => IdValueMetadata<string, string>[]
-  onCreateSlotConfig: (option:IdValueMetadata<string, string>, measure:ChatInstructionMeasure) => VNode
 }
 
 export interface InstructionProps {
@@ -410,22 +408,13 @@ export function useChatMessageSendInstruction(
     const node = h(
       AxConfigProvider,
       {
-        locale: (configProviderStore.localeMessage as {antDesign?: object}).antDesign,
+        locale: (configProviderStore.localeMessage as { antDesign?: object }).antDesign,
         componentSize: configProviderStore.state.componentSize,
         theme: configProviderStore.providerTheme(),
       },
       {
         default: () =>
-          h(
-            Tag,
-            {
-              key:slotKey,
-              class: "mr-xxs"
-            },
-            [
-              params.onCreateSlotConfig(value, instructionOption.value.measure)
-            ]
-          ),
+          h(Tag, { key: slotKey, variant: 'outlined' }, {default: () => value.value}),
       },
     )
     node.appContext = currentInstance.appContext
@@ -450,7 +439,7 @@ export function useChatMessageSendInstruction(
       },
       customRender: instructionCustomRender,
     }
-    sender.insert([block], 'cursor')
+    sender.insert([block,{type:'text',value:' '}], 'cursor')
     closeInstruction()
   }
 

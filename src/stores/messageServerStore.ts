@@ -1,9 +1,17 @@
 import {defineStore} from "pinia";
 import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
 import {computed, ref} from "vue";
-import type {IdNameMetadata, MessageGroup, MyMessageState, RestResult} from "@/types/apis";
+import type {
+  IdNameMetadata,
+  MessageGroup,
+  MyMessageState,
+  NameValueEnumMetadata,
+  RestResult,
+  UserChatUnreadItem
+} from "@/types/apis";
 import {MessageServerService} from "@/apis/message-server";
 import {STORE} from "@/constants/systemConstant.ts";
+import {getEnumValue} from "@/utils";
 
 const RESET: MyMessageState = {
   record:{
@@ -41,7 +49,7 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
     return $reset()
   }
 
-  async function fetchUnreadQuantity():Promise<Record<MessageGroup, Record<number, number>> | undefined> {
+  async function fetchUnreadQuantity():Promise<Record<MessageGroup, Record<number, unknown>> | undefined> {
     if (install.value) {
       return state.value.record;
     }
@@ -59,14 +67,56 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
     }
     if (types && types.length > 0) {
       for (const item of types) {
-        result += record?.[Number(item)] || 0
+        result += getCount(group, record, item)
       }
     } else {
       for (const key in record || {}) {
-        result += record?.[Number(key)] || 0
+        result += getCount(group, record, key)
       }
     }
     return result
+  }
+
+  function getCount(group:MessageGroup, record:Record<number, unknown>, key:string):number {
+    if (group === MESSAGE_GROUP.SITE) {
+      return Number(record?.[Number(key)]) || 0
+    } else if (group === MESSAGE_GROUP.USER_CHAT) {
+      const item = (record?.[Number(key)] as UserChatUnreadItem)
+      if (getEnumValue(item.muted) === 1) {
+        return 0
+      }
+      return (record?.[Number(key)] as {count:number})?.count || 0
+    }
+
+    return 0
+  }
+
+  function setUserChatMessageMutedValue(id:number, muted:NameValueEnumMetadata<number> | number) {
+    const record = state.value.record?.[MESSAGE_GROUP.USER_CHAT] as
+      | Record<number, UserChatUnreadItem>
+      | undefined
+    if (!record) {
+      return
+    }
+    const item = record[id]
+    if (!item) {
+      return
+    }
+    item.muted = muted
+  }
+
+  function getUserChatUnreadQuantity(id:number) {
+    const record = state.value.record?.[MESSAGE_GROUP.USER_CHAT] as
+      | Record<number, UserChatUnreadItem>
+      | undefined
+    if (!record) {
+      return 0
+    }
+    const item = record[id]
+    if (!item) {
+      return 0
+    }
+    return item.count || 0
   }
 
   const getUnreadQuantity = computed(() => (group:MessageGroup, ...types:string[])=> {
@@ -90,6 +140,8 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
     getUnreadQuantity,
     fetchUnreadQuantity,
     getUnreadQuantityByType,
+    getUserChatUnreadQuantity,
+    setUserChatMessageMutedValue,
     installState,
     $reset
   }

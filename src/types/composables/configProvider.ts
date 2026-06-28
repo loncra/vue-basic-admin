@@ -5,6 +5,8 @@ import {
   type ThemeValue
 } from "@/constants/configProviderConstant.ts";
 import type {MappingAlgorithm} from "antdv-next/dist/theme";
+import type {NotificationConfig} from "antdv-next/dist/notification/interface";
+import type {ConfigOptions} from "antdv-next/dist/message/interface";
 
 /**
  * 存储在 localStorage 中的状态值
@@ -37,6 +39,8 @@ export interface ConfigProviderStoredState {
    * 创建成功后的跳转位置
    */
   createSuccessBack?:CreateSuccessBackValue
+  messageConfig:ConfigOptions
+  notificationConfig:NotificationConfig
 }
 
 /**

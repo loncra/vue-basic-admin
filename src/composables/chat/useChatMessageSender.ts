@@ -13,6 +13,8 @@ import type {
   AttachmentBlock,
   ChatContentBlock,
   FilesSlotProps,
+  InstructionBlock,
+  InstructionSlotProps,
   ReferenceBlock,
 } from '@/types/composables'
 import {XProvider as AxConfigProvider} from '@antdv-next/x'
@@ -64,6 +66,12 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     slot: SlotConfigType,
   ): slot is SlotConfigType & {key: string; props: FilesSlotProps} {
     return slot.type === 'custom' && slot.props?.slotKind === 'files'
+  }
+
+  function isInstructionSlot(
+    slot: SlotConfigType,
+  ): slot is SlotConfigType & {key: string; props: InstructionSlotProps} {
+    return slot.type === 'custom' && slot.props?.slotKind === 'instruction'
   }
 
   function toUploadFile(file: File): UploadFile<ObjectWriteResult> {
@@ -161,13 +169,24 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
             Array.isArray(uploaded) ? uploaded : uploaded ? [uploaded] : []
           ).filter((f): f is ObjectWriteResult => isObjectWriteResult(f))
           const attachmentBlock: AttachmentBlock = {
+            id: slot.key,
             files: files,
             type: 'custom',
             slotKind: 'files',
           }
           blocks.push(attachmentBlock)
+        } else if (isInstructionSlot(slot) && slot.key) {
+          const instructionBlock: InstructionBlock = {
+            id:slot.key,
+            value: {id:slot.props.defaultValue.id, value:slot.props.defaultValue.value},
+            type: 'custom',
+            prefix: slot.props.prefix,
+            slotKind: 'instruction',
+          }
+          blocks.push(instructionBlock)
+        } else {
+          blocks.push(slot as ChatContentBlock)
         }
-        blocks.push(slot as ChatContentBlock)
       }
       if (refMessages.value.length > 0) {
         const referenceBlock: ReferenceBlock = {

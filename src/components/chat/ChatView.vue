@@ -9,7 +9,8 @@ import type {
   RestResult,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
-  UserChatMessageResponseBody, UserChatParticipantEntity
+  UserChatMessageResponseBody,
+  UserChatParticipantEntity
 } from "@/types/apis";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/utils";
@@ -20,6 +21,7 @@ import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.t
 import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AuthServerService} from "@/apis";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'LChatView',
@@ -30,12 +32,18 @@ const globalProperties =
     .globalProperties
 
 const {conversationActive: conversation, conversations} = useChatContext()
+const principalStore = usePrincipalStore()
 const {on} = useSocketSubscriptions()
 
 const chatBubbleList = ref<InstanceType<typeof LChatBubbleList>>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const refMessages = ref<UserChatMessageResponseBody[]>([])
-const instructionMap = computed(() => ({'@':conversation.value.participants.map(p =>({id:String(p.id), value:p.principal, metadata: p as unknown as Record<string, unknown>}))}))
+const instructionMap = computed(() => ({
+  '@':conversation.value
+    .participants
+    .filter(d => !principalStore.isCurrentPrincipal(d.principal))
+    .map(p =>({id:p.principal, value:AuthServerService.getPrincipalNameByUserDetails(p.metadata.details), metadata: p as unknown as Record<string, unknown>}))
+}))
 
 const placeholderText = computed(() => {
   if (getEnumValue(conversation.value?.item?.data?.status) === 20) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {AttachmentService} from "@/apis";
+import {AttachmentService, AuthServerService} from "@/apis";
 import {
   type ComponentInternalInstance,
   computed,
@@ -17,19 +17,17 @@ import {
   createAvatarNode,
   createIcon,
   getDraftContent,
-  getEnumValue, getMessageContent,
+  getEnumValue,
+  getMessageContent,
   requireNonNullOrUndefined
 } from "@/utils";
 import {Conversations as AxConversations,} from '@antdv-next/x'
 import type {ServerConversationItem} from "@/types/composables";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
 import type {MenuItemType} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
-import {
-  useChatContext,
-  useConversationActions
-} from "@/composables/chat";
+import {useChatContext, useConversationActions} from "@/composables/chat";
 
 defineOptions({
   name: 'LChatConversation',
@@ -118,7 +116,7 @@ function createMoreButton(activeConversationItem:ServerConversationItem) {
   )
 }
 
-function onConversationsActiveChange(value: string, item: ItemType | undefined): void {
+function onConversationsActiveChange(value: string, item: ItemType | undefined, messageId?:number): void {
   if (!item || !(item as ConversationItemType)) {
     return;
   }
@@ -129,7 +127,10 @@ function onConversationsActiveChange(value: string, item: ItemType | undefined):
     data: conversationItem.data as UserChatConversationResponseBody,
   }
   changeMessageExtraContent(activeConversationItem)
-  loader.switchConversation(activeConversationItem)
+  if (!messageId && (conversationItem.data.mentions || []).length > 0) {
+    messageId = conversationItem.data.mentions.at(0).messageId
+  }
+  loader.switchConversation(activeConversationItem, messageId)
 }
 
 function changeMessageExtraContent(activeConversationItem:ServerConversationItem | undefined) {
@@ -209,7 +210,7 @@ defineExpose({
       class="min-h-0 size-full flex-[1_1_0] p-0! gap-0!">
       <template #iconRender="{ item }">
         <a-flex justify="center" align="center" :class="'h-full relative ' + (getEnumValue(item.data.muted) === 1 ? 'opacity-80' : '')">
-          <a-badge size="small" :count="getEnumValue(item.data.muted) === 1 ? 0 : messageServerStore.getUnreadQuantity(MESSAGE_GROUP.USER_CHAT, item.key)" >
+          <a-badge size="small" :dot="getEnumValue(item.data.muted) === 1" :count="messageServerStore.getUserChatUnreadQuantity(item.key)" >
             <a-avatar-group :max="{count: 3}" v-if="(item.data.cover || []).length > 0" size="large" class="[&>*:not(:first-child)]:-ms-8!">
               <a-avatar v-for="c in item.data.cover" :key="c.objectName" :src="AttachmentService.query(c.bucketName, c.objectName)" />
             </a-avatar-group>
@@ -221,7 +222,7 @@ defineExpose({
             <icon-font class="text-md text-white" type="loncra-heart" />
           </div>
           <div v-if="getEnumValue(item.data.muted) === 1" class="inline-block absolute bottom-0 left-0 pl-xxs pr-xxs border border-dashed opacity-80 bg-elevated rounded-full">
-            <icon-font class="text-md text-error" type="loncra-megaphone-off" />
+            <icon-font class="text-md text-error" :type="(item.data.mentions || []).length > 0 ? 'loncra-at-sign' : 'loncra-megaphone-off'" />
           </div>
         </a-flex>
       </template>
@@ -238,11 +239,41 @@ defineExpose({
                 }}
               </a-typography-text>
             </a-flex>
-            <a-typography-text ellipsis v-if="item?.data?.draft && item?.data?.draft.length > 0" type="danger">
+            <template v-if="(item.data.mentions || []).length > 0">
+              <a-popover>
+                <template #content>
+                  <a-flex vertical gap="small" class="overflow-y-auto max-h-60">
+                    <a-space v-for="m of item.data.mentions" :key="m.messageId">
+                      <a-typography-text type="secondary">
+                        {{globalProperties.$dayjs(m.creationTime).fromNow()}}
+                      </a-typography-text>
+                      <span>
+                        {{
+                          globalProperties.$t(
+                            'chat.notification.mention',
+                            {principal:AuthServerService.getPrincipalNameByUserDetails(m.participant.metadata.details) + ' '}
+                          )
+                        }}
+                      </span>
+                      <a-button type="link" size="small" @click="onConversationsActiveChange(item.key, item, m.messageId)">
+                        {{globalProperties.$t('common.detail')}}
+                      </a-button>
+                    </a-space>
+                  </a-flex>
+                </template>
+                <a-typography-text ellipsis type="secondary">
+                  <a-typography-text type="danger">
+                    [{{globalProperties.$t('chat.conversation.mention',{count: item.data.mentions.length})}}]
+                  </a-typography-text>
+                  {{ getMessageContent(item?.data?.lastUserMessage, item.data) }}
+                </a-typography-text>
+              </a-popover>
+            </template>
+            <a-typography-text ellipsis v-else-if="item?.data?.draft && item?.data?.draft.length > 0" type="danger">
               [{{globalProperties.$t('chat.conversation.draft')}}]:{{ getDraftContent(item?.data?.draft) }}
             </a-typography-text>
             <a-typography-text ellipsis v-else-if="item?.data?.lastUserMessage" type="secondary">
-              {{ getMessageContent(item?.data?.lastUserMessage) }}
+              {{ getMessageContent(item?.data?.lastUserMessage, item.data) }}
             </a-typography-text>
           </a-flex>
         </a-dropdown>

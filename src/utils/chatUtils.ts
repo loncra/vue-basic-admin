@@ -1,14 +1,21 @@
-import type {FileObject, ObjectWriteResult, UserChatMessageEntity} from "@/types/apis";
+import type {
+  FileObject,
+  ObjectWriteResult,
+  ParticipantMetadataMessageResponseBody,
+  UserChatConversationResponseBody,
+  UserChatMessageEntity
+} from "@/types/apis";
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 import {h, type VNode} from "vue";
 import {Avatar, AvatarGroup} from "antdv-next";
-import {AttachmentService} from "@/apis";
+import {AttachmentService, AuthServerService} from "@/apis";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import type {ChatBubbleItem, ChatContentBlock, TextBlock} from "@/types/composables";
 import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
+import {getEnumValue} from "@/utils/commonUtils.ts";
 
 /**
  * 根据会话封面构建头像 VNode（多封面用 AvatarGroup，无封面回退首字母）。
@@ -90,11 +97,15 @@ export function addBubbleListMessage(
 }
 
 /** 会话列表最后一条消息预览 */
-export function getMessageContent(lastUserMessage: UserChatMessageEntity | undefined): string {
+export function getMessageContent(lastUserMessage: UserChatMessageEntity | undefined, conversation?:UserChatConversationResponseBody): string {
   if (!lastUserMessage) {
     return ''
   }
   let content = ''
+  if (conversation && getEnumValue(conversation.room.type) === 10 && (lastUserMessage as ParticipantMetadataMessageResponseBody).participant) {
+    const p = (lastUserMessage as ParticipantMetadataMessageResponseBody).participant
+    content += '[' + AuthServerService.getPrincipalNameByUserDetails(p.metadata.details) + ']: '
+  }
   for (const block of lastUserMessage.content) {
     if (block.type === 'text') {
       content += block.value || ''
@@ -111,6 +122,8 @@ export function getMessageContent(lastUserMessage: UserChatMessageEntity | undef
           content += '[' + i18n.global.t('attachment.type.unknown') + ']'
         }
       }
+    } else if (block.type === 'custom' && block.slotKind === 'instruction') {
+      content += '[' + block.prefix + block.value.value + ']'
     }
   }
   return content

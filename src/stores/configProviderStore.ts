@@ -10,7 +10,15 @@
  * @author maurice.chen
  */
 
-import {computed, type ComputedRef, onMounted, onUnmounted, type Ref, ref} from 'vue'
+import {
+  computed,
+  type ComputedRef,
+  onMounted,
+  onUnmounted,
+  type Ref,
+  ref,
+  type UnwrapRef
+} from 'vue'
 import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
 import {STORE} from '@/constants/systemConstant'
@@ -50,7 +58,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
   )
 
   // 响应式状态
-  const state: Ref<ConfigProviderState> = ref(reset())
+  const state: Ref<UnwrapRef<ConfigProviderState>, UnwrapRef<ConfigProviderState> | ConfigProviderState> = ref(reset())
 
   /**
    * 根据当前窗口宽度计算对应的屏幕断点
@@ -279,7 +287,11 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
       token: state.value.token,
       componentSize: 'middle',
       compact: false,
-      createSuccessBack: state.value.createSuccessBack
+      createSuccessBack: state.value.createSuccessBack,
+      messageConfig:{
+        maxCount:1
+      },
+      notificationConfig:{ placement: 'bottomRight',maxCount:6, showProgress: true, bottom: token.value.sizeXL}
     }
     localStorage.setItem(
       import.meta.env.VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME,
@@ -389,6 +401,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
       algorithm: null,
       ...{locale: navigator.language},
       ...STORED_STATE_VALUE,
+      ...{notificationConfig:{ placement: 'bottomRight',maxCount:6, showProgress: true, bottom: token.value.sizeXL}},
       ...(storedValue ? JSON.parse(storedValue) : {}),
     }
 

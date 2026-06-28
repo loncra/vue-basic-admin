@@ -6,11 +6,8 @@ import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
 import {useChatMessageSender} from "@/composables/chat";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import LEmojiButton from "@/components/basic/EmojiButton.vue";
-import {h, toRef, unref, type VNode} from "vue";
-import {
-  type ChatInstructionMeasure,
-  useChatMessageSendInstruction
-} from "@/composables/chat/useChatMessageSendInstruction.ts";
+import {toRef, unref} from "vue";
+import {useChatMessageSendInstruction} from "@/composables/chat/useChatMessageSendInstruction.ts";
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -24,15 +21,13 @@ const props = withDefaults(defineProps<{
   disabled: boolean
   instructionMap?: Record<string, IdValueMetadata<string, string>[]>
   filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[]) => IdValueMetadata<string, string>[]
-  onCreateSlotConfig?: (option:IdValueMetadata<string, string>, measure:ChatInstructionMeasure) => VNode
 }>(), {
   placeholder: '',
   sending: false,
   uploadBucket: 'system.file',
   disabled: false,
   instructionMap: () => ({}),
-  filterInstruction: (_keyword, dataSource) => dataSource,
-  onCreateSlotConfig: (option:IdValueMetadata<string, string>, measure:ChatInstructionMeasure) => h('span',{},[option.value])
+  filterInstruction: (_keyword, dataSource) => dataSource
 })
 
 const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
@@ -69,8 +64,7 @@ const {
   instructionMap: toRef(props, "instructionMap"),
   disabled: toRef(props, "disabled"),
   senderRef: senderRef,
-  onFilterDataSource: (keyword, dataSource) => props.filterInstruction(keyword, dataSource),
-  onCreateSlotConfig: (option, measure) => props.onCreateSlotConfig(option, measure),
+  onFilterDataSource: (keyword, dataSource) => props.filterInstruction(keyword, dataSource)
 })
 
 defineExpose({

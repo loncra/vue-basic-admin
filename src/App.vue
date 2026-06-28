@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import {
-  XProvider as AxConfigProvider,
-} from '@antdv-next/x'
+import {XProvider as AxConfigProvider,} from '@antdv-next/x'
+import {useConfigProviderStore} from '@/stores/configProviderStore'
 
 defineOptions({
   name: 'App',
 })
-
-import {useConfigProviderStore} from '@/stores/configProviderStore'
 
 const configProviderStore = useConfigProviderStore()
 </script>
@@ -19,7 +16,7 @@ const configProviderStore = useConfigProviderStore()
       :component-size="configProviderStore.state.componentSize"
       :theme="{ algorithm: configProviderStore.getAlgorithm(), token: configProviderStore.state.token }"
     >
-      <a-app :message="{ maxCount: 1 }" :notification="{ placement: 'bottomRight',maxCount:6, showProgress: true, bottom: configProviderStore.getToken().sizeXL}">
+      <a-app :message="configProviderStore.state.messageConfig" :notification="configProviderStore.state.notificationConfig">
         <router-view v-slot="{ Component }">
           <transition name="fade-transform" mode="out-in">
             <component :is="Component"/>

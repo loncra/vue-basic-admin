@@ -104,6 +104,7 @@ export function useChatMessageLoader(
   /** 切换 / 重载活跃会话（含草稿暂存与滚动到底） */
   async function switchConversation(
     item: ServerConversationItem,
+    messageId?:number,
     reload: boolean = false,
   ): Promise<void> {
     const active = conversationActive.value
@@ -122,12 +123,17 @@ export function useChatMessageLoader(
     try {
       active.item = item
       active.bubbleList = []
-      if (active.item?.data?.room) {
-        await loadPage(Number(active.item.data.room.id), 1, false, reload)
-        await loadParticipant(Number(active.item?.data?.room?.id))
+      if (!active.item?.data?.room) {
+        return
       }
-      await nextTick()
-      view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
+      await loadParticipant(Number(active.item?.data?.room?.id))
+      if (!messageId) {
+        await loadPage(Number(active.item.data.room.id), 1, false, reload)
+        await nextTick()
+        view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
+      } else {
+        await positioningMessage(messageId, Number(active.item.data.room.id))
+      }
     } finally {
       active.loading = false
     }
@@ -269,15 +275,23 @@ export function useChatMessageLoader(
       view.value?.jumpToMessage(String(anchorBubble.key))
       return
     }
+    await positioningMessage(Number(data.id), Number(active.item?.data?.room?.id))
+  }
+
+  async function positioningMessage(messageId: number, roomId:number): Promise<void> {
+    const active = conversationActive.value
+    if (!active.item) {
+      return
+    }
     try {
       active.loading = true
       const result: RestResult<number> = await ChatMessageService.positioningMessagePageNumber(
-        Number(active.item?.data?.room?.id),
-        Number(data.id),
+        roomId,
+        messageId,
         active.dataSource.size,
       )
       if (result.data) {
-        await jumpToAnchorPage(Number(data.id), result.data)
+        await jumpToAnchorPage(messageId, result.data)
       }
     } finally {
       active.loading = false

@@ -59,7 +59,11 @@ export interface UserChatParticipantEntity extends VersionEntityMetadata, UserCh
   principal: string;
 }
 
-export interface UserChatMessageResponseBody extends UserChatMessageEntity {
+export interface ParticipantMetadataMessageResponseBody extends UserChatMessageEntity {
+  participant: UserChatParticipantMetadata;
+}
+
+export interface UserChatMessageResponseBody extends ParticipantMetadataMessageResponseBody {
   /**
    * 可读数量
    */
@@ -73,8 +77,12 @@ export interface UserChatMessageResponseBody extends UserChatMessageEntity {
    * 当前用户是否可读
    */
   readable: NameValueEnumMetadata<number> | number;
+}
 
-  participant: UserChatParticipantMetadata;
+export interface MessageContentMentionMetadata  {
+  messageId:number
+  creationTime:number
+  participant: UserChatParticipantMetadata
 }
 
 export interface BasicUserChatConversation extends VersionEntityMetadata {
@@ -100,6 +108,10 @@ export interface BasicUserChatConversation extends VersionEntityMetadata {
    * 是否免打扰
    **/
   muted: NameValueEnumMetadata<number> | number
+  /**
+   * 提及内容
+   */
+  mentions?:MessageContentMentionMetadata[]
 }
 
 export interface UserChatConversationEntity extends BasicUserChatConversation {

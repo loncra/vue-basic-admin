@@ -1,7 +1,7 @@
-import {inject, type InjectionKey, provide, type Ref, ref} from 'vue'
+import {inject, provide, type Ref, ref} from 'vue'
 import type {ConversationActiveProps, ServerConversationItem} from '@/types/composables'
 import type {UserChatConversationResponseBody} from '@/types/apis'
-import {CHAT_CONTEXT_KEY, DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
+import {CHAT_CONTEXT_PROVIDE_KEY, DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
 import {useChatConversations} from '@/composables/chat/useChatConversations.ts'
 import {
   type ChatViewController,
@@ -21,7 +21,7 @@ export interface ChatContext {
   conversations: ReturnType<typeof useChatConversations>
   loader: ReturnType<typeof useChatMessageLoader>
   /** 按会话实体激活（含头部刷新）；传 undefined 清空 */
-  activateConversation: (body: UserChatConversationResponseBody | undefined) => Promise<void>
+  activateConversation: (body: UserChatConversationResponseBody | undefined, messageId?:number) => Promise<void>
   /** 全量刷新会话列表并保持当前激活态 */
   refreshConversations: () => Promise<void>
 }
@@ -56,6 +56,7 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
 
   async function activateConversation(
     body: UserChatConversationResponseBody | undefined,
+    messageId?:number
   ): Promise<void> {
     conversationActive.value.drawerOpen = false
     if (body) {
@@ -64,7 +65,7 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
         label: body.name,
         data: body,
       }
-      await loader.switchConversation(item)
+      await loader.switchConversation(item, messageId)
       options.refreshActiveHeader(conversationActive.value.item)
     } else {
       conversationActive.value.item = undefined
@@ -87,12 +88,12 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
     activateConversation,
     refreshConversations: socketEvents.onConversationRefresh,
   }
-  provide(CHAT_CONTEXT_KEY, context)
+  provide(CHAT_CONTEXT_PROVIDE_KEY, context)
   return context
 }
 
 export function useChatContext(): ChatContext {
-  const ctx = inject<ChatContext>(CHAT_CONTEXT_KEY)
+  const ctx = inject<ChatContext>(CHAT_CONTEXT_PROVIDE_KEY)
   if (!ctx) {
     throw new Error('useChatContext() 必须在 provideChatContext() 的组件子树内调用')
   }

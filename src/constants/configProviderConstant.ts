@@ -44,6 +44,10 @@ export const STORED_STATE_VALUE = {
   componentSize: 'middle',
   compact: false,
   detailLayout: 'vertical',
+  messageConfig:{
+    maxCount:1
+  },
+  notificationConfig:{ placement: 'bottomRight',maxCount:6, showProgress: true}
 }
 
 export const CREATE_SUCCESS_BACK = {

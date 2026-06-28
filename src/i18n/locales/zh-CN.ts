@@ -498,10 +498,14 @@ const locale: LanguagePack = {
       symbols:'符号',
       flags:'旗帜',
     },
+    notification:{
+      mention:'{principal}在消息中提到了你'
+    },
     conversation:{
       delete:'删除会话',
       newMessage:'有{count}条未读消息',
-      draft:'草稿'
+      draft:'草稿',
+      mention:'{count}条消息中提到了你'
     },
     pinned:{
       action:'置顶聊天',

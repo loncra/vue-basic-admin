@@ -359,7 +359,7 @@
   }
 
   .antd-sender-input.antd-sender-input-slot.chat-sender-input > .antd-sender-slot:not(.antd-sender-slot-content) {
-    @apply h-auto! align-bottom!
+    @apply h-auto! align-bottom! my-0!
   }
 
   .antd-sender-input.antd-sender-input-slot.chat-sender-input[contenteditable="false"] {
