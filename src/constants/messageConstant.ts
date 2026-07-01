@@ -52,3 +52,39 @@ export const CAPTCHA_TOKEN_TYPE = {
 }
 
 export const CHAT_EVERYONE_ID = 'EVERYONE'
+
+export const VIDEO_CHAT_CONSTRAINTS = {
+  /** 1v1：清晰度优先 */
+  PREVATE: {
+    video: {
+      width: { ideal: 1280, max: 1280 },
+      height: { ideal: 720, max: 720 },
+      frameRate: { ideal: 30, max: 30 },
+      facingMode: 'user',
+    },
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
+    },
+  },
+  /** 群聊：省带宽/CPU，小窗够用 */
+  GROUP: {
+    video: {
+      width: { ideal: 640, max: 1280 },
+      height: { ideal: 480, max: 720 },
+      frameRate: { ideal: 24, max: 30 },
+      facingMode: 'user',
+    },
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
+    },
+  },
+} satisfies Record<string, MediaStreamConstraints>
+
+export const CHAT_CALL_TYPE = {
+  VIDEO:"10",
+  VOICE:"20"
+} as const

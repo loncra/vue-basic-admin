@@ -20,14 +20,15 @@ import {parseSocketRestPayload} from "@/types/socket.ts";
 import {
   CHAT_BUBBLE_TYPE,
   CHAT_EVERYONE_ID,
-  SOCKET_EVENT_TYPE
+  SOCKET_EVENT_TYPE,
+  VIDEO_CHAT_CONSTRAINTS
 } from "@/constants/messageConstant.ts";
 import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-
+import LChatCallButton from "@/components/chat/ChatCallButton.vue";
 defineOptions({
   name: 'LChatView',
 })
@@ -297,6 +298,21 @@ defineExpose({
               </a-typography-text>
             </template>
           </a-space>
+        </template>
+        <template #leftButtonExtra>
+          <l-chat-call-button
+            :constraints="{
+              video:getEnumValue(conversation.item.data.room.type) === 10 ? VIDEO_CHAT_CONSTRAINTS.GROUP : VIDEO_CHAT_CONSTRAINTS.PREVATE,
+              voice:{
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              }
+            }"
+            :participants="conversation.participants"
+            :conversation="conversation.item"
+            type="text"
+          />
         </template>
       </l-chat-message-sender>
     </div>

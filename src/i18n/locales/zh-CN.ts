@@ -498,6 +498,10 @@ const locale: LanguagePack = {
       symbols:'符号',
       flags:'旗帜',
     },
+    call: {
+      video:'视频通话',
+      voice:'语音通话',
+    },
     notification:{
       mention:'{principal}在消息中提到了你'
     },

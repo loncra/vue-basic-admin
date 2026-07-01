@@ -505,6 +505,10 @@ const locale: LanguagePack = {
       symbols: 'Symbols',
       flags: 'Flags',
     },
+    call: {
+      video:'Video Call',
+      voice:'Voice Call',
+    },
     conversation: {
       delete: 'Delete conversation',
       newMessage:'There are {count} unread messages',

@@ -85,9 +85,8 @@ export type ChatBubbleItem = {
 
 export interface ServerConversationItem {
   key: string
-  label?: string
+  label: string
   data?: UserChatConversationResponseBody
-
 }
 
 export interface ConversationActiveProps {

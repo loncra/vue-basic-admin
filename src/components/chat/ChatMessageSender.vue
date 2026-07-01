@@ -116,7 +116,8 @@ defineExpose({
     <template #footer="{ components }" v-if="!props.disabled">
       <a-flex justify="space-between" align="center" gap="small">
         <a-space>
-          <l-emoji-button :disabled="isSending" @selected="onSelectedEmoji"/>
+          <l-emoji-button type="text" :disabled="isSending" @selected="onSelectedEmoji"/>
+          <slot name="leftButtonExtra"></slot>
         </a-space>
         <a-flex justify="space-between" align="center" gap="small">
           <component

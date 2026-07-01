@@ -2,6 +2,7 @@ import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common";
 import type {ChatContentBlock} from "@/types/composables";
 import type {FileObject, PlatformUser} from "@/types/apis";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import {CHAT_CALL_TYPE, VIDEO_CHAT_CONSTRAINTS} from "@/constants/messageConstant.ts";
 
 /**
  * 聊天房间
@@ -46,7 +47,7 @@ export interface UserChatParticipantDetails {
 
 export interface UserChatParticipantMetadata {
   /**
-   * 是否房主
+   * 参与者类型
    */
   type: NameValueEnumMetadata<number> | number;
   /**
@@ -154,7 +155,74 @@ export interface UserChatMessageReadEntity extends VersionEntityMetadata {
   readTime: number;
 }
 
-
 export interface UserChatMessageReadResponseBody extends UserChatMessageReadEntity {
   participant: UserChatParticipantMetadata;
+}
+
+export type ChatCallType = typeof CHAT_CALL_TYPE.VIDEO | typeof CHAT_CALL_TYPE.VOICE;
+
+export interface UserChatCallEntity extends VersionEntityMetadata {
+  /**
+   * 业务  id
+   */
+  userChatRoomId: number;
+
+  /**
+   * 房间类型
+   */
+  type: NameValueEnumMetadata<number> | number;
+
+  /**
+   * 元数据信息
+   */
+  metadata: Record<string, unknown>;
+
+  /**
+   * 开始时间
+   */
+  startTime: number;
+
+  /**
+   * 结束时间
+   */
+  endTime: number;
+
+  /**
+   * 状态
+   */
+  status: NameValueEnumMetadata<number> | number;
+
+  /**
+   * 名称
+   */
+  name: string;
+}
+
+export interface UserChatCallParticipantEntity extends VersionEntityMetadata, UserChatParticipantMetadata {
+
+  /**
+     * 聊天通话逐渐 id
+     */
+  userChatCallId: number;
+
+
+  /**
+   * 状态
+   */
+  status: NameValueEnumMetadata<number> | number;
+
+  /**
+   * 加入时间
+   */
+  joinTime: number;
+
+  /**
+   * 离开时间
+   */
+  leaveTime: number;
+}
+
+export interface UserChatCallResponseBody extends UserChatCallEntity {
+  room: UserChatRoomEntity
+  participants: UserChatCallParticipantEntity[]
 }

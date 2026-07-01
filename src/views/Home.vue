@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import HomeLayout from '@/components/layout/HomeLayout.vue'
-import {type ComponentInternalInstance, getCurrentInstance, h, nextTick, provide} from "vue";
+import {
+  type ComponentInternalInstance,
+  getCurrentInstance,
+  h,
+  nextTick,
+  onMounted,
+  provide, ref
+} from "vue";
 import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {
@@ -23,8 +30,12 @@ import {
 import {Typography} from 'antdv-next'
 import {useSocketSubscriptions} from "@/composables";
 import {AuthServerService} from "@/apis";
-import {HOME_NOTIFICATION_CACHE_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {
+  HOME_CHAT_CALL_MODEL_OPEN_PROVIDE_KEY,
+  HOME_NOTIFICATION_CACHE_PROVIDE_KEY
+} from "@/constants/systemConstant.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
+import LChatCallModel from "@/components/chat/ChatCallModel.vue";
 
 defineOptions({
   name: 'IndexHome',
@@ -35,14 +46,17 @@ provide(HOME_NOTIFICATION_CACHE_PROVIDE_KEY, getNotificationKey)
 const principalStore = usePrincipalStore();
 const messageServerStore = useMessageServerStore();
 const configProviderStore = useConfigProviderStore();
-const { notification } = useApp();
-const getNotificationKeyCache:Record<string, unknown> = {}
-
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
 
 const {on} = useSocketSubscriptions()
+const { notification } = useApp();
+
+const getNotificationKeyCache:Record<string, unknown> = {}
+
+const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
+const globalProperties = instance.appContext.config
+  .globalProperties
+
+const chatCallModeRef = ref();
 
 function getNotificationKey(type:MessageGroup) {
   if (type === MESSAGE_GROUP.USER_CHAT) {
@@ -136,6 +150,13 @@ async function onChatMessageReceived(
 
 }
 
+
+function mounted() {
+  provide(HOME_CHAT_CALL_MODEL_OPEN_PROVIDE_KEY, chatCallModeRef.value.openChatCallModel)
+}
+
+onMounted(mounted)
+
 on(
   SOCKET_EVENT_TYPE.CHAT_MESSAGE,
   (payload) => onChatMessageReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload), SOCKET_EVENT_TYPE.CHAT_MESSAGE)
@@ -145,14 +166,17 @@ on(
   SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION,
   (payload) => onChatMessageReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload), SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION)
 )
+
 on(
   SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
   () => messageServerStore.fetchUnreadQuantity()
 )
+
 </script>
 
 <template>
   <div>
     <home-layout/>
+    <l-chat-call-model ref="chatCallModeRef" />
   </div>
 </template>

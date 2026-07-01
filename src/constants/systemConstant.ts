@@ -3,6 +3,7 @@ export const LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY = "closeContentTab"
 export const LAYOUT_PANE_TITLE_PROVIDE_KEY = "paneTitle"
 export const CHAT_CONTEXT_PROVIDE_KEY = "chatContext"
 export const HOME_NOTIFICATION_CACHE_PROVIDE_KEY = "notificationCache"
+export const HOME_CHAT_CALL_MODEL_OPEN_PROVIDE_KEY = "openChatCallModel"
 
 export const SYSTEM_CONSTANT = {
   ID_NAME: 'id'
