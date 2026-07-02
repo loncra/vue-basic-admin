@@ -3,8 +3,10 @@ import type {
   IdValueMetadata,
   ObjectWriteResult,
   ParticipantMetadataMessageResponseBody,
+  PlatformUser,
   UserChatConversationResponseBody,
-  UserChatMessageEntity
+  UserChatMessageEntity,
+  UserMetadata
 } from "@/types/apis";
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 import {type ComponentInternalInstance, h, type VNode} from "vue";
@@ -26,8 +28,22 @@ import {createIcon} from "@/utils/resourceUtils.ts";
 import {XProvider as AxConfigProvider} from "@antdv-next/x";
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 const instructionIconMap:Record<string, string> = {"@":"loncra-at-sign"}
+
+export function createUserAvatarNode(
+  user:PlatformUser | UserMetadata,
+  size: AvatarSize = 'medium'
+) {
+  return h(
+    LUserAvatar,
+    {
+      user,
+      size
+    },
+  )
+}
 
 /**
  * 根据会话封面构建头像 VNode（多封面用 AvatarGroup，无封面回退首字母）。

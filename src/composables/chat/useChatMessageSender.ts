@@ -159,7 +159,10 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     sender.insert([slot], 'cursor')
   }
 
-  async function handleSubmit(_message: string, _slotConfig?: SlotConfigType[]): Promise<void> {
+  async function handleSubmit(
+    value: string,
+    _slotConfig?: SlotConfigType[]
+  ): Promise<void> {
     if (!_slotConfig?.length) {
       return
     }

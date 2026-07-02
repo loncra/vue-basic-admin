@@ -2,28 +2,41 @@ import {useSocketSubscriptions} from "@/composables";
 import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {
+  IdValueMetadata,
+  PlatformUser,
   RestResult,
-  UserChatConversationEntity, UserChatConversationResponseBody,
+  UserChatCallEntity,
+  UserChatConversationEntity,
+  UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from "@/types/apis";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
 import {
   createAvatarNode,
+  createIcon,
+  createUserAvatarNode,
+  getEnumName,
   getEnumValue,
   getMessageContent,
   requireNonNullOrUndefined
 } from "@/utils";
 import {AuthServerService} from "@/apis";
-import {type ComponentInternalInstance, getCurrentInstance} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, type Ref, ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
-
+import {Button, Space} from "antdv-next";
+import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
+import useApp from "antdv-next/dist/app/useApp";
+import {isBusinessSuccess} from "@/requests";
 
 export function useChatNotification() {
   const {on} = useSocketSubscriptions()
   const {destroy, info, createNotificationDescription} = useAppNotification()
+  const {message} = useApp()
+
+  const chatCallModeRef = ref()
   const messageServerStore = useMessageServerStore()
   const principalStore = usePrincipalStore()
   const configProviderStore = useConfigProviderStore()
@@ -33,7 +46,7 @@ export function useChatNotification() {
 
   async function onChatMessageReceived(
     result: RestResult<UserChatMessageResponseBody>,
-    event:string
+    event: string
   ) {
     if (!result.data || result.data.principal === principalStore.state.name) {
       return
@@ -44,14 +57,14 @@ export function useChatNotification() {
       return
     }
 
-    const conversationResult:RestResult<UserChatConversationEntity | UserChatConversationResponseBody> = await ChatMessageService.getConversation(result.data.userChatRoomId, true)
+    const conversationResult: RestResult<UserChatConversationEntity | UserChatConversationResponseBody> = await ChatMessageService.getConversation(result.data.userChatRoomId, true)
     if (!conversationResult.data) {
-      return ;
+      return;
     }
 
-    const body:UserChatConversationResponseBody = conversationResult.data as UserChatConversationResponseBody;
+    const body: UserChatConversationResponseBody = conversationResult.data as UserChatConversationResponseBody;
     let notificationKey = MESSAGE_GROUP.USER_CHAT + "_" + body.id;
-    let description:string = getMessageContent(result.data, body)
+    let description: string = getMessageContent(result.data, body)
     let duration = configProviderStore.state.notificationConfig.duration;
     let messageId = undefined
     if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE && getEnumValue(body.muted) !== 0) {
@@ -67,7 +80,7 @@ export function useChatNotification() {
 
       description = globalProperties.$t(
         'chat.notification.mention',
-        {principal:'[' + AuthServerService.getPrincipalNameByUserDetails(message.participant.metadata.details) + '] '}
+        {principal: '[' + AuthServerService.getPrincipalNameByUserDetails(message.participant.metadata.details) + '] '}
       )
     }
 
@@ -77,13 +90,130 @@ export function useChatNotification() {
 
     await info({
         title: body.name,
-        duration:duration,
-        description:createNotificationDescription(description),
-        icon: createAvatarNode(body.cover, body.name,'large', '[&>*:not(:first-child)]:-ms-8!'),
-        onClick:() => globalProperties.$router.push({name:'my_chat_message', query:{conversationId:body.id, messageId}})
+        duration: duration,
+        description: createNotificationDescription(description),
+        icon: createAvatarNode(body.cover, body.name, 'large', '[&>*:not(:first-child)]:-ms-8!'),
+        classes:{
+          root: 'cursor-pointer',
+        },
+        onClick: () => globalProperties.$router.push({
+          name: 'my_chat_message',
+          query: {conversationId: body.id, messageId}
+        })
       },
       MESSAGE_GROUP.USER_CHAT,
       notificationKey
+    )
+
+  }
+
+  async function acceptCall(callEntity:UserChatCallEntity, user:PlatformUser, loading:Ref<boolean>) {
+    try {
+      loading.value = true
+      const result = await ChatCallService.accept(Number(callEntity.id))
+      if (isBusinessSuccess(result)) {
+        destroy(MESSAGE_GROUP.USER_CHAT_CALL + "_" +  String(callEntity.id))
+      }
+      if (!chatCallModeRef.value){
+        return
+      }
+      const defaultTitle = AuthServerService.getPrincipalNameByUserDetails(user) + getEnumName(callEntity.type)
+      chatCallModeRef.value.openChatCallModel(callEntity.name || defaultTitle)
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : String(error))
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function rejectedCall(callEntity:UserChatCallEntity, loading:Ref<boolean>) {
+    try {
+      loading.value = true
+      const result = await ChatCallService.rejected(Number(callEntity.id))
+      if (isBusinessSuccess(result)) {
+        destroy(MESSAGE_GROUP.USER_CHAT_CALL + "_" +  String(callEntity.id))
+      }
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : String(error))
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function onChatCallReceived(result: RestResult<IdValueMetadata<number, PlatformUser>>) {
+    if (!result.data) {
+      return
+    }
+    const user = result.data.value
+    if (user.systemName === principalStore.state.name) {
+      return
+    }
+
+    const callEntity = result.data.metadata as unknown as UserChatCallEntity
+    const description = globalProperties.$t(
+      'chat.call.invitation',
+      {
+        principal:AuthServerService.getPrincipalNameByUserDetails(user),
+        type:getEnumName(callEntity.type)
+      }
+    )
+    const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" +  String(callEntity.id)
+    const loading = ref<boolean>(false)
+    await info({
+        title: getEnumName(callEntity.type),
+        duration: false,
+        description: createNotificationDescription(description),
+        icon: createUserAvatarNode(user, 'large'),
+        closable:false,
+        actions: h(
+          Space,
+          {},
+          () => [
+            h(
+              Button,
+              {
+                type:'link',
+                size: 'small',
+                onClick: () => destroy(key),
+              },
+              {
+                icon:createIcon('loncra-message-square-off', 'align'),
+                default: () => globalProperties.$t('common.ignore')
+              },
+            ),
+            h(
+              Button,
+              {
+                variant:"solid",
+                color: 'green',
+                size: 'small',
+                loading:loading.value,
+                onClick: () => acceptCall(callEntity, user, loading),
+              },
+              {
+                icon:createIcon('loncra-message-square-check', 'align'),
+                default: () => globalProperties.$t('common.accept')
+              },
+            ),
+            h(
+              Button,
+              {
+                danger:true,
+                type: 'primary',
+                size: 'small',
+                loading:loading.value,
+                onClick: () => rejectedCall(callEntity, loading),
+              },
+              {
+                icon:createIcon('loncra-message-square-x', 'align'),
+                default: () => globalProperties.$t('common.rejected')
+              },
+            )
+          ]
+        )
+      },
+      MESSAGE_GROUP.USER_CHAT_CALL,
+      key
     )
 
   }
@@ -102,4 +232,18 @@ export function useChatNotification() {
     SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
     () => messageServerStore.fetchUnreadQuantity()
   )
+
+  on(
+    SOCKET_EVENT_TYPE.CHAT_CALL,
+    (payload) => onChatCallReceived(parseSocketRestPayload<IdValueMetadata<number, PlatformUser>>(payload))
+  )
+
+  on(
+    SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
+    () => messageServerStore.fetchUnreadQuantity()
+  )
+
+  return  {
+    chatCallModeRef
+  }
 }

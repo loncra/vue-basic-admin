@@ -79,6 +79,9 @@ const locale: LanguagePack = {
       parameter:'请求参数',
       body:'请求体'
     },
+    accept:'接受',
+    rejected:'拒绝',
+    ignore:'忽略',
     cover:'封面',
     sort:'排序值',
     value: '值',
@@ -501,6 +504,8 @@ const locale: LanguagePack = {
     call: {
       video:'视频通话',
       voice:'语音通话',
+      invitation:'{principal} 邀请您 {type}',
+      closeCountdown:'通话已结束 s 秒后自动关闭',
     },
     notification:{
       mention:'{principal}在消息中提到了你'

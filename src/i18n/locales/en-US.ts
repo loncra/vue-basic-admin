@@ -29,6 +29,9 @@ const locale: LanguagePack = {
     detail: '{name} details',
     action: 'Actions',
     reset: 'Reset',
+    accept:'accept',
+    rejected:'rejected',
+    ignore:'ignore',
     read: {
       time: 'Read time',
       readable: 'Unread {count}',
@@ -508,6 +511,8 @@ const locale: LanguagePack = {
     call: {
       video:'Video Call',
       voice:'Voice Call',
+      invitation:'{principal} invites you {type}',
+      closeCountdown:'The call has ended and will automatically close after s seconds',
     },
     conversation: {
       delete: 'Delete conversation',

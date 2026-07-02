@@ -74,7 +74,10 @@ export interface MyMessageState {
   siteTypes?:IdNameMetadata[]
 }
 
-export type MessageGroup = typeof MESSAGE_GROUP.USER_CHAT | typeof MESSAGE_GROUP.SITE | typeof MESSAGE_GROUP.DEFAULT
+export type MessageGroup = typeof MESSAGE_GROUP.USER_CHAT
+  | typeof MESSAGE_GROUP.SITE
+  | typeof MESSAGE_GROUP.DEFAULT
+  | typeof MESSAGE_GROUP.USER_CHAT_CALL
 
 export type UserChatUnreadItem = {
   count: number

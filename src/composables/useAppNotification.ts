@@ -44,7 +44,6 @@ export function useAppNotification() {
       ...{
         key,
         classes:{
-          root: 'cursor-pointer',
           icon: 'leading-normal! text-inherit flex items-center',
           title: 'font-medium'
         }

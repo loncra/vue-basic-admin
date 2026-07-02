@@ -4,13 +4,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import {type ComponentInternalInstance, getCurrentInstance, inject} from "vue";
 import {HOME_CHAT_CALL_MODEL_OPEN_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {
-  ChatCallType,
-  IdValueMetadata,
-  RestResult,
-  UserChatCallResponseBody,
-  UserChatParticipantEntity
-} from "@/types/apis";
+import type {UserChatCallResponseBody, UserChatParticipantEntity} from "@/types/apis";
 import type {MenuItemType} from "antdv-next";
 import {CHAT_CALL_TYPE} from "@/constants/messageConstant.ts";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";

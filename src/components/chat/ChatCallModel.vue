@@ -1,71 +1,39 @@
 <script setup lang="ts">
 
 import {getEnumName, getEnumValue} from "@/utils";
-import {computed, nextTick, ref} from "vue";
-import type {UserChatCallResponseBody} from "@/types/apis";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
+import {useChatCallModel} from "@/composables/chat/useChatCallModel.ts";
+import {toRef} from "vue";
+import {DATE_TIME_FORMAT, TIME_UNIT_TYPE} from "@/constants/systemConstant.ts";
+import type {TimeProperties} from "@/types/apis";
 
 defineOptions({
   name: 'LChatCallModel',
 })
 
-const configProviderStore = useConfigProviderStore()
-
-const chatCallModel = ref<{
-  open: boolean
-  title:string
-  loading:boolean
-  stream?:MediaStream
-}>({
-  loading: false,
-  open:false,
-  title:' '
+const props = withDefaults(defineProps<{
+  closeTimeValue?: TimeProperties
+}>(), {
+  closeTimeValue: () => ({
+    value: 5,
+    unit: TIME_UNIT_TYPE.SECONDS,
+  }),
 })
 
-const userChatCall = ref<UserChatCallResponseBody>()
+const configProviderStore = useConfigProviderStore()
 
-const videoRef = ref<HTMLVideoElement>()
-
-async function openChatCallModel(
-  title:string,
-  stream:MediaStream,
-  _userChatCall:UserChatCallResponseBody
-) {
-  chatCallModel.value.open = true;
-  chatCallModel.value.title = title;
-  chatCallModel.value.stream = stream
-
-  userChatCall.value = _userChatCall;
-  await nextTick();
-  if (videoRef.value) {
-    videoRef.value.srcObject = stream
-  }
-}
-
-function stopLocalStream() {
-  chatCallModel.value.stream?.getTracks().forEach((track) => track.stop())
-  chatCallModel.value.stream = undefined
-  if (videoRef.value) {
-    videoRef.value.srcObject = null
-  }
-}
-
-const privateChatParticipant = computed(() => (userChatCall.value?.participants || []).find(p => getEnumValue(p.type) !== 31))
-
-async function handleCancel() {
-  try {
-    chatCallModel.value.loading = true
-    if (userChatCall.value) {
-      await ChatCallService.completed(Number(userChatCall.value.id))
-    }
-    chatCallModel.value.open = false
-    stopLocalStream()
-  } finally {
-    chatCallModel.value.loading = false
-  }
-}
+const {
+  openChatCallModel,
+  handleCancel,
+  privateChatParticipant,
+  privateChatParticipantBadge,
+  chatCallModel,
+  userChatCall,
+  videoRef
+} = useChatCallModel({
+  closeTimerValue: toRef(props,"closeTimeValue"),
+})
 
 defineExpose({
   openChatCallModel
@@ -76,7 +44,7 @@ defineExpose({
 <template>
   <teleport to="body">
     <a-modal
-      :open="chatCallModel.open && userChatCall !== undefined"
+      :open="chatCallModel.open"
       :closable="false"
       :classes="{container: 'p-0', header: 'p-xs m-0 text-center'}"
       :mask-closable="false"
@@ -88,6 +56,18 @@ defineExpose({
           <a-typography-text>
             {{chatCallModel.title}}
           </a-typography-text>
+
+          <a-typography-text v-if="userChatCall">
+            ({{getEnumName(userChatCall.status)}})
+            <a-statistic-timer
+              :value="userChatCall.startTime"
+              :format="DATE_TIME_FORMAT.POST_DATETIME_FORMAT"
+              v-if="getEnumValue(userChatCall.status) === 20"
+              :classes="{content:'text-DEFAULT'}"
+              type="countup"
+            />
+          </a-typography-text>
+
           <a-space-compact class="opacity-80">
             <a-button size="small">
               <template #icon>
@@ -124,10 +104,11 @@ defineExpose({
         >
           <l-user-avatar class="" :size="configProviderStore.getToken().sizeXL * 2" :user="privateChatParticipant.metadata.details" />
           <a-typography-text type="secondary">
-            <a-badge status="processing" :text="getEnumName(privateChatParticipant.status)" />
+            <a-badge :status="privateChatParticipantBadge" :text="getEnumName(privateChatParticipant.status)" />
           </a-typography-text>
         </a-flex>
         <a-flex
+          v-if="getEnumValue(userChatCall?.status) !== 30"
           justify="space-between"
           align="center"
           class="absolute bottom-0 left-0 w-full p-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -157,6 +138,15 @@ defineExpose({
               </template>
             </a-button>
           </a-space>
+        </a-flex>
+        <a-flex gap="small" v-if="chatCallModel.closeTimerValue" justify="center" class="absolute bottom-0 left-0 w-full p-xs bg-container opacity-60" align="center">
+          <a-statistic-timer
+            :value="chatCallModel.closeTimerValue"
+            type="countdown"
+            :classes="{content:'text-DEFAULT'}"
+            :format="$t('chat.call.closeCountdown')"
+            @finish="() => handleCancel()"
+          />
         </a-flex>
       </div>
     </a-modal>

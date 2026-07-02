@@ -6,7 +6,8 @@ export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
 export const MESSAGE_GROUP = {
   DEFAULT: "default",
   SITE: 'site',
-  USER_CHAT: 'userChat'
+  USER_CHAT: 'userChat',
+  USER_CHAT_CALL: 'userChatCall'
 } as const
 
 
@@ -31,6 +32,10 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_MESSAGE_READ:'chat_message_read',
   CHAT_MESSAGE_UNDO:'chat_message_undo',
   CHAT_MESSAGE_READ_UPDATE:'chat_message_read_update',
+
+  CHAT_CALL:'chat_call',
+  CHAT_CALL_COMPLETED:'chat_call_completed',
+  CHAT_CALL_CONFIRM:'chat_call_confirm',
 
   CHAT_CONVERSATION_CREATE:'chat_conversation_create',
 

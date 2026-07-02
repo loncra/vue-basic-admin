@@ -13,6 +13,10 @@ export class ChatCallService {
   /** 本服务相对 {@link BASE_URL} 的路径 */
   static readonly SERVICE_URL = ChatCallService.BASE_URL + '/user/chat/call'
 
+  static readonly ACCEPT_URL = ChatCallService.SERVICE_URL + '/accept'
+
+  static readonly REJECTED_URL = ChatCallService.SERVICE_URL + '/rejected'
+
   static create(
     userChatRoomId:number,
     type:ChatCallType,
@@ -21,7 +25,15 @@ export class ChatCallService {
     return axios.post(ChatCallService.SERVICE_URL + "/" + type + "/" + userChatRoomId, formUrlEncoded({callingPrincipals}))
   }
 
-  static completed(userChatCallId:number) {
+  static completed(userChatCallId:number):Promise<RestResult<void>> {
     return axios.delete(ChatCallService.SERVICE_URL,{params:formUrlEncoded({userChatCallId})})
+  }
+
+  static accept(userChatCallId:number):Promise<RestResult<void>> {
+    return axios.put(ChatCallService.ACCEPT_URL + "/" + userChatCallId)
+  }
+
+  static rejected(userChatCallId:number):Promise<RestResult<void>> {
+    return axios.put(ChatCallService.REJECTED_URL + "/" + userChatCallId)
   }
 }
