@@ -26,7 +26,7 @@ export interface UserChatRoomEntity extends VersionEntityMetadata {
  */
 export interface UserChatMessageEntity extends VersionEntityMetadata {
   /** 业务  id */
-  chatRoomId: number;
+  userChatRoomId: number;
   /** 内容 */
   content: ChatContentBlock[];
   /** 发送者 */
@@ -137,7 +137,7 @@ export interface UserChatMessageReadEntity extends VersionEntityMetadata {
   /**
    * 业务  id
    */
-  chatMessageId: number;
+  userChatMessageId: number;
 
   /**
    * 发送者

@@ -4,6 +4,7 @@ export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
  * 消息分组
  */
 export const MESSAGE_GROUP = {
+  DEFAULT: "default",
   SITE: 'site',
   USER_CHAT: 'userChat'
 } as const

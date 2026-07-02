@@ -2,7 +2,6 @@
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
-  inject,
   nextTick,
   onMounted,
   type Ref,
@@ -11,7 +10,6 @@ import {
 import {
   type ContactItem,
   type IdNameValueMetadata,
-  type MessageGroup,
   type PlatformUser,
   type RestResult,
   type UserChatConversationResponseBody,
@@ -26,9 +24,8 @@ import LChatView from "@/components/chat/ChatView.vue";
 import type {ServerConversationItem} from "@/types/composables";
 import LChatRoomView from "@/components/chat/ChatRoomView.vue";
 import {type ChatViewController, provideChatContext} from "@/composables/chat";
-import {HOME_NOTIFICATION_CACHE_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
-import useApp from "antdv-next/dist/app/useApp";
+import {useAppNotification} from "@/composables/useAppNotification.ts";
 
 defineOptions({
   name: 'MyChatMessageHome',
@@ -39,8 +36,6 @@ const globalProperties =
     .globalProperties
 
 const principalStore = usePrincipalStore()
-
-const { notification } = useApp();
 
 const segmented = ref<{
   value: string
@@ -64,7 +59,7 @@ const options = ref<{
   loading: false
 })
 
-const getNotificationCache = inject<(type: MessageGroup) => unknown | null>(HOME_NOTIFICATION_CACHE_PROVIDE_KEY)
+const {getNotificationKey, destroy} = useAppNotification()
 
 const chatViewRef = ref<ChatViewController>()
 const conversationRef = ref<InstanceType<typeof LChatConversation>>()
@@ -104,10 +99,10 @@ function onHistoryClick(data: UserChatMessageResponseBody) {
 }
 
 async function mounted() {
-  const keys:unknown | null = getNotificationCache?.(MESSAGE_GROUP.USER_CHAT)
+  const keys:unknown | null = getNotificationKey(MESSAGE_GROUP.USER_CHAT)
   if (keys) {
     const messageNotificationKeys = keys as Set<string>
-    messageNotificationKeys.forEach((key) => notification.destroy(key))
+    messageNotificationKeys.forEach(destroy)
   }
   options.value.loading = true
   try {

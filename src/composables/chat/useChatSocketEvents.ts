@@ -48,12 +48,12 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
       return
     }
     const active = conversationActive.value
-    if (active.item?.data?.room?.id === result.data.chatRoomId && hasView()) {
+    if (active.item?.data?.room?.id === result.data.userChatRoomId && hasView()) {
       const role =
         getEnumValue(result.data.type) === 20 ? CHAT_BUBBLE_TYPE.SYSTEM : CHAT_BUBBLE_TYPE.AI
       addBubbleListMessage(result.data, role, active.bubbleList, false, !active.isOnFirstPage)
     }
-    conversations.moveToTopByRoomId(result.data.chatRoomId, (c) => {
+    conversations.moveToTopByRoomId(result.data.userChatRoomId, (c) => {
       c.lastUserMessage = result.data as UserChatMessageEntity
     })
   }

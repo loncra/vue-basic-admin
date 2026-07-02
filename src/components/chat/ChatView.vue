@@ -69,20 +69,20 @@ const placeholderText = computed(() => {
 async function onSendMessage(content: ChatContentBlock[]) {
   const conversationItem = conversation.value.item as ConversationItemType | undefined
   const data = conversationItem?.data as UserChatConversationResponseBody | undefined
-  const chatRoomId = data?.room?.id
-  if (!chatRoomId || !conversationItem) {
+  const userChatRoomId = data?.room?.id
+  if (!userChatRoomId || !conversationItem) {
     return
   }
   conversation.value.sending = true
   try {
-    const result = await ChatMessageService.send(content, String(chatRoomId))
+    const result = await ChatMessageService.send(content, String(userChatRoomId))
     if (!result.data) {
       return
     }
     const messageBody: UserChatMessageResponseBody = result.data
     addBubbleListMessage(messageBody, CHAT_BUBBLE_TYPE.USER, conversation.value.bubbleList)
     senderRef.value?.clear()
-    conversations.moveToTopByRoomId(messageBody.chatRoomId, (c) => (c.lastUserMessage = messageBody))
+    conversations.moveToTopByRoomId(messageBody.userChatRoomId, (c) => (c.lastUserMessage = messageBody))
     await nextTick()
     chatBubbleList.value?.scrollTo({ top: "bottom", behavior: "smooth" });
     if (conversation.value?.item?.data?.draft) {
