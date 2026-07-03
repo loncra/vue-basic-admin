@@ -1,4 +1,9 @@
-import type {ChatCallType, RestResult, UserChatCallResponseBody} from "@/types/apis";
+import type {
+  ChatCallType,
+  RestResult,
+  UserChatCallEntity,
+  UserChatCallResponseBody
+} from "@/types/apis";
 import axios from "@/requests/http.ts";
 import {formUrlEncoded} from "@/utils";
 
@@ -35,5 +40,9 @@ export class ChatCallService {
 
   static rejected(userChatCallId:number):Promise<RestResult<void>> {
     return axios.put(ChatCallService.REJECTED_URL + "/" + userChatCallId)
+  }
+
+  static getUserChatCall(userChatCallId: number, responseBody:boolean = false):Promise<RestResult<UserChatCallEntity | UserChatCallResponseBody>> {
+    return axios.get(ChatCallService.SERVICE_URL + "/" + userChatCallId,{params:formUrlEncoded({responseBody})})
   }
 }

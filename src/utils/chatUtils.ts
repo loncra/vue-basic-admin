@@ -23,7 +23,7 @@ import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import {getEnumValue} from "@/utils/commonUtils.ts";
+import {getEnumName, getEnumValue} from "@/utils/commonUtils.ts";
 import {createIcon} from "@/utils/resourceUtils.ts";
 import {XProvider as AxConfigProvider} from "@antdv-next/x";
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
@@ -162,6 +162,8 @@ export function getMessageContent(lastUserMessage: UserChatMessageEntity | undef
       }
     } else if (block.type === 'custom' && block.slotKind === 'instruction') {
       content += '[' + block.prefix + block.value.value + ']'
+    } else if (block.type === 'custom' && block.slotKind === 'call') {
+      content += '[' + getEnumName(block.value) + ', ' + getEnumName(block.status) + ']'
     }
   }
   return content

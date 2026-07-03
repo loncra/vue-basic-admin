@@ -20,7 +20,7 @@ export interface UseChatMessageSenderInstructionParams {
   senderRef:Ref<SenderRef | undefined>,
   contextVisibleMargin:Ref<number>
   onFilterDataSource: (keyword:string,dataSource: IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[]
-  senderInsertInstruction:(sender:SenderRef, block:SlotConfigType) => void
+  senderInsertInstruction:(sender:SenderRef, block:SlotConfigType, measure:ChatInstructionMeasure) => void
 }
 
 export interface InstructionProps {
@@ -396,7 +396,11 @@ export function useChatMessageSendInstruction(
     editor.addEventListener('compositionend', onCompositionEnd)
   }
 
-  function handleSenderChange(value:string, event?:Event, slotConfigType?:SlotConfigType[]) {
+  function handleSenderChange(
+    value:string,
+    event?:Event,
+    slotConfigType?:SlotConfigType[]
+  ) {
     bindCompositionEvents()
     nextTick(syncInstruction)
   }
@@ -408,17 +412,17 @@ export function useChatMessageSendInstruction(
       return
     }
     const measure = { ...instructionOption.value.measure } // 快照
-    removeInstructionTriggerText(editor, measure)
+    //removeInstructionTriggerText(editor, measure)
     const block:SlotConfigType = createInstructionSlot({
       id:String(crypto.randomUUID()),
       value:option,
       prefix:instructionOption.value.measure.prefix
     } as InstructionBlock, configProviderStore, currentInstance)
-    params.senderInsertInstruction(sender, block)
+    params.senderInsertInstruction(sender, block, measure)
     closeInstruction()
   }
 
-  function removeInstructionTriggerText(
+  /*function removeInstructionTriggerText(
     editor: HTMLElement,
     measure: ChatInstructionMeasure,
   ) {
@@ -455,11 +459,10 @@ export function useChatMessageSendInstruction(
     }
     // 跨节点时：按字符下标删（与 getTextBeforeCursor 对齐）
     deleteTextBeforeCursorByLength(editor, triggerText.length)
-  }
-
+  }*/
 
   /** 从光标向前删 n 个字符（walk 文本节点） */
-  function deleteTextBeforeCursorByLength(editor: HTMLElement, length: number) {
+  /*function deleteTextBeforeCursorByLength(editor: HTMLElement, length: number) {
     const sel = window.getSelection()
     if (!sel?.rangeCount) {
       return
@@ -482,10 +485,10 @@ export function useChatMessageSendInstruction(
     sel.addRange(deleteRange)
     deleteRange.collapse(true)
     sel.addRange(deleteRange)
-  }
+  }*/
 
   /** 与之前定位锚点同一套：字符下标 → Range 起点 */
-  function getRangeAtCharOffset(editor: HTMLElement, charIndex: number): Range | null {
+  /*function getRangeAtCharOffset(editor: HTMLElement, charIndex: number): Range | null {
     const range = document.createRange()
     let offset = 0
     const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT)
@@ -507,7 +510,7 @@ export function useChatMessageSendInstruction(
       return range
     }
     return null
-  }
+  }*/
 
   function handleSenderKeyDown(e: KeyboardEvent) {
     if (!instructionOption.value.open) {

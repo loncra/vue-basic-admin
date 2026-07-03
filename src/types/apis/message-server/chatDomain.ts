@@ -225,6 +225,10 @@ export interface UserChatCallParticipantEntity extends VersionEntityMetadata, Us
    * 离开时间
    */
   leaveTime: number
+  /**
+   * 用户唯一识别
+   */
+  principal: string
 }
 
 export interface UserChatCallResponseBody extends UserChatCallEntity {

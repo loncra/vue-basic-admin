@@ -42,6 +42,8 @@ export interface CallBlock {
   type: 'custom'
   slotKind: 'call'
   userChatCallId:number
+  caller:string
+  scene:NameValueEnumMetadata<number>
   value:NameValueEnumMetadata<number>
   status:NameValueEnumMetadata<number>
 }

@@ -4,8 +4,14 @@ import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import {useSlots} from "vue";
-import {getEnumName} from "@/utils";
-import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
+import {getEnumName, getEnumValue} from "@/utils";
+import {
+  createChatCallAction,
+  getCallIcon,
+  getParticipantBadgeStatus
+} from "@/utils/chatCallUtils.ts";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
+import {useChatCallModelExpose} from "@/composables";
 
 defineOptions({
   name: 'LChatMessageBubbleContent',
@@ -14,6 +20,11 @@ defineOptions({
 defineProps<{
   content: ChatContentBlock[]
 }>()
+
+
+const principalStore = usePrincipalStore()
+
+const chatCallModelExpose = useChatCallModelExpose()
 
 const slots = useSlots()
 
@@ -46,6 +57,11 @@ const emit = defineEmits<{
     <a-space v-else-if="block.type === 'custom' && block.slotKind === 'call'">
       <icon-font :type="getCallIcon(block.value)" />
       <a-badge :status="getParticipantBadgeStatus(block.status)" :text="getEnumName(block.status)" />
+      <component
+        v-if="getEnumValue(block.status) === 10 && block.caller !== principalStore.state.name && getEnumValue(block.scene) === 10"
+        :is="createChatCallAction(block.userChatCallId, chatCallModelExpose.acceptCallByChatCallId, chatCallModelExpose.rejectedCallByChatCallId)"
+      >
+      </component>
     </a-space>
     <a-tooltip :title="block.tooltip" v-else-if="block.type === 'custom' && block.slotKind === 'undo'">
       <slot v-if="slots.undo" name="undo" :text="block.value"/>

@@ -28,6 +28,7 @@ import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import LChatCallButton from "@/components/chat/ChatCallButton.vue";
+import type {ChatInstructionMeasure} from "@/composables/chat/useChatMessageSendInstruction.ts";
 
 defineOptions({
   name: 'LChatView',
@@ -109,7 +110,8 @@ function stripIndividualMentions(slots: SlotConfigType[]): SlotConfigType[] {
 
 function onSenderInsertInstruction(
   sender:SenderRef,
-  block:SlotConfigType
+  block:SlotConfigType,
+  measure:ChatInstructionMeasure
 ) {
   const props = (block as {
       type:'custom',
@@ -126,13 +128,15 @@ function onSenderInsertInstruction(
     const kept = stripIndividualMentions(slotConfig)
     sender.clear()
     if (kept.length > 0) {
-      sender.insert(kept, 'start')
+      sender.insert(kept)
     }
-    sender.insert([block, { type: 'text', value: ' ' }], 'end')
-    sender.focus({ cursor: 'end' })
+    // FIXME 这里做法有问题，晚点在处理
+    sender.insert([block, { type: 'text', value: ' ' }], 'start', measure.prefix + measure.keyword )
+    //sender.insert([block, { type: 'text', value: ' ' }], 'end')
+    //sender.focus({ cursor: 'end' })
   } else {
     // 单人 @：沿用原来的 insert
-    sender.insert([block, { type: 'text', value: ' ' }], 'cursor')
+    sender.insert([block, { type: 'text', value: ' ' }], 'cursor', measure.prefix + measure.keyword )
   }
 }
 

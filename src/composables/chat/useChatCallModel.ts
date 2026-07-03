@@ -13,12 +13,19 @@ import type {
   UserChatCallParticipantEntity,
   UserChatCallResponseBody
 } from "@/types/apis";
-import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {getDevicesUserMedia, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useSocketSubscriptions} from "@/composables";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {isBusinessSuccess} from "@/requests";
+import {AuthServerService} from "@/apis";
+import {getMediaStreamConstraintsByCall} from "@/utils/chatCallUtils.ts";
+import {useAppNotification} from "@/composables/useAppNotification.ts";
+import useApp from "antdv-next/dist/app/useApp";
+import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 export interface UseChatCallModelParams {
   closeTimerValue: Ref<TimeProperties>;
@@ -48,10 +55,35 @@ export interface ChatCallModelExpose {
     _userChatCall:UserChatCallResponseBody
   ) => void,
   handleCancel:() => void,
+  acceptCall:(
+    key:string,
+    callEntity:UserChatCallResponseBody,
+    loading:Ref<boolean>
+  ) => void,
+  rejectedCall:(
+    key:string,
+    callEntity:UserChatCallEntity,
+    loading:Ref<boolean>
+  ) => void,
+  acceptCallByChatCallId:(
+    key:string,
+    userChatCallId:number,
+    loading:Ref<boolean>
+  ) => void,
+  rejectedCallByChatCallId:(
+    key:string,
+    userChatCallId:number,
+    loading:Ref<boolean>
+  ) => void
 }
 
 export function provideChatCllExpose(config:UseChatCallModelParams) {
   const {on} = useSocketSubscriptions()
+  const { destroy } = useAppNotification()
+  const { message } = useApp()
+  const messageServerStore = useMessageServerStore()
+  const principalStore = usePrincipalStore()
+
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
@@ -124,6 +156,87 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     context.value.userChatCall.participants[index] = participant
   }
 
+  async function acceptCallByChatCallId(
+    key:string,
+    userChatCallId:number,
+    loading:Ref<boolean>
+  ) {
+    try {
+      loading.value = true
+      const result = await ChatCallService.getUserChatCall(userChatCallId, true)
+      if (!result.data) {
+        return
+      }
+      const body = result.data as UserChatCallResponseBody
+      await acceptCall(key, body, loading)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function acceptCall(
+    key:string,
+    callEntity:UserChatCallResponseBody,
+    loading:Ref<boolean>
+  ) {
+    try {
+      loading.value = true
+      const result = await ChatCallService.accept(Number(callEntity.id))
+      if (isBusinessSuccess(result)) {
+        destroy(key)
+      }
+      await messageServerStore.fetchUnreadQuantity()
+
+      //const name = AuthServerService.getPrincipalNameByUserDetails(user)
+
+      let title = callEntity.name;
+      if (getEnumValue(callEntity.scene) === 10) {
+        const key = getEnumValue(callEntity.type) === 10 ? "chat.call.video.title" : "chat.call.video.title";
+        const participant = callEntity.participants.find(s => s.principal !== principalStore.state.name)
+        if (participant) {
+          const name = AuthServerService.getPrincipalNameByUserDetails(participant.metadata.details)
+          title = globalProperties.$t(key,{name,})
+        } else {
+          title = globalProperties.$t('common.unname')
+        }
+      }
+
+      const stream = await getDevicesUserMedia(getMediaStreamConstraintsByCall(callEntity))
+      await openChatCallModel(title, stream, callEntity)
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : String(error))
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function rejectedCallByChatCallId(
+    key:string,
+    userChatCallId:number,
+    loading:Ref<boolean>
+  ) {
+    try {
+      loading.value = true
+      const result = await ChatCallService.rejected(userChatCallId)
+      if (isBusinessSuccess(result)) {
+        destroy(key)
+      }
+      await messageServerStore.fetchUnreadQuantity()
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : String(error))
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function rejectedCall(
+    key:string,
+    callEntity:UserChatCallEntity,
+    loading:Ref<boolean>
+  ) {
+    await rejectedCallByChatCallId(key, Number(callEntity.id), loading)
+  }
+
   on(
     SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM,
     (payload) => onChatCallConfirm(parseSocketRestPayload<UserChatCallParticipantEntity>(payload))
@@ -137,7 +250,11 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
   const exportContext:ChatCallModelExpose = {
     context:context.value,
     handleCancel:handleCancel,
-    openChatCallModel:openChatCallModel
+    openChatCallModel:openChatCallModel,
+    acceptCall:acceptCall,
+    rejectedCall:rejectedCall,
+    acceptCallByChatCallId:acceptCallByChatCallId,
+    rejectedCallByChatCallId:rejectedCallByChatCallId
   }
 
   provide(HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY, exportContext)

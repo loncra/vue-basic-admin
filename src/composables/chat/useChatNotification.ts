@@ -9,7 +9,6 @@ import type {
   IdValueMetadata,
   PlatformUser,
   RestResult,
-  UserChatCallEntity,
   UserChatCallResponseBody,
   UserChatConversationEntity,
   UserChatConversationResponseBody,
@@ -21,31 +20,26 @@ import {
   createAvatarNode,
   createIcon,
   createUserAvatarNode,
-  getDevicesUserMedia,
   getEnumName,
   getEnumValue,
   getMessageContent,
   requireNonNullOrUndefined
 } from "@/utils";
 import {AuthServerService} from "@/apis";
-import {type ComponentInternalInstance, getCurrentInstance, h, type Ref, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
-import {Button, Flex, Space} from "antdv-next";
-import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
-import useApp from "antdv-next/dist/app/useApp";
-import {isBusinessSuccess} from "@/requests";
-import {getCallIcon, getMediaStreamConstraintsByCall} from "@/utils/chatCallUtils.ts";
+import {Flex} from "antdv-next";
+import {createChatCallAction, getCallIcon} from "@/utils/chatCallUtils.ts";
 
 export interface UseChatNotificationParam {
-  chatCallConfig:UseChatCallModelParams
+  chatCallConfig: UseChatCallModelParams
 }
 
-export function useChatNotification(config:UseChatNotificationParam) {
+export function useChatNotification(config: UseChatNotificationParam) {
   const {on} = useSocketSubscriptions()
   const {destroy, info, createNotificationDescription} = useAppNotification()
-  const {message} = useApp()
 
   const chatCallExport = provideChatCllExpose(config.chatCallConfig)
 
@@ -105,7 +99,7 @@ export function useChatNotification(config:UseChatNotificationParam) {
         duration: duration,
         description: createNotificationDescription(description),
         icon: createAvatarNode(body.cover, body.name, 'large', '[&>*:not(:first-child)]:-ms-8!'),
-        classes:{
+        classes: {
           root: 'cursor-pointer',
         },
         onClick: () => globalProperties.$router.push({
@@ -119,56 +113,14 @@ export function useChatNotification(config:UseChatNotificationParam) {
 
   }
 
-  async function acceptCall(callEntity:UserChatCallResponseBody, user:PlatformUser, loading:Ref<boolean>) {
-    try {
-      loading.value = true
-      const result = await ChatCallService.accept(Number(callEntity.id))
-      if (isBusinessSuccess(result)) {
-        destroy(MESSAGE_GROUP.USER_CHAT_CALL + "_" +  String(callEntity.id))
-      }
-      await messageServerStore.fetchUnreadQuantity()
-
-      const name = AuthServerService.getPrincipalNameByUserDetails(user)
-
-      let defaultTitle;
-      if (getEnumValue(callEntity.type) === 10) {
-        defaultTitle = globalProperties.$t("chat.call.video.title",{user:name})
-      } else {
-        defaultTitle = globalProperties.$t("chat.call.voice.title",{user:name})
-      }
-
-      const stream = await getDevicesUserMedia(getMediaStreamConstraintsByCall(callEntity))
-      chatCallExport.openChatCallModel(defaultTitle, stream, callEntity)
-    } catch (error) {
-      message.error(error instanceof Error ? error.message : String(error))
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function rejectedCall(callEntity:UserChatCallEntity, loading:Ref<boolean>) {
-    try {
-      loading.value = true
-      const result = await ChatCallService.rejected(Number(callEntity.id))
-      if (isBusinessSuccess(result)) {
-        destroy(MESSAGE_GROUP.USER_CHAT_CALL + "_" +  String(callEntity.id))
-      }
-      await messageServerStore.fetchUnreadQuantity()
-    } catch (error) {
-      message.error(error instanceof Error ? error.message : String(error))
-    } finally {
-      loading.value = false
-    }
-  }
-
-  function createExtraIconTitle(title:string, icon:string) {
+  function createExtraIconTitle(title: string, icon: string) {
     return h(
       Flex,
       {
-        align:'center',
-        justify:'space-between',
+        align: 'center',
+        justify: 'space-between',
       },
-      () =>[
+      () => [
         h('span', {}, title),
         createIcon(icon)
       ]
@@ -188,63 +140,21 @@ export function useChatNotification(config:UseChatNotificationParam) {
     const description = globalProperties.$t(
       'chat.call.invitation',
       {
-        user:AuthServerService.getPrincipalNameByUserDetails(user),
-        type:getEnumName(callEntity.type)
+        user: AuthServerService.getPrincipalNameByUserDetails(user),
+        type: getEnumName(callEntity.type)
       }
     )
-    const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" +  String(callEntity.id)
-    const loading = ref<boolean>(false)
+    const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(callEntity.id)
     await info({
         title: createExtraIconTitle(getEnumName(callEntity.type), String(getCallIcon(callEntity.type))),
         duration: false,
         description: createNotificationDescription(description),
         icon: createUserAvatarNode(user, 'large'),
-        closable:false,
-        actions: h(
-          Space,
-          {},
-          () => [
-            h(
-              Button,
-              {
-                type:'link',
-                size: 'small',
-                onClick: () => destroy(key),
-              },
-              {
-                icon:createIcon('loncra-message-square-off', 'align'),
-                default: () => globalProperties.$t('common.ignore')
-              },
-            ),
-            h(
-              Button,
-              {
-                variant:"solid",
-                color: 'green',
-                size: 'small',
-                loading:loading.value,
-                onClick: () => acceptCall(callEntity, user, loading),
-              },
-              {
-                icon:createIcon('loncra-message-square-check', 'align'),
-                default: () => globalProperties.$t('common.accept')
-              },
-            ),
-            h(
-              Button,
-              {
-                danger:true,
-                type: 'primary',
-                size: 'small',
-                loading:loading.value,
-                onClick: () => rejectedCall(callEntity, loading),
-              },
-              {
-                icon:createIcon('loncra-message-square-x', 'align'),
-                default: () => globalProperties.$t('common.rejected')
-              },
-            )
-          ]
+        closable: false,
+        actions: createChatCallAction(
+          Number(callEntity.id),
+          (key, id, loading) => chatCallExport.acceptCall(key, callEntity, loading),
+          (key, id, loading) => chatCallExport.rejectedCall(key, callEntity, loading)
         )
       },
       MESSAGE_GROUP.USER_CHAT_CALL,

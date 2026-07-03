@@ -7,7 +7,10 @@ import {useChatMessageSender} from "@/composables/chat";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import LEmojiButton from "@/components/basic/EmojiButton.vue";
 import {toRef, unref} from "vue";
-import {useChatMessageSendInstruction} from "@/composables/chat/useChatMessageSendInstruction.ts";
+import {
+  type ChatInstructionMeasure,
+  useChatMessageSendInstruction
+} from "@/composables/chat/useChatMessageSendInstruction.ts";
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -22,7 +25,7 @@ const props = withDefaults(defineProps<{
   instructionContextVisibleMargin?:number
   instructionMap?: Record<string, IdValueMetadata<string, string>[]>
   filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[],
-  senderInsertInstruction?:(sender:SenderRef, block:SlotConfigType) => void
+  senderInsertInstruction?:(sender:SenderRef, block:SlotConfigType, measure:ChatInstructionMeasure) => void
 }>(), {
   placeholder: '',
   sending: false,
@@ -31,7 +34,7 @@ const props = withDefaults(defineProps<{
   instructionContextVisibleMargin:8,
   instructionMap: () => ({}),
   filterInstruction: (_keyword, dataSource) => dataSource,
-  senderInsertInstruction:(sender:SenderRef, block:SlotConfigType) => sender.insert([block,{type:'text',value:' '}], 'cursor')
+  senderInsertInstruction:(sender:SenderRef, block:SlotConfigType, measure:ChatInstructionMeasure) => sender.insert([block,{type:'text',value:' '}], 'cursor', measure.prefix + measure.keyword)
 })
 
 const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
