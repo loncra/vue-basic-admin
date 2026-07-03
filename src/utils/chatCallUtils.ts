@@ -1,11 +1,7 @@
 import {getEnumValue} from "@/utils/commonUtils.ts";
 import type {NameValueEnumMetadata, UserChatCallEntity, UserChatRoomEntity} from "@/types/apis";
 import {createIcon} from "@/utils/resourceUtils.ts";
-import {MESSAGE_GROUP, VIDEO_CHAT_CONSTRAINTS} from "@/constants/messageConstant.ts";
-import {h, ref, type Ref} from "vue";
-import {Button, Space} from "antdv-next";
-import i18n from '@/i18n'
-import {useAppNotification} from "@/composables/useAppNotification.ts";
+import {VIDEO_CHAT_CONSTRAINTS} from "@/constants/messageConstant.ts";
 
 
 export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> | number) {
@@ -49,61 +45,4 @@ export function getMediaStreamConstraintsByRoom(room:UserChatRoomEntity) {
   } else {
     return VIDEO_CHAT_CONSTRAINTS.GROUP;
   }
-}
-
-
-
-export function createChatCallAction(
-  userChatCallId: number,
-  onAccept: (key: string, id: number, loading: Ref<boolean>) => void,
-  onRejected: (key: string, id: number, loading: Ref<boolean>) => void
-) {
-  const loading = ref<boolean>(false)
-  const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(userChatCallId)
-  const {destroy} = useAppNotification()
-  return h(
-    Space,
-    {},
-    () => [
-      h(
-        Button,
-        {
-          type: 'link',
-          size: 'small',
-          onClick: () => destroy(key),
-        },
-        {
-          icon: createIcon('loncra-message-square-off', 'align'),
-          default: () => i18n.global.t('common.ignore')
-        },
-      ),
-      h(
-        Button,
-        {
-          variant: "solid",
-          color: 'green',
-          size: 'small',
-          loading: loading.value,
-          onClick: () => onAccept(key, userChatCallId, loading),
-        },
-        {
-          icon: createIcon('loncra-message-square-check', 'align'),
-          default: () => i18n.global.t('common.accept')
-        },
-      ),
-      h(
-        Button,
-        {
-          danger: true,
-          type: 'primary',
-          size: 'small',
-          loading: loading.value,
-          onClick: () => onRejected(key, userChatCallId, loading),
-        },
-        {
-          icon: createIcon('loncra-message-square-x', 'align'),
-          default: () => i18n.global.t('common.rejected')
-        },
-      )
-    ])
 }

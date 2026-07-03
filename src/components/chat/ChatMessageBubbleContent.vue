@@ -5,11 +5,7 @@ import type {UserChatMessageResponseBody} from "@/types/apis";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import {useSlots} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
-import {
-  createChatCallAction,
-  getCallIcon,
-  getParticipantBadgeStatus
-} from "@/utils/chatCallUtils.ts";
+import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useChatCallModelExpose} from "@/composables";
 
@@ -59,7 +55,7 @@ const emit = defineEmits<{
       <a-badge :status="getParticipantBadgeStatus(block.status)" :text="getEnumName(block.status)" />
       <component
         v-if="getEnumValue(block.status) === 10 && block.caller !== principalStore.state.name && getEnumValue(block.scene) === 10"
-        :is="createChatCallAction(block.userChatCallId, chatCallModelExpose.acceptCallByChatCallId, chatCallModelExpose.rejectedCallByChatCallId)"
+        :is="chatCallModelExpose.createChatCallAction(block.userChatCallId, chatCallModelExpose.acceptCallByChatCallId, chatCallModelExpose.rejectedCallByChatCallId)"
       >
       </component>
     </a-space>

@@ -1,10 +1,12 @@
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
+  h,
   inject,
   provide,
   type Ref,
-  ref
+  ref,
+  type VNode
 } from "vue";
 import type {
   RestResult,
@@ -13,10 +15,10 @@ import type {
   UserChatCallParticipantEntity,
   UserChatCallResponseBody
 } from "@/types/apis";
-import {getDevicesUserMedia, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, getDevicesUserMedia, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useSocketSubscriptions} from "@/composables";
-import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 import {isBusinessSuccess} from "@/requests";
@@ -26,6 +28,7 @@ import {useAppNotification} from "@/composables/useAppNotification.ts";
 import useApp from "antdv-next/dist/app/useApp";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+import {Button, Space} from "antdv-next";
 
 export interface UseChatCallModelParams {
   closeTimerValue: Ref<TimeProperties>;
@@ -74,7 +77,12 @@ export interface ChatCallModelExpose {
     key:string,
     userChatCallId:number,
     loading:Ref<boolean>
-  ) => void
+  ) => void,
+  createChatCallAction: (
+    userChatCallId: number,
+    onAccept: (key: string, id: number, loading: Ref<boolean>) => void,
+    onRejected: (key: string, id: number, loading: Ref<boolean>) => void
+  ) => VNode
 }
 
 export function provideChatCllExpose(config:UseChatCallModelParams) {
@@ -237,6 +245,60 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     await rejectedCallByChatCallId(key, Number(callEntity.id), loading)
   }
 
+  function createChatCallAction(
+    userChatCallId: number,
+    onAccept: (key: string, id: number, loading: Ref<boolean>) => void,
+    onRejected: (key: string, id: number, loading: Ref<boolean>) => void
+  ) {
+    const loading = ref<boolean>(false)
+    const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(userChatCallId)
+    return h(
+      Space,
+      {},
+      () => [
+        h(
+          Button,
+          {
+            type: 'link',
+            size: 'small',
+            onClick: () => destroy(key),
+          },
+          {
+            icon: createIcon('loncra-message-square-off', 'align'),
+            default: () => globalProperties.$t('common.ignore')
+          },
+        ),
+        h(
+          Button,
+          {
+            variant: "solid",
+            color: 'green',
+            size: 'small',
+            loading: loading.value,
+            onClick: () => onAccept(key, userChatCallId, loading),
+          },
+          {
+            icon: createIcon('loncra-message-square-check', 'align'),
+            default: () => globalProperties.$t('common.accept')
+          },
+        ),
+        h(
+          Button,
+          {
+            danger: true,
+            type: 'primary',
+            size: 'small',
+            loading: loading.value,
+            onClick: () => onRejected(key, userChatCallId, loading),
+          },
+          {
+            icon: createIcon('loncra-message-square-x', 'align'),
+            default: () => globalProperties.$t('common.rejected')
+          },
+        )
+      ])
+  }
+
   on(
     SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM,
     (payload) => onChatCallConfirm(parseSocketRestPayload<UserChatCallParticipantEntity>(payload))
@@ -254,7 +316,8 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     acceptCall:acceptCall,
     rejectedCall:rejectedCall,
     acceptCallByChatCallId:acceptCallByChatCallId,
-    rejectedCallByChatCallId:rejectedCallByChatCallId
+    rejectedCallByChatCallId:rejectedCallByChatCallId,
+    createChatCallAction:createChatCallAction
   }
 
   provide(HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY, exportContext)

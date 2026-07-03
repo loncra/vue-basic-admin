@@ -31,7 +31,7 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {Flex} from "antdv-next";
-import {createChatCallAction, getCallIcon} from "@/utils/chatCallUtils.ts";
+import {getCallIcon} from "@/utils/chatCallUtils.ts";
 
 export interface UseChatNotificationParam {
   chatCallConfig: UseChatCallModelParams
@@ -151,7 +151,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
         description: createNotificationDescription(description),
         icon: createUserAvatarNode(user, 'large'),
         closable: false,
-        actions: createChatCallAction(
+        actions: chatCallExport.createChatCallAction(
           Number(callEntity.id),
           (key, id, loading) => chatCallExport.acceptCall(key, callEntity, loading),
           (key, id, loading) => chatCallExport.rejectedCall(key, callEntity, loading)
