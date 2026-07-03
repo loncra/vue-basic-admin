@@ -1,8 +1,8 @@
 import {
   type ComponentInternalInstance,
-  computed,
   getCurrentInstance,
-  nextTick,
+  inject,
+  provide,
   type Ref,
   ref
 } from "vue";
@@ -18,68 +18,81 @@ import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useSocketSubscriptions} from "@/composables";
 import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
+import {HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 
 export interface UseChatCallModelParams {
   closeTimerValue: Ref<TimeProperties>;
 }
 
-export function useChatCallModel(config:UseChatCallModelParams) {
+export interface ChatCallModelProps {
+  title:string
+  loading:boolean
+}
+
+export interface ChatCallModelInnerProps extends ChatCallModelProps{
+  open: boolean
+  closeTimerValue?:number
+}
+
+export interface ChatCallModelContext {
+  model:ChatCallModelProps,
+  localStream?:MediaStream,
+  userChatCall?:UserChatCallResponseBody
+}
+
+export interface ChatCallModelExpose {
+  context:ChatCallModelContext,
+  openChatCallModel:(
+    title:string,
+    stream:MediaStream,
+    _userChatCall:UserChatCallResponseBody
+  ) => void,
+  handleCancel:() => void,
+}
+
+export function provideChatCllExpose(config:UseChatCallModelParams) {
   const {on} = useSocketSubscriptions()
-  const userChatCall = ref<UserChatCallResponseBody>()
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
 
-  const chatCallModel = ref<{
-    open: boolean
-    title:string
-    loading:boolean
-    stream?:MediaStream
-    closeTimerValue?:number
-  }>({
-    loading: false,
-    open:false,
-    title:' '
+  const context = ref<ChatCallModelContext>({
+    model:{
+      loading: false,
+      open:false,
+      title:' '
+    } as ChatCallModelInnerProps
   })
-
-  const videoRef = ref<HTMLVideoElement>()
 
   async function openChatCallModel(
     title:string,
     stream:MediaStream,
     _userChatCall:UserChatCallResponseBody
   ) {
-    chatCallModel.value.open = true;
-    chatCallModel.value.title = title;
-    chatCallModel.value.stream = stream
+    const model = context.value.model as ChatCallModelInnerProps
+    model.open = true;
+    model.title = title;
 
-    userChatCall.value = _userChatCall;
-    await nextTick();
-    if (videoRef.value) {
-      videoRef.value.srcObject = stream
-    }
+    context.value.userChatCall = _userChatCall;
+    context.value.localStream = stream
   }
 
   function stopLocalStream() {
-    chatCallModel.value.stream?.getTracks().forEach((track) => track.stop())
-    chatCallModel.value.stream = undefined
-    if (videoRef.value) {
-      videoRef.value.srcObject = null
-    }
+    context.value.localStream?.getTracks().forEach((track) => track.stop())
+    context.value.localStream = undefined
   }
 
-  const privateChatParticipant = computed(() => (userChatCall.value?.participants || []).find(p => getEnumValue(p.type) !== 31))
-
   async function handleCancel() {
+    const model = context.value.model as ChatCallModelInnerProps
     try {
-      chatCallModel.value.loading = true
-      if (userChatCall.value && getEnumValue(userChatCall.value.status) !== 30) {
-        await ChatCallService.completed(Number(userChatCall.value.id))
+      model.loading = true
+      if (context.value.userChatCall && getEnumValue(context.value.userChatCall.status) !== 30) {
+        await ChatCallService.completed(Number(context.value.userChatCall.id))
       }
-      chatCallModel.value.open = false
+      model.open = false
       stopLocalStream()
     } finally {
-      chatCallModel.value.loading = false
+      model.loading = false
     }
   }
 
@@ -87,44 +100,29 @@ export function useChatCallModel(config:UseChatCallModelParams) {
     if (!result.data) {
       return
     }
-    if (!userChatCall.value) {
+    if (!context.value.userChatCall) {
       return
     }
 
-    userChatCall.value = {...userChatCall.value, ...result.data}
-    chatCallModel.value.closeTimerValue = globalProperties.$dayjs().add(config.closeTimerValue.value.value, config.closeTimerValue.value.unit).valueOf()
+    context.value.userChatCall = {...context.value.userChatCall, ...result.data}
+    const model = context.value.model as ChatCallModelInnerProps
+    model.closeTimerValue = globalProperties.$dayjs().add(config.closeTimerValue.value.value, config.closeTimerValue.value.unit).valueOf()
   }
 
   function onChatCallConfirm(result:RestResult<UserChatCallParticipantEntity>){
     if (!result.data) {
       return
     }
-    if (!userChatCall.value) {
+    if (!context.value.userChatCall) {
       return
     }
     const participant = result.data
-    const index = userChatCall.value.participants.findIndex(p => participant.id === p.id)
+    const index = context.value.userChatCall.participants.findIndex(p => participant.id === p.id)
     if (index < 0) {
       return
     }
-    userChatCall.value.participants[index] = participant
+    context.value.userChatCall.participants[index] = participant
   }
-
-  const privateChatParticipantBadge = computed(() => {
-    if (!privateChatParticipant.value) {
-      return undefined
-    }
-    const status = getEnumValue(privateChatParticipant.value.status)
-    if ([50,60,61,62,63].includes(status)) {
-      return "error"
-    } else if ([20, 30].includes(status)) {
-      return "processing"
-    } else if ([40].includes(status)) {
-      return "success"
-    } else {
-      return "warning"
-    }
-  })
 
   on(
     SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM,
@@ -136,13 +134,21 @@ export function useChatCallModel(config:UseChatCallModelParams) {
     (payload) => onChatCallComplete(parseSocketRestPayload<UserChatCallEntity>(payload))
   )
 
-  return {
-    videoRef,
-    userChatCall,
-    handleCancel,
-    privateChatParticipant,
-    privateChatParticipantBadge,
-    chatCallModel,
-    openChatCallModel
+  const exportContext:ChatCallModelExpose = {
+    context:context.value,
+    handleCancel:handleCancel,
+    openChatCallModel:openChatCallModel
   }
+
+  provide(HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY, exportContext)
+
+  return exportContext
+}
+
+export function useChatCallModelExpose(): ChatCallModelExpose {
+  const ctx = inject<ChatCallModelExpose>(HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY)
+  if (!ctx) {
+    throw new Error('useChatCallModelContext() 必须在 provideChatContext() 的组件子树内调用')
+  }
+  return ctx
 }

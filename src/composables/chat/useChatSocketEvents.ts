@@ -41,16 +41,26 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
   const messageServerStore = useMessageServerStore()
   const {on} = useSocketSubscriptions()
 
+  function getMessageRole(message:UserChatMessageResponseBody | UserChatMessageEntity) {
+
+    if (getEnumValue(message.type) === 10) {
+      return CHAT_BUBBLE_TYPE.AI
+    } else if (getEnumValue(message.type) === 20) {
+      return CHAT_BUBBLE_TYPE.SYSTEM
+    } else {
+      return message.principal === principalStore.state.name ? CHAT_BUBBLE_TYPE.USER : CHAT_BUBBLE_TYPE.AI
+    }
+  }
+
   async function onChatMessageReceived(
     result: RestResult<UserChatMessageResponseBody | UserChatMessageEntity>,
   ): Promise<void> {
-    if (!result.data || result.data.principal === principalStore.state.name) {
+    if (!result.data || (result.data.principal === principalStore.state.name && getEnumValue(result.data.type) === 10)) {
       return
     }
     const active = conversationActive.value
     if (active.item?.data?.room?.id === result.data.userChatRoomId && hasView()) {
-      const role =
-        getEnumValue(result.data.type) === 20 ? CHAT_BUBBLE_TYPE.SYSTEM : CHAT_BUBBLE_TYPE.AI
+      const role = getMessageRole(result.data)
       addBubbleListMessage(result.data, role, active.bubbleList, false, !active.isOnFirstPage)
     }
     conversations.moveToTopByRoomId(result.data.userChatRoomId, (c) => {

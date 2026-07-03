@@ -20,8 +20,7 @@ import {parseSocketRestPayload} from "@/types/socket.ts";
 import {
   CHAT_BUBBLE_TYPE,
   CHAT_EVERYONE_ID,
-  SOCKET_EVENT_TYPE,
-  VIDEO_CHAT_CONSTRAINTS
+  SOCKET_EVENT_TYPE
 } from "@/constants/messageConstant.ts";
 import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
@@ -29,6 +28,7 @@ import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import LChatCallButton from "@/components/chat/ChatCallButton.vue";
+
 defineOptions({
   name: 'LChatView',
 })
@@ -165,7 +165,7 @@ function onInstructionFilter(keyword:string, dataSource:IdValueMetadata<string, 
   return dataSource
 }
 
-function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBody>) {
+function onChatMessageUpdate(result: RestResult<UserChatMessageResponseBody | UserChatMessageEntity>) {
   if (!result.data) {
     return
   }
@@ -174,10 +174,11 @@ function onChatMessageReadReceived(result: RestResult<UserChatMessageResponseBod
     return
   }
   const bubble = conversation.value.bubbleList[index]
-  if (!bubble) {
+  if (!bubble || !bubble.data) {
     return
   }
-  bubble.data = result.data
+  bubble.data = {...bubble.data, ...result.data}
+  bubble.content = bubble.data.content
 }
 
 async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
@@ -223,11 +224,16 @@ function onReferenceMessage(message:UserChatMessageResponseBody) {
 
 on(
   SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ,
-  (payload) => onChatMessageReadReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
+  (payload) => onChatMessageUpdate(parseSocketRestPayload<UserChatMessageResponseBody>(payload))
 )
 on(
   SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
   (payload) => onChatMessageUndo(parseSocketRestPayload<UserChatMessageEntity>(payload))
+)
+
+on(
+  SOCKET_EVENT_TYPE.CHAT_MESSAGE_UPDATE,
+  (payload) => onChatMessageUpdate(parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload))
 )
 
 defineExpose({
@@ -301,14 +307,6 @@ defineExpose({
         </template>
         <template #leftButtonExtra>
           <l-chat-call-button
-            :constraints="{
-              video:getEnumValue(conversation.item.data.room.type) === 10 ? VIDEO_CHAT_CONSTRAINTS.GROUP : VIDEO_CHAT_CONSTRAINTS.PREVATE,
-              voice:{
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true,
-              }
-            }"
             :participants="conversation.participants"
             :conversation="conversation.item"
             type="text"

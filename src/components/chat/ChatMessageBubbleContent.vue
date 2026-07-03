@@ -4,6 +4,8 @@ import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
 import {useSlots} from "vue";
+import {getEnumName} from "@/utils";
+import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
 
 defineOptions({
   name: 'LChatMessageBubbleContent',
@@ -41,6 +43,10 @@ const emit = defineEmits<{
       </template>
       {{ block.value.value }}
     </a-tag>
+    <a-space v-else-if="block.type === 'custom' && block.slotKind === 'call'">
+      <icon-font :type="getCallIcon(block.value)" />
+      <a-badge :status="getParticipantBadgeStatus(block.status)" :text="getEnumName(block.status)" />
+    </a-space>
     <a-tooltip :title="block.tooltip" v-else-if="block.type === 'custom' && block.slotKind === 'undo'">
       <slot v-if="slots.undo" name="undo" :text="block.value"/>
       <a-typography-text v-else delete type="secondary">

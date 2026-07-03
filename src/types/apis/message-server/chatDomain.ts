@@ -1,8 +1,8 @@
-import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common";
-import type {ChatContentBlock} from "@/types/composables";
-import type {FileObject, PlatformUser} from "@/types/apis";
-import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import {CHAT_CALL_TYPE, VIDEO_CHAT_CONSTRAINTS} from "@/constants/messageConstant.ts";
+import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common"
+import type {ChatContentBlock} from "@/types/composables"
+import type {FileObject, PlatformUser} from "@/types/apis"
+import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface"
+import {CHAT_CALL_TYPE} from "@/constants/messageConstant.ts"
 
 /**
  * 聊天房间
@@ -11,12 +11,12 @@ import {CHAT_CALL_TYPE, VIDEO_CHAT_CONSTRAINTS} from "@/constants/messageConstan
  */
 export interface UserChatRoomEntity extends VersionEntityMetadata {
   /** 业务  id */
-  businessId?: string;
+  businessId?: string
   /** 业务 场景 */
-  businessScene?: string;
+  businessScene?: string
   /** 房间类型 */
-  type?: NameValueEnumMetadata<number> | number;
-  metadata?: Record<string, unknown>;
+  type?: NameValueEnumMetadata<number> | number
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -26,58 +26,58 @@ export interface UserChatRoomEntity extends VersionEntityMetadata {
  */
 export interface UserChatMessageEntity extends VersionEntityMetadata {
   /** 业务  id */
-  userChatRoomId: number;
+  userChatRoomId: number
   /** 内容 */
-  content: ChatContentBlock[];
+  content: ChatContentBlock[]
   /** 发送者 */
-  principal: string;
+  principal: string
   /** 是否撤销 */
   undo: NameValueEnumMetadata<number> | number
   /** 可撤销时间 */
   undoableTime:number
   /** 撤销时间 */
-  undoTime: number;
-  metadata: Record<string, unknown>;
+  undoTime: number
+  metadata: Record<string, unknown>
   type: NameValueEnumMetadata<number> | number
 }
 
 export interface UserChatParticipantDetails {
-  details: PlatformUser;
+  details: PlatformUser
 }
 
 export interface UserChatParticipantMetadata {
   /**
    * 参与者类型
    */
-  type: NameValueEnumMetadata<number> | number;
+  type: NameValueEnumMetadata<number> | number
   /**
    * 元数据信息
    */
-  metadata: UserChatParticipantDetails;
+  metadata: UserChatParticipantDetails
 }
 
 export interface UserChatParticipantEntity extends VersionEntityMetadata, UserChatParticipantMetadata {
-  principal: string;
+  principal: string
 }
 
 export interface ParticipantMetadataMessageResponseBody extends UserChatMessageEntity {
-  participant: UserChatParticipantMetadata;
+  participant: UserChatParticipantMetadata
 }
 
 export interface UserChatMessageResponseBody extends ParticipantMetadataMessageResponseBody {
   /**
    * 可读数量
    */
-  readableCount: number;
+  readableCount: number
   /**
    * 已读数量
    */
-  readCount: number;
+  readCount: number
 
   /**
    * 当前用户是否可读
    */
-  readable: NameValueEnumMetadata<number> | number;
+  readable: NameValueEnumMetadata<number> | number
 }
 
 export interface MessageContentMentionMetadata  {
@@ -117,9 +117,9 @@ export interface BasicUserChatConversation extends VersionEntityMetadata {
 
 export interface UserChatConversationEntity extends BasicUserChatConversation {
   /** 房间 id */
-  userChatRoomId: number;
+  userChatRoomId: number
   /** 最后一条消息内容 */
-  lastUserChatMessageId: number;
+  lastUserChatMessageId: number
 }
 
 export interface UserChatConversationResponseBody extends BasicUserChatConversation {
@@ -137,65 +137,70 @@ export interface UserChatMessageReadEntity extends VersionEntityMetadata {
   /**
    * 业务  id
    */
-  userChatMessageId: number;
+  userChatMessageId: number
 
   /**
    * 发送者
    */
-  principal: string;
+  principal: string
 
   /**
    * 是否可读
    */
-  readable: NameValueEnumMetadata<number> | number;
+  readable: NameValueEnumMetadata<number> | number
 
   /**
    * 读取时间
    */
-  readTime: number;
+  readTime: number
 }
 
 export interface UserChatMessageReadResponseBody extends UserChatMessageReadEntity {
-  participant: UserChatParticipantMetadata;
+  participant: UserChatParticipantMetadata
 }
 
-export type ChatCallType = typeof CHAT_CALL_TYPE.VIDEO | typeof CHAT_CALL_TYPE.VOICE;
+export type ChatCallType = typeof CHAT_CALL_TYPE.VIDEO | typeof CHAT_CALL_TYPE.VOICE
 
 export interface UserChatCallEntity extends VersionEntityMetadata {
   /**
    * 业务  id
    */
-  userChatRoomId: number;
+  userChatRoomId: number
 
   /**
    * 房间类型
    */
-  type: NameValueEnumMetadata<number> | number;
+  type: NameValueEnumMetadata<number> | number
 
   /**
    * 元数据信息
    */
-  metadata: Record<string, unknown>;
+  metadata: Record<string, unknown>
 
   /**
    * 开始时间
    */
-  startTime: number;
+  startTime: number
 
   /**
    * 结束时间
    */
-  endTime: number;
+  endTime: number
 
   /**
    * 状态
    */
-  status: NameValueEnumMetadata<number> | number;
+  status: NameValueEnumMetadata<number> | number
+
+  /**
+   * 场景
+   */
+  scene: NameValueEnumMetadata<number> | number
 
   /**
    * 名称
    */
-  name: string;
+  name: string
 }
 
 export interface UserChatCallParticipantEntity extends VersionEntityMetadata, UserChatParticipantMetadata {
@@ -203,23 +208,23 @@ export interface UserChatCallParticipantEntity extends VersionEntityMetadata, Us
   /**
      * 聊天通话逐渐 id
      */
-  userChatCallId: number;
+  userChatCallId: number
 
 
   /**
    * 状态
    */
-  status: NameValueEnumMetadata<number> | number;
+  status: NameValueEnumMetadata<number> | number
 
   /**
    * 加入时间
    */
-  joinTime: number;
+  joinTime: number
 
   /**
    * 离开时间
    */
-  leaveTime: number;
+  leaveTime: number
 }
 
 export interface UserChatCallResponseBody extends UserChatCallEntity {

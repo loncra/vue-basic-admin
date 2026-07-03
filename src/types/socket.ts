@@ -18,6 +18,7 @@ export type SocketBusinessEventPayloadMap = {
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION]: RestResult<UserChatMessageResponseBody>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ]: RestResult<UserChatMessageResponseBody>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO]: RestResult<UserChatMessageEntity>
+  [SOCKET_EVENT_TYPE.CHAT_MESSAGE_UPDATE]: RestResult<UserChatMessageResponseBody>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ_UPDATE]: RestResult<IdValueMetadata<number, number>[]>
 
   [SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH]: RestResult<number>
@@ -25,7 +26,6 @@ export type SocketBusinessEventPayloadMap = {
   [SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID]: RestResult<number>
 
   [SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE]: RestResult<UserChatConversationResponseBody>
-
 
   [SOCKET_EVENT_TYPE.CHAT_CALL]: RestResult<IdValueMetadata<number, PlatformUser>>
   [SOCKET_EVENT_TYPE.CHAT_CALL_COMPLETED]: RestResult<UserChatCallEntity>

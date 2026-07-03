@@ -31,6 +31,7 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_MESSAGE_MENTION: 'chat_message_mention',
   CHAT_MESSAGE_READ:'chat_message_read',
   CHAT_MESSAGE_UNDO:'chat_message_undo',
+  CHAT_MESSAGE_UPDATE:'chat_message_update',
   CHAT_MESSAGE_READ_UPDATE:'chat_message_read_update',
 
   CHAT_CALL:'chat_call',

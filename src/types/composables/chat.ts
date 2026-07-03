@@ -1,5 +1,6 @@
 import type {
   IdValueMetadata,
+  NameValueEnumMetadata,
   ObjectWriteResult,
   PageResult,
   UserChatConversationResponseBody,
@@ -37,6 +38,14 @@ export interface ReferenceBlock {
   value: UserChatMessageResponseBody[]
 }
 
+export interface CallBlock {
+  type: 'custom'
+  slotKind: 'call'
+  userChatCallId:number
+  value:NameValueEnumMetadata<number>
+  status:NameValueEnumMetadata<number>
+}
+
 export interface UndoBlock {
   slotKind: 'undo'
   type: 'custom'
@@ -55,6 +64,7 @@ export type ChatContentBlock =
   | ReferenceBlock
   | UndoBlock
   | InstructionBlock
+  | CallBlock
 
 export type FilesSlotProps = {
   slotKind: 'files'

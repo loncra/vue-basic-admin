@@ -1,15 +1,16 @@
 <script setup lang="ts">
 
 import useApp from "antdv-next/dist/app/useApp";
-import {type ComponentInternalInstance, getCurrentInstance, inject} from "vue";
-import {HOME_CHAT_CALL_MODEL_OPEN_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {UserChatCallResponseBody, UserChatParticipantEntity} from "@/types/apis";
+import type {UserChatParticipantEntity} from "@/types/apis";
 import type {MenuItemType} from "antdv-next";
 import {CHAT_CALL_TYPE} from "@/constants/messageConstant.ts";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, getDevicesUserMedia, requireNonNullOrUndefined} from "@/utils";
 import type {ServerConversationItem} from "@/types/composables";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
+import {getMediaStreamConstraintsByRoom} from "@/utils/chatCallUtils.ts";
+import {useChatCallModelExpose} from "@/composables";
 
 defineOptions({
   name: 'LChatCallButton',
@@ -20,10 +21,6 @@ const globalProperties =
     .globalProperties
 
 const props = withDefaults(defineProps<{
-  constraints?:{
-    video:MediaStreamConstraints,
-    voice:MediaTrackConstraints
-  }
   participants:UserChatParticipantEntity[]
   conversation:ServerConversationItem
 }>(),{
@@ -32,17 +29,16 @@ const props = withDefaults(defineProps<{
 const {message} = useApp()
 
 const principalStore = usePrincipalStore()
-
-const openChatCallModel = inject<(title:string, stream:MediaStream, userChatCall:UserChatCallResponseBody) => void>(HOME_CHAT_CALL_MODEL_OPEN_PROVIDE_KEY)
+const chatCallModelExpose = useChatCallModelExpose()
 
 const items: MenuItemType[] = [
   {
-    label: globalProperties.$t('chat.call.video'),
+    label: globalProperties.$t('chat.call.video.action'),
     key: CHAT_CALL_TYPE.VIDEO,
     icon:createIcon('loncra-video')
   },
   {
-    label: globalProperties.$t('chat.call.voice'),
+    label: globalProperties.$t('chat.call.voice.action'),
     key: CHAT_CALL_TYPE.VOICE,
     icon:createIcon('loncra-mic')
   },
@@ -58,7 +54,7 @@ async function videoCall() {
   }
   let stream;
   try {
-    stream = await navigator.mediaDevices.getUserMedia(props.constraints?.video)
+    stream = await getDevicesUserMedia(getMediaStreamConstraintsByRoom(props.conversation.data.room))
     const principals = props.participants.filter(p => p.principal !== principalStore.state.name).map(p => p.principal)
     const createResult = await ChatCallService.create(
       Number(props.conversation.data.room.id),
@@ -68,8 +64,8 @@ async function videoCall() {
     if (!createResult.data) {
       return
     }
-    openChatCallModel?.(
-      props.conversation.label + ' ' + globalProperties.$t('chat.call.video') ,
+    chatCallModelExpose.openChatCallModel(
+      globalProperties.$t('chat.call.video.title',{user:props.conversation.label}),
       stream,
       createResult.data
     )

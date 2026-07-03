@@ -263,6 +263,9 @@ const locale: LanguagePack = {
     errorMessage: 'Error message',
     code: 'Error code',
     field: 'Field information',
+    unSupport: {
+      userMedia:'The current browser does not support user media access'
+    },
     valid: {
       phoneNumber: 'Invalid phone number format',
       password:
@@ -509,9 +512,15 @@ const locale: LanguagePack = {
       flags: 'Flags',
     },
     call: {
-      video:'Video Call',
-      voice:'Voice Call',
-      invitation:'{principal} invites you {type}',
+      video:{
+        action:'Video Call',
+        title: 'video call with {principal}'
+      },
+      voice:{
+        action:'Voice Call',
+        title: 'voice call with {principal}'
+      },
+      invitation:'{user} invites you {type}',
       closeCountdown:'The call has ended and will automatically close after s seconds',
     },
     conversation: {

@@ -284,6 +284,9 @@ const locale: LanguagePack = {
     errorMessage:'错误信息',
     code:'错误代码',
     field:'字段信息',
+    unSupport: {
+      userMedia:'当前浏览器不支持用户媒体调用'
+    },
     valid:{
       phoneNumber:'手机号码格式不正确',
       password:'密码段中在要求的四种(大写字母，小写字母，数字，标点符号)类型中至少存在三种'
@@ -502,13 +505,19 @@ const locale: LanguagePack = {
       flags:'旗帜',
     },
     call: {
-      video:'视频通话',
-      voice:'语音通话',
-      invitation:'{principal} 邀请您 {type}',
+      video:{
+        action:'视频通话',
+        title: '与 {user} 视频通话'
+      },
+      voice:{
+        action:'语音通话',
+        title: '与 {user} 语音通话'
+      },
+      invitation:'{user} 邀请您 {type}',
       closeCountdown:'通话已结束 s 秒后自动关闭',
     },
     notification:{
-      mention:'{principal}在消息中提到了你'
+      mention:'{principal} 在消息中提到了你'
     },
     conversation:{
       delete:'删除会话',
