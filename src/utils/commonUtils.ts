@@ -338,10 +338,3 @@ export function validatePassword(newPassword:string, confirmPassword:string) {
     return Promise.resolve();
   }
 }
-
-export function getDevicesUserMedia(constraints:MediaStreamConstraints | undefined){
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    throw new Error(i18n.global.t('error.unSupport.userMedia'))
-  }
-  return navigator.mediaDevices.getUserMedia(constraints)
-}

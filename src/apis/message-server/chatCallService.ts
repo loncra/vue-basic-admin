@@ -1,7 +1,7 @@
 import type {
   ChatCallType,
   RestResult,
-  UserChatCallEntity,
+  UserChatCallEntity, UserChatCallParticipantEntity,
   UserChatCallResponseBody
 } from "@/types/apis";
 import axios from "@/requests/http.ts";
@@ -34,7 +34,7 @@ export class ChatCallService {
     return axios.delete(ChatCallService.SERVICE_URL,{params:formUrlEncoded({userChatCallId})})
   }
 
-  static accept(userChatCallId:number):Promise<RestResult<void>> {
+  static accept(userChatCallId:number):Promise<RestResult<UserChatCallParticipantEntity>> {
     return axios.put(ChatCallService.ACCEPT_URL + "/" + userChatCallId)
   }
 

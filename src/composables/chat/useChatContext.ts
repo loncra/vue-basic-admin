@@ -1,7 +1,8 @@
 import {inject, provide, type Ref, ref} from 'vue'
 import type {ConversationActiveProps, ServerConversationItem} from '@/types/composables'
 import type {UserChatConversationResponseBody} from '@/types/apis'
-import {CHAT_CONTEXT_PROVIDE_KEY, DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
+import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
+import {CHAT_CONTEXT_PROVIDE_KEY} from '@/constants/messageConstant.ts'
 import {useChatConversations} from '@/composables/chat/useChatConversations.ts'
 import {
   type ChatViewController,

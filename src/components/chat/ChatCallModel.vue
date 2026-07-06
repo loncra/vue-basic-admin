@@ -21,7 +21,7 @@ const chatCallModelContext = useChatCallModelExpose()
       :closable="false"
       :classes="{container: 'p-0', header: 'p-xs m-0 text-center'}"
       :mask-closable="false"
-      :width="(chatCallModelContext.context?.localStream?.getVideoTracks().at(-1)?.getSettings()?.width || 0) / 1.5"
+      :width="chatCallModelContext.context.model.width"
       :footer="null"
       @cancel="chatCallModelContext.handleCancel">
       <template #title>

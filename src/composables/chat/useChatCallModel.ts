@@ -3,7 +3,9 @@ import {
   getCurrentInstance,
   h,
   inject,
+  markRaw,
   provide,
+  type Raw,
   type Ref,
   ref,
   type VNode
@@ -15,20 +17,23 @@ import type {
   UserChatCallParticipantEntity,
   UserChatCallResponseBody
 } from "@/types/apis";
-import {createIcon, getDevicesUserMedia, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useSocketSubscriptions} from "@/composables";
-import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {
+  CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY,
+  MESSAGE_GROUP,
+  SOCKET_EVENT_TYPE
+} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
-import {HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY} from "@/constants/systemConstant.ts";
 import {isBusinessSuccess} from "@/requests";
 import {AuthServerService} from "@/apis";
-import {getMediaStreamConstraintsByCall} from "@/utils/chatCallUtils.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import useApp from "antdv-next/dist/app/useApp";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {Button, Space} from "antdv-next";
+import {LocalAudioTrack, type LocalVideoTrack, Room} from "livekit-client";
 
 export interface UseChatCallModelParams {
   closeTimerValue: Ref<TimeProperties>;
@@ -36,6 +41,7 @@ export interface UseChatCallModelParams {
 
 export interface ChatCallModelProps {
   title:string
+  width?:number
   loading:boolean
 }
 
@@ -46,15 +52,18 @@ export interface ChatCallModelInnerProps extends ChatCallModelProps{
 
 export interface ChatCallModelContext {
   model:ChatCallModelProps,
-  localStream?:MediaStream,
-  userChatCall?:UserChatCallResponseBody
+  room?:Raw<Room>,
+  userChatCall?:UserChatCallResponseBody,
+  previewTrack?:{
+    video?: Raw<LocalVideoTrack>
+    audio?: Raw<LocalAudioTrack>
+  }
 }
 
 export interface ChatCallModelExpose {
   context:ChatCallModelContext,
   openChatCallModel:(
     title:string,
-    stream:MediaStream,
     _userChatCall:UserChatCallResponseBody
   ) => void,
   handleCancel:() => void,
@@ -82,7 +91,8 @@ export interface ChatCallModelExpose {
     userChatCallId: number,
     onAccept: (key: string, id: number, loading: Ref<boolean>) => void,
     onRejected: (key: string, id: number, loading: Ref<boolean>) => void
-  ) => VNode
+  ) => VNode,
+  updateParticipant:(participant:UserChatCallParticipantEntity) => void,
 }
 
 export function provideChatCllExpose(config:UseChatCallModelParams) {
@@ -106,7 +116,6 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
 
   async function openChatCallModel(
     title:string,
-    stream:MediaStream,
     _userChatCall:UserChatCallResponseBody
   ) {
     const model = context.value.model as ChatCallModelInnerProps
@@ -114,12 +123,32 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     model.title = title;
 
     context.value.userChatCall = _userChatCall;
-    context.value.localStream = stream
+    context.value.room = markRaw(new Room({
+      // automatically manage subscribed video quality
+      adaptiveStream: true,
+      // optimize publishing bandwidth and CPU for published tracks
+      dynacast: true,
+    }));
   }
 
-  function stopLocalStream() {
-    context.value.localStream?.getTracks().forEach((track) => track.stop())
-    context.value.localStream = undefined
+  function resetContext() {
+    context.value.model.width = undefined
+    context.value.userChatCall = undefined
+
+    if (context.value?.previewTrack?.audio) {
+      context.value.previewTrack.audio.stop()
+      context.value.previewTrack.audio = undefined
+    }
+
+    if (context.value?.previewTrack?.video) {
+      context.value.previewTrack.video.stop()
+      context.value.previewTrack.video = undefined
+    }
+
+    if (context.value.room) {
+      context.value.room.disconnect()
+      context.value.room = undefined
+    }
   }
 
   async function handleCancel() {
@@ -130,7 +159,7 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
         await ChatCallService.completed(Number(context.value.userChatCall.id))
       }
       model.open = false
-      stopLocalStream()
+      resetContext()
     } finally {
       model.loading = false
     }
@@ -149,14 +178,10 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     model.closeTimerValue = globalProperties.$dayjs().add(config.closeTimerValue.value.value, config.closeTimerValue.value.unit).valueOf()
   }
 
-  function onChatCallConfirm(result:RestResult<UserChatCallParticipantEntity>){
-    if (!result.data) {
-      return
-    }
+  function updateParticipant(participant:UserChatCallParticipantEntity){
     if (!context.value.userChatCall) {
       return
     }
-    const participant = result.data
     const index = context.value.userChatCall.participants.findIndex(p => participant.id === p.id)
     if (index < 0) {
       return
@@ -189,28 +214,17 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
   ) {
     try {
       loading.value = true
-      const result = await ChatCallService.accept(Number(callEntity.id))
-      if (isBusinessSuccess(result)) {
-        destroy(key)
-      }
+
+      destroy(key)
+      await openChatCallModel(' ', callEntity)
       await messageServerStore.fetchUnreadQuantity()
 
-      //const name = AuthServerService.getPrincipalNameByUserDetails(user)
-
-      let title = callEntity.name;
-      if (getEnumValue(callEntity.scene) === 10) {
-        const key = getEnumValue(callEntity.type) === 10 ? "chat.call.video.title" : "chat.call.video.title";
-        const participant = callEntity.participants.find(s => s.principal !== principalStore.state.name)
-        if (participant) {
-          const name = AuthServerService.getPrincipalNameByUserDetails(participant.metadata.details)
-          title = globalProperties.$t(key,{name,})
-        } else {
-          title = globalProperties.$t('common.unname')
-        }
+      const result = await ChatCallService.accept(Number(callEntity.id))
+      if (!result.data) {
+        await handleCancel()
+        return
       }
 
-      const stream = await getDevicesUserMedia(getMediaStreamConstraintsByCall(callEntity))
-      await openChatCallModel(title, stream, callEntity)
     } catch (error) {
       message.error(error instanceof Error ? error.message : String(error))
     } finally {
@@ -264,7 +278,7 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
             onClick: () => destroy(key),
           },
           {
-            icon: createIcon('loncra-message-square-off', 'align'),
+            icon: () => createIcon('loncra-message-square-off', 'align'),
             default: () => globalProperties.$t('common.ignore')
           },
         ),
@@ -278,7 +292,7 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
             onClick: () => onAccept(key, userChatCallId, loading),
           },
           {
-            icon: createIcon('loncra-message-square-check', 'align'),
+            icon: () => createIcon('loncra-message-square-check', 'align'),
             default: () => globalProperties.$t('common.accept')
           },
         ),
@@ -292,17 +306,12 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
             onClick: () => onRejected(key, userChatCallId, loading),
           },
           {
-            icon: createIcon('loncra-message-square-x', 'align'),
+            icon: () => createIcon('loncra-message-square-x', 'align'),
             default: () => globalProperties.$t('common.rejected')
           },
         )
       ])
   }
-
-  on(
-    SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM,
-    (payload) => onChatCallConfirm(parseSocketRestPayload<UserChatCallParticipantEntity>(payload))
-  )
 
   on(
     SOCKET_EVENT_TYPE.CHAT_CALL_COMPLETED,
@@ -317,16 +326,17 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     rejectedCall:rejectedCall,
     acceptCallByChatCallId:acceptCallByChatCallId,
     rejectedCallByChatCallId:rejectedCallByChatCallId,
-    createChatCallAction:createChatCallAction
+    createChatCallAction:createChatCallAction,
+    updateParticipant:updateParticipant
   }
 
-  provide(HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY, exportContext)
+  provide(CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY, exportContext)
 
   return exportContext
 }
 
 export function useChatCallModelExpose(): ChatCallModelExpose {
-  const ctx = inject<ChatCallModelExpose>(HOME_CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY)
+  const ctx = inject<ChatCallModelExpose>(CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY)
   if (!ctx) {
     throw new Error('useChatCallModelContext() 必须在 provideChatContext() 的组件子树内调用')
   }

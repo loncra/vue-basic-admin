@@ -1,4 +1,4 @@
-import type {NameValueEnumMetadata, VersionEntityMetadata} from "../common"
+import type {IdValueMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "../common"
 import type {ChatContentBlock} from "@/types/composables"
 import type {FileObject, PlatformUser} from "@/types/apis"
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface"
@@ -203,6 +203,11 @@ export interface UserChatCallEntity extends VersionEntityMetadata {
   name: string
 }
 
+
+export interface UserChatCallParticipantMetadata extends UserChatParticipantDetails {
+    liveKit: IdValueMetadata<string, string>
+}
+
 export interface UserChatCallParticipantEntity extends VersionEntityMetadata, UserChatParticipantMetadata {
 
   /**
@@ -229,6 +234,8 @@ export interface UserChatCallParticipantEntity extends VersionEntityMetadata, Us
    * 用户唯一识别
    */
   principal: string
+
+  metadata: UserChatCallParticipantMetadata
 }
 
 export interface UserChatCallResponseBody extends UserChatCallEntity {

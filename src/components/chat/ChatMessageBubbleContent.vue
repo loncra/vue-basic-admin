@@ -51,8 +51,17 @@ const emit = defineEmits<{
       {{ block.value.value }}
     </a-tag>
     <a-space v-else-if="block.type === 'custom' && block.slotKind === 'call'">
-      <icon-font :type="getCallIcon(block.value)" />
-      <a-badge :status="getParticipantBadgeStatus(block.status)" :text="getEnumName(block.status)" />
+
+      <a-badge :status="getParticipantBadgeStatus(block.status)">
+        <template #text>
+          <a-space>
+            <icon-font :type="getCallIcon(block.value)" />
+            <a-typography-text>
+              {{getEnumName(block.status)}}
+            </a-typography-text>
+          </a-space>
+        </template>
+      </a-badge>
       <component
         v-if="getEnumValue(block.status) === 10 && block.caller !== principalStore.state.name && getEnumValue(block.scene) === 10"
         :is="chatCallModelExpose.createChatCallAction(block.userChatCallId, chatCallModelExpose.acceptCallByChatCallId, chatCallModelExpose.rejectedCallByChatCallId)"

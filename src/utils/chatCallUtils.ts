@@ -6,12 +6,14 @@ import {VIDEO_CHAT_CONSTRAINTS} from "@/constants/messageConstant.ts";
 
 export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> | number) {
   const value = getEnumValue(status)
-  if ([50,60,61,62,63].includes(value)) {
+  if ([50,60,61,63].includes(value)) {
     return "error"
   } else if ([10, 20, 30].includes(value)) {
     return "processing"
   } else if ([40].includes(value)) {
     return "success"
+  } else if ([62].includes(value)) {
+    return "default"
   } else {
     return "warning"
   }
@@ -31,6 +33,11 @@ export function getCallIcon(type:NameValueEnumMetadata<number> | number, vnode?:
   }
 }
 
+/**
+ * 
+ * @param callEntity 
+ * @returns 
+ */
 export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
   if (getEnumValue(callEntity.type) === 10) {
     return VIDEO_CHAT_CONSTRAINTS.PREVATE;
@@ -38,7 +45,11 @@ export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
     return VIDEO_CHAT_CONSTRAINTS.GROUP;
   }
 }
-
+/**
+ * 
+ * @param callEntity 
+ * @returns 
+ */
 export function getMediaStreamConstraintsByRoom(room:UserChatRoomEntity) {
   if (getEnumValue(room.type) === 20) {
     return VIDEO_CHAT_CONSTRAINTS.PREVATE;
