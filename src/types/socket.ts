@@ -28,6 +28,7 @@ export type SocketBusinessEventPayloadMap = {
   [SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE]: RestResult<UserChatConversationResponseBody>
 
   [SOCKET_EVENT_TYPE.CHAT_CALL]: RestResult<IdValueMetadata<number, PlatformUser>>
+  [SOCKET_EVENT_TYPE.CHAT_CALL_UPDATE]: RestResult<UserChatCallEntity>
   [SOCKET_EVENT_TYPE.CHAT_CALL_COMPLETED]: RestResult<UserChatCallEntity>
   [SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM]: RestResult<UserChatCallParticipantEntity>
 }

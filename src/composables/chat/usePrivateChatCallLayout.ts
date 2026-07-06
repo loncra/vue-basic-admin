@@ -1,4 +1,4 @@
-import {useChatCallModelExpose, useSocketSubscriptions} from "@/composables";
+import {useChatCallModalExpose, useSocketSubscriptions} from "@/composables";
 import {
   type ComponentInternalInstance,
   computed,
@@ -16,7 +16,6 @@ import {
   type AudioCaptureOptions,
   createLocalAudioTrack,
   createLocalVideoTrack,
-  type Room,
   RoomEvent,
   Track,
   type VideoCaptureOptions
@@ -31,7 +30,7 @@ export interface TargetParticipant extends UserChatCallParticipantEntity {
 
 export function usePrivateChatCallLayout() {
   const {on} = useSocketSubscriptions()
-  const chatCallExpose = useChatCallModelExpose();
+  const chatCallExpose = useChatCallModalExpose();
   const targetFullWindow = ref<boolean>(true)
   const localParticipantVideoRef = ref<HTMLVideoElement>()
   const remoteParticipantVideoRef = ref<HTMLVideoElement>()
@@ -63,7 +62,21 @@ export function usePrivateChatCallLayout() {
       audio: markRaw(previewAudioTrack)
     }
     previewVideoTrack.attach(localParticipantVideoRef.value)
+    const settings = previewVideoTrack?.mediaStreamTrack?.getSettings()
+    const width = settings?.width
+    if (typeof width === 'number' && width > 0) {
+      chatCallExpose.context.modal.width = width / 1.5
+    }
+  }
 
+  function getLocalParticipantVideoStyle() {
+    if (!targetFullWindow.value) {
+      return undefined
+    }
+    return chatCallExpose.context.modal.width ? {
+      height: 'auto',
+      width: (chatCallExpose.context.modal.width / 4) + "px"
+    } : undefined
   }
 
   async function mounted() {
@@ -76,11 +89,10 @@ export function usePrivateChatCallLayout() {
 
     if (targetParticipant.value) {
       const name = AuthServerService.getPrincipalNameByUserDetails(targetParticipant.value.metadata.details)
-      chatCallExpose.context.model.title = globalProperties.$t(key,{name,})
+      chatCallExpose.context.modal.title = globalProperties.$t(key,{user:name})
     } else {
-      chatCallExpose.context.model.title = globalProperties.$t('common.unname')
+      chatCallExpose.context.modal.title = globalProperties.$t('common.unname')
     }
-
     await startLocalPreview();
   }
 
@@ -96,7 +108,7 @@ export function usePrivateChatCallLayout() {
 
   function changeFullWindow() {
     targetFullWindow.value = !targetFullWindow.value
-    
+
   }
 
   async function onChatCallConfirm(result:RestResult<UserChatCallParticipantEntity>){
@@ -126,15 +138,28 @@ export function usePrivateChatCallLayout() {
 
       await nextTick()
       room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-        if (track.kind === Track.Kind.Video && !participant.isLocal) {
+        if (participant.isLocal) {
+          return
+        }
+
+        if (track.kind === Track.Kind.Video) {
           track.attach(remoteParticipantVideoRef.value!)
+        } else if (track.kind === Track.Kind.Audio) {
+          track.attach() // 或 attach 到专用 <audio> 元素
         }
       })
-      const previewVideo = chatCallExpose.context.previewTrack
-      if (previewVideo && previewVideo.video) {
-        await room.localParticipant.publishTrack(previewVideo.video)
+
+      const previewTrack = chatCallExpose.context.previewTrack
+      if (previewTrack && previewTrack.video) {
+        await room.localParticipant.publishTrack(previewTrack.video)
       } else {
         await room.localParticipant.setCameraEnabled(true)
+      }
+
+      if (previewTrack && previewTrack?.audio) {
+        await room.localParticipant.publishTrack(previewTrack.audio)
+      } else {
+        await room.localParticipant.setMicrophoneEnabled(true)
       }
     }
 
@@ -151,6 +176,7 @@ export function usePrivateChatCallLayout() {
     chatCallExpose,
     targetFullWindow,
     targetParticipant,
-    changeFullWindow
+    changeFullWindow,
+    getLocalParticipantVideoStyle
   }
 }

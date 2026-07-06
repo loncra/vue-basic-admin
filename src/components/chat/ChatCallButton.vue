@@ -9,7 +9,7 @@ import {CHAT_CALL_TYPE} from "@/constants/messageConstant.ts";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {ServerConversationItem} from "@/types/composables";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
-import {useChatCallModelExpose} from "@/composables";
+import {useChatCallModalExpose} from "@/composables";
 
 defineOptions({
   name: 'LChatCallButton',
@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<{
 const {message} = useApp()
 
 const principalStore = usePrincipalStore()
-const chatCallModelExpose = useChatCallModelExpose()
+const chatCallModalExpose = useChatCallModalExpose()
 
 const items: MenuItemType[] = [
   {
@@ -61,7 +61,7 @@ async function videoCall() {
     if (!createResult.data) {
       return
     }
-    chatCallModelExpose.openChatCallModel(
+    chatCallModalExpose.openChatCallModal(
       globalProperties.$t('chat.call.video.title',{user:props.conversation.label}),
       createResult.data
     )

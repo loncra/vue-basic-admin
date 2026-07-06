@@ -1,6 +1,6 @@
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
 export const CHAT_CONTEXT_PROVIDE_KEY = "chatContext"
-export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModelExpose"
+export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModalExpose"
 
 /**
  * 消息分组
@@ -37,6 +37,7 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_MESSAGE_READ_UPDATE:'chat_message_read_update',
 
   CHAT_CALL:'chat_call',
+  CHAT_CALL_UPDATE:'chat_call_update',
   CHAT_CALL_COMPLETED:'chat_call_completed',
   CHAT_CALL_CONFIRM:'chat_call_confirm',
 

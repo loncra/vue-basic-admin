@@ -7,7 +7,7 @@ import {useSlots} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
 import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {useChatCallModelExpose} from "@/composables";
+import {useChatCallModalExpose} from "@/composables";
 
 defineOptions({
   name: 'LChatMessageBubbleContent',
@@ -20,7 +20,7 @@ defineProps<{
 
 const principalStore = usePrincipalStore()
 
-const chatCallModelExpose = useChatCallModelExpose()
+const chatCallModalExpose = useChatCallModalExpose()
 
 const slots = useSlots()
 
@@ -52,19 +52,14 @@ const emit = defineEmits<{
     </a-tag>
     <a-space v-else-if="block.type === 'custom' && block.slotKind === 'call'">
 
-      <a-badge :status="getParticipantBadgeStatus(block.status)">
-        <template #text>
-          <a-space>
-            <icon-font :type="getCallIcon(block.value)" />
-            <a-typography-text>
-              {{getEnumName(block.status)}}
-            </a-typography-text>
-          </a-space>
-        </template>
-      </a-badge>
+      <a-space align="center">
+        <a-badge :status="getParticipantBadgeStatus(block.status)" />
+        <icon-font :type="getCallIcon(block.value)" />
+        <span>{{ getEnumName(block.status) }}</span>
+      </a-space>
       <component
         v-if="getEnumValue(block.status) === 10 && block.caller !== principalStore.state.name && getEnumValue(block.scene) === 10"
-        :is="chatCallModelExpose.createChatCallAction(block.userChatCallId, chatCallModelExpose.acceptCallByChatCallId, chatCallModelExpose.rejectedCallByChatCallId)"
+        :is="chatCallModalExpose.createChatCallAction(block.userChatCallId, chatCallModalExpose.acceptCallByChatCallId, chatCallModalExpose.rejectedCallByChatCallId)"
       >
       </component>
     </a-space>

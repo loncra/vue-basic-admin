@@ -39,19 +39,19 @@ export interface UseChatCallModelParams {
   closeTimerValue: Ref<TimeProperties>;
 }
 
-export interface ChatCallModelProps {
+export interface ChatCallModalProps {
   title:string
   width?:number
   loading:boolean
 }
 
-export interface ChatCallModelInnerProps extends ChatCallModelProps{
+export interface ChatCallModalInnerProps extends ChatCallModalProps{
   open: boolean
   closeTimerValue?:number
 }
 
 export interface ChatCallModelContext {
-  model:ChatCallModelProps,
+  modal:ChatCallModalProps,
   room?:Raw<Room>,
   userChatCall?:UserChatCallResponseBody,
   previewTrack?:{
@@ -62,7 +62,7 @@ export interface ChatCallModelContext {
 
 export interface ChatCallModelExpose {
   context:ChatCallModelContext,
-  openChatCallModel:(
+  openChatCallModal:(
     title:string,
     _userChatCall:UserChatCallResponseBody
   ) => void,
@@ -100,27 +100,26 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
   const { destroy } = useAppNotification()
   const { message } = useApp()
   const messageServerStore = useMessageServerStore()
-  const principalStore = usePrincipalStore()
 
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
 
   const context = ref<ChatCallModelContext>({
-    model:{
+    modal:{
       loading: false,
       open:false,
       title:' '
-    } as ChatCallModelInnerProps
+    } as ChatCallModalInnerProps
   })
 
-  async function openChatCallModel(
+  async function openChatCallModal(
     title:string,
     _userChatCall:UserChatCallResponseBody
   ) {
-    const model = context.value.model as ChatCallModelInnerProps
-    model.open = true;
-    model.title = title;
+    const modal = context.value.modal as ChatCallModalInnerProps
+    modal.open = true;
+    modal.title = title;
 
     context.value.userChatCall = _userChatCall;
     context.value.room = markRaw(new Room({
@@ -132,7 +131,11 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
   }
 
   function resetContext() {
-    context.value.model.width = undefined
+    context.value.modal.width = undefined
+    const innerModel = (context.value.modal as ChatCallModalInnerProps)
+    if (innerModel.closeTimerValue) {
+      innerModel.closeTimerValue = undefined
+    }
     context.value.userChatCall = undefined
 
     if (context.value?.previewTrack?.audio) {
@@ -152,20 +155,34 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
   }
 
   async function handleCancel() {
-    const model = context.value.model as ChatCallModelInnerProps
+    const modal = context.value.modal as ChatCallModalInnerProps
     try {
-      model.loading = true
+      modal.loading = true
       if (context.value.userChatCall && getEnumValue(context.value.userChatCall.status) !== 30) {
         await ChatCallService.completed(Number(context.value.userChatCall.id))
       }
-      model.open = false
+
+      modal.open = false
       resetContext()
     } finally {
-      model.loading = false
+      modal.loading = false
     }
   }
 
-  async function onChatCallComplete(result:RestResult<UserChatCallEntity>){
+  function onChatCallComplete(result:RestResult<UserChatCallEntity>){
+    onChatCallUpdate(result)
+    if (!result.data) {
+      return ;
+    }
+    const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(result.data.id)
+    destroy(key)
+    const modal = context.value.modal as ChatCallModalInnerProps
+    if (modal.open) {
+      modal.closeTimerValue = globalProperties.$dayjs().add(config.closeTimerValue.value.value, config.closeTimerValue.value.unit).valueOf()
+    }
+  }
+
+  function onChatCallUpdate(result:RestResult<UserChatCallEntity>){
     if (!result.data) {
       return
     }
@@ -174,8 +191,6 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     }
 
     context.value.userChatCall = {...context.value.userChatCall, ...result.data}
-    const model = context.value.model as ChatCallModelInnerProps
-    model.closeTimerValue = globalProperties.$dayjs().add(config.closeTimerValue.value.value, config.closeTimerValue.value.unit).valueOf()
   }
 
   function updateParticipant(participant:UserChatCallParticipantEntity){
@@ -216,7 +231,7 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
       loading.value = true
 
       destroy(key)
-      await openChatCallModel(' ', callEntity)
+      await openChatCallModal(' ', callEntity)
       await messageServerStore.fetchUnreadQuantity()
 
       const result = await ChatCallService.accept(Number(callEntity.id))
@@ -318,10 +333,15 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     (payload) => onChatCallComplete(parseSocketRestPayload<UserChatCallEntity>(payload))
   )
 
+  on(
+    SOCKET_EVENT_TYPE.CHAT_CALL_UPDATE,
+    (payload) => onChatCallUpdate(parseSocketRestPayload<UserChatCallEntity>(payload))
+  )
+
   const exportContext:ChatCallModelExpose = {
     context:context.value,
     handleCancel:handleCancel,
-    openChatCallModel:openChatCallModel,
+    openChatCallModal:openChatCallModal,
     acceptCall:acceptCall,
     rejectedCall:rejectedCall,
     acceptCallByChatCallId:acceptCallByChatCallId,
@@ -335,7 +355,7 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
   return exportContext
 }
 
-export function useChatCallModelExpose(): ChatCallModelExpose {
+export function useChatCallModalExpose(): ChatCallModelExpose {
   const ctx = inject<ChatCallModelExpose>(CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY)
   if (!ctx) {
     throw new Error('useChatCallModelContext() 必须在 provideChatContext() 的组件子树内调用')

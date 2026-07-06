@@ -21,7 +21,8 @@ const {
   mounted,
   localParticipantVideoRef,
   remoteParticipantVideoRef,
-  changeFullWindow
+  changeFullWindow,
+  getLocalParticipantVideoStyle
 } = usePrivateChatCallLayout()
 
 onMounted(mounted)
@@ -31,11 +32,12 @@ onMounted(mounted)
 <template>
   <video
     ref="localParticipantVideoRef"
-    @click="targetFullWindow ? changeFullWindow : undefined"
+    @click="targetFullWindow ? changeFullWindow() : undefined"
     :class="[
       'block opacity-99 object-contain',
       targetFullWindow ? miniWindowClass : 'size-full'
     ]"
+    :style="getLocalParticipantVideoStyle()"
     autoplay
     playsinline
     muted
@@ -49,9 +51,9 @@ onMounted(mounted)
       justify="center"
       align="center"
       gap="small"
-      @click="!targetFullWindow ? changeFullWindow : undefined"
+      @click="!targetFullWindow ? changeFullWindow() : undefined"
       :class="[
-        targetFullWindow ? 'min-h-100' : miniWindowClass
+        targetFullWindow ? 'min-h-100' : miniWindowClass,
       ]"
       v-if="getEnumValue(targetParticipant.status) !== 40"
     >
@@ -68,11 +70,11 @@ onMounted(mounted)
       ref="remoteParticipantVideoRef"
       autoplay
       playsinline
-      muted
     />
   </template>
 
   <a-flex
+    v-if="getEnumValue(chatCallExpose.context.userChatCall?.status) !== 30"
     justify="space-between"
     align="center"
     class="absolute bottom-0 left-0 w-full p-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -95,7 +97,7 @@ onMounted(mounted)
         type="primary"
         danger
         @click="chatCallExpose.handleCancel"
-        :loading="chatCallExpose.context.model.loading"
+        :loading="chatCallExpose.context.modal.loading"
       >
         <template #icon>
           <icon-font type="loncra-power"/>

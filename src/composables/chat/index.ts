@@ -32,13 +32,13 @@ export {
 } from './useChatMessageSender.ts'
 export {useChatHistories, type ChatHistoriesApi} from './useChatHistories.ts'
 export {
-  useChatCallModelExpose,
+  useChatCallModalExpose,
   provideChatCllExpose,
   type UseChatCallModelParams,
-  type ChatCallModelProps,
+  type ChatCallModalProps,
   type ChatCallModelContext,
   type ChatCallModelExpose,
-  type ChatCallModelInnerProps,
+  type ChatCallModalInnerProps,
 } from './useChatCallModel.ts'
 export {
   useChatNotification
