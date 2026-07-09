@@ -5,11 +5,22 @@ import {
   getCurrentInstance,
   markRaw,
   nextTick,
-  ref
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
 } from "vue";
 import {getEnumValue, getMediaStreamConstraintsByCall, requireNonNullOrUndefined} from "@/utils";
 import type {RestResult, UserChatCallParticipantEntity} from "@/types/apis";
-import {getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
+import {
+  computePrivateCallLayout,
+  getCallLayoutConstraints,
+  getParticipantBadgeStatus,
+  isPrivateCallLeftRightSplit,
+  readVideoMetrics,
+  readVideoMetricsFromElement,
+  type VideoMetrics,
+} from "@/utils/chatCallUtils.ts";
 import {CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {
@@ -23,32 +34,32 @@ import {
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
-import type { Room, Participant } from "livekit-client";
-import type { ChatCallPrivateSplitScreenType } from "@/types/composables/chat";
-
+import type {Participant, Room} from "livekit-client";
+import type {CSSProperties} from "vue";
+import type {ChatCallModalInnerProps} from "@/composables/chat/useChatCallModel.ts";
 
 export interface TargetParticipant extends UserChatCallParticipantEntity {
   badgeStatus:string
 }
+
+const miniWindowClass =
+  'absolute opacity-80 top-0 left-0 rounded-lg border border-border-secondary m-xs shadow-card bg-container cursor-pointer z-10'
 
 export function usePrivateChatCallLayout() {
   const {on} = useSocketSubscriptions()
   const chatCallExpose = useChatCallModalExpose();
   const localParticipantVideoRef = ref<HTMLVideoElement>()
   const remoteParticipantVideoRef = ref<HTMLVideoElement>()
-  const options = ref<{
-    targetFullWindow:boolean
-    microphoneEnabled:boolean
-    cameraEnabled:boolean
-    splitScreenType:ChatCallPrivateSplitScreenType
-  }>({
+  const streamMetrics = ref<{local?: VideoMetrics; remote?: VideoMetrics}>({})
+  const viewportTick = ref(0)
+
+  const options = ref({
     targetFullWindow:true,
     microphoneEnabled:true,
     cameraEnabled:true,
-    splitScreenType:CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT
+    splitScreenType:CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT as typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT | typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT,
   })
 
-  // 远端媒体状态（用于 UI）
   const remoteMediaState = ref({
     microphoneEnabled: true,
     cameraEnabled: true,
@@ -60,6 +71,64 @@ export function usePrivateChatCallLayout() {
     requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
       .globalProperties
 
+  const isLeftRightSplit = computed(() => isPrivateCallLeftRightSplit(options.value.splitScreenType))
+
+  const isNativeFullscreen = computed(() => {
+    const modal = chatCallExpose.context.modal as ChatCallModalInnerProps
+    return modal.fullscreen ?? false
+  })
+
+  const layoutConstraints = computed(() => {
+    viewportTick.value
+    const modal = chatCallExpose.context.modal as ChatCallModalInnerProps
+    return getCallLayoutConstraints(modal.fullscreen ?? false)
+  })
+
+  const layoutSpec = computed(() =>
+    computePrivateCallLayout(
+      options.value.splitScreenType,
+      streamMetrics.value,
+      layoutConstraints.value,
+      options.value.targetFullWindow,
+    ),
+  )
+
+  watch(layoutSpec, (spec) => {
+    if (isNativeFullscreen.value) {
+      return
+    }
+    chatCallExpose.context.modal.width = spec.modalWidth
+    chatCallExpose.context.modal.height = spec.modalHeight
+  }, {immediate: true})
+
+  watch(isNativeFullscreen, (fullscreen) => {
+    if (fullscreen) {
+      viewportTick.value++
+      return
+    }
+    const spec = layoutSpec.value
+    chatCallExpose.context.modal.width = spec.modalWidth
+    chatCallExpose.context.modal.height = spec.modalHeight
+  })
+
+  function refreshStreamMetrics(role: 'local' | 'remote') {
+    const el = role === 'local' ? localParticipantVideoRef.value : remoteParticipantVideoRef.value
+    const metrics = readVideoMetricsFromElement(el)
+    if (!metrics) {
+      return
+    }
+    streamMetrics.value = {...streamMetrics.value, [role]: metrics}
+  }
+
+  function bindVideoMetrics(el: HTMLVideoElement | undefined, role: 'local' | 'remote') {
+    if (!el) {
+      return
+    }
+    const onMetadata = () => refreshStreamMetrics(role)
+    el.addEventListener('loadedmetadata', onMetadata)
+    onMetadata()
+  }
+
   async function startLocalPreview() {
     const call = chatCallExpose.context.userChatCall
     if (!call) {
@@ -69,7 +138,6 @@ export function usePrivateChatCallLayout() {
     if (!localParticipantVideoRef.value) {
       return
     }
-    // 约束可沿用你项目里的 VIDEO_CHAT_CONSTRAINTS
     const previewVideoTrack = await createLocalVideoTrack(
       getMediaStreamConstraintsByCall(call).video as VideoCaptureOptions
     )
@@ -81,21 +149,79 @@ export function usePrivateChatCallLayout() {
       audio: markRaw(previewAudioTrack)
     }
     previewVideoTrack.attach(localParticipantVideoRef.value)
-    const settings = previewVideoTrack?.mediaStreamTrack?.getSettings()
-    const width = settings?.width
-    if (typeof width === 'number' && width > 0) {
-      chatCallExpose.context.modal.width = width / 1.5
+    bindVideoMetrics(localParticipantVideoRef.value, 'local')
+
+    const settings = previewVideoTrack.mediaStreamTrack?.getSettings()
+    if (settings?.width && settings?.height) {
+      const metrics = readVideoMetrics(settings.width, settings.height)
+      if (metrics) {
+        streamMetrics.value = {...streamMetrics.value, local: metrics}
+      }
     }
   }
 
-  function getLocalParticipantVideoStyle() {
-    if (!options.value.targetFullWindow) {
-      return undefined
+  const contentStyle = computed(() => {
+    if (isNativeFullscreen.value) {
+      return {width: '100%', height: '100%'}
     }
-    return chatCallExpose.context.modal.width ? {
-      height: 'auto',
-      width: (chatCallExpose.context.modal.width / 4) + "px"
-    } : undefined
+    return {
+      minHeight: `${layoutSpec.value.modalHeight}px`,
+      width: '100%',
+    }
+  })
+
+  const rootClass = computed(() =>
+    isNativeFullscreen.value ? 'relative size-full bg-black' : 'relative size-full bg-layout',
+  )
+
+  function isPipRole(role: 'local' | 'remote'): boolean {
+    if (isLeftRightSplit.value) {
+      return false
+    }
+    return role === 'local' ? options.value.targetFullWindow : !options.value.targetFullWindow
+  }
+
+  function getVideoPanelStyle(role: 'local' | 'remote'): CSSProperties {
+    if (isNativeFullscreen.value) {
+      if (isLeftRightSplit.value) {
+        return {flex: '1 1 0', width: '0', height: '100%'}
+      }
+      if (isPipRole(role)) {
+        const spec = layoutSpec.value
+        return role === 'local' ? spec.local : spec.remote
+      }
+      return {width: '100%', height: '100%'}
+    }
+
+    const spec = layoutSpec.value
+    if (isLeftRightSplit.value) {
+      return role === 'local' ? spec.local : spec.remote
+    }
+    if (isPipRole(role)) {
+      return role === 'local' ? spec.local : spec.remote
+    }
+    return {width: '100%', height: `${spec.modalHeight}px`}
+  }
+
+  function getVideoPanelClass(role: 'local' | 'remote'): string {
+    if (isNativeFullscreen.value) {
+      if (isLeftRightSplit.value) {
+        return 'block size-full object-cover min-w-0'
+      }
+      if (isPipRole(role)) {
+        return `block object-contain ${miniWindowClass} z-10`
+      }
+      return 'absolute inset-0 block size-full object-cover z-0'
+    }
+
+    const base = 'block object-contain'
+    if (isLeftRightSplit.value) {
+      return `${base} shrink-0`
+    }
+    if (isPipRole(role)) {
+      return `${base} ${miniWindowClass}`
+    }
+    return `${base} size-full`
   }
 
   async function mounted() {
@@ -125,9 +251,49 @@ export function usePrivateChatCallLayout() {
     return result;
   })
 
+  const remoteVideoConnected = computed(() =>
+    targetParticipant.value ? getEnumValue(targetParticipant.value.status) === 40 : false,
+  )
+
   function changeFullWindow() {
+    if (isLeftRightSplit.value) {
+      return
+    }
     options.value.targetFullWindow = !options.value.targetFullWindow
   }
+
+  function toggleSplitScreen() {
+    options.value.splitScreenType =
+      options.value.splitScreenType === CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT
+        ? CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT
+        : CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT
+  }
+
+  async function reattachVideoElements() {
+    await nextTick()
+    const previewVideo = chatCallExpose.context.previewTrack?.video
+    if (previewVideo && localParticipantVideoRef.value) {
+      previewVideo.attach(localParticipantVideoRef.value)
+      bindVideoMetrics(localParticipantVideoRef.value, 'local')
+    }
+    const remote = getRemoteParticipant()
+    const remoteVideoPub = remote?.getTrackPublication(Track.Source.Camera)
+    if (remoteVideoPub?.track && remoteParticipantVideoRef.value) {
+      remoteVideoPub.track.attach(remoteParticipantVideoRef.value)
+      bindVideoMetrics(remoteParticipantVideoRef.value, 'remote')
+    }
+  }
+
+  watch(isLeftRightSplit, () => {
+    void reattachVideoElements()
+  })
+
+  watch(
+    () => (chatCallExpose.context.modal as ChatCallModalInnerProps).fullscreen,
+    () => {
+      viewportTick.value++
+    },
+  )
 
   async function onChatCallConfirm(result:RestResult<UserChatCallParticipantEntity>){
     if (!result.data || !chatCallExpose.context.room || !chatCallExpose.context.userChatCall) {
@@ -156,17 +322,18 @@ export function usePrivateChatCallLayout() {
     if ((userCall.participants || []).every(s => getEnumValue(s.status) === 40)) {
 
       await nextTick()
-      room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-        if (participant.isLocal) {
+      room.on(RoomEvent.TrackSubscribed, (track, _publication, trackParticipant) => {
+        if (trackParticipant.isLocal) {
           return
         }
 
         if (track.kind === Track.Kind.Video) {
           track.attach(remoteParticipantVideoRef.value!)
+          bindVideoMetrics(remoteParticipantVideoRef.value, 'remote')
         } else if (track.kind === Track.Kind.Audio) {
-          track.attach() // 或 attach 到专用 <audio> 元素
+          track.attach()
         }
-        syncRemoteMediaState(participant)
+        syncRemoteMediaState(trackParticipant)
       })
 
       const previewTrack = chatCallExpose.context.previewTrack
@@ -185,7 +352,7 @@ export function usePrivateChatCallLayout() {
       } else {
         await room.localParticipant.setMicrophoneEnabled(true)
       }
-      
+
       const remote = getRemoteParticipant()
       if (remote) {
         syncRemoteMediaState(remote)
@@ -209,7 +376,7 @@ export function usePrivateChatCallLayout() {
     options.value.cameraEnabled = !options.value.cameraEnabled
     const video = chatCallExpose.context.previewTrack?.video
     if (video) {
-      options.value.cameraEnabled? await video.unmute() : await video.mute()
+      options.value.cameraEnabled ? await video.unmute() : await video.mute()
       return
     }
     await chatCallExpose.context.room?.localParticipant.setCameraEnabled(options.value.cameraEnabled)
@@ -240,6 +407,18 @@ export function usePrivateChatCallLayout() {
     room.on(RoomEvent.ParticipantConnected, (participant) => sync(participant))
   }
 
+  function onViewportResize() {
+    viewportTick.value++
+  }
+
+  onMounted(() => {
+    window.addEventListener('resize', onViewportResize)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', onViewportResize)
+  })
+
   on(SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM,
     (payload) => onChatCallConfirm(parseSocketRestPayload<UserChatCallParticipantEntity>(payload))
   )
@@ -252,9 +431,17 @@ export function usePrivateChatCallLayout() {
     chatCallExpose,
     options,
     targetParticipant,
+    remoteVideoConnected,
+    isLeftRightSplit,
+    isNativeFullscreen,
+    layoutSpec,
+    contentStyle,
+    rootClass,
     toggleMicrophone,
     toggleCamera,
+    toggleSplitScreen,
     changeFullWindow,
-    getLocalParticipantVideoStyle
+    getVideoPanelClass,
+    getVideoPanelStyle,
   }
 }

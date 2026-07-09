@@ -17,7 +17,7 @@ import type {
   UserChatCallParticipantEntity,
   UserChatCallResponseBody
 } from "@/types/apis";
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {createIcon, exitDocumentFullscreenIfNeeded, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useSocketSubscriptions} from "@/composables";
 import {
@@ -42,6 +42,8 @@ export interface UseChatCallModelParams {
 export interface ChatCallModalProps {
   title:string
   width?:number
+  height?:number
+  fullscreen?:boolean
   loading:boolean
 }
 
@@ -93,6 +95,7 @@ export interface ChatCallModelExpose {
     onRejected: (key: string, id: number, loading: Ref<boolean>) => void
   ) => VNode,
   updateParticipant:(participant:UserChatCallParticipantEntity) => void,
+  setCallFullscreen:(active: boolean) => void,
 }
 
 export function provideChatCllExpose(config:UseChatCallModelParams) {
@@ -132,6 +135,8 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
 
   function resetContext() {
     context.value.modal.width = undefined
+    context.value.modal.height = undefined
+    context.value.modal.fullscreen = false
     const innerModel = (context.value.modal as ChatCallModalInnerProps)
     if (innerModel.closeTimerValue) {
       innerModel.closeTimerValue = undefined
@@ -162,6 +167,7 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
         await ChatCallService.completed(Number(context.value.userChatCall.id))
       }
 
+      await exitDocumentFullscreenIfNeeded()
       modal.open = false
       resetContext()
     } finally {
@@ -202,6 +208,10 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
       return
     }
     context.value.userChatCall.participants[index] = participant
+  }
+
+  function setCallFullscreen(active: boolean) {
+    context.value.modal.fullscreen = active
   }
 
   async function acceptCallByChatCallId(
@@ -347,7 +357,8 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     acceptCallByChatCallId:acceptCallByChatCallId,
     rejectedCallByChatCallId:rejectedCallByChatCallId,
     createChatCallAction:createChatCallAction,
-    updateParticipant:updateParticipant
+    updateParticipant:updateParticipant,
+    setCallFullscreen:setCallFullscreen,
   }
 
   provide(CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY, exportContext)

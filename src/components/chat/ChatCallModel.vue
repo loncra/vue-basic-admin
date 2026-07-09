@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import {computed, onMounted, onUnmounted, ref} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
 import {DATE_TIME_FORMAT} from "@/constants/systemConstant.ts";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
@@ -11,17 +12,53 @@ defineOptions({
 })
 
 const chatCallModelContext = useChatCallModalExpose()
+const callViewportRef = ref<HTMLDivElement>()
+
+const modal = computed(() => chatCallModelContext.context.modal as ChatCallModalInnerProps)
+const isNativeFullscreen = computed(() => modal.value.fullscreen ?? false)
+
+function isViewportFullscreen() {
+  return document.fullscreenElement === callViewportRef.value
+}
+
+async function toggleNativeFullscreen() {
+  const el = callViewportRef.value
+  if (!el) {
+    return
+  }
+  try {
+    if (!isViewportFullscreen()) {
+      await el.requestFullscreen()
+    } else {
+      await document.exitFullscreen()
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+function onFullscreenChange() {
+  chatCallModelContext.setCallFullscreen(isViewportFullscreen())
+}
+
+onMounted(() => {
+  document.addEventListener('fullscreenchange', onFullscreenChange)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
+})
 
 </script>
 
 <template>
   <teleport to="body" v-if="chatCallModelContext.context.userChatCall">
     <a-modal
-      :open="(chatCallModelContext.context.modal as ChatCallModalInnerProps).open"
+      :open="modal.open"
       :closable="false"
       :classes="{container: 'p-0', header: 'p-xs m-0 text-center'}"
       :mask-closable="false"
-      :width="chatCallModelContext.context.modal.width"
+      :width="modal.width"
       :footer="null"
       @cancel="chatCallModelContext.handleCancel">
       <template #title>
@@ -29,7 +66,7 @@ const chatCallModelContext = useChatCallModalExpose()
           <a-space>
             <icon-font :type="getCallIcon(chatCallModelContext.context.userChatCall.type)" />
             <a-typography-text>
-              {{ chatCallModelContext.context.modal.title }}
+              {{ modal.title }}
             </a-typography-text>
           </a-space>
 
@@ -45,9 +82,9 @@ const chatCallModelContext = useChatCallModalExpose()
           </a-typography-text>
 
           <a-space-compact class="opacity-80">
-            <a-button size="small">
+            <a-button size="small" @click="toggleNativeFullscreen">
               <template #icon>
-                <icon-font type="loncra-expand"/>
+                <icon-font :type="isNativeFullscreen ? 'loncra-minimize' : 'loncra-expand'"/>
               </template>
             </a-button>
             <a-button size="small">
@@ -55,7 +92,7 @@ const chatCallModelContext = useChatCallModalExpose()
                 <icon-font type="loncra-picture-in-picture"/>
               </template>
             </a-button>
-            <a-button size="small" danger type="primary" :loading="chatCallModelContext.context.modal.loading" @click="chatCallModelContext.handleCancel">
+            <a-button size="small" danger type="primary" :loading="modal.loading" @click="chatCallModelContext.handleCancel">
               <template #icon>
                 <icon-font type="loncra-x"/>
               </template>
@@ -63,11 +100,14 @@ const chatCallModelContext = useChatCallModalExpose()
           </a-space-compact>
         </a-flex>
       </template>
-      <div class="relative size-full rounded-b-lg group overflow-hidden">
+      <div
+        ref="callViewportRef"
+        class="chat-call-viewport relative size-full min-h-100 rounded-b-lg group overflow-hidden bg-black"
+      >
         <l-chat-call-private-type-layout v-if="getEnumValue(chatCallModelContext.context.userChatCall.scene) === 10" />
-        <a-flex gap="small" v-if="(chatCallModelContext.context.modal as ChatCallModalInnerProps).closeTimerValue" justify="center" class="absolute bottom-0 left-0 w-full p-xs bg-container opacity-60" align="center">
+        <a-flex gap="small" v-if="modal.closeTimerValue" justify="center" class="absolute bottom-0 left-0 w-full p-xs bg-container opacity-60" align="center">
           <a-statistic-timer
-            :value="(chatCallModelContext.context.modal as ChatCallModalInnerProps).closeTimerValue"
+            :value="modal.closeTimerValue"
             type="countdown"
             :classes="{content:'text-DEFAULT'}"
             :format="$t('chat.call.closeCountdown')"
@@ -78,3 +118,19 @@ const chatCallModelContext = useChatCallModalExpose()
     </a-modal>
   </teleport>
 </template>
+
+<style scoped>
+.chat-call-viewport:fullscreen {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  border-radius: 0;
+  max-width: none;
+  max-height: none;
+}
+
+.chat-call-viewport:fullscreen :deep(.relative) {
+  min-height: 100%;
+  height: 100%;
+}
+</style>
