@@ -11,6 +11,7 @@ import type {
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
+import { CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE } from "@/constants/messageConstant.ts";
 
 export type ChatRoomViewModalOpenType =
   | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
@@ -116,3 +117,7 @@ export interface ConversationActiveProps {
   bubbleList: ChatBubbleItem[]
   participants:UserChatParticipantEntity[]
 }
+
+export type ChatCallPrivateSplitScreenType =
+  | typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT
+  | typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT

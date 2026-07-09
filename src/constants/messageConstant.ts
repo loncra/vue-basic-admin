@@ -98,3 +98,8 @@ export const CHAT_CALL_TYPE = {
   VIDEO:"10",
   VOICE:"20"
 } as const
+
+export const CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE = {
+  DEFAULT:"default",
+  LEFT_RIGHT:"leftRight"
+} as const

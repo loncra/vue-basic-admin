@@ -16,11 +16,14 @@ const miniWindowClass = "absolute opacity-80 top-0 left-0 w-30 h-40 rounded-lg b
 
 const {
   targetParticipant,
-  targetFullWindow,
+  options,
   chatCallExpose,
+  toggleMicrophone,
+  toggleCamera,
   mounted,
   localParticipantVideoRef,
   remoteParticipantVideoRef,
+  remoteMediaState,
   changeFullWindow,
   getLocalParticipantVideoStyle
 } = usePrivateChatCallLayout()
@@ -32,10 +35,10 @@ onMounted(mounted)
 <template>
   <video
     ref="localParticipantVideoRef"
-    @click="targetFullWindow ? changeFullWindow() : undefined"
+    @click="options.targetFullWindow ? changeFullWindow() : undefined"
     :class="[
       'block opacity-99 object-contain',
-      targetFullWindow ? miniWindowClass : 'size-full'
+      options.targetFullWindow ? miniWindowClass : 'size-full'
     ]"
     :style="getLocalParticipantVideoStyle()"
     autoplay
@@ -51,9 +54,9 @@ onMounted(mounted)
       justify="center"
       align="center"
       gap="small"
-      @click="!targetFullWindow ? changeFullWindow() : undefined"
+      @click="!options.targetFullWindow ? changeFullWindow() : undefined"
       :class="[
-        targetFullWindow ? 'min-h-100' : miniWindowClass,
+        options.targetFullWindow ? 'min-h-100' : miniWindowClass,
       ]"
       v-if="getEnumValue(targetParticipant.status) !== 40"
     >
@@ -64,8 +67,9 @@ onMounted(mounted)
     </a-flex>
     <video
       v-else
+       @click="!options.targetFullWindow ? changeFullWindow() : undefined"
       :class="[
-        targetFullWindow ? 'size-full min-h-100' : miniWindowClass
+        options.targetFullWindow ? 'size-full min-h-100' : miniWindowClass
       ]"
       ref="remoteParticipantVideoRef"
       autoplay
@@ -79,16 +83,17 @@ onMounted(mounted)
     align="center"
     class="absolute bottom-0 left-0 w-full p-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
     <a-space-compact>
-      <a-button class="opacity-30" variant="outlined">
+      <a-button class="opacity-30" variant="outlined" @click="toggleMicrophone">
         <template #icon>
-          <icon-font type="loncra-mic-off"/>
+          <icon-font :type="options.microphoneEnabled ? 'loncra-mic-off' : 'loncra-mic'"/>
         </template>
       </a-button>
-      <a-button class="opacity-30" variant="outlined">
+      <a-button class="opacity-30" variant="outlined" @click="toggleCamera">
         <template #icon>
-          <icon-font type="loncra-video-off"/>
+          <icon-font :type="options.cameraEnabled ? 'loncra-video-off' : 'loncra-video'"/>
         </template>
       </a-button>
+
     </a-space-compact>
     <a-space>
       <a-button

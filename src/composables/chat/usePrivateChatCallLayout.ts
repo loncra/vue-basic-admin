@@ -10,7 +10,7 @@ import {
 import {getEnumValue, getMediaStreamConstraintsByCall, requireNonNullOrUndefined} from "@/utils";
 import type {RestResult, UserChatCallParticipantEntity} from "@/types/apis";
 import {getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
-import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {
   type AudioCaptureOptions,
@@ -23,6 +23,9 @@ import {
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
+import type { Room, Participant } from "livekit-client";
+import type { ChatCallPrivateSplitScreenType } from "@/types/composables/chat";
+
 
 export interface TargetParticipant extends UserChatCallParticipantEntity {
   badgeStatus:string
@@ -31,9 +34,25 @@ export interface TargetParticipant extends UserChatCallParticipantEntity {
 export function usePrivateChatCallLayout() {
   const {on} = useSocketSubscriptions()
   const chatCallExpose = useChatCallModalExpose();
-  const targetFullWindow = ref<boolean>(true)
   const localParticipantVideoRef = ref<HTMLVideoElement>()
   const remoteParticipantVideoRef = ref<HTMLVideoElement>()
+  const options = ref<{
+    targetFullWindow:boolean
+    microphoneEnabled:boolean
+    cameraEnabled:boolean
+    splitScreenType:ChatCallPrivateSplitScreenType
+  }>({
+    targetFullWindow:true,
+    microphoneEnabled:true,
+    cameraEnabled:true,
+    splitScreenType:CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT
+  })
+
+  // 远端媒体状态（用于 UI）
+  const remoteMediaState = ref({
+    microphoneEnabled: true,
+    cameraEnabled: true,
+  })
 
   const principalStore = usePrincipalStore()
 
@@ -70,7 +89,7 @@ export function usePrivateChatCallLayout() {
   }
 
   function getLocalParticipantVideoStyle() {
-    if (!targetFullWindow.value) {
+    if (!options.value.targetFullWindow) {
       return undefined
     }
     return chatCallExpose.context.modal.width ? {
@@ -107,8 +126,7 @@ export function usePrivateChatCallLayout() {
   })
 
   function changeFullWindow() {
-    targetFullWindow.value = !targetFullWindow.value
-
+    options.value.targetFullWindow = !options.value.targetFullWindow
   }
 
   async function onChatCallConfirm(result:RestResult<UserChatCallParticipantEntity>){
@@ -125,6 +143,7 @@ export function usePrivateChatCallLayout() {
     const room = chatCallExpose.context.room
     if (participant.principal === principalStore.state.name) {
       await room.connect(String(participant.metadata.liveKit.id), participant.metadata.liveKit.value)
+      bindRemoteMediaEvents(room)
     } else {
       const caller = userCall.participants
         .find(s => getEnumValue(s.type) === 31)
@@ -147,22 +166,78 @@ export function usePrivateChatCallLayout() {
         } else if (track.kind === Track.Kind.Audio) {
           track.attach() // 或 attach 到专用 <audio> 元素
         }
+        syncRemoteMediaState(participant)
       })
 
       const previewTrack = chatCallExpose.context.previewTrack
       if (previewTrack && previewTrack.video) {
-        await room.localParticipant.publishTrack(previewTrack.video)
+        await room.localParticipant.publishTrack(previewTrack.video,{
+          source:Track.Source.Camera
+        })
       } else {
         await room.localParticipant.setCameraEnabled(true)
       }
 
       if (previewTrack && previewTrack?.audio) {
-        await room.localParticipant.publishTrack(previewTrack.audio)
+        await room.localParticipant.publishTrack(previewTrack.audio,{
+          source:Track.Source.Microphone
+        })
       } else {
         await room.localParticipant.setMicrophoneEnabled(true)
       }
+      
+      const remote = getRemoteParticipant()
+      if (remote) {
+        syncRemoteMediaState(remote)
+      }
+
     }
 
+  }
+
+  async function toggleMicrophone() {
+    options.value.microphoneEnabled = !options.value.microphoneEnabled
+    const audio = chatCallExpose.context.previewTrack?.audio
+    if (audio) {
+      options.value.microphoneEnabled ? await audio.unmute() : await audio.mute()
+      return
+    }
+    await chatCallExpose.context.room?.localParticipant.setMicrophoneEnabled(options.value.microphoneEnabled)
+  }
+
+  async function toggleCamera() {
+    options.value.cameraEnabled = !options.value.cameraEnabled
+    const video = chatCallExpose.context.previewTrack?.video
+    if (video) {
+      options.value.cameraEnabled? await video.unmute() : await video.mute()
+      return
+    }
+    await chatCallExpose.context.room?.localParticipant.setCameraEnabled(options.value.cameraEnabled)
+  }
+
+  function syncRemoteMediaState(participant: Participant) {
+    if (participant.isLocal) {
+      return
+    }
+    remoteMediaState.value = {
+      microphoneEnabled: participant.isMicrophoneEnabled,
+      cameraEnabled: participant.isCameraEnabled,
+    }
+  }
+
+  function getRemoteParticipant() {
+    const room = chatCallExpose.context.room
+    if (!room) return undefined
+    return Array.from(room.remoteParticipants.values())[0]
+  }
+
+  function bindRemoteMediaEvents(room: Room) {
+    const sync = (participant: Participant) => syncRemoteMediaState(participant)
+    room.on(RoomEvent.TrackMuted, (_pub, participant) => sync(participant))
+    room.on(RoomEvent.TrackUnmuted, (_pub, participant) => sync(participant))
+    room.on(RoomEvent.TrackPublished, (_pub, participant) => sync(participant))
+    room.on(RoomEvent.TrackUnpublished, (_pub, participant) => sync(participant))
+    room.on(RoomEvent.ParticipantConnected, (participant) => sync(participant))
   }
 
   on(SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM,
@@ -173,9 +248,12 @@ export function usePrivateChatCallLayout() {
     mounted,
     localParticipantVideoRef,
     remoteParticipantVideoRef,
+    remoteMediaState,
     chatCallExpose,
-    targetFullWindow,
+    options,
     targetParticipant,
+    toggleMicrophone,
+    toggleCamera,
     changeFullWindow,
     getLocalParticipantVideoStyle
   }
