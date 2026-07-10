@@ -132,19 +132,3 @@ onUnmounted(() => {
     </a-modal>
   </teleport>
 </template>
-
-<style scoped>
-.chat-call-viewport:fullscreen {
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  border-radius: 0;
-  max-width: none;
-  max-height: none;
-}
-
-.chat-call-viewport:fullscreen :deep(.relative) {
-  min-height: 100%;
-  height: 100%;
-}
-</style>

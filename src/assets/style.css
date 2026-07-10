@@ -245,6 +245,15 @@
     @apply animate-layout-content-fullscreen-out;
   }
 
+  /* ========== 通话 Modal 原生全屏 ========== */
+  .chat-call-viewport:fullscreen {
+    @apply size-full min-h-full max-h-none max-w-none rounded-none;
+  }
+
+  .chat-call-viewport:fullscreen .relative {
+    @apply size-full min-h-full;
+  }
+
   .size-full-spin.ant-spin {
     @apply size-full min-h-0;
   }
