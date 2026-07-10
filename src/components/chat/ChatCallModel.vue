@@ -1,11 +1,12 @@
 <script setup lang="ts">
 
-import {computed, onMounted, onUnmounted, ref} from "vue";
+import {computed, onMounted, onUnmounted, ref, type Component} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
 import {DATE_TIME_FORMAT} from "@/constants/systemConstant.ts";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
 import {type ChatCallModalInnerProps, useChatCallModalExpose} from "@/composables";
 import LChatCallPrivateTypeLayout from "@/components/chat/ChatCallPrivateTypeLayout.vue";
+import {CHAT_CALL_MINI_SIZE, CHAT_CALL_UI_MODE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'LChatCallModel',
@@ -14,11 +15,35 @@ defineOptions({
 const chatCallModelContext = useChatCallModalExpose()
 const callViewportRef = ref<HTMLDivElement>()
 
+const CALL_LAYOUT_BY_SCENE: Record<number, Component> = {
+  10: LChatCallPrivateTypeLayout,
+}
+
 const modal = computed(() => chatCallModelContext.context.modal as ChatCallModalInnerProps)
 const isNativeFullscreen = computed(() => modal.value.fullscreen ?? false)
+const isCallMinimized = computed(() => modal.value.uiMode === CHAT_CALL_UI_MODE.MINIMIZED)
+const isCallExpanded = computed(() => !isCallMinimized.value)
+
+const callLayout = computed(() => {
+  const scene = chatCallModelContext.context.userChatCall?.scene
+  if (!scene) {
+    return undefined
+  }
+  return CALL_LAYOUT_BY_SCENE[getEnumValue(scene)]
+})
+
+const modalWidth = computed(() =>
+  isCallMinimized.value ? CHAT_CALL_MINI_SIZE.WIDTH : modal.value.width,
+)
 
 const viewportStyle = computed(() => {
-  if (isNativeFullscreen.value || !modal.value.height) {
+  if (isNativeFullscreen.value) {
+    return undefined
+  }
+  if (isCallMinimized.value) {
+    return {height: `${CHAT_CALL_MINI_SIZE.HEIGHT}px`}
+  }
+  if (!modal.value.height) {
     return undefined
   }
   return {height: `${modal.value.height}px`}
@@ -48,6 +73,12 @@ function onFullscreenChange() {
   chatCallModelContext.setCallFullscreen(isViewportFullscreen())
 }
 
+function onCallViewportClick() {
+  if (isCallMinimized.value) {
+    chatCallModelContext.setCallUiMode(CHAT_CALL_UI_MODE.EXPANDED)
+  }
+}
+
 onMounted(() => {
   document.addEventListener('fullscreenchange', onFullscreenChange)
 })
@@ -63,12 +94,17 @@ onUnmounted(() => {
     <a-modal
       :open="modal.open"
       :closable="false"
+      :destroy-on-hidden="false"
+      :centered="isCallExpanded"
+      :keyboard="false"
+      :mask="isCallExpanded"
+      :wrap-class-name="isCallMinimized ? 'chat-call-modal--minimized' : undefined"
       :classes="{container: 'p-0', header: 'p-xs m-0 text-center'}"
       :mask-closable="false"
-      :width="modal.width"
+      :width="modalWidth"
       :footer="null"
       @cancel="chatCallModelContext.handleCancel">
-      <template #title>
+      <template v-if="isCallExpanded" #title>
         <a-flex justify="space-between" align="center">
           <a-space>
             <icon-font :type="getCallIcon(chatCallModelContext.context.userChatCall.type)" />
@@ -94,15 +130,15 @@ onUnmounted(() => {
                 <icon-font :type="isNativeFullscreen ? 'loncra-minimize' : 'loncra-expand'"/>
               </template>
             </a-button>
-            <a-button size="small">
+            <a-button size="small" @click="chatCallModelContext.toggleCallMinimize()">
               <template #icon>
                 <icon-font type="loncra-picture-in-picture"/>
               </template>
             </a-button>
-            <a-button size="small" 
-              danger 
-              type="primary" 
-              :loading="modal.loading" 
+            <a-button size="small"
+              danger
+              type="primary"
+              :loading="modal.loading"
               @click="chatCallModelContext.handleCancel"
               >
               <template #icon>
@@ -114,12 +150,22 @@ onUnmounted(() => {
       </template>
       <div
         ref="callViewportRef"
-        class="chat-call-viewport relative w-full rounded-b-lg group overflow-hidden bg-black"
-        :class="isNativeFullscreen || !modal.height ? 'size-full min-h-100' : undefined"
+        class="chat-call-viewport relative w-full overflow-hidden bg-black"
+        :class="[
+          isCallMinimized ? 'rounded-lg cursor-pointer' : 'rounded-b-lg group',
+          isNativeFullscreen || (!modal.height && isCallExpanded) ? 'size-full min-h-100' : undefined,
+        ]"
         :style="viewportStyle"
+        @click="onCallViewportClick"
       >
-        <l-chat-call-private-type-layout v-if="getEnumValue(chatCallModelContext.context.userChatCall.scene) === 10" />
-        <a-flex gap="small" v-if="modal.closeTimerValue" justify="center" class="absolute bottom-0 left-0 w-full p-xs bg-container opacity-60" align="center">
+        <component :is="callLayout" v-if="callLayout" />
+        <a-flex
+          gap="small"
+          v-if="modal.closeTimerValue && isCallExpanded"
+          justify="center"
+          class="absolute bottom-0 left-0 w-full p-xs bg-container opacity-60"
+          align="center"
+        >
           <a-statistic-timer
             :value="modal.closeTimerValue"
             type="countdown"

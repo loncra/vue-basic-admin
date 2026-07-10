@@ -14,8 +14,15 @@ import {
   CHAT_CALL_PRIVATE_ROLE_TYPE
 } from "@/constants/messageConstant.ts";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
-import { CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE } from "@/constants/messageConstant.ts";
+import {
+  CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
+  CHAT_CALL_UI_MODE,
+} from "@/constants/messageConstant.ts";
 import type {CSSProperties} from "vue";
+
+export type ChatCallUiMode =
+  | typeof CHAT_CALL_UI_MODE.EXPANDED
+  | typeof CHAT_CALL_UI_MODE.MINIMIZED
 
 export type ChatRoomViewModalOpenType =
   | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT

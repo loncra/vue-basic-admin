@@ -254,6 +254,28 @@
     @apply size-full min-h-full;
   }
 
+  /* ========== 通话 Modal 最小化（左下角浮动） ========== */
+  .chat-call-modal--minimized {
+    @apply pointer-events-none overflow-visible!;
+  }
+
+  .chat-call-modal--minimized .ant-modal-wrap {
+    @apply static! overflow-visible!;
+  }
+
+  .chat-call-modal--minimized .ant-modal {
+    @apply pointer-events-auto fixed! top-auto! right-auto! bottom-0! left-0! m-xs! max-w-none! p-0!;
+    transform: none !important;
+  }
+
+  .chat-call-modal--minimized .ant-modal-header {
+    @apply hidden;
+  }
+
+  .chat-call-modal--minimized .ant-modal-content {
+    @apply overflow-hidden rounded-lg shadow-card;
+  }
+
   .size-full-spin.ant-spin {
     @apply size-full min-h-0;
   }

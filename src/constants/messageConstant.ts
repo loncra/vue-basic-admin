@@ -111,6 +111,18 @@ export const CHAT_CALL_PRIVATE_ROLE_TYPE = {
   REMOTE: "remote",
 }
 
+/** 通话外壳展示：展开 Modal / 最小化浮动窗 */
+export const CHAT_CALL_UI_MODE = {
+  EXPANDED: 'expanded',
+  MINIMIZED: 'minimized',
+} as const
+
+/** 最小化浮动窗尺寸（16:9） */
+export const CHAT_CALL_MINI_SIZE = {
+  WIDTH: 280,
+  HEIGHT: 158,
+} as const
+
 export const PIP_WIDTH_RATIO = 0.28
 export const PIP_MAX_WIDTH_PX = 200
 export const FALLBACK_VIDEO_METRICS: VideoMetrics = {width: 16, height: 9, aspect: 16 / 9}

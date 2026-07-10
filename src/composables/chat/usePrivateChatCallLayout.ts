@@ -22,6 +22,8 @@ import {
 import {
   CHAT_CALL_PRIVATE_ROLE_TYPE,
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
+  CHAT_CALL_MINI_SIZE,
+  CHAT_CALL_UI_MODE,
   SOCKET_EVENT_TYPE
 } from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
@@ -95,6 +97,11 @@ export function usePrivateChatCallLayout() {
     return modal.fullscreen ?? false
   })
 
+  const isCallMinimized = computed(() => {
+    const modal = chatCallExpose.context.modal as ChatCallModalInnerProps
+    return modal.uiMode === CHAT_CALL_UI_MODE.MINIMIZED
+  })
+
   const layoutConstraints = computed(() => {
     viewportTick.value
     const modal = chatCallExpose.context.modal as ChatCallModalInnerProps
@@ -111,7 +118,7 @@ export function usePrivateChatCallLayout() {
   )
 
   watch(layoutSpec, (spec) => {
-    if (isNativeFullscreen.value) {
+    if (isNativeFullscreen.value || isCallMinimized.value) {
       return
     }
     chatCallExpose.context.modal.width = spec.modalWidth
@@ -178,6 +185,9 @@ export function usePrivateChatCallLayout() {
   }
 
   const contentStyle = computed(() => {
+    if (isCallMinimized.value) {
+      return {width: '100%', height: `${CHAT_CALL_MINI_SIZE.HEIGHT}px`}
+    }
     if (isNativeFullscreen.value) {
       return {width: '100%', height: '100%'}
     }
@@ -187,9 +197,17 @@ export function usePrivateChatCallLayout() {
     }
   })
 
-  const rootClass = computed(() =>
-    isNativeFullscreen.value ? 'relative size-full bg-black' : 'relative size-full bg-layout',
-  )
+  const rootClass = computed(() => {
+    if (isCallMinimized.value) {
+      return 'relative size-full bg-black cursor-pointer'
+    }
+    return isNativeFullscreen.value ? 'relative size-full bg-black' : 'relative size-full bg-layout'
+  })
+
+  const expandedLayoutSnapshot = ref<{
+    targetFullWindow: boolean
+    splitScreenType: ChatCallPrivateSplitScreenType
+  } | null>(null)
 
   function isPipRole(role: ChatCallPrivateRoleType): boolean {
     if (isLeftRightSplit.value) {
@@ -199,6 +217,13 @@ export function usePrivateChatCallLayout() {
   }
 
   function getPanelShellStyle(role: ChatCallPrivateRoleType): CSSProperties {
+    if (isCallMinimized.value) {
+      if (role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL) {
+        return {display: 'none'}
+      }
+      return {width: '100%', height: '100%'}
+    }
+
     if (isNativeFullscreen.value) {
       if (isLeftRightSplit.value) {
         return {flex: '1 1 0', width: '0', height: '100%'}
@@ -253,6 +278,10 @@ export function usePrivateChatCallLayout() {
 
   /** 仅用于 video：display 与 object-fit */
   function getVideoElementClass(role: ChatCallPrivateRoleType): string {
+    if (isCallMinimized.value) {
+      return 'block size-full object-cover'
+    }
+
     if (isNativeFullscreen.value) {
       if (isLeftRightSplit.value) {
         return 'block size-full min-w-0 object-cover'
@@ -334,6 +363,31 @@ export function usePrivateChatCallLayout() {
 
   watch(isLeftRightSplit, () => {
     void reattachVideoElements()
+  })
+
+  watch(isCallMinimized, async (minimized) => {
+    if (minimized) {
+      expandedLayoutSnapshot.value = {
+        targetFullWindow: options.value.targetFullWindow,
+        splitScreenType: options.value.splitScreenType,
+      }
+      options.value.targetFullWindow = true
+      await nextTick()
+      await reattachVideoElements()
+      return
+    }
+    const snapshot = expandedLayoutSnapshot.value
+    if (!snapshot) {
+      return
+    }
+    options.value.targetFullWindow = snapshot.targetFullWindow
+    options.value.splitScreenType = snapshot.splitScreenType
+    expandedLayoutSnapshot.value = null
+    await nextTick()
+    const spec = layoutSpec.value
+    chatCallExpose.context.modal.width = spec.modalWidth
+    chatCallExpose.context.modal.height = spec.modalHeight
+    await reattachVideoElements()
   })
 
   watch(
@@ -481,6 +535,7 @@ export function usePrivateChatCallLayout() {
     targetParticipant,
     remoteVideoConnected,
     isLeftRightSplit,
+    isCallMinimized,
     isNativeFullscreen,
     layoutSpec,
     contentStyle,

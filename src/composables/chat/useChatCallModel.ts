@@ -22,6 +22,7 @@ import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useSocketSubscriptions} from "@/composables";
 import {
   CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY,
+  CHAT_CALL_UI_MODE,
   MESSAGE_GROUP,
   SOCKET_EVENT_TYPE
 } from "@/constants/messageConstant.ts";
@@ -34,6 +35,7 @@ import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {Button, Space} from "antdv-next";
 import {LocalAudioTrack, type LocalVideoTrack, Room} from "livekit-client";
+import type {ChatCallUiMode} from "@/types/composables/chat.ts";
 
 export interface UseChatCallModelParams {
   closeTimerValue: Ref<TimeProperties>;
@@ -44,6 +46,7 @@ export interface ChatCallModalProps {
   width?:number
   height?:number
   fullscreen?:boolean
+  uiMode?: ChatCallUiMode
   loading:boolean
 }
 
@@ -96,6 +99,8 @@ export interface ChatCallModelExpose {
   ) => VNode,
   updateParticipant:(participant:UserChatCallParticipantEntity) => void,
   setCallFullscreen:(active: boolean) => void,
+  setCallUiMode:(mode: ChatCallUiMode) => void,
+  toggleCallMinimize:() => Promise<void>,
 }
 
 export function provideChatCllExpose(config:UseChatCallModelParams) {
@@ -112,7 +117,8 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     modal:{
       loading: false,
       open:false,
-      title:' '
+      title:' ',
+      uiMode: CHAT_CALL_UI_MODE.EXPANDED,
     } as ChatCallModalInnerProps
   })
 
@@ -137,6 +143,7 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     context.value.modal.width = undefined
     context.value.modal.height = undefined
     context.value.modal.fullscreen = false
+    context.value.modal.uiMode = CHAT_CALL_UI_MODE.EXPANDED
     const innerModel = (context.value.modal as ChatCallModalInnerProps)
     if (innerModel.closeTimerValue) {
       innerModel.closeTimerValue = undefined
@@ -212,6 +219,23 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
 
   function setCallFullscreen(active: boolean) {
     context.value.modal.fullscreen = active
+  }
+
+  function setCallUiMode(mode: ChatCallUiMode) {
+    context.value.modal.uiMode = mode
+  }
+
+  async function toggleCallMinimize() {
+    const modal = context.value.modal
+    const nextMode =
+      modal.uiMode === CHAT_CALL_UI_MODE.MINIMIZED
+        ? CHAT_CALL_UI_MODE.EXPANDED
+        : CHAT_CALL_UI_MODE.MINIMIZED
+    if (nextMode === CHAT_CALL_UI_MODE.MINIMIZED) {
+      await exitDocumentFullscreenIfNeeded()
+      modal.fullscreen = false
+    }
+    modal.uiMode = nextMode
   }
 
   async function acceptCallByChatCallId(
@@ -359,6 +383,8 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     createChatCallAction:createChatCallAction,
     updateParticipant:updateParticipant,
     setCallFullscreen:setCallFullscreen,
+    setCallUiMode:setCallUiMode,
+    toggleCallMinimize:toggleCallMinimize,
   }
 
   provide(CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY, exportContext)

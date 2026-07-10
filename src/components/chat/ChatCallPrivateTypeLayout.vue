@@ -25,6 +25,7 @@ const {
   remoteParticipantVideoRef,
   remoteVideoConnected,
   isLeftRightSplit,
+  isCallMinimized,
   changeFullWindow,
   getPanelShellClass,
   getPanelShellStyle,
@@ -41,12 +42,13 @@ onMounted(mounted)
 <template>
   <div :class="rootClass">
     <a-flex
-      v-if="isLeftRightSplit"
+      v-if="isLeftRightSplit && !isCallMinimized"
       class="size-full"
       :style="contentStyle"
       align="stretch"
     >
       <video
+        v-show="!isCallMinimized"
         ref="localParticipantVideoRef"
         :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)]"
         :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
@@ -84,6 +86,7 @@ onMounted(mounted)
       :style="contentStyle"
     >
       <video
+        v-show="!isCallMinimized"
         ref="localParticipantVideoRef"
         :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)]"
         :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
@@ -122,7 +125,7 @@ onMounted(mounted)
     </div>
 
     <a-flex
-      v-if="getEnumValue(chatCallExpose.context.userChatCall?.status) !== 30"
+      v-if="!isCallMinimized && getEnumValue(chatCallExpose.context.userChatCall?.status) !== 30"
       justify="space-between"
       align="center"
       class="absolute bottom-0 left-0 w-full p-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
