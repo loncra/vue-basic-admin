@@ -63,7 +63,7 @@ onMounted(mounted)
         :class="getPlaceholderPanelClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
         :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
       >
-        <l-user-avatar :size="configProviderStore.getToken().sizeLG * 2" :user="targetParticipant.metadata.details" />
+        <l-user-avatar :size="configProviderStore.getToken().sizeXL * 2" :user="targetParticipant.metadata.details" />
         <a-typography-text type="secondary">
           <a-badge :status="targetParticipant.badgeStatus" :text="getEnumName(targetParticipant.status)" />
         </a-typography-text>

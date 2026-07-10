@@ -182,8 +182,8 @@ export function usePrivateChatCallLayout() {
       return {width: '100%', height: '100%'}
     }
     return {
-      minHeight: `${layoutSpec.value.modalHeight}px`,
       width: '100%',
+      height: `${layoutSpec.value.modalHeight}px`,
     }
   })
 
@@ -212,7 +212,8 @@ export function usePrivateChatCallLayout() {
 
     const spec = layoutSpec.value
     if (isLeftRightSplit.value) {
-      return role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL ? spec.local : spec.remote
+      const panel = role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL ? spec.local : spec.remote
+      return {width: panel.width, height: '100%'}
     }
     if (isPipRole(role)) {
       return role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL ? spec.local : spec.remote

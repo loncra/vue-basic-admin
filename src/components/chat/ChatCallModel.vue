@@ -17,6 +17,13 @@ const callViewportRef = ref<HTMLDivElement>()
 const modal = computed(() => chatCallModelContext.context.modal as ChatCallModalInnerProps)
 const isNativeFullscreen = computed(() => modal.value.fullscreen ?? false)
 
+const viewportStyle = computed(() => {
+  if (isNativeFullscreen.value || !modal.value.height) {
+    return undefined
+  }
+  return {height: `${modal.value.height}px`}
+})
+
 function isViewportFullscreen() {
   return document.fullscreenElement === callViewportRef.value
 }
@@ -107,7 +114,9 @@ onUnmounted(() => {
       </template>
       <div
         ref="callViewportRef"
-        class="chat-call-viewport relative size-full min-h-100 rounded-b-lg group overflow-hidden bg-black"
+        class="chat-call-viewport relative w-full rounded-b-lg group overflow-hidden bg-black"
+        :class="isNativeFullscreen || !modal.height ? 'size-full min-h-100' : undefined"
+        :style="viewportStyle"
       >
         <l-chat-call-private-type-layout v-if="getEnumValue(chatCallModelContext.context.userChatCall.scene) === 10" />
         <a-flex gap="small" v-if="modal.closeTimerValue" justify="center" class="absolute bottom-0 left-0 w-full p-xs bg-container opacity-60" align="center">
