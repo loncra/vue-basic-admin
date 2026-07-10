@@ -5,6 +5,7 @@ import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrivateChatCallLayout} from "@/composables";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {onMounted} from "vue";
+import {CHAT_CALL_PRIVATE_ROLE_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'LChatCallPrivateTypeLayout',
@@ -25,8 +26,10 @@ const {
   remoteVideoConnected,
   isLeftRightSplit,
   changeFullWindow,
-  getVideoPanelClass,
-  getVideoPanelStyle,
+  getPanelShellClass,
+  getPanelShellStyle,
+  getPlaceholderPanelClass,
+  getVideoElementClass,
   contentStyle,
   rootClass,
 } = usePrivateChatCallLayout()
@@ -45,8 +48,8 @@ onMounted(mounted)
     >
       <video
         ref="localParticipantVideoRef"
-        :class="getVideoPanelClass('local')"
-        :style="getVideoPanelStyle('local')"
+        :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)]"
+        :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
         autoplay
         playsinline
         muted
@@ -57,10 +60,10 @@ onMounted(mounted)
         justify="center"
         align="center"
         gap="small"
-        :class="getVideoPanelClass('remote')"
-        :style="getVideoPanelStyle('remote')"
+        :class="getPlaceholderPanelClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
+        :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
       >
-        <l-user-avatar :size="configProviderStore.getToken().sizeXL * 2" :user="targetParticipant.metadata.details" />
+        <l-user-avatar :size="configProviderStore.getToken().sizeLG * 2" :user="targetParticipant.metadata.details" />
         <a-typography-text type="secondary">
           <a-badge :status="targetParticipant.badgeStatus" :text="getEnumName(targetParticipant.status)" />
         </a-typography-text>
@@ -68,8 +71,8 @@ onMounted(mounted)
       <video
         v-else-if="remoteVideoConnected"
         ref="remoteParticipantVideoRef"
-        :class="getVideoPanelClass('remote')"
-        :style="getVideoPanelStyle('remote')"
+        :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)]"
+        :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
         autoplay
         playsinline
       />
@@ -82,8 +85,8 @@ onMounted(mounted)
     >
       <video
         ref="localParticipantVideoRef"
-        :class="getVideoPanelClass('local')"
-        :style="getVideoPanelStyle('local')"
+        :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)]"
+        :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
         autoplay
         playsinline
         muted
@@ -97,8 +100,8 @@ onMounted(mounted)
           justify="center"
           align="center"
           gap="small"
-          :class="getVideoPanelClass('remote')"
-          :style="getVideoPanelStyle('remote')"
+          :class="getPlaceholderPanelClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
+          :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
           @click="!options.targetFullWindow ? changeFullWindow() : undefined"
         >
           <l-user-avatar :size="configProviderStore.getToken().sizeXL * 2" :user="targetParticipant.metadata.details" />
@@ -109,8 +112,8 @@ onMounted(mounted)
         <video
           v-else
           ref="remoteParticipantVideoRef"
-          :class="getVideoPanelClass('remote')"
-          :style="getVideoPanelStyle('remote')"
+          :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)]"
+          :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
           autoplay
           playsinline
           @click="!options.targetFullWindow ? changeFullWindow() : undefined"

@@ -9,9 +9,13 @@ import type {
   UserChatParticipantEntity
 } from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
+import {
+  CHAAT_ROOM_VIEW_MODAL_TYPE,
+  CHAT_CALL_PRIVATE_ROLE_TYPE
+} from "@/constants/messageConstant.ts";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import { CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE } from "@/constants/messageConstant.ts";
+import type {CSSProperties} from "vue";
 
 export type ChatRoomViewModalOpenType =
   | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
@@ -121,3 +125,30 @@ export interface ConversationActiveProps {
 export type ChatCallPrivateSplitScreenType =
   | typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT
   | typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT
+
+/** 视频流原始宽高，用于布局计算 */
+export interface VideoMetrics {
+  width: number
+  height: number
+  aspect: number
+}
+
+/** 布局可用区域上限 */
+export interface LayoutConstraints {
+  maxWidth: number
+  maxHeight: number
+}
+
+export type CallPanelStyle = Pick<CSSProperties, 'width' | 'height'>
+
+/** 私聊通话 modal / 各视频窗口尺寸规格 */
+export interface CallLayoutSpec {
+  modalWidth: number
+  modalHeight: number
+  local: CallPanelStyle
+  remote: CallPanelStyle
+}
+
+export type ChatCallPrivateRoleType =
+  | typeof CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL
+  | typeof CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE

@@ -1,37 +1,18 @@
 import {getEnumValue} from "@/utils/commonUtils.ts";
 import type {NameValueEnumMetadata, UserChatCallEntity, UserChatRoomEntity} from "@/types/apis";
 import {createIcon} from "@/utils/resourceUtils.ts";
-import {CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE, VIDEO_CHAT_CONSTRAINTS} from "@/constants/messageConstant.ts";
-import type {ChatCallPrivateSplitScreenType} from "@/types/composables/chat.ts";
+import {
+  CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
+  FALLBACK_VIDEO_METRICS, PIP_MAX_WIDTH_PX, PIP_WIDTH_RATIO,
+  VIDEO_CHAT_CONSTRAINTS
+} from "@/constants/messageConstant.ts";
+import type {
+  CallLayoutSpec, CallPanelStyle,
+  ChatCallPrivateSplitScreenType,
+  LayoutConstraints,
+  VideoMetrics
+} from "@/types/composables/chat.ts";
 import type {CSSProperties} from "vue";
-
-/** 视频流原始宽高，用于布局计算 */
-export interface VideoMetrics {
-  width: number
-  height: number
-  aspect: number
-}
-
-/** 布局可用区域上限 */
-export interface LayoutConstraints {
-  maxWidth: number
-  maxHeight: number
-}
-
-export type CallPanelStyle = Pick<CSSProperties, 'width' | 'height'>
-
-/** 私聊通话 modal / 各视频窗口尺寸规格 */
-export interface CallLayoutSpec {
-  modalWidth: number
-  modalHeight: number
-  local: CallPanelStyle
-  remote: CallPanelStyle
-}
-
-const PIP_WIDTH_RATIO = 0.28
-const PIP_MAX_WIDTH_PX = 200
-const FALLBACK_VIDEO_METRICS: VideoMetrics = {width: 16, height: 9, aspect: 16 / 9}
-
 
 export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> | number) {
   const value = getEnumValue(status)
@@ -63,9 +44,9 @@ export function getCallIcon(type:NameValueEnumMetadata<number> | number, vnode?:
 }
 
 /**
- * 
- * @param callEntity 
- * @returns 
+ *
+ * @param callEntity
+ * @returns
  */
 export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
   if (getEnumValue(callEntity.type) === 10) {
@@ -74,11 +55,8 @@ export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
     return VIDEO_CHAT_CONSTRAINTS.GROUP;
   }
 }
-/**
- * 
- * @param callEntity 
- * @returns 
- */
+
+
 export function getMediaStreamConstraintsByRoom(room:UserChatRoomEntity) {
   if (getEnumValue(room.type) === 20) {
     return VIDEO_CHAT_CONSTRAINTS.PREVATE;
@@ -193,8 +171,4 @@ export function computePrivateCallLayout(
     local: toPanelStyle(mainBox.width, mainBox.height),
     remote: toPanelStyle(pipW, pipH),
   }
-}
-
-export function isPrivateCallLeftRightSplit(mode: ChatCallPrivateSplitScreenType): boolean {
-  return mode === CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT
 }

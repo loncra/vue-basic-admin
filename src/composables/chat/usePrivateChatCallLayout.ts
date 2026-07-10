@@ -16,12 +16,14 @@ import {
   computePrivateCallLayout,
   getCallLayoutConstraints,
   getParticipantBadgeStatus,
-  isPrivateCallLeftRightSplit,
   readVideoMetrics,
   readVideoMetricsFromElement,
-  type VideoMetrics,
 } from "@/utils/chatCallUtils.ts";
-import {CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {
+  CHAT_CALL_PRIVATE_ROLE_TYPE,
+  CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
+  SOCKET_EVENT_TYPE
+} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {
   type AudioCaptureOptions,
@@ -37,9 +39,24 @@ import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import type {Participant, Room} from "livekit-client";
 import type {CSSProperties} from "vue";
 import type {ChatCallModalInnerProps} from "@/composables/chat/useChatCallModel.ts";
+import type {
+  ChatCallPrivateRoleType,
+  ChatCallPrivateSplitScreenType,
+  VideoMetrics
+} from "@/types/composables";
 
 export interface TargetParticipant extends UserChatCallParticipantEntity {
   badgeStatus:string
+}
+
+export interface MediaState  {
+  microphoneEnabled:boolean
+  cameraEnabled:boolean
+}
+
+export interface LocalMediaState extends MediaState {
+  targetFullWindow:boolean
+  splitScreenType: ChatCallPrivateSplitScreenType
 }
 
 const miniWindowClass =
@@ -53,14 +70,14 @@ export function usePrivateChatCallLayout() {
   const streamMetrics = ref<{local?: VideoMetrics; remote?: VideoMetrics}>({})
   const viewportTick = ref(0)
 
-  const options = ref({
+  const options = ref<LocalMediaState>({
     targetFullWindow:true,
     microphoneEnabled:true,
     cameraEnabled:true,
-    splitScreenType:CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT as typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT | typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT,
+    splitScreenType:CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT,
   })
 
-  const remoteMediaState = ref({
+  const remoteMediaState = ref<MediaState>({
     microphoneEnabled: true,
     cameraEnabled: true,
   })
@@ -71,7 +88,7 @@ export function usePrivateChatCallLayout() {
     requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
       .globalProperties
 
-  const isLeftRightSplit = computed(() => isPrivateCallLeftRightSplit(options.value.splitScreenType))
+  const isLeftRightSplit = computed(() => options.value.splitScreenType === CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT)
 
   const isNativeFullscreen = computed(() => {
     const modal = chatCallExpose.context.modal as ChatCallModalInnerProps
@@ -111,7 +128,7 @@ export function usePrivateChatCallLayout() {
     chatCallExpose.context.modal.height = spec.modalHeight
   })
 
-  function refreshStreamMetrics(role: 'local' | 'remote') {
+  function refreshStreamMetrics(role: ChatCallPrivateRoleType) {
     const el = role === 'local' ? localParticipantVideoRef.value : remoteParticipantVideoRef.value
     const metrics = readVideoMetricsFromElement(el)
     if (!metrics) {
@@ -120,7 +137,7 @@ export function usePrivateChatCallLayout() {
     streamMetrics.value = {...streamMetrics.value, [role]: metrics}
   }
 
-  function bindVideoMetrics(el: HTMLVideoElement | undefined, role: 'local' | 'remote') {
+  function bindVideoMetrics(el: HTMLVideoElement | undefined, role: ChatCallPrivateRoleType) {
     if (!el) {
       return
     }
@@ -149,7 +166,7 @@ export function usePrivateChatCallLayout() {
       audio: markRaw(previewAudioTrack)
     }
     previewVideoTrack.attach(localParticipantVideoRef.value)
-    bindVideoMetrics(localParticipantVideoRef.value, 'local')
+    bindVideoMetrics(localParticipantVideoRef.value, CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)
 
     const settings = previewVideoTrack.mediaStreamTrack?.getSettings()
     if (settings?.width && settings?.height) {
@@ -174,54 +191,84 @@ export function usePrivateChatCallLayout() {
     isNativeFullscreen.value ? 'relative size-full bg-black' : 'relative size-full bg-layout',
   )
 
-  function isPipRole(role: 'local' | 'remote'): boolean {
+  function isPipRole(role: ChatCallPrivateRoleType): boolean {
     if (isLeftRightSplit.value) {
       return false
     }
-    return role === 'local' ? options.value.targetFullWindow : !options.value.targetFullWindow
+    return role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL ? options.value.targetFullWindow : !options.value.targetFullWindow
   }
 
-  function getVideoPanelStyle(role: 'local' | 'remote'): CSSProperties {
+  function getPanelShellStyle(role: ChatCallPrivateRoleType): CSSProperties {
     if (isNativeFullscreen.value) {
       if (isLeftRightSplit.value) {
         return {flex: '1 1 0', width: '0', height: '100%'}
       }
       if (isPipRole(role)) {
         const spec = layoutSpec.value
-        return role === 'local' ? spec.local : spec.remote
+        return role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL ? spec.local : spec.remote
       }
       return {width: '100%', height: '100%'}
     }
 
     const spec = layoutSpec.value
     if (isLeftRightSplit.value) {
-      return role === 'local' ? spec.local : spec.remote
+      return role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL ? spec.local : spec.remote
     }
     if (isPipRole(role)) {
-      return role === 'local' ? spec.local : spec.remote
+      return role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL ? spec.local : spec.remote
     }
     return {width: '100%', height: `${spec.modalHeight}px`}
   }
 
-  function getVideoPanelClass(role: 'local' | 'remote'): string {
+  /** 面板容器：尺寸与定位，适用于 a-flex 占位与 video 外层，不含 block/object-* */
+  function getPanelShellClass(role: ChatCallPrivateRoleType): string {
     if (isNativeFullscreen.value) {
       if (isLeftRightSplit.value) {
-        return 'block size-full object-cover min-w-0'
+        return 'flex-1 min-w-0 h-full'
       }
       if (isPipRole(role)) {
-        return `block object-contain ${miniWindowClass} z-10`
+        return miniWindowClass
       }
-      return 'absolute inset-0 block size-full object-cover z-0'
+      return 'absolute inset-0 z-0'
     }
 
-    const base = 'block object-contain'
     if (isLeftRightSplit.value) {
-      return `${base} shrink-0`
+      return 'shrink-0 min-w-0'
     }
     if (isPipRole(role)) {
-      return `${base} ${miniWindowClass}`
+      return miniWindowClass
     }
-    return `${base} size-full`
+    return 'size-full min-h-0'
+  }
+
+  /** 未接听占位区：保留 flex 布局，附加背景 */
+  function getPlaceholderPanelClass(role: ChatCallPrivateRoleType): string {
+    const shell = getPanelShellClass(role)
+    if (isPipRole(role) && !isLeftRightSplit.value) {
+      return shell
+    }
+    return `${shell} bg-container`
+  }
+
+  /** 仅用于 video：display 与 object-fit */
+  function getVideoElementClass(role: ChatCallPrivateRoleType): string {
+    if (isNativeFullscreen.value) {
+      if (isLeftRightSplit.value) {
+        return 'block size-full min-w-0 object-cover'
+      }
+      if (isPipRole(role)) {
+        return 'block size-full object-contain'
+      }
+      return 'block size-full object-cover'
+    }
+
+    if (isLeftRightSplit.value) {
+      return 'block size-full object-contain shrink-0'
+    }
+    if (isPipRole(role)) {
+      return 'block size-full object-contain'
+    }
+    return 'block size-full object-contain'
   }
 
   async function mounted() {
@@ -274,13 +321,13 @@ export function usePrivateChatCallLayout() {
     const previewVideo = chatCallExpose.context.previewTrack?.video
     if (previewVideo && localParticipantVideoRef.value) {
       previewVideo.attach(localParticipantVideoRef.value)
-      bindVideoMetrics(localParticipantVideoRef.value, 'local')
+      bindVideoMetrics(localParticipantVideoRef.value, CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)
     }
     const remote = getRemoteParticipant()
     const remoteVideoPub = remote?.getTrackPublication(Track.Source.Camera)
     if (remoteVideoPub?.track && remoteParticipantVideoRef.value) {
       remoteVideoPub.track.attach(remoteParticipantVideoRef.value)
-      bindVideoMetrics(remoteParticipantVideoRef.value, 'remote')
+      bindVideoMetrics(remoteParticipantVideoRef.value, CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)
     }
   }
 
@@ -329,7 +376,7 @@ export function usePrivateChatCallLayout() {
 
         if (track.kind === Track.Kind.Video) {
           track.attach(remoteParticipantVideoRef.value!)
-          bindVideoMetrics(remoteParticipantVideoRef.value, 'remote')
+          bindVideoMetrics(remoteParticipantVideoRef.value, CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)
         } else if (track.kind === Track.Kind.Audio) {
           track.attach()
         }
@@ -441,7 +488,9 @@ export function usePrivateChatCallLayout() {
     toggleCamera,
     toggleSplitScreen,
     changeFullWindow,
-    getVideoPanelClass,
-    getVideoPanelStyle,
+    getPanelShellClass,
+    getPanelShellStyle,
+    getPlaceholderPanelClass,
+    getVideoElementClass,
   }
 }

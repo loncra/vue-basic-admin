@@ -92,7 +92,12 @@ onUnmounted(() => {
                 <icon-font type="loncra-picture-in-picture"/>
               </template>
             </a-button>
-            <a-button size="small" danger type="primary" :loading="modal.loading" @click="chatCallModelContext.handleCancel">
+            <a-button size="small" 
+              danger 
+              type="primary" 
+              :loading="modal.loading" 
+              @click="chatCallModelContext.handleCancel"
+              >
               <template #icon>
                 <icon-font type="loncra-x"/>
               </template>

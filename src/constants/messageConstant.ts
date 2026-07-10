@@ -1,3 +1,5 @@
+import type {VideoMetrics} from "@/types/composables";
+
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
 export const CHAT_CONTEXT_PROVIDE_KEY = "chatContext"
 export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModalExpose"
@@ -103,3 +105,12 @@ export const CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE = {
   DEFAULT:"default",
   LEFT_RIGHT:"leftRight"
 } as const
+
+export const CHAT_CALL_PRIVATE_ROLE_TYPE = {
+  LOCAL: "local",
+  REMOTE: "remote",
+}
+
+export const PIP_WIDTH_RATIO = 0.28
+export const PIP_MAX_WIDTH_PX = 200
+export const FALLBACK_VIDEO_METRICS: VideoMetrics = {width: 16, height: 9, aspect: 16 / 9}
