@@ -3,7 +3,7 @@
 import useApp from "antdv-next/dist/app/useApp";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {UserChatParticipantEntity} from "@/types/apis";
+import type {ChatCallType, UserChatParticipantEntity} from "@/types/apis";
 import type {MenuItemType} from "antdv-next";
 import {CHAT_CALL_TYPE} from "@/constants/messageConstant.ts";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
@@ -14,6 +14,11 @@ import {useChatCallModalExpose} from "@/composables";
 defineOptions({
   name: 'LChatCallButton',
 })
+
+const CALL_TITLE_I18N: Record<ChatCallType, string> = {
+  [CHAT_CALL_TYPE.VIDEO]: 'chat.call.video.title',
+  [CHAT_CALL_TYPE.VOICE]: 'chat.call.voice.title',
+}
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -43,67 +48,38 @@ const items: MenuItemType[] = [
   },
 ]
 
-async function videoCall() {
+async function startCall(type: ChatCallType) {
   if (!props.conversation.data) {
     return
   }
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    message.error('当前浏览器不支持用户媒体调用');
+  if (!navigator.mediaDevices?.getUserMedia) {
+    message.error('当前浏览器不支持音视频采集');
     return
   }
   try {
-    const principals = props.participants.filter(p => p.principal !== principalStore.state.name).map(p => p.principal)
+    const principals = props.participants
+      .filter(p => p.principal !== principalStore.state.name)
+      .map(p => p.principal)
     const createResult = await ChatCallService.create(
       Number(props.conversation.data.room.id),
-      CHAT_CALL_TYPE.VIDEO,
+      type,
       principals
     )
     if (!createResult.data) {
       return
     }
     chatCallModalExpose.openChatCallModal(
-      globalProperties.$t('chat.call.video.title',{user:props.conversation.label}),
+      globalProperties.$t(CALL_TITLE_I18N[type], {user: props.conversation.label}),
       createResult.data
     )
   } catch (err) {
-    // 用户拒绝 / 没有摄像头 / 被占用 等
-    console.error(err)
-  }
-}
-
-async function voiceCall() {
-  if (!props.conversation.data) {
-    return
-  }
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    message.error('当前浏览器不支持用户媒体调用');
-    return
-  }
-  try {
-    const principals = props.participants.filter(p => p.principal !== principalStore.state.name).map(p => p.principal)
-    const createResult = await ChatCallService.create(
-      Number(props.conversation.data.room.id),
-      CHAT_CALL_TYPE.VOICE,
-      principals
-    )
-    if (!createResult.data) {
-      return
-    }
-    chatCallModalExpose.openChatCallModal(
-      globalProperties.$t('chat.call.voice.title',{user:props.conversation.label}),
-      createResult.data
-    )
-  } catch (err) {
-    // 用户拒绝 / 没有摄像头 / 被占用 等
     console.error(err)
   }
 }
 
 function onMenuClick(e: { key: string}) {
-  if (e.key === CHAT_CALL_TYPE.VIDEO) {
-    videoCall()
-  } else if (e.key === CHAT_CALL_TYPE.VOICE) {
-    voiceCall()
+  if (e.key === CHAT_CALL_TYPE.VIDEO || e.key === CHAT_CALL_TYPE.VOICE) {
+    void startCall(e.key)
   }
 }
 

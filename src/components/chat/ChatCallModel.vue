@@ -4,25 +4,39 @@ import {computed, onMounted, onUnmounted, ref, type Component} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
 import {DATE_TIME_FORMAT} from "@/constants/systemConstant.ts";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
-import {type ChatCallModalInnerProps, useChatCallModalExpose} from "@/composables";
+import {
+  type ChatCallModalInnerProps,
+  provideChatCallMedia,
+  useChatCallModalExpose,
+} from "@/composables";
 import LChatCallPrivateTypeLayout from "@/components/chat/ChatCallPrivateTypeLayout.vue";
-import {CHAT_CALL_MINI_SIZE, CHAT_CALL_UI_MODE} from "@/constants/messageConstant.ts";
+import {
+  CHAT_CALL_MINI_SIZE,
+  CHAT_CALL_SCENE,
+  CHAT_CALL_UI_MODE,
+} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'LChatCallModel',
 })
 
 const chatCallModelContext = useChatCallModalExpose()
+const callMedia = provideChatCallMedia()
+const {mediaOptions, toggleMicrophone, toggleCamera} = callMedia
 const callViewportRef = ref<HTMLDivElement>()
 
+/** scene → 画面布局组件（会议/直播在此注册） */
 const CALL_LAYOUT_BY_SCENE: Record<number, Component> = {
-  10: LChatCallPrivateTypeLayout,
+  [CHAT_CALL_SCENE.PRIVATE]: LChatCallPrivateTypeLayout,
 }
 
 const modal = computed(() => chatCallModelContext.context.modal as ChatCallModalInnerProps)
 const isNativeFullscreen = computed(() => modal.value.fullscreen ?? false)
 const isCallMinimized = computed(() => modal.value.uiMode === CHAT_CALL_UI_MODE.MINIMIZED)
 const isCallExpanded = computed(() => !isCallMinimized.value)
+const showMediaToolbar = computed(() =>
+  isCallExpanded.value && getEnumValue(chatCallModelContext.context.userChatCall?.status) !== 30,
+)
 
 const callLayout = computed(() => {
   const scene = chatCallModelContext.context.userChatCall?.scene
@@ -159,6 +173,40 @@ onUnmounted(() => {
         @click="onCallViewportClick"
       >
         <component :is="callLayout" v-if="callLayout" />
+        <a-flex
+          v-if="showMediaToolbar"
+          justify="space-between"
+          align="center"
+          class="absolute bottom-0 left-0 z-20 w-full p-xs opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          @click.stop
+        >
+          <a-space-compact>
+            <a-button class="opacity-30" variant="outlined" @click="toggleMicrophone">
+              <template #icon>
+                <icon-font :type="mediaOptions.microphoneEnabled ? 'loncra-mic' : 'loncra-mic-off'"/>
+              </template>
+            </a-button>
+            <a-button class="opacity-30" variant="outlined" @click="toggleCamera">
+              <template #icon>
+                <icon-font :type="mediaOptions.cameraEnabled ? 'loncra-video' : 'loncra-video-off'"/>
+              </template>
+            </a-button>
+          </a-space-compact>
+          <a-space>
+            <a-button
+              class="opacity-50"
+              shape="circle"
+              type="primary"
+              danger
+              :loading="modal.loading"
+              @click="chatCallModelContext.handleCancel"
+            >
+              <template #icon>
+                <icon-font type="loncra-power"/>
+              </template>
+            </a-button>
+          </a-space>
+        </a-flex>
         <a-flex
           gap="small"
           v-if="modal.closeTimerValue && isCallExpanded"

@@ -18,8 +18,6 @@ const {
   localParticipantDetails,
   options,
   chatCallExpose,
-  toggleMicrophone,
-  toggleCamera,
   toggleSplitScreen,
   mounted,
   localParticipantVideoRef,
@@ -166,43 +164,16 @@ function onRemotePanelClick() {
       </template>
     </div>
 
-    <a-flex
+    <!-- 私聊专属：分屏切换（紧挨外壳麦/摄像头按钮） -->
+    <a-button
       v-if="!isCallMinimized && getEnumValue(chatCallExpose.context.userChatCall?.status) !== 30"
-      justify="space-between"
-      align="center"
-      class="absolute bottom-0 left-0 w-full p-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
+      class="absolute bottom-0 left-19 z-30 m-xs opacity-0 transition-opacity duration-300 group-hover:opacity-30"
+      variant="outlined"
+      @click.stop="toggleSplitScreen"
     >
-      <a-space-compact>
-        <a-button class="opacity-30" variant="outlined" @click="toggleMicrophone">
-          <template #icon>
-            <icon-font :type="options.microphoneEnabled ? 'loncra-mic' : 'loncra-mic-off'"/>
-          </template>
-        </a-button>
-        <a-button class="opacity-30" variant="outlined" @click="toggleCamera">
-          <template #icon>
-            <icon-font :type="options.cameraEnabled ? 'loncra-video' : 'loncra-video-off'"/>
-          </template>
-        </a-button>
-        <a-button class="opacity-30" variant="outlined" @click="toggleSplitScreen">
-          <template #icon>
-            <icon-font :type="isLeftRightSplit ? 'loncra-picture-in-picture' : 'loncra-layout-template'"/>
-          </template>
-        </a-button>
-      </a-space-compact>
-      <a-space>
-        <a-button
-          class="opacity-50"
-          shape="circle"
-          type="primary"
-          danger
-          @click="chatCallExpose.handleCancel"
-          :loading="chatCallExpose.context.modal.loading"
-        >
-          <template #icon>
-            <icon-font type="loncra-power"/>
-          </template>
-        </a-button>
-      </a-space>
-    </a-flex>
+      <template #icon>
+        <icon-font :type="isLeftRightSplit ? 'loncra-picture-in-picture' : 'loncra-layout-template'"/>
+      </template>
+    </a-button>
   </div>
 </template>

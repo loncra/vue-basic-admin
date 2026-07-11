@@ -36,6 +36,7 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {Button, Space} from "antdv-next";
 import {LocalAudioTrack, type LocalVideoTrack, Room} from "livekit-client";
 import type {ChatCallUiMode} from "@/types/composables/chat.ts";
+import type {ButtonConfig} from "antdv-next/config-provider/context";
 
 export interface UseChatCallModelParams {
   closeTimerValue: Ref<TimeProperties>;
@@ -63,6 +64,7 @@ export interface ChatCallModelContext {
     video?: Raw<LocalVideoTrack>
     audio?: Raw<LocalAudioTrack>
   }
+  leftButton?:VNode[]
 }
 
 export interface ChatCallModelExpose {

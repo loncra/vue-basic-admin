@@ -3,6 +3,7 @@ import type {VideoMetrics} from "@/types/composables";
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
 export const CHAT_CONTEXT_PROVIDE_KEY = "chatContext"
 export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModalExpose"
+export const CHAT_CALL_MEDIA_PROVIDE_KEY = "chatCallMedia"
 
 /**
  * 消息分组
@@ -101,6 +102,11 @@ export const CHAT_CALL_TYPE = {
   VOICE:"20"
 } as const
 
+/** 通话场景：决定布局与采集档位（与 type 视频/语音正交） */
+export const CHAT_CALL_SCENE = {
+  PRIVATE: 10,
+} as const
+
 export const CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE = {
   DEFAULT:"default",
   LEFT_RIGHT:"leftRight"
@@ -127,4 +133,3 @@ export const PIP_WIDTH_RATIO = 0.28
 export const PIP_MAX_WIDTH_PX = 200
 /** 无真实视频流时用于布局计算的默认宽高（与 PREVATE 约束 ideal 一致） */
 export const PRIVATE_VIDEO_LAYOUT_METRICS: VideoMetrics = {width: 1280, height: 720, aspect: 16 / 9}
-export const FALLBACK_VIDEO_METRICS: VideoMetrics = {width: 16, height: 9, aspect: 16 / 9}

@@ -45,5 +45,12 @@ export {
 } from './useChatNotification.ts'
 
 export {
+  provideChatCallMedia,
+  useChatCallMediaExpose,
+  type ChatCallMediaExpose,
+  type CallMediaState,
+} from './useChatCallMedia.ts'
+
+export {
   usePrivateChatCallLayout
 } from './usePrivateChatCallLayout.ts'

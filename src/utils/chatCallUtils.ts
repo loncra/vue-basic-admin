@@ -3,7 +3,8 @@ import type {NameValueEnumMetadata, UserChatCallEntity, UserChatRoomEntity} from
 import {createIcon} from "@/utils/resourceUtils.ts";
 import {
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
-  FALLBACK_VIDEO_METRICS, PIP_MAX_WIDTH_PX, PIP_WIDTH_RATIO,
+  CHAT_CALL_SCENE,
+  PIP_MAX_WIDTH_PX, PIP_WIDTH_RATIO,
   VIDEO_CHAT_CONSTRAINTS
 } from "@/constants/messageConstant.ts";
 import type {
@@ -49,7 +50,7 @@ export function getCallIcon(type:NameValueEnumMetadata<number> | number, vnode?:
  * @returns
  */
 export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
-  if (getEnumValue(callEntity.type) === 10) {
+  if (getEnumValue(callEntity.scene) === CHAT_CALL_SCENE.PRIVATE) {
     return VIDEO_CHAT_CONSTRAINTS.PREVATE;
   } else {
     return VIDEO_CHAT_CONSTRAINTS.GROUP;
@@ -140,12 +141,11 @@ function layoutPrivateLeftRight(
  */
 export function computePrivateCallLayout(
   mode: ChatCallPrivateSplitScreenType,
-  metrics: {local?: VideoMetrics; remote?: VideoMetrics},
+  metrics: {local: VideoMetrics; remote: VideoMetrics},
   constraints: LayoutConstraints,
   targetFullWindow: boolean,
 ): CallLayoutSpec {
-  const local = metrics.local ?? FALLBACK_VIDEO_METRICS
-  const remote = metrics.remote ?? local
+  const {local, remote} = metrics
 
   if (mode === CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT) {
     return layoutPrivateLeftRight(local, remote, constraints)
