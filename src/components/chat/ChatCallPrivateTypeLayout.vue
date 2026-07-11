@@ -15,6 +15,7 @@ const configProviderStore = useConfigProviderStore();
 
 const {
   targetParticipant,
+  localParticipantDetails,
   options,
   chatCallExpose,
   toggleMicrophone,
@@ -23,7 +24,7 @@ const {
   mounted,
   localParticipantVideoRef,
   remoteParticipantVideoRef,
-  remoteVideoConnected,
+  showParticipantVideo,
   isLeftRightSplit,
   isCallMinimized,
   changeFullWindow,
@@ -37,6 +38,15 @@ const {
 
 onMounted(mounted)
 
+function onRemotePanelClick() {
+  if (isCallMinimized.value) {
+    return
+  }
+  if (!options.value.targetFullWindow) {
+    changeFullWindow()
+  }
+}
+
 </script>
 
 <template>
@@ -47,8 +57,23 @@ onMounted(mounted)
       :style="contentStyle"
       align="stretch"
     >
+      <a-flex
+        v-if="!showParticipantVideo(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
+        vertical
+        justify="center"
+        align="center"
+        gap="small"
+        :class="getPlaceholderPanelClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
+        :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
+      >
+        <l-user-avatar
+          v-if="localParticipantDetails"
+          :size="configProviderStore.getToken().sizeXL * 2"
+          :user="localParticipantDetails"
+        />
+      </a-flex>
       <video
-        v-show="!isCallMinimized"
+        v-else
         ref="localParticipantVideoRef"
         :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)]"
         :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
@@ -57,7 +82,7 @@ onMounted(mounted)
         muted
       />
       <a-flex
-        v-if="targetParticipant && !remoteVideoConnected"
+        v-if="targetParticipant && !showParticipantVideo(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
         vertical
         justify="center"
         align="center"
@@ -71,7 +96,7 @@ onMounted(mounted)
         </a-typography-text>
       </a-flex>
       <video
-        v-else-if="remoteVideoConnected"
+        v-else-if="showParticipantVideo(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
         ref="remoteParticipantVideoRef"
         :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)]"
         :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
@@ -85,7 +110,24 @@ onMounted(mounted)
       :class="rootClass"
       :style="contentStyle"
     >
+      <a-flex
+        v-if="!showParticipantVideo(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
+        vertical
+        justify="center"
+        align="center"
+        gap="small"
+        :class="getPlaceholderPanelClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
+        :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)"
+        @click="options.targetFullWindow ? changeFullWindow() : undefined"
+      >
+        <l-user-avatar
+          v-if="localParticipantDetails"
+          :size="configProviderStore.getToken().sizeXL * 2"
+          :user="localParticipantDetails"
+        />
+      </a-flex>
       <video
+        v-else
         v-show="!isCallMinimized"
         ref="localParticipantVideoRef"
         :class="[getPanelShellClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL), getVideoElementClass(CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)]"
@@ -98,14 +140,14 @@ onMounted(mounted)
 
       <template v-if="targetParticipant">
         <a-flex
-          v-if="!remoteVideoConnected"
+          v-if="!showParticipantVideo(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
           vertical
           justify="center"
           align="center"
           gap="small"
           :class="getPlaceholderPanelClass(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
           :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
-          @click="!options.targetFullWindow ? changeFullWindow() : undefined"
+          @click="onRemotePanelClick"
         >
           <l-user-avatar :size="configProviderStore.getToken().sizeXL * 2" :user="targetParticipant.metadata.details" />
           <a-typography-text type="secondary">
@@ -119,7 +161,7 @@ onMounted(mounted)
           :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
           autoplay
           playsinline
-          @click="!options.targetFullWindow ? changeFullWindow() : undefined"
+          @click="onRemotePanelClick"
         />
       </template>
     </div>

@@ -125,4 +125,6 @@ export const CHAT_CALL_MINI_SIZE = {
 
 export const PIP_WIDTH_RATIO = 0.28
 export const PIP_MAX_WIDTH_PX = 200
+/** 无真实视频流时用于布局计算的默认宽高（与 PREVATE 约束 ideal 一致） */
+export const PRIVATE_VIDEO_LAYOUT_METRICS: VideoMetrics = {width: 1280, height: 720, aspect: 16 / 9}
 export const FALLBACK_VIDEO_METRICS: VideoMetrics = {width: 16, height: 9, aspect: 16 / 9}

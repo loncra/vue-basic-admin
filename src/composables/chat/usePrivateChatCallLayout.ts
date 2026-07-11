@@ -1,4 +1,5 @@
 import {useChatCallModalExpose, useSocketSubscriptions} from "@/composables";
+import type {CSSProperties} from "vue";
 import {
   type ComponentInternalInstance,
   computed,
@@ -20,17 +21,21 @@ import {
   readVideoMetricsFromElement,
 } from "@/utils/chatCallUtils.ts";
 import {
+  CHAT_CALL_MINI_SIZE,
   CHAT_CALL_PRIVATE_ROLE_TYPE,
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
-  CHAT_CALL_MINI_SIZE,
+  CHAT_CALL_TYPE,
   CHAT_CALL_UI_MODE,
+  PRIVATE_VIDEO_LAYOUT_METRICS,
   SOCKET_EVENT_TYPE
 } from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
+import type {Participant, Room} from "livekit-client";
 import {
   type AudioCaptureOptions,
   createLocalAudioTrack,
   createLocalVideoTrack,
+  type LocalVideoTrack,
   RoomEvent,
   Track,
   type VideoCaptureOptions
@@ -38,8 +43,6 @@ import {
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
-import type {Participant, Room} from "livekit-client";
-import type {CSSProperties} from "vue";
 import type {ChatCallModalInnerProps} from "@/composables/chat/useChatCallModel.ts";
 import type {
   ChatCallPrivateRoleType,
@@ -108,40 +111,51 @@ export function usePrivateChatCallLayout() {
     return getCallLayoutConstraints(modal.fullscreen ?? false)
   })
 
+  const layoutMetrics = computed(() => {
+    const metrics = streamMetrics.value
+    const local = metrics.local ?? PRIVATE_VIDEO_LAYOUT_METRICS
+    return {
+      local,
+      remote: metrics.remote ?? local,
+    }
+  })
+
   const layoutSpec = computed(() =>
     computePrivateCallLayout(
       options.value.splitScreenType,
-      streamMetrics.value,
+      layoutMetrics.value,
       layoutConstraints.value,
       options.value.targetFullWindow,
     ),
   )
 
-  watch(layoutSpec, (spec) => {
+  function syncModalLayoutFromSpec() {
     if (isNativeFullscreen.value || isCallMinimized.value) {
       return
     }
+    const spec = layoutSpec.value
     chatCallExpose.context.modal.width = spec.modalWidth
     chatCallExpose.context.modal.height = spec.modalHeight
-  }, {immediate: true})
+  }
+
+  watch(layoutSpec, () => syncModalLayoutFromSpec(), {immediate: true})
 
   watch(isNativeFullscreen, (fullscreen) => {
     if (fullscreen) {
       viewportTick.value++
       return
     }
-    const spec = layoutSpec.value
-    chatCallExpose.context.modal.width = spec.modalWidth
-    chatCallExpose.context.modal.height = spec.modalHeight
+    syncModalLayoutFromSpec()
   })
 
   function refreshStreamMetrics(role: ChatCallPrivateRoleType) {
-    const el = role === 'local' ? localParticipantVideoRef.value : remoteParticipantVideoRef.value
+    const el = role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL ? localParticipantVideoRef.value : remoteParticipantVideoRef.value
     const metrics = readVideoMetricsFromElement(el)
     if (!metrics) {
       return
     }
     streamMetrics.value = {...streamMetrics.value, [role]: metrics}
+    syncModalLayoutFromSpec()
   }
 
   function bindVideoMetrics(el: HTMLVideoElement | undefined, role: ChatCallPrivateRoleType) {
@@ -153,35 +167,71 @@ export function usePrivateChatCallLayout() {
     onMetadata()
   }
 
+  function applyLocalVideoMetricsFromTrack(videoTrack: LocalVideoTrack) {
+    const settings = videoTrack.mediaStreamTrack?.getSettings()
+    if (!settings?.width || !settings?.height) {
+      return
+    }
+    const metrics = readVideoMetrics(settings.width, settings.height)
+    if (!metrics) {
+      return
+    }
+    streamMetrics.value = {...streamMetrics.value, local: metrics}
+    syncModalLayoutFromSpec()
+  }
+
+  async function applyLocalVideoToView(videoTrack: LocalVideoTrack) {
+    await nextTick()
+    if (!localParticipantVideoRef.value) {
+      return
+    }
+    videoTrack.attach(localParticipantVideoRef.value)
+    bindVideoMetrics(localParticipantVideoRef.value, CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)
+    applyLocalVideoMetricsFromTrack(videoTrack)
+  }
+
+  async function setupLocalPreviewVideo(publish = false) {
+    const call = chatCallExpose.context.userChatCall
+    if (!call) {
+      return
+    }
+    const constraints = getMediaStreamConstraintsByCall(call)
+    const videoTrack = await createLocalVideoTrack(constraints.video as VideoCaptureOptions)
+    chatCallExpose.context.previewTrack = {
+      ...chatCallExpose.context.previewTrack,
+      video: markRaw(videoTrack),
+    }
+    await applyLocalVideoToView(videoTrack)
+    if (publish && chatCallExpose.context.room) {
+      await chatCallExpose.context.room.localParticipant.publishTrack(videoTrack, {
+        source: Track.Source.Camera,
+      })
+    }
+  }
+
   async function startLocalPreview() {
     const call = chatCallExpose.context.userChatCall
     if (!call) {
       return
     }
-    await nextTick()
-    if (!localParticipantVideoRef.value) {
-      return
-    }
-    const previewVideoTrack = await createLocalVideoTrack(
-      getMediaStreamConstraintsByCall(call).video as VideoCaptureOptions
-    )
+
+    const isVideoCall = String(getEnumValue(call.type)) === CHAT_CALL_TYPE.VIDEO
+    options.value.cameraEnabled = isVideoCall
+
+    const constraints = getMediaStreamConstraintsByCall(call)
     const previewAudioTrack = await createLocalAudioTrack(
-      getMediaStreamConstraintsByCall(call).audio as AudioCaptureOptions
+      constraints.audio as AudioCaptureOptions,
     )
     chatCallExpose.context.previewTrack = {
-      video: markRaw(previewVideoTrack),
-      audio: markRaw(previewAudioTrack)
+      audio: markRaw(previewAudioTrack),
     }
-    previewVideoTrack.attach(localParticipantVideoRef.value)
-    bindVideoMetrics(localParticipantVideoRef.value, CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL)
 
-    const settings = previewVideoTrack.mediaStreamTrack?.getSettings()
-    if (settings?.width && settings?.height) {
-      const metrics = readVideoMetrics(settings.width, settings.height)
-      if (metrics) {
-        streamMetrics.value = {...streamMetrics.value, local: metrics}
-      }
+    if (!isVideoCall) {
+      syncModalLayoutFromSpec()
+      return
     }
+
+    await setupLocalPreviewVideo()
   }
 
   const contentStyle = computed(() => {
@@ -307,7 +357,9 @@ export function usePrivateChatCallLayout() {
     }
 
     const callEntity = chatCallExpose.context.userChatCall;
-    const key = getEnumValue(callEntity.type) === 10 ? "chat.call.video.title" : "chat.call.video.title";
+    const key = String(getEnumValue(callEntity.type)) === CHAT_CALL_TYPE.VIDEO
+      ? 'chat.call.video.title'
+      : 'chat.call.voice.title';
 
     if (targetParticipant.value) {
       const name = AuthServerService.getPrincipalNameByUserDetails(targetParticipant.value.metadata.details)
@@ -331,6 +383,19 @@ export function usePrivateChatCallLayout() {
   const remoteVideoConnected = computed(() =>
     targetParticipant.value ? getEnumValue(targetParticipant.value.status) === 40 : false,
   )
+
+  const localParticipantDetails = computed(() => principalStore.state.details?.metadata)
+
+  /** 是否展示该参与者的视频画面（关闭摄像头或未接通时展示头像占位） */
+  function showParticipantVideo(role: ChatCallPrivateRoleType): boolean {
+    if (role === CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL) {
+      return options.value.cameraEnabled
+    }
+    if (!remoteVideoConnected.value) {
+      return false
+    }
+    return remoteMediaState.value.cameraEnabled
+  }
 
   function changeFullWindow() {
     if (isLeftRightSplit.value) {
@@ -361,9 +426,15 @@ export function usePrivateChatCallLayout() {
     }
   }
 
-  watch(isLeftRightSplit, () => {
-    void reattachVideoElements()
-  })
+  watch(isLeftRightSplit, () => reattachVideoElements())
+
+  watch(
+    () => [options.value.cameraEnabled, remoteMediaState.value.cameraEnabled],
+    async () => {
+      await nextTick()
+      await reattachVideoElements()
+    },
+  )
 
   watch(isCallMinimized, async (minimized) => {
     if (minimized) {
@@ -384,9 +455,7 @@ export function usePrivateChatCallLayout() {
     options.value.splitScreenType = snapshot.splitScreenType
     expandedLayoutSnapshot.value = null
     await nextTick()
-    const spec = layoutSpec.value
-    chatCallExpose.context.modal.width = spec.modalWidth
-    chatCallExpose.context.modal.height = spec.modalHeight
+    syncModalLayoutFromSpec()
     await reattachVideoElements()
   })
 
@@ -444,7 +513,7 @@ export function usePrivateChatCallLayout() {
           source:Track.Source.Camera
         })
       } else {
-        await room.localParticipant.setCameraEnabled(true)
+        await room.localParticipant.setCameraEnabled(false)
       }
 
       if (previewTrack && previewTrack?.audio) {
@@ -474,14 +543,38 @@ export function usePrivateChatCallLayout() {
     await chatCallExpose.context.room?.localParticipant.setMicrophoneEnabled(options.value.microphoneEnabled)
   }
 
-  async function toggleCamera() {
-    options.value.cameraEnabled = !options.value.cameraEnabled
+  async function ensureLocalVideoAttached() {
     const video = chatCallExpose.context.previewTrack?.video
-    if (video) {
-      options.value.cameraEnabled ? await video.unmute() : await video.mute()
+    if (!video) {
       return
     }
-    await chatCallExpose.context.room?.localParticipant.setCameraEnabled(options.value.cameraEnabled)
+    await applyLocalVideoToView(video)
+  }
+
+  async function createAndPublishLocalVideo() {
+    await setupLocalPreviewVideo(true)
+  }
+
+  async function toggleCamera() {
+    const enabling = !options.value.cameraEnabled
+    options.value.cameraEnabled = enabling
+
+    const video = chatCallExpose.context.previewTrack?.video
+    if (enabling) {
+      if (!video) {
+        await createAndPublishLocalVideo()
+        return
+      }
+      await video.unmute()
+      await ensureLocalVideoAttached()
+      return
+    }
+
+    if (video) {
+      await video.mute()
+      return
+    }
+    await chatCallExpose.context.room?.localParticipant.setCameraEnabled(false)
   }
 
   function syncRemoteMediaState(participant: Participant) {
@@ -533,7 +626,9 @@ export function usePrivateChatCallLayout() {
     chatCallExpose,
     options,
     targetParticipant,
+    localParticipantDetails,
     remoteVideoConnected,
+    showParticipantVideo,
     isLeftRightSplit,
     isCallMinimized,
     isNativeFullscreen,

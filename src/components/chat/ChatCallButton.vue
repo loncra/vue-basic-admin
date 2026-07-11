@@ -71,11 +71,39 @@ async function videoCall() {
   }
 }
 
+async function voiceCall() {
+  if (!props.conversation.data) {
+    return
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    message.error('当前浏览器不支持用户媒体调用');
+    return
+  }
+  try {
+    const principals = props.participants.filter(p => p.principal !== principalStore.state.name).map(p => p.principal)
+    const createResult = await ChatCallService.create(
+      Number(props.conversation.data.room.id),
+      CHAT_CALL_TYPE.VOICE,
+      principals
+    )
+    if (!createResult.data) {
+      return
+    }
+    chatCallModalExpose.openChatCallModal(
+      globalProperties.$t('chat.call.voice.title',{user:props.conversation.label}),
+      createResult.data
+    )
+  } catch (err) {
+    // 用户拒绝 / 没有摄像头 / 被占用 等
+    console.error(err)
+  }
+}
+
 function onMenuClick(e: { key: string}) {
   if (e.key === CHAT_CALL_TYPE.VIDEO) {
     videoCall()
   } else if (e.key === CHAT_CALL_TYPE.VOICE) {
-
+    voiceCall()
   }
 }
 
