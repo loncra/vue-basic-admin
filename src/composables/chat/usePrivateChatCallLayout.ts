@@ -26,7 +26,7 @@ import {
 } from "@/constants/messageConstant.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
-import type {ChatCallModalInnerProps} from "@/composables/chat/useChatCallModel.ts";
+import type {ChatCallModalInnerProps} from "@/composables/chat/useChatCallModal.ts";
 import type {
   ChatCallPrivateRoleType,
   ChatCallPrivateSplitScreenType,

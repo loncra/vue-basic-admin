@@ -1,6 +1,6 @@
 import {
-  provideChatCllExpose,
-  type UseChatCallModelParams,
+  provideChatCallExpose,
+  type UseChatCallModalParams,
   useSocketSubscriptions
 } from "@/composables";
 import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
@@ -34,14 +34,14 @@ import {Flex} from "antdv-next";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
 
 export interface UseChatNotificationParam {
-  chatCallConfig: UseChatCallModelParams
+  chatCallConfig: UseChatCallModalParams
 }
 
 export function useChatNotification(config: UseChatNotificationParam) {
   const {on} = useSocketSubscriptions()
   const {destroy, info, createNotificationDescription} = useAppNotification()
 
-  const chatCallExport = provideChatCllExpose(config.chatCallConfig)
+  const chatCallExport = provideChatCallExpose(config.chatCallConfig)
 
   const messageServerStore = useMessageServerStore()
   const principalStore = usePrincipalStore()

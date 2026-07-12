@@ -108,6 +108,32 @@ function stripIndividualMentions(slots: SlotConfigType[]): SlotConfigType[] {
   })
 }
 
+function removeTrailingTrigger(
+  slots: SlotConfigType[],
+  trigger: string,
+): SlotConfigType[] {
+  if (!trigger) return slots
+  const result = slots.map(s => ({ ...s }))
+  // 从后往前找最后一个 text slot，删掉末尾 trigger
+  for (let i = result.length - 1; i >= 0; i--) {
+    const slot = result[i]
+    if (slot?.type !== 'text' || typeof slot.value !== 'string') {
+      continue
+    }
+    if (!slot?.value.endsWith(trigger)) {
+      break
+    }
+    const next = slot?.value.slice(0, -trigger.length)
+    if (next === '') {
+      result.splice(i, 1)
+    } else {
+      result[i] = { ...slot, value: next }
+    }
+    break
+  }
+  return result
+}
+
 function onSenderInsertInstruction(
   sender:SenderRef,
   block:SlotConfigType,
@@ -124,20 +150,19 @@ function onSenderInsertInstruction(
     }
   ).props
   if (props.prefix === '@' && props.defaultValue.id === CHAT_EVERYONE_ID) {
+    const trigger = measure.prefix + measure.keyword
     const slotConfig = sender.getValue().slotConfig ?? []
     const kept = stripIndividualMentions(slotConfig)
+    const cleaned = removeTrailingTrigger(kept, trigger)
     sender.clear()
-    if (kept.length > 0) {
-      sender.insert(kept)
-    }
-    // FIXME 这里做法有问题，晚点在处理
-    sender.insert([block, { type: 'text', value: ' ' }], 'start', measure.prefix + measure.keyword )
-    //sender.insert([block, { type: 'text', value: ' ' }], 'end')
-    //sender.focus({ cursor: 'end' })
-  } else {
-    // 单人 @：沿用原来的 insert
-    sender.insert([block, { type: 'text', value: ' ' }], 'cursor', measure.prefix + measure.keyword )
-  }
+    // 一次写入：所有人在前 + 清理后的其它内容，不再传 replaceCharacters
+    sender.insert(
+      [block, { type: 'text', value: ' ' }, ...cleaned],
+      'start',
+    )
+    return
+  } 
+  sender.insert([block, { type: 'text', value: ' ' }], 'cursor', measure.prefix + measure.keyword )
 }
 
 function onInstructionFilter(keyword:string, dataSource:IdValueMetadata<string, string>[], prefix:string) {

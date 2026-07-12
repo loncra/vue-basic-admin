@@ -38,7 +38,7 @@ import {LocalAudioTrack, type LocalVideoTrack, Room} from "livekit-client";
 import type {ChatCallUiMode} from "@/types/composables/chat.ts";
 import type {ButtonConfig} from "antdv-next/config-provider/context";
 
-export interface UseChatCallModelParams {
+export interface UseChatCallModalParams {
   closeTimerValue: Ref<TimeProperties>;
 }
 
@@ -56,7 +56,7 @@ export interface ChatCallModalInnerProps extends ChatCallModalProps{
   closeTimerValue?:number
 }
 
-export interface ChatCallModelContext {
+export interface ChatCallModalContext {
   modal:ChatCallModalProps,
   room?:Raw<Room>,
   userChatCall?:UserChatCallResponseBody,
@@ -68,7 +68,7 @@ export interface ChatCallModelContext {
 }
 
 export interface ChatCallModelExpose {
-  context:ChatCallModelContext,
+  context:ChatCallModalContext,
   openChatCallModal:(
     title:string,
     _userChatCall:UserChatCallResponseBody
@@ -105,7 +105,7 @@ export interface ChatCallModelExpose {
   toggleCallMinimize:() => Promise<void>,
 }
 
-export function provideChatCllExpose(config:UseChatCallModelParams) {
+export function provideChatCallExpose(config:UseChatCallModalParams) {
   const {on} = useSocketSubscriptions()
   const { destroy } = useAppNotification()
   const { message } = useApp()
@@ -115,7 +115,7 @@ export function provideChatCllExpose(config:UseChatCallModelParams) {
     getCurrentInstance(),
   ).appContext.config.globalProperties
 
-  const context = ref<ChatCallModelContext>({
+  const context = ref<ChatCallModalContext>({
     modal:{
       loading: false,
       open:false,

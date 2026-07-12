@@ -105,6 +105,8 @@ export const CHAT_CALL_TYPE = {
 /** 通话场景：决定布局与采集档位（与 type 视频/语音正交） */
 export const CHAT_CALL_SCENE = {
   PRIVATE: 10,
+  GROUP: 20,
+  MEETING: 30
 } as const
 
 export const CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE = {
