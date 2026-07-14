@@ -61,6 +61,10 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
   ): Promise<void> {
     conversationActive.value.drawerOpen = false
     if (body) {
+      // AxSender：slotConfig 非数组时会退化为 TextArea，聚焦后出现 antd 蓝边
+      if (!Array.isArray(body.draft)) {
+        body.draft = []
+      }
       const item: ServerConversationItem = {
         key: String(body.id),
         label: body.name,

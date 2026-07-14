@@ -1,12 +1,4 @@
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  onMounted,
-  type Ref,
-  ref,
-  watch,
-} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance, type Ref, ref,} from 'vue'
 import type {
   ContactItem,
   RestResult,
@@ -47,7 +39,7 @@ export function useChatRoomSettings(
   ).appContext.config.globalProperties
   const {message, modal} = useApp()
 
-  const {conversationActive, loader} = useChatContext()
+  const {conversationActive, conversations, loader, activateConversation} = useChatContext()
   const principalStore = usePrincipalStore()
   const conversationActions = useConversationActions()
   const {on} = useSocketSubscriptions()
@@ -110,20 +102,6 @@ export function useChatRoomSettings(
     }
     loadParticipant()
   }
-
-  /*async function mounted(): Promise<void> {
-    if (!conversation.value) {
-      return
-    }
-    if (
-      options.value.currentConversation &&
-      options.value.currentConversation.id === conversation.value.id
-    ) {
-      return
-    }
-    options.value.currentConversation = {...conversation.value}
-    await loadParticipant()
-  }*/
 
   async function loadParticipant(): Promise<void> {
     if (!conversation.value || getEnumValue(conversation.value?.status) !== 10) {

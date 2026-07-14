@@ -87,7 +87,7 @@ defineExpose({
 <template>
   <ax-sender
     ref="senderRef"
-    :slot-config="props.disabled ? undefined : props.slotConfig"
+    :slot-config="props.disabled ? undefined : (props.slotConfig ?? [])"
     :suffix="false"
     :placeholder="placeholder"
     :disabled="props.disabled"

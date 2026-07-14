@@ -161,7 +161,7 @@ function onSenderInsertInstruction(
       'start',
     )
     return
-  } 
+  }
   sender.insert([block, { type: 'text', value: ' ' }], 'cursor', measure.prefix + measure.keyword )
 }
 
@@ -302,7 +302,7 @@ defineExpose({
       <l-chat-message-sender
         ref="senderRef"
         v-if="conversation?.item?.data"
-        :slot-config="conversation.item.data.draft"
+        :slot-config="conversation.item.data.draft ?? []"
         v-model:ref-messages="refMessages"
         :instruction-map="getEnumValue(conversation?.item?.data?.room.type) === 20 ? undefined :  instructionMap "
         :sending="conversation.sending"
@@ -334,7 +334,7 @@ defineExpose({
             </template>
           </a-space>
         </template>
-        <template #leftButtonExtra>
+        <template #leftButtonExtra v-if="getEnumValue(conversation?.item?.data?.room.type) === 20">
           <l-chat-call-button
             :participants="conversation.participants"
             :conversation="conversation.item"
