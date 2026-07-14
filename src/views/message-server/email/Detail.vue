@@ -6,6 +6,7 @@ import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
+import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MessageServerEmailDetail',
@@ -25,7 +26,7 @@ const entity = ref<EmailMessageEntity>({
   fromEmail:"",
   title: "",
   toEmail: "",
-  type: 10,
+  type: MESSAGE_TYPE.NOTICE,
   version: 0
 })
 

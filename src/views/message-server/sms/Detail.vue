@@ -5,6 +5,7 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {SmsMessageService} from "@/apis/message-server";
 import type {SmsMessageEntity} from "@/types/apis";
+import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MessageServerEmailDetail',
@@ -25,7 +26,7 @@ const entity = ref<SmsMessageEntity>({
   phoneNumber: "",
   principal: "",
   remark: "",
-  type: 10,
+  type: MESSAGE_TYPE.NOTICE,
   version: 0
 })
 

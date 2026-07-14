@@ -9,6 +9,7 @@ import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
 import {SiteMessageService} from "@/apis/message-server";
 import type {RestResult} from "@/types/apis";
+import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MessageServerBatchDetail'
@@ -27,14 +28,14 @@ const entity = ref<BatchMessageEntity>({
   failNumber: 0,
   id: 0,
   successNumber: 0,
-  type: 10,
+  type: MESSAGE_TYPE.NOTICE,
   version: 0
 })
 
 const readCount = ref<number>(0)
 
 async function postGetEntity(entity:BatchMessageEntity){
-  const result:RestResult<number> = await siteService.countRead(entity.id);
+  const result:RestResult<number> = await siteService.countRead(Number(entity.id));
   readCount.value = result?.data || 0
 }
 
@@ -75,7 +76,7 @@ async function postGetEntity(entity:BatchMessageEntity){
           </template>
         </a-space>
       </a-descriptions-item>
-      <template #afterDescriptions v-if="entity.id > 0">
+      <template #afterDescriptions v-if="Number(entity.id) > 0">
         <l-sms-table v-if="getEnumValue(entity.type) === 30" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
         <l-site-table v-else-if="getEnumValue(entity.type) === 10" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
         <l-email-table v-else-if="getEnumValue(entity.type) === 20" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>

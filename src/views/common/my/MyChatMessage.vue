@@ -21,9 +21,9 @@ import {usePrincipalStore} from "@/stores/principalStore";
 import LChatConversation from "@/components/chat/ChatConversation.vue";
 import LChatContact from "@/components/chat/ChatContact.vue";
 import LChatView from "@/components/chat/ChatView.vue";
-import type {ServerConversationItem} from "@/types/composables";
+import type {ChatViewController, ServerConversationItem} from "@/types/composables";
 import LChatRoomView from "@/components/chat/ChatRoomView.vue";
-import {type ChatViewController, provideChatContext} from "@/composables/chat";
+import {provideChatContext} from "@/composables/chat";
 import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 

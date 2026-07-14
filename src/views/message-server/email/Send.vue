@@ -2,14 +2,8 @@
 import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {
-  BatchResponse,
-  EnumBucketsResponseBody,
-  NameValueEnumMetadata,
-  ObjectWriteResult,
-  RestResult
-} from "@/types/apis";
-import {AuthServerService, ResourceServerService} from "@/apis";
+import type {NameValueEnumMetadata, ObjectWriteResult} from "@/types/apis";
+import {AuthServerService} from "@/apis";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
@@ -18,6 +12,12 @@ import LTipTap from "@/components/tiptap/TipTap.vue";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageSendPayload} from "@/types/apis/message-server/emailDomain.ts";
+import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {
+  loadMessageSendEnums,
+  navigateAfterMessageSend
+} from "@/composables/message/useMessageSendFlow.ts";
+import {useRouter} from "vue-router";
 
 defineOptions({
   name: 'MessageServerEmailSend',
@@ -28,6 +28,7 @@ const globalProperties =
     .globalProperties
 
 const {message} = useApp()
+const router = useRouter()
 
 const formRef = ref()
 const service = new EmailMessageService()
@@ -42,7 +43,7 @@ const options = ref<{
   loading: false,
   form: {
     toEmails: [],
-    type: 10,
+    type: MESSAGE_TYPE.NOTICE,
     content:"",
     title: "",
     attachmentList: [],
@@ -62,13 +63,7 @@ async function doSubmit(){
   try {
     await attachmentUploadRef.value?.upload()
     const result = await service.send(options.value.form);
-    const data = result.data
-    if (Array.isArray(data)) {
-      globalProperties.$router.push({name:'message_server_email'})
-    } else if (typeof (data as BatchResponse)) {
-      const response = data as BatchResponse;
-      globalProperties.$router.push({name:'message_server_batch_detail', query:{id:response.batchId}})
-    }
+    navigateAfterMessageSend(router, result.data, 'message_server_email')
     message.success(result.message)
   } catch (error) {
     message.error(error instanceof Error ? error.message : String(error))
@@ -78,12 +73,9 @@ async function doSubmit(){
 }
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"message-server":[{"id":"SiteMessagePushableChannelEnum"},{"id":"MessageTypeEnum"}]})
-  if (enums.data) {
-    options.value.typeOptions = enums.data['message-server']?.MessageTypeEnum as NameValueEnumMetadata<number>[]
-    options.value.channelOptions = enums.data['message-server']?.SiteMessagePushableChannelEnum as NameValueEnumMetadata<number>[]
-  }
-
+  const enums = await loadMessageSendEnums()
+  options.value.typeOptions = enums.typeOptions
+  options.value.channelOptions = enums.channelOptions
 }
 
 onMounted(mounted);

@@ -7,33 +7,16 @@ import type {
 } from '@/types/apis'
 import type {
   ChatBubbleItem,
+  ChatViewController,
   ConversationActiveProps,
   ServerConversationItem,
 } from '@/types/composables'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
-import type {SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {CHAT_BUBBLE_TYPE} from '@/constants/messageConstant.ts'
 import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
-
-/** 加载器需要的会话视图能力（由 ChatView defineExpose 提供） */
-export interface ChatViewController {
-  jumpToMessage(
-    key: string,
-    flashPending?: boolean,
-    block?: ScrollLogicalPosition,
-    behavior?: ScrollBehavior,
-  ): void
-  scrollTo(options: {
-    key?: string | number
-    top?: number | 'bottom' | 'top'
-    behavior?: ScrollBehavior
-    block?: ScrollLogicalPosition
-  }): void
-  getSenderSlotConfigValue(): SlotConfigType[]
-}
 
 /**
  * 活跃会话的消息分页、锚点跳转与会话切换。

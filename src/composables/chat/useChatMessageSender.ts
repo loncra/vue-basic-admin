@@ -1,13 +1,4 @@
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  h,
-  type MaybeRef,
-  type Ref,
-  ref,
-  unref
-} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance, h, ref, unref} from 'vue'
 import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {
   AttachmentBlock,
@@ -16,6 +7,7 @@ import type {
   InstructionBlock,
   InstructionSlotProps,
   ReferenceBlock,
+  UseChatMessageSenderParams,
 } from '@/types/composables'
 import {XProvider as AxConfigProvider} from '@antdv-next/x'
 import LAttachmentUpload from '@/components/attachment/AttachmentUpload.vue'
@@ -31,14 +23,7 @@ import {
   requireNonNullOrUndefined
 } from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
-import type {ObjectWriteResult, UserChatMessageResponseBody} from '@/types/apis'
-
-export interface UseChatMessageSenderParams {
-  refMessages: Ref<UserChatMessageResponseBody[]>
-  sending:MaybeRef<boolean>
-  getUploadOptions: () => Record<string, unknown> | undefined
-  onSubmit: (content: ChatContentBlock[]) => void
-}
+import type {ObjectWriteResult} from '@/types/apis'
 
 /**
  * 发送器逻辑：files 词槽创建/渲染/上传、粘贴文件、提交组装（附件 + 引用）、

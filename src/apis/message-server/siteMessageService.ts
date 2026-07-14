@@ -41,7 +41,7 @@ export class SiteMessageService extends PageSearchRestfulService<SiteMessageEnti
     return axios.put(SiteMessageService.SERVICE_URL, data)
   }
 
-  countRead(batchId: number): Promise<RestResult<void>> {
+  countRead(batchId: number): Promise<RestResult<number>> {
     return axios.get(SiteMessageService.COUNT_READ_URL + '/' + batchId)
   }
 

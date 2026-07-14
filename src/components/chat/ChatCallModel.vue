@@ -1,14 +1,11 @@
 <script setup lang="ts">
 
-import {computed, onMounted, onUnmounted, ref, type Component} from "vue";
+import {type Component, computed, onMounted, onUnmounted, ref} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
 import {DATE_TIME_FORMAT} from "@/constants/systemConstant.ts";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
-import {
-  type ChatCallModalInnerProps,
-  provideChatCallMedia,
-  useChatCallModalExpose,
-} from "@/composables";
+import {provideChatCallMedia, useChatCallModalExpose,} from "@/composables";
+import type {ChatCallModalInnerProps} from "@/types/composables";
 import LChatCallPrivateTypeLayout from "@/components/chat/ChatCallPrivateTypeLayout.vue";
 import {
   CHAT_CALL_MINI_SIZE,

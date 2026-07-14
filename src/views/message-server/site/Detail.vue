@@ -6,6 +6,7 @@ import {SiteMessageService} from "@/apis/message-server";
 import type {SiteMessageEntity} from "@/types/apis/message-server/siteDomain.ts";
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import {MESSAGE_TYPE, SITE_PUSHABLE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MessageServerSiteDetail',
@@ -22,13 +23,13 @@ const entity = ref<SiteMessageEntity>({
   channels: [],
   content: "",
   id: 0,
-  pushable: 0,
+  pushable: SITE_PUSHABLE.NO,
   readTime: 0,
   readable: 0,
   remark: "",
   title: "",
   toUser: "",
-  type: 10,
+  type: MESSAGE_TYPE.NOTICE,
   version: 0
 })
 

@@ -1,19 +1,8 @@
 import {useChatCallModalExpose, useSocketSubscriptions} from "@/composables";
-import {
-  inject,
-  markRaw,
-  nextTick,
-  provide,
-  ref,
-  watch,
-  type Ref,
-} from "vue";
+import {inject, markRaw, nextTick, provide, ref, watch,} from "vue";
 import {getEnumValue, getMediaStreamConstraintsByCall} from "@/utils";
 import type {RestResult, UserChatCallParticipantEntity} from "@/types/apis";
-import {
-  readVideoMetrics,
-  readVideoMetricsFromElement,
-} from "@/utils/chatCallUtils.ts";
+import {readVideoMetrics, readVideoMetricsFromElement,} from "@/utils/chatCallUtils.ts";
 import {
   CHAT_CALL_MEDIA_PROVIDE_KEY,
   CHAT_CALL_PRIVATE_ROLE_TYPE,
@@ -33,26 +22,12 @@ import {
 } from "livekit-client";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
-import type {ChatCallPrivateRoleType, VideoMetrics} from "@/types/composables";
-
-export interface CallMediaState {
-  microphoneEnabled: boolean
-  cameraEnabled: boolean
-}
-
-export interface ChatCallMediaExpose {
-  localParticipantVideoRef: Ref<HTMLVideoElement | undefined>
-  remoteParticipantVideoRef: Ref<HTMLVideoElement | undefined>
-  streamMetrics: Ref<{local?: VideoMetrics; remote?: VideoMetrics}>
-  mediaOptions: Ref<CallMediaState>
-  remoteMediaState: Ref<CallMediaState>
-  startLocalPreview: () => Promise<void>
-  reattachVideoElements: () => Promise<void>
-  toggleMicrophone: () => Promise<void>
-  toggleCamera: () => Promise<void>
-  bindVideoMetrics: (el: HTMLVideoElement | undefined, role: ChatCallPrivateRoleType) => void
-  refreshStreamMetrics: (role: ChatCallPrivateRoleType) => void
-}
+import type {
+  CallMediaState,
+  ChatCallMediaExpose,
+  ChatCallPrivateRoleType,
+  VideoMetrics
+} from "@/types/composables";
 
 export function provideChatCallMedia(): ChatCallMediaExpose {
   const {on} = useSocketSubscriptions()

@@ -12,6 +12,7 @@ import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourc
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
+import {GENDER} from "@/constants/authConstant.ts";
 import type {TableProps} from "antdv-next";
 
 defineOptions({
@@ -35,7 +36,7 @@ const options = ref<{
     id: null as unknown as number,
     version: null as unknown as number,
     realName: "",
-    gender: 30,
+    gender: GENDER.UNKNOWN,
     phoneNumber: "",
     remark: "",
     email: "",

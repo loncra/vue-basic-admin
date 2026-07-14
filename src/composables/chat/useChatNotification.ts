@@ -1,8 +1,5 @@
-import {
-  provideChatCallExpose,
-  type UseChatCallModalParams,
-  useSocketSubscriptions
-} from "@/composables";
+import {provideChatCallExpose, useSocketSubscriptions} from "@/composables";
+import type {UseChatNotificationParam} from "@/types/composables";
 import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {
@@ -32,10 +29,6 @@ import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {Flex} from "antdv-next";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
-
-export interface UseChatNotificationParam {
-  chatCallConfig: UseChatCallModalParams
-}
 
 export function useChatNotification(config: UseChatNotificationParam) {
   const {on} = useSocketSubscriptions()

@@ -6,7 +6,7 @@ import type {
   UserChatMessageResponseBody,
   UserChatParticipantEntity,
 } from '@/types/apis'
-import type {ChatRoomViewModalOpenType} from '@/types/composables'
+import type {ChatRoomSettingsCallbacks, ChatRoomViewModalOpenType} from '@/types/composables'
 import {AuthServerService} from '@/apis'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {useConversationActions} from '@/composables/chat/useConversationActions.ts'
@@ -17,15 +17,6 @@ import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {CHAAT_ROOM_VIEW_MODAL_TYPE, SOCKET_EVENT_TYPE} from '@/constants/messageConstant.ts'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 import {useChatContext} from "@/composables";
-
-export interface ChatRoomSettingsCallbacks {
-  onAddParticipant: (
-    info: ContactItem[],
-    result: RestResult<UserChatConversationResponseBody>,
-  ) => void
-  onDeleteConversation: (body: UserChatConversationResponseBody) => void
-  onHistoryClick: (data: UserChatMessageResponseBody) => void
-}
 
 /**
  * 房间设置抽屉逻辑：成员加载、改名、置顶/免打扰、增删成员、退出/解散、弹窗与历史入口。

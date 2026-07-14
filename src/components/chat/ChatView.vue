@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
-import type {ChatContentBlock} from "@/types/composables";
+import type {ChatContentBlock, ChatInstructionMeasure} from "@/types/composables";
 import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
@@ -28,7 +28,6 @@ import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import LChatCallButton from "@/components/chat/ChatCallButton.vue";
-import type {ChatInstructionMeasure} from "@/composables/chat/useChatMessageSendInstruction.ts";
 
 defineOptions({
   name: 'LChatView',

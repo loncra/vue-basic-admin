@@ -4,41 +4,29 @@ export {useConversationActions, type ConversationActionsApi} from './useConversa
 export {
   useChatMessageLoader,
   type ChatMessageLoaderApi,
-  type ChatViewController,
 } from './useChatMessageLoader.ts'
 export {useChatSocketEvents, type ChatSocketEventsApi} from './useChatSocketEvents.ts'
 export {
   provideChatContext,
   useChatContext,
-  type ChatContext,
-  type ProvideChatContextOptions,
 } from './useChatContext.ts'
 export {useChatReadMarker, type ChatReadMarkerApi} from './useChatReadMarker.ts'
 export {
   useChatBubbleList,
   type ChatBubbleListApi,
-  type ChatBubbleListProps,
-  type ChatBubbleListCallbacks,
 } from './useChatBubbleList.ts'
 export {
   useChatRoomSettings,
   type ChatRoomSettingsApi,
-  type ChatRoomSettingsCallbacks,
 } from './useChatRoomSettings.ts'
 export {
   useChatMessageSender,
   type ChatMessageSenderApi,
-  type UseChatMessageSenderParams,
 } from './useChatMessageSender.ts'
 export {useChatHistories, type ChatHistoriesApi} from './useChatHistories.ts'
 export {
   useChatCallModalExpose,
   provideChatCallExpose,
-  type UseChatCallModalParams,
-  type ChatCallModalProps,
-  type ChatCallModalContext,
-  type ChatCallModelExpose,
-  type ChatCallModalInnerProps,
 } from './useChatCallModal.ts'
 export {
   useChatNotification
@@ -47,10 +35,10 @@ export {
 export {
   provideChatCallMedia,
   useChatCallMediaExpose,
-  type ChatCallMediaExpose,
-  type CallMediaState,
 } from './useChatCallMedia.ts'
 
 export {
   usePrivateChatCallLayout
 } from './usePrivateChatCallLayout.ts'
+
+export {useChatMessageSendInstruction} from './useChatMessageSendInstruction.ts'

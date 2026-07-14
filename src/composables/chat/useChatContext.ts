@@ -1,31 +1,16 @@
 import {inject, provide, type Ref, ref} from 'vue'
-import type {ConversationActiveProps, ServerConversationItem} from '@/types/composables'
+import type {
+  ChatContext,
+  ConversationActiveProps,
+  ProvideChatContextOptions,
+  ServerConversationItem
+} from '@/types/composables'
 import type {UserChatConversationResponseBody} from '@/types/apis'
 import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
 import {CHAT_CONTEXT_PROVIDE_KEY} from '@/constants/messageConstant.ts'
 import {useChatConversations} from '@/composables/chat/useChatConversations.ts'
-import {
-  type ChatViewController,
-  useChatMessageLoader,
-} from '@/composables/chat/useChatMessageLoader.ts'
+import {useChatMessageLoader} from '@/composables/chat/useChatMessageLoader.ts'
 import {useChatSocketEvents} from '@/composables/chat/useChatSocketEvents.ts'
-
-export interface ProvideChatContextOptions {
-  /** ChatView 实例引用，供加载器执行滚动 / 跳转 / 取草稿 */
-  view: Ref<ChatViewController | undefined>
-  /** 刷新活跃会话头部额外内容（ChatConversation.changeMessageExtraContent） */
-  refreshActiveHeader: (item: ServerConversationItem | undefined) => void
-}
-
-export interface ChatContext {
-  conversationActive: Ref<ConversationActiveProps>
-  conversations: ReturnType<typeof useChatConversations>
-  loader: ReturnType<typeof useChatMessageLoader>
-  /** 按会话实体激活（含头部刷新）；传 undefined 清空 */
-  activateConversation: (body: UserChatConversationResponseBody | undefined, messageId?:number) => Promise<void>
-  /** 全量刷新会话列表并保持当前激活态 */
-  refreshConversations: () => Promise<void>
-}
 
 function createDefaultActive(): ConversationActiveProps {
   return {

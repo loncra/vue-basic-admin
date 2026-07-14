@@ -3,7 +3,6 @@ import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {
-  BatchResponse,
   EnumBucketsResponseBody,
   IdNameValueMetadata,
   NameValueEnumMetadata,
@@ -21,6 +20,9 @@ import LUserSelect from "@/components/basic/UserSelect.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {SmsMessageService} from "@/apis/message-server";
 import useApp from "antdv-next/dist/app/useApp";
+import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {navigateAfterMessageSend} from "@/composables/message/useMessageSendFlow.ts";
+import {useRouter} from "vue-router";
 
 defineOptions({
   name: 'MessageServerSmsForm',
@@ -33,6 +35,7 @@ const globalProperties =
 const configProviderStore = useConfigProviderStore()
 
 const {message} = useApp()
+const router = useRouter()
 
 const options = ref<{
   loading:boolean
@@ -51,7 +54,7 @@ const options = ref<{
     phoneNumbers: [],
     channel: "alibabaCloud",
     content: '',
-    type: 10,
+    type: MESSAGE_TYPE.NOTICE,
     remark: '',
     metadata: {
       signCode: '',
@@ -132,13 +135,7 @@ async function doSubmit(){
   options.value.loading = true;
   try {
     const result = await service.send(options.value.form);
-    const data = result.data
-    if (Array.isArray(data)) {
-      globalProperties.$router.push({name:'message_server_sms'})
-    } else if (typeof (data as BatchResponse)) {
-      const response = data as BatchResponse;
-      globalProperties.$router.push({name:'message_server_batch_detail', query:{id:response.batchId}})
-    }
+    navigateAfterMessageSend(router, result.data, 'message_server_sms')
     message.success(result.message)
   } catch (error) {
     message.error(error instanceof Error ? error.message : String(error))

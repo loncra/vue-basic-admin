@@ -5,14 +5,11 @@ import {
   inject,
   markRaw,
   provide,
-  type Raw,
   type Ref,
-  ref,
-  type VNode
+  ref
 } from "vue";
 import type {
   RestResult,
-  TimeProperties,
   UserChatCallEntity,
   UserChatCallParticipantEntity,
   UserChatCallResponseBody
@@ -37,75 +34,14 @@ import {useAppNotification} from "@/composables/useAppNotification.ts";
 import useApp from "antdv-next/dist/app/useApp";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {Button, Space} from "antdv-next";
-import {LocalAudioTrack, type LocalVideoTrack, Room} from "livekit-client";
-import type {ChatCallUiMode} from "@/types/composables/chat.ts";
-
-export interface UseChatCallModalParams {
-  closeTimerValue: Ref<TimeProperties>;
-}
-
-export interface ChatCallModalProps {
-  title:string
-  width?:number
-  height?:number
-  fullscreen?:boolean
-  uiMode?: ChatCallUiMode
-  loading:boolean
-}
-
-export interface ChatCallModalInnerProps extends ChatCallModalProps{
-  open: boolean
-  closeTimerValue?:number
-}
-
-export interface ChatCallModalContext {
-  modal:ChatCallModalProps,
-  room?:Raw<Room>,
-  userChatCall?:UserChatCallResponseBody,
-  previewTrack?:{
-    video?: Raw<LocalVideoTrack>
-    audio?: Raw<LocalAudioTrack>
-  }
-  leftButton?:VNode[]
-}
-
-export interface ChatCallModelExpose {
-  context:ChatCallModalContext,
-  openChatCallModal:(
-    title:string,
-    _userChatCall:UserChatCallResponseBody
-  ) => void,
-  handleCancel:() => void,
-  acceptCall:(
-    key:string,
-    callEntity:UserChatCallResponseBody,
-    loading:Ref<boolean>
-  ) => void,
-  rejectedCall:(
-    key:string,
-    callEntity:UserChatCallEntity,
-    loading:Ref<boolean>
-  ) => void,
-  acceptCallByChatCallId:(
-    key:string,
-    userChatCallId:number,
-    loading:Ref<boolean>
-  ) => void,
-  rejectedCallByChatCallId:(
-    key:string,
-    userChatCallId:number,
-    loading:Ref<boolean>
-  ) => void,
-  createChatCallAction: (
-    userChatCallId: number,
-    onAccept: (key: string, id: number, loading: Ref<boolean>) => void,
-    onRejected: (key: string, id: number, loading: Ref<boolean>) => void
-  ) => VNode,
-  updateParticipant:(participant:UserChatCallParticipantEntity) => void,
-  setCallFullscreen:(active: boolean) => void,
-  setCallUiMode:(mode: ChatCallUiMode) => void,
-  toggleCallMinimize:() => Promise<void>,
-}
+import {Room} from "livekit-client";
+import type {
+  ChatCallModalContext,
+  ChatCallModalInnerProps,
+  ChatCallModelExpose,
+  ChatCallUiMode,
+  UseChatCallModalParams,
+} from "@/types/composables/chat.ts";
 
 export function provideChatCallExpose(config:UseChatCallModalParams) {
   const {on} = useSocketSubscriptions()

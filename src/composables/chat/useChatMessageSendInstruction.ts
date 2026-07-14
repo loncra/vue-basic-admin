@@ -1,42 +1,16 @@
 import type {IdValueMetadata} from "@/types/apis";
-import {
-  type ComponentInternalInstance,
-  getCurrentInstance,
-  nextTick,
-  onUnmounted,
-  type Ref,
-  ref
-} from "vue";
-import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import {type ComponentInternalInstance, getCurrentInstance, nextTick, onUnmounted, ref} from "vue";
+import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import type {InstructionBlock} from "@/types/composables";
+import type {
+  ChatInstructionMeasure,
+  InstructionBlock,
+  InstructionProps,
+  UseChatMessageSenderInstructionParams,
+} from "@/types/composables";
 
 const ZERO_WIDTH_SPACE = "\u200B"
-
-export interface UseChatMessageSenderInstructionParams {
-  instructionMap:Ref<Record<string, IdValueMetadata<string, string>[]>>,
-  disabled:Ref<boolean>,
-  senderRef:Ref<SenderRef | undefined>,
-  contextVisibleMargin:Ref<number>
-  onFilterDataSource: (keyword:string,dataSource: IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[]
-  senderInsertInstruction:(sender:SenderRef, block:SlotConfigType, measure:ChatInstructionMeasure) => void
-}
-
-export interface InstructionProps {
-  open:boolean
-  measure: ChatInstructionMeasure
-  activeIndex: number
-  anchorStyle: Record<string, string>,
-  displayDataSource:IdValueMetadata<string, string>[]
-}
-
-export interface ChatInstructionMeasure {
-  location: number
-  prefix: string
-  keyword: string
-  dataSource:IdValueMetadata<string, string>[]
-}
 
 export function useChatMessageSendInstruction(
   params:UseChatMessageSenderInstructionParams,

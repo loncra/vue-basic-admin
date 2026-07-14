@@ -2,13 +2,8 @@
 import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {
-  EnumBucketsResponseBody,
-  NameValueEnumMetadata,
-  ObjectWriteResult,
-  RestResult
-} from "@/types/apis";
-import {AuthServerService, ResourceServerService} from "@/apis";
+import type {NameValueEnumMetadata, ObjectWriteResult} from "@/types/apis";
+import {AuthServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -17,6 +12,8 @@ import type {SiteMessageSendPayload} from "@/types/apis/message-server/siteDomai
 import LTipTap from "@/components/tiptap/TipTap.vue";
 
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import {MESSAGE_TYPE, SITE_PUSHABLE} from "@/constants/messageConstant.ts";
+import {loadMessageSendEnums} from "@/composables/message/useMessageSendFlow.ts";
 
 defineOptions({
   name: 'MessageServerSiteSend',
@@ -43,10 +40,10 @@ const options = ref<{
   loading: false,
   form: {
     toUsers: [],
-    type: 10,
+    type: MESSAGE_TYPE.NOTICE,
     content:"",
     title: "",
-    pushable: 1,
+    pushable: SITE_PUSHABLE.YES,
     channels:[],
     attachmentList: [],
     remark:"",
@@ -65,13 +62,7 @@ async function doSubmit(){
   try {
     await Promise.all([coverUploadRef.value?.upload(), attachmentUploadRef.value?.upload()])
     /*const result = await service.send(options.value.form);
-    const data = result.data
-    if (Array.isArray(data)) {
-      globalProperties.$router.push({name:'message_server_site'})
-    } else if (typeof (data as BatchResponse)) {
-      const response = data as BatchResponse;
-      globalProperties.$router.push({name:'message_server_batch_detail', query:{id:response.batchId}})
-    }
+    navigateAfterMessageSend(router, result.data, 'message_server_site')
     message.success(result.message)*/
   } catch (error) {
     message.error(error instanceof Error ? error.message : String(error))
@@ -81,12 +72,9 @@ async function doSubmit(){
 }
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"message-server":[{"id":"SiteMessagePushableChannelEnum"},{"id":"MessageTypeEnum"}]})
-  if (enums.data) {
-    options.value.typeOptions = enums.data['message-server']?.MessageTypeEnum as NameValueEnumMetadata<number>[]
-    options.value.channelOptions = enums.data['message-server']?.SiteMessagePushableChannelEnum as NameValueEnumMetadata<number>[]
-  }
-
+  const enums = await loadMessageSendEnums()
+  options.value.typeOptions = enums.typeOptions
+  options.value.channelOptions = enums.channelOptions
 }
 
 onMounted(mounted);
@@ -135,14 +123,14 @@ onMounted(mounted);
               </a-form-item>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-              <a-form-item :label="globalProperties.$t('messageServer.site.channel')" name="channels" :rules="options.form.pushable === 1 ? [{required: true, trigger: 'change'}] : undefined">
+              <a-form-item :label="globalProperties.$t('messageServer.site.channel')" name="channels" :rules="options.form.pushable === SITE_PUSHABLE.YES ? [{required: true, trigger: 'change'}] : undefined">
                 <a-space-compact block>
-                  <a-select mode="multiple" :disabled="options.form.pushable !== 1" :options="options.channelOptions" :field-names="{label:'name'}" v-model:value="options.form.channels" />
+                  <a-select mode="multiple" :disabled="options.form.pushable !== SITE_PUSHABLE.YES" :options="options.channelOptions" :field-names="{label:'name'}" v-model:value="options.form.channels" />
                   <a-space-addon>
                     <a-switch
                       v-model:value="options.form.pushable"
-                      :un-checked-value="0"
-                      :checked-value="1"
+                      :un-checked-value="SITE_PUSHABLE.NO"
+                      :checked-value="SITE_PUSHABLE.YES"
                       :checked-children="globalProperties.$t('common.enabled')"
                       :un-checked-children="globalProperties.$t('common.disabled')"
                     />

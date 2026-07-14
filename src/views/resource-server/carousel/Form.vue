@@ -16,6 +16,7 @@ import {disableDate, disableTime} from "@/utils/dateUtils";
 import LBasicForm from "@/components/basic/BasicForm.vue";
 import type {Dayjs} from "dayjs";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import {CAROUSEL_TYPE} from "@/constants/resourceConstant.ts";
 
 defineOptions({
   name: 'ResourceServerCarouseForm',
@@ -38,7 +39,7 @@ const options = ref<{
   spinning: false,
   entity: {
     name: "",
-    type: 10,
+    type: CAROUSEL_TYPE.PC,
     link: {
       id: "http://",
       value: ""

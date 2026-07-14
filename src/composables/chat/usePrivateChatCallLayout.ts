@@ -26,18 +26,12 @@ import {
 } from "@/constants/messageConstant.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
-import type {ChatCallModalInnerProps} from "@/composables/chat/useChatCallModal.ts";
-import type {ChatCallPrivateRoleType, ChatCallPrivateSplitScreenType,} from "@/types/composables";
-import type {UserChatCallParticipantEntity} from "@/types/apis";
-
-export interface TargetParticipant extends UserChatCallParticipantEntity {
-  badgeStatus: string
-}
-
-export interface PrivateLayoutOptions {
-  targetFullWindow: boolean
-  splitScreenType: ChatCallPrivateSplitScreenType
-}
+import type {
+  ChatCallModalInnerProps,
+  ChatCallPrivateRoleType,
+  PrivateLayoutOptions,
+  TargetParticipant,
+} from "@/types/composables";
 
 const miniWindowClass =
   'absolute opacity-80 top-0 left-0 rounded-lg border border-border-secondary m-xs shadow-card bg-container cursor-pointer z-10'

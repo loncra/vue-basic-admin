@@ -13,6 +13,7 @@ import {ResourceServerService, ResourceService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
+import {RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
 
 defineOptions({
   name: 'AuthServerResourceForm'
@@ -48,7 +49,7 @@ const options = ref<{
     page: "",
     id: null as unknown as number,
     version: null as unknown as string,
-    category: 20
+    category: RESOURCE_CATEGORY.CUSTOMIZE
   },
   typeOptions:[],
   enabledOptions:[],

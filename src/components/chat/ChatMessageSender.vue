@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import type {ChatContentBlock} from "@/types/composables";
+import type {ChatContentBlock, ChatInstructionMeasure} from "@/types/composables";
 import {Sender as AxSender} from '@antdv-next/x'
 import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
-import {useChatMessageSender} from "@/composables/chat";
-import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
-import LEmojiButton from "@/components/basic/EmojiButton.vue";
+import {useChatMessageSender, useChatMessageSendInstruction} from "@/composables/chat";
 import {toRef, unref} from "vue";
-import {
-  type ChatInstructionMeasure,
-  useChatMessageSendInstruction
-} from "@/composables/chat/useChatMessageSendInstruction.ts";
 
 defineOptions({
   name: 'LChatMessageSender',

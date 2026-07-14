@@ -14,6 +14,7 @@ import {ResourceServerService} from "@/apis";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
 import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {VALUE_TYPE} from "@/constants/resourceConstant.ts";
 
 defineOptions({
   name: 'ResourceServerDataDictionaryForm',
@@ -43,7 +44,7 @@ const options = ref<{
     code: "",
     name: "",
     value: "",
-    valueType: 30,
+    valueType: VALUE_TYPE.STRING,
     enabled: 1,
     typeId: null as unknown as number,
     parentId: null as unknown as number,

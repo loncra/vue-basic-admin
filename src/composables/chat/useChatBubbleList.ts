@@ -9,28 +9,19 @@ import {
   watch,
 } from 'vue'
 import type {BubbleItemType, BubbleListRef, RoleType,} from '@antdv-next/x/dist/bubble/interface'
-import type {ChatBubbleItem, ChatContentBlock, ConversationActiveProps,} from '@/types/composables'
+import type {
+  ChatBubbleItem,
+  ChatBubbleListCallbacks,
+  ChatBubbleListProps,
+  ChatContentBlock,
+  ConversationActiveProps,
+} from '@/types/composables'
 import type {RestResult, UserChatMessageResponseBody} from '@/types/apis'
 import {throttle} from 'lodash-es'
 import useApp from 'antdv-next/dist/app/useApp'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {requireNonNullOrUndefined} from '@/utils'
 import {useChatReadMarker} from '@/composables/chat/useChatReadMarker.ts'
-
-export interface ChatBubbleListProps {
-  scrollToBottomThreshold: number
-  throttleOnScrollWait: number
-  throttleCollectVisibleUnreadWait: number
-  topThreshold: number
-  timeDividerGap: number
-}
-
-export interface ChatBubbleListCallbacks {
-  onLoadPage: (tag: 'next' | 'previous', scrollBox: HTMLElement) => void
-  onReedit: (content: ChatContentBlock[]) => void
-  onReferenceMessage: (message: UserChatMessageResponseBody) => void
-  onReloadLastPage: () => void
-}
 
 /**
  * 气泡列表视图逻辑：分隔符构建、滚动节流、可见已读收集、跳转闪烁、撤回/引用/重编辑。
@@ -309,10 +300,10 @@ export function useChatBubbleList(
     () => conversation.value.item?.key,
     () => readMarker.reset(),
   )
-  
+
   window.addEventListener('focus', tryCollectVisibleUnread)
   document.addEventListener('visibilitychange', tryCollectVisibleUnread)
-  
+
   onUnmounted(() => {
     handleScrollRead.cancel()
     handleThrottleBubbleScroll.cancel()

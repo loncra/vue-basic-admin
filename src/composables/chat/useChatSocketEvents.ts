@@ -1,4 +1,3 @@
-import type {Ref} from 'vue'
 import type {
   RestResult,
   UserChatConversationEntity,
@@ -6,28 +5,14 @@ import type {
   UserChatMessageEntity,
   UserChatMessageResponseBody,
 } from '@/types/apis'
-import type {ConversationActiveProps, ServerConversationItem} from '@/types/composables'
+import type {ChatSocketEventsOptions} from '@/types/composables'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
-import type {ChatConversationsApi} from '@/composables/chat/useChatConversations.ts'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 import {addBubbleListMessage, getEnumValue} from '@/utils'
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from '@/constants/messageConstant.ts'
 import {parseSocketRestPayload} from '@/types/socket.ts'
-
-export interface ChatSocketEventsOptions {
-  conversationActive: Ref<ConversationActiveProps>
-  conversations: ChatConversationsApi
-  /** 当前是否已挂载会话视图（决定收到消息时是否合入气泡列表） */
-  hasView: () => boolean
-  /** 刷新活跃会话头部额外内容（ChatConversation.changeMessageExtraContent） */
-  refreshActiveHeader: (item: ServerConversationItem | undefined) => void
-  /** 重新激活某会话（MyChatMessage.setActiveConversationItemByEntity） */
-  activateConversation: (
-    body: UserChatConversationResponseBody | undefined,
-  ) => Promise<void> | void
-}
 
 /**
  * 集中 chat 模块的 socket 事件接线（新消息 / 新建会话 / 按房间刷新 / 全量刷新）。

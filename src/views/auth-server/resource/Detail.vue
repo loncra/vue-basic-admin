@@ -4,6 +4,7 @@ import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {ResourceService} from "@/apis";
 import type {ResourceEntity} from "@/types/apis";
+import {RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
 
 defineOptions({
   name: 'AuthServerResourceDetail'
@@ -17,9 +18,10 @@ const service = new ResourceService()
 const entity = ref<ResourceEntity>({
   applicationName: "",
   authority: "",
-  category: 20,
+  category: RESOURCE_CATEGORY.CUSTOMIZE,
   enabled: 0,
   icon: "",
+  code: "",
   id: 0,
   key: "",
   name: "",

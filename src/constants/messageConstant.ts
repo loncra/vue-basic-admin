@@ -5,6 +5,23 @@ export const CHAT_CONTEXT_PROVIDE_KEY = "chatContext"
 export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModalExpose"
 export const CHAT_CALL_MEDIA_PROVIDE_KEY = "chatCallMedia"
 
+/** 对齐后端 MessageTypeEnum */
+export const MESSAGE_TYPE = {
+  NOTICE: 10,
+  WARNING: 20,
+  SYSTEM: 30,
+  CAPTCHA: 40,
+  PROMOTION: 50,
+  IM: 60,
+  UNKNOWN: 99,
+} as const
+
+/** 站内信是否推送（对齐 YesOrNo） */
+export const SITE_PUSHABLE = {
+  NO: 0,
+  YES: 1,
+} as const
+
 /**
  * 消息分组
  */

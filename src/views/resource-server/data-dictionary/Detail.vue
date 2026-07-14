@@ -4,6 +4,7 @@ import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
+import {VALUE_TYPE} from "@/constants/resourceConstant.ts";
 
 defineOptions({
   name: 'ResourceServerDataDictionaryDetail',
@@ -22,7 +23,7 @@ const entity = ref<DataDictionaryEntity>({
   name: "",
   typeId: 0,
   value: "",
-  valueType: 30,
+  valueType: VALUE_TYPE.STRING,
   version: 0
 
 })
