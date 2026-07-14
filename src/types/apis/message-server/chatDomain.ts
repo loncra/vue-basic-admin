@@ -230,6 +230,12 @@ export interface UserChatCallParticipantEntity extends VersionEntityMetadata, Us
    * 离开时间
    */
   leaveTime: number
+
+  /**
+     * 重连时间
+     */
+  reconnectTime: number
+
   /**
    * 用户唯一识别
    */

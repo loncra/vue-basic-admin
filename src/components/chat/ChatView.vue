@@ -304,7 +304,7 @@ defineExpose({
         v-if="conversation?.item?.data"
         :slot-config="conversation.item.data.draft"
         v-model:ref-messages="refMessages"
-        :instruction-map="instructionMap"
+        :instruction-map="getEnumValue(conversation?.item?.data?.room.type) === 20 ? undefined :  instructionMap "
         :sending="conversation.sending"
         :upload-options="conversation.item.data?.room?.id ? {param:{prefix:'user_chat_room/' + conversation.item.data.room.id}} : undefined"
         :placeholder="placeholderText"

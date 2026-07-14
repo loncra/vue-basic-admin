@@ -43,6 +43,7 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_CALL_UPDATE:'chat_call_update',
   CHAT_CALL_COMPLETED:'chat_call_completed',
   CHAT_CALL_CONFIRM:'chat_call_confirm',
+  CHAT_CALL_PARTICIPANT_UPDATE:'chat_call_participant_update',
 
   CHAT_CONVERSATION_CREATE:'chat_conversation_create',
 

@@ -31,6 +31,7 @@ export type SocketBusinessEventPayloadMap = {
   [SOCKET_EVENT_TYPE.CHAT_CALL_UPDATE]: RestResult<UserChatCallEntity>
   [SOCKET_EVENT_TYPE.CHAT_CALL_COMPLETED]: RestResult<UserChatCallEntity>
   [SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM]: RestResult<UserChatCallParticipantEntity>
+  [SOCKET_EVENT_TYPE.CHAT_CALL_PARTICIPANT_UPDATE]: RestResult<UserChatCallParticipantEntity>
 }
 
 export type SocketBusinessEvent = keyof SocketBusinessEventPayloadMap

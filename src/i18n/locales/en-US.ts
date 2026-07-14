@@ -522,6 +522,7 @@ const locale: LanguagePack = {
       },
       invitation:'{user} invites you {type}',
       closeCountdown:'The call has ended and will automatically close after s seconds',
+      reconnectTimeCountdown:'(The call will automatically end after s seconds)',
     },
     conversation: {
       delete: 'Delete conversation',

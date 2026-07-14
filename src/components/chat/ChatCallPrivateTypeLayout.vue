@@ -89,9 +89,15 @@ function onRemotePanelClick() {
         :style="getPanelShellStyle(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
       >
         <l-user-avatar :size="configProviderStore.getToken().sizeXL * 2" :user="targetParticipant.metadata.details" />
-        <a-typography-text type="secondary">
-          <a-badge :status="targetParticipant.badgeStatus" :text="getEnumName(targetParticipant.status)" />
-        </a-typography-text>
+        <a-badge :status="targetParticipant.badgeStatus" :text="getEnumName(targetParticipant.status)" />
+        <a-statistic-timer
+          v-if="targetParticipant.reconnectTime"
+          :classes="{content:'text-DEFAULT text-text-secondary'}"
+          :value="targetParticipant.reconnectTime"
+          @finish="() => chatCallExpose.handleCancel()"
+          type="countdown"
+          :format="$t('chat.call.reconnectTimeCountdown')"
+        />
       </a-flex>
       <video
         v-else-if="showParticipantVideo(CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE)"
@@ -148,9 +154,16 @@ function onRemotePanelClick() {
           @click="onRemotePanelClick"
         >
           <l-user-avatar :size="configProviderStore.getToken().sizeXL * 2" :user="targetParticipant.metadata.details" />
-          <a-typography-text type="secondary">
-            <a-badge :status="targetParticipant.badgeStatus" :text="getEnumName(targetParticipant.status)" />
-          </a-typography-text>
+          
+          <a-badge :status="targetParticipant.badgeStatus" :text="getEnumName(targetParticipant.status)" />
+          <a-statistic-timer
+            v-if="targetParticipant.reconnectTime"
+            :classes="{content:'text-DEFAULT text-text-secondary'}"
+            :value="targetParticipant.reconnectTime"
+            @finish="() => chatCallExpose.handleCancel()"
+            type="countdown"
+            :format="$t('chat.call.reconnectTimeCountdown')"
+          />
         </a-flex>
         <video
           v-else

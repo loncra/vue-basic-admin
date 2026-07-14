@@ -17,7 +17,12 @@ import type {
   UserChatCallParticipantEntity,
   UserChatCallResponseBody
 } from "@/types/apis";
-import {createIcon, exitDocumentFullscreenIfNeeded, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {
+  createIcon,
+  exitDocumentFullscreenIfNeeded,
+  getEnumValue,
+  requireNonNullOrUndefined
+} from "@/utils";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useSocketSubscriptions} from "@/composables";
 import {
@@ -28,15 +33,12 @@ import {
 } from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {isBusinessSuccess} from "@/requests";
-import {AuthServerService} from "@/apis";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import useApp from "antdv-next/dist/app/useApp";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {Button, Space} from "antdv-next";
 import {LocalAudioTrack, type LocalVideoTrack, Room} from "livekit-client";
 import type {ChatCallUiMode} from "@/types/composables/chat.ts";
-import type {ButtonConfig} from "antdv-next/config-provider/context";
 
 export interface UseChatCallModalParams {
   closeTimerValue: Ref<TimeProperties>;
@@ -363,6 +365,22 @@ export function provideChatCallExpose(config:UseChatCallModalParams) {
         )
       ])
   }
+
+  function onChatCallParticipantUpdate(result:RestResult<UserChatCallParticipantEntity>){
+    if (!result.data || !context.value.userChatCall) {
+      return
+    }
+    const index = context.value.userChatCall.participants.findIndex(p => p.id === result.data?.id)
+    if (index < 0) {
+      return ;
+    }
+    context.value.userChatCall.participants[index] = {...context.value.userChatCall.participants[index], ...result.data}
+  }
+
+  on(
+    SOCKET_EVENT_TYPE.CHAT_CALL_PARTICIPANT_UPDATE,
+    (payload) => onChatCallParticipantUpdate(parseSocketRestPayload<UserChatCallParticipantEntity>(payload))
+  )
 
   on(
     SOCKET_EVENT_TYPE.CHAT_CALL_COMPLETED,

@@ -27,10 +27,7 @@ import {
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
 import type {ChatCallModalInnerProps} from "@/composables/chat/useChatCallModal.ts";
-import type {
-  ChatCallPrivateRoleType,
-  ChatCallPrivateSplitScreenType,
-} from "@/types/composables";
+import type {ChatCallPrivateRoleType, ChatCallPrivateSplitScreenType,} from "@/types/composables";
 import type {UserChatCallParticipantEntity} from "@/types/apis";
 
 export interface TargetParticipant extends UserChatCallParticipantEntity {
@@ -59,6 +56,8 @@ export function usePrivateChatCallLayout() {
     targetFullWindow: true,
     splitScreenType: CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT,
   })
+
+  const expandedLayoutSnapshot = ref<PrivateLayoutOptions | null>(null)
 
   const isLeftRightSplit = computed(
     () => options.value.splitScreenType === CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT,
@@ -142,8 +141,6 @@ export function usePrivateChatCallLayout() {
     }
     return isNativeFullscreen.value ? 'relative size-full bg-black' : 'relative size-full bg-layout'
   })
-
-  const expandedLayoutSnapshot = ref<PrivateLayoutOptions | null>(null)
 
   function isPipRole(role: ChatCallPrivateRoleType): boolean {
     if (isLeftRightSplit.value) {

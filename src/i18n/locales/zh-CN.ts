@@ -515,6 +515,7 @@ const locale: LanguagePack = {
       },
       invitation:'{user} 邀请您 {type}',
       closeCountdown:'通话已结束 s 秒后自动关闭',
+      reconnectTimeCountdown:'(s 秒后将自动结束通话)',
     },
     notification:{
       mention:'{principal} 在消息中提到了你'
