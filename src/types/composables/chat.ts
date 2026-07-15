@@ -18,8 +18,8 @@ import type {
 } from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {LocalAudioTrack, LocalVideoTrack, Room} from 'livekit-client'
-import type {ChatConversationsApi} from '@/composables/chat/useChatConversations.ts'
-import type {ChatMessageLoaderApi} from '@/composables/chat/useChatMessageLoader.ts'
+import type {ChatConversationsApi} from '@/composables/message-server/chat/useChatConversations.ts'
+import type {ChatMessageLoaderApi} from '@/composables/message-server/chat/useChatMessageLoader.ts'
 import {
   CHAAT_ROOM_VIEW_MODAL_TYPE,
   CHAT_CALL_PRIVATE_ROLE_TYPE,

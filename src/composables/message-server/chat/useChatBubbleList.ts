@@ -21,7 +21,7 @@ import {throttle} from 'lodash-es'
 import useApp from 'antdv-next/dist/app/useApp'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {requireNonNullOrUndefined} from '@/utils'
-import {useChatReadMarker} from '@/composables/chat/useChatReadMarker.ts'
+import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'
 
 /**
  * 气泡列表视图逻辑：分隔符构建、滚动节流、可见已读收集、跳转闪烁、撤回/引用/重编辑。

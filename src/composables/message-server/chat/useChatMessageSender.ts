@@ -22,7 +22,7 @@ import {
   isObjectWriteResult,
   requireNonNullOrUndefined
 } from '@/utils'
-import {useConfigProviderStore} from '@/stores/configProviderStore'
+import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import type {ObjectWriteResult} from '@/types/apis'
 
 /**

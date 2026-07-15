@@ -4,15 +4,16 @@ import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
 import {AuthServerService} from "@/apis";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
-import LChatMessageReadTable from "@/components/chat/ChatMessageReadTable.vue";
+import LChatMessageReadTable from "@/components/message-server/chat/ChatMessageReadTable.vue";
 import {type ComponentInternalInstance, getCurrentInstance, h, ref} from "vue";
 import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables";
 import {BubbleList as AxBubbleList} from "@antdv-next/x";
 import type {MenuItemType} from "antdv-next";
 import {Space, StatisticTimer} from "antdv-next";
 import type {UserChatMessageResponseBody} from "@/types/apis";
-import {useChatBubbleList, useChatContext} from "@/composables/chat";
-import LChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
+import {useChatBubbleList, useChatContext} from "@/composables/message-server/chat";
+import LChatMessageBubbleContent
+  from "@/components/message-server/chat/ChatMessageBubbleContent.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({

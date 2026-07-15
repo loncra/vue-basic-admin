@@ -586,6 +586,10 @@ const locale: LanguagePack = {
         }
       }
     },
+  },
+  agent: {
+    creation:'创建智能体',
+    workspace:'工作空间'
   }
 }
 

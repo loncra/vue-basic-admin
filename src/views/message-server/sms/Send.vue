@@ -21,7 +21,7 @@ import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {SmsMessageService} from "@/apis/message-server";
 import useApp from "antdv-next/dist/app/useApp";
 import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
-import {navigateAfterMessageSend} from "@/composables/message/useMessageSendFlow.ts";
+import {navigateAfterMessageSend} from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
 
 defineOptions({

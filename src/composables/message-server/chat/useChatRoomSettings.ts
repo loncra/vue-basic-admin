@@ -9,7 +9,7 @@ import type {
 import type {ChatRoomSettingsCallbacks, ChatRoomViewModalOpenType} from '@/types/composables'
 import {AuthServerService} from '@/apis'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
-import {useConversationActions} from '@/composables/chat/useConversationActions.ts'
+import {useConversationActions} from '@/composables/message-server/chat/useConversationActions.ts'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import useApp from 'antdv-next/dist/app/useApp'

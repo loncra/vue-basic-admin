@@ -13,7 +13,7 @@ import LTipTap from "@/components/tiptap/TipTap.vue";
 
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {MESSAGE_TYPE, SITE_PUSHABLE} from "@/constants/messageConstant.ts";
-import {loadMessageSendEnums} from "@/composables/message/useMessageSendFlow.ts";
+import {loadMessageSendEnums} from "@/composables/message-server/useMessageSendFlow.ts";
 
 defineOptions({
   name: 'MessageServerSiteSend',

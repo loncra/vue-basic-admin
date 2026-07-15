@@ -16,7 +16,7 @@ import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 import {
   loadMessageSendEnums,
   navigateAfterMessageSend
-} from "@/composables/message/useMessageSendFlow.ts";
+} from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
 
 defineOptions({

@@ -6,7 +6,8 @@ import {DATE_TIME_FORMAT} from "@/constants/systemConstant.ts";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
 import {provideChatCallMedia, useChatCallModalExpose,} from "@/composables";
 import type {ChatCallModalInnerProps} from "@/types/composables";
-import LChatCallPrivateTypeLayout from "@/components/chat/ChatCallPrivateTypeLayout.vue";
+import LChatCallPrivateTypeLayout
+  from "@/components/message-server/chat/ChatCallPrivateTypeLayout.vue";
 import {
   CHAT_CALL_MINI_SIZE,
   CHAT_CALL_SCENE,

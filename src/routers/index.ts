@@ -27,6 +27,8 @@ import ForgotPassword from '@/views/ForgotPassword.vue';
 import MySiteMessage from "@/views/common/my/MySiteMessage.vue";
 import MyChatMessage from "@/views/common/my/MyChatMessage.vue";
 
+import Agent from "@/views/common/AiAgent.vue";
+
 import i18n from '@/i18n'
 import {useSocketStore} from "@/stores/socketStore.ts";
 
@@ -79,6 +81,15 @@ const childrenRoutes: RouteRecordRaw[] = [
     path: '/commons/setting',
     name: 'setting',
     component: Setting,
+    meta: {
+      applicationName: 'commons',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/commons/agent',
+    name: 'agent',
+    component: Agent,
     meta: {
       applicationName: 'commons',
       requiresAuth: true,

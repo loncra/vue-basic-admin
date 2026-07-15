@@ -27,7 +27,7 @@ import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
 import type {MenuItemType} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
-import {useChatContext, useConversationActions} from "@/composables/chat";
+import {useChatContext, useConversationActions} from "@/composables/message-server/chat";
 
 defineOptions({
   name: 'LChatConversation',

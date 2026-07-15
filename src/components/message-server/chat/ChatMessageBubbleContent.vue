@@ -2,7 +2,7 @@
 import type {ChatContentBlock} from '@/types/composables'
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import type {UserChatMessageResponseBody} from "@/types/apis";
-import LChatMessageReference from "@/components/chat/ChatMessageReference.vue";
+import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
 import {useSlots} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
 import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";

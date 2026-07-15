@@ -54,7 +54,7 @@ const options = ref<{
   typeOptions:[],
   enabledOptions:[],
   sourceOptions:[],
-  icons:["/font_system_icon/iconfont.json","/font_xiaojiage/iconfont.json"],
+  icons:["/font_loncra_icon/iconfont.json","/font_xiaojiage/iconfont.json"],
   iconOptions:[],
 })
 

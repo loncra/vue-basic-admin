@@ -123,7 +123,7 @@ watch(dataSource.value, () => localDataSource.value = [...dataSource.value])
         <a-divider plain class="mt-0" orientation="left">
           <a-space>
             <icon-font type="loncra-user-check"/>
-            {{globalProperties.$t('component.systemUserPanel.selectedMember')}}
+            <span>{{globalProperties.$t('component.systemUserPanel.selectedMember')}}</span>
           </a-space>
         </a-divider>
         <a-space wrap>

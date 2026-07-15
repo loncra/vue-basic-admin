@@ -3,7 +3,10 @@ import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interfac
 import type {ChatContentBlock, ChatInstructionMeasure} from "@/types/composables";
 import {Sender as AxSender} from '@antdv-next/x'
 import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
-import {useChatMessageSender, useChatMessageSendInstruction} from "@/composables/chat";
+import {
+  useChatMessageSender,
+  useChatMessageSendInstruction
+} from "@/composables/message-server/chat";
 import {toRef, unref} from "vue";
 
 defineOptions({

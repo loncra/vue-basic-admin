@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import LChatMessageSender from "@/components/chat/ChatMessageSender.vue";
+import LChatMessageSender from "@/components/message-server/chat/ChatMessageSender.vue";
 import type {ChatContentBlock, ChatInstructionMeasure} from "@/types/composables";
 import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
@@ -12,9 +12,9 @@ import type {
   UserChatMessageResponseBody,
   UserChatParticipantEntity
 } from "@/types/apis";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.js";
+import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {useChatContext} from "@/composables/chat";
+import {useChatContext} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {
@@ -22,12 +22,12 @@ import {
   CHAT_EVERYONE_ID,
   SOCKET_EVENT_TYPE
 } from "@/constants/messageConstant.ts";
-import LChatBubbleList from "@/components/chat/ChatBubbleList.vue";
+import LChatBubbleList from "@/components/message-server/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import LChatCallButton from "@/components/chat/ChatCallButton.vue";
+import LChatCallButton from "@/components/message-server/chat/ChatCallButton.vue";
 
 defineOptions({
   name: 'LChatView',

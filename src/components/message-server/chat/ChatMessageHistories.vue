@@ -5,9 +5,10 @@ import type {UserChatMessageResponseBody} from "@/types/apis";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AuthServerService} from "@/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import LChatMessageBubbleContent from "@/components/chat/ChatMessageBubbleContent.vue";
+import LChatMessageBubbleContent
+  from "@/components/message-server/chat/ChatMessageBubbleContent.vue";
 import LAttachmentMasonry from "@/components/basic/AttachmentMasonry.vue";
-import {useChatHistories} from "@/composables/chat";
+import {useChatHistories} from "@/composables/message-server/chat";
 
 defineOptions({
   name: 'LChatMessageHistories',
@@ -106,7 +107,7 @@ const {
                 <a-divider orientation="left" plain>
                   <a-space>
                     <icon-font type="loncra-calendar-clock"/>
-                    {{ group.key }}
+                    <span>{{ group.key }}</span>
                   </a-space>
                 </a-divider>
                 <l-attachment-masonry

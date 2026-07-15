@@ -18,12 +18,12 @@ import {
 import {requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore";
-import LChatConversation from "@/components/chat/ChatConversation.vue";
-import LChatContact from "@/components/chat/ChatContact.vue";
-import LChatView from "@/components/chat/ChatView.vue";
+import LChatConversation from "@/components/message-server/chat/ChatConversation.vue";
+import LChatContact from "@/components/message-server/chat/ChatContact.vue";
+import LChatView from "@/components/message-server/chat/ChatView.vue";
 import type {ChatViewController, ServerConversationItem} from "@/types/composables";
-import LChatRoomView from "@/components/chat/ChatRoomView.vue";
-import {provideChatContext} from "@/composables/chat";
+import LChatRoomView from "@/components/message-server/chat/ChatRoomView.vue";
+import {provideChatContext} from "@/composables/message-server/chat";
 import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 
