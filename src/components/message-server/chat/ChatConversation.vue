@@ -53,14 +53,14 @@ const emit = defineEmits<{
   delete: [item:UserChatConversationResponseBody]
 }>()
 
-const DEFAULT_MENU_ITEMS = computed((): MenuItemType[] => [
+const DEFAULT_MENU_ITEMS = computed<MenuItemType[]>(() => [
   {
     type: "divider",
   },
   {
     label: globalProperties.$t("common.delete.text"),
     key: 'delete',
-    icon:createIcon('loncra-archive-x', 'text-lg'),
+    icon:() => createIcon('loncra-archive-x', 'text-lg'),
     danger: true,
   },
 ])
