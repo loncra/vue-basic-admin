@@ -84,11 +84,11 @@ onActivated(activated)
         </a-segmented>
       </div>
       <div class="min-h-0 size-full overflow-hidden">
-        <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component, route }">
           <transition name="fade-transform" mode="out-in">
-              <keep-alive v-if="Component">
-                <component :is="Component" />
-              </keep-alive>
+            <keep-alive>
+              <component :is="Component" v-if="Component" :key="String(route.name)" />
+            </keep-alive>
           </transition>
         </router-view>
       </div>

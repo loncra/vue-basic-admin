@@ -8,6 +8,8 @@ import {
   useChatMessageSendInstruction
 } from "@/composables/message-server/chat";
 import {toRef, unref} from "vue";
+import LEmojiButton from "@/components/basic/EmojiButton.vue";
+import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
 
 defineOptions({
   name: 'LChatMessageSender',
