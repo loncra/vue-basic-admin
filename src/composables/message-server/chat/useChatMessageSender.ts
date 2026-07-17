@@ -1,5 +1,5 @@
 import {type ComponentInternalInstance, computed, getCurrentInstance, h, ref, unref} from 'vue'
-import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
+import type {SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {
   AttachmentBlock,
   ChatContentBlock,
@@ -30,13 +30,12 @@ import type {ObjectWriteResult} from '@/types/apis'
  * 草稿与内容块互转、清空。
  */
 export function useChatMessageSender(params: UseChatMessageSenderParams) {
-  const {sending, refMessages, getUploadOptions, onSubmit: emitSubmit} = params
+  const {sending, refMessages, getUploadOptions, onSubmit: emitSubmit, getSender} = params
   const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
   const configProviderStore = useConfigProviderStore()
 
   const uploadRefMap = new Map<string, AttachmentUploadExpose>()
   const uploading = ref<boolean>(false)
-  const senderRef = ref<SenderRef>()
 
   const isSending = computed(() => unref(sending)  || uploading.value)
 
@@ -124,7 +123,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     senderOnChange: (value: AttachmentValue) => void,
   ): void {
     const files = Array.isArray(next) ? next : next ? [next] : []
-    const sender = senderRef.value
+    const sender = getSender()
     if (!sender || !('key' in item) || !item.key) {
       return
     }
@@ -137,7 +136,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
       return
     }
     const slot = createFilesSlot(files.map(toUploadFile))
-    const sender = senderRef.value
+    const sender = getSender()
     if (!sender) {
       return
     }
@@ -197,11 +196,11 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
   }
 
   function onSelectedEmoji(emoji: string): void {
-    senderRef.value?.insert([{type: 'text', value: emoji}], 'cursor')
+    getSender()?.insert([{type: 'text', value: emoji}], 'cursor')
   }
 
   function clear(): void {
-    const sender = senderRef.value
+    const sender = getSender()
     if (!sender) {
       return
     }
@@ -230,11 +229,10 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
   }
 
   function getSlotConfigValue(): SlotConfigType[] {
-    return senderRef.value?.getValue()?.slotConfig || []
+    return getSender()?.getValue()?.slotConfig || []
   }
 
   return {
-    senderRef,
     isSending,
     onPasteFiles,
     handleSubmit,

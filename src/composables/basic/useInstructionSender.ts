@@ -4,16 +4,18 @@ import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import type {
-  ChatInstructionMeasure,
   InstructionBlock,
-  InstructionProps,
-  UseChatMessageSenderInstructionParams,
 } from "@/types/composables";
+import type {
+  InstructionMeasure,
+  InstructionProps,
+  UseInstructionSenderParams,
+} from "@/types/composables/instruction.ts";
 
 const ZERO_WIDTH_SPACE = "\u200B"
 
-export function useChatMessageSendInstruction(
-  params:UseChatMessageSenderInstructionParams,
+export function useInstructionSender(
+  params: UseInstructionSenderParams,
 ) {
 
   const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
@@ -289,7 +291,7 @@ export function useChatMessageSendInstruction(
   function parseInstructionMeasure(
     textBefore: string,
     split = ' ',
-  ): ChatInstructionMeasure | null {
+  ): InstructionMeasure | null {
     for (const key in params.instructionMap.value) {
       const { location, prefix, dataSource } = getLastMeasureIndex(textBefore, key)
       if (!isValidInstructionTrigger(textBefore, location)) {
@@ -371,9 +373,9 @@ export function useChatMessageSendInstruction(
   }
 
   function handleSenderChange(
-    value:string,
-    event?:Event,
-    slotConfigType?:SlotConfigType[]
+    _value:string,
+    _event?:Event,
+    _slotConfigType?:SlotConfigType[]
   ) {
     bindCompositionEvents()
     nextTick(syncInstruction)
@@ -448,3 +450,5 @@ export function useChatMessageSendInstruction(
     handleSenderChange,
   }
 }
+
+export type InstructionSenderApi = ReturnType<typeof useInstructionSender>

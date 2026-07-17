@@ -41,4 +41,3 @@ export {
   usePrivateChatCallLayout
 } from './usePrivateChatCallLayout.ts'
 
-export {useChatMessageSendInstruction} from './useChatMessageSendInstruction.ts'

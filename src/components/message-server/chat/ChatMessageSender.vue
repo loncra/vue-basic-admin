@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {ChatContentBlock, ChatInstructionMeasure} from "@/types/composables";
-import {Sender as AxSender} from '@antdv-next/x'
 import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
-import {
-  useChatMessageSender,
-  useChatMessageSendInstruction
-} from "@/composables/message-server/chat";
-import {toRef, unref} from "vue";
+import {useChatMessageSender} from "@/composables/message-server/chat";
+import {ref, toRef} from "vue";
 import LEmojiButton from "@/components/basic/EmojiButton.vue";
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
+import LInstructionSender from "@/components/basic/InstructionSender.vue";
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -21,19 +18,28 @@ const props = withDefaults(defineProps<{
   sending?: boolean
   uploadOptions?: Record<string, unknown>
   disabled: boolean
-  instructionContextVisibleMargin?:number
+  instructionContextVisibleMargin?: number
   instructionMap?: Record<string, IdValueMetadata<string, string>[]>
-  filterInstruction?:(keyword:string, dataSource:IdValueMetadata<string, string>[], prefix:string) => IdValueMetadata<string, string>[],
-  senderInsertInstruction?:(sender:SenderRef, block:SlotConfigType, measure:ChatInstructionMeasure) => void
+  filterInstruction?: (
+    keyword: string,
+    dataSource: IdValueMetadata<string, string>[],
+    prefix: string,
+  ) => IdValueMetadata<string, string>[]
+  senderInsertInstruction?: (
+    sender: SenderRef,
+    block: SlotConfigType,
+    measure: ChatInstructionMeasure,
+  ) => void
 }>(), {
   placeholder: '',
   sending: false,
   uploadBucket: 'system.file',
   disabled: false,
-  instructionContextVisibleMargin:8,
+  instructionContextVisibleMargin: 8,
   instructionMap: () => ({}),
   filterInstruction: (_keyword, dataSource) => dataSource,
-  senderInsertInstruction:(sender:SenderRef, block:SlotConfigType, measure:ChatInstructionMeasure) => sender.insert([block,{type:'text',value:' '}], 'cursor', measure.prefix + measure.keyword)
+  senderInsertInstruction: (sender, block, measure) =>
+    sender.insert([block, {type: 'text', value: ' '}], 'cursor', measure.prefix + measure.keyword),
 })
 
 const refMessages = defineModel<UserChatMessageResponseBody[]>("refMessages", {default: () => []})
@@ -44,8 +50,9 @@ const emit = defineEmits<{
   jumpToReference: [body: UserChatMessageResponseBody]
 }>()
 
+const instructionSenderRef = ref<InstanceType<typeof LInstructionSender>>()
+
 const {
-  senderRef,
   isSending,
   onPasteFiles,
   handleSubmit,
@@ -58,21 +65,7 @@ const {
   sending: toRef(props, 'sending'),
   getUploadOptions: () => props.uploadOptions,
   onSubmit: (content) => emit('submit', content),
-})
-
-const {
-  instructionPopoverRef,
-  handleSenderChange,
-  handleSenderKeyDown,
-  handleInstructionPick,
-  instructionOption
-} = useChatMessageSendInstruction({
-  instructionMap: toRef(props, "instructionMap"),
-  contextVisibleMargin:toRef(props, "instructionContextVisibleMargin"),
-  disabled: toRef(props, "disabled"),
-  senderRef: senderRef,
-  onFilterDataSource: props.filterInstruction,
-  senderInsertInstruction: props.senderInsertInstruction
+  getSender: () => instructionSenderRef.value?.getSender(),
 })
 
 defineExpose({
@@ -80,29 +73,28 @@ defineExpose({
   convertContentBlockToSlotConfig,
   getSlotConfigValue,
 })
-
 </script>
 
 <template>
-  <ax-sender
-    ref="senderRef"
-    :slot-config="props.disabled ? undefined : (props.slotConfig ?? [])"
-    :suffix="false"
+  <l-instruction-sender
+    ref="instructionSenderRef"
+    :slot-config="props.slotConfig"
     :placeholder="placeholder"
+    :sending="isSending"
     :disabled="props.disabled"
-    :read-only="unref(isSending) || props.disabled"
-    :class-names="{
-      input: 'chat-sender-input',
-      footer:'p-xs! border-t border-t-border-secondary'
-    }"
-    @change="handleSenderChange"
+    :instruction-context-visible-margin="props.instructionContextVisibleMargin"
+    :instruction-map="props.instructionMap"
+    :filter-instruction="props.filterInstruction"
+    :sender-insert-instruction="props.senderInsertInstruction"
     @paste-file="onPasteFiles"
-    @key-down="handleSenderKeyDown"
     @submit="handleSubmit"
   >
-    <template #header>
-      <a-flex gap="small" wrap
-              class="w-full p-xs bg-layout border-b border-b-border-secondary rounded-t-xl">
+    <template v-if="refMessages.length > 0" #header>
+      <a-flex
+        gap="small"
+        wrap
+        class="w-full p-xs bg-layout border-b border-b-border-secondary rounded-t-xl"
+      >
         <l-chat-message-reference
           variant="outlined"
           closable
@@ -115,56 +107,17 @@ defineExpose({
       </a-flex>
     </template>
 
-    <template #footer="{ components }" v-if="!props.disabled">
-      <a-flex justify="space-between" align="center" gap="small">
-        <a-space>
-          <l-emoji-button type="text" :disabled="isSending" @selected="onSelectedEmoji"/>
-          <slot name="leftButtonExtra"></slot>
-        </a-space>
-        <a-flex justify="space-between" align="center" gap="small">
-          <component
-            :disabled="isSending"
-            :is="components.ClearButton"
-            @click="clear"
-          />
-          <component
-            :disabled="isSending"
-            :is="isSending ? components.LoadingButton : components.SendButton"
-            type="primary"
-          />
-        </a-flex>
-      </a-flex>
+    <template #leftButtonExtra>
+      <l-emoji-button type="text" :disabled="isSending" @selected="onSelectedEmoji"/>
+      <slot name="leftButtonExtra" />
     </template>
-  </ax-sender>
-  <teleport to="body">
-    <a-popover
-      ref="instructionPopoverRef"
-      :open="instructionOption.open && instructionOption.displayDataSource.length > 0"
-      :trigger="[]"
-      :destroy-tooltip-on-hide="false"
-    >
-      <template #content>
-        <div class="max-h-60 max-w-60 overflow-auto"
-             @mousedown.prevent>
-          <div
-            v-for="(item, index) in instructionOption.displayDataSource"
-            :key="item.id"
-            class="p-xs cursor-pointer rounded-sm"
-            :class="index === instructionOption.activeIndex ? 'bg-primary-bg' : 'hover:bg-fill-secondary'"
-            @mouseenter="instructionOption.activeIndex = index"
-            @click="handleInstructionPick(item)"
-          >
-            <slot v-if="slots.instructionItemRender" name="instructionItemRender" :index="index" :item="item" :prefix="instructionOption.measure.prefix" />
-            <template v-else>
-              {{ item.value }}
-            </template>
-          </div>
-        </div>
-      </template>
-      <span
-        class="fixed w-px h-[1em] pointer-events-none"
-        :style="instructionOption.anchorStyle"
-      />
-    </a-popover>
-  </teleport>
+
+    <template v-if="slots.rightButtonExtra" #rightButtonExtra>
+      <slot name="rightButtonExtra" />
+    </template>
+
+    <template v-if="slots.instructionItemRender" #instructionItemRender="slotProps">
+      <slot name="instructionItemRender" v-bind="slotProps" />
+    </template>
+  </l-instruction-sender>
 </template>

@@ -217,30 +217,6 @@ export interface ChatBubbleListCallbacks {
   onReloadLastPage: () => void
 }
 
-export interface UseChatMessageSenderInstructionParams {
-  instructionMap: Ref<Record<string, IdValueMetadata<string, string>[]>>
-  disabled: Ref<boolean>
-  senderRef: Ref<SenderRef | undefined>
-  contextVisibleMargin: Ref<number>
-  onFilterDataSource: (keyword: string, dataSource: IdValueMetadata<string, string>[], prefix: string) => IdValueMetadata<string, string>[]
-  senderInsertInstruction: (sender: SenderRef, block: SlotConfigType, measure: ChatInstructionMeasure) => void
-}
-
-export interface InstructionProps {
-  open: boolean
-  measure: ChatInstructionMeasure
-  activeIndex: number
-  anchorStyle: Record<string, string>
-  displayDataSource: IdValueMetadata<string, string>[]
-}
-
-export interface ChatInstructionMeasure {
-  location: number
-  prefix: string
-  keyword: string
-  dataSource: IdValueMetadata<string, string>[]
-}
-
 export interface UseChatCallModalParams {
   closeTimerValue: Ref<TimeProperties>
 }
@@ -341,6 +317,8 @@ export interface UseChatMessageSenderParams {
   sending: MaybeRef<boolean>
   getUploadOptions: () => Record<string, unknown> | undefined
   onSubmit: (content: ChatContentBlock[]) => void
+  /** 由 LInstructionSender 暴露的 sender 实例 */
+  getSender: () => SenderRef | undefined
 }
 
 export interface ChatSocketEventsOptions {

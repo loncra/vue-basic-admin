@@ -1,0 +1,41 @@
+import type {Ref} from 'vue'
+import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
+import type {IdValueMetadata} from '@/types/apis'
+
+export interface InstructionMeasure {
+  location: number
+  prefix: string
+  keyword: string
+  dataSource: IdValueMetadata<string, string>[]
+}
+
+/** @deprecated 使用 InstructionMeasure；保留别名以兼容聊天侧旧引用 */
+export type ChatInstructionMeasure = InstructionMeasure
+
+export interface InstructionProps {
+  open: boolean
+  measure: InstructionMeasure
+  activeIndex: number
+  anchorStyle: Record<string, string>
+  displayDataSource: IdValueMetadata<string, string>[]
+}
+
+export interface UseInstructionSenderParams {
+  instructionMap: Ref<Record<string, IdValueMetadata<string, string>[]>>
+  disabled: Ref<boolean>
+  senderRef: Ref<SenderRef | undefined>
+  contextVisibleMargin: Ref<number>
+  onFilterDataSource: (
+    keyword: string,
+    dataSource: IdValueMetadata<string, string>[],
+    prefix: string,
+  ) => IdValueMetadata<string, string>[]
+  senderInsertInstruction: (
+    sender: SenderRef,
+    block: SlotConfigType,
+    measure: InstructionMeasure,
+  ) => void
+}
+
+/** @deprecated 使用 UseInstructionSenderParams */
+export type UseChatMessageSenderInstructionParams = UseInstructionSenderParams
