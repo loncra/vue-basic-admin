@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import useApp from "antdv-next/dist/app/useApp";
-import {type ComponentInternalInstance, getCurrentInstance} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {ChatCallType, UserChatParticipantEntity} from "@/types/apis";
 import type {MenuItemType} from "antdv-next";
@@ -35,18 +35,18 @@ const {message} = useApp()
 const principalStore = usePrincipalStore()
 const chatCallModalExpose = useChatCallModalExpose()
 
-const items: MenuItemType[] = [
+const items = computed<MenuItemType[]>(() =>  [
   {
     label: globalProperties.$t('chat.call.video.action'),
     key: CHAT_CALL_TYPE.VIDEO,
-    icon:createIcon('loncra-video')
+    icon:() => createIcon('loncra-video')
   },
   {
     label: globalProperties.$t('chat.call.voice.action'),
     key: CHAT_CALL_TYPE.VOICE,
-    icon:createIcon('loncra-mic')
+    icon:() => createIcon('loncra-mic')
   },
-]
+])
 
 async function startCall(type: ChatCallType) {
   if (!props.conversation.data) {
