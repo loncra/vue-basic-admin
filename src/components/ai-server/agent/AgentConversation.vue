@@ -2,7 +2,8 @@
 import {Conversations as AxConversations} from '@antdv-next/x'
 import type {ConversationItemType} from '@antdv-next/x/dist/conversations/interface'
 import {useAgentConversation} from '@/composables/ai-server/agent/useAgentConversation.ts'
-import {getEnumValue} from "@/utils";
+import {getEnumValue} from '@/utils'
+import {DEFAULT_OPERATE_CATEGORY} from '@/constants/systemConstant.ts'
 
 defineOptions({
   name: 'LAgentConversation',
@@ -12,10 +13,9 @@ const {
   items,
   state,
   menuConfig,
-  isWorkspaceDraft,
   startCreateWorkspace,
-  cancelCreateWorkspace,
-  confirmCreateWorkspace,
+  cancelEditWorkspace,
+  confirmEditWorkspace,
 } = useAgentConversation()
 </script>
 
@@ -56,14 +56,14 @@ const {
         :items="items"
       >
         <template #iconRender="{ item, active }">
-          <a-space  v-if="item.data">
+          <a-space v-if="item.data && item.editing === false">
             <icon-font
               type="loncra-panel-right-close"
               class="text-text-secondary transition-transform duration-300 ease-in-out"
               :class="{ 'rotate-90': active }"
             />
             <icon-font
-              v-if="getEnumValue(item.data.operateCategory) === 10"
+              v-if="getEnumValue(item.data.operateCategory) === DEFAULT_OPERATE_CATEGORY.SYSTEM"
               type="loncra-folder-cog"
               class="text-primary"
             />
@@ -76,23 +76,32 @@ const {
         </template>
         <template #labelRender="{ item }">
           <a-space-compact
-            v-if="isWorkspaceDraft(item as ConversationItemType)"
+            v-if="(item as ConversationItemType & { editing?: boolean }).editing"
             class="w-full"
             @click.stop
             @mousedown.stop
           >
             <a-input
-              v-model:value="state.workspace.draftName"
+              v-model:value="(item as ConversationItemType).label"
               :placeholder="$t('agent.workspace.createPlaceholder')"
               :disabled="state.workspace.loading"
-              @pressEnter="confirmCreateWorkspace"
+              @pressEnter="confirmEditWorkspace(item as ConversationItemType & { editing?: boolean })"
             />
-            <a-button type="primary" :loading="state.workspace.loading" @click="confirmCreateWorkspace">
+            <a-button
+              type="primary"
+              :loading="state.workspace.loading"
+              @click="confirmEditWorkspace(item as ConversationItemType & { editing?: boolean })"
+            >
               <template #icon>
                 <icon-font type="loncra-check" />
               </template>
             </a-button>
-            <a-button type="primary" danger :disabled="state.workspace.loading" @click="cancelCreateWorkspace">
+            <a-button
+              type="primary"
+              danger
+              :disabled="state.workspace.loading"
+              @click="cancelEditWorkspace(item as ConversationItemType & { editing?: boolean })"
+            >
               <template #icon>
                 <icon-font type="loncra-x" />
               </template>
@@ -103,7 +112,6 @@ const {
           </template>
         </template>
       </ax-conversations>
-
     </a-spin>
   </a-flex>
 </template>

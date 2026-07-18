@@ -1,24 +1,35 @@
-import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import type {
-  ConversationItemType, ConversationsItemMenu,
+  ConversationItemType,
+  ConversationsItemMenu,
   ConversationsProps,
-  ItemType
+  ItemType,
 } from '@antdv-next/x/dist/conversations/interface'
 import {AgentService} from '@/apis/ai-server/agentService.ts'
 import type {AgentWorkspaceEntity, RestResult} from '@/types/apis'
 import {isResultSuccess} from '@/requests/http.ts'
-import {AGENT_WORKSPACE_DRAFT_KEY,} from '@/constants/aiConstant.ts'
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {DEFAULT_OPERATE_CATEGORY} from "@/constants/systemConstant.ts";
-import useApp from "antdv-next/dist/app/useApp";
-import type {MenuInfo} from "@v-c/menu";
+import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {DEFAULT_OPERATE_CATEGORY} from '@/constants/systemConstant.ts'
+import useApp from 'antdv-next/dist/app/useApp'
+import type {MenuInfo} from '@v-c/menu'
 
-function toWorkspaceItem(workspace: AgentWorkspaceEntity): ConversationItemType {
+/** 列表项上的工作空间编辑标记（创建 / 重命名共用） */
+type WorkspaceConversationItem = ConversationItemType & {
+  editing?: boolean
+  data?: AgentWorkspaceEntity
+}
+
+function toWorkspaceItem(workspace: AgentWorkspaceEntity): WorkspaceConversationItem {
   return {
     key: String(workspace.id),
     label: workspace.name,
     data: workspace,
+    editing: false,
   }
+}
+
+function isConversationItem(item: ItemType): item is WorkspaceConversationItem {
+  return !('type' in item && item.type === 'divider')
 }
 
 export function useAgentConversation() {
@@ -27,71 +38,84 @@ export function useAgentConversation() {
   ).appContext.config.globalProperties
 
   const items = ref<ItemType[]>([])
-
   const state = ref<{
-    workspace: {
-      loading:boolean,
-      draftName:string
-    }
-    activeKey:string
+    workspace: {loading: boolean}
+    activeKey: string
   }>({
-    workspace:{
-      draftName:'',
-      loading:false,
-    },
-    activeKey:''
+    workspace: {loading: false},
+    activeKey: '',
   })
 
-  const {message, modal} = useApp();
+  const {message, modal} = useApp()
 
-  const menuConfig: ConversationsProps["menu"] = function (conversation) {
-    if (!conversation.data) {
+  /** 是否已有处于编辑态的工作空间行（同时只允许一条） */
+  function hasEditingWorkspace(): boolean {
+    return items.value.some((item) => isConversationItem(item) && item.editing)
+  }
+
+  const menuConfig: ConversationsProps['menu'] = function (conversation) {
+    const item = conversation as WorkspaceConversationItem
+    if (!item.data) {
       return undefined as unknown as ConversationsItemMenu
     }
-    if (getEnumValue(conversation.data.operateCategory) === DEFAULT_OPERATE_CATEGORY.SYSTEM) {
+    if (getEnumValue(item.data.operateCategory) === DEFAULT_OPERATE_CATEGORY.SYSTEM) {
+      return undefined as unknown as ConversationsItemMenu
+    }
+    // 编辑中不展示菜单，避免重复进入编辑
+    if (item.editing) {
       return undefined as unknown as ConversationsItemMenu
     }
     return {
-      items:[
+      items: [
         {
           label: globalProperties.$t('common.rename'),
-          key: "rename",
+          key: 'rename',
           icon: () => createIcon('loncra-pencil'),
         },
         {
-          type: "divider",
+          type: 'divider',
         },
         {
           label: globalProperties.$t('common.delete.text'),
-          key: "delete",
-          danger:true,
+          key: 'delete',
+          danger: true,
           icon: () => createIcon('loncra-archive-x'),
-        }
+        },
       ],
-      onClick: (item) => onMenuClick(item, conversation.data),
+      onClick: (menuItem) => onMenuClick(menuItem, item),
     }
   }
 
-  const creatingWorkspace = computed(() =>
-    items.value.some((item) => 'key' in item && item.key === AGENT_WORKSPACE_DRAFT_KEY),
-  )
-
-  function onMenuClick(itemInfo:MenuInfo, entity: AgentWorkspaceEntity) {
-    if (itemInfo.key === 'delete') {
+  function onMenuClick(itemInfo: MenuInfo, conversation: WorkspaceConversationItem): void {
+    if (itemInfo.key === 'rename') {
+      startRenameWorkspace(conversation)
+      return
+    }
+    if (itemInfo.key === 'delete' && conversation.data) {
       modal.confirm({
         title: globalProperties.$t('common.delete.confirmTitle'),
         content: globalProperties.$t('common.delete.confirmSingle'),
-        onOk: () => doDeleteWorkspace(entity)
+        onOk: () => doDeleteWorkspace(conversation.data!),
       })
     }
   }
 
-  async function doDeleteWorkspace(entity:AgentWorkspaceEntity) {
+  /** 菜单「重命名」：将该行标为 editing，由 labelRender 显示输入框 */
+  function startRenameWorkspace(conversation: WorkspaceConversationItem): void {
+    if (hasEditingWorkspace()) {
+      return
+    }
+    conversation.label = conversation.data?.name ?? String(conversation.label ?? '')
+    conversation.editing = true
+    conversation.disabled = true
+  }
+
+  async function doDeleteWorkspace(entity: AgentWorkspaceEntity): Promise<void> {
     state.value.workspace.loading = true
     try {
-      const result:RestResult<void> = await AgentService.deleteWorkspace([Number(entity.id)])
+      const result: RestResult<void> = await AgentService.deleteWorkspace([Number(entity.id)])
       message.success(result.message)
-      await loadWorkspaces();
+      await loadWorkspaces()
     } catch (e) {
       message.error(e instanceof Error ? e.message : String(e))
     } finally {
@@ -99,83 +123,87 @@ export function useAgentConversation() {
     }
   }
 
-  function isWorkspaceDraft(item: ConversationItemType): boolean {
-    return item.key === AGENT_WORKSPACE_DRAFT_KEY || item.edit
-  }
-
   async function loadWorkspaces(): Promise<void> {
     state.value.workspace.loading = true
     try {
-      const result = await AgentService.pageWorkspace({
-        number: 1,
-      })
+      const result = await AgentService.pageWorkspace({number: 1})
       if (!isResultSuccess(result)) {
         return
       }
-      const workspaces = result.data.elements ?? []
-      const draft = items.value.find(
-        (item) => 'key' in item && item.key === AGENT_WORKSPACE_DRAFT_KEY,
+      // 保留仍在编辑的新建行（尚无 id），其余用服务端列表覆盖
+      const editingNew = items.value.find(
+        (item) => isConversationItem(item) && item.editing && !item.data?.id,
       )
       items.value = [
-        ...(draft ? [draft] : []),
-        ...workspaces.map(toWorkspaceItem),
+        ...(editingNew ? [editingNew] : []),
+        ...(result.data.elements ?? []).map(toWorkspaceItem),
       ]
     } finally {
       state.value.workspace.loading = false
     }
-
   }
 
+  /** 新建：在列表顶部插入 editing=true 的空行 */
   function startCreateWorkspace(): void {
-    if (creatingWorkspace.value) {
+    if (hasEditingWorkspace()) {
       return
     }
-    state.value.workspace.draftName = ''
     items.value = [
       {
-        key: AGENT_WORKSPACE_DRAFT_KEY,
+        key: String(crypto.randomUUID()),
         label: '',
+        editing: true,
         disabled: true,
       },
       ...items.value,
     ]
   }
 
-  function cancelCreateWorkspace(): void {
-    items.value = items.value.filter(
-      (item) => !('key' in item) || item.key !== AGENT_WORKSPACE_DRAFT_KEY,
-    )
-    state.value.workspace.draftName = ''
+  /**
+   * 取消编辑：
+   * - 新建（无 data.id）：从列表移除
+   * - 重命名：退出 editing，还原名称
+   */
+  function cancelEditWorkspace(item: WorkspaceConversationItem): void {
+    if (!item.data?.id) {
+      items.value = items.value.filter(
+        (row) => !(isConversationItem(row) && row.key === item.key),
+      )
+      return
+    }
+    item.editing = false
+    item.disabled = false
+    item.label = item.data.name
   }
 
-  async function confirmCreateWorkspace(): Promise<void> {
-    const name = state.value.workspace.draftName.trim()
+  /** 确定：创建或更新都走 saveWorkspace */
+  async function confirmEditWorkspace(item: WorkspaceConversationItem): Promise<void> {
+    const name = String(item.label ?? '').trim()
     if (!name || state.value.workspace.loading) {
       return
     }
     state.value.workspace.loading = true
     try {
       const result = await AgentService.saveWorkspace({
-        id: undefined,
-        version: undefined,
+        id: item.data?.id,
+        version: item.data?.version,
         name,
-        operateCategory:DEFAULT_OPERATE_CATEGORY.CUSTOMIZE,
+        operateCategory: item.data?.operateCategory ?? DEFAULT_OPERATE_CATEGORY.CUSTOMIZE,
       })
       if (!isResultSuccess(result)) {
         return
       }
       const workspace: AgentWorkspaceEntity = {
         id: result.data,
-        version: undefined,
+        version: item.data?.version,
         name,
-        operateCategory:DEFAULT_OPERATE_CATEGORY.CUSTOMIZE,
+        operateCategory: item.data?.operateCategory ?? DEFAULT_OPERATE_CATEGORY.CUSTOMIZE,
       }
-      items.value = items.value.map((item) =>
-        'key' in item && item.key === AGENT_WORKSPACE_DRAFT_KEY
-          ? toWorkspaceItem(workspace)
-          : item,
-      )
-      state.value.workspace.draftName = ''
+      item.key = String(workspace.id)
+      item.label = workspace.name
+      item.data = workspace
+      item.editing = false
+      item.disabled = false
       if (result.message) {
         message.success(result.message)
       }
@@ -192,10 +220,8 @@ export function useAgentConversation() {
     items,
     menuConfig,
     state,
-    creatingWorkspace,
-    isWorkspaceDraft,
     startCreateWorkspace,
-    cancelCreateWorkspace,
-    confirmCreateWorkspace,
+    cancelEditWorkspace,
+    confirmEditWorkspace,
   }
 }

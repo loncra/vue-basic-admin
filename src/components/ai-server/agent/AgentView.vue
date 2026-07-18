@@ -138,7 +138,7 @@ defineExpose({
             当前模式
           </a-tag>
         </template>
-      </l-instruction-sender>/
+      </l-instruction-sender>
     </div>
   </a-flex>
 </template>
