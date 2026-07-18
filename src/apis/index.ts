@@ -11,3 +11,4 @@ export * from './pageSearchRestfulService'
  */
 export * from './auth-server/index'
 export * from './resource-server/index'
+export * from './ai-server/index'

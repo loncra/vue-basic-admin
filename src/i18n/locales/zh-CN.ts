@@ -34,6 +34,7 @@ const locale: LanguagePack = {
       readable: '未读{count}',
       unreadable: '已读{count}',
     },
+    rename:'修改名称',
     delete:{
       text:'删除',
       selected: '删除 ({count}) 条记录',
@@ -589,7 +590,14 @@ const locale: LanguagePack = {
   },
   agent: {
     creation:'创建智能体',
-    workspace:'工作空间'
+    workspace:{
+      title:'工作空间',
+      createPlaceholder:'工作空间名称',
+    },
+    assistant:'助手',
+    view: {
+      placeholder:'向智能体提问…',
+    },
   }
 }
 

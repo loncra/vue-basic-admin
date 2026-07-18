@@ -164,3 +164,8 @@ export const DEFAULT_PAGE_RESULT_VALUE = {
   size: 10,
   metadata:{}
 }
+
+export const DEFAULT_OPERATE_CATEGORY = {
+  SYSTEM:10,
+  CUSTOMIZE:20,
+} as const

@@ -42,8 +42,8 @@ const props = withDefaults(defineProps<{
 
 const slots = defineSlots<{
   header?: () => unknown
-  leftButtonExtra?: () => unknown
-  rightButtonExtra?: () => unknown
+  leftExtra?: () => unknown
+  rightExtra?: () => unknown
   instructionItemRender?: (props: {
     index: number
     item: IdValueMetadata<string, string>
@@ -123,10 +123,10 @@ defineExpose({
     <template #footer="{ components }" v-if="!props.disabled">
       <a-flex justify="space-between" align="center" gap="small">
         <a-space>
-          <slot name="leftButtonExtra" />
+          <slot name="leftExtra" />
         </a-space>
         <a-flex align="center" gap="small">
-          <slot name="rightButtonExtra" />
+          <slot name="rightExtra" />
           <component
             :is="components.ClearButton"
             :disabled="isSending"

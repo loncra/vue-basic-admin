@@ -107,13 +107,13 @@ defineExpose({
       </a-flex>
     </template>
 
-    <template #leftButtonExtra>
+    <template #leftExtra>
       <l-emoji-button type="text" :disabled="isSending" @selected="onSelectedEmoji"/>
-      <slot name="leftButtonExtra" />
+      <slot name="leftExtra" />
     </template>
 
-    <template v-if="slots.rightButtonExtra" #rightButtonExtra>
-      <slot name="rightButtonExtra" />
+    <template v-if="slots.rightExtra" #rightExtra>
+      <slot name="rightExtra" />
     </template>
 
     <template v-if="slots.instructionItemRender" #instructionItemRender="slotProps">

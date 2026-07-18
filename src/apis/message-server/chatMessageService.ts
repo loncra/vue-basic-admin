@@ -20,7 +20,7 @@ import axios from '@/requests'
  *
  * @author maurice.chen
  */
-export class ChatMessageService  {
+export class ChatMessageService {
   static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/message-server' : '')
 
   /** 本服务相对 {@link BASE_URL} 的路径 */

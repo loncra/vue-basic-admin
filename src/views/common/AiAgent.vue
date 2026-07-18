@@ -2,6 +2,7 @@
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import LAgentConversation from "@/components/ai-server/agent/AgentConversation.vue";
+import LAgentView from "@/components/ai-server/agent/AgentView.vue";
 
 defineOptions({
   name: 'CommonAiAgent',
@@ -21,7 +22,7 @@ defineOptions({
       <div class="min-h-0 size-full overflow-hidden">
         <a-splitter class="ai-agent-splitter h-full min-h-0">
           <a-splitter-panel
-            class="h-full p-0 overflow-hiddenl"
+            class="h-full p-0 overflow-hidden"
             default-size="20%"
             min="15%"
             max="25%"
@@ -32,9 +33,7 @@ defineOptions({
           <a-splitter-panel
             class="h-full min-h-0 overflow-hidden"
           >
-            <a-flex vertical class="size-full" justify="center" align="center">
-              <a-empty/>
-            </a-flex>
+            <l-agent-view />
           </a-splitter-panel>
         </a-splitter>
       </div>

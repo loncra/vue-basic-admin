@@ -333,7 +333,7 @@ defineExpose({
             </template>
           </a-space>
         </template>
-        <template #leftButtonExtra v-if="getEnumValue(conversation?.item?.data?.room.type) === 20">
+        <template #leftExtra v-if="getEnumValue(conversation?.item?.data?.room.type) === 20">
           <l-chat-call-button
             :participants="conversation.participants"
             :conversation="conversation.item"

@@ -32,6 +32,7 @@ const locale: LanguagePack = {
     accept:'accept',
     rejected:'rejected',
     ignore:'ignore',
+    rename:'Rename',
     read: {
       time: 'Read time',
       readable: 'Unread {count}',
@@ -591,6 +592,17 @@ const locale: LanguagePack = {
           action: 'Remove members',
         },
       },
+    },
+  },
+  agent: {
+    creation: 'Create agent',
+    workspace:{
+      title:'Workspace',
+      createPlaceholder:'workspace name',
+    },
+    assistant: 'Assistant',
+    view: {
+      placeholder: 'Ask the agent…',
     },
   },
 }

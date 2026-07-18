@@ -186,7 +186,7 @@ defineExpose({
         />
       </template>
       <template #header="{ item }">
-        <a-typography-text v-if="item.role === 'ai'">
+        <a-typography-text v-if="item.role === CHAT_BUBBLE_TYPE.AI">
           <template v-if="getEnumValue(conversation.item?.data?.room?.type) === 10">
             {{ AuthServerService.getPrincipalNameByUserDetails(item.data.participant.metadata.details) }}
           </template>
