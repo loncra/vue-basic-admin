@@ -112,7 +112,6 @@ export type ChatBubbleItem = {
   data?:UserChatMessageResponseBody | UserChatMessageEntity,
   hide?:boolean
   flashPending?: boolean   // jump 时设为 true
-  highlight?: boolean      // 进入可视区后设为 true，动画结束后清 false
 }
 
 export interface ServerConversationItem {

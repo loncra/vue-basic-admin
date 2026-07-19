@@ -9,15 +9,11 @@ import {AgentService} from '@/apis/ai-server/agentService.ts'
 import type {AgentWorkspaceEntity, RestResult} from '@/types/apis'
 import {isResultSuccess} from '@/requests/http.ts'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {DEFAULT_OPERATE_CATEGORY} from '@/constants/systemConstant.ts'
+import {DEFAULT_OPERATE_CATEGORY, DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
 import useApp from 'antdv-next/dist/app/useApp'
 import type {MenuInfo} from '@v-c/menu'
+import type {WorkspaceConversationItem} from "@/types/composables";
 
-/** 列表项上的工作空间编辑标记（创建 / 重命名共用） */
-type WorkspaceConversationItem = ConversationItemType & {
-  editing?: boolean
-  data?: AgentWorkspaceEntity
-}
 
 function toWorkspaceItem(workspace: AgentWorkspaceEntity): WorkspaceConversationItem {
   return {
@@ -25,6 +21,7 @@ function toWorkspaceItem(workspace: AgentWorkspaceEntity): WorkspaceConversation
     label: workspace.name,
     data: workspace,
     editing: false,
+    dataSource:DEFAULT_PAGE_RESULT_VALUE
   }
 }
 

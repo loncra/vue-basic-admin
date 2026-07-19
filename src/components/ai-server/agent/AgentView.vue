@@ -17,7 +17,7 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<{
-  bubbleListRole: any,
+  bubbleListRole: RoleType,
 }>(),{
   bubbleListRole:{
     user: {
@@ -72,12 +72,12 @@ defineExpose({
     class="h-full min-h-0 overflow-hidden"
   >
     <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
-      <template v-if="conversation">
+      <template v-if="conversation  && conversation.dataSource.elements.length > 0 ">
         <ax-bubble-list
           ref="bubbleListRef"
           class="min-h-0 h-full flex"
           :classes="{ scroll: 'pl-xs pr-xs' }"
-          :items="conversation.itemDataSource.elements"
+          :items="conversation.dataSource.elements"
           :role="props.bubbleListRole"
         >
           <template #avatar="{ item }">

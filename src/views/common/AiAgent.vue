@@ -3,10 +3,16 @@
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import LAgentConversation from "@/components/ai-server/agent/AgentConversation.vue";
 import LAgentView from "@/components/ai-server/agent/AgentView.vue";
+import {userAgentContext} from "@/composables/ai-server/agent/userAgentContext.ts";
 
 defineOptions({
   name: 'CommonAiAgent',
 })
+
+
+const {
+
+}= userAgentContext()
 
 </script>
 
