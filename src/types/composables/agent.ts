@@ -13,15 +13,10 @@ export type ConversationBubbleItem = BubbleItemType & {
 
 }
 
-/** 侧栏列表行：源数据为工作空间；拍平视图可为会话行（带 group） */
+/** 列表项上的工作空间编辑标记（创建 / 重命名共用） */
 export type WorkspaceConversationItem = ConversationItemType & {
   editing?: boolean
-  /** workspace=源节点；conversation=拍平行 */
-  kind?: 'workspace' | 'conversation'
   data?: AgentWorkspaceResponseBody
-  /** 拍平行对应的会话 */
-  conversation?: AgentActiveConversationProps
-  /** 源节点下的会话列表（CRUD 只改这里） */
   conversations?: AgentActiveConversationProps[]
 }
 

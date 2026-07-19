@@ -4,7 +4,6 @@ import type {ConversationItemType} from '@antdv-next/x/dist/conversations/interf
 import {useAgentConversation} from '@/composables/ai-server/agent/useAgentConversation.ts'
 import {getEnumValue} from '@/utils'
 import {DEFAULT_OPERATE_CATEGORY} from '@/constants/systemConstant.ts'
-import {AGENT_LIST_ITEM_KIND} from "@/constants/aiConstant.ts";
 
 defineOptions({
   name: 'LAgentConversation',
@@ -12,7 +11,6 @@ defineOptions({
 
 const {
   items,
-  groupable,
   loading,
   menuConfig,
   startCreateWorkspace,
@@ -54,11 +52,11 @@ const {
       <ax-conversations
         class="min-h-0 size-full flex-[1_1_0]"
         :menu="menuConfig"
-        :groupable="groupable"
+        groupable
         :items="items"
       >
         <template #iconRender="{ item, active }">
-          <a-space v-if="item.kind === AGENT_LIST_ITEM_KIND.WORKSPACE && item.data && item.editing === false">
+          <a-space v-if="item.data && item.editing === false">
             <icon-font
               type="loncra-panel-right-close"
               class="text-text-secondary transition-transform duration-300 ease-in-out"
