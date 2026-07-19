@@ -13,14 +13,18 @@ export interface AgentWorkspaceEntity extends VersionEntityMetadata {
   operateCategory:NameValueEnumMetadata<number> | number
 }
 
+export interface AgentWorkspaceResponseBody extends AgentWorkspaceEntity {
+  conversations?: AgentConversationEntity[]
+}
+
 /**
  * Agent 对话（对齐 `AgentConversationEntity`）
  *
  * @author maurice.chen
  */
 export interface AgentConversationEntity extends VersionEntityMetadata {
-  name: string
-  agentWorkspaceId: number
+  name?: string
+  agentWorkspaceId?: number
   status?: number
   principal?: string
   tenantId?: string

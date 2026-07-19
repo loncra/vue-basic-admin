@@ -1,28 +1,64 @@
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {
-  ConversationItemType,
   ConversationsItemMenu,
   ConversationsProps,
   ItemType,
 } from '@antdv-next/x/dist/conversations/interface'
 import {AgentService} from '@/apis/ai-server/agentService.ts'
-import type {AgentWorkspaceEntity, RestResult} from '@/types/apis'
+import type {AgentWorkspaceEntity, AgentWorkspaceResponseBody, RestResult} from '@/types/apis'
 import {isResultSuccess} from '@/requests/http.ts'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {DEFAULT_OPERATE_CATEGORY, DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
+import {DEFAULT_OPERATE_CATEGORY} from '@/constants/systemConstant.ts'
+import {AGENT_LIST_ITEM_KIND} from '@/constants/aiConstant.ts'
 import useApp from 'antdv-next/dist/app/useApp'
 import type {MenuInfo} from '@v-c/menu'
-import type {WorkspaceConversationItem} from "@/types/composables";
+import type {AgentActiveConversationProps, WorkspaceConversationItem} from "@/types/composables";
+import {useAgentChatContext} from "@/composables";
 
-
-function toWorkspaceItem(workspace: AgentWorkspaceEntity): WorkspaceConversationItem {
+/**
+ * 接口工作空间 → 侧栏源节点（保留嵌套 conversations，供 CRUD）
+ */
+function toWorkspaceItem(workspace: AgentWorkspaceResponseBody): WorkspaceConversationItem {
+  // 对齐后端 AgentWorkspaceResponseBody.conversations
+  const conversations: AgentActiveConversationProps[] = (workspace.conversations ?? []).map((item) => ({
+    ...item,
+  }))
   return {
     key: String(workspace.id),
     label: workspace.name,
+    group: String(workspace.id),
+    kind: AGENT_LIST_ITEM_KIND.WORKSPACE,
     data: workspace,
     editing: false,
-    dataSource:DEFAULT_PAGE_RESULT_VALUE
+    conversations,
   }
+}
+
+/**
+ * 源节点拍平为 ax-conversations items：
+ * - 编辑中的工作空间行原样透出（新建 / 重命名）
+ * - 无会话时仍透出工作空间行（否则空组不渲染）
+ * - 有会话时按会话展开，group = 工作空间 key
+ */
+function flattenWorkspaceItems(workspaces: WorkspaceConversationItem[]): WorkspaceConversationItem[] {
+  return workspaces.flatMap((workspace) => {
+    if (workspace.editing) {
+      return [workspace]
+    }
+    const conversations = workspace.conversations ?? []
+    if (conversations.length === 0) {
+      return [workspace]
+    }
+    return conversations.map((conversation) => ({
+      key: String(conversation.id),
+      label: conversation.name ?? String(conversation.id),
+      group: String(workspace.key),
+      kind: AGENT_LIST_ITEM_KIND.CONVERSATION,
+      data: workspace.data,
+      conversation,
+      editing: false,
+    }))
+  })
 }
 
 function isConversationItem(item: ItemType): item is WorkspaceConversationItem {
@@ -34,32 +70,49 @@ export function useAgentConversation() {
     getCurrentInstance(),
   ).appContext.config.globalProperties
 
-  const items = ref<ItemType[]>([])
-  const state = ref<{
-    workspace: {loading: boolean}
-    activeKey: string
-  }>({
-    workspace: {loading: false},
-    activeKey: '',
-  })
+  const agentChatContent = useAgentChatContext()
+
+  const loading = ref<boolean>(false)
 
   const {message, modal} = useApp()
 
+  /** 拍平视图：编辑行透出，会话行带 group */
+  const items = computed(() => flattenWorkspaceItems(agentChatContent.workspaces.value))
+
+  const groupable = computed<ConversationsProps['groupable']>(() => ({
+    collapsible: true,
+    label: (group: string) => {
+      const workspace = agentChatContent.workspaces.value.find((item) => item.key === group)
+      return workspace?.label ?? group
+    },
+  }))
+
   /** 是否已有处于编辑态的工作空间行（同时只允许一条） */
   function hasEditingWorkspace(): boolean {
-    return items.value.some((item) => isConversationItem(item) && item.editing)
+    return agentChatContent.workspaces.value.some((item) => isConversationItem(item) && item.editing)
+  }
+
+  /** 拍平行 → 源工作空间节点（CRUD 只打在源数据上） */
+  function resolveWorkspace(item: WorkspaceConversationItem): WorkspaceConversationItem | undefined {
+    if (item.kind === AGENT_LIST_ITEM_KIND.CONVERSATION) {
+      return agentChatContent.workspaces.value.find(
+        (workspace) => workspace.key === item.group || workspace.key === String(item.data?.id),
+      )
+    }
+    return agentChatContent.workspaces.value.find((workspace) => workspace.key === item.key) ?? item
   }
 
   const menuConfig: ConversationsProps['menu'] = function (conversation) {
     const item = conversation as WorkspaceConversationItem
-    if (!item.data) {
+    const workspace = resolveWorkspace(item)
+    if (!workspace?.data) {
       return undefined as unknown as ConversationsItemMenu
     }
-    if (getEnumValue(item.data.operateCategory) === DEFAULT_OPERATE_CATEGORY.SYSTEM) {
+    if (getEnumValue(workspace.data.operateCategory) === DEFAULT_OPERATE_CATEGORY.SYSTEM) {
       return undefined as unknown as ConversationsItemMenu
     }
     // 编辑中不展示菜单，避免重复进入编辑
-    if (item.editing) {
+    if (workspace.editing) {
       return undefined as unknown as ConversationsItemMenu
     }
     return {
@@ -79,36 +132,36 @@ export function useAgentConversation() {
           icon: () => createIcon('loncra-archive-x'),
         },
       ],
-      onClick: (menuItem) => onMenuClick(menuItem, item),
+      onClick: (menuItem) => onMenuClick(menuItem, workspace),
     }
   }
 
-  function onMenuClick(itemInfo: MenuInfo, conversation: WorkspaceConversationItem): void {
+  function onMenuClick(itemInfo: MenuInfo, workspace: WorkspaceConversationItem): void {
     if (itemInfo.key === 'rename') {
-      startRenameWorkspace(conversation)
+      startRenameWorkspace(workspace)
       return
     }
-    if (itemInfo.key === 'delete' && conversation.data) {
+    if (itemInfo.key === 'delete' && workspace.data) {
       modal.confirm({
         title: globalProperties.$t('common.delete.confirmTitle'),
         content: globalProperties.$t('common.delete.confirmSingle'),
-        onOk: () => doDeleteWorkspace(conversation.data!),
+        onOk: () => doDeleteWorkspace(workspace.data!),
       })
     }
   }
 
   /** 菜单「重命名」：将该行标为 editing，由 labelRender 显示输入框 */
-  function startRenameWorkspace(conversation: WorkspaceConversationItem): void {
+  function startRenameWorkspace(workspace: WorkspaceConversationItem): void {
     if (hasEditingWorkspace()) {
       return
     }
-    conversation.label = conversation.data?.name ?? String(conversation.label ?? '')
-    conversation.editing = true
-    conversation.disabled = true
+    workspace.label = workspace.data?.name ?? String(workspace.label ?? '')
+    workspace.editing = true
+    workspace.disabled = true
   }
 
   async function doDeleteWorkspace(entity: AgentWorkspaceEntity): Promise<void> {
-    state.value.workspace.loading = true
+    loading.value = true
     try {
       const result: RestResult<void> = await AgentService.deleteWorkspace([Number(entity.id)])
       message.success(result.message)
@@ -116,27 +169,20 @@ export function useAgentConversation() {
     } catch (e) {
       message.error(e instanceof Error ? e.message : String(e))
     } finally {
-      state.value.workspace.loading = false
+      loading.value = false
     }
   }
 
   async function loadWorkspaces(): Promise<void> {
-    state.value.workspace.loading = true
+    loading.value = true
     try {
-      const result = await AgentService.pageWorkspace({number: 1})
+      const result = await AgentService.my({number: 1})
       if (!isResultSuccess(result)) {
         return
       }
-      // 保留仍在编辑的新建行（尚无 id），其余用服务端列表覆盖
-      const editingNew = items.value.find(
-        (item) => isConversationItem(item) && item.editing && !item.data?.id,
-      )
-      items.value = [
-        ...(editingNew ? [editingNew] : []),
-        ...(result.data.elements ?? []).map(toWorkspaceItem),
-      ]
+      agentChatContent.workspaces.value = (result.data.elements ?? []).map(toWorkspaceItem)
     } finally {
-      state.value.workspace.loading = false
+      loading.value = false
     }
   }
 
@@ -145,14 +191,16 @@ export function useAgentConversation() {
     if (hasEditingWorkspace()) {
       return
     }
-    items.value = [
+    agentChatContent.workspaces.value = [
       {
         key: String(crypto.randomUUID()),
         label: '',
+        kind: AGENT_LIST_ITEM_KIND.WORKSPACE,
         editing: true,
         disabled: true,
+        conversations: [],
       },
-      ...items.value,
+      ...agentChatContent.workspaces.value,
     ]
   }
 
@@ -163,7 +211,7 @@ export function useAgentConversation() {
    */
   function cancelEditWorkspace(item: WorkspaceConversationItem): void {
     if (!item.data?.id) {
-      items.value = items.value.filter(
+      agentChatContent.workspaces.value = agentChatContent.workspaces.value.filter(
         (row) => !(isConversationItem(row) && row.key === item.key),
       )
       return
@@ -176,10 +224,10 @@ export function useAgentConversation() {
   /** 确定：创建或更新都走 saveWorkspace */
   async function confirmEditWorkspace(item: WorkspaceConversationItem): Promise<void> {
     const name = String(item.label ?? '').trim()
-    if (!name || state.value.workspace.loading) {
+    if (!name || loading.value) {
       return
     }
-    state.value.workspace.loading = true
+    loading.value = true
     try {
       const result = await AgentService.saveWorkspace({
         id: item.data?.id,
@@ -190,22 +238,26 @@ export function useAgentConversation() {
       if (!isResultSuccess(result)) {
         return
       }
-      const workspace: AgentWorkspaceEntity = {
+      const saved: AgentWorkspaceResponseBody = {
         id: result.data,
         version: item.data?.version,
         name,
         operateCategory: item.data?.operateCategory ?? DEFAULT_OPERATE_CATEGORY.CUSTOMIZE,
+        conversations: item.data?.conversations ?? item.conversations ?? [],
       }
-      item.key = String(workspace.id)
-      item.label = workspace.name
-      item.data = workspace
+      item.key = String(saved.id)
+      item.label = saved.name
+      item.group = String(saved.id)
+      item.kind = AGENT_LIST_ITEM_KIND.WORKSPACE
+      item.data = saved
+      item.conversations = item.conversations ?? []
       item.editing = false
       item.disabled = false
       if (result.message) {
         message.success(result.message)
       }
     } finally {
-      state.value.workspace.loading = false
+      loading.value = false
     }
   }
 
@@ -215,8 +267,9 @@ export function useAgentConversation() {
 
   return {
     items,
+    groupable,
     menuConfig,
-    state,
+    loading,
     startCreateWorkspace,
     cancelEditWorkspace,
     confirmEditWorkspace,

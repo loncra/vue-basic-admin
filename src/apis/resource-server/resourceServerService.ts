@@ -9,6 +9,7 @@ import type {
   CaptchaTokenType,
   EnumBucketsRequestBody,
   EnumBucketsResponseBody,
+  IdValueMetadata,
   RestResult
 } from "@/types/apis";
 import {formUrlEncoded, loadJs} from "@/utils";
@@ -36,7 +37,7 @@ export class ResourceServerService {
   }
 
   /** `GET .../enumerate/{service}/{enumerateName}`：单枚举 */
-  static getServiceEnumerate(service: string, enumerateName:string): Promise<RestResult<EnumBucketsResponseBody>> {
+  static getServiceEnumerate<I,V>(service: string, enumerateName:string): Promise<RestResult<IdValueMetadata<I,V>[]>> {
     return axios.get(ResourceServerService.GET_SERVICE_ENUMERATE_URL + '/' + service + '/' + enumerateName)
   }
 

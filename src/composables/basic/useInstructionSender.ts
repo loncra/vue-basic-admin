@@ -3,9 +3,7 @@ import {type ComponentInternalInstance, getCurrentInstance, nextTick, onUnmounte
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import type {
-  InstructionBlock,
-} from "@/types/composables";
+import type {InstructionBlock,} from "@/types/composables";
 import type {
   InstructionMeasure,
   InstructionProps,
@@ -13,6 +11,10 @@ import type {
 } from "@/types/composables/instruction.ts";
 
 const ZERO_WIDTH_SPACE = "\u200B"
+
+export function isInstructionSlot(slot: SlotConfigType): boolean {
+  return slot.type === 'custom' && slot.props?.slotKind === 'instruction'
+}
 
 export function useInstructionSender(
   params: UseInstructionSenderParams,

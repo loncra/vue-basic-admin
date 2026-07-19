@@ -2,12 +2,14 @@ import type {
   AgentConversationEntity,
   AgentMessageEntity,
   AgentWorkspaceEntity,
+  AgentWorkspaceResponseBody,
   PageRequest,
   PageResult,
   RestResult,
 } from '@/types/apis'
 import {formUrlEncoded} from '@/utils'
 import axios from '@/requests'
+import type {AgentChatRequestBody, AgentChatResponseBody} from "@/types/composables";
 
 /**
  * Agent 领域服务：`/api[/ai-server]/agent/{workspace|conversation|message}`
@@ -26,19 +28,23 @@ export class AgentService {
   /** 工作空间：`/agent/workspace` */
   static readonly WORKSPACE_URL = AgentService.BASE_URL + '/agent/workspace'
 
+  static readonly MY_WORKSPACE_URL = AgentService.WORKSPACE_URL + '/my'
+
   /** 对话：`/agent/conversation` */
   static readonly CONVERSATION_URL = AgentService.BASE_URL + '/agent/conversation'
 
   /** 消息：`/agent/message` */
   static readonly MESSAGE_URL = AgentService.BASE_URL + '/agent/message'
 
+  static readonly CHAT_URL = AgentService.BASE_URL + '/agent'
+
   // ---------- workspace ----------
 
   /** `POST /agent/workspace` */
-  static pageWorkspace(
+  static my(
     request: PageRequest,
-  ): Promise<RestResult<PageResult<AgentWorkspaceEntity>>> {
-    return axios.post(AgentService.WORKSPACE_URL, formUrlEncoded(request))
+  ): Promise<RestResult<PageResult<AgentWorkspaceResponseBody>>> {
+    return axios.post(AgentService.MY_WORKSPACE_URL, formUrlEncoded(request))
   }
 
   /** `GET /agent/workspace/{id}` */
@@ -82,5 +88,15 @@ export class AgentService {
   /** `DELETE /agent/message?ids=` */
   static deleteMessage(ids: number[]): Promise<RestResult<void>> {
     return axios.delete(AgentService.MESSAGE_URL, {params: formUrlEncoded({ids})})
+  }
+
+  // ---------- message ----------
+
+  static chat(body:AgentChatRequestBody):Promise<RestResult<AgentChatResponseBody>> {
+    return axios.post(AgentService.CHAT_URL, body)
+  }
+
+  static loadStream(conversationId:number) {
+
   }
 }

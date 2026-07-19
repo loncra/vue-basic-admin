@@ -5,7 +5,6 @@ import type {
   ChatContentBlock,
   FilesSlotProps,
   InstructionBlock,
-  InstructionSlotProps,
   ReferenceBlock,
   UseChatMessageSenderParams,
 } from '@/types/composables'
@@ -24,6 +23,7 @@ import {
 } from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import type {ObjectWriteResult} from '@/types/apis'
+import {isInstructionSlot} from "@/composables/basic/useInstructionSender.ts";
 
 /**
  * 发送器逻辑：files 词槽创建/渲染/上传、粘贴文件、提交组装（附件 + 引用）、
@@ -55,12 +55,6 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     slot: SlotConfigType,
   ): slot is SlotConfigType & {key: string; props: FilesSlotProps} {
     return slot.type === 'custom' && slot.props?.slotKind === 'files'
-  }
-
-  function isInstructionSlot(
-    slot: SlotConfigType,
-  ): slot is SlotConfigType & {key: string; props: InstructionSlotProps} {
-    return slot.type === 'custom' && slot.props?.slotKind === 'instruction'
   }
 
   function toUploadFile(file: File): UploadFile<ObjectWriteResult> {

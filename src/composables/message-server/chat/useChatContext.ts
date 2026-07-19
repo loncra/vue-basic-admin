@@ -1,13 +1,13 @@
 import {inject, provide, type Ref, ref} from 'vue'
 import type {
-  ChatContext,
   ConversationActiveProps,
-  ProvideChatContextOptions,
-  ServerConversationItem
+  ProvideUserChatContextOptions,
+  ServerConversationItem,
+  UserChatContext
 } from '@/types/composables'
 import type {UserChatConversationResponseBody} from '@/types/apis'
 import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
-import {CHAT_CONTEXT_PROVIDE_KEY} from '@/constants/messageConstant.ts'
+import {USER_CHAT_CONTEXT_PROVIDE_KEY} from '@/constants/messageConstant.ts'
 import {useChatConversations} from '@/composables/message-server/chat/useChatConversations.ts'
 import {useChatMessageLoader} from '@/composables/message-server/chat/useChatMessageLoader.ts'
 import {useChatSocketEvents} from '@/composables/message-server/chat/useChatSocketEvents.ts'
@@ -32,7 +32,7 @@ function createDefaultActive(): ConversationActiveProps {
  * 在 MyChatMessage 顶层调用，聚合并 provide chat 模块共享状态。
  * 子组件通过 useChatContext() 注入消费，取代 conversationActive 的 defineModel 透传。
  */
-export function provideChatContext(options: ProvideChatContextOptions): ChatContext {
+export function provideUserChatContext(options: ProvideUserChatContextOptions): UserChatContext {
   // 显式断言为 Ref<T>，避免 UnwrapRef 对 ConversationActiveProps 深度递归（TS2589）
   const conversationActive = ref<ConversationActiveProps>(
     createDefaultActive(),
@@ -71,19 +71,19 @@ export function provideChatContext(options: ProvideChatContextOptions): ChatCont
     activateConversation,
   })
 
-  const context: ChatContext = {
+  const context: UserChatContext = {
     conversationActive,
     conversations,
     loader,
     activateConversation,
     refreshConversations: socketEvents.onConversationRefresh,
   }
-  provide(CHAT_CONTEXT_PROVIDE_KEY, context)
+  provide(USER_CHAT_CONTEXT_PROVIDE_KEY, context)
   return context
 }
 
-export function useChatContext(): ChatContext {
-  const ctx = inject<ChatContext>(CHAT_CONTEXT_PROVIDE_KEY)
+export function useChatContext(): UserChatContext {
+  const ctx = inject<UserChatContext>(USER_CHAT_CONTEXT_PROVIDE_KEY)
   if (!ctx) {
     throw new Error('useChatContext() 必须在 provideChatContext() 的组件子树内调用')
   }

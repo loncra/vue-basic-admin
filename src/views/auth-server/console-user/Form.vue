@@ -33,8 +33,6 @@ const options = ref<{
 }>({
   spinning: false,
   entity: {
-    id: null as unknown as number,
-    version: null as unknown as number,
     realName: "",
     gender: GENDER.UNKNOWN,
     phoneNumber: "",

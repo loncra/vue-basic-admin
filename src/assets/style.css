@@ -407,6 +407,6 @@
 
   .ai-agent-splitter .ant-splitter-bar-collapse-bar,
   .ai-agent-splitter .ant-splitter-bar .ant-splitter-bar-dragger::after{
-    @apply top-(--ant-padding-xl) translate-y-0;
+    @apply top-10 translate-y-0;
   }
 }

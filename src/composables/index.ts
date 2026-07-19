@@ -3,4 +3,6 @@ export {useFlatDragDrop, reorderFlatList} from '@/composables/useFlatDragDrop.ts
 export {useAttachmentUploadFiles} from './attachment/useAttachmentUploadFiles.ts'
 export {uploadFile} from './attachment/useAttachmentUploadExecutor.ts'
 export {useSocketSubscriptions} from './useSocketSubscriptions.ts'
-export * from './message-server/chat'
+
+export * from '@/composables/message-server'
+export * from '@/composables/ai-server'

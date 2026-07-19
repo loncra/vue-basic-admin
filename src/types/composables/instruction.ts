@@ -9,9 +9,6 @@ export interface InstructionMeasure {
   dataSource: IdValueMetadata<string, string>[]
 }
 
-/** @deprecated 使用 InstructionMeasure；保留别名以兼容聊天侧旧引用 */
-export type ChatInstructionMeasure = InstructionMeasure
-
 export interface InstructionProps {
   open: boolean
   measure: InstructionMeasure

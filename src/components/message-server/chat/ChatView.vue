@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import LChatMessageSender from "@/components/message-server/chat/ChatMessageSender.vue";
-import type {ChatContentBlock, ChatInstructionMeasure} from "@/types/composables";
+import type {ChatContentBlock, InstructionMeasure} from "@/types/composables";
 import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
@@ -136,7 +136,7 @@ function removeTrailingTrigger(
 function onSenderInsertInstruction(
   sender:SenderRef,
   block:SlotConfigType,
-  measure:ChatInstructionMeasure
+  measure:InstructionMeasure
 ) {
   const props = (block as {
       type:'custom',

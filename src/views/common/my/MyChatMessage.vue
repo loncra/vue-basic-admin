@@ -23,7 +23,7 @@ import LChatContact from "@/components/message-server/chat/ChatContact.vue";
 import LChatView from "@/components/message-server/chat/ChatView.vue";
 import type {ChatViewController, ServerConversationItem} from "@/types/composables";
 import LChatRoomView from "@/components/message-server/chat/ChatRoomView.vue";
-import {provideChatContext} from "@/composables/message-server/chat";
+import {provideUserChatContext} from "@/composables/message-server/chat";
 import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 
@@ -65,7 +65,7 @@ const chatViewRef = ref<ChatViewController>()
 const conversationRef = ref<InstanceType<typeof LChatConversation>>()
 
 const {conversationActive, conversations, loader, activateConversation, refreshConversations} =
-  provideChatContext({
+  provideUserChatContext({
     view: chatViewRef as Ref<ChatViewController | undefined>,
     refreshActiveHeader: (item: ServerConversationItem | undefined) =>
       conversationRef.value?.changeMessageExtraContent(item),

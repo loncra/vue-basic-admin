@@ -1,12 +1,6 @@
 import type {NameValueEnumMetadata, VersionEntityMetadata,} from "@/types/apis/common";
 
-/**
- * 字典类型保存请求体
- *
- * maurice.chen
- */
-export interface DataDictionarySavePayload extends VersionEntityMetadata {
-
+export interface DataDictionaryMetadata {
   /**
    * 代码
    */
@@ -23,16 +17,6 @@ export interface DataDictionarySavePayload extends VersionEntityMetadata {
   parentId?:number
 
   /**
-   * 备注
-   */
-  remark?:string
-
-  /**
-   * 值
-   */
-  value:string
-
-  /**
    * 值类型
    */
   valueType:NameValueEnumMetadata<number> | number
@@ -41,6 +25,33 @@ export interface DataDictionarySavePayload extends VersionEntityMetadata {
    * 等级
    */
   level?:string
+
+  /**
+   * 子节点
+   */
+  children?:DataDictionaryEntity[];
+  /**
+   * 元数据信息
+   */
+  metadata?:Record<string, unknown>
+}
+
+/**
+ * 字典类型保存请求体
+ *
+ * maurice.chen
+ */
+export interface DataDictionarySavePayload extends DataDictionaryMetadata, VersionEntityMetadata {
+
+  /**
+   * 备注
+   */
+  remark?:string
+
+  /**
+   * 值
+   */
+  value:string
 
   /**
    * 是否启用:0.禁用,1.启用
@@ -63,8 +74,5 @@ export interface DataDictionarySavePayload extends VersionEntityMetadata {
  * @author maurice.chen
  */
 export interface DataDictionaryEntity extends DataDictionarySavePayload {
-  /**
-   * 子节点
-   */
-  children:DataDictionaryEntity[];
+
 }

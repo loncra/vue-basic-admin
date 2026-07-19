@@ -1,7 +1,7 @@
 import type {VideoMetrics} from "@/types/composables";
 
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
-export const CHAT_CONTEXT_PROVIDE_KEY = "chatContext"
+export const USER_CHAT_CONTEXT_PROVIDE_KEY = "userChatContext"
 export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModalExpose"
 export const CHAT_CALL_MEDIA_PROVIDE_KEY = "chatCallMedia"
 

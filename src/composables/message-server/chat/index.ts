@@ -7,7 +7,7 @@ export {
 } from './useChatMessageLoader.ts'
 export {useChatSocketEvents, type ChatSocketEventsApi} from './useChatSocketEvents.ts'
 export {
-  provideChatContext,
+  provideUserChatContext,
   useChatContext,
 } from './useChatContext.ts'
 export {useChatReadMarker, type ChatReadMarkerApi} from './useChatReadMarker.ts'

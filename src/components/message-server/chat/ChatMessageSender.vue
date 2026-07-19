@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import type {ChatContentBlock, ChatInstructionMeasure} from "@/types/composables";
+import type {ChatContentBlock, InstructionMeasure} from "@/types/composables";
 import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
 import {useChatMessageSender} from "@/composables/message-server/chat";
 import {ref, toRef} from "vue";
@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<{
   senderInsertInstruction?: (
     sender: SenderRef,
     block: SlotConfigType,
-    measure: ChatInstructionMeasure,
+    measure: InstructionMeasure,
   ) => void
 }>(), {
   placeholder: '',

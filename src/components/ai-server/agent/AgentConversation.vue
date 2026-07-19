@@ -4,6 +4,7 @@ import type {ConversationItemType} from '@antdv-next/x/dist/conversations/interf
 import {useAgentConversation} from '@/composables/ai-server/agent/useAgentConversation.ts'
 import {getEnumValue} from '@/utils'
 import {DEFAULT_OPERATE_CATEGORY} from '@/constants/systemConstant.ts'
+import {AGENT_LIST_ITEM_KIND} from "@/constants/aiConstant.ts";
 
 defineOptions({
   name: 'LAgentConversation',
@@ -11,7 +12,8 @@ defineOptions({
 
 const {
   items,
-  state,
+  groupable,
+  loading,
   menuConfig,
   startCreateWorkspace,
   cancelEditWorkspace,
@@ -48,15 +50,15 @@ const {
       </a-space>
     </a-divider>
 
-    <a-spin :spinning="state.workspace.loading" class="size-full-spin">
+    <a-spin :spinning="loading" class="size-full-spin">
       <ax-conversations
         class="min-h-0 size-full flex-[1_1_0]"
         :menu="menuConfig"
-        groupable
+        :groupable="groupable"
         :items="items"
       >
         <template #iconRender="{ item, active }">
-          <a-space v-if="item.data && item.editing === false">
+          <a-space v-if="item.kind === AGENT_LIST_ITEM_KIND.WORKSPACE && item.data && item.editing === false">
             <icon-font
               type="loncra-panel-right-close"
               class="text-text-secondary transition-transform duration-300 ease-in-out"
@@ -84,12 +86,12 @@ const {
             <a-input
               v-model:value="(item as ConversationItemType).label"
               :placeholder="$t('agent.workspace.createPlaceholder')"
-              :disabled="state.workspace.loading"
+              :disabled="loading"
               @pressEnter="confirmEditWorkspace(item as ConversationItemType & { editing?: boolean })"
             />
             <a-button
               type="primary"
-              :loading="state.workspace.loading"
+              :loading="loading"
               @click="confirmEditWorkspace(item as ConversationItemType & { editing?: boolean })"
             >
               <template #icon>
@@ -99,7 +101,7 @@ const {
             <a-button
               type="primary"
               danger
-              :disabled="state.workspace.loading"
+              :disabled="loading"
               @click="cancelEditWorkspace(item as ConversationItemType & { editing?: boolean })"
             >
               <template #icon>

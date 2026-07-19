@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import {BubbleList as AxBubbleList} from '@antdv-next/x'
+import {ref} from 'vue'
+import {BubbleList as AxBubbleList, Welcome as AxWelcome} from '@antdv-next/x'
 import type {BubbleListRef, RoleType} from '@antdv-next/x/dist/bubble/interface'
 import {XMarkdown} from '@antdv-next/x-markdown'
 import '@antdv-next/x-markdown/themes/index.css'
 import '@antdv-next/x-markdown/themes/light.css'
-import LInstructionSender from '@/components/basic/InstructionSender.vue'
 import {CHAT_BUBBLE_TYPE} from '@/constants/messageConstant.ts'
-import {requireNonNullOrUndefined} from '@/utils'
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {WorkspaceConversationItem} from "@/types/composables";
+import type {
+  AgentChatRequestBody,
+  AgentChatResponseBody,
+  AgentSenderFormProps
+} from "@/types/composables";
+import LAgentSender from "@/components/ai-server/agent/AgentSender.vue";
+import useApp from "antdv-next/dist/app/useApp";
+import {useAgentChatContext} from "@/composables";
+import {DEFAULT_PAGE_RESULT_VALUE} from "@/constants/systemConstant.ts";
+import type {RestResult} from "@/types/apis";
+import {AgentService} from "@/apis";
 
 defineOptions({
   name: 'LAgentView',
 })
 
 const props = withDefaults(defineProps<{
-  bubbleListRole: RoleType,
+  bubbleListRole?: RoleType,
 }>(),{
   bubbleListRole:{
     user: {
@@ -34,16 +42,14 @@ const props = withDefaults(defineProps<{
   }
 })
 
-const conversation = defineModel<WorkspaceConversationItem>("conversation")
-
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const agentChatContext = useAgentChatContext()
 
 const principalStore = usePrincipalStore()
 
 const bubbleListRef = ref<BubbleListRef>()
-const senderRef = ref<InstanceType<typeof LInstructionSender>>()
+const senderRef = ref<InstanceType<typeof LAgentSender>>()
+
+const {message} = useApp()
 
 function scrollTo(options: {
   key?: string | number
@@ -58,11 +64,65 @@ function getScrollBox(): HTMLDivElement | undefined {
   return bubbleListRef.value?.scrollBoxNativeElement
 }
 
+function toAgentChatRequestBody(value:AgentSenderFormProps):AgentChatRequestBody {
+  let agentConversationId = undefined
+  let agentWorkspaceId = undefined
+
+  if (agentChatContext.conversationActive) {
+    agentConversationId = Number(agentChatContext.conversationActive.value.id)
+    agentWorkspaceId = Number(agentChatContext.conversationActive.value.agentWorkspaceId)
+  }
+
+  return {
+    ...value,
+    ...{
+      agentConversationId,
+      agentWorkspaceId
+    }
+  }
+}
+
+async function onSenderSubmit(value:AgentSenderFormProps) {
+
+  agentChatContext.loading = true
+  try {
+
+    const form:AgentChatRequestBody = toAgentChatRequestBody(value)
+    const result:RestResult<AgentChatResponseBody> = await AgentService.chat(form)
+    if (result.data?.conversation) {
+      AgentService.loadStream(Number(result.data?.conversation.id))
+      agentChatContext.conversationActive.value = {
+        ...result.data?.conversation,
+        ...{dataSource:DEFAULT_PAGE_RESULT_VALUE}
+      }
+      const workspace = agentChatContext.workspaces.value.find(w => w.data.id === result.data?.conversation.agentWorkspaceId)
+      if (workspace) {
+        const list = workspace.conversations ?? []
+        if (list.length === 0) {
+          workspace.conversations = [{...result.data?.conversation, dataSource:DEFAULT_PAGE_RESULT_VALUE}]
+        }
+      }
+      if (result.data?.userMessageId) {
+        agentChatContext.conversationActive.value?.dataSource?.elements.push({
+          key: String(result.data.userMessageId),
+          role:CHAT_BUBBLE_TYPE.USER,
+          content: value.content
+        })
+      }
+    }
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : String(error))
+  } finally {
+    agentChatContext.loading = false
+  }
+}
+
 defineExpose({
   scrollTo,
   getScrollBox,
-  getSenderSlotConfigValue: () => senderRef.value?.getSlotConfigValue() || [],
+  getSenderSlotConfigValue: () => senderRef?.value?.getSlotConfigValue() || [],
 })
+
 </script>
 
 <template>
@@ -72,12 +132,12 @@ defineExpose({
     class="h-full min-h-0 overflow-hidden"
   >
     <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
-      <template v-if="conversation  && conversation.dataSource.elements.length > 0 ">
+      <template v-if="agentChatContext.conversationActive && (agentChatContext.conversationActive.dataSource?.elements || []).length > 0 ">
         <ax-bubble-list
           ref="bubbleListRef"
           class="min-h-0 h-full flex"
           :classes="{ scroll: 'pl-xs pr-xs' }"
-          :items="conversation.dataSource.elements"
+          :items="agentChatContext.conversationActive.dataSource.elements || []"
           :role="props.bubbleListRole"
         >
           <template #avatar="{ item }">
@@ -104,28 +164,20 @@ defineExpose({
         </ax-bubble-list>
         <slot name="bubbleListAfter" />
       </template>
+      <a-flex justify="center" align="center" class="size-full">
+        <ax-welcome
+          variant="borderless"
+          title="你好，我是 Captain.J"
+          description="今天有什么需要干的吗？"
+        >
+          <template #icon>
+            <icon-font class="text-5xl" type="icon-xiaojiage-a" />
+          </template>
+        </ax-welcome>
+      </a-flex>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
-      <l-instruction-sender
-        ref="senderRef"
-        :placeholder="globalProperties.$t('agent.view.placeholder')"
-        :disabled="false"
-        :sending="false"
-      >
-        <template #leftExtra>
-          <a-button shape="circle" size="small">
-            <template #icon>
-              <icon-font type="loncra-plus"/>
-            </template>
-          </a-button>
-          <a-button size="small" type="text">
-            模型选择
-          </a-button>
-          <a-tag variant="outlined" color="success">
-            当前模式
-          </a-tag>
-        </template>
-      </l-instruction-sender>
+      <l-agent-sender ref="senderRef" @submit="onSenderSubmit" />
     </div>
   </a-flex>
 </template>

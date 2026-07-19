@@ -184,14 +184,14 @@ export interface ChatViewController {
   getSenderSlotConfigValue(): SlotConfigType[]
 }
 
-export interface ProvideChatContextOptions {
+export interface ProvideUserChatContextOptions {
   /** ChatView 实例引用，供加载器执行滚动 / 跳转 / 取草稿 */
   view: Ref<ChatViewController | undefined>
   /** 刷新活跃会话头部额外内容（ChatConversation.changeMessageExtraContent） */
   refreshActiveHeader: (item: ServerConversationItem | undefined) => void
 }
 
-export interface ChatContext {
+export interface UserChatContext {
   conversationActive: Ref<ConversationActiveProps>
   conversations: ChatConversationsApi
   loader: ChatMessageLoaderApi
