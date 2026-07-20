@@ -13,7 +13,7 @@ import type {
   RestResult
 } from "@/types/apis";
 import {formUrlEncoded, loadJs} from "@/utils";
-import {CAPTCHA_TOKEN_TYPE} from "@/constants/messageConstant.ts";
+import {CAPTCHA_TOKEN_TYPE} from "@/constants";
 import type {TianaiCaptchaInstance} from "../../../env";
 
 /**

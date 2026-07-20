@@ -23,7 +23,7 @@ import {
   CHAT_CALL_TYPE,
   CHAT_CALL_UI_MODE,
   PRIVATE_VIDEO_LAYOUT_METRICS,
-} from "@/constants/messageConstant.ts";
+} from "@/constants";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
 import type {

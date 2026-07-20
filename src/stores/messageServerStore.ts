@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
+import {MESSAGE_GROUP, STORE} from "@/constants";
 import {computed, ref} from "vue";
 import type {
   IdNameMetadata,
@@ -10,13 +10,12 @@ import type {
   UserChatUnreadItem
 } from "@/types/apis";
 import {MessageServerService} from "@/apis/message-server";
-import {STORE} from "@/constants/systemConstant.ts";
 import {getEnumValue} from "@/utils";
 
 const RESET: MyMessageState = {
-  record:{
+  record: {
     [MESSAGE_GROUP.SITE]: {},
-    [MESSAGE_GROUP.USER_CHAT]: {}
+    [MESSAGE_GROUP.USER_CHAT]: {},
   },
   siteTypes:[]
 }

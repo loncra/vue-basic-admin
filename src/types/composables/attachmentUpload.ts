@@ -1,4 +1,4 @@
-import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants/systemConstant.ts";
+import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants";
 import type {CSSProperties} from 'vue'
 import type {ObjectWriteResult} from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";

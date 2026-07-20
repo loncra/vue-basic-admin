@@ -1,4 +1,4 @@
-import {SYSTEM_CONSTANT, TIME_UNIT_TYPE} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT, TIME_UNIT_TYPE} from '@/constants'
 import type {PlatformUser} from "@/types/apis/auth-server";
 
 /**

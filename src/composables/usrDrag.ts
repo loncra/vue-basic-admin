@@ -1,5 +1,5 @@
 import {ref} from 'vue'
-import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants'
 import type {UseDragOptions, UseDragReturn} from '@/types/composables/drag'
 
 export function useDrag<

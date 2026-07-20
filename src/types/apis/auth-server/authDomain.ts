@@ -4,7 +4,7 @@ import type {
   TimeProperties,
   VersionEntityMetadata
 } from '@/types/apis/common'
-import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.ts'
+import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants'
 import type {ObjectWriteResult} from "@/types/apis";
 
 /**

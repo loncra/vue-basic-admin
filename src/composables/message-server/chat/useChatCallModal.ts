@@ -27,7 +27,7 @@ import {
   CHAT_CALL_UI_MODE,
   MESSAGE_GROUP,
   SOCKET_EVENT_TYPE
-} from "@/constants/messageConstant.ts";
+} from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {isBusinessSuccess} from "@/requests";
 import {useAppNotification} from "@/composables/useAppNotification.ts";

@@ -19,7 +19,7 @@ import type {
 import {AttachmentService} from '@/apis'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {createIcon, dateFormat, requireNonNullOrUndefined} from '@/utils'
-import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
+import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {Dayjs} from 'dayjs'
 
 /**

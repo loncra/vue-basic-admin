@@ -21,18 +21,17 @@ import {
 } from 'vue'
 import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
-import {STORE} from '@/constants/systemConstant'
-
 import {
   CONFIG_PROVIDER_THEME,
   type CreateSuccessBackValue,
   MATCH_MEDIA_QUERY,
   PAD_SCREENS,
   SCREEN_BREAKPOINT,
+  STORE,
   STORED_STATE_VALUE,
   type ThemeMode,
-  type ThemeValue,
-} from '@/constants/configProviderConstant'
+  type ThemeValue
+} from '@/constants'
 
 import i18n, {type LanguagePack} from '@/i18n'
 import type {NameValueEnumMetadata} from '@/types/apis'

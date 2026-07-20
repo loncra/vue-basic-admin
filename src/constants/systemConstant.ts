@@ -53,38 +53,6 @@ export const HTTP = {
 } as const
 
 /**
- * SSE 相关常量
- */
-export const SSE = {
-  LAST_EVENT_ID: 'LAST-EVENT-ID',
-  DURATION_EVENT_SUFFIX: '-duration',
-  DOCS_EVENT_SUFFIX: '-docs',
-  /** SSE 默认事件类型 */
-  EVENT_TYPE: {
-    TOOL_CALL: 'toolCall',
-    TOOL_RESPONSE: 'toolResponse',
-    THINKING: 'thinking',
-    MESSAGE: 'message',
-    INITIALIZED: 'initialized',
-    COMPLETED: 'completed',
-    ERROR: 'error',
-    THINK_COMPLETED: 'thinkCompleted',
-    STOPPED: 'stopped',
-    TOKEN_USAGE: 'tokenUsage',
-    GENERATE_CHAT_TITLE: 'generateChatTitle',
-    REFRESH: 'refresh',
-  },
-  /** SSE 协议字段前缀 */
-  FIELD: {
-    EVENT: 'event:',
-    DATA: 'data:',
-    ID: 'id:',
-    RETRY: 'retry:',
-    COMMENT: 'comment:',
-  },
-} as const
-
-/**
  * 验证正则表达式集合
  */
 export const VALID_REGX = {
@@ -168,4 +136,11 @@ export const DEFAULT_PAGE_RESULT_VALUE = {
 export const DEFAULT_OPERATE_CATEGORY = {
   SYSTEM:10,
   CUSTOMIZE:20,
+} as const
+
+export const CHAT_BUBBLE_TYPE = {
+  AI:'ai',
+  SYSTEM:'system',
+  USER:'user',
+  DIVIDER:"divider"
 } as const

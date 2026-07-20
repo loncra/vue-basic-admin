@@ -8,7 +8,7 @@ import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {PrepareData, ResourceEntity,} from "@/types/apis";
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
-import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
+import {RESOURCE_TYPE} from "@/constants";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@/utils'

@@ -14,7 +14,7 @@ import type {
 } from "@/types/apis";
 
 import axios from "@/requests/http.ts";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {SYSTEM_CONSTANT} from "@/constants";
 
 /**
  * 数据字典领域服务：`/api[/resource-server]/data/dictionary`

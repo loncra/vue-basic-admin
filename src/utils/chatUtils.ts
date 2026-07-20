@@ -19,7 +19,7 @@ import type {
   InstructionBlock,
   TextBlock
 } from "@/types/composables";
-import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
+import {CHAT_BUBBLE_TYPE} from "@/constants";
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";

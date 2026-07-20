@@ -8,7 +8,7 @@ import type {
   UserChatMessageEntity,
   UserChatMessageResponseBody
 } from '@/types/apis'
-import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {SOCKET_EVENT_TYPE} from "@/constants";
 
 
 /** 仅业务推送事件；传输层事件由 store 内部 bindInternalListeners 处理 */

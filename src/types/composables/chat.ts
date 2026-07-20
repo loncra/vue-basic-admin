@@ -25,7 +25,7 @@ import {
   CHAT_CALL_PRIVATE_ROLE_TYPE,
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
   CHAT_CALL_UI_MODE
-} from "@/constants/messageConstant.ts";
+} from "@/constants";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 
 export type ChatCallUiMode =

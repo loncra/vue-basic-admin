@@ -1,5 +1,5 @@
 import type {IdNameMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "../common";
-import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
+import {MESSAGE_GROUP} from "@/constants";
 
 /**
  * 基础消息实体，用于将所有消息内容公有化使用。

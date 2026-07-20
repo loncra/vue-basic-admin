@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {BubbleList as AxBubbleList, Welcome as AxWelcome} from '@antdv-next/x'
-import type {BubbleListRef, RoleType} from '@antdv-next/x/dist/bubble/interface'
+import type {BubbleListRef,} from '@antdv-next/x/dist/bubble/interface'
 import {XMarkdown} from '@antdv-next/x-markdown'
 import '@antdv-next/x-markdown/themes/index.css'
 import '@antdv-next/x-markdown/themes/light.css'
-import {CHAT_BUBBLE_TYPE} from '@/constants/messageConstant.ts'
+import {CHAT_BUBBLE_TYPE} from '@/constants'
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {
@@ -16,7 +16,6 @@ import type {
 import LAgentSender from "@/components/ai-server/agent/AgentSender.vue";
 import useApp from "antdv-next/dist/app/useApp";
 import {useAgentChatContext} from "@/composables";
-import {DEFAULT_PAGE_RESULT_VALUE} from "@/constants/systemConstant.ts";
 import type {RestResult} from "@/types/apis";
 import {AgentService} from "@/apis";
 
@@ -24,7 +23,7 @@ defineOptions({
   name: 'LAgentView',
 })
 
-const props = withDefaults(defineProps<{
+/*const props = withDefaults(defineProps<{
   bubbleListRole?: RoleType,
 }>(),{
   bubbleListRole:{
@@ -40,7 +39,7 @@ const props = withDefaults(defineProps<{
       shape: 'corner',
     },
   }
-})
+})*/
 
 const agentChatContext = useAgentChatContext()
 
@@ -66,18 +65,15 @@ function getScrollBox(): HTMLDivElement | undefined {
 
 function toAgentChatRequestBody(value:AgentSenderFormProps):AgentChatRequestBody {
   let agentConversationId = undefined
-  let agentWorkspaceId = undefined
 
   if (agentChatContext.conversationActive) {
-    agentConversationId = Number(agentChatContext.conversationActive.value.id)
-    agentWorkspaceId = Number(agentChatContext.conversationActive.value.agentWorkspaceId)
+    agentConversationId = Number(agentChatContext.conversationActive.id)
   }
 
   return {
     ...value,
     ...{
-      agentConversationId,
-      agentWorkspaceId
+      agentConversationId
     }
   }
 }
@@ -91,24 +87,18 @@ async function onSenderSubmit(value:AgentSenderFormProps) {
     const result:RestResult<AgentChatResponseBody> = await AgentService.chat(form)
     if (result.data?.conversation) {
       AgentService.loadStream(Number(result.data?.conversation.id))
-      agentChatContext.conversationActive.value = {
+      /*agentChatContext.conversationActive = {
         ...result.data?.conversation,
-        ...{dataSource:DEFAULT_PAGE_RESULT_VALUE}
-      }
-      const workspace = agentChatContext.workspaces.value.find(w => w.data.id === result.data?.conversation.agentWorkspaceId)
-      if (workspace) {
-        const list = workspace.conversations ?? []
-        if (list.length === 0) {
-          workspace.conversations = [{...result.data?.conversation, dataSource:DEFAULT_PAGE_RESULT_VALUE}]
-        }
-      }
-      if (result.data?.userMessageId) {
-        agentChatContext.conversationActive.value?.dataSource?.elements.push({
-          key: String(result.data.userMessageId),
+        dataSource:DEFAULT_PAGE_RESULT_VALUE,
+        editing:false
+      }*/
+
+      /*if (result.data?.userMessageId) {
+        agentChatContext.conversationActive.dataSource?.elements.push({
           role:CHAT_BUBBLE_TYPE.USER,
           content: value.content
         })
-      }
+      }*/
     }
   } catch (error) {
     message.error(error instanceof Error ? error.message : String(error))
@@ -137,8 +127,7 @@ defineExpose({
           ref="bubbleListRef"
           class="min-h-0 h-full flex"
           :classes="{ scroll: 'pl-xs pr-xs' }"
-          :items="agentChatContext.conversationActive.dataSource.elements || []"
-          :role="props.bubbleListRole"
+          :items="[]"
         >
           <template #avatar="{ item }">
             <l-user-avatar

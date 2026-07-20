@@ -1,33 +1,23 @@
-import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
   AgentConversationEntity,
-  AgentWorkspaceResponseBody,
+  AgentMessageEntity,
   ObjectWriteResult,
   PageResult
 } from "@/types/apis";
-import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import type {ChatContentBlock} from "@/types/composables/chat.ts";
-import type {Ref} from "vue";
 
-export type ConversationBubbleItem = BubbleItemType & {
 
+export interface AgentConversationItem extends AgentConversationEntity {
+  editing: boolean
 }
 
-/** 列表项上的工作空间编辑标记（创建 / 重命名共用） */
-export type WorkspaceConversationItem = ConversationItemType & {
-  editing?: boolean
-  data?: AgentWorkspaceResponseBody
-  conversations?: AgentActiveConversationProps[]
+export interface ActiveAgentConversationItem extends AgentConversationItem {
+  dataSource:PageResult<AgentMessageEntity>
 }
 
-export interface AgentActiveConversationProps extends AgentConversationEntity {
-  dataSource?: PageResult<ConversationBubbleItem>
-}
-
-export interface AgentChatContext{
-  workspaces:Ref<WorkspaceConversationItem[]>,
-  conversationActive:Ref<AgentActiveConversationProps>
-  loading?:boolean
+export interface AgentChatContext {
+  conversationActive:ActiveAgentConversationItem,
+  loading:boolean,
 }
 
 export interface AgentSenderFormProps {
@@ -61,12 +51,7 @@ export interface AgentChatRequestBody extends AgentSenderFormProps {
   /**
    * 会话 id
    */
-  agentConversationId?: number;
-
-  /**
-   * 工作空间 id
-   */
-  agentWorkspaceId?: number;
+  conversationId?: number;
 }
 
 export interface AgentChatResponseBody {

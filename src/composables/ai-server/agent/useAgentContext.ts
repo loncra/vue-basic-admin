@@ -1,23 +1,15 @@
-import type {AgentActiveConversationProps, AgentChatContext} from "@/types/composables";
-import {DEFAULT_PAGE_RESULT_VALUE} from "@/constants/systemConstant.ts";
-import {inject, provide, type Ref, ref} from "vue";
-import {AGENT_CHAT_CONTEXT_PROVIDE_KEY} from "@/constants/aiConstant.ts";
+import type {AgentChatContext, AgentConversationItem} from "@/types/composables";
+import {AGENT_CHAT_CONTEXT_PROVIDE_KEY} from "@/constants";
+import {inject, provide, ref, toRef} from "vue";
 
-function createDefaultActive(): AgentActiveConversationProps {
-  return {
-    dataSource: DEFAULT_PAGE_RESULT_VALUE
-  }
-}
 
 export function provideAgentChatContext(): AgentChatContext {
   // 显式断言为 Ref<T>，避免 UnwrapRef 对 ConversationActiveProps 深度递归（TS2589）
-  const conversationActive = ref<AgentActiveConversationProps>(
-    createDefaultActive(),
-  ) as Ref<AgentActiveConversationProps>
+  const conversationActive = ref<AgentConversationItem>();
 
   const context: AgentChatContext = {
-    workspaces:ref([]),
     conversationActive,
+    loading:toRef(false)
   }
   provide(AGENT_CHAT_CONTEXT_PROVIDE_KEY, context)
   return context

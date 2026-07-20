@@ -4,16 +4,17 @@ import {createIcon} from "@/utils/resourceUtils.ts";
 import {
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
   CHAT_CALL_SCENE,
-  PIP_MAX_WIDTH_PX, PIP_WIDTH_RATIO,
+  PIP_MAX_WIDTH_PX,
+  PIP_WIDTH_RATIO,
   VIDEO_CHAT_CONSTRAINTS
-} from "@/constants/messageConstant.ts";
+} from "@/constants";
 import type {
-  CallLayoutSpec, CallPanelStyle,
+  CallLayoutSpec,
+  CallPanelStyle,
   ChatCallPrivateSplitScreenType,
   LayoutConstraints,
   VideoMetrics
 } from "@/types/composables/chat.ts";
-import type {CSSProperties} from "vue";
 
 export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> | number) {
   const value = getEnumValue(status)

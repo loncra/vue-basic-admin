@@ -1,7 +1,7 @@
 import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig} from 'axios'
 import router from '@/routers'
 import {message} from 'antdv-next'
-import {HTTP} from '@/constants/systemConstant.ts'
+import {HTTP} from '@/constants'
 import {BusinessError, type RestResult} from '@/types/apis'
 
 /** 不弹出错误提示的 HTTP 状态码 */

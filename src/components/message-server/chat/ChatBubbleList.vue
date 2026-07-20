@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {CHAT_BUBBLE_TYPE} from "@/constants/messageConstant.ts";
+import {CHAT_BUBBLE_TYPE} from "@/constants";
 import {AuthServerService} from "@/apis";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LChatMessageReadTable from "@/components/message-server/chat/ChatMessageReadTable.vue";

@@ -10,7 +10,7 @@ import type {
   TreeSortMetadata
 } from "@/types/apis";
 import type {ColumnType} from "antdv-next/dist/table/interface";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {SYSTEM_CONSTANT} from "@/constants";
 
 export type {AuthorityProps} from './collection'
 

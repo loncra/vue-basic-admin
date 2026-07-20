@@ -10,8 +10,7 @@ import {
   type RestResult
 } from '@/types/apis'
 import {isBusinessSuccess} from '@/requests'
-import {AUTHENTICATION_TYPE} from '@/constants/authConstant'
-import {STORE} from '@/constants/systemConstant'
+import {AUTHENTICATION_TYPE, STORE} from '@/constants'
 
 /**
  * 重置状态常量

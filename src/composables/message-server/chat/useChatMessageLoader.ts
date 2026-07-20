@@ -15,8 +15,7 @@ import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {CHAT_BUBBLE_TYPE} from '@/constants/messageConstant.ts'
-import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
+import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 
 /**
  * 活跃会话的消息分页、锚点跳转与会话切换。

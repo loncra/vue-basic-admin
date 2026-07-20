@@ -1,9 +1,9 @@
 export const AGENT_CHAT_CONTEXT_PROVIDE_KEY = "agentChatContextProvide"
 
-/** 侧栏列表行类型：工作空间源节点 / 拍平后的会话行 */
-export const AGENT_LIST_ITEM_KIND = {
-  WORKSPACE: 'workspace',
-  CONVERSATION: 'conversation',
+export const AGENT_CONVERSATION_TYPE = {
+  DEFAULT_WORKSPACE:10,
+  CUSTOMIZE_WORKSPACE:20,
+  WORKSPACE_CONVERSATION:30
 } as const
 
 export const MODEL_TYPE = {

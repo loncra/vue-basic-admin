@@ -17,11 +17,7 @@ import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/u
 import {useChatContext} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
-import {
-  CHAT_BUBBLE_TYPE,
-  CHAT_EVERYONE_ID,
-  SOCKET_EVENT_TYPE
-} from "@/constants/messageConstant.ts";
+import {CHAT_BUBBLE_TYPE, CHAT_EVERYONE_ID, SOCKET_EVENT_TYPE} from "@/constants";
 import LChatBubbleList from "@/components/message-server/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AuthServerService} from "@/apis";

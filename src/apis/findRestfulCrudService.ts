@@ -4,7 +4,7 @@
  * `POST {baseUrl}/find`，请求体为 `application/x-www-form-urlencoded` 编码的过滤条件。
  */
 import type {BasicIdMetadata, FilterRequest, FindCurdService, RestResult,} from '@/types/apis'
-import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants'
 import {BasicRestfulCrudService} from "@/apis/basicRestfulCrudService.ts";
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'

@@ -1,8 +1,7 @@
 import type {
   AgentConversationEntity,
   AgentMessageEntity,
-  AgentWorkspaceEntity,
-  AgentWorkspaceResponseBody,
+  FilterRequest,
   PageRequest,
   PageResult,
   RestResult,
@@ -25,11 +24,6 @@ export class AgentService {
   static readonly BASE_URL: string =
     '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/ai-server' : '')
 
-  /** 工作空间：`/agent/workspace` */
-  static readonly WORKSPACE_URL = AgentService.BASE_URL + '/agent/workspace'
-
-  static readonly MY_WORKSPACE_URL = AgentService.WORKSPACE_URL + '/my'
-
   /** 对话：`/agent/conversation` */
   static readonly CONVERSATION_URL = AgentService.BASE_URL + '/agent/conversation'
 
@@ -38,42 +32,23 @@ export class AgentService {
 
   static readonly CHAT_URL = AgentService.BASE_URL + '/agent'
 
-  // ---------- workspace ----------
-
-  /** `POST /agent/workspace` */
-  static my(
-    request: PageRequest,
-  ): Promise<RestResult<PageResult<AgentWorkspaceResponseBody>>> {
-    return axios.post(AgentService.MY_WORKSPACE_URL, formUrlEncoded(request))
-  }
-
-  /** `GET /agent/workspace/{id}` */
-  static getWorkspace(id: number): Promise<RestResult<AgentWorkspaceEntity>> {
-    return axios.get(AgentService.WORKSPACE_URL + '/' + id)
-  }
-
-  /** `PUT /agent/workspace` */
-  static saveWorkspace(entity: AgentWorkspaceEntity): Promise<RestResult<number>> {
-    return axios.put(AgentService.WORKSPACE_URL, entity)
-  }
-
-  /** `DELETE /agent/workspace?ids=` */
-  static deleteWorkspace(ids: number[]): Promise<RestResult<void>> {
-    return axios.delete(AgentService.WORKSPACE_URL, {params: formUrlEncoded({ids})})
-  }
-
   // ---------- conversation ----------
 
   /** `POST /agent/conversation` */
-  static pageConversation(
-    request: PageRequest,
-  ): Promise<RestResult<PageResult<AgentConversationEntity>>> {
+  static findConversation(
+    request: FilterRequest = {},
+  ): Promise<RestResult<AgentConversationEntity[]>> {
     return axios.post(AgentService.CONVERSATION_URL, formUrlEncoded(request))
   }
 
   /** `DELETE /agent/conversation?ids=` */
   static deleteConversation(ids: number[]): Promise<RestResult<void>> {
     return axios.delete(AgentService.CONVERSATION_URL, {params: formUrlEncoded({ids})})
+  }
+
+  /** `PUT /agent/conversation` */
+  static saveConversation(entity: AgentConversationEntity): Promise<RestResult<number>> {
+    return axios.put(AgentService.CONVERSATION_URL, entity)
   }
 
   // ---------- message ----------

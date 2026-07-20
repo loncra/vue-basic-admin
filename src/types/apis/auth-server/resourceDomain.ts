@@ -1,5 +1,4 @@
 import type {BasicIdMetadata, NameValueEnumMetadata} from '@/types/apis/common'
-import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
 import type {RouteRecordName} from "vue-router";
 
 export interface ResourceMetadata {

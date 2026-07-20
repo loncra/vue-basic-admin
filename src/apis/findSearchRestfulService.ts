@@ -5,7 +5,7 @@
  * `POST {baseUrl}/find`，请求体为表单编码的 {@link FilterRequest}。
  */
 import type {BasicIdMetadata, FilterRequest, FindSearchService, RestResult,} from '@/types/apis'
-import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants'
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'
 import {DetailSearchRestfulService} from "@/apis/detailSearchRestfulService.ts";

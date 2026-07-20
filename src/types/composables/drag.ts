@@ -1,6 +1,6 @@
 import type {Ref} from 'vue'
 import type {FlatSortMetadata} from '@/types/apis'
-import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants'
 
 
 /** 树形表格拖拽放置位置：目标行上 / 中 / 下 */

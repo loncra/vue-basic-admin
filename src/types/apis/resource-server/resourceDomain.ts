@@ -4,7 +4,7 @@ import type {
   NameValueEnumMetadata,
   TimeProperties
 } from "@/types/apis/common";
-import {CAPTCHA_TOKEN_TYPE} from "@/constants/messageConstant.ts";
+import {CAPTCHA_TOKEN_TYPE} from "@/constants";
 
 export type EnumBucketsResponseBody = Record<string, Record<string, NameValueEnumMetadata<number | string>[]>>
 

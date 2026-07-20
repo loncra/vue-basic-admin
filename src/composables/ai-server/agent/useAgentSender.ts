@@ -9,12 +9,11 @@ import type {
 } from "@/types/composables";
 import {ResourceServerService} from "@/apis";
 import {ModelSettingService} from "@/apis/ai-server/modelSettingService.ts";
-import {MODEL_TYPE} from "@/constants/aiConstant.ts";
-import type {MenuItemType} from "@v-c/menu/dist/interface.js";
+import {MODEL_TYPE} from "@/constants";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createIcon} from "@/utils";
 import {isInstructionSlot} from "@/composables/basic/useInstructionSender.ts";
-import {Space} from "antdv-next";
+import {type MenuItemType, Space} from "antdv-next";
 
 const modelSettingService = new ModelSettingService()
 
@@ -39,16 +38,12 @@ function toModelMenuItems(models: ModelSettingEntity[]): MenuItemType[] {
     })
   }
   return Array.from(groups.entries()).map(([code, group]) => ({
-    type: 'group',
+    type: 'group' as const,
     key: code,
-    label: h(
-      Space,
-      {},
-      () => [
-        createIcon(String(group?.metadata?.icon || 'loncra-building'), 'align'),
-        h('span', {}, group.label)
-      ]
-    ),
+    label: h(Space, {}, () => [
+      createIcon(String(group?.metadata?.icon || 'loncra-building'), 'align'),
+      h('span', {}, group.label),
+    ]),
     children: group.children,
   }))
 }

@@ -10,7 +10,7 @@ import type {
   RestResult,
   ScrollPageResult,
 } from '@/types/apis'
-import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants'
 import {BasicRestfulCrudService} from "@/apis/basicRestfulCrudService.ts";
 import {formUrlEncoded} from "@/utils";
 import axios from '@/requests'

@@ -6,8 +6,7 @@ import type {
   UserChatContext
 } from '@/types/composables'
 import type {UserChatConversationResponseBody} from '@/types/apis'
-import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants/systemConstant.ts'
-import {USER_CHAT_CONTEXT_PROVIDE_KEY} from '@/constants/messageConstant.ts'
+import {DEFAULT_PAGE_RESULT_VALUE, USER_CHAT_CONTEXT_PROVIDE_KEY} from '@/constants'
 import {useChatConversations} from '@/composables/message-server/chat/useChatConversations.ts'
 import {useChatMessageLoader} from '@/composables/message-server/chat/useChatMessageLoader.ts'
 import {useChatSocketEvents} from '@/composables/message-server/chat/useChatSocketEvents.ts'

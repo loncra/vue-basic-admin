@@ -131,6 +131,8 @@
     @apply h-full border-r border-solid border-r-border-secondary bg-container;
   }
 
+  .agent-side-menu .ant-menu-inline,
+  .agent-side-menu .ant-menu-horizontal,
   .layout-sider .ant-menu-inline,
   .layout-sider .ant-menu-horizontal {
     @apply border-b-0 border-e-0;
@@ -140,7 +142,8 @@
     @apply border-none;
   }
 
-  .layout-sider .ant-menu-sub {
+  .layout-sider .ant-menu-sub,
+  .agent-side-menu .ant-menu-sub {
     @apply bg-container;
   }
 

@@ -7,7 +7,7 @@ import type {
   PageSearchService,
   ScrollPageResult,
 } from '@/types/apis'
-import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants'
 
 /**
  * 列表/集合 CRUD 权限（QueryTable、QueryCardGrid 等共用）

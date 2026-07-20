@@ -69,13 +69,6 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID:'chat_participant_refresh_by_room_id'
 } as const
 
-export const CHAT_BUBBLE_TYPE = {
-  AI:'ai',
-  SYSTEM:'system',
-  USER:'user',
-  DIVIDER:"divider"
-}
-
 export const CAPTCHA_TOKEN_TYPE = {
   SMS:'sms',
   EMAIL:'email',

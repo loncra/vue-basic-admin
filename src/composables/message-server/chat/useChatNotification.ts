@@ -1,6 +1,6 @@
 import {provideChatCallExpose, useSocketSubscriptions} from "@/composables";
 import type {UseChatNotificationParam} from "@/types/composables";
-import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {
   IdValueMetadata,

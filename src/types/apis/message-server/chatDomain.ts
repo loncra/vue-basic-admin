@@ -2,7 +2,7 @@ import type {IdValueMetadata, NameValueEnumMetadata, VersionEntityMetadata} from
 import type {ChatContentBlock} from "@/types/composables"
 import type {FileObject, PlatformUser} from "@/types/apis"
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface"
-import {CHAT_CALL_TYPE} from "@/constants/messageConstant.ts"
+import {CHAT_CALL_TYPE} from "@/constants"
 
 /**
  * 聊天房间

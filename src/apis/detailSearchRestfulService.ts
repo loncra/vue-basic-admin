@@ -5,7 +5,7 @@
  * {@link FindSearchRestfulService} / {@link PageSearchRestfulService} 中扩展。
  */
 import type {BasicIdMetadata, DetailSearchService, FilterRequest, RestResult,} from '@/types/apis'
-import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants'
 import axios from '@/requests'
 import {formUrlEncoded} from "@/utils";
 

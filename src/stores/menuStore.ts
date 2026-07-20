@@ -1,6 +1,6 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
-import {STORE} from '@/constants/systemConstant.ts'
+import {STORE} from '@/constants'
 import type {
   ResourceEntity,
   ResourceMetadata,

@@ -1,6 +1,6 @@
 import useApp from "antdv-next/dist/app/useApp";
 import type {MessageGroup} from "@/types/apis";
-import {MESSAGE_GROUP} from "@/constants/messageConstant.ts";
+import {MESSAGE_GROUP} from "@/constants";
 import {h, nextTick} from "vue";
 import {Typography} from "antdv-next";
 import type {ArgsProps} from "antdv-next/dist/notification";

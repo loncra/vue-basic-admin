@@ -11,7 +11,7 @@ import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 import {addBubbleListMessage, getEnumValue} from '@/utils'
-import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from '@/constants/messageConstant.ts'
+import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from '@/constants'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 
 /**

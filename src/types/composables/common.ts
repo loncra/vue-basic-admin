@@ -1,3 +1,5 @@
+import {CHAT_BUBBLE_TYPE} from "@/constants";
+
 export interface IconfontGlyph {
   font_class: string
   name: string
@@ -63,3 +65,9 @@ export interface LogoProps {
    */
   hideText?: boolean
 }
+
+export type ChatBubbleType =
+  | typeof CHAT_BUBBLE_TYPE.USER
+  | typeof CHAT_BUBBLE_TYPE.AI
+  | typeof CHAT_BUBBLE_TYPE.SYSTEM
+  | typeof CHAT_BUBBLE_TYPE.DIVIDER

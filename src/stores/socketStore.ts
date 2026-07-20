@@ -1,14 +1,13 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
 import {io, type Socket} from 'socket.io-client'
-import {STORE} from '@/constants/systemConstant'
+import {SOCKET_EVENT_TYPE, STORE} from '@/constants'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {
   type SocketBusinessEvent,
   type SocketBusinessEventPayloadMap,
   type SocketConnectionStatus,
 } from '@/types/socket'
-import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 
 type SocketHandler = (...args: unknown[]) => void
 

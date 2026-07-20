@@ -8,7 +8,7 @@
 import axios from '@/requests'
 import {formUrlEncoded} from '@/utils'
 import type {BasicCrudService, BasicIdMetadata, RestResult,} from '@/types/apis'
-import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
+import {SYSTEM_CONSTANT} from '@/constants'
 import {DetailSearchRestfulService} from "@/apis/detailSearchRestfulService.ts";
 
 /**
