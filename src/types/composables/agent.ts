@@ -1,11 +1,7 @@
-import type {
-  AgentConversationEntity,
-  AgentMessageEntity,
-  ObjectWriteResult,
-  PageResult
-} from "@/types/apis";
+import type {AgentConversationEntity, ObjectWriteResult, PageResult} from "@/types/apis";
 import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables/chat.ts";
 import type {Ref} from "vue";
+import {AGENT_CHAT_STATUS} from "@/constants";
 
 
 export interface AgentConversationItem extends AgentConversationEntity {
@@ -22,6 +18,8 @@ export interface AgentChatContext {
   conversations:Ref<AgentConversationItem[]>
   activateConversation:(conversation: AgentConversationItem | undefined,messageId?:number) => void
 }
+
+export type AgentChatStatus = (typeof AGENT_CHAT_STATUS)[keyof typeof AGENT_CHAT_STATUS]
 
 export interface ProvideAgentChatContextOptions {
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useAgentConversation} from '@/composables/ai-server/agent/useAgentConversation.ts'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {AGENT_CHAT_STATUS, AGENT_CONVERSATION_TYPE} from "@/constants";
+import {AGENT_CONVERSATION_TYPE} from "@/constants";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 
@@ -19,6 +19,7 @@ const {
   conversations,
   loading,
   createMenu,
+  getAgentChatStatusStyle,
   startCreateWorkspace,
   cancelEditWorkspace,
   confirmEditWorkspace,
@@ -74,39 +75,12 @@ const {
               type="loncra-folder-closed"
               class="text-success"
             />
-            <template v-else-if="getEnumValue(item.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION">
-
-              <icon-font
-                v-if="getEnumValue(item.status) === AGENT_CHAT_STATUS.READY"
-                type="loncra-fish"
-                class="text-text-secondary"
-              />
-              <icon-font
-                v-else-if="getEnumValue(item.status) === AGENT_CHAT_STATUS.RUNNING"
-                type="loncra-loader-pinwheel"
-                class="text-primary"
-                spin
-              />
-              <icon-font
-                v-else-if="getEnumValue(item.status) === AGENT_CHAT_STATUS.FAILED"
-                type="loncra-octagon-x"
-                class="text-error"
-                spin
-              />
-              <icon-font
-                v-else-if="getEnumValue(item.status) === AGENT_CHAT_STATUS.COMPLETED"
-                type="loncra-badge-check"
-                class="text-success"
-                spin
-              />
-              <icon-font
-                v-else-if="getEnumValue(item.status) === AGENT_CHAT_STATUS.STOPPED"
-                type="loncra-circle-stop"
-                class="text-warning"
-                spin
-              />
-            </template>
-
+            <icon-font
+              v-else-if="getEnumValue(item.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION"
+              :type="getAgentChatStatusStyle(item.status).icon"
+              :class="getAgentChatStatusStyle(item.status).textClass"
+              :spin="getAgentChatStatusStyle(item.status).spin"
+            />
           </template>
         </template>
 

@@ -2,9 +2,9 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import {AgentService} from '@/apis/ai-server/agentService.ts'
 import type {RestResult} from '@/types/apis'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {AGENT_CONVERSATION_TYPE} from '@/constants'
+import {AGENT_CHAT_STATUS, AGENT_CHAT_STATUS_STYLE, AGENT_CONVERSATION_TYPE} from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
-import type {AgentConversationItem} from "@/types/composables";
+import type {AgentChatStatus, AgentConversationItem} from "@/types/composables";
 import type {MenuInfo} from "@v-c/menu";
 import type {MenuProps} from "antdv-next";
 import {useAgentChatContext} from "@/composables";
@@ -143,6 +143,11 @@ export function useAgentConversation() {
     }
   }
 
+  function getAgentChatStatusStyle(status: unknown) {
+    const value = Number(getEnumValue(status as number)) as AgentChatStatus
+    return AGENT_CHAT_STATUS_STYLE[value] ?? AGENT_CHAT_STATUS_STYLE[AGENT_CHAT_STATUS.READY]
+  }
+
   onMounted(() => {
     void loadWorkspaces()
   })
@@ -151,6 +156,7 @@ export function useAgentConversation() {
     conversations,
     loading,
     onConversationMenuClick:activateConversation,
+    getAgentChatStatusStyle,
     createMenu,
     startCreateWorkspace,
     cancelEditWorkspace,
