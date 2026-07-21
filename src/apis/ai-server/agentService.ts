@@ -54,7 +54,7 @@ export class AgentService {
   // ---------- message ----------
 
   /** `POST /agent/message` */
-  static pageMessage(
+  static histories(
     request: PageRequest,
   ): Promise<RestResult<PageResult<AgentMessageEntity>>> {
     return axios.post(AgentService.MESSAGE_URL, formUrlEncoded(request))

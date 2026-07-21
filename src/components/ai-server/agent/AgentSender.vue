@@ -16,6 +16,7 @@ const emits = defineEmits<{
 const {
   senderRef,
   currentModel,
+  conversationActive,
   state,
   handleSubmit,
   currentType,
@@ -34,8 +35,7 @@ defineExpose({
   <l-instruction-sender
     ref="senderRef"
     :placeholder="$t('agent.view.placeholder')"
-    :disabled="false"
-    :sending="false"
+    :sending="state.loading || (conversationActive && conversationActive.loading)"
     @submit="handleSubmit"
   >
     <template #leftExtra>

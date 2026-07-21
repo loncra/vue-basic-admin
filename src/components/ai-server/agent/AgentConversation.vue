@@ -22,6 +22,7 @@ const {
   startCreateWorkspace,
   cancelEditWorkspace,
   confirmEditWorkspace,
+  onConversationMenuClick,
 } = useAgentConversation()
 </script>
 
@@ -119,6 +120,7 @@ const {
             class="group min-w-0 w-full"
             justify="space-between"
             align="center"
+            @click="() => onConversationMenuClick(item)"
           >
             <a-typography-text
               class="min-w-0 flex-1"

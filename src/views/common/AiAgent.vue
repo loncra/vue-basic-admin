@@ -4,12 +4,14 @@ import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import LAgentConversation from "@/components/ai-server/agent/AgentConversation.vue";
 import LAgentView from "@/components/ai-server/agent/AgentView.vue";
 import {provideAgentChatContext} from "@/composables";
+import {getEnumValue} from "@/utils";
+import {AGENT_CONVERSATION_TYPE} from "@/constants";
 
 defineOptions({
   name: 'CommonAiAgent',
 })
 
-provideAgentChatContext()
+const {conversationActive} = provideAgentChatContext({})
 
 </script>
 
@@ -22,6 +24,9 @@ provideAgentChatContext()
         body:'flex flex-1 min-h-120 p-0! overflow-hidden'
       }"
     >
+      <template #extra v-if="conversationActive && getEnumValue(conversationActive.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION">
+        {{conversationActive?.name}}
+      </template>
       <div class="min-h-0 size-full overflow-hidden">
         <a-splitter class="ai-agent-splitter h-full min-h-0">
           <a-splitter-panel

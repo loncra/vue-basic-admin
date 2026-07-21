@@ -14,6 +14,7 @@ import {Avatar, AvatarGroup, Tag} from "antdv-next";
 import {AttachmentService, AuthServerService} from "@/apis";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import type {
+  BaseChatBubble,
   ChatBubbleItem,
   ChatContentBlock,
   InstructionBlock,
@@ -80,7 +81,7 @@ export function createAvatarNode(
  * 纯数组变换，无响应式依赖；由 useChatMessageLoader / useChatSocketEvents / 发送流程复用。
  */
 export function addBubbleListMessage(
-  body: UserChatMessageEntity,
+  body: BaseChatBubble,
   role: BubbleItemType['role'],
   bubbleList: ChatBubbleItem[],
   append: boolean = false,

@@ -53,13 +53,13 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
     })
   }
 
-  function onChatConversationReceived(
+  async function onChatConversationReceived(
     result: RestResult<UserChatConversationResponseBody>,
-  ): void {
+  ) {
     if (!result.data) {
       return
     }
-    messageServerStore.fetchUnreadQuantity()
+    await messageServerStore.fetchUnreadQuantity()
     conversations.unshiftIfAbsent(result.data)
   }
 

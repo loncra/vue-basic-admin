@@ -1,5 +1,5 @@
 import type {IdValueMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "../common"
-import type {ChatContentBlock} from "@/types/composables"
+import type {BaseChatBubble} from "@/types/composables"
 import type {FileObject, PlatformUser} from "@/types/apis"
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface"
 import {CHAT_CALL_TYPE} from "@/constants"
@@ -24,11 +24,9 @@ export interface UserChatRoomEntity extends VersionEntityMetadata {
  *
  * @author maurice.chen
  */
-export interface UserChatMessageEntity extends VersionEntityMetadata {
+export interface UserChatMessageEntity extends BaseChatBubble {
   /** 业务  id */
   userChatRoomId: number
-  /** 内容 */
-  content: ChatContentBlock[]
   /** 发送者 */
   principal: string
   /** 是否撤销 */

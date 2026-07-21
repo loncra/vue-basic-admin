@@ -7,7 +7,7 @@ import type {NameValueEnumMetadata, VersionEntityMetadata} from "@/types/apis";
  */
 export interface AgentConversationEntity extends VersionEntityMetadata {
   name?: string
-  status?: number
+  status?: NameValueEnumMetadata<number> | number
   principal?: string
   tenantId?: string
   type:NameValueEnumMetadata<number> | number

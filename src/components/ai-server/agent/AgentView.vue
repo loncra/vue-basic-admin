@@ -1,117 +1,39 @@
 <script setup lang="ts">
-import {ref} from 'vue'
 import {BubbleList as AxBubbleList, Welcome as AxWelcome} from '@antdv-next/x'
-import type {BubbleListRef,} from '@antdv-next/x/dist/bubble/interface'
+import type {RoleType,} from '@antdv-next/x/dist/bubble/interface'
 import {XMarkdown} from '@antdv-next/x-markdown'
 import '@antdv-next/x-markdown/themes/index.css'
 import '@antdv-next/x-markdown/themes/light.css'
 import {CHAT_BUBBLE_TYPE} from '@/constants'
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {
-  AgentChatRequestBody,
-  AgentChatResponseBody,
-  AgentSenderFormProps
-} from "@/types/composables";
 import LAgentSender from "@/components/ai-server/agent/AgentSender.vue";
-import useApp from "antdv-next/dist/app/useApp";
-import {useAgentChatContext} from "@/composables";
-import type {RestResult} from "@/types/apis";
-import {AgentService} from "@/apis";
+import {useAgentView} from "@/composables";
 
 defineOptions({
   name: 'LAgentView',
 })
 
-/*const props = withDefaults(defineProps<{
-  bubbleListRole?: RoleType,
-}>(),{
-  bubbleListRole:{
-    user: {
-      variant: 'filled',
-      placement: 'end',
-      shape: 'corner',
-      classes: {content: 'bg-primary-bg!'},
-    },
-    ai: {
-      variant: 'filled',
-      placement: 'start',
-      shape: 'corner',
-    },
-  }
-})*/
+const bubbleListRole = {
+  user: {
+    variant: 'filled',
+    placement: 'end',
+    shape: 'corner',
+    classes: {content: 'bg-primary-bg!'},
+  },
+  ai: {
+    variant: 'filled',
+    placement: 'start',
+    shape: 'corner',
+  },
+} as RoleType
 
-const agentChatContext = useAgentChatContext()
-
-const principalStore = usePrincipalStore()
-
-const bubbleListRef = ref<BubbleListRef>()
-const senderRef = ref<InstanceType<typeof LAgentSender>>()
-
-const {message} = useApp()
-
-function scrollTo(options: {
-  key?: string | number
-  top?: number | 'bottom' | 'top'
-  behavior?: ScrollBehavior
-  block?: ScrollLogicalPosition
-}): void {
-  bubbleListRef.value?.scrollTo(options)
-}
-
-function getScrollBox(): HTMLDivElement | undefined {
-  return bubbleListRef.value?.scrollBoxNativeElement
-}
-
-function toAgentChatRequestBody(value:AgentSenderFormProps):AgentChatRequestBody {
-  let agentConversationId = undefined
-
-  if (agentChatContext.conversationActive) {
-    agentConversationId = Number(agentChatContext.conversationActive.id)
-  }
-
-  return {
-    ...value,
-    ...{
-      agentConversationId
-    }
-  }
-}
-
-async function onSenderSubmit(value:AgentSenderFormProps) {
-
-  agentChatContext.loading = true
-  try {
-
-    const form:AgentChatRequestBody = toAgentChatRequestBody(value)
-    const result:RestResult<AgentChatResponseBody> = await AgentService.chat(form)
-    if (result.data?.conversation) {
-      AgentService.loadStream(Number(result.data?.conversation.id))
-      /*agentChatContext.conversationActive = {
-        ...result.data?.conversation,
-        dataSource:DEFAULT_PAGE_RESULT_VALUE,
-        editing:false
-      }*/
-
-      /*if (result.data?.userMessageId) {
-        agentChatContext.conversationActive.dataSource?.elements.push({
-          role:CHAT_BUBBLE_TYPE.USER,
-          content: value.content
-        })
-      }*/
-    }
-  } catch (error) {
-    message.error(error instanceof Error ? error.message : String(error))
-  } finally {
-    agentChatContext.loading = false
-  }
-}
-
-defineExpose({
-  scrollTo,
-  getScrollBox,
-  getSenderSlotConfigValue: () => senderRef?.value?.getSlotConfigValue() || [],
-})
+const {
+  onSenderSubmit,
+  principalStore,
+  conversationBubbleItemType,
+  bubbleListRef,
+  senderRef,
+} = useAgentView()
 
 </script>
 
@@ -122,12 +44,13 @@ defineExpose({
     class="h-full min-h-0 overflow-hidden"
   >
     <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
-      <template v-if="agentChatContext.conversationActive && (agentChatContext.conversationActive.dataSource?.elements || []).length > 0 ">
+      <template v-if="conversationBubbleItemType.length > 0 ">
         <ax-bubble-list
           ref="bubbleListRef"
           class="min-h-0 h-full flex"
           :classes="{ scroll: 'pl-xs pr-xs' }"
-          :items="[]"
+          :items="conversationBubbleItemType"
+          :role="bubbleListRole"
         >
           <template #avatar="{ item }">
             <l-user-avatar

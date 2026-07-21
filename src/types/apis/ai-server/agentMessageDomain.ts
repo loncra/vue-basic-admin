@@ -1,15 +1,15 @@
-import type {VersionEntityMetadata} from "@/types/apis";
-import type {ChatBubbleType, ChatContentBlock} from "@/types/composables";
+import type {NameValueEnumMetadata} from "@/types/apis";
+import type {BaseChatBubble} from "@/types/composables";
 
 /**
  * Agent 消息（对齐 `AgentMessageEntity`）
  *
  * @author maurice.chen
  */
-export interface AgentMessageEntity extends VersionEntityMetadata {
-  role: ChatBubbleType
+export interface AgentMessageEntity extends BaseChatBubble {
+  role: NameValueEnumMetadata<string> | string
   agentConversationId: number
-  content?: ChatContentBlock[]
+  status:NameValueEnumMetadata<number> | number
   media?: string
   metadata?: string
   principal?: string

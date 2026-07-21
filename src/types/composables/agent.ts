@@ -5,6 +5,7 @@ import type {
   PageResult
 } from "@/types/apis";
 import type {ChatContentBlock} from "@/types/composables/chat.ts";
+import type {Ref} from "vue";
 
 
 export interface AgentConversationItem extends AgentConversationEntity {
@@ -13,11 +14,16 @@ export interface AgentConversationItem extends AgentConversationEntity {
 
 export interface ActiveAgentConversationItem extends AgentConversationItem {
   dataSource:PageResult<AgentMessageEntity>
+  loading:boolean,
 }
 
 export interface AgentChatContext {
-  conversationActive:ActiveAgentConversationItem,
-  loading:boolean,
+  conversationActive:Ref<ActiveAgentConversationItem | undefined>,
+  activateConversation:(conversation: AgentConversationItem | undefined,messageId?:number) => void
+}
+
+export interface ProvideAgentChatContextOptions {
+
 }
 
 export interface AgentSenderFormProps {
@@ -51,7 +57,7 @@ export interface AgentChatRequestBody extends AgentSenderFormProps {
   /**
    * 会话 id
    */
-  conversationId?: number;
+  agentConversationId?: number;
 }
 
 export interface AgentChatResponseBody {

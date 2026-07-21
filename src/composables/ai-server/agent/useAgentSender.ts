@@ -14,6 +14,7 @@ import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createIcon} from "@/utils";
 import {isInstructionSlot} from "@/composables/basic/useInstructionSender.ts";
 import {type MenuItemType, Space} from "antdv-next";
+import {useAgentChatContext} from "@/composables";
 
 const modelSettingService = new ModelSettingService()
 
@@ -51,6 +52,8 @@ function toModelMenuItems(models: ModelSettingEntity[]): MenuItemType[] {
 export function useAgentSender(
   props:AgentSenderProps
 ) {
+
+  const {conversationActive} = useAgentChatContext()
 
   const senderRef = ref<InstanceType<typeof LInstructionSender>>()
 
@@ -113,7 +116,7 @@ export function useAgentSender(
     value: string,
     _slotConfig?: SlotConfigType[]
   ): Promise<void> {
-    if (!_slotConfig?.length) {
+    if (!_slotConfig?.length || !conversationActive.value) {
       return
     }
     state.value.loading = true
@@ -168,8 +171,8 @@ export function useAgentSender(
 
   return {
     senderRef,
-    getTypeStyle,
     currentModel,
+    conversationActive,
     handleSubmit,
     state,
     currentType

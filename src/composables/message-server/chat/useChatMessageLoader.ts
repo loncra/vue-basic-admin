@@ -76,6 +76,7 @@ export function useChatMessageLoader(
       active.loadConversationDataLock = false
     }
   }
+
   async function loadParticipant(roomId:number): Promise<void> {
     const result: RestResult<UserChatParticipantEntity[]> =
       await ChatMessageService.findRoomParticipant(roomId)
@@ -83,6 +84,7 @@ export function useChatMessageLoader(
       conversationActive.value.participants = result.data
     }
   }
+
   /** 切换 / 重载活跃会话（含草稿暂存与滚动到底） */
   async function switchConversation(
     item: ServerConversationItem,

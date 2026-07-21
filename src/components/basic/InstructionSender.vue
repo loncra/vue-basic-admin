@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<{
   slotConfig?: SlotConfigType[]
   placeholder: string
   sending?: boolean
-  disabled: boolean
+  disabled?: boolean
   instructionContextVisibleMargin?: number
   instructionMap?: Record<string, IdValueMetadata<string, string>[]>
   filterInstruction?: (

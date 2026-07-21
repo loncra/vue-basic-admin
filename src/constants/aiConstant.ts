@@ -6,6 +6,18 @@ export const AGENT_CONVERSATION_TYPE = {
   WORKSPACE_CONVERSATION:30
 } as const
 
+export const AGENT_CHAT_STATUS = {
+  READY:10,
+
+  RUNNING:20,
+
+  STOPPED:30,
+
+  COMPLETED:35,
+
+  FAILED:40
+} as const
+
 export const MODEL_TYPE = {
   CHAT:10,
   IMAGE:20,

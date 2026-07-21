@@ -12,9 +12,9 @@ import type {
   UserChatCallParticipantEntity,
   UserChatCallResponseBody,
   UserChatConversationResponseBody,
-  UserChatMessageEntity,
   UserChatMessageResponseBody,
-  UserChatParticipantEntity
+  UserChatParticipantEntity,
+  VersionEntityMetadata
 } from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {LocalAudioTrack, LocalVideoTrack, Room} from 'livekit-client'
@@ -105,11 +105,15 @@ export type CursorContext = {
   isAtLineStart: boolean
 }
 
+export interface BaseChatBubble extends VersionEntityMetadata {
+  content: ChatContentBlock[]
+}
+
 export type ChatBubbleItem = {
   key: string | number
   role: BubbleItemType["role"]
   content: ChatContentBlock[] | ChatContentBlock | string
-  data?:UserChatMessageResponseBody | UserChatMessageEntity,
+  data?:BaseChatBubble,
   hide?:boolean
   flashPending?: boolean   // jump 时设为 true
 }

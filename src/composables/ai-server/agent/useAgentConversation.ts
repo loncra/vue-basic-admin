@@ -7,6 +7,7 @@ import useApp from 'antdv-next/dist/app/useApp'
 import type {AgentConversationItem} from "@/types/composables";
 import type {MenuInfo} from "@v-c/menu";
 import type {MenuProps} from "antdv-next";
+import {useAgentChatContext} from "@/composables";
 
 export function useAgentConversation() {
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
@@ -16,6 +17,8 @@ export function useAgentConversation() {
   const loading = ref<boolean>(false)
 
   const {message, modal} = useApp()
+
+  const {activateConversation} = useAgentChatContext()
 
   const conversations = ref<AgentConversationItem[]>([])
 
@@ -42,11 +45,11 @@ export function useAgentConversation() {
           icon: () => createIcon('loncra-archive-x'),
         },
       ],
-      onClick: (menuItem: MenuInfo) => onMenuClick(menuItem, conversation),
+      onClick: (menuItem: MenuInfo) => onOperationMenuClick(menuItem, conversation),
     }
   }
 
-  function onMenuClick(itemInfo: MenuInfo, conversation: AgentConversationItem): void {
+  function onOperationMenuClick(itemInfo: MenuInfo, conversation: AgentConversationItem): void {
     if (itemInfo.key === 'rename') {
       startRenameWorkspace(conversation)
       return
@@ -132,6 +135,7 @@ export function useAgentConversation() {
       const result = await AgentService.saveConversation(item)
       item.editing = false
       message.success(result.message)
+      await loadWorkspaces()
     } finally {
       loading.value = false
     }
@@ -144,6 +148,7 @@ export function useAgentConversation() {
   return {
     conversations,
     loading,
+    onConversationMenuClick:activateConversation,
     createMenu,
     startCreateWorkspace,
     cancelEditWorkspace,
