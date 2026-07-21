@@ -4,7 +4,7 @@ import type {
   ObjectWriteResult,
   PageResult
 } from "@/types/apis";
-import type {ChatContentBlock} from "@/types/composables/chat.ts";
+import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables/chat.ts";
 import type {Ref} from "vue";
 
 
@@ -13,12 +13,13 @@ export interface AgentConversationItem extends AgentConversationEntity {
 }
 
 export interface ActiveAgentConversationItem extends AgentConversationItem {
-  dataSource:PageResult<AgentMessageEntity>
+  dataSource:PageResult<ChatBubbleItem>
   loading:boolean,
 }
 
 export interface AgentChatContext {
-  conversationActive:Ref<ActiveAgentConversationItem | undefined>,
+  conversationActive:Ref<ActiveAgentConversationItem | undefined>
+  conversations:Ref<AgentConversationItem[]>
   activateConversation:(conversation: AgentConversationItem | undefined,messageId?:number) => void
 }
 

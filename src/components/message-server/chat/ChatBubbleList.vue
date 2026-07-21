@@ -81,7 +81,7 @@ function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
       icon: createIcon('loncra-text-quote', 'text-lg'),
     })
 
-    if (role === CHAT_BUBBLE_TYPE.USER && globalProperties.$dayjs().isBefore(globalProperties.$dayjs(item?.data?.undoableTime))) {
+    if (role === CHAT_BUBBLE_TYPE.USER && globalProperties.$dayjs().isBefore(globalProperties.$dayjs((item?.data as UserChatMessageResponseBody)?.undoableTime))) {
       const disabled = ref<boolean>(false)
       const timer = h(
         StatisticTimer,
@@ -91,7 +91,7 @@ function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
           },
           onFinish: () => disabled.value = true,
           type:'countdown',
-          value:item?.data?.undoableTime,
+          value:(item?.data as UserChatMessageResponseBody)?.undoableTime,
           format:globalProperties.$t('chat.view.undo.countdown')
         }
       )

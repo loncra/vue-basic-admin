@@ -116,7 +116,7 @@ export function useAgentSender(
     value: string,
     _slotConfig?: SlotConfigType[]
   ): Promise<void> {
-    if (!_slotConfig?.length || !conversationActive.value) {
+    if (!_slotConfig?.length) {
       return
     }
     state.value.loading = true

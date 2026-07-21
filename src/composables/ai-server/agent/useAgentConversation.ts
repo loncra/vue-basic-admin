@@ -1,7 +1,7 @@
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {AgentService} from '@/apis/ai-server/agentService.ts'
 import type {RestResult} from '@/types/apis'
-import {createIcon, requireNonNullOrUndefined} from '@/utils'
+import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {AGENT_CONVERSATION_TYPE} from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
 import type {AgentConversationItem} from "@/types/composables";
@@ -18,10 +18,7 @@ export function useAgentConversation() {
 
   const {message, modal} = useApp()
 
-  const {activateConversation} = useAgentChatContext()
-
-  const conversations = ref<AgentConversationItem[]>([])
-
+  const {activateConversation, conversations, conversationActive} = useAgentChatContext()
   /** 是否已有处于编辑态的工作空间行（同时只允许一条） */
   function getEditingConversationItem(): AgentConversationItem | undefined {
     return conversations.value.find((item) => item.editing)
@@ -90,6 +87,11 @@ export function useAgentConversation() {
     try {
       const result = await AgentService.findConversation()
       conversations.value = (result.data || []) as AgentConversationItem[]
+
+      const defaultConversation = conversations.value.find(c => getEnumValue(c.type) === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE)
+      if (defaultConversation) {
+        activateConversation(defaultConversation)
+      }
     } finally {
       loading.value = false
     }

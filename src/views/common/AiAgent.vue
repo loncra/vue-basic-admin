@@ -6,12 +6,17 @@ import LAgentView from "@/components/ai-server/agent/AgentView.vue";
 import {provideAgentChatContext} from "@/composables";
 import {getEnumValue} from "@/utils";
 import {AGENT_CONVERSATION_TYPE} from "@/constants";
+import type {ActiveAgentConversationItem, AgentChatResponseBody} from "@/types/composables";
 
 defineOptions({
   name: 'CommonAiAgent',
 })
 
 const {conversationActive} = provideAgentChatContext({})
+
+function onSenderSubmit(body: ActiveAgentConversationItem) {
+  console.log('onSenderSubmit', body)
+}
 
 </script>
 
@@ -41,7 +46,9 @@ const {conversationActive} = provideAgentChatContext({})
           <a-splitter-panel
             class="h-full min-h-0 overflow-hidden"
           >
-            <l-agent-view />
+            <l-agent-view
+              @sender-submit="onSenderSubmit"
+            />
           </a-splitter-panel>
         </a-splitter>
       </div>

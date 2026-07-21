@@ -218,15 +218,17 @@ async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
   if (!bubble || !bubble.data) {
     return
   }
-  bubble.data.undo = result.data.undo
-  bubble.data.undoTime = result.data.undoTime
+  const data = bubble.data as UserChatMessageResponseBody
+
+  data.undo = result.data.undo
+  data.undoTime = result.data.undoTime
   const undoContent: ChatContentBlock[] = [{
     type: 'custom',
     slotKind: 'undo',
     value: globalProperties.$t('chat.view.undo.messageValue'),
-    tooltip:globalProperties.$t('chat.view.undo.time', {time:':' + globalProperties.$dayjs(bubble.data.undoTime).fromNow()})
+    tooltip:globalProperties.$t('chat.view.undo.time', {time:':' + globalProperties.$dayjs(data.undoTime).fromNow()})
   }]
-  bubble.data.metadata = {oldContent:bubble.data.content}
+  data.metadata = {oldContent:bubble.data.content}
   bubble.data.content = undoContent
   bubble.content = undoContent
 }

@@ -4,14 +4,20 @@ import type {
   AgentConversationItem,
   ProvideAgentChatContextOptions
 } from "@/types/composables";
-import {AGENT_CHAT_CONTEXT_PROVIDE_KEY, DEFAULT_PAGE_RESULT_VALUE} from "@/constants";
+import {
+  AGENT_CHAT_CONTEXT_PROVIDE_KEY,
+  AGENT_CONVERSATION_TYPE,
+  DEFAULT_PAGE_RESULT_VALUE
+} from "@/constants";
 import {inject, provide, ref} from "vue";
 import {useAgentMessageLoader} from "@/composables";
+import {findFirstTreeNode, getEnumValue} from "@/utils";
 
 
 export function provideAgentChatContext(options:ProvideAgentChatContextOptions): AgentChatContext {
   // 显式断言为 Ref<T>，避免 UnwrapRef 对 ConversationActiveProps 深度递归（TS2589）
   const conversationActive = ref<ActiveAgentConversationItem>();
+  const conversations = ref<AgentConversationItem[]>([])
 
   const loader = useAgentMessageLoader()
 
@@ -20,19 +26,42 @@ export function provideAgentChatContext(options:ProvideAgentChatContextOptions):
     messageId?:number
   ): Promise<void> {
     if (!conversation) {
-      return ;
+      conversationActive.value = undefined
+      return
     }
 
     conversationActive.value = {
-      ...conversation,
       dataSource:DEFAULT_PAGE_RESULT_VALUE,
-      loading:false
+      loading:false,
+      ...conversation
     }
 
+    if (getEnumValue(conversationActive.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
+      return
+    }
+
+    prependConversationIfMissing(conversationActive.value)
     await loader.switchConversation(conversationActive, messageId)
   }
 
+  function prependConversationIfMissing(conversation: AgentConversationItem) {
+    const find = findFirstTreeNode(c => Number(c.id) === conversationActive.value?.id, conversations.value)
+    if (find) {
+      return
+    }
+    const parent = conversations.value.find(s => s.id === conversationActive.value?.parentId)
+    if (!parent) {
+      return
+    }
+
+    parent.children = [
+      conversation,
+      ...(parent.children || [])
+    ]
+  }
+
   const context: AgentChatContext = {
+    conversations,
     conversationActive,
     activateConversation
   }

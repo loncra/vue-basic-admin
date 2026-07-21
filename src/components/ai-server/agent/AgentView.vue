@@ -8,6 +8,8 @@ import {CHAT_BUBBLE_TYPE} from '@/constants'
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LAgentSender from "@/components/ai-server/agent/AgentSender.vue";
 import {useAgentView} from "@/composables";
+import LAgentUserMessageBubbleContent
+  from "@/components/ai-server/agent/AgentUserMessageBubbleContent.vue";
 
 defineOptions({
   name: 'LAgentView',
@@ -30,7 +32,7 @@ const bubbleListRole = {
 const {
   onSenderSubmit,
   principalStore,
-  conversationBubbleItemType,
+  conversationActive,
   bubbleListRef,
   senderRef,
 } = useAgentView()
@@ -44,12 +46,12 @@ const {
     class="h-full min-h-0 overflow-hidden"
   >
     <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
-      <template v-if="conversationBubbleItemType.length > 0 ">
+      <template v-if="conversationActive && conversationActive.dataSource.elements.length > 0 ">
         <ax-bubble-list
           ref="bubbleListRef"
           class="min-h-0 h-full flex"
           :classes="{ scroll: 'pl-xs pr-xs' }"
-          :items="conversationBubbleItemType"
+          :items="conversationActive.dataSource.elements"
           :role="bubbleListRole"
         >
           <template #avatar="{ item }">
@@ -69,14 +71,15 @@ const {
               open-links-in-new-tab
               escape-raw-html
             />
-            <template v-else>
-              {{ content }}
-            </template>
+            <l-agent-user-message-bubble-content
+              v-else
+              :content="item.content"
+            />
           </template>
         </ax-bubble-list>
         <slot name="bubbleListAfter" />
       </template>
-      <a-flex justify="center" align="center" class="size-full">
+      <a-flex v-else justify="center" align="center" class="size-full">
         <ax-welcome
           variant="borderless"
           title="你好，我是 Captain.J"
