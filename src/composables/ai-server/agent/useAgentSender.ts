@@ -1,6 +1,6 @@
 import {computed, h, onMounted, ref} from "vue";
 import type {IdValueMetadata, ModelSettingEntity, RestResult} from "@/types/apis";
-import LInstructionSender from "@/components/basic/InstructionSender.vue";
+import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 import type {
   AgentSenderFormProps,
   AgentSenderProps,
@@ -12,7 +12,7 @@ import {ModelSettingService} from "@/apis/ai-server/modelSettingService.ts";
 import {MODEL_TYPE} from "@/constants";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createIcon} from "@/utils";
-import {isInstructionSlot} from "@/composables/basic/useInstructionSender.ts";
+import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
 import {type MenuItemType, Space} from "antdv-next";
 import {useAgentChatContext} from "@/composables";
 

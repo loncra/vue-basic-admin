@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import LInstructionSender from "@/components/basic/InstructionSender.vue";
+import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 import {useAgentSender} from "@/composables";
 import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";

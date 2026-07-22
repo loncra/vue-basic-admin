@@ -16,7 +16,7 @@ import type {
 } from "@/types/apis";
 import {SmsMessageService} from "@/apis/message-server";
 import {mergeDefinitions} from "@/composables/basic/action";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
 

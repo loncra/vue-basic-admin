@@ -8,7 +8,7 @@ import type {
 } from "@/types/apis";
 import type {IconfontJson} from "@/types/composables/common";
 import {requireNonNullOrUndefined} from "@/utils";
-import LBasicForm from "@/components/basic/BasicForm.vue";
+import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
 import {loadIcon} from "@/utils/resourceUtils";

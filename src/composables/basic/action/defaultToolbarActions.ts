@@ -1,5 +1,5 @@
 import type {ActionContext, ActionDefinition} from '@/types/composables'
-import type {AuthorityProps} from '@/types/composables/collection'
+import type {AuthorityProps} from '@/types/composables/crud/collection.ts'
 import {createIcon} from '@/utils'
 
 export type ActionTranslateFn = (key: string, params?: Record<string, unknown>) => string

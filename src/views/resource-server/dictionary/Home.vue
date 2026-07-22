@@ -21,9 +21,9 @@ import type {DictionaryTypeEntity} from "@/types/apis/resource-server/dictionary
 import {getEnumName} from "@/utils/commonUtils.ts";
 import {createIcon} from "@/utils/resourceUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import LModalForm from "@/components/basic/ModalForm.vue";
+import LModalForm from "@/components/basic/form/ModalForm.vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 
 const { message } = App.useApp()

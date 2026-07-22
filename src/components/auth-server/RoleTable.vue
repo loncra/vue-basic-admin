@@ -13,7 +13,7 @@ import type {
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {mergeDefinitions} from "@/composables/basic/action";
 

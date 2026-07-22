@@ -5,8 +5,8 @@ import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
 import {App} from "antdv-next";
 import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref, useSlots,} from "vue";
-import LActionButton from "@/components/basic/ActionButton.vue";
-import LQueryTable from "@/components/basic/QueryTable.vue";
+import LActionButton from "@/components/basic/crud/ActionButton.vue";
+import LQueryTable from "@/components/basic/crud/QueryTable.vue";
 import type {
   ActionContext,
   ActionPayload,

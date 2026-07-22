@@ -3,7 +3,7 @@ import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interfac
 import type {InstructionMeasure} from "@/types/composables";
 import {Sender as AxSender} from '@antdv-next/x'
 import type {IdValueMetadata} from "@/types/apis";
-import {useInstructionSender} from "@/composables/basic/useInstructionSender.ts";
+import {useInstructionSender} from "@/composables/chat/useInstructionSender.ts";
 import {ref, toRef, unref} from "vue";
 
 defineOptions({

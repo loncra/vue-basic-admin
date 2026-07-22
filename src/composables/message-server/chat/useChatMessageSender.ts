@@ -23,7 +23,7 @@ import {
 } from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import type {ObjectWriteResult} from '@/types/apis'
-import {isInstructionSlot} from "@/composables/basic/useInstructionSender.ts";
+import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
 
 /**
  * 发送器逻辑：files 词槽创建/渲染/上传、粘贴文件、提交组装（附件 + 引用）、

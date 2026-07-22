@@ -9,7 +9,7 @@ import {
 } from '@/utils'
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables';
 import {mergeDefinitions} from "@/composables/basic/action";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
 import {SiteMessageService} from "@/apis/message-server/siteMessageService.js";

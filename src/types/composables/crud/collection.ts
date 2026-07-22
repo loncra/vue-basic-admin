@@ -1,5 +1,5 @@
-import type {ActionDefinition} from './actionButton'
-import type {BasicAuthorityProps} from './common'
+import type {ActionDefinition} from './actionButton.ts'
+import type {BasicAuthorityProps} from '../common.ts'
 import type {
   BasicCrudService,
   BasicIdMetadata,

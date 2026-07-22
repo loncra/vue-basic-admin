@@ -1,6 +1,6 @@
 import {ref} from 'vue'
 import {SYSTEM_CONSTANT} from '@/constants'
-import type {UseDragOptions, UseDragReturn} from '@/types/composables/drag'
+import type {UseDragOptions, UseDragReturn} from '@/types/composables/crud/drag.ts'
 
 export function useDrag<
   TEntity extends object,

@@ -33,6 +33,3 @@ export interface UseInstructionSenderParams {
     measure: InstructionMeasure,
   ) => void
 }
-
-/** @deprecated 使用 UseInstructionSenderParams */
-export type UseChatMessageSenderInstructionParams = UseInstructionSenderParams

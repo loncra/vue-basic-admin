@@ -8,7 +8,7 @@ import type {ResolvedAction} from "@/types/composables";
 import useApp from "antdv-next/dist/app/useApp";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {MyResourceService} from "@/apis/resource-server/myResourceService.ts";
-import LActionButton from "@/components/basic/ActionButton.vue";
+import LActionButton from "@/components/basic/crud/ActionButton.vue";
 import LAttachmentMasonry from "@/components/basic/AttachmentMasonry.vue";
 
 defineOptions({

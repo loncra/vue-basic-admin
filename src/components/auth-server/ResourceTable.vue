@@ -12,7 +12,7 @@ import type {
 import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 
 defineOptions({

@@ -10,7 +10,7 @@ import {
 } from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {ExportDataMetadata, FileObject} from "@/types/apis";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {UserExportService} from "@/apis/resource-server/userExportService.ts";
 

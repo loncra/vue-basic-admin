@@ -1,6 +1,6 @@
-import type {ActionDefinition} from './actionButton'
-import type {QueryCollectionProps} from './collection'
-import type {DropPosition, UseDragOptions} from './drag'
+import type {ActionDefinition} from './actionButton.ts'
+import type {QueryCollectionProps} from './collection.ts'
+import type {DropPosition, UseDragOptions} from './drag.ts'
 import {type Component, type ComputedRef, type Ref} from "vue";
 import {type TableProps} from "antdv-next";
 import type {
@@ -12,7 +12,7 @@ import type {
 import type {ColumnType} from "antdv-next/dist/table/interface";
 import {SYSTEM_CONSTANT} from "@/constants";
 
-export type {AuthorityProps} from './collection'
+export type {AuthorityProps} from './collection.ts'
 
 export interface ColumnSearchConfig {
   component?: Component

@@ -4,9 +4,9 @@ import type {ChatContentBlock, InstructionMeasure} from "@/types/composables";
 import type {IdValueMetadata, UserChatMessageResponseBody} from "@/types/apis";
 import {useChatMessageSender} from "@/composables/message-server/chat";
 import {ref, toRef} from "vue";
-import LEmojiButton from "@/components/basic/EmojiButton.vue";
+import LEmojiButton from "@/components/basic/chat/EmojiButton.vue";
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
-import LInstructionSender from "@/components/basic/InstructionSender.vue";
+import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 
 defineOptions({
   name: 'LChatMessageSender',

@@ -13,7 +13,7 @@ import {requireNonNullOrUndefined} from "@/utils";
 import {ResourceServerService} from "@/apis";
 import {CarouselService} from "@/apis/resource-server/carouselService.ts";
 import {disableDate, disableTime} from "@/utils/dateUtils";
-import LBasicForm from "@/components/basic/BasicForm.vue";
+import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import type {Dayjs} from "dayjs";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {CAROUSEL_TYPE} from "@/constants/resourceConstant.ts";

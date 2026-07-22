@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {SearchableColumnType} from "@/types/composables";
 import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";

@@ -10,7 +10,11 @@ export interface AgentConversationItem extends AgentConversationEntity {
 
 export interface ActiveAgentConversationItem extends AgentConversationItem {
   dataSource:PageResult<ChatBubbleItem>
-  loading:boolean,
+  // 是否已加载出首页
+  isOnFirstPage?:boolean
+  // 是否已加载出尾页
+  isOnLastPage?:boolean
+  loading:boolean
 }
 
 export interface AgentChatContext {
@@ -22,6 +26,10 @@ export interface AgentChatContext {
 export type AgentChatStatus = (typeof AGENT_CHAT_STATUS)[keyof typeof AGENT_CHAT_STATUS]
 
 export interface ProvideAgentChatContextOptions {
+  view: Ref<AgentViewController | undefined>
+}
+
+export interface AgentViewController {
 
 }
 

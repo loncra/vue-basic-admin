@@ -6,7 +6,7 @@ import type {
 } from "@/types/apis/auth-server/consoleUserDomain";
 import type {NameValueEnumMetadata, RestResult, RoleEntity} from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import LBasicForm from "@/components/basic/BasicForm.vue";
+import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ConsoleUserService, ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
 import LRoleTable from "@/components/auth-server/RoleTable.vue";

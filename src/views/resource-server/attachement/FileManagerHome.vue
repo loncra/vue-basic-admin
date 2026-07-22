@@ -11,7 +11,7 @@ import {
   ref
 } from "vue";
 import type {FilterRequest, ObjectItemInfo, RestResult} from "@/types/apis";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {FileManagerService} from "@/apis/resource-server/fileManagerService.ts";
 import {Input} from "antdv-next";

@@ -11,7 +11,7 @@ import type {
   RestResult
 } from "@/types/apis";
 import type {SearchableColumnType} from "@/types/composables";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 
 defineOptions({
   name: 'LOperationDataTraceTable',

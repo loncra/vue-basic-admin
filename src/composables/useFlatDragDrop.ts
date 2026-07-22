@@ -5,7 +5,7 @@ import type {
   UseDragReturn,
   UseFlatDragDropOptions,
   UseFlatDragDropReturn,
-} from '@/types/composables/drag'
+} from '@/types/composables/crud/drag.ts'
 import {useDrag} from '@/composables/usrDrag.ts'
 import {
   buildFlatPlacementMap,

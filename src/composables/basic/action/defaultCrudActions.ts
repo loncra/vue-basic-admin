@@ -1,6 +1,6 @@
 import type {BasicCrudService, BasicIdMetadata} from '@/types/apis'
 import type {ActionDefinition} from '@/types/composables'
-import type {AuthorityProps} from '@/types/composables/collection'
+import type {AuthorityProps} from '@/types/composables/crud/collection.ts'
 import {createIcon} from '@/utils'
 import type {ActionTranslateFn} from '@/composables/basic/action/defaultToolbarActions.ts'
 

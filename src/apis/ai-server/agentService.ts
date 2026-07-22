@@ -27,10 +27,11 @@ export class AgentService {
   /** 对话：`/agent/conversation` */
   static readonly CONVERSATION_URL = AgentService.BASE_URL + '/agent/conversation'
 
-  /** 消息：`/agent/message` */
   static readonly MESSAGE_URL = AgentService.BASE_URL + '/agent/message'
 
   static readonly CHAT_URL = AgentService.BASE_URL + '/agent'
+
+  static readonly HISTORY_URL = AgentService.MESSAGE_URL + '/history'
 
   // ---------- conversation ----------
 
@@ -56,8 +57,9 @@ export class AgentService {
   /** `POST /agent/message` */
   static histories(
     request: PageRequest,
+    conversationId:number
   ): Promise<RestResult<PageResult<AgentMessageEntity>>> {
-    return axios.post(AgentService.MESSAGE_URL, formUrlEncoded(request))
+    return axios.post(AgentService.HISTORY_URL + '/' + conversationId, formUrlEncoded(request))
   }
 
   /** `DELETE /agent/message?ids=` */

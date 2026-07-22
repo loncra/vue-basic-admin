@@ -13,20 +13,20 @@ import {
   ref,
   watch
 } from "vue";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {
+  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
+  LAYOUT_PANE_TITLE_PROVIDE_KEY,
+  SYSTEM_CONSTANT
+} from "@/constants/systemConstant.ts";
 import type {BasicCrudService, BasicIdMetadata, RestResult} from "@/types/apis";
 import type {BasicAuthorityProps} from "@/types/composables";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {App, Checkbox} from "antdv-next";
-import {isResultSuccess} from "@/requests/http";
+import {isResultSuccess} from "@/requests/http.ts";
 import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {getRouteTitle} from "@/routers";
-import {
-  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
-  LAYOUT_PANE_TITLE_PROVIDE_KEY
-} from "@/constants/systemConstant";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 import i18n from "@/i18n";
 import {CREATE_SUCCESS_BACK} from "@/constants/configProviderConstant.ts";

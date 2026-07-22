@@ -11,8 +11,8 @@ import {SYSTEM_CONSTANT} from '@/constants/systemConstant.ts'
 import {App} from 'antdv-next'
 import {requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref, useSlots} from 'vue'
-import LActionButton from '@/components/basic/ActionButton.vue'
-import LQueryCardGrid from '@/components/basic/QueryCardGrid.vue'
+import LActionButton from '@/components/basic/crud/ActionButton.vue'
+import LQueryCardGrid from '@/components/basic/crud/QueryCardGrid.vue'
 import type {
   ActionContext,
   ActionPayload,

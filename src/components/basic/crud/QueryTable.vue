@@ -46,7 +46,7 @@ import {exportCollectionData} from "@/composables/basic/data/exportCollectionDat
 import {useMergeRowSelection, useTableRowDrag} from "@/composables/basic/table";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import LActionButton from "@/components/basic/ActionButton.vue";
+import LActionButton from "@/components/basic/crud/ActionButton.vue";
 import type {TablePaginationConfig} from "antdv-next/dist/table/interface";
 
 defineOptions({

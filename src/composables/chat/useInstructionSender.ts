@@ -8,7 +8,7 @@ import type {
   InstructionMeasure,
   InstructionProps,
   UseInstructionSenderParams,
-} from "@/types/composables/instruction.ts";
+} from "@/types/composables/chat/instruction.ts";
 
 const ZERO_WIDTH_SPACE = "\u200B"
 

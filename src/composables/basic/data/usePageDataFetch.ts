@@ -11,7 +11,7 @@ import type {
   ScrollPageResult,
   TotalPage,
 } from '@/types/apis'
-import type {CollectionService} from '@/types/composables/collection'
+import type {CollectionService} from '@/types/composables/crud/collection.ts'
 import type {PageSearchRestfulService} from '@/apis/pageSearchRestfulService.ts'
 
 export type CollectionPagination = false | PaginationProps

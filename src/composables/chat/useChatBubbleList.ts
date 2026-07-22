@@ -23,6 +23,37 @@ import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {requireNonNullOrUndefined} from '@/utils'
 import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'
 
+
+const bubbleListRole = {
+  user: {
+    variant: 'filled',
+    placement: 'end',
+    shape: 'corner',
+    classes: {content: 'bg-primary-bg!'},
+  },
+  ai: {
+    variant: 'filled',
+    placement: 'start',
+    shape: 'corner',
+  },
+  system: {
+    variant: 'outlined',
+    shape: 'round',
+    classes: {content: 'text-text-secondary!'},
+  },
+  divider: {
+    dividerProps: {
+      plain: true,
+      dashed: true,
+      size: 'small',
+      classes: {
+        content: 'text-text-secondary! text-xs! font-normal!',
+        root: 'text-text-secondary! text-xs! font-normal! my-xs!',
+      },
+    },
+  },
+} as RoleType
+
 /**
  * 气泡列表视图逻辑：分隔符构建、滚动节流、可见已读收集、跳转闪烁、撤回/引用/重编辑。
  * 组合 useChatReadMarker 负责已读上报。
@@ -41,36 +72,6 @@ export function useChatBubbleList(
 
   const showScrollToBottom = ref<boolean>(false)
   const bubbleListRef = ref<BubbleListRef>()
-
-  const bubbleListRole = {
-    user: {
-      variant: 'filled',
-      placement: 'end',
-      shape: 'corner',
-      classes: {content: 'bg-primary-bg!'},
-    },
-    ai: {
-      variant: 'filled',
-      placement: 'start',
-      shape: 'corner',
-    },
-    system: {
-      variant: 'outlined',
-      shape: 'round',
-      classes: {content: 'text-text-secondary!'},
-    },
-    divider: {
-      dividerProps: {
-        plain: true,
-        dashed: true,
-        size: 'small',
-        classes: {
-          content: 'text-text-secondary! text-xs! font-normal!',
-          root: 'text-text-secondary! text-xs! font-normal! my-xs!',
-        },
-      },
-    },
-  } as RoleType
 
   const bubbleListItems = computed(() =>
     buildBubbleListWithDividers(conversation.value.bubbleList ?? []),

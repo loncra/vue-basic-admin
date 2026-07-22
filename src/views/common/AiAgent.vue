@@ -6,13 +6,18 @@ import LAgentView from "@/components/ai-server/agent/AgentView.vue";
 import {provideAgentChatContext} from "@/composables";
 import {getEnumValue} from "@/utils";
 import {AGENT_CONVERSATION_TYPE} from "@/constants";
-import type {ActiveAgentConversationItem, AgentChatResponseBody} from "@/types/composables";
+import type {ActiveAgentConversationItem} from "@/types/composables";
+import {ref} from "vue";
 
 defineOptions({
   name: 'CommonAiAgent',
 })
 
-const {conversationActive} = provideAgentChatContext({})
+const agentViewRef = ref<InstanceType<typeof LAgentView>>()
+
+const {conversationActive} = provideAgentChatContext({
+  view:agentViewRef
+})
 
 function onSenderSubmit(body: ActiveAgentConversationItem) {
   console.log('onSenderSubmit', body)
@@ -47,6 +52,7 @@ function onSenderSubmit(body: ActiveAgentConversationItem) {
             class="h-full min-h-0 overflow-hidden"
           >
             <l-agent-view
+              ref="agentViewRef"
               @sender-submit="onSenderSubmit"
             />
           </a-splitter-panel>

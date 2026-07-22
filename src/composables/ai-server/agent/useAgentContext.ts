@@ -19,7 +19,7 @@ export function provideAgentChatContext(options:ProvideAgentChatContextOptions):
   const conversationActive = ref<ActiveAgentConversationItem>();
   const conversations = ref<AgentConversationItem[]>([])
 
-  const loader = useAgentMessageLoader()
+  const loader = useAgentMessageLoader(options.view)
 
   async function activateConversation(
     conversation: AgentConversationItem | undefined,

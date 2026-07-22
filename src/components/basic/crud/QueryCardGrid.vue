@@ -38,7 +38,7 @@ import {exportCollectionData} from '@/composables/basic/data/exportCollectionDat
 import {useFlatDragDrop} from '@/composables'
 import {requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
-import LActionButton from '@/components/basic/ActionButton.vue'
+import LActionButton from '@/components/basic/crud/ActionButton.vue'
 
 defineOptions({
   name: 'LQueryCardGrid',

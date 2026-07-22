@@ -7,7 +7,7 @@ import {ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
 import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import type {SearchableColumnType} from "@/types/composables";
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 
 defineOptions({
   name: 'LConsoleUserTableTable',

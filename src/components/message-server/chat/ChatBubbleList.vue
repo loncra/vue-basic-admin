@@ -70,6 +70,7 @@ const {
   onReedit: (content) => emit('reedit', content),
   onReferenceMessage: (message) => emit('referenceMessage', message),
 })
+
 function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
   const data = item.data as UserChatMessageResponseBody
   const items: MenuItemType[] = []

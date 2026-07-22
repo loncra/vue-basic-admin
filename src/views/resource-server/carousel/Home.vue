@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import LCrudCardGrid from "@/components/basic/CrudCardGrid.vue";
-import LActionButton from "@/components/basic/ActionButton.vue";
+import LCrudCardGrid from "@/components/basic/crud/CrudCardGrid.vue";
+import LActionButton from "@/components/basic/crud/ActionButton.vue";
 import {
   type ComponentInternalInstance,
   computed,

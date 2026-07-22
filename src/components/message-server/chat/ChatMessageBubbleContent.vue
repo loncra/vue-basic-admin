@@ -8,7 +8,7 @@ import {getEnumName, getEnumValue} from "@/utils";
 import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useChatCallModalExpose} from "@/composables";
-import LSenderSoldBubbleContent from "@/components/basic/SenderSlotBubbleContent.vue";
+import LSenderSoldBubbleContent from "@/components/basic/chat/SenderSlotBubbleContent.vue";
 
 defineOptions({
   name: 'LChatMessageBubbleContent',

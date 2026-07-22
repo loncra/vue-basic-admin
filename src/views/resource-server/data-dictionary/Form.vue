@@ -9,7 +9,7 @@ import type {
   RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import LBasicForm from "@/components/basic/BasicForm.vue";
+import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";

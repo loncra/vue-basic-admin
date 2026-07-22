@@ -9,7 +9,7 @@ import type {
   RoleSavePayload
 } from "@/types/apis";
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
-import LBasicForm from "@/components/basic/BasicForm.vue";
+import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import {RoleService} from "@/apis/auth-server/roleService.ts";

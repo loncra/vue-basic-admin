@@ -4,7 +4,7 @@ import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, ref} from 'vue';
 import {DatePicker, Input} from 'antdv-next';
 import type {AuditEventEntity} from '@/types/apis/auth-server/auditDomain';
-import LCrudTable from "@/components/basic/CrudTable.vue";
+import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {SearchableColumnType} from "@/types/composables";
 
 defineOptions({

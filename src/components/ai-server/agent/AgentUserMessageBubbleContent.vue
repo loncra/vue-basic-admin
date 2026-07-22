@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import LSenderSoldBubbleContent from "@/components/basic/SenderSlotBubbleContent.vue";
+import LSenderSoldBubbleContent from "@/components/basic/chat/SenderSlotBubbleContent.vue";
 import type {ChatContentBlock} from "@/types/composables";
 
 defineOptions({

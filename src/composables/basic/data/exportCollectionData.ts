@@ -6,7 +6,7 @@ import type {
   RestResult,
   ScrollPageResult
 } from '@/types/apis'
-import type {CollectionService} from '@/types/composables/collection'
+import type {CollectionService} from '@/types/composables/crud/collection.ts'
 
 export async function exportCollectionData<
   TBody extends BasicIdMetadata<TId>,

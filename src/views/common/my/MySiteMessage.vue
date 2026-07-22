@@ -21,7 +21,7 @@ import type {
 import {useMessageServerStore} from "@/stores/messageServerStore.js";
 import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
-import LActionButton from "@/components/basic/ActionButton.vue";
+import LActionButton from "@/components/basic/crud/ActionButton.vue";
 import type {ResolvedAction} from "@/types/composables";
 import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
 
