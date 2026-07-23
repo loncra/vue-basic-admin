@@ -594,7 +594,10 @@ const locale: LanguagePack = {
       title:'工作空间',
       createPlaceholder:'工作空间名称',
     },
-    assistant:'助手',
+    welcome: {
+      title:'你好，我是 Captain.J',
+      description:'今天有什么需要干的吗？'
+    },
     view: {
       placeholder:'向智能体提问…',
     },

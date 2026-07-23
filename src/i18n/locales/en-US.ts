@@ -598,9 +598,12 @@ const locale: LanguagePack = {
     creation: 'Create agent',
     workspace:{
       title:'Workspace',
-      createPlaceholder:'workspace name',
+      createPlaceholder: 'workspace name',
     },
-    assistant: 'Assistant',
+    welcome: {
+      title: 'Hello, I am Captain.J',
+      description: 'What do you need to do today?'
+    },
     view: {
       placeholder: 'Ask the agent…',
     },

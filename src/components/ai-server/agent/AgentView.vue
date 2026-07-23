@@ -87,8 +87,8 @@ defineExpose({
       <a-flex v-else justify="center" align="center" class="size-full">
         <ax-welcome
           variant="borderless"
-          title="你好，我是 Captain.J"
-          description="今天有什么需要干的吗？"
+          :title="$t('agent.welcome.title')"
+          :description="$t('agent.welcome.description')"
         >
           <template #icon>
             <icon-font class="text-5xl" type="icon-xiaojiage-a" />
