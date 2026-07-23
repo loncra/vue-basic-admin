@@ -125,6 +125,5 @@ function stringify(value: unknown): string {
       escape-raw-html
     />
     <a-alert v-if="errorText" type="error" show-icon :message="errorText" />
-    <a-spin v-if="!answerText && !errorText && thoughtItems.length === 0" size="small" />
   </a-flex>
 </template>

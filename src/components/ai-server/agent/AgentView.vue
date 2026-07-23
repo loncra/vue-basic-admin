@@ -9,8 +9,7 @@ import LAgentUserMessageBubbleContent
 import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
-import {useAgentView} from '@/composables'
-import {DEFAULT_BUBBLE_LIST_ROLE} from '@/composables/chat/useBubbleList.ts'
+import {useAgentView, createAgentBubbleListRole} from '@/composables'
 
 defineOptions({
   name: 'LAgentView',
@@ -57,7 +56,7 @@ defineExpose({
         v-if="conversationActive && hasMessages"
         ref="bubbleListRef"
         :session="conversationActive"
-        :role="DEFAULT_BUBBLE_LIST_ROLE"
+        :role="createAgentBubbleListRole()"
         @load-page="onLoadPage"
       >
         <template #avatar="{ item }">

@@ -23,6 +23,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 import {navigateAfterMessageSend} from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
+import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'MessageServerSmsForm',
@@ -178,7 +179,7 @@ onMounted(mounted);
                 <template #optionRender="{ option }">
                   <template v-if="option.data.payload">
                     <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.phoneNumberVerified)})">
-                      <a-typography-text :type="getEnumValue(option.data?.payload.phoneNumberVerified) === 1 ? 'success' : 'warning'">
+                      <a-typography-text :type="getEnumValue(option.data?.payload.phoneNumberVerified) === YES_OR_NO_TYPE.YES ? 'success' : 'warning'">
                         {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload) }}
                         ({{ option.data?.payload?.phoneNumber }})
                       </a-typography-text>

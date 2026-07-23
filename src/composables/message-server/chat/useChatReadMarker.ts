@@ -5,6 +5,7 @@ import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 import {getEnumValue} from '@/utils'
+import {YES_OR_NO_TYPE} from "@/constants";
 
 /**
  * 可见消息已读上报队列。
@@ -29,7 +30,7 @@ export function useChatReadMarker(conversation: Ref<UserChatConversationActivePr
     if (readable === undefined) {
       return false
     }
-    return getEnumValue(readable) === 1 && message.principal !== principalStore.state.name
+    return getEnumValue(readable) === YES_OR_NO_TYPE.YES && message.principal !== principalStore.state.name
   }
 
   /** 将一批可见的可读消息纳入已读队列并触发提交 */

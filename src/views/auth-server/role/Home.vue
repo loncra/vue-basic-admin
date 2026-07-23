@@ -9,13 +9,14 @@ import {getEnumValue} from "@/utils";
 import type {RoleEntity} from '@/types/apis/auth-server/roleDomain';
 
 import type {ActionDefinition} from '@/types/composables';
+import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'AuthServerRoleHome'
 })
 
 const getCheckboxProps: NonNullable<TableProps['rowSelection']>['getCheckboxProps'] = (record) => ({
-  disabled: getEnumValue(record.removable) === 0,
+  disabled: getEnumValue(record.removable) === YES_OR_NO_TYPE.NO,
 })
 
 const rowSelection: NonNullable<TableProps['rowSelection']> = {
@@ -27,11 +28,11 @@ const rowSelection: NonNullable<TableProps['rowSelection']> = {
 const rowActions: ActionDefinition<RoleEntity>[] = [
   {
     id: 'edit',
-    visible: (ctx) => getEnumValue(ctx.record!.modifiable) !== 0,
+    visible: (ctx) => getEnumValue(ctx.record!.modifiable) !== YES_OR_NO_TYPE.NO,
   },
   {
     id: 'delete',
-    visible: (ctx) => getEnumValue(ctx.record!.removable) !== 0,
+    visible: (ctx) => getEnumValue(ctx.record!.removable) !== YES_OR_NO_TYPE.NO,
   },
 ]
 

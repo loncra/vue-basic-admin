@@ -16,9 +16,11 @@ export {
 } from './useAgentMessageLoader.ts'
 
 export {
-  useAgentView
-} from './userAgentView.ts'
-
-export {
   useAgentStream
 } from './useAgentStream.ts'
+
+export {
+  createAgentBubbleListRole,
+  isAgentAssistantBubbleLoading,
+  useAgentView,
+} from './userAgentView.ts'

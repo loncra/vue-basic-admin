@@ -144,3 +144,8 @@ export const CHAT_BUBBLE_TYPE = {
   USER:'user',
   DIVIDER:"divider"
 } as const
+
+export const YES_OR_NO_TYPE = {
+  YES:1,
+  NO:0
+} as const

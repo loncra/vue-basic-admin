@@ -1,6 +1,6 @@
 import {provideChatCallExpose, useSocketSubscriptions} from "@/composables";
 import type {UseChatNotificationParam} from "@/types/composables";
-import {MESSAGE_GROUP, SOCKET_EVENT_TYPE} from "@/constants";
+import {MESSAGE_GROUP, SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {
   IdValueMetadata,
@@ -66,7 +66,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
     let description: string = getMessageContent(result.data, body)
     let duration = configProviderStore.state.notificationConfig.duration;
     let messageId = undefined
-    if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE && getEnumValue(body.muted) !== 0) {
+    if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE && getEnumValue(body.muted) !== YES_OR_NO_TYPE.NO) {
       return
     } else if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION) {
       const message = result.data

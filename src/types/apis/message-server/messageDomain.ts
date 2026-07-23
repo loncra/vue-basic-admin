@@ -70,7 +70,7 @@ export interface BatchResponse {
 }
 
 export interface MyMessageState {
-  record?:Record<MessageGroup, Record<number,unknown>> | undefined
+  record?:Partial<Record<MessageGroup, Record<number, unknown>>> | undefined
   siteTypes?:IdNameMetadata[]
 }
 

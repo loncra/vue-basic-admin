@@ -120,6 +120,8 @@ export type ChatBubbleItem = {
   data?: BaseChatBubble
   hide?: boolean
   flashPending?: boolean
+  /** ax-bubble loading；Agent 也可由 role 函数动态计算 */
+  loading?: boolean
 }
 
 /**
@@ -149,10 +151,10 @@ export interface BubbleListCallbacks {
    * 参数为当前视口内全部非 divider 气泡，业务方自行过滤。
    */
   onVisibleItems?: (items: ChatBubbleItem[], scrollBox: HTMLElement) => void
+  renderItem:(items:ChatBubbleItem[]) => BubbleItemType[]
 }
 
 /** IM 气泡列表配置（含时间分隔间隔） */
 export type ChatBubbleListProps = BubbleListProps & {
-  timeDividerGap?: number
-  throttleCollectVisibleUnreadWait?: number
+  timeDividerGap: number
 }

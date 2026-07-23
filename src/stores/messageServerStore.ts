@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {MESSAGE_GROUP, STORE} from "@/constants";
+import {MESSAGE_GROUP, STORE, YES_OR_NO_TYPE} from "@/constants";
 import {computed, ref} from "vue";
 import type {
   IdNameMetadata,
@@ -48,7 +48,8 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
     return $reset()
   }
 
-  async function fetchUnreadQuantity():Promise<Record<MessageGroup, Record<number, unknown>> | undefined> {
+  async function fetchUnreadQuantity(): Promise<Partial<Record<MessageGroup, Record<number, unknown>>> | undefined> {
+
     if (install.value) {
       return state.value.record;
     }
@@ -81,7 +82,7 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
       return Number(record?.[Number(key)]) || 0
     } else if (group === MESSAGE_GROUP.USER_CHAT) {
       const item = (record?.[Number(key)] as UserChatUnreadItem)
-      if (getEnumValue(item.muted) === 1) {
+      if (getEnumValue(item.muted) === YES_OR_NO_TYPE.YES) {
         return 0
       }
       return (record?.[Number(key)] as {count:number})?.count || 0

@@ -12,15 +12,14 @@ defineOptions({
 const props = withDefaults(
   defineProps<{
     session: ActiveChatSession
-    /** 外部已投影的 items（如 IM 时间分隔）；缺省由 session 自动投影 */
-    items?: BubbleItemType[]
     /** 为 true 时启用可见区探测（IM 已读）；Agent 保持 false */
     collectVisible?: boolean
     scrollToBottomThreshold?: number
     throttleOnScrollWait?: number
     throttleCollectVisibleWait?: number
     topThreshold?: number
-    role?: RoleType
+    role?: RoleType,
+    renderItem?:(items:ChatBubbleItem[]) => BubbleItemType[]
   }>(),
   {
     collectVisible: false,
@@ -28,6 +27,7 @@ const props = withDefaults(
     throttleOnScrollWait: 300,
     topThreshold: 250,
     scrollToBottomThreshold: 100,
+    renderItem:(items:ChatBubbleItem[]) => [...items.filter((s) => !s.hide)]
   },
 )
 
@@ -38,7 +38,6 @@ const emit = defineEmits<{
 }>()
 
 const sessionRef = toRef(props, 'session')
-const itemsRef = toRef(props, 'items')
 
 const listProps = computed(() => ({
   scrollToBottomThreshold: props.scrollToBottomThreshold,
@@ -53,6 +52,7 @@ const callbacks: BubbleListCallbacks = {
   onVisibleItems: props.collectVisible
     ? (items, scrollBox) => emit('visibleItems', items, scrollBox)
     : undefined,
+  renderItem:props.renderItem
 }
 
 const {
@@ -66,7 +66,7 @@ const {
   getVisibleItems,
   getScrollBox,
   scrollTo,
-} = useBubbleList(sessionRef, listProps, callbacks, itemsRef)
+} = useBubbleList(sessionRef, listProps, callbacks)
 
 const resolvedRole = computed(() => props.role ?? bubbleListRole ?? DEFAULT_BUBBLE_LIST_ROLE)
 

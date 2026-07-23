@@ -20,6 +20,7 @@ import type {
   NameValueEnumMetadata,
   RestResult
 } from "@/types/apis";
+import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LSiteTable',
@@ -175,7 +176,7 @@ onMounted(mounted)
         {{dateTimeFormat(record.readTime)}}
       </template>
       <template v-if="column.dataIndex === 'pushable'">
-        <a-tooltip v-if="getEnumValue(record.pushable) === 1">
+        <a-tooltip v-if="getEnumValue(record.pushable) === YES_OR_NO_TYPE.YES">
           <template #title>
             {{globalProperties.$t('messageServer.site.channel')}}:{{getChannelsName(record.channels)}}
           </template>

@@ -17,6 +17,7 @@ import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LChatMessageReadTable',
@@ -41,13 +42,13 @@ const loading = ref<boolean>(false);
 const segmented = computed(() =>{
   return [
     {
-      label: globalProperties.$t('common.read.unreadable', {count:'(' + dataSource.value.filter((item) => getEnumValue(item.readable) === 0).length + ')'}),
+      label: globalProperties.$t('common.read.unreadable', {count:'(' + dataSource.value.filter((item) => getEnumValue(item.readable) === YES_OR_NO_TYPE.NO).length + ')'}),
       value: '0',
       icon: createIcon('loncra-eye', 'align')
     },
     {
       value: '1',
-      label: globalProperties.$t('common.read.readable', {count:'(' + dataSource.value.filter((item) => getEnumValue(item.readable) === 1).length + ')'}),
+      label: globalProperties.$t('common.read.readable', {count:'(' + dataSource.value.filter((item) => getEnumValue(item.readable) === YES_OR_NO_TYPE.YES).length + ')'}),
       icon: createIcon('loncra-eye-off', 'align')
     }
   ]

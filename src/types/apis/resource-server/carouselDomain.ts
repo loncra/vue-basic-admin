@@ -59,5 +59,5 @@ export interface CarouselEntity extends CarouselSavePayload {
   /**
    * 状态
    */
-  status?: NameValueEnumMetadata<number> | number;
+  status: NameValueEnumMetadata<number> | number;
 }

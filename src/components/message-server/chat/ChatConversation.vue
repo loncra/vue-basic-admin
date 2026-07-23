@@ -28,6 +28,7 @@ import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.
 import type {MenuItemType} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
 import {useChatContext, useConversationActions} from "@/composables/message-server/chat";
+import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LChatConversation',
@@ -67,7 +68,7 @@ const DEFAULT_MENU_ITEMS = computed<MenuItemType[]>(() => [
 
 function createMenu(item:UserChatConversationResponseBody):MenuItemType[] {
   const temp = [...DEFAULT_MENU_ITEMS.value]
-  if (getEnumValue(item.muted) === 0) {
+  if (getEnumValue(item.muted) === YES_OR_NO_TYPE.NO) {
     temp.unshift({
       label: globalProperties.$t("chat.muted.action"),
       key: 'muted',
@@ -80,7 +81,7 @@ function createMenu(item:UserChatConversationResponseBody):MenuItemType[] {
       icon:createIcon('loncra-megaphone', 'text-lg'),
     })
   }
-  if (getEnumValue(item.pinned) === 0) {
+  if (getEnumValue(item.pinned) === YES_OR_NO_TYPE.NO) {
     temp.unshift({
       label: globalProperties.$t("chat.pinned.action"),
       key: 'pinned',

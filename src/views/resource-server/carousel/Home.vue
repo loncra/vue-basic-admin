@@ -143,7 +143,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     {
       id: 'release',
       permission: 'perms[resource_server_carousel:release]',
-      enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 20,
+      enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
       label: () => globalProperties.$t('common.release.text'),
       icon: () => createIcon('loncra-screen-share'),
       run: (ctx) => release([Number(ctx.record!.id)]),
@@ -151,7 +151,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     {
       id: 'revoke',
       permission: 'perms[resource_server_carousel:revoke]',
-      enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) === 20,
+      enabled: (ctx) => getEnumValue(ctx.record!.status) === 20,
       label: () => globalProperties.$t('common.revoke.text'),
       icon: () => createIcon('loncra-screen-share-off'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
@@ -159,7 +159,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     {
       id: 'edit',
       permission: carouselAuthority.edit,
-      enabled: (ctx) => getEnumValue(ctx.record!.status ?? 0) !== 20,
+      enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
       label: () => globalProperties.$t('common.edit'),
       icon: () => createIcon('loncra-file-pen-line'),
       run: (ctx) => {

@@ -21,14 +21,13 @@ import {Space, StatisticTimer} from 'antdv-next'
 import useApp from 'antdv-next/dist/app/useApp'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {CHAT_BUBBLE_TYPE} from '@/constants'
+import {CHAT_BUBBLE_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'
-import {DEFAULT_BUBBLE_LIST_ROLE, getBubbleMessageTime,} from '@/composables/chat/useBubbleList.ts'
+import {DEFAULT_BUBBLE_LIST_ROLE, } from '@/composables/chat/useBubbleList.ts'
 
-const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
-const UNDO_NOT_UNDONE = 0
-const MENU_KEY_REFERENCE = 'reference'
-const MENU_KEY_UNDO = 'undo'
+function getBubbleMessageTime(item: ChatBubbleItem): number {
+  return item.data?.creationTime ?? 0
+}
 
 /**
  * IM 气泡列表业务层：已读上报、撤回/引用/重编辑、右键菜单。
@@ -36,7 +35,7 @@ const MENU_KEY_UNDO = 'undo'
  */
 export function useChatBubbleList(
   conversation: Ref<UserChatConversationActiveProps>,
-  props: ChatBubbleListProps,
+  props: Ref<ChatBubbleListProps>,
   callbacks: ChatBubbleListCallbacks,
 ) {
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
@@ -46,23 +45,8 @@ export function useChatBubbleList(
   const {message, modal} = useApp()
   const readMarker = useChatReadMarker(conversation)
 
-  const listProps = computed(() => ({
-    scrollToBottomThreshold: props.scrollToBottomThreshold,
-    throttleOnScrollWait: props.throttleOnScrollWait,
-    throttleCollectVisibleWait: props.throttleCollectVisibleWait ?? 500,
-    topThreshold: props.topThreshold,
-  }))
-
-  const bubbleListItems = computed(() =>
-    buildBubbleListWithDividers(
-      conversation.value.dataSource.elements ?? [],
-      props.timeDividerGap ?? TIME_DIVIDER_GAP_MS,
-    ),
-  )
-
   function buildBubbleListWithDividers(
-    messages: ChatBubbleItem[],
-    timeDividerGap: number,
+    messages: ChatBubbleItem[]
   ): BubbleItemType[] {
     const sorted = [...messages.filter((s) => !s.hide)].sort(
       (a, b) => getBubbleMessageTime(a) - getBubbleMessageTime(b),
@@ -72,7 +56,7 @@ export function useChatBubbleList(
     for (const msg of sorted) {
       const msgTime = getBubbleMessageTime(msg)
       const needDivider =
-        result.length === 0 || (msgTime > 0 && msgTime - lastDividerTime >= timeDividerGap)
+        result.length === 0 || (msgTime > 0 && msgTime - lastDividerTime >= props.value.timeDividerGap)
       if (needDivider && msgTime > 0) {
         result.push({
           key: `divider-${String(msg.key)}-${msgTime}`,
@@ -141,9 +125,9 @@ export function useChatBubbleList(
   function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
     const data = item.data as UserChatMessageResponseBody
     const items: MenuItemType[] = []
-    if (getEnumValue(data?.undo) === UNDO_NOT_UNDONE) {
+    if (getEnumValue(data?.undo) === YES_OR_NO_TYPE.NO) {
       items.push({
-        key: MENU_KEY_REFERENCE,
+        key: "reference",
         label: globalProperties.$t('chat.view.reference'),
         icon: createIcon('loncra-text-quote', 'text-lg'),
       })
@@ -168,7 +152,7 @@ export function useChatBubbleList(
         })
         const label = h(Space, {}, [globalProperties.$t('chat.view.undo.action'), timer])
         items.push({
-          key: MENU_KEY_UNDO,
+          key: "undo",
           label: label,
           icon: createIcon('loncra-undo', 'text-lg'),
           danger: true,
@@ -182,9 +166,9 @@ export function useChatBubbleList(
 
   function onMessageMenuClick(e: {key: string}, item: ChatBubbleItem): void {
     const data = item.data as UserChatMessageResponseBody
-    if (e.key === MENU_KEY_REFERENCE) {
+    if (e.key === "reference") {
       addRefMessage(data)
-    } else if (e.key === MENU_KEY_UNDO) {
+    } else if (e.key === "undo") {
       onUndoMessage(data)
     }
   }
@@ -204,8 +188,7 @@ export function useChatBubbleList(
 
   return {
     session: conversation,
-    listProps,
-    bubbleListItems,
+    buildBubbleListWithDividers,
     bubbleListRole: DEFAULT_BUBBLE_LIST_ROLE,
     onVisibleItems,
     reedit,

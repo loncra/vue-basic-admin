@@ -37,25 +37,6 @@ export const DEFAULT_BUBBLE_LIST_ROLE = {
     },
   },
 } as RoleType
-
-export function getBubbleMessageTime(item: ChatBubbleItem): number {
-  return item.data?.id ?? 0
-}
-
-/** 无业务投影：过滤 hide、按时间稳定升序、闪烁 class。不含时间分隔。 */
-export function projectBubbleItems(messages: ChatBubbleItem[]): BubbleItemType[] {
-  return [...messages.filter((s) => !s.hide)]
-  /*return [...messages.filter((s) => !s.hide)]
-    .sort((a, b) => getBubbleMessageTime(b) - getBubbleMessageTime(a))
-    .map(
-      (msg) =>
-        ({
-          ...msg,
-          rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
-        }) as BubbleItemType,
-    )*/
-}
-
 /**
  * 无业务气泡列表：滚动分页、跳转闪烁、可见区探测。
  * 直接消费 ActiveChatSession；可选外部 items（如 IM 带时间分隔的列表）。
@@ -63,8 +44,7 @@ export function projectBubbleItems(messages: ChatBubbleItem[]): BubbleItemType[]
 export function useBubbleList(
   session: MaybeRefOrGetter<ActiveChatSession>,
   listProps: MaybeRefOrGetter<BubbleListProps>,
-  callbacks: BubbleListCallbacks,
-  items?: MaybeRefOrGetter<BubbleItemType[] | undefined>,
+  callbacks: BubbleListCallbacks
 ) {
   const showScrollToBottom = ref(false)
   const bubbleListRef = ref<BubbleListRef>()
@@ -89,13 +69,7 @@ export function useBubbleList(
     return !getSession().dataSource.first
   }
 
-  const bubbleListItems = computed(() => {
-    const external = items !== undefined ? toValue(items) : undefined
-    if (external !== undefined) {
-      return external
-    }
-    return projectBubbleItems(getItems())
-  })
+  const bubbleListItems = computed(() => callbacks.renderItem(getItems()))
 
   const handleThrottleBubbleScroll = throttle(
     throttleBubbleScroll,

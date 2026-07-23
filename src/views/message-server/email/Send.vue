@@ -18,6 +18,7 @@ import {
   navigateAfterMessageSend
 } from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
+import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'MessageServerEmailSend',
@@ -95,7 +96,7 @@ onMounted(mounted);
               <template #optionRender="{ option }">
                 <template v-if="option.data.payload">
                   <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.emailVerified)})">
-                    <a-typography-text :type="getEnumValue(option.data?.payload.emailVerified) === 1 ? 'success' : 'warning'">
+                    <a-typography-text :type="getEnumValue(option.data?.payload.emailVerified) === YES_OR_NO_TYPE.YES ? 'success' : 'warning'">
 
                       {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload) }}
                       ({{ option.data?.payload?.email }})
