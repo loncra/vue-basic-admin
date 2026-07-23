@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {Welcome as AxWelcome} from '@antdv-next/x'
-import {XMarkdown} from '@antdv-next/x-markdown'
-import '@antdv-next/x-markdown/themes/index.css'
-import '@antdv-next/x-markdown/themes/light.css'
 import {CHAT_BUBBLE_TYPE} from '@/constants'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import LAgentUserMessageBubbleContent
   from '@/components/ai-server/agent/AgentUserMessageBubbleContent.vue'
+import LAgentAssistantBubbleContent
+  from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import {useAgentView} from '@/composables'
 import {DEFAULT_BUBBLE_LIST_ROLE} from '@/composables/chat/useBubbleList.ts'
@@ -71,14 +70,15 @@ defineExpose({
             <icon-font type="icon-xiaojiage-a" />
           </a-avatar>
         </template>
-        <template #contentRender="{ item, content }">
-          <x-markdown
-            v-if="item.role === CHAT_BUBBLE_TYPE.AI && typeof content === 'string'"
-            :content="content"
-            open-links-in-new-tab
-            escape-raw-html
+        <template #contentRender="{ item }">
+          <l-agent-assistant-bubble-content
+            v-if="item.role === CHAT_BUBBLE_TYPE.AI"
+            :content="item.content"
           />
-          <l-agent-user-message-bubble-content v-else :content="item.content" />
+          <l-agent-user-message-bubble-content
+            v-else
+            :content="Array.isArray(item.content) ? item.content : []"
+          />
         </template>
         <template v-if="$slots.bubbleListAfter" #bubbleListAfter>
           <slot name="bubbleListAfter" />

@@ -36,6 +36,32 @@ export function isResultSuccess<T>(
 }
 
 /**
+ * 组装与 axios 拦截器一致的鉴权/设备请求头（供 XRequest 等非 axios 客户端复用）。
+ */
+export function buildAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {}
+  const dataVersionName = import.meta.env.VITE_APP_HEADER_DATA_VERSION_NAME
+  const dataVersionValue = import.meta.env.VITE_APP_HEADER_DATA_VERSION_VALUE
+  const deviceIdStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_DEVICE_IDENTIFIED_NAME
+  const deviceIdHeaderName = import.meta.env.VITE_APP_HEADER_DEVICE_IDENTIFIED_HEADER_NAME
+  const accessTokenHeaderName = import.meta.env.VITE_APP_HEADER_ACCESS_TOKEN_HEADER_NAME
+  const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
+
+  if (dataVersionName && dataVersionValue) {
+    headers[dataVersionName] = dataVersionValue
+  }
+  const deviceId = localStorage.getItem(deviceIdStorageName)
+  if (deviceId && deviceIdHeaderName) {
+    headers[deviceIdHeaderName] = deviceId
+  }
+  const accessToken = localStorage.getItem(accessTokenStorageName)
+  if (accessToken && accessTokenHeaderName) {
+    headers[accessTokenHeaderName] = accessToken
+  }
+  return headers
+}
+
+/**
  * HTTP 请求拦截器
  * 在发送请求前，自动添加必要的请求头信息
  * 包括数据版本号和设备标识等
@@ -44,28 +70,10 @@ export function isResultSuccess<T>(
  * @returns 添加了请求头后的配置对象
  */
 function requestInterceptor(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
-  // 获取环境变量中的配置项名称
-  const dataVersionName = import.meta.env.VITE_APP_HEADER_DATA_VERSION_NAME
-  const dataVersionValue = import.meta.env.VITE_APP_HEADER_DATA_VERSION_VALUE
-  const deviceIdStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_DEVICE_IDENTIFIED_NAME
-  const deviceIdHeaderName = import.meta.env.VITE_APP_HEADER_DEVICE_IDENTIFIED_HEADER_NAME
-  const accessTokenHeaderName = import.meta.env.VITE_APP_HEADER_ACCESS_TOKEN_HEADER_NAME
-  const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
-
-  // 添加数据版本号请求头（用于 API 版本控制）
-  config.headers[dataVersionName] = dataVersionValue
-
-  // 从本地存储获取设备标识，如果存在则添加到请求头
-  const deviceId = localStorage.getItem(deviceIdStorageName)
-  if (deviceId) {
-    config.headers[deviceIdHeaderName] = deviceId
-  }
-
-  const accessToken = localStorage.getItem(accessTokenStorageName)
-  if (accessToken) {
-    config.headers[accessTokenHeaderName] = accessToken
-  }
-
+  const headers = buildAuthHeaders()
+  Object.entries(headers).forEach(([key, value]) => {
+    config.headers[key] = value
+  })
   return config
 }
 

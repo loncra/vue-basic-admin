@@ -52,6 +52,34 @@ export interface TextBlock {
   value: string
 }
 
+export interface AgentThinkBlock {
+  type: 'think'
+  id: string
+  value?: string
+}
+
+export interface AgentToolBlock {
+  type: 'tool'
+  id: string
+  name?: string
+  input?: unknown
+  output?: unknown
+  status?: string
+  resultState?: string
+}
+
+export interface AgentAnswerBlock {
+  type: 'answer'
+  id: string
+  value?: string
+}
+
+export interface AgentErrorBlock {
+  type: 'error'
+  id: string
+  value?: string
+}
+
 export type ChatContentBlock =
   | AttachmentBlock
   | TextBlock
@@ -59,6 +87,10 @@ export type ChatContentBlock =
   | UndoBlock
   | InstructionBlock
   | CallBlock
+  | AgentThinkBlock
+  | AgentToolBlock
+  | AgentAnswerBlock
+  | AgentErrorBlock
 
 export type FilesSlotProps = {
   slotKind: 'files'
@@ -107,7 +139,6 @@ export interface BubbleListProps {
   /** 可见区回调节流；仅当提供 onVisibleItems 时生效 */
   throttleCollectVisibleWait: number
   topThreshold: number
-  timeDividerGap: number
 }
 
 export interface BubbleListCallbacks {
@@ -120,7 +151,8 @@ export interface BubbleListCallbacks {
   onVisibleItems?: (items: ChatBubbleItem[], scrollBox: HTMLElement) => void
 }
 
-/** @deprecated 使用 BubbleListProps */
+/** IM 气泡列表配置（含时间分隔间隔） */
 export type ChatBubbleListProps = BubbleListProps & {
+  timeDividerGap?: number
   throttleCollectVisibleUnreadWait?: number
 }

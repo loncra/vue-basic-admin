@@ -19,6 +19,7 @@
     "@antdv-next/x": "^1.1.2",
     "@antdv-next/x-card": "^0.0.1",
     "@antdv-next/x-markdown": "^0.1.0",
+    "@antdv-next/x-sdk": "^0.0.2",
     "@tailwindcss/vite": "^4.1.18",
     "@tiptap/extension-image": "^3.23.6",
     "@tiptap/extension-placeholder": "^3.23.6",

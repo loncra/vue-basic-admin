@@ -8,13 +8,14 @@ import {
   watch,
 } from 'vue'
 import type {
-  BubbleListProps,
   ChatBubbleItem,
   ChatBubbleListCallbacks,
+  ChatBubbleListProps,
   ChatContentBlock,
   UserChatConversationActiveProps,
 } from '@/types/composables'
 import type {RestResult, UserChatMessageResponseBody} from '@/types/apis'
+import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import type {MenuItemType} from 'antdv-next'
 import {Space, StatisticTimer} from 'antdv-next'
 import useApp from 'antdv-next/dist/app/useApp'
@@ -22,7 +23,7 @@ import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE} from '@/constants'
 import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'
-import {DEFAULT_BUBBLE_LIST_ROLE} from '@/composables/chat/useBubbleList.ts'
+import {DEFAULT_BUBBLE_LIST_ROLE, getBubbleMessageTime,} from '@/composables/chat/useBubbleList.ts'
 
 const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
 const UNDO_NOT_UNDONE = 0
@@ -35,7 +36,7 @@ const MENU_KEY_UNDO = 'undo'
  */
 export function useChatBubbleList(
   conversation: Ref<UserChatConversationActiveProps>,
-  props: BubbleListProps,
+  props: ChatBubbleListProps,
   callbacks: ChatBubbleListCallbacks,
 ) {
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
@@ -50,8 +51,43 @@ export function useChatBubbleList(
     throttleOnScrollWait: props.throttleOnScrollWait,
     throttleCollectVisibleWait: props.throttleCollectVisibleWait ?? 500,
     topThreshold: props.topThreshold,
-    timeDividerGap: props.timeDividerGap ?? TIME_DIVIDER_GAP_MS,
   }))
+
+  const bubbleListItems = computed(() =>
+    buildBubbleListWithDividers(
+      conversation.value.dataSource.elements ?? [],
+      props.timeDividerGap ?? TIME_DIVIDER_GAP_MS,
+    ),
+  )
+
+  function buildBubbleListWithDividers(
+    messages: ChatBubbleItem[],
+    timeDividerGap: number,
+  ): BubbleItemType[] {
+    const sorted = [...messages.filter((s) => !s.hide)].sort(
+      (a, b) => getBubbleMessageTime(a) - getBubbleMessageTime(b),
+    )
+    const result: BubbleItemType[] = []
+    let lastDividerTime = 0
+    for (const msg of sorted) {
+      const msgTime = getBubbleMessageTime(msg)
+      const needDivider =
+        result.length === 0 || (msgTime > 0 && msgTime - lastDividerTime >= timeDividerGap)
+      if (needDivider && msgTime > 0) {
+        result.push({
+          key: `divider-${String(msg.key)}-${msgTime}`,
+          role: 'divider',
+          content: globalProperties.$dayjs(msgTime).fromNow(),
+        })
+        lastDividerTime = msgTime
+      }
+      result.push({
+        ...msg,
+        rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
+      } as BubbleItemType)
+    }
+    return result
+  }
 
   function isActiveForRead(): boolean {
     return document.visibilityState === 'visible' && document.hasFocus()
@@ -169,6 +205,7 @@ export function useChatBubbleList(
   return {
     session: conversation,
     listProps,
+    bubbleListItems,
     bubbleListRole: DEFAULT_BUBBLE_LIST_ROLE,
     onVisibleItems,
     reedit,

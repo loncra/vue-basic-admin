@@ -2,25 +2,24 @@
 import {computed, toRef} from 'vue'
 import type {ActiveChatSession, BubbleListCallbacks, ChatBubbleItem} from '@/types/composables'
 import {BubbleList as AxBubbleList} from '@antdv-next/x'
-import type {RoleType} from '@antdv-next/x/dist/bubble/interface'
+import type {BubbleItemType, RoleType} from '@antdv-next/x/dist/bubble/interface'
 import {DEFAULT_BUBBLE_LIST_ROLE, useBubbleList} from '@/composables/chat/useBubbleList.ts'
 
 defineOptions({
   name: 'LBubbleList',
 })
 
-const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
-
 const props = withDefaults(
   defineProps<{
     session: ActiveChatSession
+    /** 外部已投影的 items（如 IM 时间分隔）；缺省由 session 自动投影 */
+    items?: BubbleItemType[]
     /** 为 true 时启用可见区探测（IM 已读）；Agent 保持 false */
     collectVisible?: boolean
     scrollToBottomThreshold?: number
     throttleOnScrollWait?: number
     throttleCollectVisibleWait?: number
     topThreshold?: number
-    timeDividerGap?: number
     role?: RoleType
   }>(),
   {
@@ -29,7 +28,6 @@ const props = withDefaults(
     throttleOnScrollWait: 300,
     topThreshold: 250,
     scrollToBottomThreshold: 100,
-    timeDividerGap: TIME_DIVIDER_GAP_MS,
   },
 )
 
@@ -40,13 +38,13 @@ const emit = defineEmits<{
 }>()
 
 const sessionRef = toRef(props, 'session')
+const itemsRef = toRef(props, 'items')
 
 const listProps = computed(() => ({
   scrollToBottomThreshold: props.scrollToBottomThreshold,
   throttleOnScrollWait: props.throttleOnScrollWait,
   throttleCollectVisibleWait: props.throttleCollectVisibleWait,
   topThreshold: props.topThreshold,
-  timeDividerGap: props.timeDividerGap,
 }))
 
 const callbacks: BubbleListCallbacks = {
@@ -68,7 +66,7 @@ const {
   getVisibleItems,
   getScrollBox,
   scrollTo,
-} = useBubbleList(sessionRef, listProps, callbacks)
+} = useBubbleList(sessionRef, listProps, callbacks, itemsRef)
 
 const resolvedRole = computed(() => props.role ?? bubbleListRole ?? DEFAULT_BUBBLE_LIST_ROLE)
 

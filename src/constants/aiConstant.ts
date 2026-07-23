@@ -16,6 +16,28 @@ export const AGENT_CHAT_STATUS = {
   FAILED:40
 } as const
 
+/** 助手消息 content 块 type（对齐后端 AgentContentType） */
+export const AGENT_CONTENT_TYPE = {
+  THINK: 'think',
+  TOOL: 'tool',
+  ANSWER: 'answer',
+  ERROR: 'error',
+} as const
+
+/** SSE 事件名（对齐后端 AgentSseEventType） */
+export const AGENT_SSE_EVENT = {
+  SNAPSHOT: 'snapshot',
+  PATCH: 'patch',
+  DONE: 'done',
+} as const
+
+/** 助手 content 中 tool 块 status */
+export const AGENT_TOOL_BLOCK_STATUS = {
+  RUNNING: 'running',
+  DONE: 'done',
+  FAILED: 'failed',
+} as const
+
 export const AGENT_CHAT_STATUS_STYLE = {
   [AGENT_CHAT_STATUS.READY]: {
     icon: 'loncra-fish',

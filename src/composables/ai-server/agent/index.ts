@@ -18,3 +18,7 @@ export {
 export {
   useAgentView
 } from './userAgentView.ts'
+
+export {
+  useAgentStream
+} from './useAgentStream.ts'

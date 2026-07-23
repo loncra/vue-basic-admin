@@ -15,14 +15,21 @@ export interface AgentConversationItem extends AgentConversationEntity {
 export interface ActiveAgentConversationItem
   extends AgentConversationItem, ActiveChatSession {}
 
+export type AgentStreamApi = {
+  connect: (assistantId: number) => void
+  disconnect: () => void
+  reconnectIfRunning: () => void
+}
+
 export interface AgentChatContext {
   conversationActive: Ref<ActiveAgentConversationItem | undefined>
   conversations: Ref<AgentConversationItem[]>
   activateConversation: (
     conversation: AgentConversationItem | undefined,
     messageId?: number,
-  ) => void
+  ) => void | Promise<ActiveAgentConversationItem | undefined>
   loader: AgentMessageLoaderApi
+  stream: AgentStreamApi
 }
 
 export type AgentChatStatus = (typeof AGENT_CHAT_STATUS)[keyof typeof AGENT_CHAT_STATUS]
@@ -68,6 +75,14 @@ export interface AgentChatRequestBody extends AgentSenderFormProps {
 export interface AgentChatResponseBody {
   conversation: AgentConversationEntity
   userMessageId: number
+  assistantId: number
+}
+
+export interface AgentStreamPayload {
+  assistantId: number
+  status?: number
+  content?: ChatContentBlock[]
+  version?: number
 }
 
 export interface AgentSenderProps {

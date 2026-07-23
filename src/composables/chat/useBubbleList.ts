@@ -1,14 +1,4 @@
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  type MaybeRefOrGetter,
-  nextTick,
-  onUnmounted,
-  ref,
-  toValue,
-  watch,
-} from 'vue'
+import {computed, type MaybeRefOrGetter, nextTick, onUnmounted, ref, toValue, watch,} from 'vue'
 import type {BubbleItemType, BubbleListRef, RoleType} from '@antdv-next/x/dist/bubble/interface'
 import type {
   ActiveChatSession,
@@ -17,7 +7,6 @@ import type {
   ChatBubbleItem,
 } from '@/types/composables'
 import {throttle} from 'lodash-es'
-import {requireNonNullOrUndefined} from '@/utils'
 
 export const DEFAULT_BUBBLE_LIST_ROLE = {
   user: {
@@ -49,19 +38,33 @@ export const DEFAULT_BUBBLE_LIST_ROLE = {
   },
 } as RoleType
 
+export function getBubbleMessageTime(item: ChatBubbleItem): number {
+  return item.data?.creationTime ?? item.data?.id ?? 0
+}
+
+/** 无业务投影：过滤 hide、按时间稳定升序、闪烁 class。不含时间分隔。 */
+export function projectBubbleItems(messages: ChatBubbleItem[]): BubbleItemType[] {
+  return [...messages.filter((s) => !s.hide)]
+    .sort((a, b) => getBubbleMessageTime(a) - getBubbleMessageTime(b))
+    .map(
+      (msg) =>
+        ({
+          ...msg,
+          rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
+        }) as BubbleItemType,
+    )
+}
+
 /**
- * 无业务气泡列表：时间分隔、滚动分页、跳转闪烁、可见区探测。
- * 直接消费 ActiveChatSession（PageResult&lt;ChatBubbleItem&gt;）。
+ * 无业务气泡列表：滚动分页、跳转闪烁、可见区探测。
+ * 直接消费 ActiveChatSession；可选外部 items（如 IM 带时间分隔的列表）。
  */
 export function useBubbleList(
   session: MaybeRefOrGetter<ActiveChatSession>,
   listProps: MaybeRefOrGetter<BubbleListProps>,
   callbacks: BubbleListCallbacks,
+  items?: MaybeRefOrGetter<BubbleItemType[] | undefined>,
 ) {
-  const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
-    getCurrentInstance(),
-  ).appContext.config.globalProperties
-
   const showScrollToBottom = ref(false)
   const bubbleListRef = ref<BubbleListRef>()
 
@@ -85,7 +88,13 @@ export function useBubbleList(
     return !getSession().dataSource.first
   }
 
-  const bubbleListItems = computed(() => buildBubbleListWithDividers(getItems()))
+  const bubbleListItems = computed(() => {
+    const external = items !== undefined ? toValue(items) : undefined
+    if (external !== undefined) {
+      return external
+    }
+    return projectBubbleItems(getItems())
+  })
 
   const handleThrottleBubbleScroll = throttle(
     throttleBubbleScroll,
@@ -97,37 +106,6 @@ export function useBubbleList(
   )
 
   const handleCollectVisible = throttle(emitVisibleItems, getProps().throttleCollectVisibleWait)
-
-  function getMessageTime(item: ChatBubbleItem): number {
-    return item.data?.creationTime ?? 0
-  }
-
-  function buildBubbleListWithDividers(messages: ChatBubbleItem[]): BubbleItemType[] {
-    const sorted = [...messages.filter((s) => !s.hide)].sort(
-      (a, b) => getMessageTime(a) - getMessageTime(b),
-    )
-    const result: BubbleItemType[] = []
-    let lastDividerTime = 0
-    for (const msg of sorted) {
-      const msgTime = getMessageTime(msg)
-      const needDivider =
-        result.length === 0 ||
-        (msgTime > 0 && msgTime - lastDividerTime >= getProps().timeDividerGap)
-      if (needDivider && msgTime > 0) {
-        result.push({
-          key: `divider-${String(msg.key)}-${msgTime}`,
-          role: 'divider',
-          content: globalProperties.$dayjs(msgTime).fromNow(),
-        })
-        lastDividerTime = msgTime
-      }
-      result.push({
-        ...msg,
-        rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
-      } as BubbleItemType)
-    }
-    return result
-  }
 
   function jumpToBottom(type: 'reloadLastPage' | 'bottom' = 'bottom'): void {
     if (type === 'bottom') {
@@ -146,12 +124,12 @@ export function useBubbleList(
     if (!bubbleListRef.value || !key) {
       return
     }
-    const items = getItems()
-    const index = items.findIndex((b) => String(b.key) === String(key))
+    const sourceItems = getItems()
+    const index = sourceItems.findIndex((b) => String(b.key) === String(key))
     if (index < 0) {
       return
     }
-    const bubble = items[index]
+    const bubble = sourceItems[index]
     if (!bubble) {
       return
     }
@@ -213,7 +191,7 @@ export function useBubbleList(
     if (!content) {
       return []
     }
-    const items: ChatBubbleItem[] = []
+    const visible: ChatBubbleItem[] = []
     const children = content.children
     for (let i = 0; i < children.length && i < bubbleListItems.value.length; i++) {
       const item = bubbleListItems.value[i]
@@ -227,18 +205,18 @@ export function useBubbleList(
       const element = children[i] as HTMLElement
       const rect = element.getBoundingClientRect()
       if (rect.bottom > scrollRect.top && rect.top < scrollRect.bottom) {
-        items.push(bubble)
+        visible.push(bubble)
       }
     }
-    return items
+    return visible
   }
 
   function tryFlashPendingItems(scrollBox: HTMLElement | undefined): void {
     if (!scrollBox) {
       return
     }
-    const items = getVisibleItems(scrollBox, (item) => item.flashPending === true)
-    for (const visibleItem of items) {
+    const pending = getVisibleItems(scrollBox, (item) => item.flashPending === true)
+    for (const visibleItem of pending) {
       const bubble = getItems().find((b) => String(b.key) === String(visibleItem.key))
       if (!bubble) {
         continue
@@ -259,8 +237,8 @@ export function useBubbleList(
   }
 
   if (callbacks.onVisibleItems) {
-    watch(bubbleListItems, async (items) => {
-      if (items.length === 0) {
+    watch(bubbleListItems, async (list) => {
+      if (list.length === 0) {
         return
       }
       await nextTick()

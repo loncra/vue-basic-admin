@@ -54,6 +54,7 @@ const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
 const {
   session,
   listProps,
+  bubbleListItems,
   bubbleListRole,
   onVisibleItems,
   reedit,
@@ -104,12 +105,12 @@ defineExpose({
   <l-bubble-list
     ref="bubbleListRef"
     :session="session"
+    :items="bubbleListItems"
     collect-visible
     :scroll-to-bottom-threshold="listProps.scrollToBottomThreshold"
     :throttle-on-scroll-wait="listProps.throttleOnScrollWait"
     :throttle-collect-visible-wait="listProps.throttleCollectVisibleWait"
     :top-threshold="listProps.topThreshold"
-    :time-divider-gap="listProps.timeDividerGap"
     :role="bubbleListRole"
     @load-page="onLoadPage"
     @reload-last-page="onReloadLastPage"
