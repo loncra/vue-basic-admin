@@ -70,7 +70,7 @@ export function useAgentMessageLoader(
         }
       }
       for (const d of result.data.elements || []) {
-        addBubbleListMessage(d, resolveBubbleRole(d), active.dataSource.elements, !append)
+        addBubbleListMessage(d, resolveBubbleRole(d), active.dataSource.elements)
       }
     } finally {
       pageLock = false

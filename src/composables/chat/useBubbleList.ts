@@ -39,20 +39,21 @@ export const DEFAULT_BUBBLE_LIST_ROLE = {
 } as RoleType
 
 export function getBubbleMessageTime(item: ChatBubbleItem): number {
-  return item.data?.creationTime ?? item.data?.id ?? 0
+  return item.data?.id ?? 0
 }
 
 /** 无业务投影：过滤 hide、按时间稳定升序、闪烁 class。不含时间分隔。 */
 export function projectBubbleItems(messages: ChatBubbleItem[]): BubbleItemType[] {
   return [...messages.filter((s) => !s.hide)]
-    .sort((a, b) => getBubbleMessageTime(a) - getBubbleMessageTime(b))
+  /*return [...messages.filter((s) => !s.hide)]
+    .sort((a, b) => getBubbleMessageTime(b) - getBubbleMessageTime(a))
     .map(
       (msg) =>
         ({
           ...msg,
           rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
         }) as BubbleItemType,
-    )
+    )*/
 }
 
 /**
