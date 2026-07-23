@@ -46,7 +46,7 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
     const active = conversationActive.value
     if (active.item?.data?.room?.id === result.data.userChatRoomId && hasView()) {
       const role = getMessageRole(result.data)
-      addBubbleListMessage(result.data, role, active.bubbleList, false, !active.isOnFirstPage)
+      addBubbleListMessage(result.data, role, active.dataSource.elements, false, !active.isOnFirstPage)
     }
     conversations.moveToTopByRoomId(result.data.userChatRoomId, (c) => {
       c.lastUserMessage = result.data as UserChatMessageEntity

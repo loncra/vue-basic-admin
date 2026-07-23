@@ -29,12 +29,12 @@ const emit = defineEmits<{
 <template>
   <a-tag
     @click="emit('click', props.message)"
-    class="cursor-pointer max-w-80 flex flex-inline"
+    class="cursor-pointer inline-flex max-w-80 items-center"
     v-bind="$attrs"
     :color="getEnumValue(props.message.participant.type) !== 30 ? 'gold' : undefined"
   >
-    <a-flex class="flex-inline">
-      <a-typography-text class="flex flex-inline shrink-0">
+    <a-flex class="min-w-0 max-w-full flex-1 items-center overflow-hidden" :gap="0">
+      <a-typography-text class="shrink-0">
         <template v-if="getEnumValue(props.message.participant.type) !== 30">
           [{{getEnumName(props.message.participant.type)}}]
         </template>
@@ -46,7 +46,7 @@ const emit = defineEmits<{
         </template>
         :
       </a-typography-text>
-      <a-typography-text class="min-w-0 w-full flex flex-inline flex-1" type="secondary" ellipsis>
+      <a-typography-text class="min-w-0 flex-1" type="secondary" ellipsis>
         {{ getMessageContent(props.message)}}
       </a-typography-text>
     </a-flex>

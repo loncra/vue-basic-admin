@@ -41,7 +41,7 @@ import type {
   ChatCallModelExpose,
   ChatCallUiMode,
   UseChatCallModalParams,
-} from "@/types/composables/chat.ts";
+} from "@/types/composables";
 
 export function provideChatCallExpose(config:UseChatCallModalParams) {
   const {on} = useSocketSubscriptions()

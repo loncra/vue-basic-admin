@@ -76,7 +76,7 @@ async function onSendMessage(content: ChatContentBlock[]) {
       return
     }
     const messageBody: UserChatMessageResponseBody = result.data
-    addBubbleListMessage(messageBody, CHAT_BUBBLE_TYPE.USER, conversation.value.bubbleList)
+    addBubbleListMessage(messageBody, CHAT_BUBBLE_TYPE.USER, conversation.value.dataSource.elements)
     senderRef.value?.clear()
     conversations.moveToTopByRoomId(messageBody.userChatRoomId, (c) => (c.lastUserMessage = messageBody))
     await nextTick()
@@ -193,11 +193,11 @@ function onChatMessageUpdate(result: RestResult<UserChatMessageResponseBody | Us
   if (!result.data) {
     return
   }
-  const index = conversation.value.bubbleList.findIndex(b => b?.data?.id === result?.data?.id)
+  const index = conversation.value.dataSource.elements.findIndex(b => b?.data?.id === result?.data?.id)
   if (index < 0) {
     return
   }
-  const bubble = conversation.value.bubbleList[index]
+  const bubble = conversation.value.dataSource.elements[index]
   if (!bubble || !bubble.data) {
     return
   }
@@ -210,11 +210,11 @@ async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
     return
   }
 
-  const index = conversation.value.bubbleList.findIndex(b => b?.data?.id === result?.data?.id)
+  const index = conversation.value.dataSource.elements.findIndex(b => b?.data?.id === result?.data?.id)
   if (index < 0) {
     return
   }
-  const bubble = conversation.value.bubbleList[index]
+  const bubble = conversation.value.dataSource.elements[index]
   if (!bubble || !bubble.data) {
     return
   }

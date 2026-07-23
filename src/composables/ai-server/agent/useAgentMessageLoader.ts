@@ -1,58 +1,119 @@
-import {type ComponentInternalInstance, getCurrentInstance, nextTick, ref, type Ref} from "vue";
-import type {ActiveAgentConversationItem, AgentViewController} from "@/types/composables";
-import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {AGENT_CONVERSATION_TYPE, CHAT_BUBBLE_TYPE} from "@/constants";
-import {AgentService} from "@/apis";
+import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref,} from 'vue'
 import type {
-  AgentMessageEntity,
-  PageResult,
-  RestResult,
-  UserChatMessageResponseBody
-} from "@/types/apis";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
+  ActiveAgentConversationItem,
+  AgentViewController,
+  ChatBubbleItem
+} from '@/types/composables'
+import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {AGENT_CONVERSATION_TYPE, CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {AgentService} from '@/apis'
+import type {AgentMessageEntity, PageResult, RestResult} from '@/types/apis'
+import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 
-
+/**
+ * 智能体活跃会话的消息分页、锚点跳转与会话切换。
+ */
 export function useAgentMessageLoader(
-  view:Ref<AgentViewController | undefined>
+  conversationActive: Ref<ActiveAgentConversationItem | undefined>,
+  view: Ref<AgentViewController | undefined>,
 ) {
-
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
 
-  const conversationActive = ref<ActiveAgentConversationItem>()
+  let pageLock = false
+
+  function resolveBubbleRole(message: AgentMessageEntity): BubbleItemType['role'] {
+    const role = getEnumValue(message.role)
+    if (role === CHAT_BUBBLE_TYPE.AI) {
+      return CHAT_BUBBLE_TYPE.AI
+    }
+    if (role === CHAT_BUBBLE_TYPE.SYSTEM) {
+      return CHAT_BUBBLE_TYPE.SYSTEM
+    }
+    return CHAT_BUBBLE_TYPE.USER
+  }
 
   async function loadPage(
     number: number,
     append: boolean = false,
     clear: boolean = false,
   ): Promise<void> {
-    if (!conversationActive.value) {
-      return
-    }
     const active = conversationActive.value
-    if (active.loading) {
+    if (!active || pageLock) {
       return
     }
     try {
-      active.loading = true
-      const result: RestResult<PageResult<AgentMessageEntity>> =
-        await AgentService.histories({number}, Number(active.id))
+      pageLock = true
+      const result: RestResult<PageResult<AgentMessageEntity>> = await AgentService.histories(
+        {number, size: active.dataSource.size || DEFAULT_PAGE_RESULT_VALUE.size},
+        Number(active.id),
+      )
       if (!result.data) {
         return
       }
-      if (!active.isOnFirstPage) {
-        active.isOnFirstPage = active.dataSource.first
-      }
-      if (!active.isOnLastPage) {
-        active.isOnLastPage = active.dataSource.last
+      const retained = clear ? [] : active.dataSource.elements
+      active.dataSource = {
+        ...active.dataSource,
+        ...result.data,
+        elements: retained,
       }
       if (clear) {
-        active.dataSource.elements = []
+        active.isOnFirstPage = result.data.first
+        active.isOnLastPage = result.data.last
+      } else {
+        if (result.data.first) {
+          active.isOnFirstPage = true
+        }
+        if (result.data.last) {
+          active.isOnLastPage = true
+        }
       }
-      result.data.elements.forEach( d=> addBubbleListMessage(d, CHAT_BUBBLE_TYPE.USER, active.dataSource.elements, !append))
+      for (const d of result.data.elements || []) {
+        addBubbleListMessage(d, resolveBubbleRole(d), active.dataSource.elements, !append)
+      }
     } finally {
-      active.loading = false
+      pageLock = false
+    }
+  }
+
+  async function loadMore(tag: 'next' | 'previous'): Promise<void> {
+    await nextTick()
+    const active = conversationActive.value
+    if (!active || active.loading || pageLock) {
+      return
+    }
+    if (tag === 'next' && (active.isOnLastPage || active.dataSource.last)) {
+      return
+    }
+    if (tag === 'previous' && (active.isOnFirstPage || active.dataSource.first)) {
+      return
+    }
+    /*const reduceSort = (a: ChatBubbleItem, b: ChatBubbleItem) => {
+      const flag =
+        tag === 'previous'
+          ? (a.data?.creationTime ?? 0) >= (b.data?.creationTime ?? 0)
+          : (a.data?.creationTime ?? 0) <= (b.data?.creationTime ?? 0)
+      return flag ? a : b
+    }*/
+    //const bubbles = active.dataSource.elements
+    //const anchor = bubbles.length > 0 ? bubbles.reduce(reduceSort) : undefined
+
+    await loadPage(
+      tag === 'next' ? ++active.dataSource.number : --active.dataSource.number,
+      tag === 'previous',
+    )
+    await nextTick()
+    /*if (anchor) {
+      view.value?.jumpToMessage(String(anchor.key), false, tag === 'next' ? 'nearest' : 'end')
+    }*/
+    if (active.dataSource.last && tag === 'next') {
+      active.dataSource.elements.unshift({
+        key: globalProperties.$dayjs().unix(),
+        role: CHAT_BUBBLE_TYPE.SYSTEM,
+        content: globalProperties.$t('common.noMore'),
+      })
+      active.isOnLastPage = true
     }
   }
 
@@ -63,10 +124,10 @@ export function useAgentMessageLoader(
     }
     try {
       active.loading = true
-      const result: RestResult<number> = await ChatMessageService.positioningMessagePageNumber(
+      const result: RestResult<number> = await AgentService.positioningMessagePageNumber(
         Number(active.id),
         messageId,
-        active.dataSource.size,
+        active.dataSource.size || DEFAULT_PAGE_RESULT_VALUE.size,
       )
       if (result.data) {
         await jumpToAnchorPage(messageId, result.data)
@@ -96,7 +157,7 @@ export function useAgentMessageLoader(
       }
 
       const anchorIndex = active.dataSource.elements.findIndex((b) => b.key === String(messageId))
-      let key
+      let key: string | number | undefined
 
       if (anchorIndex < 0) {
         key = active.dataSource.elements.at(0)?.key
@@ -105,23 +166,23 @@ export function useAgentMessageLoader(
         if (anchorBubble) {
           key = anchorBubble.key
         }
-        if (systemMessage) {
-          const anchorTime = anchorBubble?.data?.creationTime ?? 0
-          const newBubble = {
+        if (systemMessage && anchorBubble) {
+          const anchorTime = anchorBubble.data?.creationTime ?? 0
+          const newBubble: ChatBubbleItem = {
             key: 'system-anchor-message-' + globalProperties.$dayjs().unix(),
             role: CHAT_BUBBLE_TYPE.SYSTEM,
             content: systemMessage,
-            data: {creationTime: anchorTime - 1} as UserChatMessageResponseBody,
+            data: {creationTime: anchorTime - 1} as ChatBubbleItem['data'],
           }
           active.dataSource.elements.splice(anchorIndex, 0, newBubble)
         }
       }
 
       await nextTick()
-      if (!view.value) {
+      if (!view.value || key === undefined) {
         return
       }
-      //view.value.jumpToMessage(String(key))
+      view.value.jumpToMessage(String(key))
     } finally {
       active.loading = false
     }
@@ -131,21 +192,38 @@ export function useAgentMessageLoader(
     conversation: Ref<ActiveAgentConversationItem | undefined>,
     messageId?: number,
     reload: boolean = false,
-  ) {
-    if (!conversation.value || getEnumValue(conversation.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
-      return;
+  ): Promise<void> {
+    if (
+      !conversation.value ||
+      getEnumValue(conversation.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION
+    ) {
+      return
     }
 
     if (!messageId) {
-      await loadPage(1, false, reload)
-      await nextTick()
-      //view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
+      const active = conversation.value
+      active.loading = true
+      try {
+        active.isOnFirstPage = true
+        active.isOnLastPage = false
+        await loadPage(1, false, true)
+        await nextTick()
+        view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
+      } finally {
+        active.loading = false
+      }
     } else {
       await positioningMessage(messageId)
     }
-
   }
+
   return {
-    switchConversation
+    loadPage,
+    loadMore,
+    switchConversation,
+    jumpToAnchorPage,
+    positioningMessage,
   }
 }
+
+export type AgentMessageLoaderApi = ReturnType<typeof useAgentMessageLoader>

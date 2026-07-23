@@ -14,7 +14,7 @@ import type {
   ChatCallPrivateSplitScreenType,
   LayoutConstraints,
   VideoMetrics
-} from "@/types/composables/chat.ts";
+} from "@/types/composables";
 
 export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> | number) {
   const value = getEnumValue(status)

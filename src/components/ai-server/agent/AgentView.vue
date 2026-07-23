@@ -1,85 +1,89 @@
 <script setup lang="ts">
-import {BubbleList as AxBubbleList, Welcome as AxWelcome} from '@antdv-next/x'
-import type {RoleType,} from '@antdv-next/x/dist/bubble/interface'
+import {computed} from 'vue'
+import {Welcome as AxWelcome} from '@antdv-next/x'
 import {XMarkdown} from '@antdv-next/x-markdown'
 import '@antdv-next/x-markdown/themes/index.css'
 import '@antdv-next/x-markdown/themes/light.css'
 import {CHAT_BUBBLE_TYPE} from '@/constants'
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
-import LAgentSender from "@/components/ai-server/agent/AgentSender.vue";
-import {useAgentView} from "@/composables";
+import LUserAvatar from '@/components/basic/UserAvatar.vue'
+import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import LAgentUserMessageBubbleContent
-  from "@/components/ai-server/agent/AgentUserMessageBubbleContent.vue";
+  from '@/components/ai-server/agent/AgentUserMessageBubbleContent.vue'
+import LBubbleList from '@/components/basic/chat/BubbleList.vue'
+import {useAgentView} from '@/composables'
+import {DEFAULT_BUBBLE_LIST_ROLE} from '@/composables/chat/useBubbleList.ts'
 
 defineOptions({
   name: 'LAgentView',
 })
 
-const bubbleListRole = {
-  user: {
-    variant: 'filled',
-    placement: 'end',
-    shape: 'corner',
-    classes: {content: 'bg-primary-bg!'},
-  },
-  ai: {
-    variant: 'filled',
-    placement: 'start',
-    shape: 'corner',
-  },
-} as RoleType
-
 const {
   onSenderSubmit,
   principalStore,
   conversationActive,
+  loader,
   bubbleListRef,
   senderRef,
 } = useAgentView()
 
+const hasMessages = computed(
+  () => (conversationActive.value?.dataSource.elements.length ?? 0) > 0,
+)
 
+function onLoadPage(tag: 'next' | 'previous') {
+  void loader.loadMore(tag)
+}
+
+defineExpose({
+  getScrollBox: () => bubbleListRef.value?.getScrollBox(),
+  jumpToMessage: (
+    key: string,
+    flashPending?: boolean,
+    block?: ScrollLogicalPosition,
+    behavior?: ScrollBehavior,
+  ) => bubbleListRef.value?.jumpToMessage(key, flashPending, block, behavior),
+  scrollTo: (options: {
+    key?: string | number
+    top?: number | 'bottom' | 'top'
+    behavior?: ScrollBehavior
+    block?: ScrollLogicalPosition
+  }) => bubbleListRef.value?.scrollTo(options),
+})
 </script>
 
 <template>
-  <a-flex
-    vertical
-    flex="1"
-    class="h-full min-h-0 overflow-hidden"
-  >
+  <a-flex vertical flex="1" class="h-full min-h-0 overflow-hidden">
     <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
-      <template v-if="conversationActive && conversationActive.dataSource.elements.length > 0 ">
-        <ax-bubble-list
-          ref="bubbleListRef"
-          class="min-h-0 h-full flex"
-          :classes="{ scroll: 'pl-xs pr-xs' }"
-          :items="conversationActive.dataSource.elements"
-          :role="bubbleListRole"
-        >
-          <template #avatar="{ item }">
-            <l-user-avatar
-              size="large"
-              v-if="item.role === CHAT_BUBBLE_TYPE.USER"
-              :user="principalStore.state.details.metadata"
-            />
-            <a-avatar v-else>
-              <icon-font type="icon-xiaojiage-a" />
-            </a-avatar>
-          </template>
-          <template #contentRender="{ item, content }">
-            <x-markdown
-              v-if="item.role === CHAT_BUBBLE_TYPE.AI && typeof content === 'string'"
-              :content="content"
-              open-links-in-new-tab
-              escape-raw-html
-            />
-            <l-agent-user-message-bubble-content
-              v-else
-              :content="item.content"
-            />
-          </template>
-        </ax-bubble-list>
-        <slot name="bubbleListAfter" />
-      </template>
+      <l-bubble-list
+        v-if="conversationActive && hasMessages"
+        ref="bubbleListRef"
+        :session="conversationActive"
+        :role="DEFAULT_BUBBLE_LIST_ROLE"
+        @load-page="onLoadPage"
+      >
+        <template #avatar="{ item }">
+          <l-user-avatar
+            v-if="item.role === CHAT_BUBBLE_TYPE.USER"
+            size="large"
+            :user="principalStore.state.details.metadata"
+          />
+          <a-avatar v-else>
+            <icon-font type="icon-xiaojiage-a" />
+          </a-avatar>
+        </template>
+        <template #contentRender="{ item, content }">
+          <x-markdown
+            v-if="item.role === CHAT_BUBBLE_TYPE.AI && typeof content === 'string'"
+            :content="content"
+            open-links-in-new-tab
+            escape-raw-html
+          />
+          <l-agent-user-message-bubble-content v-else :content="item.content" />
+        </template>
+        <template v-if="$slots.bubbleListAfter" #bubbleListAfter>
+          <slot name="bubbleListAfter" />
+        </template>
+      </l-bubble-list>
       <a-flex v-else justify="center" align="center" class="size-full">
         <ax-welcome
           variant="borderless"

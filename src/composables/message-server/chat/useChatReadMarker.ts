@@ -1,6 +1,6 @@
 import type {Ref} from 'vue'
 import type {UserChatMessageEntity, UserChatMessageResponseBody,} from '@/types/apis'
-import type {ChatBubbleItem, ConversationActiveProps} from '@/types/composables'
+import type {ChatBubbleItem, UserChatConversationActiveProps} from '@/types/composables'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
@@ -11,7 +11,7 @@ import {getEnumValue} from '@/utils'
  * 从 ChatBubbleList 拆出：收集可见未读 -> 批量提交 -> 刷新未读数；
  * 切换会话时 reset()。
  */
-export function useChatReadMarker(conversation: Ref<ConversationActiveProps>) {
+export function useChatReadMarker(conversation: Ref<UserChatConversationActiveProps>) {
   const principalStore = usePrincipalStore()
   const messageServerStore = useMessageServerStore()
 

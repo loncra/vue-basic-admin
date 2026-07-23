@@ -33,6 +33,9 @@ export class AgentService {
 
   static readonly HISTORY_URL = AgentService.MESSAGE_URL + '/history'
 
+  static readonly MESSAGE_POSITIONING_PAGE_NUMBER_URL =
+    AgentService.MESSAGE_URL + '/positioning/page/number'
+
   // ---------- conversation ----------
 
   /** `POST /agent/conversation` */
@@ -67,7 +70,24 @@ export class AgentService {
     return axios.delete(AgentService.MESSAGE_URL, {params: formUrlEncoded({ids})})
   }
 
-  // ---------- message ----------
+  /** `GET /agent/message/positioning/page/number/{conversationId}/{messageId}/{pageSize}` */
+  static positioningMessagePageNumber(
+    conversationId: number,
+    messageId: number,
+    size: number,
+  ): Promise<RestResult<number>> {
+    return axios.get(
+      AgentService.MESSAGE_POSITIONING_PAGE_NUMBER_URL +
+        '/' +
+        conversationId +
+        '/' +
+        messageId +
+        '/' +
+        size,
+    )
+  }
+
+  // ---------- chat ----------
 
   static chat(body:AgentChatRequestBody):Promise<RestResult<AgentChatResponseBody>> {
     return axios.post(AgentService.CHAT_URL, body)

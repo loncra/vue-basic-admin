@@ -19,7 +19,7 @@ export function provideAgentChatContext(options:ProvideAgentChatContextOptions):
   const conversationActive = ref<ActiveAgentConversationItem>();
   const conversations = ref<AgentConversationItem[]>([])
 
-  const loader = useAgentMessageLoader(options.view)
+  const loader = useAgentMessageLoader(conversationActive, options.view)
 
   async function activateConversation(
     conversation: AgentConversationItem | undefined,
@@ -31,9 +31,9 @@ export function provideAgentChatContext(options:ProvideAgentChatContextOptions):
     }
 
     conversationActive.value = {
-      dataSource:DEFAULT_PAGE_RESULT_VALUE,
-      loading:false,
-      ...conversation
+      dataSource: {...DEFAULT_PAGE_RESULT_VALUE, elements: []},
+      loading: false,
+      ...conversation,
     }
 
     if (getEnumValue(conversationActive.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
@@ -63,7 +63,8 @@ export function provideAgentChatContext(options:ProvideAgentChatContextOptions):
   const context: AgentChatContext = {
     conversations,
     conversationActive,
-    activateConversation
+    activateConversation,
+    loader,
   }
 
   provide(AGENT_CHAT_CONTEXT_PROVIDE_KEY, context)

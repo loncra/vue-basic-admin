@@ -6,3 +6,5 @@ export {useSocketSubscriptions} from './useSocketSubscriptions.ts'
 
 export * from '@/composables/message-server'
 export * from '@/composables/ai-server'
+export * from '@/composables/chat'
+export * from '@/composables/basic'

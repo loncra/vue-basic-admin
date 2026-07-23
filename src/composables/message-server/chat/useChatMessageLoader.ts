@@ -1,4 +1,4 @@
-import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref,} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref} from 'vue'
 import type {
   PageResult,
   RestResult,
@@ -8,8 +8,8 @@ import type {
 import type {
   ChatBubbleItem,
   ChatViewController,
-  ConversationActiveProps,
   ServerConversationItem,
+  UserChatConversationActiveProps,
 } from '@/types/composables'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
@@ -19,17 +19,30 @@ import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 
 /**
  * 活跃会话的消息分页、锚点跳转与会话切换。
- * 迁移 MyChatMessage 中最重的一块：loadConversationData / onChatViewLoadPage /
- * toMessageAnchorPage / toReadableAnchor / onHistoryClick / onConversationsChange。
+ * 气泡单轨：dataSource.elements 为 ChatBubbleItem[]；分页防重入用内聚 pageLock。
  */
 export function useChatMessageLoader(
-  conversationActive: Ref<ConversationActiveProps>,
+  conversationActive: Ref<UserChatConversationActiveProps>,
   view: Ref<ChatViewController | undefined>,
 ) {
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
   const principalStore = usePrincipalStore()
+
+  let pageLock = false
+
+  function resolveRole(d: UserChatMessageResponseBody): BubbleItemType['role'] {
+    let role: BubbleItemType['role'] =
+      principalStore.state.name ===
+      (d.participant?.metadata?.details as {systemName: string})?.systemName
+        ? CHAT_BUBBLE_TYPE.USER
+        : CHAT_BUBBLE_TYPE.AI
+    if (getEnumValue(d.type) === 20) {
+      role = CHAT_BUBBLE_TYPE.SYSTEM
+    }
+    return role
+  }
 
   async function loadPage(
     chatRoomId: number,
@@ -38,7 +51,7 @@ export function useChatMessageLoader(
     clear: boolean = false,
   ): Promise<void> {
     const active = conversationActive.value
-    if (active.loadConversationDataLock) {
+    if (pageLock) {
       return
     }
     const request = {
@@ -46,38 +59,38 @@ export function useChatMessageLoader(
       withoutReadableAnchor: active.readableAnchorLoading,
     }
     try {
-      active.loadConversationDataLock = true
+      pageLock = true
       const result: RestResult<PageResult<UserChatMessageResponseBody>> =
         await ChatMessageService.histories(request, chatRoomId)
 
-      active.dataSource = result?.data || DEFAULT_PAGE_RESULT_VALUE
-      if (!active.isOnFirstPage) {
-        active.isOnFirstPage = active.dataSource.first
+      const page = result?.data || DEFAULT_PAGE_RESULT_VALUE
+      const retained = clear ? [] : active.dataSource.elements
+      active.dataSource = {
+        ...active.dataSource,
+        ...page,
+        elements: retained,
       }
-      if (!active.isOnLastPage) {
-        active.isOnLastPage = active.dataSource.last
-      }
-      const elements = active.dataSource.elements || []
+      // 到达端页则锁住；clear/首屏以当前页为准同步两端标志
       if (clear) {
-        active.bubbleList = []
-      }
-      for (const d of elements) {
-        let role: BubbleItemType['role'] =
-          principalStore.state.name ===
-          (d.participant?.metadata?.details as {systemName: string})?.systemName
-            ? CHAT_BUBBLE_TYPE.USER
-            : CHAT_BUBBLE_TYPE.AI
-        if (getEnumValue(d.type) === 20) {
-          role = CHAT_BUBBLE_TYPE.SYSTEM
+        active.isOnFirstPage = page.first
+        active.isOnLastPage = page.last
+      } else {
+        if (page.first) {
+          active.isOnFirstPage = true
         }
-        addBubbleListMessage(d, role, active.bubbleList, !append)
+        if (page.last) {
+          active.isOnLastPage = true
+        }
+      }
+      for (const d of page.elements || []) {
+        addBubbleListMessage(d, resolveRole(d), active.dataSource.elements, !append)
       }
     } finally {
-      active.loadConversationDataLock = false
+      pageLock = false
     }
   }
 
-  async function loadParticipant(roomId:number): Promise<void> {
+  async function loadParticipant(roomId: number): Promise<void> {
     const result: RestResult<UserChatParticipantEntity[]> =
       await ChatMessageService.findRoomParticipant(roomId)
     if (result.data) {
@@ -85,10 +98,9 @@ export function useChatMessageLoader(
     }
   }
 
-  /** 切换 / 重载活跃会话（含草稿暂存与滚动到底） */
   async function switchConversation(
     item: ServerConversationItem,
-    messageId?:number,
+    messageId?: number,
     reload: boolean = false,
   ): Promise<void> {
     const active = conversationActive.value
@@ -106,7 +118,9 @@ export function useChatMessageLoader(
     active.drawerOpen = false
     try {
       active.item = item
-      active.bubbleList = []
+      active.isOnFirstPage = true
+      active.isOnLastPage = false
+      active.dataSource = {...DEFAULT_PAGE_RESULT_VALUE, elements: []}
       if (!active.item?.data?.room) {
         return
       }
@@ -126,13 +140,13 @@ export function useChatMessageLoader(
   async function loadMore(tag: 'next' | 'previous'): Promise<void> {
     await nextTick()
     const active = conversationActive.value
-    if (active.loadConversationDataLock) {
+    if (pageLock) {
       return
     }
-    if (tag === 'next' && active.isOnLastPage) {
+    if (tag === 'next' && (active.isOnLastPage || active.dataSource.last)) {
       return
     }
-    if (tag === 'previous' && active.isOnFirstPage) {
+    if (tag === 'previous' && (active.isOnFirstPage || active.dataSource.first)) {
       return
     }
     const roomId = Number(active.item?.data?.room?.id)
@@ -146,8 +160,7 @@ export function useChatMessageLoader(
           : (a.data?.creationTime ?? 0) <= (b.data?.creationTime ?? 0)
       return flag ? a : b
     }
-    // 锚点：当前已加载的最旧一条消息（加载后它会被新内容顶到下面）
-    const bubbles = active.bubbleList
+    const bubbles = active.dataSource.elements
     const anchor = bubbles.length > 0 ? bubbles.reduce(reduceSort) : undefined
 
     await loadPage(
@@ -157,14 +170,15 @@ export function useChatMessageLoader(
     )
     await nextTick()
     if (anchor) {
-      view.value?.jumpToMessage(anchor.key as string, false, tag === 'next' ? 'nearest' : 'end')
+      view.value?.jumpToMessage(String(anchor.key), false, tag === 'next' ? 'nearest' : 'end')
     }
     if (active.dataSource.last && tag === 'next') {
-      active.bubbleList.unshift({
+      active.dataSource.elements.unshift({
         key: globalProperties.$dayjs().unix(),
         role: CHAT_BUBBLE_TYPE.SYSTEM,
         content: globalProperties.$t('common.noMore'),
       })
+      active.isOnLastPage = true
     }
   }
 
@@ -180,34 +194,34 @@ export function useChatMessageLoader(
     try {
       await loadPage(Number(active.item?.data?.room?.id), pageNumber, false, true)
 
-      if (active.bubbleList.length <= 0) {
+      if (active.dataSource.elements.length <= 0) {
         return
       }
 
-      const anchorIndex = active.bubbleList.findIndex((b) => b.key === String(messageId))
-      let key
+      const anchorIndex = active.dataSource.elements.findIndex((b) => b.key === String(messageId))
+      let key: string | number | undefined
 
       if (anchorIndex < 0) {
-        key = active.bubbleList.at(0)?.key
+        key = active.dataSource.elements.at(0)?.key
       } else {
-        const anchorBubble = active.bubbleList[anchorIndex]
+        const anchorBubble = active.dataSource.elements[anchorIndex]
         if (anchorBubble) {
           key = anchorBubble.key
         }
-        if (systemMessage) {
-          const anchorTime = anchorBubble?.data?.creationTime ?? 0
-          const newBubble = {
+        if (systemMessage && anchorBubble) {
+          const anchorTime = anchorBubble.data?.creationTime ?? 0
+          const newBubble: ChatBubbleItem = {
             key: 'system-anchor-message-' + globalProperties.$dayjs().unix(),
             role: CHAT_BUBBLE_TYPE.SYSTEM,
             content: systemMessage,
             data: {creationTime: anchorTime - 1} as UserChatMessageResponseBody,
           }
-          active.bubbleList.splice(anchorIndex, 0, newBubble)
+          active.dataSource.elements.splice(anchorIndex, 0, newBubble)
         }
       }
 
       await nextTick()
-      if (!view.value) {
+      if (!view.value || key === undefined) {
         return
       }
       view.value.jumpToMessage(String(key))
@@ -250,9 +264,9 @@ export function useChatMessageLoader(
     }
     active.drawerOpen = false
     await nextTick()
-    const index = active.bubbleList.findIndex((d) => d.key === String(data.id))
+    const index = active.dataSource.elements.findIndex((d) => d.key === String(data.id))
     if (index >= 0) {
-      const anchorBubble = active.bubbleList[index]
+      const anchorBubble = active.dataSource.elements[index]
       if (!anchorBubble) {
         return
       }
@@ -262,7 +276,7 @@ export function useChatMessageLoader(
     await positioningMessage(Number(data.id), Number(active.item?.data?.room?.id))
   }
 
-  async function positioningMessage(messageId: number, roomId:number): Promise<void> {
+  async function positioningMessage(messageId: number, roomId: number): Promise<void> {
     const active = conversationActive.value
     if (!active.item) {
       return
