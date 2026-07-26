@@ -19,7 +19,7 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
   const conversations = ref<AgentConversationItem[]>([])
 
   const loader = useAgentMessageLoader(conversationActive, options.view)
-  const stream = useAgentStream(conversationActive)
+  const stream = useAgentStream(conversationActive, conversations)
 
   async function activateConversation(
     conversation: AgentConversationItem | undefined,

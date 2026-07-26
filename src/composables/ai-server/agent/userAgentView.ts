@@ -1,7 +1,9 @@
 import type {
   AgentChatRequestBody,
   AgentChatResponseBody,
-  AgentSenderFormProps, ChatBubbleItem, ChatContentBlock,
+  AgentSenderFormProps,
+  ChatBubbleItem,
+  ChatContentBlock,
 } from '@/types/composables'
 import type {AgentMessageEntity, RestResult} from '@/types/apis'
 import {AgentService} from '@/apis'
@@ -11,63 +13,17 @@ import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import type LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import useApp from 'antdv-next/dist/app/useApp'
 import {DEFAULT_BUBBLE_LIST_ROLE, useAgentChatContext} from '@/composables'
-import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE, CHAT_BUBBLE_TYPE} from '@/constants'
-import {addBubbleListMessage, getEnumValue} from '@/utils'
-import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
-
-
-function normalizeBlocks(
-  content: ChatBubbleItem['content'],
-): ChatContentBlock[] {
-  if (!content) {
-    return []
-  }
-  if (typeof content === 'string') {
-    return content
-      ? [{type: AGENT_CONTENT_TYPE.ANSWER, id: 'answer', value: content}]
-      : []
-  }
-  return Array.isArray(content) ? content : [content]
-}
-
-/**
- * 助手气泡是否应展示 ax-bubble loading：RUNNING 且尚无 think/tool/answer/error 可展示内容。
- * role 回调入参为 BubbleItemType；业务字段 data 在 ChatBubbleItem 上，运行时始终存在。
- */
-export function isAgentAssistantBubbleLoading(item: BubbleItemType): boolean {
-  if (item.role !== CHAT_BUBBLE_TYPE.AI) {
-    return false
-  }
-
-  const bubble = item as ChatBubbleItem
-  const status = Number(
-    getEnumValue((bubble.data as AgentMessageEntity | undefined)?.status as number | undefined),
-  )
-  if (status !== AGENT_CHAT_STATUS.RUNNING) {
-    return false
-  }
-  for (const block of normalizeBlocks(bubble.content)) {
-    if (block.type === AGENT_CONTENT_TYPE.THINK || block.type === AGENT_CONTENT_TYPE.TOOL) {
-      return false
-    }
-    if (block.type === AGENT_CONTENT_TYPE.ANSWER || block.type === AGENT_CONTENT_TYPE.ERROR) {
-      const value = (block as {value?: string}).value
-      if (value) {
-        return false
-      }
-    }
-  }
-  return true
-}
+import {AGENT_CHAT_STATUS, CHAT_BUBBLE_TYPE} from '@/constants'
+import {addBubbleListMessage} from '@/utils'
 
 /** Agent 气泡 role：ai 项按状态动态挂 loading */
 export function createAgentBubbleListRole() {
   const baseAi = DEFAULT_BUBBLE_LIST_ROLE.ai
   return {
     ...DEFAULT_BUBBLE_LIST_ROLE,
-    ai: (data: BubbleItemType) => ({
+    ai: (data: ChatBubbleItem) => ({
       ...(typeof baseAi === 'function' ? baseAi(data) : baseAi),
-      loading: isAgentAssistantBubbleLoading(data),
+      loading: !data.content || (data.content as ChatContentBlock[]).length <= 0,
     }),
   }
 }

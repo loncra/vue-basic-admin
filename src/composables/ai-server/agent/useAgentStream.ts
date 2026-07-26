@@ -1,22 +1,33 @@
 import {onUnmounted, type Ref} from 'vue'
 import type {AbstractXRequestClass, SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
-import {AGENT_CHAT_STATUS, AGENT_SSE_EVENT, CHAT_BUBBLE_TYPE,} from '@/constants'
+import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE, CHAT_BUBBLE_TYPE,} from '@/constants'
 import type {
   ActiveAgentConversationItem,
+  AgentConversationItem,
+  AgentSseMessageContent,
+  AgentStatusChangeSse,
   AgentStreamApi,
-  AgentStreamPayload,
+  AgentTextMessageContent,
   ChatBubbleItem,
-  ChatContentBlock,
 } from '@/types/composables'
 import type {AgentMessageEntity} from '@/types/apis'
-import {getEnumValue} from '@/utils'
+import {findFirstTreeNode, getEnumValue} from '@/utils'
+
+const TEXT_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
+  AGENT_CONTENT_TYPE.THINK,
+  AGENT_CONTENT_TYPE.ANSWER,
+  AGENT_CONTENT_TYPE.ERROR,
+]
+
+const AGENT_STATUS_CHANGE_TYPE: Readonly<AgentSseMessageContent['type']> = AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
 
 /**
- * 订阅助手 SSE，并把 snapshot/patch/done 写回气泡列表。
+ * 订阅助手 SSE
  */
 export function useAgentStream(
   conversationActive: Ref<ActiveAgentConversationItem | undefined>,
+  conversations: Ref<AgentConversationItem[]>
 ): AgentStreamApi {
   let currentRequest: AbstractXRequestClass<Record<string, never>, SSEOutput> | undefined
   let currentAssistantId: number | undefined
@@ -27,47 +38,61 @@ export function useAgentStream(
     currentAssistantId = undefined
   }
 
-  function applyPayload(payload: AgentStreamPayload, done: boolean): void {
+  function completed() {
+    if (conversationActive.value?.loading) {
+      conversationActive.value.loading = false
+    }
+    disconnect()
+  }
+
+  function onEvent(chunk: Partial<SSEOutput>, assistantId:number) {
     const active = conversationActive.value
     if (!active) {
       return
     }
-    const key = String(payload.assistantId)
-    const bubble = active.dataSource.elements.find((item) => String(item.key) === key)
+    const bubble = active.dataSource
+      .elements
+      .find(item => item.key === String(assistantId))
     if (!bubble) {
       return
     }
-    const content = (payload.content ?? []) as ChatContentBlock[]
-    bubble.content = content
-    if (bubble.data) {
-      const data = bubble.data as AgentMessageEntity
-      data.content = content
-      if (payload.status !== undefined) {
-        data.status = payload.status
-      }
-      if (payload.version !== undefined) {
-        data.version = payload.version
-      }
-      if (payload.metadata !== undefined) {
-        data.metadata = payload.metadata
-      }
-    } else {
-      bubble.data = {
-        id: payload.assistantId,
-        content,
-        status: payload.status ?? AGENT_CHAT_STATUS.RUNNING,
-        version: payload.version,
-        metadata: payload.metadata,
-      } as AgentMessageEntity
+
+    const sseData:AgentSseMessageContent = JSON.parse(chunk.data)
+    const ALL_CONTENT_TYPES = Object.values(AGENT_CONTENT_TYPE) as string[]
+    if (!ALL_CONTENT_TYPES.includes(sseData.type)) {
+      return
     }
-    if (done) {
-      active.loading = false
-      if (payload.status !== undefined) {
-        active.status = payload.status
+
+    if (TEXT_TYPES.includes(sseData.type)) {
+      const content = bubble.content as AgentSseMessageContent[]
+      if (!content.some(s => s.id === sseData.id)) {
+        content.push(sseData)
       } else {
-        active.status = AGENT_CHAT_STATUS.COMPLETED
+        appendTextMessageContent(sseData as AgentTextMessageContent, content)
       }
+    } else if (AGENT_STATUS_CHANGE_TYPE === sseData.type) {
+      updateConversationStatus(sseData as AgentStatusChangeSse)
     }
+  }
+
+  function updateConversationStatus(sse: AgentStatusChangeSse) {
+    const active = conversationActive.value
+    if (!active || String(active.id) !== sse.id) {
+      return
+    }
+    active.status = sse.status
+    const item = findFirstTreeNode(s => s.id === active.id, conversations.value);
+    if (item) {
+      item.status = sse.status
+    }
+  }
+
+  function appendTextMessageContent(chunk: AgentTextMessageContent, content: AgentSseMessageContent[]){
+    const find = content.find(s => s.id === chunk.id)
+    if (!find) {
+      return
+    }
+    (find as AgentTextMessageContent).value += (chunk as AgentTextMessageContent).value || ""
   }
 
   function connect(assistantId: number): void {
@@ -81,26 +106,9 @@ export function useAgentStream(
       active.loading = true
     }
     currentRequest = AgentService.loadStream(assistantId, {
-      onEvent: (eventName, payload) => {
-        if (eventName === AGENT_SSE_EVENT.DONE) {
-          applyPayload(payload, true)
-          disconnect()
-          return
-        }
-        applyPayload(payload, false)
-      },
-      onSuccess: () => {
-        if (conversationActive.value?.loading) {
-          conversationActive.value.loading = false
-        }
-        disconnect()
-      },
-      onError: () => {
-        if (conversationActive.value?.loading) {
-          conversationActive.value.loading = false
-        }
-        disconnect()
-      },
+      onUpdate: (chunk: Partial<SSEOutput>) => onEvent(chunk, assistantId),
+      onSuccess: completed,
+      onError: completed,
     })
   }
 
@@ -122,9 +130,7 @@ export function useAgentStream(
     connect(assistantId)
   }
 
-  onUnmounted(() => {
-    disconnect()
-  })
+  onUnmounted(() => disconnect())
 
   return {
     connect,

@@ -8,6 +8,7 @@ import type {
 } from '@/types/apis'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
+import {AGENT_CONTENT_TYPE} from "@/constants";
 
 export interface AttachmentBlock {
   id: string
@@ -52,36 +53,59 @@ export interface TextBlock {
   value: string
 }
 
-export interface AgentThinkBlock {
-  type: 'think'
-  id: string
-  value?: string
-  lastSseEventId?: string
+export interface AgentSseMessageContent {
+  sseEventId: string
+  id:string
+  type: typeof AGENT_CONTENT_TYPE.THINK
+    | typeof AGENT_CONTENT_TYPE.ANSWER
+    | typeof AGENT_CONTENT_TYPE.ERROR
+    | typeof AGENT_CONTENT_TYPE.TOOL_START
+    | typeof AGENT_CONTENT_TYPE.TOOL_END
+    | typeof AGENT_CONTENT_TYPE.TOOL
+    | typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
 }
 
-export interface AgentToolBlock {
-  type: 'tool'
-  id: string
-  name?: string
+export interface AgentTextMessageContent extends AgentSseMessageContent{
+  value?: string
+}
+
+export interface AgentThinkBlock extends AgentTextMessageContent {
+  type: typeof AGENT_CONTENT_TYPE.THINK
+}
+
+export interface AgentAnswerBlock extends AgentTextMessageContent {
+  type: typeof AGENT_CONTENT_TYPE.ANSWER
+}
+
+export interface AgentErrorBlock extends AgentTextMessageContent {
+  type: typeof AGENT_CONTENT_TYPE.ERROR
+}
+
+export interface AgentStatusChangeSse extends AgentSseMessageContent {
+  type: typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
+  status: NameValueEnumMetadata<number> | number
+}
+
+export interface AgentToolBlockProps extends AgentSseMessageContent {
+  creationTime:number
+  name: string
   input?: unknown
+  status?: NameValueEnumMetadata<string>
+  endTime?:number
   output?: unknown
-  status?: string
-  resultState?: string
-  lastSseEventId?: string
+  resultState:string
 }
 
-export interface AgentAnswerBlock {
-  type: 'answer'
-  id: string
-  value?: string
-  lastSseEventId?: string
+export interface AgentToolStartBlock extends AgentToolBlockProps {
+  type: typeof AGENT_CONTENT_TYPE.TOOL_START
 }
 
-export interface AgentErrorBlock {
-  type: 'error'
-  id: string
-  value?: string
-  lastSseEventId?: string
+export interface AgentToolEndBlock extends AgentToolBlockProps {
+  type: typeof AGENT_CONTENT_TYPE.TOOL_END
+}
+
+export interface AgentToolBlock extends AgentToolBlockProps {
+  type: typeof AGENT_CONTENT_TYPE.TOOL
 }
 
 export type ChatContentBlock =
@@ -93,6 +117,8 @@ export type ChatContentBlock =
   | CallBlock
   | AgentThinkBlock
   | AgentToolBlock
+  | AgentToolStartBlock
+  | AgentToolEndBlock
   | AgentAnswerBlock
   | AgentErrorBlock
 

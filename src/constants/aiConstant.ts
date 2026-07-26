@@ -1,4 +1,4 @@
-import type {AgentChatStatus} from "@/types/composables";
+import type {AgentChatStatus, AgentSseMessageContent} from "@/types/composables";
 
 export const AGENT_CHAT_CONTEXT_PROVIDE_KEY = "agentChatContextProvide"
 
@@ -18,17 +18,17 @@ export const AGENT_CHAT_STATUS = {
 
 /** 助手消息 content 块 type（对齐后端 AgentContentType） */
 export const AGENT_CONTENT_TYPE = {
-  THINK: 'think',
-  TOOL: 'tool',
-  ANSWER: 'answer',
-  ERROR: 'error',
-} as const
-
-/** SSE 事件名（对齐后端 AgentSseEventType） */
-export const AGENT_SSE_EVENT = {
-  SNAPSHOT: 'snapshot',
-  PATCH: 'patch',
-  DONE: 'done',
+  THINK: "think",
+  TOOL_START:"toolStart",
+  TOOL_END:"toolEnd",
+  TOOL:"tool",
+  ANSWER:"answer",
+  ERROR:"error",
+  AGENT_STATUS_CHANGE:"agentStatusChange",
+  MODEL_COMPLETED:"modelCompleted",
+  COMPLETED:"completed",
+  ASSISTANT:"assistant",
+  GENERATE_CONVERSATION_NAME:"generateConversationName"
 } as const
 
 /** 助手 content 中 tool 块 status */
@@ -74,3 +74,6 @@ export const MODEL_TYPE = {
   VOICE:40,
   MUSIC:50,
 } as const
+
+export const THOUGHT_CHAIN_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [AGENT_CONTENT_TYPE.THINK, AGENT_CONTENT_TYPE.TOOL_END, AGENT_CONTENT_TYPE.TOOL_END, AGENT_CONTENT_TYPE.TOOL]
+

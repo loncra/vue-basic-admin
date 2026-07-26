@@ -8,19 +8,10 @@ import type {
 } from '@/types/apis'
 import {formUrlEncoded} from '@/utils'
 import axios, {buildAuthHeaders} from '@/requests'
-import type {
-  AgentChatRequestBody,
-  AgentChatResponseBody,
-  AgentStreamPayload
-} from '@/types/composables'
+import type {AgentChatRequestBody, AgentChatResponseBody,} from '@/types/composables'
 import {type AbstractXRequestClass, type SSEOutput, XRequest} from '@antdv-next/x-sdk'
-import {AGENT_SSE_EVENT, HTTP} from '@/constants'
-
-export type AgentStreamHandlers = {
-  onEvent: (eventName: string, payload: AgentStreamPayload) => void
-  onSuccess?: () => void
-  onError?: (error: Error) => void
-}
+import {HTTP} from '@/constants'
+import type {XRequestCallbacks} from "@antdv-next/x-sdk/x-request";
 
 /**
  * Agent 领域服务：`/api[/ai-server]/agent/{workspace|conversation|message}`
@@ -108,7 +99,7 @@ export class AgentService {
    */
   static loadStream(
     assistantId: number,
-    handlers: AgentStreamHandlers,
+    callbacks: XRequestCallbacks<SSEOutput>
   ): AbstractXRequestClass<Record<string, never>, SSEOutput> {
     const url = `${AgentService.STREAM_URL}/${assistantId}`
     const request = XRequest<Record<string, never>, SSEOutput>(url, {
@@ -118,55 +109,9 @@ export class AgentService {
         [HTTP.HEADER.ACCEPT]: HTTP.CONTENT_TYPE.EVENT_STREAM,
         [HTTP.HEADER.CACHE_CONTROL]: HTTP.CACHE_CONTROL.NO_CACHE,
       },
-      callbacks: {
-        onUpdate: (chunk) => {
-          const eventName = String(chunk.event || AGENT_SSE_EVENT.PATCH)
-          const payload = parseAgentStreamPayload(chunk.data, assistantId)
-          if (payload) {
-            handlers.onEvent(eventName, payload)
-          }
-        },
-        onSuccess: () => {
-          handlers.onSuccess?.()
-        },
-        onError: (error) => {
-          handlers.onError?.(error)
-        },
-      },
+      callbacks: callbacks
     })
     request.run()
     return request
-  }
-}
-
-function parseAgentStreamPayload(
-  raw: unknown,
-  fallbackAssistantId: number,
-): AgentStreamPayload | undefined {
-  let data: unknown = raw
-  if (typeof raw === 'string') {
-    const trimmed = raw.trim()
-    if (!trimmed) {
-      return undefined
-    }
-    try {
-      data = JSON.parse(trimmed)
-    } catch {
-      return undefined
-    }
-  }
-  if (!data || typeof data !== 'object') {
-    return undefined
-  }
-  const record = data as Record<string, unknown>
-  return {
-    assistantId: Number(record.assistantId ?? fallbackAssistantId),
-    status: record.status === undefined || record.status === null ? undefined : Number(record.status),
-    content: Array.isArray(record.content) ? (record.content as AgentStreamPayload['content']) : [],
-    version: record.version === undefined || record.version === null ? undefined : Number(record.version),
-    metadata:
-      record.metadata !== undefined && record.metadata !== null && typeof record.metadata === 'object'
-        ? (record.metadata as Record<string, unknown>)
-        : undefined,
   }
 }
