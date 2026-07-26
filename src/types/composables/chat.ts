@@ -56,6 +56,7 @@ export interface AgentThinkBlock {
   type: 'think'
   id: string
   value?: string
+  lastSseEventId?: string
 }
 
 export interface AgentToolBlock {
@@ -66,18 +67,21 @@ export interface AgentToolBlock {
   output?: unknown
   status?: string
   resultState?: string
+  lastSseEventId?: string
 }
 
 export interface AgentAnswerBlock {
   type: 'answer'
   id: string
   value?: string
+  lastSseEventId?: string
 }
 
 export interface AgentErrorBlock {
   type: 'error'
   id: string
   value?: string
+  lastSseEventId?: string
 }
 
 export type ChatContentBlock =

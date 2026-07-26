@@ -34,7 +34,7 @@ function toModelMenuItems(models: ModelSettingEntity[]): MenuItemType[] {
     }
     group.children.push({
       key: String(item.id),
-      label: item.name, // 或 item.model，看你想展示名称还是模型值，
+      label: item.name,
       icon: () => createIcon(item.icon || 'loncra-sticker'),
     })
   }

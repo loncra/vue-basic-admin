@@ -1,0 +1,37 @@
+{
+  "id": "5215889",
+  "name": "ai 厂商 logo",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "43955069",
+      "name": "Ollama",
+      "font_class": "ollama",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "45309590",
+      "name": "openai",
+      "font_class": "openai",
+      "unicode": "e635",
+      "unicode_decimal": 58933
+    },
+    {
+      "icon_id": "45527308",
+      "name": "deepseek",
+      "font_class": "deepseek",
+      "unicode": "e88f",
+      "unicode_decimal": 59535
+    },
+    {
+      "icon_id": "46051464",
+      "name": "阿里云百炼",
+      "font_class": "dash-scope",
+      "unicode": "e628",
+      "unicode_decimal": 58920
+    }
+  ]
+}

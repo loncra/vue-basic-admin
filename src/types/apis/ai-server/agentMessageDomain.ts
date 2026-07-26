@@ -13,7 +13,7 @@ export interface AgentMessageEntity extends BaseChatBubble {
   parentId?: number
   modelId?: number
   media?: string
-  metadata?: string
+  metadata?: Record<string, unknown>
   principal?: string
   tenantId?: string
 }

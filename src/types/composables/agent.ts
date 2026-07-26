@@ -83,6 +83,7 @@ export interface AgentStreamPayload {
   status?: number
   content?: ChatContentBlock[]
   version?: number
+  metadata?: Record<string, unknown>
 }
 
 export interface AgentSenderProps {

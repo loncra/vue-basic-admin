@@ -48,12 +48,16 @@ export function useAgentStream(
       if (payload.version !== undefined) {
         data.version = payload.version
       }
+      if (payload.metadata !== undefined) {
+        data.metadata = payload.metadata
+      }
     } else {
       bubble.data = {
         id: payload.assistantId,
         content,
         status: payload.status ?? AGENT_CHAT_STATUS.RUNNING,
         version: payload.version,
+        metadata: payload.metadata,
       } as AgentMessageEntity
     }
     if (done) {

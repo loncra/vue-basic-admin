@@ -164,5 +164,9 @@ function parseAgentStreamPayload(
     status: record.status === undefined || record.status === null ? undefined : Number(record.status),
     content: Array.isArray(record.content) ? (record.content as AgentStreamPayload['content']) : [],
     version: record.version === undefined || record.version === null ? undefined : Number(record.version),
+    metadata:
+      record.metadata !== undefined && record.metadata !== null && typeof record.metadata === 'object'
+        ? (record.metadata as Record<string, unknown>)
+        : undefined,
   }
 }
