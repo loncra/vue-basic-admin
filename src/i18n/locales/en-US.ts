@@ -600,6 +600,7 @@ const locale: LanguagePack = {
       title:'Workspace',
       createPlaceholder: 'workspace name',
     },
+    think:'think',
     welcome: {
       title: 'Hello, I am Captain.J',
       description: 'What do you need to do today?'

@@ -19,8 +19,6 @@ export const AGENT_CHAT_STATUS = {
 /** 助手消息 content 块 type（对齐后端 AgentContentType） */
 export const AGENT_CONTENT_TYPE = {
   THINK: "think",
-  TOOL_START:"toolStart",
-  TOOL_END:"toolEnd",
   TOOL:"tool",
   ANSWER:"answer",
   ERROR:"error",
@@ -31,8 +29,8 @@ export const AGENT_CONTENT_TYPE = {
   GENERATE_CONVERSATION_NAME:"generateConversationName"
 } as const
 
-/** 助手 content 中 tool 块 status */
-export const AGENT_TOOL_BLOCK_STATUS = {
+/** 助手 content 块 status */
+export const AGENT_BLOCK_STATUS = {
   RUNNING: 'running',
   DONE: 'done',
   FAILED: 'failed',
@@ -75,5 +73,23 @@ export const MODEL_TYPE = {
   MUSIC:50,
 } as const
 
-export const THOUGHT_CHAIN_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [AGENT_CONTENT_TYPE.THINK, AGENT_CONTENT_TYPE.TOOL_END, AGENT_CONTENT_TYPE.TOOL_END, AGENT_CONTENT_TYPE.TOOL]
+export const THOUGHT_CHAIN_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
+  AGENT_CONTENT_TYPE.THINK,
+  AGENT_CONTENT_TYPE.TOOL
+]
 
+export const TEXT_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
+  AGENT_CONTENT_TYPE.THINK,
+  AGENT_CONTENT_TYPE.ANSWER,
+  AGENT_CONTENT_TYPE.ERROR,
+]
+
+export const BUBBLE_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
+  AGENT_CONTENT_TYPE.ERROR,
+  AGENT_CONTENT_TYPE.ANSWER
+]
+
+export const UPDATE_CONVERSATION_TYPE: ReadonlyArray<AgentSseMessageContent['type']> = [
+  AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE,
+  AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
+]

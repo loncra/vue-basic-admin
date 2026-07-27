@@ -1,5 +1,5 @@
 import {computed, type MaybeRefOrGetter, nextTick, onUnmounted, ref, toValue, watch,} from 'vue'
-import type {BubbleItemType, BubbleListRef, RoleType} from '@antdv-next/x/dist/bubble/interface'
+import type {BubbleListRef, RoleType} from '@antdv-next/x/dist/bubble/interface'
 import type {
   ActiveChatSession,
   BubbleListCallbacks,

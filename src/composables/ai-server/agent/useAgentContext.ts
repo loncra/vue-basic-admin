@@ -29,6 +29,8 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
     if (!conversation) {
       conversationActive.value = undefined
       return
+    } else if (conversation.id === conversationActive.value?.id) {
+      return conversationActive.value
     }
 
     conversationActive.value = {

@@ -1,11 +1,16 @@
-import type {AgentConversationEntity, ObjectWriteResult, PageResult} from '@/types/apis'
+import type {
+  AgentConversationEntity,
+  NameValueEnumMetadata,
+  ObjectWriteResult,
+  PageResult
+} from '@/types/apis'
 import type {
   ActiveChatSession,
   ChatBubbleItem,
   ChatContentBlock,
 } from '@/types/composables/chat.ts'
 import type {Ref} from 'vue'
-import {AGENT_CHAT_STATUS} from '@/constants'
+import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE} from '@/constants'
 import type {AgentMessageLoaderApi} from '@/composables/ai-server/agent/useAgentMessageLoader.ts'
 
 export interface AgentConversationItem extends AgentConversationEntity {
@@ -83,3 +88,63 @@ export interface AgentSenderProps {
 }
 
 export type {ChatBubbleItem, PageResult}
+
+export interface AgentSseMessageContent {
+  sseEventId: string
+  id:string
+  type: typeof AGENT_CONTENT_TYPE.THINK
+    | typeof AGENT_CONTENT_TYPE.ANSWER
+    | typeof AGENT_CONTENT_TYPE.ERROR
+    | typeof AGENT_CONTENT_TYPE.TOOL
+    | typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
+    | typeof AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
+}
+
+export interface AgentBlockRunningMessageContent extends AgentSseMessageContent{
+  status:NameValueEnumMetadata<string> | string
+  creationTime:number,
+  endTime?:number
+}
+
+export interface CustomizeContentMetadata extends AgentSseMessageContent {
+  metadata?: Record<string, unknown>
+}
+
+export interface AgentTextMessageContent extends AgentBlockRunningMessageContent{
+  value?: string
+}
+
+export interface AgentThinkBlock extends AgentTextMessageContent {
+  type: typeof AGENT_CONTENT_TYPE.THINK
+}
+
+export interface AgentAnswerBlock extends AgentTextMessageContent {
+  type: typeof AGENT_CONTENT_TYPE.ANSWER
+}
+
+export interface AgentErrorBlock extends CustomizeContentMetadata {
+  type: typeof AGENT_CONTENT_TYPE.ERROR
+  metadata:{
+    message:string
+  }
+}
+
+export interface GenerateConversationName extends CustomizeContentMetadata {
+  type: typeof AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
+  metadata:{
+    name:string
+  }
+}
+
+export interface AgentStatusChangeSse extends AgentSseMessageContent {
+  status:NameValueEnumMetadata<number> | number
+  type: typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
+}
+
+export interface AgentToolBlock extends AgentBlockRunningMessageContent {
+  type: typeof AGENT_CONTENT_TYPE.TOOL
+  name: string
+  input?: unknown
+  output?: unknown
+  resultState:string
+}

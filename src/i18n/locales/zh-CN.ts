@@ -594,6 +594,7 @@ const locale: LanguagePack = {
       title:'工作空间',
       createPlaceholder:'工作空间名称',
     },
+    think:'深度思考',
     welcome: {
       title:'你好，我是 Captain.J',
       description:'今天有什么需要干的吗？'

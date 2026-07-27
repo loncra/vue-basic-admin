@@ -1,7 +1,13 @@
 import {onUnmounted, type Ref} from 'vue'
 import type {AbstractXRequestClass, SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
-import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE, CHAT_BUBBLE_TYPE,} from '@/constants'
+import {
+  AGENT_CHAT_STATUS,
+  AGENT_CONTENT_TYPE,
+  CHAT_BUBBLE_TYPE,
+  TEXT_TYPES,
+  UPDATE_CONVERSATION_TYPE,
+} from '@/constants'
 import type {
   ActiveAgentConversationItem,
   AgentConversationItem,
@@ -10,17 +16,11 @@ import type {
   AgentStreamApi,
   AgentTextMessageContent,
   ChatBubbleItem,
+  GenerateConversationName,
 } from '@/types/composables'
 import type {AgentMessageEntity} from '@/types/apis'
 import {findFirstTreeNode, getEnumValue} from '@/utils'
 
-const TEXT_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
-  AGENT_CONTENT_TYPE.THINK,
-  AGENT_CONTENT_TYPE.ANSWER,
-  AGENT_CONTENT_TYPE.ERROR,
-]
-
-const AGENT_STATUS_CHANGE_TYPE: Readonly<AgentSseMessageContent['type']> = AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
 
 /**
  * 订阅助手 SSE
@@ -70,20 +70,29 @@ export function useAgentStream(
       } else {
         appendTextMessageContent(sseData as AgentTextMessageContent, content)
       }
-    } else if (AGENT_STATUS_CHANGE_TYPE === sseData.type) {
-      updateConversationStatus(sseData as AgentStatusChangeSse)
+    } else if (UPDATE_CONVERSATION_TYPE.includes(sseData.type)) {
+      updateConversation(sseData)
     }
   }
 
-  function updateConversationStatus(sse: AgentStatusChangeSse) {
+  function updateConversation(sse: AgentSseMessageContent) {
     const active = conversationActive.value
     if (!active || String(active.id) !== sse.id) {
       return
     }
-    active.status = sse.status
     const item = findFirstTreeNode(s => s.id === active.id, conversations.value);
-    if (item) {
-      item.status = sse.status
+    if (sse.type === AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE) {
+      const status = getEnumValue((sse as AgentStatusChangeSse).status)
+      active.status = status
+      if (item) {
+        item.status = status
+      }
+    } else if (sse.type === AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME) {
+      const name = getEnumValue((sse as GenerateConversationName).metadata.name)
+      active.name = name
+      if (item) {
+        item.name = name
+      }
     }
   }
 
@@ -92,7 +101,12 @@ export function useAgentStream(
     if (!find) {
       return
     }
-    (find as AgentTextMessageContent).value += (chunk as AgentTextMessageContent).value || ""
+    const text = find as AgentTextMessageContent
+    text.value += (chunk as AgentTextMessageContent).value || ""
+    text.status = chunk.status
+    if (chunk.endTime) {
+      text.endTime = chunk.endTime
+    }
   }
 
   function connect(assistantId: number): void {

@@ -1,16 +1,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {
-  ThoughtChain as AxThoughtChain,
-  type ThoughtChainItemType,
-  Welcome as AxWelcome
-} from '@antdv-next/x'
-import {
-  AGENT_CONTENT_TYPE,
-  AGENT_TOOL_BLOCK_STATUS,
-  CHAT_BUBBLE_TYPE,
-  THOUGHT_CHAIN_TYPES
-} from '@/constants'
+import {ThoughtChain as AxThoughtChain, Welcome as AxWelcome} from '@antdv-next/x'
+import {CHAT_BUBBLE_TYPE} from '@/constants'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import LAgentUserMessageBubbleContent
@@ -19,8 +10,6 @@ import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import {createAgentBubbleListRole, useAgentView} from '@/composables'
-import type {AgentSseMessageContent, AgentThinkBlock, AgentToolBlock} from "@/types/composables";
-import {getEnumName, getEnumValue} from "@/utils";
 
 import {XMarkdown} from '@antdv-next/x-markdown'
 import '@antdv-next/x-markdown/themes/index.css'
@@ -35,6 +24,9 @@ const {
   principalStore,
   conversationActive,
   loader,
+  getThoughtChainConfig,
+  onThoughtChainExpand,
+  getAiBubbleContents,
   bubbleListRef,
   senderRef,
 } = useAgentView()
@@ -42,75 +34,6 @@ const {
 const hasMessages = computed(
   () => (conversationActive.value?.dataSource.elements.length ?? 0) > 0,
 )
-const thoughtItems = computed<ThoughtChainItemType[]>(() => {
-  const items: ThoughtChainItemType[] = []
-  if (!conversationActive.value) {
-    return items
-  }
-  const contents = conversationActive.value
-    .dataSource
-    .elements
-    .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
-    .flatMap(s => s.content)
-    .map(s => s as AgentSseMessageContent)
-  for (const block of contents.filter(s => THOUGHT_CHAIN_TYPES.includes(s.type))) {
-    if (block.type === AGENT_CONTENT_TYPE.THINK) {
-      const think = block as AgentThinkBlock
-      items.push({
-        key: think.id,
-        title: '思考',
-        content: think.value || '',
-        status: think.value ? 'success' : 'loading',
-        collapsible: true,
-      })
-      continue
-    }
-    if (block.type === AGENT_CONTENT_TYPE.TOOL) {
-      const tool = block as AgentToolBlock
-      items.push({
-        key: tool.id,
-        title: tool.name,
-        description: getEnumName(tool.status),
-        content: formatToolContent(tool),
-        status: mapToolStatus(getEnumValue(tool.status)),
-        collapsible: true,
-      })
-    }
-  }
-  return items
-})
-
-function stringify(value: unknown): string {
-  if (typeof value === 'string') {
-    return value
-  }
-  try {
-    return JSON.stringify(value, null, 2)
-  } catch {
-    return String(value)
-  }
-}
-
-function mapToolStatus(status?: string): ThoughtChainItemType['status'] {
-  if (status === AGENT_TOOL_BLOCK_STATUS.DONE) {
-    return 'success'
-  }
-  if (status === AGENT_TOOL_BLOCK_STATUS.FAILED) {
-    return 'error'
-  }
-  return 'loading'
-}
-
-function formatToolContent(tool: AgentToolBlock): string {
-  const parts: string[] = []
-  if (tool.input !== undefined && tool.input !== null) {
-    parts.push(`输入：${stringify(tool.input)}`)
-  }
-  if (tool.output !== undefined && tool.output !== null) {
-    parts.push(`输出：${stringify(tool.output)}`)
-  }
-  return parts.join('\n')
-}
 
 function onLoadPage(tag: 'next' | 'previous') {
   void loader.loadMore(tag)
@@ -156,7 +79,7 @@ defineExpose({
         <template #contentRender="{ item }">
           <l-agent-assistant-bubble-content
             v-if="item.role === CHAT_BUBBLE_TYPE.AI"
-            :content="item.content"
+            :content="getAiBubbleContents(item)"
           />
           <l-agent-user-message-bubble-content
             v-else
@@ -164,12 +87,25 @@ defineExpose({
           />
         </template>
         <template #header="{item}">
-          <ax-thought-chain v-if="item.role === CHAT_BUBBLE_TYPE.AI && thoughtItems.length > 0" :items="thoughtItems" line="dashed">
-            <template #content="{item:tItem}">
-              {{tItem.content}}
-              <x-markdown :content="tItem.content" />
-            </template>
-          </ax-thought-chain>
+          <a-card size="small" v-if="item.role === CHAT_BUBBLE_TYPE.AI">
+            <ax-thought-chain
+              :classes="{itemHeader: 'text-text-quaternary'}"
+              v-bind="getThoughtChainConfig(item)"
+              @expand="(keys: string[]) => onThoughtChainExpand(item.key, keys)"
+              line="dashed"
+            >
+              <template #content="{item:thoughtChainItem}">
+                <x-markdown
+                  :content="thoughtChainItem.content"
+                  paragraph-tag="div"
+                  :streaming="{
+                    hasNextChunk:thoughtChainItem.blink
+                  }"
+                  open-links-in-new-tab
+                />
+              </template>
+            </ax-thought-chain>
+          </a-card>
         </template>
         <template v-if="$slots.bubbleListAfter" #bubbleListAfter>
           <slot name="bubbleListAfter" />
