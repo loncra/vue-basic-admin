@@ -5,6 +5,7 @@ import type {
   AgentSseMessageContent,
   AgentTextMessageContent,
   AgentThinkBlock,
+  AgentTokenUsageContentMetadata,
   ChatBubbleItem,
 } from '@/types/composables'
 import type {AgentMessageEntity, RestResult} from '@/types/apis'
@@ -81,29 +82,30 @@ export function useAgentView() {
           ...result.data.conversation,
         }
         await activateConversation(newConversation)
+      } else {
+        const conversationId = Number(conversationActive.value.id)
+        const userMessage: AgentMessageEntity = {
+          id: result.data.userMessageId,
+          content: value.content,
+          status: AGENT_CHAT_STATUS.READY,
+          role: CHAT_BUBBLE_TYPE.USER,
+          agentConversationId: conversationId,
+        }
+        const assistantMessage: AgentMessageEntity = {
+          id: result.data.assistantId,
+          content: [],
+          status: AGENT_CHAT_STATUS.RUNNING,
+          role: CHAT_BUBBLE_TYPE.AI,
+          agentConversationId: conversationId,
+          parentId: result.data.userMessageId,
+        } as AgentMessageEntity
+
+        addBubbleListMessage(userMessage, CHAT_BUBBLE_TYPE.USER, conversationActive.value.dataSource.elements, true)
+        addBubbleListMessage(assistantMessage, CHAT_BUBBLE_TYPE.AI, conversationActive.value.dataSource.elements, true)
+        stream.connect(result.data.assistantId)
+        await nextTick()
       }
 
-      const conversationId = Number(conversationActive.value.id)
-      const userMessage: AgentMessageEntity = {
-        id: result.data.userMessageId,
-        content: value.content,
-        status: AGENT_CHAT_STATUS.READY,
-        role: CHAT_BUBBLE_TYPE.USER,
-        agentConversationId: conversationId,
-      }
-      const assistantMessage: AgentMessageEntity = {
-        id: result.data.assistantId,
-        content: [],
-        status: AGENT_CHAT_STATUS.RUNNING,
-        role: CHAT_BUBBLE_TYPE.AI,
-        agentConversationId: conversationId,
-        parentId: result.data.userMessageId,
-      } as AgentMessageEntity
-
-      addBubbleListMessage(userMessage, CHAT_BUBBLE_TYPE.USER, conversationActive.value.dataSource.elements, true)
-      addBubbleListMessage(assistantMessage, CHAT_BUBBLE_TYPE.AI, conversationActive.value.dataSource.elements, true)
-      stream.connect(result.data.assistantId)
-      await nextTick()
       bubbleListRef.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
     } catch (error) {
       message.error(error instanceof Error ? error.message : String(error))
@@ -136,8 +138,8 @@ export function useAgentView() {
   }
 
   function getAiBubbleContents(item:ChatBubbleItem):AgentTextMessageContent[] {
-    const contents = item.content as AgentSseMessageContent[]
-    return contents.filter(s => BUBBLE_TYPES.includes(s.type)) as AgentTextMessageContent[]
+    const contents = (item.content || []) as AgentSseMessageContent[]
+    return (contents.filter(s => BUBBLE_TYPES.includes(s.type)) || []) as AgentTextMessageContent[]
   }
 
   /** 一次调用返回 items + expandedKeys，首次自动懒初始化 */
@@ -162,12 +164,18 @@ export function useAgentView() {
     thoughtChainExpandedKeysRecord.value[itemKey] = keys
   }
 
+  function countTokenUsage(item:ChatBubbleItem) {
+    const message = item.data as AgentMessageEntity
+    return ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContentMetadata[]).reduce((acc:number, cur) => acc + cur.inputTokens + cur.outputTokens + cur.cachedTokens, 0)
+  }
+
   return {
     bubbleListRef,
     getThoughtChainConfig,
     getAiBubbleContents,
     onThoughtChainExpand,
     senderRef,
+    countTokenUsage,
     conversationActive,
     principalStore,
     loader,

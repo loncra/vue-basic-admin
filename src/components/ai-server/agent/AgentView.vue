@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {ThoughtChain as AxThoughtChain, Welcome as AxWelcome} from '@antdv-next/x'
-import {CHAT_BUBBLE_TYPE} from '@/constants'
+import {AGENT_CHAT_STATUS, CHAT_BUBBLE_TYPE} from '@/constants'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import LAgentUserMessageBubbleContent
@@ -10,10 +10,9 @@ import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import {createAgentBubbleListRole, useAgentView} from '@/composables'
-
-import {XMarkdown} from '@antdv-next/x-markdown'
-import '@antdv-next/x-markdown/themes/index.css'
-import '@antdv-next/x-markdown/themes/light.css'
+import LMarkdown from "@/components/basic/markdown/Markdown.vue";
+import type {AgentMessageEntity} from "@/types/apis";
+import {getEnumValue} from "@/utils";
 
 defineOptions({
   name: 'LAgentView',
@@ -27,6 +26,7 @@ const {
   getThoughtChainConfig,
   onThoughtChainExpand,
   getAiBubbleContents,
+  countTokenUsage,
   bubbleListRef,
   senderRef,
 } = useAgentView()
@@ -89,13 +89,13 @@ defineExpose({
         <template #header="{item}">
           <a-card size="small" v-if="item.role === CHAT_BUBBLE_TYPE.AI">
             <ax-thought-chain
-              :classes="{itemHeader: 'text-text-quaternary'}"
+              :classes="{itemHeader: 'text-text-secondary'}"
               v-bind="getThoughtChainConfig(item)"
               @expand="(keys: string[]) => onThoughtChainExpand(item.key, keys)"
               line="dashed"
             >
               <template #content="{item:thoughtChainItem}">
-                <x-markdown
+                <l-markdown
                   :content="thoughtChainItem.content"
                   paragraph-tag="div"
                   :streaming="{
@@ -106,6 +106,23 @@ defineExpose({
               </template>
             </ax-thought-chain>
           </a-card>
+        </template>
+        <template #footer="{item}">
+          <template v-if="item.role === CHAT_BUBBLE_TYPE.AI && getEnumValue((item.data as AgentMessageEntity).status) !== AGENT_CHAT_STATUS.RUNNING">
+            <a-space>
+              <a-button size="small">
+                <template #icon>
+                  <icon-font type="loncra-copy" />
+                </template>
+              </a-button>
+              <a-button size="small" variant="dashed">
+                <template #icon>
+                  <icon-font type="loncra-database-zap" />
+                </template>
+                {{ $t('agent.token.text') }}:{{countTokenUsage(item)}}
+              </a-button>
+            </a-space>
+          </template>
         </template>
         <template v-if="$slots.bubbleListAfter" #bubbleListAfter>
           <slot name="bubbleListAfter" />

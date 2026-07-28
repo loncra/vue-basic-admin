@@ -1,5 +1,6 @@
 import type {NameValueEnumMetadata} from "@/types/apis";
 import type {BaseChatBubble} from "@/types/composables";
+import type {AbstractXRequestClass, SSEOutput} from "@antdv-next/x-sdk";
 
 /**
  * Agent 消息（对齐 `AgentMessageEntity`）
@@ -16,4 +17,8 @@ export interface AgentMessageEntity extends BaseChatBubble {
   metadata?: Record<string, unknown>
   principal?: string
   tenantId?: string
+}
+
+export interface StreamAgentMessageEntity extends AgentMessageEntity {
+  stream?: AbstractXRequestClass<Record<string, never>, SSEOutput>
 }

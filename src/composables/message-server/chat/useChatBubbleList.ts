@@ -1,16 +1,7 @@
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  h,
-  type Ref,
-  ref,
-  watch,
-} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, h, type Ref, ref, watch,} from 'vue'
 import type {
   ChatBubbleItem,
   ChatBubbleListCallbacks,
-  ChatBubbleListProps,
   ChatContentBlock,
   UserChatConversationActiveProps,
 } from '@/types/composables'
@@ -23,11 +14,13 @@ import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'
-import {DEFAULT_BUBBLE_LIST_ROLE, } from '@/composables/chat/useBubbleList.ts'
+import {DEFAULT_BUBBLE_LIST_ROLE,} from '@/composables/chat/useBubbleList.ts'
 
 function getBubbleMessageTime(item: ChatBubbleItem): number {
   return item.data?.creationTime ?? 0
 }
+
+const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
 
 /**
  * IM 气泡列表业务层：已读上报、撤回/引用/重编辑、右键菜单。
@@ -35,7 +28,6 @@ function getBubbleMessageTime(item: ChatBubbleItem): number {
  */
 export function useChatBubbleList(
   conversation: Ref<UserChatConversationActiveProps>,
-  props: Ref<ChatBubbleListProps>,
   callbacks: ChatBubbleListCallbacks,
 ) {
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
@@ -56,7 +48,7 @@ export function useChatBubbleList(
     for (const msg of sorted) {
       const msgTime = getBubbleMessageTime(msg)
       const needDivider =
-        result.length === 0 || (msgTime > 0 && msgTime - lastDividerTime >= props.value.timeDividerGap)
+        result.length === 0 || (msgTime > 0 && msgTime - lastDividerTime >= TIME_DIVIDER_GAP_MS)
       if (needDivider && msgTime > 0) {
         result.push({
           key: `divider-${String(msg.key)}-${msgTime}`,

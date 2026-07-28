@@ -1,7 +1,7 @@
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {AgentService} from '@/apis/ai-server/agentService.ts'
 import type {RestResult} from '@/types/apis'
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {createIcon, findFirstTreeNode, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {AGENT_CHAT_STATUS, AGENT_CHAT_STATUS_STYLE, AGENT_CONVERSATION_TYPE} from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
 import type {AgentChatStatus, AgentConversationItem} from "@/types/composables";
@@ -16,9 +16,17 @@ export function useAgentConversation() {
 
   const loading = ref<boolean>(false)
 
+  const menuOptions = ref<{
+    openKeys:string[]
+    selectedKeys:string[]
+  }>({
+    openKeys:[],
+    selectedKeys:[]
+  })
+
   const {message, modal} = useApp()
 
-  const {activateConversation, conversations, conversationActive} = useAgentChatContext()
+  const {activateConversation, conversations} = useAgentChatContext()
   /** 是否已有处于编辑态的工作空间行（同时只允许一条） */
   function getEditingConversationItem(): AgentConversationItem | undefined {
     return conversations.value.find((item) => item.editing)
@@ -82,19 +90,35 @@ export function useAgentConversation() {
     }
   }
 
-  async function loadWorkspaces(): Promise<void> {
+  async function loadWorkspaces(switchItemId?: number): Promise<void> {
     loading.value = true
     try {
       const result = await AgentService.findConversation()
       conversations.value = (result.data || []) as AgentConversationItem[]
 
-      const defaultConversation = conversations.value.find(c => getEnumValue(c.type) === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE)
-      if (defaultConversation) {
-        activateConversation(defaultConversation)
+      let activate;
+      if (!switchItemId) {
+        activate = conversations.value
+          .find(c => getEnumValue(c.type) === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE)
+      } else {
+        activate = conversations.value
+          .find(c => c.id === switchItemId)
       }
+      activate = await activateConversation(activate)
+      if (activate) {
+        updateMenuOptions(activate)
+      }
+
     } finally {
       loading.value = false
     }
+  }
+
+  function updateMenuOptions(conversation: AgentConversationItem) {
+    if (conversation.parentId) {
+      menuOptions.value.openKeys = [...menuOptions.value.openKeys, String(conversation.parentId)]
+    }
+    menuOptions.value.selectedKeys = [String(conversation.key)]
   }
 
   /** 新建：在列表顶部插入 editing=true 的空行 */
@@ -137,7 +161,7 @@ export function useAgentConversation() {
       const result = await AgentService.saveConversation(item)
       item.editing = false
       message.success(result.message)
-      await loadWorkspaces()
+      await loadWorkspaces(result.data)
     } finally {
       loading.value = false
     }
@@ -148,14 +172,23 @@ export function useAgentConversation() {
     return AGENT_CHAT_STATUS_STYLE[value] ?? AGENT_CHAT_STATUS_STYLE[AGENT_CHAT_STATUS.READY]
   }
 
+  async function onConversationMenuClick(m:MenuInfo) {
+    const item = findFirstTreeNode(s => String(s.id) === m.key, conversations.value)
+    const activate = await activateConversation(item as AgentConversationItem)
+    if (activate) {
+      updateMenuOptions(activate)
+    }
+  }
+
   onMounted(() => {
     void loadWorkspaces()
   })
 
   return {
     conversations,
+    menuOptions,
     loading,
-    onConversationMenuClick:activateConversation,
+    onConversationMenuClick,
     getAgentChatStatusStyle,
     createMenu,
     startCreateWorkspace,

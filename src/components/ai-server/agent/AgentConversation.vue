@@ -17,6 +17,7 @@ const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
 
 const {
   conversations,
+  menuOptions,
   loading,
   createMenu,
   getAgentChatStatusStyle,
@@ -60,6 +61,9 @@ const {
       <a-menu
         root-class="border-none agent-side-menu"
         :items="conversations"
+        v-model:open-keys="menuOptions.openKeys"
+        v-model:selected-keys="menuOptions.selectedKeys"
+        @click="onConversationMenuClick"
         :inline-indent="configProviderStore.getToken().size"
         mode="inline"
       >
@@ -122,7 +126,6 @@ const {
             class="group min-w-0 w-full"
             justify="space-between"
             align="center"
-            @click="() => onConversationMenuClick(item)"
           >
             <a-typography-text
               class="min-w-0 flex-1"

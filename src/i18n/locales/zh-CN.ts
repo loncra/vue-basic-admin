@@ -65,6 +65,7 @@ const locale: LanguagePack = {
     parent:'父类',
     addChild:'添加{name}子级',
     open:'开启',
+    copy:'复制',
     close:'关闭',
     border:'边框',
     size:'大小',
@@ -589,6 +590,12 @@ const locale: LanguagePack = {
     },
   },
   agent: {
+    token:{
+      text:'词元',
+      input:'输入词元',
+      output:'输出词元',
+      cache:'缓存命中'
+    },
     creation:'创建智能体',
     workspace:{
       title:'工作空间',

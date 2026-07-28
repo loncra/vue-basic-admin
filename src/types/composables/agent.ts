@@ -22,8 +22,9 @@ export interface ActiveAgentConversationItem
 
 export type AgentStreamApi = {
   connect: (assistantId: number) => void
-  disconnect: () => void
+  disconnect: (assistantId:number) => void
   reconnectIfRunning: () => void
+  disconnectIfRunning: () => void
 }
 
 export interface AgentChatContext {
@@ -91,12 +92,15 @@ export type {ChatBubbleItem, PageResult}
 
 export interface AgentSseMessageContent {
   sseEventId: string
-  id:string
+  id: string
   type: typeof AGENT_CONTENT_TYPE.THINK
     | typeof AGENT_CONTENT_TYPE.ANSWER
     | typeof AGENT_CONTENT_TYPE.ERROR
     | typeof AGENT_CONTENT_TYPE.TOOL
     | typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
+    | typeof AGENT_CONTENT_TYPE.TOKEN_USAGE
+    | typeof AGENT_CONTENT_TYPE.STREAM_END
+    | typeof AGENT_CONTENT_TYPE.STREAM_START
     | typeof AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
 }
 
@@ -139,6 +143,14 @@ export interface GenerateConversationName extends CustomizeContentMetadata {
 export interface AgentStatusChangeSse extends AgentSseMessageContent {
   status:NameValueEnumMetadata<number> | number
   type: typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
+}
+
+export interface AgentTokenUsageContentMetadata extends AgentSseMessageContent {
+  inputTokens:number
+  outputTokens:number
+  cachedTokens:number
+  usageType:NameValueEnumMetadata<string> | string
+  type: typeof AGENT_CONTENT_TYPE.TOKEN_USAGE
 }
 
 export interface AgentToolBlock extends AgentBlockRunningMessageContent {

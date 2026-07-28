@@ -87,12 +87,13 @@ export function addBubbleListMessage(
   append: boolean = false,
   hide: boolean = false,
 ): void {
+  const content = body.content ?? []
   const index = bubbleList.findIndex((b) => b.key === String(body.id))
   if (index >= 0) {
     bubbleList[index] = {
       key: String(body.id),
       role,
-      content: body.content,
+      content,
       data: body,
       hide,
     }
@@ -112,7 +113,7 @@ export function addBubbleListMessage(
         {
           key: String(body.id),
           role,
-          content: body.content,
+          content,
           data: body,
           hide,
         },

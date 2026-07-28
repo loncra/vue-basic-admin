@@ -101,6 +101,9 @@ defineExpose({
       <template v-if="$slots.contentRender" #contentRender="slotProps">
         <slot name="contentRender" v-bind="slotProps" />
       </template>
+      <template v-if="$slots.footer" #footer="slotProps">
+        <slot name="footer" v-bind="slotProps" />
+      </template>
     </ax-bubble-list>
     <slot name="bubbleListAfter" />
     <a-space-compact class="absolute bottom-0 mb-sm left-1/2 -translate-x-1/2 animate-bounce">

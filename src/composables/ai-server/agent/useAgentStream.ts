@@ -1,12 +1,14 @@
 import {onUnmounted, type Ref} from 'vue'
-import type {AbstractXRequestClass, SSEOutput} from '@antdv-next/x-sdk'
+import type {SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
 import {
   AGENT_CHAT_STATUS,
   AGENT_CONTENT_TYPE,
   CHAT_BUBBLE_TYPE,
+  STREAM_UPDATE_TYPE,
   TEXT_TYPES,
-  UPDATE_CONVERSATION_TYPE,
+  TOKEN_USAGE_TYPE,
+  UPDATE_CONVERSATION_TYPES,
 } from '@/constants'
 import type {
   ActiveAgentConversationItem,
@@ -15,11 +17,17 @@ import type {
   AgentStatusChangeSse,
   AgentStreamApi,
   AgentTextMessageContent,
-  ChatBubbleItem,
+  AgentTokenUsageContentMetadata,
+  CustomizeContentMetadata,
   GenerateConversationName,
 } from '@/types/composables'
-import type {AgentMessageEntity} from '@/types/apis'
+import type {
+  AgentMessageEntity,
+  NameValueEnumMetadata,
+  StreamAgentMessageEntity
+} from '@/types/apis'
 import {findFirstTreeNode, getEnumValue} from '@/utils'
+import useApp from "antdv-next/dist/app/useApp";
 
 
 /**
@@ -29,20 +37,32 @@ export function useAgentStream(
   conversationActive: Ref<ActiveAgentConversationItem | undefined>,
   conversations: Ref<AgentConversationItem[]>
 ): AgentStreamApi {
-  let currentRequest: AbstractXRequestClass<Record<string, never>, SSEOutput> | undefined
-  let currentAssistantId: number | undefined
 
-  function disconnect(): void {
-    currentRequest?.abort()
-    currentRequest = undefined
-    currentAssistantId = undefined
+  const {message} = useApp()
+
+  function getStreamAgentMessageEntity(assistantId:number): StreamAgentMessageEntity | undefined {
+    const active = conversationActive.value
+    if (!active) {
+      return
+    }
+
+    const find = active.dataSource
+      .elements
+      .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
+      .find(s => Number(s?.data?.id) === assistantId)
+    if (find) {
+      return find.data as StreamAgentMessageEntity
+    }
   }
 
-  function completed() {
-    if (conversationActive.value?.loading) {
-      conversationActive.value.loading = false
+  function disconnect(assistantId:number): void {
+    const stream = getStreamAgentMessageEntity(assistantId)
+    if (!stream) {
+      return
     }
-    disconnect()
+
+    stream.stream?.abort()
+    stream.stream = undefined
   }
 
   function onEvent(chunk: Partial<SSEOutput>, assistantId:number) {
@@ -55,6 +75,9 @@ export function useAgentStream(
       .find(item => item.key === String(assistantId))
     if (!bubble) {
       return
+    }
+    if (!bubble.content) {
+      bubble.content = []
     }
 
     const sseData:AgentSseMessageContent = JSON.parse(chunk.data)
@@ -70,8 +93,46 @@ export function useAgentStream(
       } else {
         appendTextMessageContent(sseData as AgentTextMessageContent, content)
       }
-    } else if (UPDATE_CONVERSATION_TYPE.includes(sseData.type)) {
+    } else if (UPDATE_CONVERSATION_TYPES.includes(sseData.type)) {
       updateConversation(sseData)
+    } else if (TOKEN_USAGE_TYPE === sseData.type) {
+      updateTokenUsage(sseData as AgentTokenUsageContentMetadata)
+    } else if (STREAM_UPDATE_TYPE.includes(sseData.type)) {
+      updateMessageStatus(sseData as CustomizeContentMetadata)
+    }
+  }
+
+  function updateMessageStatus(sse:CustomizeContentMetadata) {
+    const item = conversationActive.value?.dataSource.elements.find(s => s.key === String(sse.id))
+    if (!item || !item.data) {
+      return
+    }
+    const message = item.data as AgentMessageEntity
+    if (sse?.metadata?.status) {
+      message.status = sse.metadata.status as NameValueEnumMetadata<number>
+    }
+  }
+
+  function updateTokenUsage(sse: AgentTokenUsageContentMetadata) {
+    const item = conversationActive.value?.dataSource.elements.find(s => s.key === String(sse.id))
+    if (!item || !item.data) {
+      return
+    }
+    const message = item.data as AgentMessageEntity
+    if (!message.metadata) {
+      message.metadata = {}
+    }
+    if (!message.metadata.tokenUsage) {
+      message.metadata.tokenUsage = []
+    }
+    const tokenUsage = message.metadata.tokenUsage as AgentTokenUsageContentMetadata[]
+    const find = tokenUsage.find(s => getEnumValue(s.usageType) === getEnumValue(sse.usageType))
+    if (find) {
+      find.inputTokens += sse.inputTokens
+      find.outputTokens += sse.outputTokens
+      find.cachedTokens += sse.cachedTokens
+    } else {
+      tokenUsage.push(sse)
     }
   }
 
@@ -109,62 +170,59 @@ export function useAgentStream(
     }
   }
 
+  function onError(error:Error) {
+    console.error(error)
+    message.error(error.message)
+  }
+
   function connect(assistantId: number): void {
-    if (currentAssistantId === assistantId && currentRequest?.isRequesting) {
+    const streamEntity = getStreamAgentMessageEntity(assistantId)
+    if (!streamEntity || streamEntity.stream) {
       return
     }
-    disconnect()
-    currentAssistantId = assistantId
-    const active = conversationActive.value
-    if (active) {
-      active.loading = true
-    }
-    currentRequest = AgentService.loadStream(assistantId, {
+    streamEntity.stream = AgentService.loadStream(assistantId, {
       onUpdate: (chunk: Partial<SSEOutput>) => onEvent(chunk, assistantId),
-      onSuccess: completed,
-      onError: completed,
+      onSuccess: () => disconnect(assistantId),
+      onError: onError,
     })
   }
 
   function reconnectIfRunning(): void {
     const active = conversationActive.value
     if (!active) {
-      disconnect()
       return
     }
-    const running = findLatestRunningAssistant(active.dataSource.elements)
-    if (!running) {
-      disconnect()
+    const runs = active.dataSource
+      .elements
+      .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
+      .filter(s => getEnumValue((s.data as AgentMessageEntity).status) === AGENT_CHAT_STATUS.RUNNING)
+    if (runs.length <= 0) {
       return
     }
-    const assistantId = Number(running.key)
-    if (!Number.isFinite(assistantId)) {
-      return
-    }
-    connect(assistantId)
+
+    runs.forEach(s => connect(Number(s?.data?.id)))
+
   }
 
-  onUnmounted(() => disconnect())
+  function disconnectIfRunning() {
+    const active = conversationActive.value
+    if (!active) {
+      return
+    }
+    const runs = active.dataSource
+      .elements
+      .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
+      .filter(s => getEnumValue((s.data as AgentMessageEntity).status) === AGENT_CHAT_STATUS.RUNNING)
+    runs.forEach(s => disconnect(Number(s?.data?.id)))
+  }
+  onUnmounted(disconnectIfRunning)
 
   return {
     connect,
+    disconnectIfRunning,
     disconnect,
     reconnectIfRunning,
   }
-}
-
-function findLatestRunningAssistant(elements: ChatBubbleItem[]): ChatBubbleItem | undefined {
-  for (let i = elements.length - 1; i >= 0; i--) {
-    const item = elements[i]
-    if (!item || item.role !== CHAT_BUBBLE_TYPE.AI) {
-      continue
-    }
-    const status = getEnumValue((item.data as AgentMessageEntity)?.status as number | undefined)
-    if (Number(status) === AGENT_CHAT_STATUS.RUNNING) {
-      return item
-    }
-  }
-  return undefined
 }
 
 export type AgentStreamComposableApi = ReturnType<typeof useAgentStream>

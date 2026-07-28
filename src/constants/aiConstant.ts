@@ -23,8 +23,9 @@ export const AGENT_CONTENT_TYPE = {
   ANSWER:"answer",
   ERROR:"error",
   AGENT_STATUS_CHANGE:"agentStatusChange",
-  MODEL_COMPLETED:"modelCompleted",
-  COMPLETED:"completed",
+  TOKEN_USAGE:"tokenUsage",
+  STREAM_START:"streamStart",
+  STREAM_END:"streamEnd",
   ASSISTANT:"assistant",
   GENERATE_CONVERSATION_NAME:"generateConversationName"
 } as const
@@ -89,7 +90,11 @@ export const BUBBLE_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
   AGENT_CONTENT_TYPE.ANSWER
 ]
 
-export const UPDATE_CONVERSATION_TYPE: ReadonlyArray<AgentSseMessageContent['type']> = [
+export const UPDATE_CONVERSATION_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
   AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE,
   AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
 ]
+
+export const TOKEN_USAGE_TYPE: Readonly<AgentSseMessageContent['type']> = AGENT_CONTENT_TYPE.TOKEN_USAGE
+
+export const STREAM_UPDATE_TYPE: ReadonlyArray<AgentSseMessageContent['type']> = [AGENT_CONTENT_TYPE.STREAM_START, AGENT_CONTENT_TYPE.STREAM_END]

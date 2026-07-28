@@ -10,8 +10,7 @@ import {
   DEFAULT_PAGE_RESULT_VALUE,
 } from '@/constants'
 import {inject, provide, ref} from 'vue'
-import {useAgentMessageLoader} from './useAgentMessageLoader.ts'
-import {useAgentStream} from './useAgentStream.ts'
+import {useAgentMessageLoader, useAgentStream} from '@/composables'
 import {findFirstTreeNode, getEnumValue} from '@/utils'
 
 export function provideAgentChatContext(options: ProvideAgentChatContextOptions): AgentChatContext {
@@ -25,13 +24,15 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
     conversation: AgentConversationItem | undefined,
     messageId?: number,
   ): Promise<ActiveAgentConversationItem | undefined> {
-    stream.disconnect()
     if (!conversation) {
+      stream.disconnectIfRunning()
       conversationActive.value = undefined
       return
     } else if (conversation.id === conversationActive.value?.id) {
       return conversationActive.value
     }
+
+    stream.disconnectIfRunning()
 
     conversationActive.value = {
       dataSource: {...DEFAULT_PAGE_RESULT_VALUE, elements: []},

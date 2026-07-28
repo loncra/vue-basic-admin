@@ -4,8 +4,8 @@ import {CHAT_BUBBLE_TYPE} from '@/constants'
 import {AuthServerService} from '@/apis'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LChatMessageReadTable from '@/components/message-server/chat/ChatMessageReadTable.vue'
-import {type ComponentInternalInstance, computed, getCurrentInstance, type Ref, ref} from 'vue'
-import type {ChatBubbleListProps, ChatContentBlock} from '@/types/composables'
+import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
+import type {ChatContentBlock} from '@/types/composables'
 import type {UserChatMessageResponseBody} from '@/types/apis'
 import {useChatBubbleList, useChatContext} from '@/composables/message-server/chat'
 import LChatMessageBubbleContent
@@ -17,7 +17,7 @@ defineOptions({
   name: 'LChatBubbleList',
 })
 
-const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
+
 const ROOM_TYPE_GROUP = 10
 const ROOM_TYPE_PRIVATE = 20
 
@@ -25,7 +25,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const props = withDefaults(
+/*const props = withDefaults(
   defineProps<ChatBubbleListProps>(),
   {
     throttleCollectVisibleWait: 500,
@@ -34,17 +34,16 @@ const props = withDefaults(
     scrollToBottomThreshold: 100,
     timeDividerGap: TIME_DIVIDER_GAP_MS,
   },
-)
+)*/
 
 // 在 useChatBubbleList 调用之前添加：
-const chatBubbleListProps: Ref<ChatBubbleListProps> = computed(() => ({
+/*const chatBubbleListProps: Ref<ChatBubbleListProps> = computed(() => ({
   scrollToBottomThreshold: props.scrollToBottomThreshold!,
   throttleOnScrollWait: props.throttleOnScrollWait!,
-  // 将组件的 throttleCollectVisibleUnreadWait 映射为 BubbleListProps 要求的 throttleCollectVisibleWait
   throttleCollectVisibleWait: props.throttleCollectVisibleWait,
   topThreshold: props.topThreshold,
   timeDividerGap: props.timeDividerGap,
-}))
+}))*/
 
 const emit = defineEmits<{
   reedit: [content: ChatContentBlock[]]
@@ -67,7 +66,6 @@ const {
   onReloadLastPage,
 } = useChatBubbleList(
   conversation,
-  chatBubbleListProps,
   {
     onLoadPage: (tag) => loader.loadMore(tag),
     onReloadLastPage: () => {
@@ -103,10 +101,6 @@ defineExpose({
     ref="bubbleListRef"
     :session="session"
     collect-visible
-    :scroll-to-bottom-threshold="props.scrollToBottomThreshold"
-    :throttle-on-scroll-wait="props.throttleOnScrollWait"
-    :throttle-collect-visible-wait="props.throttleCollectVisibleWait"
-    :top-threshold="props.topThreshold"
     :render-item="buildBubbleListWithDividers"
     :role="bubbleListRole"
     @load-page="onLoadPage"

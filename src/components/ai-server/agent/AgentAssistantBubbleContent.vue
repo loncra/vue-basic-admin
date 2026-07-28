@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import {XMarkdown} from '@antdv-next/x-markdown'
-import '@antdv-next/x-markdown/themes/index.css'
-import '@antdv-next/x-markdown/themes/light.css'
+
 import type {
   AgentBlockRunningMessageContent,
   AgentErrorBlock,
@@ -9,8 +7,9 @@ import type {
   AgentTextMessageContent,
 } from '@/types/composables'
 import {AGENT_BLOCK_STATUS, AGENT_CONTENT_TYPE} from "@/constants";
-import LMarkdownCodeRenderer from "@/components/basic/chat/MarkdownCodeRenderer.vue";
+import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
 import {getEnumValue} from "@/utils";
+import LMarkdown from "@/components/basic/markdown/Markdown.vue";
 
 defineOptions({
   name: 'LAgentAssistantBubbleContent',
@@ -26,7 +25,7 @@ const props = withDefaults(defineProps<{
 
 <template>
   <a-flex vertical gap="small" v-if="props.content.length > 0">
-    <x-markdown
+    <l-markdown
       :content="content.filter((s) => s.type === AGENT_CONTENT_TYPE.ANSWER).map((s) => (s as AgentTextMessageContent).value || '').join()"
       :components="{
         code: LMarkdownCodeRenderer

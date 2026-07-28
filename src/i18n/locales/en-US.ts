@@ -33,6 +33,7 @@ const locale: LanguagePack = {
     rejected:'rejected',
     ignore:'ignore',
     rename:'Rename',
+    copy:'Copy',
     read: {
       time: 'Read time',
       readable: 'Unread {count}',
@@ -596,6 +597,12 @@ const locale: LanguagePack = {
   },
   agent: {
     creation: 'Create agent',
+    token:{
+      text:'text',
+      input:'input',
+      output:'output',
+      cache:'cache'
+    },
     workspace:{
       title:'Workspace',
       createPlaceholder: 'workspace name',
