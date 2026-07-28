@@ -410,10 +410,13 @@
 
   .ai-agent-splitter .ant-splitter-bar-collapse-bar,
   .ai-agent-splitter .ant-splitter-bar .ant-splitter-bar-dragger::after{
-    @apply top-10 translate-y-0;
+    @apply top-7 translate-y-0;
   }
 
+  .x-markdown .antd-code-highlighter .antd-code-highlighter-content .antd-code-highlighter-code pre {
+    @apply p-xxs!;
+  }
   .x-markdown .antd-code-highlighter .antd-code-highlighter-content .antd-code-highlighter-code pre code {
-    @apply whitespace-pre break-normal leading-[1.5em];
+    @apply whitespace-pre! break-normal! leading-[1.5em]! bg-transparent! m-0! p-xs! rounded-none! border-0!;
   }
 }

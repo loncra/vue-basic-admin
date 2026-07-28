@@ -8,7 +8,7 @@ import type {
   AgentTokenUsageContentMetadata,
   ChatBubbleItem,
 } from '@/types/composables'
-import type {AgentMessageEntity, RestResult} from '@/types/apis'
+import type {AgentMessageEntity, RestResult, StreamAgentMessageEntity} from '@/types/apis'
 import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref, ref} from 'vue'
@@ -19,6 +19,7 @@ import {DEFAULT_BUBBLE_LIST_ROLE, useAgentChatContext} from '@/composables'
 import {
   AGENT_BLOCK_STATUS,
   AGENT_CHAT_STATUS,
+  AGENT_CONTENT_TYPE,
   BUBBLE_TYPES,
   CHAT_BUBBLE_TYPE,
   THOUGHT_CHAIN_TYPES
@@ -169,12 +170,25 @@ export function useAgentView() {
     return ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContentMetadata[]).reduce((acc:number, cur) => acc + cur.inputTokens + cur.outputTokens + cur.cachedTokens, 0)
   }
 
+  async function copyText(item:StreamAgentMessageEntity) {
+    try {
+      const text = item.content.filter(s => getEnumValue(s.type) === AGENT_CONTENT_TYPE.ANSWER).map(s => (s as AgentTextMessageContent).value).join('')
+      await navigator.clipboard.writeText(text);
+      item.copy = true;
+      // 可选：给个提示
+      // message.success('已复制到剪贴板');
+    } catch {
+      // 复制失败处理
+    }
+  }
+
   return {
     bubbleListRef,
     getThoughtChainConfig,
     getAiBubbleContents,
     onThoughtChainExpand,
     senderRef,
+    copyText,
     countTokenUsage,
     conversationActive,
     principalStore,

@@ -11,7 +11,7 @@ import LAgentAssistantBubbleContent
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import {createAgentBubbleListRole, useAgentView} from '@/composables'
 import LMarkdown from "@/components/basic/markdown/Markdown.vue";
-import type {AgentMessageEntity} from "@/types/apis";
+import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
 import {getEnumValue} from "@/utils";
 import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
 
@@ -29,6 +29,7 @@ const {
   getAiBubbleContents,
   countTokenUsage,
   bubbleListRef,
+  copyText,
   senderRef,
 } = useAgentView()
 
@@ -114,9 +115,9 @@ defineExpose({
         <template #footer="{item}">
           <template v-if="item.role === CHAT_BUBBLE_TYPE.AI && getEnumValue((item.data as AgentMessageEntity).status) !== AGENT_CHAT_STATUS.RUNNING">
             <a-space>
-              <a-button size="small">
+              <a-button variant="outlined" size="small" :color="(item.data as StreamAgentMessageEntity).copy ? 'cyan' : 'default'" @click="copyText(item.data as StreamAgentMessageEntity)">
                 <template #icon>
-                  <icon-font type="loncra-copy" />
+                  <icon-font :type="(item.data as StreamAgentMessageEntity).copy ? 'loncra-copy-check' : 'loncra-copy'" />
                 </template>
               </a-button>
               <a-button size="small" variant="dashed">

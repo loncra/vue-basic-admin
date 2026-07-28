@@ -1,18 +1,12 @@
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {AgentService} from '@/apis/ai-server/agentService.ts'
 import type {RestResult} from '@/types/apis'
-import {
-  createIcon, filterTreeDeep,
-  findAllTreeNodes,
-  findFirstTreeNode,
-  getEnumValue,
-  requireNonNullOrUndefined, unmergeTree
-} from '@/utils'
+import {createIcon, findFirstTreeNode, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {AGENT_CHAT_STATUS, AGENT_CHAT_STATUS_STYLE, AGENT_CONVERSATION_TYPE} from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
 import type {AgentChatStatus, AgentConversationItem} from "@/types/composables";
 import type {MenuInfo} from "@v-c/menu";
-import type {MenuProps} from "antdv-next";
+import {type MenuItemType, type MenuProps} from "antdv-next";
 import {useAgentChatContext} from "@/composables";
 
 export function useAgentConversation() {
@@ -31,8 +25,12 @@ export function useAgentConversation() {
   }
 
   function createMenu(conversation: AgentConversationItem): MenuProps {
-    return {
-      items: [
+    const menu = {
+      items: [] as MenuItemType[],
+      onClick: (menuItem: MenuInfo) => onOperationMenuClick(menuItem, conversation),
+    }
+    if (getEnumValue(conversation.type) !== AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE) {
+      menu.items.push(
         {
           label: globalProperties.$t('common.rename'),
           key: 'rename',
@@ -46,23 +44,29 @@ export function useAgentConversation() {
           key: 'delete',
           danger: true,
           icon: () => createIcon('loncra-archive-x'),
-        },
-      ],
-      onClick: (menuItem: MenuInfo) => onOperationMenuClick(menuItem, conversation),
+        },)
     }
+    if (getEnumValue(conversation.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
+      menu.items.unshift({
+        label: globalProperties.$t('agent.creation'),
+        key: 'creation',
+        icon: () => createIcon('loncra-plus'),
+      })
+    }
+    return menu
   }
 
-  function onOperationMenuClick(itemInfo: MenuInfo, conversation: AgentConversationItem): void {
+  async function onOperationMenuClick(itemInfo: MenuInfo, conversation: AgentConversationItem) {
     if (itemInfo.key === 'rename') {
       startRenameWorkspace(conversation)
-      return
-    }
-    if (itemInfo.key === 'delete' && conversation) {
+    } else if (itemInfo.key === 'delete' && conversation) {
       modal.confirm({
         title: globalProperties.$t('common.delete.confirmTitle'),
         content: globalProperties.$t('common.delete.confirmSingle'),
         onOk: () => doDelete(conversation!),
       })
+    } else if (itemInfo.key === 'creation') {
+      await activateConversation(conversation)
     }
   }
 
@@ -170,22 +174,6 @@ export function useAgentConversation() {
     await activateConversation(item as AgentConversationItem)
   }
 
-  async function newAgent() {
-    if (!conversationActive.value) {
-      return
-    }
-    if (getEnumValue(conversationActive.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
-      return
-    }
-
-    const workspaces = conversations.value.find(s => s.id === conversationActive.value?.parentId)
-    if (!workspaces) {
-      return
-    }
-    await activateConversation(workspaces)
-
-  }
-
   onMounted(() => {
     void loadWorkspaces()
   })
@@ -194,7 +182,6 @@ export function useAgentConversation() {
     conversations,
     menuOptions,
     loading,
-    newAgent,
     onConversationMenuClick,
     getAgentChatStatusStyle,
     createMenu,

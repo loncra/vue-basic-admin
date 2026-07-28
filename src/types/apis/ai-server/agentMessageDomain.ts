@@ -21,4 +21,5 @@ export interface AgentMessageEntity extends BaseChatBubble {
 
 export interface StreamAgentMessageEntity extends AgentMessageEntity {
   stream?: AbstractXRequestClass<Record<string, never>, SSEOutput>
+  copy?:boolean
 }

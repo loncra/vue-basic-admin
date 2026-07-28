@@ -6,11 +6,10 @@ import type {
   AgentSseMessageContent,
   AgentTextMessageContent,
 } from '@/types/composables'
-import {AGENT_BLOCK_STATUS, AGENT_CONTENT_TYPE, CONFIG_PROVIDER_THEME} from "@/constants";
+import {AGENT_BLOCK_STATUS, AGENT_CONTENT_TYPE} from "@/constants";
 import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
 import {getEnumValue} from "@/utils";
 import LMarkdown from "@/components/basic/markdown/Markdown.vue";
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
 defineOptions({
   name: 'LAgentAssistantBubbleContent',
@@ -22,13 +21,10 @@ const props = withDefaults(defineProps<{
   content: () => [],
 })
 
-
-const configProviderStore = useConfigProviderStore()
-
 </script>
 
 <template>
-  <a-flex :class="configProviderStore.state.theme === CONFIG_PROVIDER_THEME.DARK ? 'x-markdown-dark' : 'x-markdown-light'" vertical gap="small" v-if="props.content.length > 0">
+  <a-flex vertical gap="small" v-if="props.content.length > 0">
     <l-markdown
       :content="content.filter((s) => s.type === AGENT_CONTENT_TYPE.ANSWER).map((s) => (s as AgentTextMessageContent).value || '').join()"
       :components="{
