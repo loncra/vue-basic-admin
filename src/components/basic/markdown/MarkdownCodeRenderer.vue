@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import {CodeHighlighter as AxCodeHighlighter} from '@antdv-next/x'
-import type {ComponentProps} from '@antdv-next/x-markdown'
-import {computed, isVNode, Text, useSlots, type VNode} from 'vue'
+import {computed, isVNode, Text, useAttrs, useSlots, type VNode} from 'vue'
+import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
+import {CONFIG_PROVIDER_THEME} from "@/constants";
 
 defineOptions({
   name: 'LMarkdownCodeRenderer',
 })
 
-const props = defineProps<ComponentProps & {block?: boolean; lang?: string; class?: string}>()
 const slots = useSlots()
+const attrs = useAttrs()
+
+const configProviderStore = useConfigProviderStore()
 
 function toText(nodes: unknown): string {
   if (nodes == null) {
@@ -48,26 +51,39 @@ function getCodeText(): string {
   return toText(slots.default?.())
 }
 
-const language = computed(() => {
-  const className = typeof props.class === 'string' ? props.class : ''
+const isBlock = computed(() => {
+  const dataBlock = attrs["data-block"];
+  const dataBlockCamel = attrs.dataBlock;
+  const block = attrs.block;
+
   return (
-    props.lang ||
-    className.match(/(?:^|\s)language-([^\s]+)/)?.[1] ||
-    className.match(/(?:^|\s)lang-([^\s]+)/)?.[1] ||
-    'text'
-  )
+    dataBlock === "true" ||
+    dataBlock === true ||
+    dataBlockCamel === "true" ||
+    dataBlockCamel === true ||
+    block === "true" ||
+    block === true
+  );
+});
+
+const language = computed(() => {
+  const dataLang = typeof attrs["data-lang"] === "string" ? attrs["data-lang"] : ""
+  const langAttr = typeof attrs.lang === "string" ? attrs.lang : ""
+  const className = typeof attrs.class === "string" ? attrs.class : ""
+  const classLang = className.match(/(?:^|\s)language-([^\s]+)/)?.[1] ?? ""
+  return dataLang || langAttr || classLang
 })
 
 </script>
 
 <template>
-  <code v-if="!block">{{ getCodeText() }}</code>
+  <code v-if="!isBlock">{{ getCodeText() }}</code>
   <ax-code-highlighter
     v-else
     :content="getCodeText()"
     :language="language"
+    :theme="configProviderStore.state.theme === CONFIG_PROVIDER_THEME.DARK ? 'dark' : 'light'"
     show-line-numbers
-    show-language
     show-copy-button
   />
 </template>

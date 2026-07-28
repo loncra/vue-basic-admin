@@ -30,8 +30,12 @@ export type AgentStreamApi = {
 export interface AgentChatContext {
   conversationActive: Ref<ActiveAgentConversationItem | undefined>
   conversations: Ref<AgentConversationItem[]>
+  menuOptions:Ref<{
+    openKeys:string[]
+    selectedKeys:string[]
+  }>
   activateConversation: (
-    conversation: AgentConversationItem | undefined,
+    conversation: AgentConversationItem,
     messageId?: number,
   ) => void | Promise<ActiveAgentConversationItem | undefined>
   loader: AgentMessageLoaderApi

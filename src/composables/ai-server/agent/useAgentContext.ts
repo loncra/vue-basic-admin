@@ -11,7 +11,7 @@ import {
 } from '@/constants'
 import {inject, provide, ref} from 'vue'
 import {useAgentMessageLoader, useAgentStream} from '@/composables'
-import {findFirstTreeNode, getEnumValue} from '@/utils'
+import {filterTreeDeep, findFirstTreeNode, getEnumValue, unmergeTree} from '@/utils'
 
 export function provideAgentChatContext(options: ProvideAgentChatContextOptions): AgentChatContext {
   const conversationActive = ref<ActiveAgentConversationItem>()
@@ -21,14 +21,10 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
   const stream = useAgentStream(conversationActive, conversations)
 
   async function activateConversation(
-    conversation: AgentConversationItem | undefined,
+    conversation: AgentConversationItem,
     messageId?: number,
   ): Promise<ActiveAgentConversationItem | undefined> {
-    if (!conversation) {
-      stream.disconnectIfRunning()
-      conversationActive.value = undefined
-      return
-    } else if (conversation.id === conversationActive.value?.id) {
+    if (conversation.id === conversationActive.value?.id) {
       return conversationActive.value
     }
 
@@ -43,14 +39,31 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
     if (
       getEnumValue(conversationActive.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION
     ) {
-      return
+      updateMenuOptions(conversationActive.value)
+      return conversationActive.value
     }
 
     prependConversationIfMissing(conversationActive.value)
     await loader.switchConversation(conversationActive, messageId)
     stream.reconnectIfRunning()
-
+    updateMenuOptions(conversationActive.value)
     return conversationActive.value;
+  }
+
+  function updateMenuOptions(conversation: AgentConversationItem) {
+
+    const treeNode = filterTreeDeep(s => s.id === conversation.parentId, conversations.value)
+    const unmerge = unmergeTree(treeNode)
+    const openKeys = unmerge.filter(u => u.id !== conversation.id).map(u => String(u.id));
+
+    menuOptions.value.openKeys = [...menuOptions.value.openKeys, ...openKeys]
+
+    if (conversation.children) {
+      menuOptions.value.openKeys = [...menuOptions.value.openKeys, String(conversation.id)]
+      menuOptions.value.selectedKeys = []
+    } else {
+      menuOptions.value.selectedKeys = [String(conversation.id)]
+    }
   }
 
   function prependConversationIfMissing(conversation: AgentConversationItem) {
@@ -69,10 +82,19 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
     parent.children = [conversation, ...(parent.children || [])]
   }
 
+  const menuOptions = ref<{
+    openKeys:string[]
+    selectedKeys:string[]
+  }>({
+    openKeys:[],
+    selectedKeys:[]
+  })
+
   const context: AgentChatContext = {
     conversations,
     conversationActive,
     activateConversation,
+    menuOptions,
     loader,
     stream,
   }

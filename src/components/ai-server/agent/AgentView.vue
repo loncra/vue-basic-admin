@@ -13,6 +13,7 @@ import {createAgentBubbleListRole, useAgentView} from '@/composables'
 import LMarkdown from "@/components/basic/markdown/Markdown.vue";
 import type {AgentMessageEntity} from "@/types/apis";
 import {getEnumValue} from "@/utils";
+import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
 
 defineOptions({
   name: 'LAgentView',
@@ -98,6 +99,9 @@ defineExpose({
                 <l-markdown
                   :content="thoughtChainItem.content"
                   paragraph-tag="div"
+                  :components="{
+                    code: LMarkdownCodeRenderer
+                  }"
                   :streaming="{
                     hasNextChunk:thoughtChainItem.blink
                   }"

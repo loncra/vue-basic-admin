@@ -5,6 +5,9 @@ import {useAgentSender} from "@/composables";
 import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";
 
+import {SenderHeader as AxSenderHeader} from '@antdv-next/x'
+import {AGENT_CONVERSATION_TYPE} from "@/constants";
+
 defineOptions({
   name: 'LAgentSender',
 })
@@ -19,6 +22,7 @@ const {
   conversationActive,
   state,
   handleSubmit,
+  workspaceOptions,
   currentType,
 } = useAgentSender({
   onSubmit:(form:AgentSenderFormProps) => emits("submit", form)
@@ -38,6 +42,15 @@ defineExpose({
     :sending="state.loading || (conversationActive && conversationActive.loading)"
     @submit="handleSubmit"
   >
+    <template #header v-if="workspaceOptions">
+      <ax-sender-header title=" " :closable="false" open>
+        <template #title>
+          <a-tag v-bind="workspaceOptions">
+            {{$t('agent.workspace.title')}}: {{workspaceOptions.label}}
+          </a-tag>
+        </template>
+      </ax-sender-header>
+    </template>
     <template #leftExtra>
       <a-button shape="circle" size="small">
         <template #icon>

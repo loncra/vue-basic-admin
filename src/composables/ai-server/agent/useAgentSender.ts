@@ -2,6 +2,7 @@ import {computed, h, onMounted, ref} from "vue";
 import type {IdValueMetadata, ModelSettingEntity, RestResult} from "@/types/apis";
 import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 import type {
+  AgentConversationItem,
   AgentSenderFormProps,
   AgentSenderProps,
   ChatContentBlock,
@@ -9,9 +10,9 @@ import type {
 } from "@/types/composables";
 import {ResourceServerService} from "@/apis";
 import {ModelSettingService} from "@/apis/ai-server/modelSettingService.ts";
-import {MODEL_TYPE} from "@/constants";
+import {AGENT_CONVERSATION_TYPE, MODEL_TYPE} from "@/constants";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import {createIcon} from "@/utils";
+import {createIcon, getEnumValue} from "@/utils";
 import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
 import {type MenuItemType, Space} from "antdv-next";
 import {useAgentChatContext} from "@/composables";
@@ -53,7 +54,7 @@ export function useAgentSender(
   props:AgentSenderProps
 ) {
 
-  const {conversationActive} = useAgentChatContext()
+  const {conversationActive, conversations} = useAgentChatContext()
 
   const senderRef = ref<InstanceType<typeof LInstructionSender>>()
 
@@ -163,6 +164,28 @@ export function useAgentSender(
     return getTypeStyle(Number(state.value.form.type))
   })
 
+  const workspaceOptions = computed(() => {
+    if (!conversationActive.value) {
+      return
+    }
+    let workspaces:AgentConversationItem | undefined
+    if (getEnumValue(conversationActive.value.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
+      workspaces = conversations.value.find(s => s.id === conversationActive.value?.parentId)
+    } else {
+      workspaces = conversationActive.value as AgentConversationItem
+    }
+    if (!workspaces) {
+      return
+    }
+
+    return {
+      variant: "outlined",
+      color: getEnumValue(workspaces.type) === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'blue' : 'green',
+      label: workspaces.name,
+      icon:() => createIcon(workspaces.type === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'loncra-folder-cog' : 'loncra-folder-closed'),
+    }
+  })
+
   async function mounted() {
     await loadingData();
   }
@@ -172,6 +195,7 @@ export function useAgentSender(
   return {
     senderRef,
     currentModel,
+    workspaceOptions,
     conversationActive,
     handleSubmit,
     state,

@@ -412,4 +412,8 @@
   .ai-agent-splitter .ant-splitter-bar .ant-splitter-bar-dragger::after{
     @apply top-10 translate-y-0;
   }
+
+  .x-markdown .antd-code-highlighter .antd-code-highlighter-content .antd-code-highlighter-code pre code {
+    @apply whitespace-pre break-normal leading-[1.5em];
+  }
 }

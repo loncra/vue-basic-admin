@@ -19,6 +19,7 @@ const {
   conversations,
   menuOptions,
   loading,
+  newAgent,
   createMenu,
   getAgentChatStatusStyle,
   startCreateWorkspace,
@@ -37,7 +38,7 @@ const {
       vertical
       class="p-md"
     >
-      <a-button block type="primary">
+      <a-button block type="primary" @click="newAgent">
         <template #icon>
           <icon-font type="loncra-plus"/>
         </template>
@@ -129,7 +130,7 @@ const {
           >
             <a-typography-text
               class="min-w-0 flex-1"
-              :ellipsis="{ tooltip: item.name }"
+              :ellipsis="{ tooltip: {title:item.name, mouseEnterDelay: 1}}"
             >
               {{ item.name }}
             </a-typography-text>

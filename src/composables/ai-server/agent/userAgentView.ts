@@ -53,6 +53,8 @@ export function useAgentView() {
   const principalStore = usePrincipalStore()
   const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
   const senderRef = ref<InstanceType<typeof LAgentSender>>()
+  // 每个 ChatBubbleItem 的 expandedKeys 状态（按 item.key 索引）
+  const thoughtChainExpandedKeysRecord: Ref<Record<string, string[]>> = ref({})
 
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
@@ -113,8 +115,6 @@ export function useAgentView() {
       conversationActive.value.loading = false
     }
   }
-  // 每个 ChatBubbleItem 的 expandedKeys 状态（按 item.key 索引）
-  const thoughtChainExpandedKeysRecord: Ref<Record<string, string[]>> = ref({})
 
   /** 纯计算：从 item 提取 ThoughtChainItem 列表 */
   function computeThoughtChainItems(item: ChatBubbleItem): ThoughtChainItemType[] {

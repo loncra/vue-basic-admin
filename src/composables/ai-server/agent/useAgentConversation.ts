@@ -1,7 +1,13 @@
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {AgentService} from '@/apis/ai-server/agentService.ts'
 import type {RestResult} from '@/types/apis'
-import {createIcon, findFirstTreeNode, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {
+  createIcon, filterTreeDeep,
+  findAllTreeNodes,
+  findFirstTreeNode,
+  getEnumValue,
+  requireNonNullOrUndefined, unmergeTree
+} from '@/utils'
 import {AGENT_CHAT_STATUS, AGENT_CHAT_STATUS_STYLE, AGENT_CONVERSATION_TYPE} from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
 import type {AgentChatStatus, AgentConversationItem} from "@/types/composables";
@@ -16,17 +22,9 @@ export function useAgentConversation() {
 
   const loading = ref<boolean>(false)
 
-  const menuOptions = ref<{
-    openKeys:string[]
-    selectedKeys:string[]
-  }>({
-    openKeys:[],
-    selectedKeys:[]
-  })
-
   const {message, modal} = useApp()
 
-  const {activateConversation, conversations} = useAgentChatContext()
+  const {activateConversation, conversations, conversationActive, menuOptions} = useAgentChatContext()
   /** 是否已有处于编辑态的工作空间行（同时只允许一条） */
   function getEditingConversationItem(): AgentConversationItem | undefined {
     return conversations.value.find((item) => item.editing)
@@ -104,21 +102,13 @@ export function useAgentConversation() {
         activate = conversations.value
           .find(c => c.id === switchItemId)
       }
-      activate = await activateConversation(activate)
       if (activate) {
-        updateMenuOptions(activate)
+        await activateConversation(activate)
       }
 
     } finally {
       loading.value = false
     }
-  }
-
-  function updateMenuOptions(conversation: AgentConversationItem) {
-    if (conversation.parentId) {
-      menuOptions.value.openKeys = [...menuOptions.value.openKeys, String(conversation.parentId)]
-    }
-    menuOptions.value.selectedKeys = [String(conversation.key)]
   }
 
   /** 新建：在列表顶部插入 editing=true 的空行 */
@@ -174,10 +164,26 @@ export function useAgentConversation() {
 
   async function onConversationMenuClick(m:MenuInfo) {
     const item = findFirstTreeNode(s => String(s.id) === m.key, conversations.value)
-    const activate = await activateConversation(item as AgentConversationItem)
-    if (activate) {
-      updateMenuOptions(activate)
+    if (!item) {
+      return
     }
+    await activateConversation(item as AgentConversationItem)
+  }
+
+  async function newAgent() {
+    if (!conversationActive.value) {
+      return
+    }
+    if (getEnumValue(conversationActive.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
+      return
+    }
+
+    const workspaces = conversations.value.find(s => s.id === conversationActive.value?.parentId)
+    if (!workspaces) {
+      return
+    }
+    await activateConversation(workspaces)
+
   }
 
   onMounted(() => {
@@ -188,6 +194,7 @@ export function useAgentConversation() {
     conversations,
     menuOptions,
     loading,
+    newAgent,
     onConversationMenuClick,
     getAgentChatStatusStyle,
     createMenu,
