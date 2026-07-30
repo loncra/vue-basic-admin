@@ -419,4 +419,34 @@
   .x-markdown .antd-code-highlighter .antd-code-highlighter-content .antd-code-highlighter-code pre code {
     @apply whitespace-pre! break-normal! leading-[1.5em]! bg-transparent! m-0! p-xs! rounded-none! border-0!;
   }
+
+  .antd-thought-chain-node .antd-thought-chain-node-title {
+    @apply items-center p-xxs!;
+  }
+
+  .antd-thought-chain-node .antd-thought-chain-node-title .antd-thought-chain-node-collapse-icon {
+    @apply text-xs! text-text-quaternary opacity-0 transition-opacity duration-300 group-hover:opacity-100;
+  }
+
+  .antd-thought-chain-node .antd-thought-chain-node-title:hover .antd-thought-chain-node-collapse-icon {
+    @apply opacity-100;
+  }
+  /* ========== 思考链内容弱化：一次性把 p/ol/ul/li/标题/引用等全部变灰变小 ========== */
+
+  .antd-thought-chain-node-content .x-markdown :is(
+    p, ol, ul, li,
+    h1, h2, h3, h4, h5, h6,
+    blockquote, strong, em
+  ),
+  .antd-thought-chain-node-content .x-markdown ol li::marker,
+  .antd-thought-chain-node-content .x-markdown ul li::marker,
+  .antd-thought-chain-node-content .x-markdown {
+    @apply text-text-tertiary! text-sm!
+  }
+
+  /* 保留代码块/行内代码、链接的原有样式 */
+  /*.antd-thought-chain-node-content .x-markdown :is(pre, code, a) {
+    color: inherit !important;
+    font-size: inherit !important;
+  }*/
 }

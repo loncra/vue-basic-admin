@@ -89,23 +89,25 @@ defineExpose({
           />
         </template>
         <template #header="{item}">
-          <a-card size="small" v-if="item.role === CHAT_BUBBLE_TYPE.AI">
+          <a-card :classes="{body:'p-xxs'}">
             <ax-thought-chain
-              :classes="{itemHeader: 'text-text-secondary'}"
+              v-if="item.role === CHAT_BUBBLE_TYPE.AI"
+              :classes="{itemHeader: 'text-text-secondary', item:'m-xxs'}"
               v-bind="getThoughtChainConfig(item)"
               @expand="(keys: string[]) => onThoughtChainExpand(item.key, keys)"
               line="dashed"
             >
+
               <template #content="{item:thoughtChainItem}">
                 <l-markdown
                   :content="thoughtChainItem.content"
                   paragraph-tag="div"
                   :components="{
-                    code: LMarkdownCodeRenderer
-                  }"
+                  code: LMarkdownCodeRenderer,
+                }"
                   :streaming="{
-                    hasNextChunk:thoughtChainItem.blink
-                  }"
+                  hasNextChunk:thoughtChainItem.blink
+                }"
                   open-links-in-new-tab
                 />
 
