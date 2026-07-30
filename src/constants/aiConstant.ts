@@ -74,17 +74,24 @@ export const MODEL_TYPE = {
   MUSIC:50,
 } as const
 
+/**
+ * @deprecated
+ */
 export const THOUGHT_CHAIN_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
   AGENT_CONTENT_TYPE.THINK,
   AGENT_CONTENT_TYPE.TOOL
 ]
 
-export const TEXT_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
+export const STREAM_APPEND_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
   AGENT_CONTENT_TYPE.THINK,
   AGENT_CONTENT_TYPE.ANSWER,
   AGENT_CONTENT_TYPE.ERROR,
+  AGENT_CONTENT_TYPE.TOOL,
 ]
 
+/**
+ * @deprecated
+ */
 export const BUBBLE_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
   AGENT_CONTENT_TYPE.ERROR,
   AGENT_CONTENT_TYPE.ANSWER

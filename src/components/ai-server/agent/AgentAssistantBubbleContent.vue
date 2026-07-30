@@ -4,13 +4,13 @@ import type {
   BlockRunningContentMetadata,
   AgentErrorBlock,
   AgentSseMessageContent,
-  BlockDeltaContentMetadata,
+  AgentAnswerBlock, AgentThinkBlock, AgentToolCallBlock,
 } from '@/types/composables'
 import {AGENT_BLOCK_STATUS, AGENT_CONTENT_TYPE} from "@/constants";
 import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
 import {getEnumValue} from "@/utils";
 import LMarkdown from "@/components/basic/markdown/Markdown.vue";
-
+import {Think as AxThink, ThoughtChainItem as AxThoughtChainItem} from "@antdv-next/x"
 defineOptions({
   name: 'LAgentAssistantBubbleContent',
 })
@@ -25,25 +25,58 @@ const props = withDefaults(defineProps<{
 
 <template>
   <a-flex vertical gap="small" v-if="props.content.length > 0">
-    <l-markdown
-      :content="content.filter((s) => s.type === AGENT_CONTENT_TYPE.ANSWER).map((s) => (s as BlockDeltaContentMetadata).value || '').join()"
-      :components="{
-        code: LMarkdownCodeRenderer
-      }"
-      paragraph-tag="div"
-      :streaming="{
-        hasNextChunk:props.content.some(s => getEnumValue((s as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING)
-      }"
-      open-links-in-new-tab
-    />
-    <template
-      :key="error.id"
-      v-for="error of props.content.filter(s => s.type === AGENT_CONTENT_TYPE.ERROR) as AgentErrorBlock[]"
-    >
+    <template :key="c.id + c.type" v-for="c of props.content">
+      <l-markdown
+        v-if="c.type === AGENT_CONTENT_TYPE.ANSWER"
+        :content="(c as AgentAnswerBlock).value"
+        :components="{
+          code: LMarkdownCodeRenderer
+        }"
+        paragraph-tag="div"
+        :streaming="{
+          hasNextChunk: getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING
+        }"
+        open-links-in-new-tab
+      />
+      <ax-thought-chain-item
+        variant="solid"
+        class="items-center"
+        :blink="getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING"
+        v-if="c.type === AGENT_CONTENT_TYPE.TOOL"
+        :description="(c as AgentToolCallBlock).name"
+      >
+        <template #title>
+          <a-space>
+            <icon-font type="loncra-square-terminal" />
+            {{$t('agent.toolCall')}}
+          </a-space>
+        </template>
+      </ax-thought-chain-item>
+      <ax-think
+        v-if="c.type === AGENT_CONTENT_TYPE.THINK"
+        :title="$t('agent.think')"
+        :default-expanded="false"
+        v-model:expanded="(c as AgentThinkBlock).expanded"
+        :blink="getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING"
+        :loading="getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING"
+      >
+        <l-markdown
+          :content="(c as AgentThinkBlock).value"
+          :components="{
+          code: LMarkdownCodeRenderer
+        }"
+          paragraph-tag="div"
+          :streaming="{
+          hasNextChunk: getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING
+        }"
+          open-links-in-new-tab
+        />
+      </ax-think>
       <a-alert
+        v-if="c.type === AGENT_CONTENT_TYPE.ERROR"
         type="error"
         show-icon
-        :message="error.metadata.message"
+        :message="(c as AgentErrorBlock).metadata.message"
       />
     </template>
   </a-flex>

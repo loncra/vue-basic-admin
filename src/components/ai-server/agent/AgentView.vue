@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {ThoughtChain as AxThoughtChain, Welcome as AxWelcome, ThoughtChainItem as AxThoughtChainItem} from '@antdv-next/x'
+import {Welcome as AxWelcome} from '@antdv-next/x'
 import {AGENT_CHAT_STATUS, CHAT_BUBBLE_TYPE} from '@/constants'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
@@ -10,10 +10,8 @@ import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import {createAgentBubbleListRole, useAgentView} from '@/composables'
-import LMarkdown from "@/components/basic/markdown/Markdown.vue";
 import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
 import {getEnumValue} from "@/utils";
-import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
 
 defineOptions({
   name: 'LAgentView',
@@ -24,9 +22,9 @@ const {
   principalStore,
   conversationActive,
   loader,
-  getThoughtChainConfig,
+  /*getThoughtChainConfig,
   onThoughtChainExpand,
-  getAiBubbleContents,
+  getAiBubbleContents,*/
   countTokenUsage,
   bubbleListRef,
   copyText,
@@ -81,14 +79,14 @@ defineExpose({
         <template #contentRender="{ item }">
           <l-agent-assistant-bubble-content
             v-if="item.role === CHAT_BUBBLE_TYPE.AI"
-            :content="getAiBubbleContents(item)"
+            :content="item.content"
           />
           <l-agent-user-message-bubble-content
             v-else
             :content="Array.isArray(item.content) ? item.content : []"
           />
         </template>
-        <template #header="{item}">
+<!--        <template #header="{item}">
           <a-card :classes="{body:'p-xxs'}">
             <ax-thought-chain
               v-if="item.role === CHAT_BUBBLE_TYPE.AI"
@@ -124,7 +122,7 @@ defineExpose({
               </template>
             </ax-thought-chain>
           </a-card>
-        </template>
+        </template>-->
         <template #footer="{item}">
           <template v-if="item.role === CHAT_BUBBLE_TYPE.AI && getEnumValue((item.data as AgentMessageEntity).status) !== AGENT_CHAT_STATUS.RUNNING">
             <a-space>

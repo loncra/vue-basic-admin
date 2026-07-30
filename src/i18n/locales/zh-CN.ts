@@ -602,6 +602,7 @@ const locale: LanguagePack = {
       createPlaceholder:'工作空间名称',
     },
     think:'深度思考',
+    toolCall:'工具调用',
     welcome: {
       title:'你好，我是 Captain.J',
       description:'今天有什么需要干的吗？'

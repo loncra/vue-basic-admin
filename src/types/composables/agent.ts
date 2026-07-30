@@ -130,8 +130,8 @@ export interface AgentToolCallBlock extends BlockDeltaContentMetadata {
 }
 
 export interface AgentThinkBlock extends BlockDeltaContentMetadata {
-  type: typeof AGENT_CONTENT_TYPE.THINK
-  toolCall?: AgentToolCallBlock
+  type: typeof AGENT_CONTENT_TYPE.THINK,
+  expanded?:boolean
 }
 
 export interface AgentAnswerBlock extends BlockDeltaContentMetadata {

@@ -6,9 +6,9 @@ import {
   AGENT_CONTENT_TYPE,
   CHAT_BUBBLE_TYPE,
   STREAM_UPDATE_TYPE,
-  TEXT_TYPES,
+  STREAM_APPEND_TYPES,
   TOKEN_USAGE_TYPE,
-  UPDATE_CONVERSATION_TYPES,
+  UPDATE_CONVERSATION_TYPES, AGENT_BLOCK_STATUS,
 } from '@/constants'
 import type {
   ActiveAgentConversationItem,
@@ -19,7 +19,7 @@ import type {
   BlockDeltaContentMetadata,
   AgentTokenUsageContent,
   CustomizeContentMetadata,
-  GenerateConversationName,
+  GenerateConversationName, AgentToolCallBlock, AgentThinkBlock,
 } from '@/types/composables'
 import type {
   AgentMessageEntity,
@@ -86,12 +86,15 @@ export function useAgentStream(
       return
     }
 
-    if (TEXT_TYPES.includes(sseData.type)) {
+    if (STREAM_APPEND_TYPES.includes(sseData.type)) {
       const content = bubble.content as AgentSseMessageContent[]
       if (!content.some(s => s.id === sseData.id && sseData.type === s.type)) {
         content.push(sseData)
+        if (getEnumValue(sseData.type) === AGENT_CONTENT_TYPE.THINK) {
+          (sseData as AgentThinkBlock).expanded = true
+        }
       } else {
-        appendTextMessageContent(sseData as BlockDeltaContentMetadata, content)
+        appendContent(sseData as BlockDeltaContentMetadata, content)
       }
     } else if (UPDATE_CONVERSATION_TYPES.includes(sseData.type)) {
       updateConversation(sseData)
@@ -157,7 +160,7 @@ export function useAgentStream(
     }
   }
 
-  function appendTextMessageContent(chunk: BlockDeltaContentMetadata, content: AgentSseMessageContent[]){
+  function appendContent(chunk: BlockDeltaContentMetadata, content: AgentSseMessageContent[]){
     const find = content.find(s => s.id === chunk.id && s.type === chunk.type)
     if (!find) {
       return
@@ -168,9 +171,20 @@ export function useAgentStream(
     }
 
     text.value += (chunk as BlockDeltaContentMetadata).value || ""
-    text.status = chunk.status
+    if (chunk.status) {
+      text.status = chunk.status
+    }
     if (chunk.endTime) {
       text.endTime = chunk.endTime
+    }
+    if (getEnumValue(text.status) !== AGENT_BLOCK_STATUS.RUNNING && text.type === AGENT_CONTENT_TYPE.THINK) {
+      (text as AgentThinkBlock).expanded = false
+    }
+    if (chunk.type === AGENT_CONTENT_TYPE.TOOL) {
+      const findToolCall = find as AgentToolCallBlock
+      const chunkToolCall = chunk as AgentToolCallBlock
+      findToolCall.output = findToolCall.output || findToolCall.output
+      findToolCall.resultState= chunkToolCall.resultState || findToolCall.resultState
     }
   }
 
