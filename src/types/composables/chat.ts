@@ -12,7 +12,7 @@ import type {
   AgentAnswerBlock,
   AgentErrorBlock,
   AgentThinkBlock,
-  AgentToolBlock,
+  AgentToolCallBlock,
 } from "@/types/composables";
 
 export interface AttachmentBlock {
@@ -66,7 +66,7 @@ export type ChatContentBlock =
   | InstructionBlock
   | CallBlock
   | AgentThinkBlock
-  | AgentToolBlock
+  | AgentToolCallBlock
   | AgentAnswerBlock
   | AgentErrorBlock
 

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
 import type {
-  AgentBlockRunningMessageContent,
+  BlockRunningContentMetadata,
   AgentErrorBlock,
   AgentSseMessageContent,
-  AgentTextMessageContent,
+  BlockDeltaContentMetadata,
 } from '@/types/composables'
 import {AGENT_BLOCK_STATUS, AGENT_CONTENT_TYPE} from "@/constants";
 import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
@@ -26,13 +26,13 @@ const props = withDefaults(defineProps<{
 <template>
   <a-flex vertical gap="small" v-if="props.content.length > 0">
     <l-markdown
-      :content="content.filter((s) => s.type === AGENT_CONTENT_TYPE.ANSWER).map((s) => (s as AgentTextMessageContent).value || '').join()"
+      :content="content.filter((s) => s.type === AGENT_CONTENT_TYPE.ANSWER).map((s) => (s as BlockDeltaContentMetadata).value || '').join()"
       :components="{
         code: LMarkdownCodeRenderer
       }"
       paragraph-tag="div"
       :streaming="{
-        hasNextChunk:props.content.some(s => getEnumValue((s as AgentBlockRunningMessageContent).status) === AGENT_BLOCK_STATUS.RUNNING)
+        hasNextChunk:props.content.some(s => getEnumValue((s as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING)
       }"
       open-links-in-new-tab
     />

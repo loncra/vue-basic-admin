@@ -108,7 +108,7 @@ export interface AgentSseMessageContent {
     | typeof AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
 }
 
-export interface AgentBlockRunningMessageContent extends AgentSseMessageContent{
+export interface BlockRunningContentMetadata extends AgentSseMessageContent{
   status:NameValueEnumMetadata<string> | string
   creationTime:number,
   endTime?:number
@@ -118,15 +118,23 @@ export interface CustomizeContentMetadata extends AgentSseMessageContent {
   metadata?: Record<string, unknown>
 }
 
-export interface AgentTextMessageContent extends AgentBlockRunningMessageContent{
+export interface BlockDeltaContentMetadata extends BlockRunningContentMetadata {
   value?: string
 }
 
-export interface AgentThinkBlock extends AgentTextMessageContent {
-  type: typeof AGENT_CONTENT_TYPE.THINK
+export interface AgentToolCallBlock extends BlockDeltaContentMetadata {
+  name:string
+  output?:string,
+  resultState?:string
+  type: typeof AGENT_CONTENT_TYPE.TOOL
 }
 
-export interface AgentAnswerBlock extends AgentTextMessageContent {
+export interface AgentThinkBlock extends BlockDeltaContentMetadata {
+  type: typeof AGENT_CONTENT_TYPE.THINK
+  toolCall?: AgentToolCallBlock
+}
+
+export interface AgentAnswerBlock extends BlockDeltaContentMetadata {
   type: typeof AGENT_CONTENT_TYPE.ANSWER
 }
 
@@ -149,18 +157,10 @@ export interface AgentStatusChangeSse extends AgentSseMessageContent {
   type: typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
 }
 
-export interface AgentTokenUsageContentMetadata extends AgentSseMessageContent {
+export interface AgentTokenUsageContent extends AgentSseMessageContent {
   inputTokens:number
   outputTokens:number
   cachedTokens:number
   usageType:NameValueEnumMetadata<string> | string
   type: typeof AGENT_CONTENT_TYPE.TOKEN_USAGE
-}
-
-export interface AgentToolBlock extends AgentBlockRunningMessageContent {
-  type: typeof AGENT_CONTENT_TYPE.TOOL
-  name: string
-  input?: unknown
-  output?: unknown
-  resultState:string
 }

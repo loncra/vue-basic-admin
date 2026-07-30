@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {ThoughtChain as AxThoughtChain, Welcome as AxWelcome} from '@antdv-next/x'
+import {ThoughtChain as AxThoughtChain, Welcome as AxWelcome, ThoughtChainItem as AxThoughtChainItem} from '@antdv-next/x'
 import {AGENT_CHAT_STATUS, CHAT_BUBBLE_TYPE} from '@/constants'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
@@ -108,6 +108,17 @@ defineExpose({
                   }"
                   open-links-in-new-tab
                 />
+
+                <ax-thought-chain-item
+                  variant="solid"
+                  v-if="thoughtChainItem.toolCall"
+                  :title="thoughtChainItem.toolCall.name"
+                  :description="thoughtChainItem.toolCall.value"
+                >
+                  <template #icon>
+                    <icon-font type="loncra-square-terminal" />
+                  </template>
+                </ax-thought-chain-item>
               </template>
             </ax-thought-chain>
           </a-card>

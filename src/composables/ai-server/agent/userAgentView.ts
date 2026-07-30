@@ -3,9 +3,10 @@ import type {
   AgentChatResponseBody,
   AgentSenderFormProps,
   AgentSseMessageContent,
-  AgentTextMessageContent,
   AgentThinkBlock,
-  AgentTokenUsageContentMetadata,
+  AgentTokenUsageContent,
+  AgentToolCallBlock,
+  BlockDeltaContentMetadata,
   ChatBubbleItem,
 } from '@/types/composables'
 import type {AgentMessageEntity, RestResult, StreamAgentMessageEntity} from '@/types/apis'
@@ -125,22 +126,35 @@ export function useAgentView() {
     }
     const contents = item.content as AgentSseMessageContent[]
     for (const block of contents.filter(s => THOUGHT_CHAIN_TYPES.includes(s.type))) {
-      const think = block as AgentThinkBlock
-      items.push({
-        key: think.id,
-        title: globalProperties.$t('agent.think'),
-        content: think.value || '',
-        status: think.value ? 'success' : 'loading',
-        blink: getEnumValue((block as AgentTextMessageContent).status) === AGENT_BLOCK_STATUS.RUNNING,
-        collapsible: true,
-      })
+      if (block.type === AGENT_CONTENT_TYPE.THINK) {
+        const think = block as AgentThinkBlock
+        items.push({
+          key: think.id,
+          title: globalProperties.$t('agent.think'),
+          content: think.value || '',
+          status: think.value ? 'success' : 'loading',
+          blink: getEnumValue((block as BlockDeltaContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING,
+          collapsible: true,
+        })
+      } else if (block.type === AGENT_CONTENT_TYPE.TOOL) {
+        const toolCall = block as AgentToolCallBlock;
+        items.push({
+          key: toolCall.id,
+          title: toolCall.name,
+          description: toolCall.value || '',
+          content: toolCall.output,
+          status: toolCall.status ? 'success' : 'loading',
+          blink: getEnumValue((block as BlockDeltaContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING,
+          collapsible: true,
+        })
+      }
     }
     return items
   }
 
-  function getAiBubbleContents(item:ChatBubbleItem):AgentTextMessageContent[] {
+  function getAiBubbleContents(item:ChatBubbleItem):BlockDeltaContentMetadata[] {
     const contents = (item.content || []) as AgentSseMessageContent[]
-    return (contents.filter(s => BUBBLE_TYPES.includes(s.type)) || []) as AgentTextMessageContent[]
+    return (contents.filter(s => BUBBLE_TYPES.includes(s.type)) || []) as BlockDeltaContentMetadata[]
   }
 
   /** 一次调用返回 items + expandedKeys，首次自动懒初始化 */
@@ -167,12 +181,12 @@ export function useAgentView() {
 
   function countTokenUsage(item:ChatBubbleItem) {
     const message = item.data as AgentMessageEntity
-    return ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContentMetadata[]).reduce((acc:number, cur) => acc + cur.inputTokens + cur.outputTokens + cur.cachedTokens, 0)
+    return ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContent[]).reduce((acc:number, cur) => acc + cur.inputTokens + cur.outputTokens + cur.cachedTokens, 0)
   }
 
   async function copyText(item:StreamAgentMessageEntity) {
     try {
-      const text = item.content.filter(s => getEnumValue(s.type) === AGENT_CONTENT_TYPE.ANSWER).map(s => (s as AgentTextMessageContent).value).join('')
+      const text = item.content.filter(s => getEnumValue(s.type) === AGENT_CONTENT_TYPE.ANSWER).map(s => (s as BlockDeltaContentMetadata).value).join('')
       await navigator.clipboard.writeText(text);
       item.copy = true;
       // 可选：给个提示

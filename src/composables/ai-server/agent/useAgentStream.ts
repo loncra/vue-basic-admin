@@ -16,8 +16,8 @@ import type {
   AgentSseMessageContent,
   AgentStatusChangeSse,
   AgentStreamApi,
-  AgentTextMessageContent,
-  AgentTokenUsageContentMetadata,
+  BlockDeltaContentMetadata,
+  AgentTokenUsageContent,
   CustomizeContentMetadata,
   GenerateConversationName,
 } from '@/types/composables'
@@ -88,15 +88,15 @@ export function useAgentStream(
 
     if (TEXT_TYPES.includes(sseData.type)) {
       const content = bubble.content as AgentSseMessageContent[]
-      if (!content.some(s => s.id === sseData.id)) {
+      if (!content.some(s => s.id === sseData.id && sseData.type === s.type)) {
         content.push(sseData)
       } else {
-        appendTextMessageContent(sseData as AgentTextMessageContent, content)
+        appendTextMessageContent(sseData as BlockDeltaContentMetadata, content)
       }
     } else if (UPDATE_CONVERSATION_TYPES.includes(sseData.type)) {
       updateConversation(sseData)
     } else if (TOKEN_USAGE_TYPE === sseData.type) {
-      updateTokenUsage(sseData as AgentTokenUsageContentMetadata)
+      updateTokenUsage(sseData as AgentTokenUsageContent)
     } else if (STREAM_UPDATE_TYPE.includes(sseData.type)) {
       updateMessageStatus(sseData as CustomizeContentMetadata)
     }
@@ -113,7 +113,7 @@ export function useAgentStream(
     }
   }
 
-  function updateTokenUsage(sse: AgentTokenUsageContentMetadata) {
+  function updateTokenUsage(sse: AgentTokenUsageContent) {
     const item = conversationActive.value?.dataSource.elements.find(s => s.key === String(sse.id))
     if (!item || !item.data) {
       return
@@ -125,7 +125,7 @@ export function useAgentStream(
     if (!message.metadata.tokenUsage) {
       message.metadata.tokenUsage = []
     }
-    const tokenUsage = message.metadata.tokenUsage as AgentTokenUsageContentMetadata[]
+    const tokenUsage = message.metadata.tokenUsage as AgentTokenUsageContent[]
     const find = tokenUsage.find(s => getEnumValue(s.usageType) === getEnumValue(sse.usageType))
     if (find) {
       find.inputTokens += sse.inputTokens
@@ -157,13 +157,17 @@ export function useAgentStream(
     }
   }
 
-  function appendTextMessageContent(chunk: AgentTextMessageContent, content: AgentSseMessageContent[]){
-    const find = content.find(s => s.id === chunk.id)
+  function appendTextMessageContent(chunk: BlockDeltaContentMetadata, content: AgentSseMessageContent[]){
+    const find = content.find(s => s.id === chunk.id && s.type === chunk.type)
     if (!find) {
       return
     }
-    const text = find as AgentTextMessageContent
-    text.value += (chunk as AgentTextMessageContent).value || ""
+    const text = find as BlockDeltaContentMetadata
+    if (!text.value) {
+      text.value = ""
+    }
+
+    text.value += (chunk as BlockDeltaContentMetadata).value || ""
     text.status = chunk.status
     if (chunk.endTime) {
       text.endTime = chunk.endTime
