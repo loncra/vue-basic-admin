@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd(), '');
   return {
+    // Tauri 开发时保留 Rust/CLI 日志，避免被 Vite 清屏
+    clearScreen: false,
+    envPrefix: ['VITE_', 'TAURI_'],
     plugins: [
       vue(),tailwindcss(), Components({ resolvers: [AntdvNextResolver()] })
     ],

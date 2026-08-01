@@ -12,7 +12,10 @@
     "lint": "run-s lint:*",
     "lint:oxlint": "oxlint vue-basic-admin --fix",
     "lint:eslint": "eslint vue-basic-admin --fix --cache",
-    "format": "oxfmt src"
+    "format": "oxfmt src",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "dependencies": {
     "@antdv-next/icons": "^1.1.1",
@@ -21,6 +24,7 @@
     "@antdv-next/x-markdown": "^0.1.0",
     "@antdv-next/x-sdk": "^0.0.2",
     "@tailwindcss/vite": "^4.1.18",
+    "@tauri-apps/api": "^2.11.1",
     "@tiptap/extension-image": "^3.23.6",
     "@tiptap/extension-placeholder": "^3.23.6",
     "@tiptap/extension-text-align": "^3.23.6",
@@ -44,6 +48,7 @@
   "devDependencies": {
     "@antdv-next/auto-import-resolver": "^1.1.0",
     "@antdv-next/tailwind": "^1.0.2",
+    "@tauri-apps/cli": "^2.11.4",
     "@tsconfig/node24": "^24.0.4",
     "@types/crypto-js": "^4.2.2",
     "@types/lodash-es": "^4.17.12",

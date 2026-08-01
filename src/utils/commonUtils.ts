@@ -338,3 +338,7 @@ export function validatePassword(newPassword:string, confirmPassword:string) {
     return Promise.resolve();
   }
 }
+
+export function isTauri(): boolean {
+  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+}
