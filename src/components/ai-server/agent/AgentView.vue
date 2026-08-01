@@ -86,43 +86,6 @@ defineExpose({
             :content="Array.isArray(item.content) ? item.content : []"
           />
         </template>
-<!--        <template #header="{item}">
-          <a-card :classes="{body:'p-xxs'}">
-            <ax-thought-chain
-              v-if="item.role === CHAT_BUBBLE_TYPE.AI"
-              :classes="{itemHeader: 'text-text-secondary', item:'m-xxs'}"
-              v-bind="getThoughtChainConfig(item)"
-              @expand="(keys: string[]) => onThoughtChainExpand(item.key, keys)"
-              line="dashed"
-            >
-
-              <template #content="{item:thoughtChainItem}">
-                <l-markdown
-                  :content="thoughtChainItem.content"
-                  paragraph-tag="div"
-                  :components="{
-                  code: LMarkdownCodeRenderer,
-                }"
-                  :streaming="{
-                  hasNextChunk:thoughtChainItem.blink
-                }"
-                  open-links-in-new-tab
-                />
-
-                <ax-thought-chain-item
-                  variant="solid"
-                  v-if="thoughtChainItem.toolCall"
-                  :title="thoughtChainItem.toolCall.name"
-                  :description="thoughtChainItem.toolCall.value"
-                >
-                  <template #icon>
-                    <icon-font type="loncra-square-terminal" />
-                  </template>
-                </ax-thought-chain-item>
-              </template>
-            </ax-thought-chain>
-          </a-card>
-        </template>-->
         <template #footer="{item}">
           <template v-if="item.role === CHAT_BUBBLE_TYPE.AI && getEnumValue((item.data as AgentMessageEntity).status) !== AGENT_CHAT_STATUS.RUNNING">
             <a-space>

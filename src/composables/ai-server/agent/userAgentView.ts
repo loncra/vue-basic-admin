@@ -28,6 +28,8 @@ export function createAgentBubbleListRole() {
       const isEmpty = !data.content || (data.content as AgentSseMessageContent[]).length <= 0
       return {
         ...(typeof baseAi === 'function' ? baseAi(data) : baseAi),
+        variant:"borderless",
+        shape:"round",
         loading: isEmpty,
       }
     } ,
@@ -170,8 +172,11 @@ export function useAgentView() {
 
   async function copyText(item:StreamAgentMessageEntity) {
     try {
-      const text = item.content.filter(s => getEnumValue(s.type) === AGENT_CONTENT_TYPE.ANSWER).map(s => (s as BlockDeltaContentMetadata).value).join('')
-      await navigator.clipboard.writeText(text);
+      const text = item.content
+        .filter(s => getEnumValue(s.type) === AGENT_CONTENT_TYPE.ANSWER)
+        .map(s => (s as BlockDeltaContentMetadata).value)
+        .at(-1)
+      await navigator.clipboard.writeText(text || "");
       item.copy = true;
       // 可选：给个提示
       // message.success('已复制到剪贴板');

@@ -10,7 +10,7 @@ import {AGENT_BLOCK_STATUS, AGENT_CONTENT_TYPE} from "@/constants";
 import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
 import {getEnumValue} from "@/utils";
 import LMarkdown from "@/components/basic/markdown/Markdown.vue";
-import {Think as AxThink, ThoughtChainItem as AxThoughtChainItem} from "@antdv-next/x"
+import {Think as AxThink, Bubble as AxBubble, ThoughtChainItem as AxThoughtChainItem} from "@antdv-next/x"
 defineOptions({
   name: 'LAgentAssistantBubbleContent',
 })
@@ -26,20 +26,24 @@ const props = withDefaults(defineProps<{
 <template>
   <a-flex vertical gap="small" v-if="props.content.length > 0">
     <template :key="c.id + c.type" v-for="c of props.content">
-      <l-markdown
-        v-if="c.type === AGENT_CONTENT_TYPE.ANSWER"
-        :content="(c as AgentAnswerBlock).value"
-        :components="{
-          code: LMarkdownCodeRenderer
-        }"
-        paragraph-tag="div"
-        :streaming="{
-          hasNextChunk: getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING
-        }"
-        open-links-in-new-tab
-      />
+      <ax-bubble class="p-0!" content=" " v-if="c.type === AGENT_CONTENT_TYPE.ANSWER">
+        <template #content>
+          <l-markdown
+            :content="(c as AgentAnswerBlock).value"
+            :components="{
+              code: LMarkdownCodeRenderer
+            }"
+                paragraph-tag="div"
+                :streaming="{
+              hasNextChunk: getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING
+            }"
+            open-links-in-new-tab
+          />
+        </template>
+      </ax-bubble>
+
       <ax-thought-chain-item
-        variant="solid"
+        variant="outlined"
         class="items-center"
         :blink="getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING"
         v-if="c.type === AGENT_CONTENT_TYPE.TOOL"
@@ -52,26 +56,34 @@ const props = withDefaults(defineProps<{
           </a-space>
         </template>
       </ax-thought-chain-item>
-      <ax-think
+      <a-card
+        :classes="{body:'p-xs'}"
         v-if="c.type === AGENT_CONTENT_TYPE.THINK"
-        :title="$t('agent.think')"
-        :default-expanded="false"
-        v-model:expanded="(c as AgentThinkBlock).expanded"
-        :blink="getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING"
-        :loading="getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING"
       >
-        <l-markdown
-          :content="(c as AgentThinkBlock).value"
-          :components="{
-          code: LMarkdownCodeRenderer
-        }"
-          paragraph-tag="div"
-          :streaming="{
-          hasNextChunk: getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING
-        }"
-          open-links-in-new-tab
-        />
-      </ax-think>
+        <ax-think
+          :classes="{
+            content:'ml-xxs'
+          }"
+          :title="$t('agent.think')"
+          :default-expanded="false"
+          v-model:expanded="(c as AgentThinkBlock).expanded"
+          :blink="getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING"
+          :loading="getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING"
+        >
+          <l-markdown
+            :content="(c as AgentThinkBlock).value"
+            :components="{
+              code: LMarkdownCodeRenderer
+            }"
+                paragraph-tag="div"
+                :streaming="{
+              hasNextChunk: getEnumValue((c as BlockRunningContentMetadata).status) === AGENT_BLOCK_STATUS.RUNNING
+            }"
+            open-links-in-new-tab
+          />
+        </ax-think>
+      </a-card>
+
       <a-alert
         v-if="c.type === AGENT_CONTENT_TYPE.ERROR"
         type="error"

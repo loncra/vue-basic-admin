@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {CodeHighlighter as AxCodeHighlighter} from '@antdv-next/x'
+import {CodeHighlighter as AxCodeHighlighter, Mermaid as AxMermaid} from '@antdv-next/x'
 import {computed, isVNode, Text, useAttrs, useSlots, type VNode} from 'vue'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {CONFIG_PROVIDER_THEME} from "@/constants";
@@ -47,7 +47,7 @@ function toText(nodes: unknown): string {
   return ''
 }
 
-function getCodeText(): string {
+      function getCodeText(): string {
   return toText(slots.default?.())
 }
 
@@ -78,6 +78,13 @@ const language = computed(() => {
 
 <template>
   <code v-if="!isBlock">{{ getCodeText() }}</code>
+  <ax-mermaid
+    v-else-if="language === 'mermaid'"
+    :content="getCodeText()"
+    :code-highlighter-props="{
+      theme: configProviderStore.state.theme === CONFIG_PROVIDER_THEME.DARK ? 'dark' : 'light'
+    }"
+  />
   <ax-code-highlighter
     v-else
     :content="getCodeText()"
