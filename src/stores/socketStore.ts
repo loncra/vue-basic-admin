@@ -47,7 +47,7 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
   function attachHandlerRegistry(instance: Socket): void {
     for (const [event, handlers] of handlerRegistry) {
       for (const handler of handlers) {
-        instance.on(event, handler as (...args: any[]) => void)
+        instance.on(event, handler as (...args: unknown[]) => void)
       }
     }
   }
@@ -155,7 +155,7 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
       handler(payload as SocketBusinessEventPayloadMap[E])
     }
     addToRegistry(event, wrapped)
-    socket.value?.on(event as string, wrapped as (...args: any[]) => void)
+    socket.value?.on(event as string, wrapped as (...args: unknown[]) => void)
     return () => unsubscribe(event, wrapped)
   }
 

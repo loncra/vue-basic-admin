@@ -8,7 +8,12 @@ import type {
 } from '@/types/apis'
 import {formUrlEncoded} from '@/utils'
 import axios, {buildAuthHeaders} from '@/requests'
-import type {AgentChatRequestBody, AgentChatResponseBody,} from '@/types/composables'
+import type {
+  AgentChatBasicResponseBody,
+  AgentChatRequestBody,
+  AgentChatResponseBody,
+  AgentResumeRequestBody,
+} from '@/types/composables'
 import {type AbstractXRequestClass, type SSEOutput, XRequest} from '@antdv-next/x-sdk'
 import {HTTP} from '@/constants'
 import type {XRequestCallbacks} from "@antdv-next/x-sdk/x-request";
@@ -93,15 +98,19 @@ export class AgentService {
     return axios.post(AgentService.CHAT_URL, body)
   }
 
+  static resume(body: AgentResumeRequestBody): Promise<RestResult<AgentChatBasicResponseBody>> {
+    return axios.put(AgentService.CHAT_URL, body)
+  }
+
   /**
    * `GET /agent/message/{assistantId}/stream`
    * 使用 XRequest 消费 SSE（snapshot / patch / done）。
    */
   static loadStream(
-    assistantId: number,
+    assistantMessageId: number,
     callbacks: XRequestCallbacks<SSEOutput>
   ): AbstractXRequestClass<Record<string, never>, SSEOutput> {
-    const url = `${AgentService.STREAM_URL}/${assistantId}`
+    const url = `${AgentService.STREAM_URL}/${assistantMessageId}`
     const request = XRequest<Record<string, never>, SSEOutput>(url, {
       manual: true,
       headers: {

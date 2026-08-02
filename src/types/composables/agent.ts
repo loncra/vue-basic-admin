@@ -82,10 +82,23 @@ export interface AgentChatRequestBody extends AgentSenderFormProps {
   agentConversationId?: number
 }
 
-export interface AgentChatResponseBody {
-  conversation: AgentConversationEntity
+export interface AgentResumeRequestBody {
+  assistantMessageId:number
+  confirmResults:ConfirmResult[]
+}
+
+export interface ConfirmResult {
+  toolCallId:string;
+  confirmed:boolean;
+}
+
+export interface AgentChatBasicResponseBody {
   userMessageId: number
-  assistantId: number
+  assistantMessageId: number
+}
+
+export interface AgentChatResponseBody extends AgentChatBasicResponseBody{
+  conversation: AgentConversationEntity
 }
 
 export interface AgentSenderProps {
@@ -124,8 +137,12 @@ export interface BlockDeltaContentMetadata extends BlockRunningContentMetadata {
 
 export interface AgentToolCallBlock extends BlockDeltaContentMetadata {
   name:string
-  output?:string,
+  outputText?:string,
+  outputParts?:unknown[]
   resultState?:string
+  hitlStatus:string,
+  userConfirmed?:boolean,
+  groupId:string
   type: typeof AGENT_CONTENT_TYPE.TOOL
 }
 

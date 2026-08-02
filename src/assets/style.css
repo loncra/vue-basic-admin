@@ -420,6 +420,7 @@
     @apply whitespace-pre! break-normal! leading-[1.5em]! bg-transparent! m-0! p-xs! rounded-none! border-0!;
   }
 
+  .l-agent-bubble-content-tool-call-card .ant-card-body .antd-thought-chain-node-collapse-icon,
   .antd-think-status-wrapper .antd-think-status-down-icon {
     @apply text-xs! text-text-quaternary ;
   }
@@ -431,4 +432,36 @@
     @apply text-text-tertiary!
   }
 
+  .l-agent-bubble-content-tool-call-card .ant-card-head{
+    @apply font-normal border-b-0 text-text-secondary;
+  }
+
+  .l-agent-bubble-content-tool-call-card .antd-thought-chain-node-title {
+    @apply items-center;
+  }
+
+  /* 工具调用卡片 body padding 过渡（跟随内容展开/收起） */
+  .l-agent-bubble-content-tool-call-card .ant-card-body {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  /* 工具调用内容展开/收起过渡 */
+  .tool-call-expand-enter-active,
+  .tool-call-expand-leave-active {
+    @apply transition-all duration-100 ease-in-out overflow-hidden;
+  }
+
+  .tool-call-expand-enter-from,
+  .tool-call-expand-leave-to {
+    @apply max-h-2000 opacity-0;
+  }
+
+  .tool-call-expand-enter-to,
+  .tool-call-expand-leave-from {
+    @apply max-h-screen opacity-100;
+  }
+
+  .l-agent-bubble-content-tool-call-card .l-web-search-sources .antdx-sources-link {
+    @apply items-center
+  }
 }

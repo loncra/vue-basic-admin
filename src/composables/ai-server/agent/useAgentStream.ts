@@ -2,13 +2,14 @@ import {onUnmounted, type Ref} from 'vue'
 import type {SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
 import {
+  AGENT_BLOCK_STATUS,
   AGENT_CHAT_STATUS,
   AGENT_CONTENT_TYPE,
   CHAT_BUBBLE_TYPE,
-  STREAM_UPDATE_TYPE,
   STREAM_APPEND_TYPES,
+  STREAM_UPDATE_TYPE,
   TOKEN_USAGE_TYPE,
-  UPDATE_CONVERSATION_TYPES, AGENT_BLOCK_STATUS,
+  UPDATE_CONVERSATION_TYPES,
 } from '@/constants'
 import type {
   ActiveAgentConversationItem,
@@ -16,10 +17,12 @@ import type {
   AgentSseMessageContent,
   AgentStatusChangeSse,
   AgentStreamApi,
-  BlockDeltaContentMetadata,
+  AgentThinkBlock,
   AgentTokenUsageContent,
+  AgentToolCallBlock,
+  BlockDeltaContentMetadata,
   CustomizeContentMetadata,
-  GenerateConversationName, AgentToolCallBlock, AgentThinkBlock,
+  GenerateConversationName,
 } from '@/types/composables'
 import type {
   AgentMessageEntity,
@@ -183,8 +186,11 @@ export function useAgentStream(
     if (chunk.type === AGENT_CONTENT_TYPE.TOOL) {
       const findToolCall = find as AgentToolCallBlock
       const chunkToolCall = chunk as AgentToolCallBlock
-      findToolCall.output = findToolCall.output || findToolCall.output
-      findToolCall.resultState= chunkToolCall.resultState || findToolCall.resultState
+      if (chunkToolCall.outputText) {
+        findToolCall.outputText = (findToolCall.outputText || "") + chunkToolCall.outputText
+      }
+      findToolCall.resultState = chunkToolCall.resultState || findToolCall.resultState
+      findToolCall.hitlStatus = chunkToolCall.hitlStatus || findToolCall.hitlStatus
     }
   }
 

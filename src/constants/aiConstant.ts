@@ -32,9 +32,21 @@ export const AGENT_CONTENT_TYPE = {
 
 /** 助手 content 块 status */
 export const AGENT_BLOCK_STATUS = {
+  READY:'ready',
+  PENDING:'pending',
   RUNNING: 'running',
   DONE: 'done',
   FAILED: 'failed',
+} as const
+
+export const TOOL_RUNNING_STATUS_VALUE:ReadonlyArray<string> = [AGENT_BLOCK_STATUS.READY, AGENT_BLOCK_STATUS.PENDING, AGENT_BLOCK_STATUS.RUNNING]
+
+export const AGENT_TOOL_BLOCK_STATUS = {
+  PENDING:"pending",
+  ASKING:"asking",
+  ALLOWED:"allowed",
+  SUBMITTED:"submitted",
+  FINISHED:"finished",
 } as const
 
 export const AGENT_CHAT_STATUS_STYLE = {
