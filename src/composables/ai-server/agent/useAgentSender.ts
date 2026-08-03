@@ -102,7 +102,7 @@ export function useAgentSender(
         label: t.value,
         icon:() => createIcon(getTypeStyle(Number(t.id)).icon)})
       );
-      const model:RestResult<ModelSettingEntity[]> = await modelSettingService.find({'filter_[type_eq]':MODEL_TYPE.CHAT})
+      const model:RestResult<ModelSettingEntity[]> = await modelSettingService.findEnabled({'filter_[type_eq]':MODEL_TYPE.CHAT})
       models.value = model.data || [];
       state.value.modelOptions = toModelMenuItems(models.value);
       if (models.value.length > 0) {
