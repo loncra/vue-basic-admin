@@ -86,13 +86,67 @@ export const MODEL_TYPE = {
   MUSIC:50,
 } as const
 
-/**
- * @deprecated
- */
-export const THOUGHT_CHAIN_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
-  AGENT_CONTENT_TYPE.THINK,
-  AGENT_CONTENT_TYPE.TOOL
-]
+/** 模型厂商字典 code 前缀，对齐 tb 样例 `system.ai.model.*` */
+export const MODEL_SETTING_MANUFACTURER_CODE_PREFIX = 'system.ai.model'
+
+/** 对齐 {@code ModelSettingMetadata.MODEL_DEFAULT_OPTIONS_KEY} */
+export const MODEL_DEFAULT_OPTIONS_KEY = 'options'
+
+/** 对齐 ModelResolver.buildGenerateOptions 字段；表单/提交共用 */
+export const MODEL_GENERATE_OPTION_KEYS = [
+  'temperature',
+  'topP',
+  'topK',
+  'maxTokens',
+  'maxCompletionTokens',
+  'frequencyPenalty',
+  'presencePenalty',
+  'seed',
+  'thinkingBudget',
+  'reasoningEffort',
+  'cacheControl',
+  'parallelToolCalls',
+  'stream',
+] as const
+
+export type ModelGenerateOptionKey = (typeof MODEL_GENERATE_OPTION_KEYS)[number]
+
+export const MODEL_GENERATE_OPTION_NUMBER_KEYS = [
+  'temperature',
+  'topP',
+  'topK',
+  'maxTokens',
+  'maxCompletionTokens',
+  'frequencyPenalty',
+  'presencePenalty',
+  'seed',
+  'thinkingBudget',
+] as const satisfies ReadonlyArray<ModelGenerateOptionKey>
+
+export const MODEL_GENERATE_OPTION_BOOLEAN_KEYS = [
+  'cacheControl',
+  'parallelToolCalls',
+  'stream',
+] as const satisfies ReadonlyArray<ModelGenerateOptionKey>
+
+export const MODEL_GENERATE_OPTION_STRING_KEYS = [
+  'reasoningEffort',
+] as const satisfies ReadonlyArray<ModelGenerateOptionKey>
+
+export const MODEL_SETTING_DEFAULT_ICON = 'loncra-sticker'
+export const MODEL_SETTING_MANUFACTURER_DEFAULT_ICON = 'loncra-building'
+
+export const MODEL_SETTING_AUTHORITY = {
+  FIND: 'perms[ai_server_mode_setting:find]',
+  GET: 'perms[ai_server_mode_setting:get]',
+  SAVE: 'perms[ai_server_mode_setting:save]',
+  DELETE: 'perms[ai_server_mode_setting:delete]',
+  SORT: 'perms[ai_server_mode_setting:sort]',
+} as const
+
+export const MODEL_SETTING_MANUFACTURER_CODE_QUERY = 'manufacturerCode'
+
+export const MODEL_SETTING_MANUFACTURER_FILTER_JEQ = 'filter_[manufacturer.code_jeq]'
 
 export const STREAM_APPEND_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
   AGENT_CONTENT_TYPE.THINK,

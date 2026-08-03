@@ -426,6 +426,70 @@ const locale: LanguagePack = {
       permanent:'永久',
     }
   },
+  aiServer:{
+    modelSetting:{
+      routePage:'模型配置',
+      model:'模型标识',
+      manufacturer:'厂商',
+      description:'描述',
+      icon:'图标',
+      defaultOptions:'默认生成参数',
+      options:{
+        temperature:{
+          label:'采样温度',
+          help:'控制输出随机性。常用 0.2～0.8；越低越稳、越偏事实，越高越发散。例：客服/抽取用 0.2，创意写作用 0.7。',
+        },
+        topP:{
+          label:'核采样 topP',
+          help:'从累计概率达到 P 的候选词中采样，常用 0.9～1。一般与 temperature 二选一细调即可，不必同时拉满。',
+        },
+        topK:{
+          label:'候选数 topK',
+          help:'每步只从概率最高的 K 个 token 中选。例：40～100；设小更稳、设大更多样。部分云厂商可能忽略。',
+        },
+        maxTokens:{
+          label:'最大生成 token',
+          help:'单次回复最多生成多少 token（含标点）。例：短答 512、长文 2048～4096。过小会截断。',
+        },
+        maxCompletionTokens:{
+          label:'最大补全 token',
+          help:'部分 OpenAI 兼容接口用补全长度上限，语义接近 maxTokens。若厂商只认其一，填对应那一项即可。',
+        },
+        frequencyPenalty:{
+          label:'频率惩罚',
+          help:'抑制已出现词的重复，范围通常 -2～2。例：0.2～0.5 减轻车轱辘话；过高会显得生硬。',
+        },
+        presencePenalty:{
+          label:'存在惩罚',
+          help:'鼓励谈及新话题，范围通常 -2～2。例：0.3～0.6 适合头脑风暴；对话要聚焦时可保持 0。',
+        },
+        seed:{
+          label:'随机种子',
+          help:'固定整数可尽量复现相近结果，便于评测对比。例：42。不填则每次随机；不保证跨厂商完全一致。',
+        },
+        thinkingBudget:{
+          label:'思考预算',
+          help:'推理/思考阶段可用的 token 预算。例：DashScope 填 2048 可开启思考；不填则通常不走思考链路。',
+        },
+        reasoningEffort:{
+          label:'推理强度',
+          help:'控制推理用力程度，常见 low / medium / high。例：简单问答 low，复杂分析 medium 或 high。',
+        },
+        cacheControl:{
+          label:'缓存控制',
+          help:'是否启用提示/上下文缓存（视厂商支持）。适合长系统提示、多轮复用同一前缀，可降延迟与费用。',
+        },
+        parallelToolCalls:{
+          label:'并行工具调用',
+          help:'是否允许一次回复里并行调用多个工具。适合需同时查多项的场景；串行依赖时请选否。',
+        },
+        stream:{
+          label:'流式输出',
+          help:'是否默认按流式返回。对话界面一般选是以便逐字展示；批处理/只要整段结果可选否。',
+        },
+      },
+    }
+  },
   messageServer:{
     sms:{
       routePage:'短信消息',

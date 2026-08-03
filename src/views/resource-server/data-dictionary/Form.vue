@@ -69,7 +69,7 @@ async function preMounted() {
     const result:RestResult<DictionaryTypeEntity> = await typeService.get(globalProperties.$route.query.typeId as unknown as number)
     if (result.data) {
       options.value.type = result.data
-      options.value.entity.typeId = result.data.id
+      options.value.entity.typeId = Number(result.data.id)
     }
   } else if (!globalProperties.$route.query.id) {
     const field = 'id  parentId  typeId'

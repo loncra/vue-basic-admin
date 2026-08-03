@@ -17,6 +17,11 @@ export interface DataDictionaryMetadata {
   parentId?:number
 
   /**
+   * 值
+   */
+  value?: string | number | boolean | null
+
+  /**
    * 值类型
    */
   valueType:NameValueEnumMetadata<number> | number

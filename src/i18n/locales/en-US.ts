@@ -433,6 +433,70 @@ const locale: LanguagePack = {
       permanent: 'Permanent',
     },
   },
+  aiServer: {
+    modelSetting: {
+      routePage: 'Model settings',
+      model: 'Model id',
+      manufacturer: 'Manufacturer',
+      description: 'Description',
+      icon: 'Icon',
+      defaultOptions: 'Default generate options',
+      options: {
+        temperature: {
+          label: 'Temperature',
+          help: 'Controls randomness. Typical 0.2–0.8; lower is steadier/factual, higher is more creative. E.g. support/extraction 0.2, creative writing 0.7.',
+        },
+        topP: {
+          label: 'Top-p (nucleus)',
+          help: 'Sample from the smallest set whose cumulative probability ≥ P. Typical 0.9–1. Usually tune either temperature or top-p, not both aggressively.',
+        },
+        topK: {
+          label: 'Top-k',
+          help: 'Restrict each step to the K highest-probability tokens. E.g. 40–100; smaller is stabler, larger is more diverse. Some vendors may ignore it.',
+        },
+        maxTokens: {
+          label: 'Max tokens',
+          help: 'Max tokens in one reply (including punctuation). E.g. short answers 512, long text 2048–4096. Too small truncates output.',
+        },
+        maxCompletionTokens: {
+          label: 'Max completion tokens',
+          help: 'Completion-length cap on some OpenAI-compatible APIs (similar to maxTokens). Fill the one your vendor accepts.',
+        },
+        frequencyPenalty: {
+          label: 'Frequency penalty',
+          help: 'Reduce repetition of tokens already used. Typical range -2–2. E.g. 0.2–0.5 against loops; too high sounds stiff.',
+        },
+        presencePenalty: {
+          label: 'Presence penalty',
+          help: 'Encourage new topics. Typical range -2–2. E.g. 0.3–0.6 for brainstorming; keep 0 when staying on-topic.',
+        },
+        seed: {
+          label: 'Seed',
+          help: 'Fixed integer for more reproducible runs (evals/compare). E.g. 42. Empty = random; not guaranteed identical across vendors.',
+        },
+        thinkingBudget: {
+          label: 'Thinking budget',
+          help: 'Token budget for reasoning/thinking. E.g. DashScope 2048 enables thinking; empty usually skips the thinking path.',
+        },
+        reasoningEffort: {
+          label: 'Reasoning effort',
+          help: 'How hard the model reasons: often low / medium / high. E.g. simple Q&A low; complex analysis medium or high.',
+        },
+        cacheControl: {
+          label: 'Cache control',
+          help: 'Enable prompt/context caching when supported. Useful for long system prompts and reused prefixes to cut latency/cost.',
+        },
+        parallelToolCalls: {
+          label: 'Parallel tool calls',
+          help: 'Allow multiple tools in one turn. Good for independent lookups; choose No when tools must run sequentially.',
+        },
+        stream: {
+          label: 'Streaming',
+          help: 'Default to streamed responses. Prefer Yes for chat UIs; No when you only need the full result (batch jobs).',
+        },
+      },
+    },
+  },
   messageServer: {
     sms: {
       routePage: 'SMS messages',

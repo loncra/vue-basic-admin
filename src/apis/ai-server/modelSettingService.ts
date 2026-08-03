@@ -1,17 +1,19 @@
-import {PageRestfulCrudService} from "@/apis/pageRestfulCrudService.ts";
 import type {
   FilterRequest,
   ModelSettingEntity,
   ModelSettingSavePayload,
   RestResult,
-  TotalPage, TreeSortMetadata
-} from "@/types/apis";
-import axios from "@/requests/http.ts";
-import {formUrlEncoded} from "@/utils";
-import {FindRestfulCrudService} from "@/apis";
+  TreeSortMetadata,
+} from '@/types/apis'
+import axios from '@/requests/http.ts'
+import {formUrlEncoded} from '@/utils'
+import {FindRestfulCrudService} from '@/apis'
+import {SYSTEM_CONSTANT} from "@/constants";
 
 /**
  * 模型设置领域服务：`/api[/ai-server]/model/setting`
+ *
+ * 列表接口为 `POST` 根路径（非 `/find`），与 ai-server 其它 Find API 一致。
  *
  * @author maurice.chen
  */
@@ -19,7 +21,8 @@ export class ModelSettingService extends FindRestfulCrudService<
   ModelSettingSavePayload,
   ModelSettingEntity
 > {
-  static readonly BASE_URL: string = '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/ai-server' : '')
+  static readonly BASE_URL: string =
+    '/api' + (import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? '/ai-server' : '')
 
   static readonly SERVICE_URL = ModelSettingService.BASE_URL + '/model/setting'
 
@@ -31,11 +34,16 @@ export class ModelSettingService extends FindRestfulCrudService<
     super(ModelSettingService.SERVICE_URL)
   }
 
-  findEnabled(filter:FilterRequest = {}) :Promise<RestResult<ModelSettingEntity[]>> {
+  /** `POST /model/setting`（对齐后端根路径 find，覆盖基类 `/find`） */
+  find(request: FilterRequest = {}): Promise<RestResult<ModelSettingEntity[]>> {
+    return axios.post(ModelSettingService.SERVICE_URL, formUrlEncoded(request))
+  }
+
+  findEnabled(filter: FilterRequest = {}): Promise<RestResult<ModelSettingEntity[]>> {
     return axios.post(ModelSettingService.FIND_ENABLED, formUrlEncoded(filter))
   }
 
-  sort(sorts:TreeSortMetadata<number>[]):Promise<RestResult<void>> {
+  sort(sorts: TreeSortMetadata<ModelSettingEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[]): Promise<RestResult<void>> {
     return axios.put(ModelSettingService.SORT_URL, sorts)
   }
 }
