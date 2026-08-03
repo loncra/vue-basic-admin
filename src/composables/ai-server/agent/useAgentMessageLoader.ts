@@ -36,7 +36,6 @@ export function useAgentMessageLoader(
 
   async function loadPage(
     number: number,
-    append: boolean = false,
     clear: boolean = false,
   ): Promise<void> {
     const active = conversationActive.value
@@ -150,7 +149,7 @@ export function useAgentMessageLoader(
     active.isOnFirstPage = false
     active.loading = true
     try {
-      await loadPage(pageNumber, false, true)
+      await loadPage(pageNumber, true)
 
       if (active.dataSource.elements.length <= 0) {
         return
@@ -206,7 +205,7 @@ export function useAgentMessageLoader(
       try {
         active.isOnFirstPage = true
         active.isOnLastPage = false
-        await loadPage(1, false, true)
+        await loadPage(1, reload)
         await nextTick()
         view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
       } finally {

@@ -12,6 +12,7 @@ import type {
 import type {Ref} from 'vue'
 import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE} from '@/constants'
 import type {AgentMessageLoaderApi} from '@/composables/ai-server/agent/useAgentMessageLoader.ts'
+import type {ThoughtChainItemType} from "@antdv-next/x";
 
 export interface AgentConversationItem extends AgentConversationEntity {
   editing: boolean
@@ -180,4 +181,16 @@ export interface AgentTokenUsageContent extends AgentSseMessageContent {
   cachedTokens:number
   usageType:NameValueEnumMetadata<string> | string
   type: typeof AGENT_CONTENT_TYPE.TOKEN_USAGE
+}
+
+export interface BlockGroup {
+  groupId: string
+  thinkBlock?: AgentThinkBlock
+  answerBlock?: AgentAnswerBlock
+  toolBlocks: AgentToolCallBlock[]
+  errorBlock?: AgentErrorBlock
+}
+
+export interface ThoughtChainItemDataType extends ThoughtChainItemType {
+  data: AgentToolCallBlock
 }

@@ -77,9 +77,7 @@ defineExpose({
         <template #contentRender="{ item }">
           <l-agent-assistant-bubble-content
             v-if="item.role === CHAT_BUBBLE_TYPE.AI"
-            :assistant-message-id="Number(item.key)"
-            @resume="onResume"
-            :content="item.content"
+            :item="item"
           />
           <l-agent-user-message-bubble-content
             v-else

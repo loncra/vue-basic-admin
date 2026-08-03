@@ -63,9 +63,11 @@ export function useAgentStream(
     if (!stream) {
       return
     }
-
-    stream.stream?.abort()
-    stream.stream = undefined
+    try {
+      stream.stream?.abort()
+    } finally {
+      stream.stream = undefined
+    }
   }
 
   function onEvent(chunk: Partial<SSEOutput>, assistantId:number) {
@@ -196,7 +198,6 @@ export function useAgentStream(
 
   function onError(error:Error) {
     console.error(error)
-    message.error(error.message)
   }
 
   function connect(assistantId: number): void {
@@ -239,6 +240,7 @@ export function useAgentStream(
       .filter(s => getEnumValue((s.data as AgentMessageEntity).status) === AGENT_CHAT_STATUS.RUNNING)
     runs.forEach(s => disconnect(Number(s?.data?.id)))
   }
+
   onUnmounted(disconnectIfRunning)
 
   return {

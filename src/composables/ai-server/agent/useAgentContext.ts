@@ -44,7 +44,7 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
     }
 
     prependConversationIfMissing(conversationActive.value)
-    await loader.switchConversation(conversationActive, messageId)
+    await loader.switchConversation(conversationActive, messageId, true)
     stream.reconnectIfRunning()
     updateMenuOptions(conversationActive.value)
     return conversationActive.value;

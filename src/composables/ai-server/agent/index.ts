@@ -23,3 +23,10 @@ export {
   createAgentBubbleListRole,
   useAgentView,
 } from './userAgentView.ts'
+
+export {
+  getTavilySearchSourceConfig,
+  isBlockRunning,
+  getToolChainStatus,
+  useAgentAssistantBubble,
+} from './useAgentAssistantBubble.ts'
