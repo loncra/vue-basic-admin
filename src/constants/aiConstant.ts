@@ -11,6 +11,7 @@ export const AGENT_CONVERSATION_TYPE = {
 export const AGENT_CHAT_STATUS = {
   READY:10,
   RUNNING:20,
+  REQUEST_STOP:25,
   STOPPED:30,
   COMPLETED:35,
   FAILED:40
@@ -62,6 +63,11 @@ export const AGENT_CHAT_STATUS_STYLE = {
   },
   [AGENT_CHAT_STATUS.STOPPED]: {
     icon: 'loncra-circle-stop',
+    textClass: 'text-warning',
+    spin: false,
+  },
+  [AGENT_CHAT_STATUS.REQUEST_STOP]: {
+    icon: 'loncra-badge-question-mark',
     textClass: 'text-warning',
     spin: false,
   },

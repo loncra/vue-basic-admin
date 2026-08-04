@@ -21,6 +21,7 @@ import {computed, reactive} from "vue";
 import type {ThoughtChainItemType} from "@antdv-next/x";
 import type {RestResult} from "@/types/apis";
 import {AgentService} from "@/apis";
+import {useAgentChatContext} from "@/composables";
 
 /** 是否正在运行（THINK / ANSWER / TOOL 共用） */
 export function isBlockRunning(block: BlockRunningContentMetadata): boolean {
@@ -69,6 +70,8 @@ export function useAgentAssistantBubble(
 ) {
   /** 用户手动设置的展开状态：undefined=未操作, true=展开, false=收起 */
   const toolCallUserState = reactive<Record<string, boolean | undefined>>({})
+
+  const {conversationActive, stream} = useAgentChatContext()
 
   const groupedBlocks = computed<BlockGroup[]>(() => {
     const groupMap = new Map<string, BlockGroup>()
@@ -164,7 +167,7 @@ export function useAgentAssistantBubble(
         }))
       const result:RestResult<AgentChatBasicResponseBody> = await AgentService.resume({assistantMessageId:Number(item.key), confirmResults})
       if (result.data) {
-        //emits("resume", result.data)
+        stream.connect(Number(item.key))
       }
     }
   }

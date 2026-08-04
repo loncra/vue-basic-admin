@@ -1,5 +1,4 @@
 import type {
-  AgentChatBasicResponseBody,
   AgentChatRequestBody,
   AgentChatResponseBody,
   AgentSenderFormProps,
@@ -79,7 +78,7 @@ export function useAgentView() {
         const assistantMessage: AgentMessageEntity = {
           id: result.data.assistantMessageId,
           content: [],
-          status: AGENT_CHAT_STATUS.RUNNING,
+          status: AGENT_CHAT_STATUS.READY,
           role: CHAT_BUBBLE_TYPE.AI,
           agentConversationId: conversationId,
           parentId: result.data.userMessageId,
@@ -119,15 +118,14 @@ export function useAgentView() {
     }
   }
 
-  function onResume(body:AgentChatBasicResponseBody) {
+  /*function onResume(body:AgentChatBasicResponseBody) {
     stream.connect(body.assistantMessageId)
-  }
+  }*/
 
   return {
     bubbleListRef,
     senderRef,
     copyText,
-    onResume,
     countTokenUsage,
     conversationActive,
     principalStore,

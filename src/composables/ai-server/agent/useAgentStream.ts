@@ -30,7 +30,6 @@ import type {
   StreamAgentMessageEntity
 } from '@/types/apis'
 import {findFirstTreeNode, getEnumValue} from '@/utils'
-import useApp from "antdv-next/dist/app/useApp";
 
 
 /**
@@ -40,8 +39,6 @@ export function useAgentStream(
   conversationActive: Ref<ActiveAgentConversationItem | undefined>,
   conversations: Ref<AgentConversationItem[]>
 ): AgentStreamApi {
-
-  const {message} = useApp()
 
   function getStreamAgentMessageEntity(assistantId:number): StreamAgentMessageEntity | undefined {
     const active = conversationActive.value

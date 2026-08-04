@@ -191,7 +191,7 @@ async function onDrop(
   message.success(result.message)
 }
 
-function goAdd() {
+function onAdd() {
   if (!selectedManufacturer.value) {
     return
   }
@@ -297,20 +297,9 @@ onMounted(mounted)
             :scroll="{x: 'max-content'}"
             :row-selection="{fixed: true, type: 'checkbox'}"
             @drop="onDrop"
-            @add="goAdd"
-            @detail="
-              (r) =>
-                globalProperties.$router.push({
-                  name: 'ai_server_model_setting_detail',
-                  query: {id: String(r.id)},
-                })
-            "
-            @edit="
-              (r) =>
-                globalProperties.$router.push({
-                  name: 'ai_server_model_setting_edit',
-                  query: {id: String(r.id)},
-                })
+            @add="onAdd"
+            @detail="r => globalProperties.$router.push({name: 'ai_server_model_setting_detail',query: {id: String(r.id)},})"
+            @edit="r =>globalProperties.$router.push({name: 'ai_server_model_setting_edit',query: {id: String(r.id)},})
             "
           >
             <template #title>
