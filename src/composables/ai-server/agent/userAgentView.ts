@@ -7,7 +7,12 @@ import type {
   BlockDeltaContentMetadata,
   ChatBubbleItem,
 } from '@/types/composables'
-import type {AgentMessageEntity, RestResult, StreamAgentMessageEntity} from '@/types/apis'
+import type {
+  AgentMessageEntity,
+  IdValueMetadata,
+  RestResult,
+  StreamAgentMessageEntity
+} from '@/types/apis'
 import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {nextTick, ref} from 'vue'
@@ -16,7 +21,7 @@ import type LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import useApp from 'antdv-next/dist/app/useApp'
 import {DEFAULT_BUBBLE_LIST_ROLE, useAgentChatContext} from '@/composables'
 import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE, CHAT_BUBBLE_TYPE} from '@/constants'
-import {addBubbleListMessage, getEnumValue} from '@/utils'
+import {addBubbleListMessage, getEnumName, getEnumValue} from '@/utils'
 import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
 
 /** Agent 气泡 role：ai 项按状态动态挂 loading */
@@ -98,9 +103,30 @@ export function useAgentView() {
     }
   }
 
-  function countTokenUsage(item:ChatBubbleItem) {
+  function countTokenUsage(item:ChatBubbleItem, field?:'inputTokens' | 'outputTokens' | 'cachedTokens') {
     const message = item.data as AgentMessageEntity
-    return ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContent[]).reduce((acc:number, cur) => acc + cur.inputTokens + cur.outputTokens + cur.cachedTokens, 0)
+    const contents = ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContent[])
+    if (field) {
+      return contents.reduce((acc:number, cur) => acc + cur[field], 0)
+    } else {
+      return contents.reduce((acc:number, cur) => acc + cur.inputTokens + cur.outputTokens, 0)
+    }
+  }
+  function calcConversationCacheHitRate(item:ChatBubbleItem): number {
+    let totalInput = 0, totalCached = 0
+    totalInput += countTokenUsage(item, 'inputTokens')
+    totalCached += countTokenUsage(item, 'cachedTokens')
+    const denominator = totalInput + totalCached
+    if (denominator === 0) {
+      return 0
+    }
+    return Math.round((totalCached / denominator) * 100)
+  }
+
+  function eachTokenUsage(item:ChatBubbleItem, field:'inputTokens' | 'outputTokens' | 'cachedTokens'):IdValueMetadata<string, number>[] {
+    const message = item.data as AgentMessageEntity
+    const contents = ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContent[])
+    return contents.map(s => ({id:getEnumName(s.usageType), value:s[field]}))
   }
 
   async function copyText(item:StreamAgentMessageEntity) {
@@ -111,8 +137,6 @@ export function useAgentView() {
         .at(-1)
       await navigator.clipboard.writeText(text || "");
       item.copy = true;
-      // 可选：给个提示
-      // message.success('已复制到剪贴板');
     } catch {
       // 复制失败处理
     }
@@ -125,7 +149,9 @@ export function useAgentView() {
   return {
     bubbleListRef,
     senderRef,
+    calcConversationCacheHitRate,
     copyText,
+    eachTokenUsage,
     countTokenUsage,
     conversationActive,
     principalStore,

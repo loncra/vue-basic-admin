@@ -9,9 +9,11 @@ import LAgentUserMessageBubbleContent
 import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
-import {createAgentBubbleListRole, useAgentView} from '@/composables'
+import {createAgentBubbleListRole, getTavilyExtractResult, useAgentView} from '@/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
 import {getEnumValue} from "@/utils";
+import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
+import LMarkdown from "@/components/basic/markdown/Markdown.vue";
 
 defineOptions({
   name: 'LAgentView',
@@ -23,8 +25,9 @@ const {
   conversationActive,
   loader,
   countTokenUsage,
+  eachTokenUsage,
+  calcConversationCacheHitRate,
   bubbleListRef,
-  onResume,
   copyText,
   senderRef,
 } = useAgentView()
@@ -87,17 +90,129 @@ defineExpose({
         <template #footer="{item}">
           <template v-if="item.role === CHAT_BUBBLE_TYPE.AI && getEnumValue((item.data as AgentMessageEntity).status) !== AGENT_CHAT_STATUS.RUNNING">
             <a-space>
-              <a-button variant="outlined" size="small" :color="(item.data as StreamAgentMessageEntity).copy ? 'cyan' : 'default'" @click="copyText(item.data as StreamAgentMessageEntity)">
+              <a-button
+                variant="outlined"
+                size="small"
+                :color="(item.data as StreamAgentMessageEntity).copy ? 'cyan' : 'default'"
+                @click="copyText(item.data as StreamAgentMessageEntity)"
+              >
                 <template #icon>
                   <icon-font :type="(item.data as StreamAgentMessageEntity).copy ? 'loncra-copy-check' : 'loncra-copy'" />
                 </template>
               </a-button>
-              <a-button size="small" variant="dashed">
-                <template #icon>
-                  <icon-font type="loncra-database-zap" />
+              <a-popover
+                :classes="{root:'w-60 max-w-[40vw]', content: 'max-h-[30vh] overflow-auto p-sm', title:'p-sm mb-0 border-b border-border-secondary border-solid', container: 'p-0'}"
+              >
+                <template #title>
+                  <a-flex
+                    justify="space-between"
+                    align="center"
+                  >
+                    <span>
+                      {{$t('agent.token.total')}}
+                    </span>
+                    <span>
+                      {{countTokenUsage(item)}}
+                    </span>
+                  </a-flex>
                 </template>
-                {{ $t('agent.token.text') }}:{{countTokenUsage(item)}}
-              </a-button>
+                <template #content >
+                  <a-flex
+                    vertical
+                    gap="small"
+                  >
+                    <a-flex
+                      justify="space-between"
+                      align="center"
+                    >
+                      <a-badge color="blue" :text="$t('agent.token.input')" />
+                      <span>
+                        {{countTokenUsage(item, 'inputTokens')}}
+                      </span>
+                    </a-flex>
+                    <template v-if="eachTokenUsage(item, 'inputTokens').length > 1">
+                      <a-flex
+                        :key="v.id"
+                        class="ml-sm pl-xxs text-xs"
+                        v-for="v of eachTokenUsage(item, 'inputTokens')"
+                        justify="space-between"
+                        align="center"
+                      >
+                        <span>
+                          {{v.id}}
+                        </span>
+                        <span>
+                          {{v.value}}
+                        </span>
+                      </a-flex>
+                      <a-divider class="m-0" />
+                    </template>
+
+                    <a-flex
+                      justify="space-between"
+                      align="center"
+                    >
+                      <a-badge color="magenta" :text="$t('agent.token.output')" />
+                      <span>
+                        {{countTokenUsage(item, 'outputTokens')}}
+                      </span>
+                    </a-flex>
+                    <template v-if="eachTokenUsage(item, 'outputTokens').length > 1">
+                      <a-flex
+                        :key="v.id"
+                        class="ml-sm pl-xxs text-xs"
+                        v-for="v of eachTokenUsage(item, 'outputTokens')"
+                        justify="space-between"
+                        align="center"
+                      >
+                        <span>
+                          {{v.id}}
+                        </span>
+                        <span>
+                          {{v.value}}
+                        </span>
+                      </a-flex>
+                      <a-divider class="m-0" />
+                    </template>
+
+                    <a-flex
+                      justify="space-between"
+                      align="center"
+                    >
+                      <a-badge color="yellow" :text="$t('agent.token.cache')" />
+                      <span>
+                        {{countTokenUsage(item, 'cachedTokens')}}
+                      </span>
+                    </a-flex>
+                    <template v-if="eachTokenUsage(item, 'cachedTokens').length > 1">
+                      <a-flex
+                        :key="v.id"
+                        class="ml-sm pl-xxs text-xs"
+                        v-for="v of eachTokenUsage(item, 'cachedTokens')"
+                        justify="space-between"
+                        align="center"
+                      >
+                        <span>
+                          {{v.id}}
+                        </span>
+                        <span>
+                          {{v.value}}
+                        </span>
+                      </a-flex>
+                    </template>
+
+                    <a-divider class="m-0" />
+                    <a-badge color="green" :text="$t('agent.token.cacheHitRate')" />
+                    <a-progress size="small" status="active" :percent="calcConversationCacheHitRate(item)" />
+                  </a-flex>
+                </template>
+                <a-button size="small" variant="dashed">
+                  <template #icon>
+                    <icon-font type="loncra-database-zap" />
+                  </template>
+                  {{ $t('agent.token.text') }}:{{countTokenUsage(item)}}
+                </a-button>
+              </a-popover>
             </a-space>
           </template>
         </template>

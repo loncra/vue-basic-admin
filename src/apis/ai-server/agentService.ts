@@ -108,9 +108,10 @@ export class AgentService {
    */
   static loadStream(
     assistantMessageId: number,
-    callbacks: XRequestCallbacks<SSEOutput>
+    callbacks: XRequestCallbacks<SSEOutput>,
+    loadHistory: boolean = true,
   ): AbstractXRequestClass<Record<string, never>, SSEOutput> {
-    const url = `${AgentService.STREAM_URL}/${assistantMessageId}`
+    const url = `${AgentService.STREAM_URL}/${assistantMessageId}?loadHistory=${loadHistory}`
     const request = XRequest<Record<string, never>, SSEOutput>(url, {
       manual: true,
       headers: {

@@ -22,7 +22,7 @@ export interface ActiveAgentConversationItem
   extends AgentConversationItem, ActiveChatSession {}
 
 export type AgentStreamApi = {
-  connect: (assistantId: number) => void
+  connect: (assistantId: number, loadHistory?: boolean) => void
   disconnect: (assistantId:number) => void
   reconnectIfRunning: () => void
   disconnectIfRunning: () => void

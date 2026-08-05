@@ -26,6 +26,7 @@ export {
 
 export {
   getTavilySearchSourceConfig,
+  getTavilyExtractResult,
   isBlockRunning,
   getToolChainStatus,
   useAgentAssistantBubble,

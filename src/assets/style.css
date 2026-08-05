@@ -464,4 +464,9 @@
   .l-agent-bubble-content-tool-call-card .l-web-search-sources .antdx-sources-link {
     @apply items-center
   }
+
+  /* 防止 thought-chain 内容溢出 */
+  .antd-thought-chain-node-box {
+    @apply min-w-0;
+  }
 }

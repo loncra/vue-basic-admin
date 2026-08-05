@@ -658,7 +658,9 @@ const locale: LanguagePack = {
       text:'词元',
       input:'输入词元',
       output:'输出词元',
-      cache:'缓存命中'
+      cache:'缓存命中',
+      cacheHitRate:'缓存命率',
+      total:'词元消耗统计',
     },
     creation:'创建智能体',
     workspace:{

@@ -6,7 +6,7 @@ import {
   AGENT_CHAT_STATUS,
   AGENT_CONTENT_TYPE,
   CHAT_BUBBLE_TYPE,
-  STREAM_APPEND_TYPES,
+  STREAM_APPEND_TYPES, STREAM_RUNNING_STATUS_VALUE,
   STREAM_UPDATE_TYPE,
   TOKEN_USAGE_TYPE,
   UPDATE_CONVERSATION_TYPES,
@@ -197,7 +197,7 @@ export function useAgentStream(
     console.error(error)
   }
 
-  function connect(assistantId: number): void {
+  function connect(assistantId: number, loadHistory: boolean = true): void {
     const streamEntity = getStreamAgentMessageEntity(assistantId)
     if (!streamEntity || streamEntity.stream) {
       return
@@ -206,7 +206,7 @@ export function useAgentStream(
       onUpdate: (chunk: Partial<SSEOutput>) => onEvent(chunk, assistantId),
       onSuccess: () => disconnect(assistantId),
       onError: onError,
-    })
+    }, loadHistory)
   }
 
   function reconnectIfRunning(): void {
@@ -217,7 +217,7 @@ export function useAgentStream(
     const runs = active.dataSource
       .elements
       .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
-      .filter(s => getEnumValue((s.data as AgentMessageEntity).status) === AGENT_CHAT_STATUS.RUNNING)
+      .filter(s => STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((s.data as AgentMessageEntity).status)))
     if (runs.length <= 0) {
       return
     }
@@ -234,7 +234,7 @@ export function useAgentStream(
     const runs = active.dataSource
       .elements
       .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
-      .filter(s => getEnumValue((s.data as AgentMessageEntity).status) === AGENT_CHAT_STATUS.RUNNING)
+      .filter(s => STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((s.data as AgentMessageEntity).status)))
     runs.forEach(s => disconnect(Number(s?.data?.id)))
   }
 

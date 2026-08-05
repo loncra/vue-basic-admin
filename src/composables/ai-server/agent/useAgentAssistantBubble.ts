@@ -14,8 +14,8 @@ import {getEnumValue} from "@/utils";
 import {
   AGENT_BLOCK_STATUS,
   AGENT_CONTENT_TYPE,
-  AGENT_TOOL_BLOCK_STATUS,
-  RUNNING_STATUS_VALUE
+  AGENT_TOOL_BLOCK_STATUS, HTTP,
+  BLOCK_RUNNING_STATUS_VALUE
 } from "@/constants";
 import {computed, reactive} from "vue";
 import type {ThoughtChainItemType} from "@antdv-next/x";
@@ -25,7 +25,7 @@ import {useAgentChatContext} from "@/composables";
 
 /** 是否正在运行（THINK / ANSWER / TOOL 共用） */
 export function isBlockRunning(block: BlockRunningContentMetadata): boolean {
-  return RUNNING_STATUS_VALUE.includes(getEnumValue(block.status))
+  return BLOCK_RUNNING_STATUS_VALUE.includes(getEnumValue(block.status))
 }
 
 export function getTavilySearchSourceConfig(json:string) {
@@ -35,6 +35,7 @@ export function getTavilySearchSourceConfig(json:string) {
   const object = JSON.parse(json)
   return {
     title: object.query,
+    status:object.status,
     items:object.results.map((item: { title: string; content: string; favicon: string; url: string }) => ({
       title: item.title,
       content: item.content,
@@ -42,6 +43,15 @@ export function getTavilySearchSourceConfig(json:string) {
       url: item.url,
     }))
   }
+
+}
+
+export function getTavilyExtractResult(json:string){
+  if (!json) {
+    return []
+  }
+  const object = JSON.parse(json)
+  return object.results;
 }
 
 export function hasToolConfirmed(tools:AgentToolCallBlock[]) {
@@ -71,7 +81,7 @@ export function useAgentAssistantBubble(
   /** 用户手动设置的展开状态：undefined=未操作, true=展开, false=收起 */
   const toolCallUserState = reactive<Record<string, boolean | undefined>>({})
 
-  const {conversationActive, stream} = useAgentChatContext()
+  const {stream} = useAgentChatContext()
 
   const groupedBlocks = computed<BlockGroup[]>(() => {
     const groupMap = new Map<string, BlockGroup>()
@@ -116,7 +126,7 @@ export function useAgentAssistantBubble(
         result[group.groupId] = uid
       } else {
         result[group.groupId] = group.toolBlocks
-          .some(b => RUNNING_STATUS_VALUE.includes(getEnumValue(b.status)))
+          .some(b => BLOCK_RUNNING_STATUS_VALUE.includes(getEnumValue(b.status)))
       }
     }
     return result
@@ -167,7 +177,7 @@ export function useAgentAssistantBubble(
         }))
       const result:RestResult<AgentChatBasicResponseBody> = await AgentService.resume({assistantMessageId:Number(item.key), confirmResults})
       if (result.data) {
-        stream.connect(Number(item.key))
+        stream.connect(Number(item.key), false)
       }
     }
   }

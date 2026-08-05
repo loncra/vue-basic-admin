@@ -665,7 +665,9 @@ const locale: LanguagePack = {
       text:'text',
       input:'input',
       output:'output',
-      cache:'cache'
+      cache:'cache',
+      total:'total',
+      cacheHitRate:'cache hit rate',
     },
     workspace:{
       title:'Workspace',

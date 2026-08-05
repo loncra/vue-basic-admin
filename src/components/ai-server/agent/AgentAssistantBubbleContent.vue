@@ -11,7 +11,12 @@ import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRende
 import LMarkdown from "@/components/basic/markdown/Markdown.vue"
 
 import {RightOutlined,} from '@antdv-next/icons'
-import {getTavilySearchSourceConfig, isBlockRunning, useAgentAssistantBubble} from "@/composables";
+import {
+  getTavilyExtractResult,
+  getTavilySearchSourceConfig,
+  isBlockRunning,
+  useAgentAssistantBubble
+} from "@/composables";
 import {hasToolConfirmed} from "@/composables/ai-server/agent/useAgentAssistantBubble.ts";
 
 defineOptions({
@@ -93,21 +98,53 @@ const {
           <div class="p-sm" v-if="toolCallExpandedState[group.groupId]" key="expanded">
             <ax-thought-chain
               :items="group.toolBlocks.map(toThoughtChainItem)"
+              :classes="{ itemContent: 'overflow-auto' }"
             >
               <template #content="{ item }">
-                <ax-sources
-                  class="l-web-search-sources"
-                  v-if="item.title === 'tavily_search' && item.data?.outputText"
-                  expand-icon-position="end"
-                  v-bind="getTavilySearchSourceConfig(item.data?.outputText)"
-                >
-                  <template #iconRender="{item}">
-                    <a-avatar size="small" :src="item.favicon" />
-                  </template>
-                </ax-sources>
-                <span v-else>
-                  {{item.data?.outputText || ''}}
-                </span>
+                <div class="max-h-[40vh] overflow-auto">
+                  <ax-sources
+                    class="l-web-search-sources"
+                    v-if="item.title === 'tavily_search' && item.data?.outputText && item.data.resultState === 'success'"
+                    expand-icon-position="end"
+                    v-bind="getTavilySearchSourceConfig(item.data?.outputText)"
+                  >
+                    <template #iconRender="{item}">
+                      <a-avatar size="small" :src="item.favicon" />
+                    </template>
+                  </ax-sources>
+
+                  <a-space
+                    orientation="vertical"
+                    v-else-if="item.title === 'tavily_extract' && item.data?.outputText && item.data.resultState === 'success'"
+                  >
+                    <a-popover
+                      :classes="{root:'max-w-[40vw] ',content: 'max-h-[30vh] overflow-auto p-xs', title:'p-xs mb-0 border-b border-border-secondary border-solid', container: 'p-0'}"
+                      v-for="result of getTavilyExtractResult(item.data?.outputText)"
+                      :key="result.url"
+                      :title="result.title"
+                    >
+                      <template #content v-if="result['raw_content']">
+                        <l-markdown
+                          :content="result['raw_content']"
+                          :components="{ code: LMarkdownCodeRenderer }"
+                          paragraph-tag="div"
+                          open-links-in-new-tab
+                        />
+                      </template>
+                      <a-typography-link :href="result.url" target="_blank">
+                        {{ result.title }}
+                      </a-typography-link>
+                    </a-popover>
+                  </a-space>
+
+                  <l-markdown
+                    v-else-if="item.data?.outputText"
+                    :content="item.data?.outputText"
+                    :components="{ code: LMarkdownCodeRenderer }"
+                    paragraph-tag="div"
+                    open-links-in-new-tab
+                  />
+                </div>
               </template>
               <template #footer="{ item }">
                 <a-space v-if="item.data.hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING && item.data.userConfirmed === undefined">
