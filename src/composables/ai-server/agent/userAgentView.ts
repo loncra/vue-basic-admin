@@ -19,10 +19,18 @@ import {nextTick, ref} from 'vue'
 import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import type LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import useApp from 'antdv-next/dist/app/useApp'
-import {DEFAULT_BUBBLE_LIST_ROLE, useAgentChatContext} from '@/composables'
-import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE, CHAT_BUBBLE_TYPE} from '@/constants'
-import {addBubbleListMessage, getEnumName, getEnumValue} from '@/utils'
+import {DEFAULT_BUBBLE_LIST_ROLE, getConversationRuns, useAgentChatContext} from '@/composables'
+import {
+  AGENT_CHAT_STATUS,
+  AGENT_CHAT_TYPE_STYLE,
+  AGENT_CONTENT_TYPE,
+  CHAT_BUBBLE_TYPE,
+  STREAM_RUNNING_STATUS_VALUE
+} from '@/constants'
+import {addBubbleListMessage, createIcon, getEnumName, getEnumValue} from '@/utils'
 import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
+import {result} from "lodash-es";
+import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 
 /** Agent 气泡 role：ai 项按状态动态挂 loading */
 export function createAgentBubbleListRole() {
@@ -30,12 +38,13 @@ export function createAgentBubbleListRole() {
   return {
     ...DEFAULT_BUBBLE_LIST_ROLE,
     ai: (data: ChatBubbleItem) => {
-      const isEmpty = !data.content || (data.content as AgentSseMessageContent[]).length <= 0
+      const isContentEmpty = !data.content || (data.content as AgentSseMessageContent[]).length <= 0
+      const isRunning = data.data && STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((data?.data as AgentMessageEntity).status))
       return {
         ...(typeof baseAi === 'function' ? baseAi(data) : baseAi),
         variant:"borderless",
         shape:"round",
-        loading: isEmpty,
+        loading: isContentEmpty && isRunning,
       }
     } ,
   } as RoleType
@@ -46,6 +55,8 @@ export function useAgentView() {
   const principalStore = usePrincipalStore()
   const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
   const senderRef = ref<InstanceType<typeof LAgentSender>>()
+
+  const currentReedit = ref<StreamAgentMessageEntity>()
 
   const {message} = useApp()
 
@@ -74,24 +85,29 @@ export function useAgentView() {
       } else {
         const conversationId = Number(conversationActive.value.id)
         const userMessage: AgentMessageEntity = {
+          model: result.data.model,
+          type: Number(form.type),
           id: result.data.userMessageId,
           content: value.content,
           status: AGENT_CHAT_STATUS.READY,
           role: CHAT_BUBBLE_TYPE.USER,
-          agentConversationId: conversationId,
+          agentConversationId: conversationId
         }
         const assistantMessage: AgentMessageEntity = {
           id: result.data.assistantMessageId,
           content: [],
+          model: result.data.model,
+          type: Number(form.type),
           status: AGENT_CHAT_STATUS.READY,
           role: CHAT_BUBBLE_TYPE.AI,
           agentConversationId: conversationId,
           parentId: result.data.userMessageId,
-        } as AgentMessageEntity
+        }
 
         addBubbleListMessage(userMessage, CHAT_BUBBLE_TYPE.USER, conversationActive.value.dataSource.elements, true)
         addBubbleListMessage(assistantMessage, CHAT_BUBBLE_TYPE.AI, conversationActive.value.dataSource.elements, true)
         stream.connect(result.data.assistantMessageId)
+        senderRef.value?.clear()
         await nextTick()
       }
 
@@ -100,6 +116,16 @@ export function useAgentView() {
       message.error(error instanceof Error ? error.message : String(error))
     } finally {
       conversationActive.value.loading = false
+    }
+  }
+
+  async function onSenderCancel() {
+    if (!conversationActive.value) {
+      return
+    }
+    const runs = getConversationRuns(conversationActive.value)
+    for (const run of runs) {
+      await AgentService.interrupt(Number(run.key))
     }
   }
 
@@ -142,20 +168,61 @@ export function useAgentView() {
     }
   }
 
-  /*function onResume(body:AgentChatBasicResponseBody) {
-    stream.connect(body.assistantMessageId)
-  }*/
+  function onReedit(entity:StreamAgentMessageEntity) {
+    if (currentReedit.value) {
+      currentReedit.value.reedit = false
+    }
+    entity.reedit = true;
+    currentReedit.value = entity;
+    //senderRef.value?.setValue(entity.content)
+  }
+
+  function onSenderChange(
+    _value:string,
+    _event?:Event,
+    _slotConfigType?:SlotConfigType[]
+  ) {
+    if (_slotConfigType && _slotConfigType?.length > 0) {
+      return
+    }
+    if (!currentReedit.value) {
+      return
+    }
+
+    currentReedit.value.reedit = false
+    currentReedit.value = undefined
+  }
+
+  function getChatType(type:number) {
+    const style = AGENT_CHAT_TYPE_STYLE[String(type) as keyof typeof AGENT_CHAT_TYPE_STYLE]
+    if (!result) {
+      return {
+        color:'default',
+        icon:createIcon('loncra-file-exclamation-point'),
+      }
+    } else {
+      return {
+        color:style.color,
+        icon:createIcon(style.icon),
+      }
+    }
+  }
 
   return {
     bubbleListRef,
     senderRef,
     calcConversationCacheHitRate,
     copyText,
+    onReedit,
     eachTokenUsage,
     countTokenUsage,
+    currentReedit,
     conversationActive,
     principalStore,
+    getChatType,
     loader,
+    onSenderChange,
     onSenderSubmit,
+    onSenderCancel,
   }
 }

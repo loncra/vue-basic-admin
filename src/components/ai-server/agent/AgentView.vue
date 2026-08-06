@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {Welcome as AxWelcome} from '@antdv-next/x'
-import {AGENT_CHAT_STATUS, CHAT_BUBBLE_TYPE} from '@/constants'
+import {AGENT_CONTENT_TYPE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import LAgentUserMessageBubbleContent
@@ -9,11 +9,10 @@ import LAgentUserMessageBubbleContent
 import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
-import {createAgentBubbleListRole, getTavilyExtractResult, useAgentView} from '@/composables'
+import {createAgentBubbleListRole, useAgentView} from '@/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
-import {getEnumValue} from "@/utils";
-import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue";
-import LMarkdown from "@/components/basic/markdown/Markdown.vue";
+import {getEnumName, getEnumValue} from "@/utils";
+import type {AgentSseMessageContent} from "@/types/composables";
 
 defineOptions({
   name: 'LAgentView',
@@ -21,6 +20,7 @@ defineOptions({
 
 const {
   onSenderSubmit,
+  onSenderCancel,
   principalStore,
   conversationActive,
   loader,
@@ -28,6 +28,10 @@ const {
   eachTokenUsage,
   calcConversationCacheHitRate,
   bubbleListRef,
+  currentReedit,
+  onSenderChange,
+  onReedit,
+  getChatType,
   copyText,
   senderRef,
 } = useAgentView()
@@ -84,14 +88,15 @@ defineExpose({
           />
           <l-agent-user-message-bubble-content
             v-else
-            :content="Array.isArray(item.content) ? item.content : []"
+            :item="item"
           />
         </template>
         <template #footer="{item}">
-          <template v-if="item.role === CHAT_BUBBLE_TYPE.AI && getEnumValue((item.data as AgentMessageEntity).status) !== AGENT_CHAT_STATUS.RUNNING">
-            <a-space>
+          <template v-if="item.role === CHAT_BUBBLE_TYPE.AI">
+            <a-space v-if="!STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((item.data as AgentMessageEntity).status))">
               <a-button
                 variant="outlined"
+                v-if="item.content.some((c:AgentSseMessageContent) => c.type === AGENT_CONTENT_TYPE.ANSWER)"
                 size="small"
                 :color="(item.data as StreamAgentMessageEntity).copy ? 'cyan' : 'default'"
                 @click="copyText(item.data as StreamAgentMessageEntity)"
@@ -101,6 +106,7 @@ defineExpose({
                 </template>
               </a-button>
               <a-popover
+                v-if="(item?.data as AgentMessageEntity)?.metadata?.tokenUsage"
                 :classes="{root:'w-60 max-w-[40vw]', content: 'max-h-[30vh] overflow-auto p-sm', title:'p-sm mb-0 border-b border-border-secondary border-solid', container: 'p-0'}"
               >
                 <template #title>
@@ -215,6 +221,24 @@ defineExpose({
               </a-popover>
             </a-space>
           </template>
+          <template v-if="item.role === CHAT_BUBBLE_TYPE.USER">
+            <a-space v-if="item.data">
+              <a-button :disabled="(item.data as StreamAgentMessageEntity).reedit" size="small" @click="onReedit(item.data as StreamAgentMessageEntity)">
+                <template #icon>
+                  <icon-font type="loncra-undo" />
+                </template>
+              </a-button>
+              <a-tag variant="outlined" class="border-dashed" v-bind="getChatType(getEnumValue((item.data as AgentMessageEntity).type))">
+                {{getEnumName((item.data as AgentMessageEntity).type)}}
+              </a-tag>
+              <a-tag variant="outlined" color="blue">
+                <template #icon>
+                  <icon-font :type="(item.data as AgentMessageEntity).model.manufacturer?.metadata?.icon || 'loncra-file-exclamation-point'" />
+                </template>
+                （{{(item.data as AgentMessageEntity).model.manufacturer.name}}）{{(item.data as AgentMessageEntity).model.name}}
+              </a-tag>
+            </a-space>
+          </template>
         </template>
         <template v-if="$slots.bubbleListAfter" #bubbleListAfter>
           <slot name="bubbleListAfter" />
@@ -233,7 +257,7 @@ defineExpose({
       </a-flex>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
-      <l-agent-sender ref="senderRef" @submit="onSenderSubmit" />
+      <l-agent-sender ref="senderRef" @change="onSenderChange" :slotConfig="currentReedit ? currentReedit.content : undefined"  @submit="onSenderSubmit" @cancel="onSenderCancel"/>
     </div>
   </a-flex>
 </template>

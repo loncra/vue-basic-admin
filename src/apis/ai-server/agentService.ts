@@ -102,6 +102,10 @@ export class AgentService {
     return axios.put(AgentService.CHAT_URL, body)
   }
 
+  static interrupt(assistantMessageId: number): Promise<RestResult<AgentChatBasicResponseBody>> {
+    return axios.delete(AgentService.CHAT_URL + "/" + assistantMessageId)
+  }
+
   /**
    * `GET /agent/message/{assistantId}/stream`
    * 使用 XRequest 消费 SSE（snapshot / patch / done）。

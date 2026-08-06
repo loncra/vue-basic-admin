@@ -1,5 +1,6 @@
 import type {
   AgentConversationEntity,
+  ModelSettingMetadata,
   NameValueEnumMetadata,
   ObjectWriteResult,
   PageResult
@@ -19,7 +20,8 @@ export interface AgentConversationItem extends AgentConversationEntity {
 }
 
 export interface ActiveAgentConversationItem
-  extends AgentConversationItem, ActiveChatSession {}
+  extends AgentConversationItem, ActiveChatSession {
+}
 
 export type AgentStreamApi = {
   connect: (assistantId: number, loadHistory?: boolean) => void
@@ -69,7 +71,7 @@ export interface AgentSenderFormProps {
   /** 模型设置 id */
   modelId?: number
   /** 应答类型:10.ask,20.plan,30.agent */
-  type?: number
+  type: number
   /** 消息词槽格式内容 */
   content: ChatContentBlock[]
   /** 附件媒体内容 */
@@ -98,12 +100,14 @@ export interface AgentChatBasicResponseBody {
   assistantMessageId: number
 }
 
-export interface AgentChatResponseBody extends AgentChatBasicResponseBody{
+export interface AgentChatResponseBody extends AgentChatBasicResponseBody {
   conversation: AgentConversationEntity
+  model:ModelSettingMetadata
 }
 
 export interface AgentSenderProps {
   onSubmit: (data: AgentSenderFormProps) => void
+  onCancel: () => void
 }
 
 export type {ChatBubbleItem, PageResult}
@@ -118,6 +122,7 @@ export interface AgentSseMessageContent {
     | typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
     | typeof AGENT_CONTENT_TYPE.TOKEN_USAGE
     | typeof AGENT_CONTENT_TYPE.STREAM_END
+    | typeof AGENT_CONTENT_TYPE.STREAM_STOP
     | typeof AGENT_CONTENT_TYPE.STREAM_START
     | typeof AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
 }

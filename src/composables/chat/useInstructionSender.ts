@@ -378,13 +378,14 @@ export function useInstructionSender(
     editor.addEventListener('compositionend', onCompositionEnd)
   }
 
-  function handleSenderChange(
+  async function handleSenderChange(
     _value:string,
     _event?:Event,
     _slotConfigType?:SlotConfigType[]
   ) {
     bindCompositionEvents()
-    nextTick(syncInstruction)
+    await nextTick(syncInstruction)
+
   }
 
   function handleInstructionPick(option:IdValueMetadata<string, string>){

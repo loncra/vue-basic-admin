@@ -3,10 +3,9 @@ import type {SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
 import {
   AGENT_BLOCK_STATUS,
-  AGENT_CHAT_STATUS,
   AGENT_CONTENT_TYPE,
   CHAT_BUBBLE_TYPE,
-  STREAM_APPEND_TYPES, STREAM_RUNNING_STATUS_VALUE,
+  STREAM_APPEND_TYPES,
   STREAM_UPDATE_TYPE,
   TOKEN_USAGE_TYPE,
   UPDATE_CONVERSATION_TYPES,
@@ -30,6 +29,7 @@ import type {
   StreamAgentMessageEntity
 } from '@/types/apis'
 import {findFirstTreeNode, getEnumValue} from '@/utils'
+import {getConversationRuns} from "@/composables";
 
 
 /**
@@ -214,10 +214,7 @@ export function useAgentStream(
     if (!active) {
       return
     }
-    const runs = active.dataSource
-      .elements
-      .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
-      .filter(s => STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((s.data as AgentMessageEntity).status)))
+    const runs = getConversationRuns(active);
     if (runs.length <= 0) {
       return
     }
@@ -231,10 +228,7 @@ export function useAgentStream(
     if (!active) {
       return
     }
-    const runs = active.dataSource
-      .elements
-      .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
-      .filter(s => STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((s.data as AgentMessageEntity).status)))
+    const runs = getConversationRuns(active)
     runs.forEach(s => disconnect(Number(s?.data?.id)))
   }
 

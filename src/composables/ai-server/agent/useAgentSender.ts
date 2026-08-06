@@ -10,12 +10,12 @@ import type {
 } from "@/types/composables";
 import {ResourceServerService} from "@/apis";
 import {ModelSettingService} from "@/apis/ai-server/modelSettingService.ts";
-import {AGENT_CONVERSATION_TYPE, MODEL_TYPE} from "@/constants";
+import {AGENT_CHAT_TYPE_STYLE, AGENT_CONVERSATION_TYPE, MODEL_TYPE} from "@/constants";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createIcon, getEnumValue} from "@/utils";
 import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
 import {type MenuItemType, Space} from "antdv-next";
-import {useAgentChatContext} from "@/composables";
+import {getConversationRuns, useAgentChatContext} from "@/composables";
 
 const modelSettingService = new ModelSettingService()
 
@@ -68,20 +68,7 @@ export function useAgentSender(
     typeOptions:[],
     loading: false,
     modelOptions:[],
-    typeStyle:{
-      "10":{
-        color:'cyan',
-        icon:'loncra-message-circle-question-mark',
-      },
-      "20":{
-        color:'pink',
-        icon:'loncra-clipboard-list',
-      },
-      "30":{
-        color:'purple',
-        icon:'loncra-bot',
-      }
-    },
+    typeStyle:AGENT_CHAT_TYPE_STYLE,
     form: {
       type: 10,
       content: []
@@ -144,6 +131,10 @@ export function useAgentSender(
     }
   }
 
+  function handleCancel() {
+    props.onCancel()
+  }
+
   const currentModel = computed(() => models.value.find(m => m.id === state.value.form.modelId))
 
   function getTypeStyle(type:number) {
@@ -190,6 +181,24 @@ export function useAgentSender(
     await loadingData();
   }
 
+
+  const isRunning = computed(() =>  {
+    if (state.value.loading) {
+      return true
+    }
+    if (!conversationActive || !conversationActive.value) {
+      return false
+    }
+    const active = conversationActive.value
+    if (active.loading) {
+      return true;
+    }
+    if (getConversationRuns(active).length > 0) {
+      return true;
+    }
+    return false
+  })
+
   onMounted(mounted)
 
   return {
@@ -198,7 +207,9 @@ export function useAgentSender(
     workspaceOptions,
     conversationActive,
     handleSubmit,
+    handleCancel,
     state,
+    isRunning,
     currentType
   }
 }

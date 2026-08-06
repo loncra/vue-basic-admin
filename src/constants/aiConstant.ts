@@ -26,6 +26,7 @@ export const AGENT_CONTENT_TYPE = {
   AGENT_STATUS_CHANGE:"agentStatusChange",
   TOKEN_USAGE:"tokenUsage",
   STREAM_START:"streamStart",
+  STREAM_STOP:"streamStop",
   STREAM_END:"streamEnd",
   ASSISTANT:"assistant",
   GENERATE_CONVERSATION_NAME:"generateConversationName"
@@ -178,4 +179,19 @@ export const UPDATE_CONVERSATION_TYPES: ReadonlyArray<AgentSseMessageContent['ty
 
 export const TOKEN_USAGE_TYPE: Readonly<AgentSseMessageContent['type']> = AGENT_CONTENT_TYPE.TOKEN_USAGE
 
-export const STREAM_UPDATE_TYPE: ReadonlyArray<AgentSseMessageContent['type']> = [AGENT_CONTENT_TYPE.STREAM_START, AGENT_CONTENT_TYPE.STREAM_END]
+export const STREAM_UPDATE_TYPE: ReadonlyArray<AgentSseMessageContent['type']> = [AGENT_CONTENT_TYPE.STREAM_START, AGENT_CONTENT_TYPE.STREAM_STOP, AGENT_CONTENT_TYPE.STREAM_END]
+
+export const AGENT_CHAT_TYPE_STYLE = {
+  "10":{
+    color:'cyan',
+    icon:'loncra-message-circle-question-mark',
+  },
+  "20":{
+    color:'pink',
+    icon:'loncra-clipboard-list',
+  },
+  "30":{
+    color:'purple',
+    icon:'loncra-bot',
+  }
+} as const

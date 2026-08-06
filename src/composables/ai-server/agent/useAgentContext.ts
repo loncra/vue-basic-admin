@@ -7,11 +7,21 @@ import type {
 import {
   AGENT_CHAT_CONTEXT_PROVIDE_KEY,
   AGENT_CONVERSATION_TYPE,
+  CHAT_BUBBLE_TYPE,
   DEFAULT_PAGE_RESULT_VALUE,
+  STREAM_RUNNING_STATUS_VALUE,
 } from '@/constants'
 import {inject, provide, ref} from 'vue'
 import {useAgentMessageLoader, useAgentStream} from '@/composables'
 import {filterTreeDeep, findFirstTreeNode, getEnumValue, unmergeTree} from '@/utils'
+import type {AgentMessageEntity} from "@/types/apis";
+
+export function getConversationRuns(conversation:ActiveAgentConversationItem) {
+  return conversation.dataSource
+    .elements
+    .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
+    .filter(s => STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((s.data as AgentMessageEntity).status)))
+}
 
 export function provideAgentChatContext(options: ProvideAgentChatContextOptions): AgentChatContext {
   const conversationActive = ref<ActiveAgentConversationItem>()

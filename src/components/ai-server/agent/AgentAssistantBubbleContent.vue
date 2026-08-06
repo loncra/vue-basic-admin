@@ -6,7 +6,7 @@ import {
   Think as AxThink,
   ThoughtChain as AxThoughtChain
 } from "@antdv-next/x"
-import {AGENT_TOOL_BLOCK_STATUS} from "@/constants"
+import {AGENT_TOOL_BLOCK_STATUS, STREAM_RUNNING_STATUS_VALUE} from "@/constants"
 import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue"
 import LMarkdown from "@/components/basic/markdown/Markdown.vue"
 
@@ -18,12 +18,14 @@ import {
   useAgentAssistantBubble
 } from "@/composables";
 import {hasToolConfirmed} from "@/composables/ai-server/agent/useAgentAssistantBubble.ts";
+import type {AgentMessageEntity} from "@/types/apis";
+import {getEnumName, getEnumValue} from "@/utils";
 
 defineOptions({
   name: 'LAgentAssistantBubbleContent',
 })
 
-const model = defineModel<ChatBubbleItem>("item", {default:() => []})
+const model = defineModel<ChatBubbleItem>("item",{required: true})
 
 const {
   toggleToolCallExpanded,
@@ -178,9 +180,17 @@ const {
   </a-flex>
 
   <!-- 空内容 → loading dots -->
-  <span v-else class="antd-bubble-dot">
+  <span
+    v-else-if="STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((model?.data as AgentMessageEntity)?.status))"
+        class="antd-bubble-dot"
+  >
     <i class="antd-bubble-dot-item" />
     <i class="antd-bubble-dot-item" />
     <i class="antd-bubble-dot-item" />
   </span>
+  <a-alert v-else
+    type="warning"
+    show-icon
+    :message="getEnumName((model?.data as AgentMessageEntity)?.status)"
+  />
 </template>

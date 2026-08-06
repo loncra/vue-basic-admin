@@ -1,4 +1,5 @@
 import type {
+  BasicIdMetadata,
   DataDictionaryMetadata,
   NameValueEnumMetadata,
   VersionEntityMetadata,
@@ -15,11 +16,33 @@ export interface ModelSettingManufacturerMetadata
   value: string | number
 }
 
-export interface ModelSettingSavePayload extends VersionEntityMetadata {
+export interface ModelSettingMetadata extends BasicIdMetadata<number>{
   /**
    * 名称
    */
   name: string
+
+  /**
+   * 模型值
+   */
+  model: string
+
+  /**
+   * 元数据信息（至少含 options）
+   */
+  metadata: {
+    options?: ModelGenerateOptions
+    [key: string]: unknown
+  }
+
+  /**
+   * 厂商（字典元数据快照）
+   */
+  manufacturer: ModelSettingManufacturerMetadata
+
+}
+
+export interface ModelSettingSavePayload extends ModelSettingMetadata, VersionEntityMetadata {
 
   /**
    * 图标
@@ -32,22 +55,9 @@ export interface ModelSettingSavePayload extends VersionEntityMetadata {
   type: NameValueEnumMetadata<number> | number
 
   /**
-   * 模型值
-   */
-  model: string
-
-  /**
    * 是否启用
    */
   enabled: NameValueEnumMetadata<number> | number
-
-  /**
-   * 元数据信息（至少含 options）
-   */
-  metadata: {
-    options?: ModelGenerateOptions
-    [key: string]: unknown
-  }
 
   /**
    * 备注
@@ -58,11 +68,6 @@ export interface ModelSettingSavePayload extends VersionEntityMetadata {
    * 描述
    */
   description: string
-
-  /**
-   * 厂商（字典元数据快照）
-   */
-  manufacturer: ModelSettingManufacturerMetadata
 
   /**
    * 顺序值

@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import type {
+  ActionsComponents,
+  SenderRef,
+  SlotConfigType
+} from "@antdv-next/x/dist/sender/interface";
 import type {InstructionMeasure} from "@/types/composables";
 import {Sender as AxSender} from '@antdv-next/x'
 import type {IdValueMetadata} from "@/types/apis";
@@ -44,6 +48,7 @@ const slots = defineSlots<{
   header?: () => unknown
   leftExtra?: () => unknown
   rightExtra?: () => unknown
+  defaultButton?: (props: { components: ActionsComponents })=> unknown
   instructionItemRender?: (props: {
     index: number
     item: IdValueMetadata<string, string>
@@ -53,12 +58,13 @@ const slots = defineSlots<{
 
 const emit = defineEmits<{
   submit: [value: string, slotConfig?: SlotConfigType[]]
+  cancel: []
+  change: [value:string,event?:Event,slotConfigType?:SlotConfigType[]]
   pasteFile: [fileList: FileList]
 }>()
 
 const senderRef = ref<SenderRef>()
 const isSending = toRef(props, 'sending')
-
 const {
   instructionPopoverRef,
   handleSenderChange,
@@ -91,6 +97,15 @@ function getSender(): SenderRef | undefined {
   return senderRef.value
 }
 
+async function onChange(
+  _value:string,
+  _event?:Event,
+  _slotConfigType?:SlotConfigType[]
+){
+  await handleSenderChange(_value, _event, _slotConfigType)
+  emit('change',_value, _event, _slotConfigType)
+}
+
 defineExpose({
   clear,
   getSlotConfigValue,
@@ -111,7 +126,8 @@ defineExpose({
       input: props.inputClass,
       footer: 'p-xs! border-t border-t-border-secondary'
     }"
-    @change="handleSenderChange"
+    @cancel="emit('cancel')"
+    @change="onChange"
     @paste-file="emit('pasteFile', $event)"
     @key-down="handleSenderKeyDown"
     @submit="(value, slotConfig) => emit('submit', value, slotConfig)"
@@ -127,16 +143,18 @@ defineExpose({
         </a-space>
         <a-flex align="center" gap="small">
           <slot name="rightExtra" />
-          <component
-            :is="components.ClearButton"
-            :disabled="isSending"
-            @click="clear"
-          />
-          <component
-            :is="isSending ? components.LoadingButton : components.SendButton"
-            :disabled="isSending"
-            type="primary"
-          />
+          <slot name="defaultButton" :components="components">
+            <component
+              :is="components.ClearButton"
+              :disabled="isSending"
+              @click="clear"
+            />
+            <component
+              :is="isSending ? components.LoadingButton : components.SendButton"
+              :disabled="isSending"
+              type="primary"
+            />
+          </slot>
         </a-flex>
       </a-flex>
     </template>

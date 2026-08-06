@@ -6,26 +6,28 @@ import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";
 
 import {SenderHeader as AxSenderHeader} from '@antdv-next/x'
-import {AGENT_CONVERSATION_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LAgentSender',
 })
 
 const emits = defineEmits<{
-  submit: [value: AgentSenderFormProps]
+  submit: [value: AgentSenderFormProps],
+  cancel:[]
 }>()
 
 const {
   senderRef,
   currentModel,
-  conversationActive,
+  isRunning,
   state,
   handleSubmit,
+  handleCancel,
   workspaceOptions,
   currentType,
 } = useAgentSender({
-  onSubmit:(form:AgentSenderFormProps) => emits("submit", form)
+  onSubmit:(form:AgentSenderFormProps) => emits("submit", form),
+  onCancel:() => emits("cancel"),
 })
 
 defineExpose({
@@ -39,8 +41,9 @@ defineExpose({
   <l-instruction-sender
     ref="senderRef"
     :placeholder="$t('agent.view.placeholder')"
-    :sending="state.loading || (conversationActive && conversationActive.loading)"
+    v-bind="$attrs"
     @submit="handleSubmit"
+    @cancel="handleCancel"
   >
     <template #header v-if="workspaceOptions">
       <ax-sender-header title=" " :closable="false" open>
@@ -50,6 +53,19 @@ defineExpose({
           </a-tag>
         </template>
       </ax-sender-header>
+    </template>
+    <template #defaultButton="{components}">
+      <component
+        v-if="isRunning"
+        :is="components.ClearButton"
+        :disabled="false"
+        @click="senderRef?.clear()"
+      />
+      <component
+        :is="isRunning ? components.LoadingButton : components.SendButton"
+        :disabled="false"
+        type="primary"
+      />
     </template>
     <template #leftExtra>
       <a-button shape="circle" size="small">
