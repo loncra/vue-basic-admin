@@ -1,4 +1,4 @@
-import {computed, h, onMounted, ref} from "vue";
+import {computed, h, onMounted, ref, watch} from "vue";
 import type {IdValueMetadata, ModelSettingEntity, RestResult} from "@/types/apis";
 import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 import type {
@@ -70,7 +70,7 @@ export function useAgentSender(
     modelOptions:[],
     typeStyle:AGENT_CHAT_TYPE_STYLE,
     form: {
-      type: 10,
+      type: 30,
       content: []
     }
   })
@@ -178,9 +178,23 @@ export function useAgentSender(
   })
 
   async function mounted() {
-    await loadingData();
+    await loadingData()
+    onChangeConversation()
   }
 
+  function onChangeConversation() {
+    if (!conversationActive.value) {
+      state.value.form.modelId = undefined
+      state.value.form.type = 30
+      return
+    }
+    if (conversationActive.value.lastModel) {
+      state.value.form.modelId = conversationActive.value.lastModel.id;
+    }
+    if (conversationActive.value.lastChatType) {
+      state.value.form.type = getEnumValue(conversationActive.value.lastChatType);
+    }
+  }
 
   const isRunning = computed(() =>  {
     if (state.value.loading) {
@@ -198,6 +212,8 @@ export function useAgentSender(
     }
     return false
   })
+
+  watch(conversationActive,onChangeConversation,{immediate:true})
 
   onMounted(mounted)
 

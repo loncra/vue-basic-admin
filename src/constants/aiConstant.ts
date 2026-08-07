@@ -164,14 +164,6 @@ export const STREAM_APPEND_TYPES: ReadonlyArray<AgentSseMessageContent['type']> 
   AGENT_CONTENT_TYPE.TOOL,
 ]
 
-/**
- * @deprecated
- */
-export const BUBBLE_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
-  AGENT_CONTENT_TYPE.ERROR,
-  AGENT_CONTENT_TYPE.ANSWER
-]
-
 export const UPDATE_CONVERSATION_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
   AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE,
   AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME

@@ -1,6 +1,5 @@
 import type {
   AgentConversationEntity,
-  ModelSettingMetadata,
   NameValueEnumMetadata,
   ObjectWriteResult,
   PageResult
@@ -102,7 +101,6 @@ export interface AgentChatBasicResponseBody {
 
 export interface AgentChatResponseBody extends AgentChatBasicResponseBody {
   conversation: AgentConversationEntity
-  model:ModelSettingMetadata
 }
 
 export interface AgentSenderProps {
@@ -114,6 +112,7 @@ export type {ChatBubbleItem, PageResult}
 
 export interface AgentSseMessageContent {
   sseEventId: string
+  assistantMessageId:number
   id: string
   type: typeof AGENT_CONTENT_TYPE.THINK
     | typeof AGENT_CONTENT_TYPE.ANSWER

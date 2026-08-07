@@ -1,4 +1,8 @@
-import type {NameValueEnumMetadata, VersionEntityMetadata} from "@/types/apis";
+import type {
+  ModelSettingMetadata,
+  NameValueEnumMetadata,
+  VersionEntityMetadata
+} from "@/types/apis";
 
 /**
  * Agent 对话（对齐 `AgentConversationEntity`）
@@ -13,6 +17,8 @@ export interface AgentConversationEntity extends VersionEntityMetadata {
   type:NameValueEnumMetadata<number> | number
   metadata?:Record<string, unknown>
   parentId?:number
+  lastModel?:ModelSettingMetadata
+  lastChatType?:NameValueEnumMetadata<number> | number
   children?: AgentConversationEntity[]
   key?:string
 }

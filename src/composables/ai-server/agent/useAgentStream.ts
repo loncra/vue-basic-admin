@@ -6,7 +6,6 @@ import {
   AGENT_CONTENT_TYPE,
   CHAT_BUBBLE_TYPE,
   STREAM_APPEND_TYPES,
-  STREAM_UPDATE_TYPE,
   TOKEN_USAGE_TYPE,
   UPDATE_CONVERSATION_TYPES,
 } from '@/constants'
@@ -20,14 +19,9 @@ import type {
   AgentTokenUsageContent,
   AgentToolCallBlock,
   BlockDeltaContentMetadata,
-  CustomizeContentMetadata,
   GenerateConversationName,
 } from '@/types/composables'
-import type {
-  AgentMessageEntity,
-  NameValueEnumMetadata,
-  StreamAgentMessageEntity
-} from '@/types/apis'
+import type {AgentMessageEntity, StreamAgentMessageEntity} from '@/types/apis'
 import {findFirstTreeNode, getEnumValue} from '@/utils'
 import {getConversationRuns} from "@/composables";
 
@@ -72,9 +66,15 @@ export function useAgentStream(
     if (!active) {
       return
     }
+
+    const sseData:AgentSseMessageContent = JSON.parse(chunk.data)
+    if (sseData.assistantMessageId !== assistantId) {
+      return
+    }
+
     const bubble = active.dataSource
       .elements
-      .find(item => item.key === String(assistantId))
+      .find(item => item.key === String(sseData.assistantMessageId))
     if (!bubble) {
       return
     }
@@ -82,7 +82,6 @@ export function useAgentStream(
       bubble.content = []
     }
 
-    const sseData:AgentSseMessageContent = JSON.parse(chunk.data)
     const ALL_CONTENT_TYPES = Object.values(AGENT_CONTENT_TYPE) as string[]
     if (!ALL_CONTENT_TYPES.includes(sseData.type)) {
       return
@@ -102,24 +101,14 @@ export function useAgentStream(
       updateConversation(sseData)
     } else if (TOKEN_USAGE_TYPE === sseData.type) {
       updateTokenUsage(sseData as AgentTokenUsageContent)
-    } else if (STREAM_UPDATE_TYPE.includes(sseData.type)) {
-      updateMessageStatus(sseData as CustomizeContentMetadata)
-    }
-  }
-
-  function updateMessageStatus(sse:CustomizeContentMetadata) {
-    const item = conversationActive.value?.dataSource.elements.find(s => s.key === String(sse.id))
-    if (!item || !item.data) {
-      return
-    }
-    const message = item.data as AgentMessageEntity
-    if (sse?.metadata?.status) {
-      message.status = sse.metadata.status as NameValueEnumMetadata<number>
     }
   }
 
   function updateTokenUsage(sse: AgentTokenUsageContent) {
-    const item = conversationActive.value?.dataSource.elements.find(s => s.key === String(sse.id))
+    const item = conversationActive.value
+      ?.dataSource
+      .elements
+      .find(s => s.key === String(sse.assistantMessageId))
     if (!item || !item.data) {
       return
     }
@@ -153,6 +142,14 @@ export function useAgentStream(
       if (item) {
         item.status = status
       }
+      const element = active.dataSource
+        .elements
+        .find(s => s.key === String(sse.assistantMessageId))
+      if (!element || !element.data) {
+        return
+      }
+      const message = element.data as AgentMessageEntity
+      message.status = active.status
     } else if (sse.type === AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME) {
       const name = getEnumValue((sse as GenerateConversationName).metadata.name)
       active.name = name
