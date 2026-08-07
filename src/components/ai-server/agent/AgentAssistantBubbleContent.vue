@@ -53,6 +53,7 @@ const {
           :loading="isBlockRunning(group.thinkBlock)"
         >
           <l-markdown
+            scroll-class="max-h-[30vh]"
             :content="group.thinkBlock.value!"
             :components="{ code: LMarkdownCodeRenderer }"
             paragraph-tag="div"

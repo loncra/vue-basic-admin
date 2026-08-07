@@ -39,7 +39,7 @@ export function createAgentBubbleListRole() {
     ai: (data: ChatBubbleItem) => {
       const isContentEmpty = !data.content || (data.content as AgentSseMessageContent[]).length <= 0
       const isRunning = data.data && STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((data?.data as AgentMessageEntity).status))
-      console.info(isContentEmpty, isRunning, data.data)
+
       return {
         ...(typeof baseAi === 'function' ? baseAi(data) : baseAi),
         variant:"borderless",
@@ -198,12 +198,12 @@ export function useAgentView() {
     if (!style) {
       return {
         color:'default',
-        icon:createIcon('loncra-file-exclamation-point'),
+        icon:createIcon('loncra-file-exclamation-point', 'align'),
       }
     } else {
       return {
         color:style.color,
-        icon:createIcon(style.icon),
+        icon:createIcon(style.icon, 'align'),
       }
     }
   }

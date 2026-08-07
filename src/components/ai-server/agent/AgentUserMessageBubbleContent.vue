@@ -15,7 +15,7 @@ defineProps<{
 </script>
 
 <template>
-  <a-typography-text :delete="(item.data as StreamAgentMessageEntity).reedit">
+  <a-typography-text :delete="(item.data as StreamAgentMessageEntity).reedit" :type="(item.data as StreamAgentMessageEntity).reedit ? 'secondary' : 'default'">
     <l-sender-sold-bubble-content
       :content="(item.content as ChatContentBlock[]).filter(c => !(c.type === 'custom' && c.slotKind === 'files'))"
     >

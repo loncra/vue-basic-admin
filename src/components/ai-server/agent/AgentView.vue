@@ -223,11 +223,11 @@ defineExpose({
           </template>
           <template v-if="item.role === CHAT_BUBBLE_TYPE.USER">
             <a-space v-if="item.data">
-              <a-button :disabled="(item.data as StreamAgentMessageEntity).reedit" size="small" @click="onReedit(item.data as StreamAgentMessageEntity)">
+<!--              <a-button :disabled="(item.data as StreamAgentMessageEntity).reedit" size="small" @click="onReedit(item.data as StreamAgentMessageEntity)">
                 <template #icon>
                   <icon-font type="loncra-undo" />
                 </template>
-              </a-button>
+              </a-button>-->
               <a-tag variant="outlined" class="border-dashed" v-bind="getChatType(getEnumValue((item.data as AgentMessageEntity).type))">
                 {{getEnumName((item.data as AgentMessageEntity).type)}}
               </a-tag>
@@ -235,7 +235,7 @@ defineExpose({
                 <template #icon>
                   <icon-font :type="(item.data as AgentMessageEntity).model.manufacturer?.metadata?.icon || 'loncra-file-exclamation-point'" />
                 </template>
-                （{{(item.data as AgentMessageEntity).model.manufacturer.name}}）{{(item.data as AgentMessageEntity).model.name}}
+                {{(item.data as AgentMessageEntity).model.manufacturer.name}}:{{(item.data as AgentMessageEntity).model.name}}
               </a-tag>
             </a-space>
           </template>

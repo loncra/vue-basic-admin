@@ -78,7 +78,7 @@ defineExpose({
           <template #icon>
             <icon-font :type="currentModel.icon || 'loncra-sticker'" />
           </template>
-          （{{currentModel.manufacturer.name}}）{{currentModel.name}}
+          {{currentModel.manufacturer.name}}:{{currentModel.name}}
         </a-button>
       </a-dropdown>
       <a-dropdown @menu-click="(info:MenuInfo) => state.form.type = Number(info.key)" :menu="{selectable: true, items: state.typeOptions, defaultSelectedKeys:[String(currentType?.data?.id)]}">
