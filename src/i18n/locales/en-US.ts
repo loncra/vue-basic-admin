@@ -674,7 +674,21 @@ const locale: LanguagePack = {
       createPlaceholder: 'workspace name',
     },
     think:'think',
-    toolCall:'Tool call',
+    toolCall: {
+      text: 'Tool call',
+      hitl: {
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+      },
+    },
+    clarify: {
+      submit: 'Submit clarify',
+      cancel: 'Cancel clarify',
+      requiredField: 'Please fill in: {label}',
+      fallbackHint: 'If none of these options capture what you need, type your question in the message box below instead—share the ticker/market/metrics you care about, and I’ll continue from there.',
+      abandonTitle: 'Discard current clarify form?',
+      abandonContent: 'Sending a new message will cancel the pending clarify form and continue from your new description.',
+    },
     welcome: {
       title: 'Hello, I am Captain.J',
       description: 'What do you need to do today?'

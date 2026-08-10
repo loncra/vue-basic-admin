@@ -32,3 +32,16 @@ export {
   getToolChainStatus,
   useAgentAssistantBubble,
 } from './useAgentAssistantBubble.ts'
+
+export {
+  parseClarifyWriteCard,
+  parseClarifyExitSummary,
+  isClarifyExitPending,
+  findPendingClarifyExit,
+  resolvePendingClarifyFromContents,
+} from './useAgentClarify.ts'
+
+export {
+  isHitlAwaiting,
+  flattenClarifyAnswers,
+} from './agentHitl.ts'

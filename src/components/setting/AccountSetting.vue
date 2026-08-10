@@ -68,7 +68,7 @@ function beforeUpload(file:UploadFile<ObjectWriteResult>) {
 
   if (!isSizeValid) {
     message.error(globalProperties.$t('systemSetting.account.avatar.supportSize'));
-    return ;
+    return false;
   }
 
   return isTypeValid && isSizeValid;

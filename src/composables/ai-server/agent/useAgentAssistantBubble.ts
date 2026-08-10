@@ -13,8 +13,9 @@ import type {
 import {getEnumValue} from "@/utils";
 import {
   AGENT_BLOCK_STATUS,
+  AGENT_CLARIFY_TOOL,
   AGENT_CONTENT_TYPE,
-  AGENT_TOOL_BLOCK_STATUS, HTTP,
+  AGENT_PLAN_TOOL,
   BLOCK_RUNNING_STATUS_VALUE
 } from "@/constants";
 import {computed, reactive} from "vue";
@@ -22,6 +23,7 @@ import type {ThoughtChainItemType} from "@antdv-next/x";
 import type {RestResult} from "@/types/apis";
 import {AgentService} from "@/apis";
 import {useAgentChatContext} from "@/composables";
+import {isHitlAwaiting} from "@/composables/ai-server/agent/agentHitl.ts";
 
 /** 是否正在运行（THINK / ANSWER / TOOL 共用） */
 export function isBlockRunning(block: BlockRunningContentMetadata): boolean {
@@ -55,9 +57,7 @@ export function getTavilyExtractResult(json:string){
 }
 
 export function hasToolConfirmed(tools:AgentToolCallBlock[]) {
-  return tools.filter(s => s.hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING)
-    .filter(s => s.userConfirmed === undefined)
-    .length > 0
+  return tools.filter(s => isHitlAwaiting(s)).length > 0
 }
 
 /** TOOL 状态 → ThoughtChainItemType.status */
@@ -127,6 +127,7 @@ export function useAgentAssistantBubble(
       } else {
         result[group.groupId] = group.toolBlocks
           .some(b => BLOCK_RUNNING_STATUS_VALUE.includes(getEnumValue(b.status)))
+          || hasToolConfirmed(group.toolBlocks)
       }
     }
     return result
@@ -151,14 +152,24 @@ export function useAgentAssistantBubble(
     }
   }
 
+  function isExitTool(name?: string) {
+    return name === AGENT_CLARIFY_TOOL.EXIT
+      || name === AGENT_PLAN_TOOL.EXIT
+      || Boolean(name?.endsWith('_exit'))
+  }
+
   async function clickToolConfirmed(tool:AgentToolCallBlock, confirmed:boolean) {
+    // *_exit 交互在 answer 区（clarify 走 PUT /agent/clarify；plan 走布尔 resume 除外）
+    if (tool.name === AGENT_CLARIFY_TOOL.EXIT) {
+      return
+    }
     const contents = item.content as AgentSseMessageContent[]
     const find = contents.find(c => c.id === tool.id)
     if (!find) {
       return
     }
     const findTool = find as AgentToolCallBlock
-    if (findTool.hitlStatus !== AGENT_TOOL_BLOCK_STATUS.PENDING) {
+    if (!isHitlAwaiting(findTool)) {
       return
     }
 
@@ -167,14 +178,22 @@ export function useAgentAssistantBubble(
     const tools = contents
       .filter(s => s.type === AGENT_CONTENT_TYPE.TOOL)
       .map(s => s as AgentToolCallBlock)
-    if (!hasToolConfirmed(tools)) {
+    if (!hasToolConfirmed(tools.filter(t => !isExitTool(t.name) || t.name === AGENT_PLAN_TOOL.EXIT))) {
       const confirmResults = contents
         .filter(s => s.type === AGENT_CONTENT_TYPE.TOOL)
-        .filter(s => (s as AgentToolCallBlock).hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING)
+        .filter(s => isHitlAwaiting(s as AgentToolCallBlock) || (s as AgentToolCallBlock).userConfirmed !== undefined)
+        .filter(s => (s as AgentToolCallBlock).userConfirmed !== undefined)
+        .filter(s => {
+          const name = (s as AgentToolCallBlock).name
+          return name !== AGENT_CLARIFY_TOOL.EXIT
+        })
         .map(s => ({
           toolCallId: (s as AgentToolCallBlock).id,
           confirmed: (s as AgentToolCallBlock).userConfirmed || false,
         }))
+      if (confirmResults.length === 0) {
+        return
+      }
       const result:RestResult<AgentChatBasicResponseBody> = await AgentService.resume({assistantMessageId:Number(item.key), confirmResults})
       if (result.data) {
         stream.connect(Number(item.key), false)
@@ -193,6 +212,6 @@ export function useAgentAssistantBubble(
     groupedBlocks,
     hasContent,
     toThoughtChainItem,
-    toggleToolCallExpanded
+    toggleToolCallExpanded,
   }
 }

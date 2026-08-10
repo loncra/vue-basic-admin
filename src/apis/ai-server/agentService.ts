@@ -12,6 +12,7 @@ import type {
   AgentChatBasicResponseBody,
   AgentChatRequestBody,
   AgentChatResponseBody,
+  AgentClarifyRequestBody,
   AgentResumeRequestBody,
 } from '@/types/composables'
 import {type AbstractXRequestClass, type SSEOutput, XRequest} from '@antdv-next/x-sdk'
@@ -100,6 +101,11 @@ export class AgentService {
 
   static resume(body: AgentResumeRequestBody): Promise<RestResult<AgentChatBasicResponseBody>> {
     return axios.put(AgentService.CHAT_URL, body)
+  }
+
+  /** `PUT /agent/clarify`：提交或取消澄清表单（空 answers = 取消） */
+  static clarifySubmit(body: AgentClarifyRequestBody): Promise<RestResult<AgentChatBasicResponseBody>> {
+    return axios.put(AgentService.CHAT_URL + '/clarify', body)
   }
 
   static interrupt(assistantMessageId: number): Promise<RestResult<AgentChatBasicResponseBody>> {

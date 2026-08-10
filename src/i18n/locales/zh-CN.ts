@@ -675,6 +675,14 @@ const locale: LanguagePack = {
         cancel:'取消'
       }
     },
+    clarify: {
+      submit: '提交澄清',
+      cancel: '取消澄清',
+      requiredField: '请填写：{label}',
+      fallbackHint: '如果以上选项无法准确表达你的需求，请直接在下方输入框重新描述你想了解的内容（例如标的、市场、关注指标），发送后我将按你的说明继续，而无需凑合选择表单。',
+      abandonTitle: '放弃当前澄清？',
+      abandonContent: '发送新消息将取消当前未提交的澄清表单，并按你的新描述继续。',
+    },
     welcome: {
       title:'你好，我是 Captain.J',
       description:'今天有什么需要干的吗？'

@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import type {AgentToolCallBlock, ChatBubbleItem,} from '@/types/composables'
+import type {AgentAnswerBlock, AgentToolCallBlock, ChatBubbleItem,} from '@/types/composables'
 import {
   Bubble as AxBubble,
   Sources as AxSources,
   Think as AxThink,
   ThoughtChain as AxThoughtChain
 } from "@antdv-next/x"
-import {AGENT_TOOL_BLOCK_STATUS, STREAM_RUNNING_STATUS_VALUE} from "@/constants"
+import {
+  AGENT_CLARIFY_TOOL,
+  AGENT_PLAN_TOOL,
+  STREAM_RUNNING_STATUS_VALUE,
+} from "@/constants"
 import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue"
 import LMarkdown from "@/components/basic/markdown/Markdown.vue"
+import LAgentAnswerCard from "@/components/ai-server/agent/AgentAnswerCard.vue"
 
 import {RightOutlined,} from '@antdv-next/icons'
 import {
@@ -18,6 +23,7 @@ import {
   useAgentAssistantBubble
 } from "@/composables";
 import {hasToolConfirmed} from "@/composables/ai-server/agent/useAgentAssistantBubble.ts";
+import {isHitlAwaiting} from "@/composables/ai-server/agent/agentHitl.ts";
 import type {AgentMessageEntity} from "@/types/apis";
 import {getEnumName, getEnumValue} from "@/utils";
 
@@ -36,6 +42,18 @@ const {
   toThoughtChainItem,
 } = useAgentAssistantBubble(model.value)
 
+function isExitTool(name?: string) {
+  return name === AGENT_CLARIFY_TOOL.EXIT
+    || name === AGENT_PLAN_TOOL.EXIT
+    || Boolean(name?.endsWith('_exit'))
+}
+
+function showBooleanHitl(tool: AgentToolCallBlock) {
+  if (isExitTool(tool.name)) {
+    return false
+  }
+  return isHitlAwaiting(tool)
+}
 </script>
 
 <template>
@@ -63,15 +81,13 @@ const {
         </ax-think>
       </a-card>
 
-      <!-- 回答 -->
+      <!-- 回答：markdown / a2ui -->
       <ax-bubble v-if="group.answerBlock" class="p-0!" content=" ">
         <template #content>
-          <l-markdown
-            :content="group.answerBlock.value!"
-            :components="{ code: LMarkdownCodeRenderer }"
-            paragraph-tag="div"
-            :streaming="{ hasNextChunk: isBlockRunning(group.answerBlock) }"
-            open-links-in-new-tab
+          <l-agent-answer-card
+            :answer="group.answerBlock as AgentAnswerBlock"
+            :assistant-message-id="Number(model.key)"
+            :bubble-item="model"
           />
         </template>
       </ax-bubble>
@@ -150,7 +166,7 @@ const {
                 </div>
               </template>
               <template #footer="{ item }">
-                <a-space v-if="item.data.hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING && item.data.userConfirmed === undefined">
+                <a-space v-if="showBooleanHitl(item.data as AgentToolCallBlock)">
                   <a-button type="primary" @click="clickToolConfirmed(item.data as AgentToolCallBlock, true)">
                     <template #icon>
                       <icon-font type="loncra-clipboard-check" />

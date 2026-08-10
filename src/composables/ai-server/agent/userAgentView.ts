@@ -15,11 +15,15 @@ import type {
 } from '@/types/apis'
 import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {nextTick, ref} from 'vue'
+import {getCurrentInstance, nextTick, ref} from 'vue'
 import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import type LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import useApp from 'antdv-next/dist/app/useApp'
 import {DEFAULT_BUBBLE_LIST_ROLE, getConversationRuns, useAgentChatContext} from '@/composables'
+import {
+  findPendingClarifyExit,
+  sleep,
+} from '@/composables/ai-server/agent/useAgentClarify.ts'
 import {
   AGENT_CHAT_STATUS,
   AGENT_CHAT_TYPE_STYLE,
@@ -58,7 +62,39 @@ export function useAgentView() {
 
   const currentReedit = ref<StreamAgentMessageEntity>()
 
-  const {message} = useApp()
+  const {message, modal} = useApp()
+  const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
+
+  async function abandonPendingClarifyIfNeeded(): Promise<boolean> {
+    const pending = findPendingClarifyExit(conversationActive.value)
+    if (!pending) {
+      return true
+    }
+    const confirmed = await new Promise<boolean>((resolve) => {
+      modal.confirm({
+        title: globalProperties.$t('agent.clarify.abandonTitle'),
+        content: globalProperties.$t('agent.clarify.abandonContent'),
+        onOk: () => resolve(true),
+        onCancel: () => resolve(false),
+      })
+    })
+    if (!confirmed) {
+      return false
+    }
+    pending.exitBlock.userConfirmed = false
+    await AgentService.clarifySubmit({
+      assistantMessageId: pending.assistantMessageId,
+      toolCallId: pending.toolCallId,
+    })
+    stream.connect(pending.assistantMessageId, false)
+    for (let i = 0; i < 60; i++) {
+      if (!conversationActive.value || getConversationRuns(conversationActive.value).length === 0) {
+        break
+      }
+      await sleep(500)
+    }
+    return true
+  }
 
   async function onSenderSubmit(value: AgentSenderFormProps) {
     if (!conversationActive.value) {
@@ -67,6 +103,10 @@ export function useAgentView() {
 
     conversationActive.value.loading = true
     try {
+      const canContinue = await abandonPendingClarifyIfNeeded()
+      if (!canContinue) {
+        return
+      }
       const form: AgentChatRequestBody = {
         ...value,
         agentConversationId: conversationActive.value.id,

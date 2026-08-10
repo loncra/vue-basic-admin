@@ -94,6 +94,28 @@ export interface ConfirmResult {
   confirmed:boolean;
 }
 
+/** `PUT /agent/clarify`：answers 缺省/空 = 取消 */
+export interface AgentClarifyRequestBody {
+  assistantMessageId: number
+  toolCallId: string
+  answers?: Record<string, unknown>
+  summary?: string
+}
+
+export interface AgentClarifyField {
+  key: string
+  widget: string
+  label?: string
+  required?: boolean
+  options?: string[]
+}
+
+export interface AgentClarifyCard {
+  title?: string
+  fields?: AgentClarifyField[]
+  commands?: unknown
+}
+
 export interface AgentChatBasicResponseBody {
   userMessageId: number
   assistantMessageId: number
@@ -158,6 +180,12 @@ export interface AgentThinkBlock extends BlockDeltaContentMetadata {
 
 export interface AgentAnswerBlock extends BlockDeltaContentMetadata {
   type: typeof AGENT_CONTENT_TYPE.ANSWER
+  /** markdown | a2ui */
+  format?: string
+  sourceExit?: string
+  hitlToolCallId?: string
+  commands?: Record<string, unknown>[]
+  surfaceId?: string
 }
 
 export interface AgentErrorBlock extends CustomizeContentMetadata {

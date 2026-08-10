@@ -53,6 +53,41 @@ export const AGENT_TOOL_BLOCK_STATUS = {
   FINISHED:"finished",
 } as const
 
+/** HITL 等待用户操作的状态集合 */
+export const AGENT_HITL_AWAITING_STATUSES: ReadonlyArray<string> = [
+  AGENT_TOOL_BLOCK_STATUS.PENDING,
+  AGENT_TOOL_BLOCK_STATUS.ASKING,
+]
+
+/** Clarify Mode 工具名（对齐后端 ClarifyConstants） */
+export const AGENT_CLARIFY_TOOL = {
+  ENTER: 'clarify_enter',
+  WRITE: 'clarify_write',
+  EXIT: 'clarify_exit',
+} as const
+
+export const AGENT_PLAN_TOOL = {
+  WRITE: 'plan_write',
+  EXIT: 'plan_exit',
+} as const
+
+/** answer.format（对齐后端 AgentAnswerConstants） */
+export const AGENT_ANSWER_FORMAT = {
+  MARKDOWN: 'markdown',
+  A2UI: 'a2ui',
+} as const
+
+export const AGENT_CLARIFY_ACTION = {
+  SUBMIT: 'clarify.submit',
+  CANCEL: 'clarify.cancel',
+} as const
+
+export const AGENT_CLARIFY_WIDGET = {
+  INPUT: 'input',
+  SELECT: 'select',
+  CHECKBOX: 'checkbox',
+} as const
+
 export const AGENT_CHAT_STATUS_STYLE = {
   [AGENT_CHAT_STATUS.READY]: {
     icon: 'loncra-fish',
