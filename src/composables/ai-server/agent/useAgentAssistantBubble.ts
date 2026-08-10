@@ -14,7 +14,7 @@ import {getEnumValue} from "@/utils";
 import {
   AGENT_BLOCK_STATUS,
   AGENT_CONTENT_TYPE,
-  AGENT_TOOL_BLOCK_STATUS, HTTP,
+  AGENT_TOOL_BLOCK_STATUS,
   BLOCK_RUNNING_STATUS_VALUE
 } from "@/constants";
 import {computed, reactive} from "vue";
@@ -168,16 +168,18 @@ export function useAgentAssistantBubble(
       .filter(s => s.type === AGENT_CONTENT_TYPE.TOOL)
       .map(s => s as AgentToolCallBlock)
     if (!hasToolConfirmed(tools)) {
-      const confirmResults = contents
+
+      const toolBlocks = contents
         .filter(s => s.type === AGENT_CONTENT_TYPE.TOOL)
         .filter(s => (s as AgentToolCallBlock).hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING)
-        .map(s => ({
+      const confirmResults = toolBlocks.map(s => ({
           toolCallId: (s as AgentToolCallBlock).id,
           confirmed: (s as AgentToolCallBlock).userConfirmed || false,
         }))
       const result:RestResult<AgentChatBasicResponseBody> = await AgentService.resume({assistantMessageId:Number(item.key), confirmResults})
       if (result.data) {
         stream.connect(Number(item.key), false)
+        toolBlocks.forEach(s => (s as AgentToolCallBlock).hitlStatus = AGENT_TOOL_BLOCK_STATUS.FINISHED)
       }
     }
   }

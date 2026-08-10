@@ -14,7 +14,6 @@ defineOptions({
   inheritAttrs: false
 })
 
-
 const configProviderStore = useConfigProviderStore()
 
 const props = withDefaults(

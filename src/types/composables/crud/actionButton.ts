@@ -42,5 +42,5 @@ export interface ActionPayload<TItem = unknown> {
   context: ActionContext<TItem>
 }
 
-export const ACTION_CONTEXT_KEY: InjectionKey<ComputedRef<ActionContext<unknown>>> =
+export const ACTION_CONTEXT_KEY: InjectionKey<ComputedRef<ActionContext>> =
   Symbol('actionContext')
