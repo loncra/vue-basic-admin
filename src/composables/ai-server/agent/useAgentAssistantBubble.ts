@@ -172,6 +172,7 @@ export function useAgentAssistantBubble(
       const toolBlocks = contents
         .filter(s => s.type === AGENT_CONTENT_TYPE.TOOL)
         .filter(s => (s as AgentToolCallBlock).hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING)
+        .filter(s => (s as AgentToolCallBlock).userConfirmed === undefined)
       const confirmResults = toolBlocks.map(s => ({
           toolCallId: (s as AgentToolCallBlock).id,
           confirmed: (s as AgentToolCallBlock).userConfirmed || false,
