@@ -270,6 +270,7 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
 
     const quickAccess:RouteResourceMetadata[] = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
     state.value.quickAccess = quickAccess.filter(item => item.path !== path);
+    quickAccessRecord[principalStore.state.name] = state.value.quickAccess
     localStorage.setItem(import.meta.env.VITE_APP_LOCAL_STORAGE_QUICK_ACCESS, JSON.stringify(quickAccessRecord))
   }
 

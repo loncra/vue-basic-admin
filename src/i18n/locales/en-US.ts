@@ -674,7 +674,13 @@ const locale: LanguagePack = {
       createPlaceholder: 'workspace name',
     },
     think:'think',
-    toolCall:'Tool call',
+    oolCall:{
+      text:'Tool call',
+      hitl:{
+        allow:'allow',
+        reject:'reject'
+      }
+    },
     welcome: {
       title: 'Hello, I am Captain.J',
       description: 'What do you need to do today?'

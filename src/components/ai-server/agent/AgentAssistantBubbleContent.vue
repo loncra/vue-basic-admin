@@ -103,6 +103,9 @@ const {
               :items="group.toolBlocks.map(toThoughtChainItem)"
               :classes="{ itemContent: 'overflow-auto' }"
             >
+              <template #title="{ item }">
+                <a-typography-text :delete="item.status === 'abort'" :type="item.status === 'abort' ? 'secondary' : undefined">{{item.title}}</a-typography-text>
+              </template>
               <template #content="{ item }">
                 <div class="max-h-[40vh] overflow-auto">
                   <ax-sources
@@ -155,13 +158,13 @@ const {
                     <template #icon>
                       <icon-font type="loncra-clipboard-check" />
                     </template>
-                    {{$t('agent.toolCall.hitl.confirm')}}
+                    {{$t('agent.toolCall.hitl.allow')}}
                   </a-button>
                   <a-button @click="clickToolConfirmed(item.data as AgentToolCallBlock, false)">
                     <template #icon>
                       <icon-font type="loncra-clipboard-x" />
                     </template>
-                    {{$t('agent.toolCall.hitl.cancel')}}
+                    {{$t('agent.toolCall.hitl.reject')}}
                   </a-button>
                 </a-space>
               </template>

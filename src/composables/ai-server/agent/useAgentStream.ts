@@ -68,10 +68,6 @@ export function useAgentStream(
     }
 
     const sseData:AgentSseMessageContent = JSON.parse(chunk.data)
-    if (sseData.assistantMessageId !== assistantId) {
-      return
-    }
-
     const bubble = active.dataSource
       .elements
       .find(item => item.key === String(sseData.assistantMessageId))
@@ -184,6 +180,9 @@ export function useAgentStream(
       const chunkToolCall = chunk as AgentToolCallBlock
       if (chunkToolCall.outputText) {
         findToolCall.outputText = (findToolCall.outputText || "") + chunkToolCall.outputText
+      }
+      if (chunkToolCall.userConfirmed !== undefined) {
+        findToolCall.userConfirmed = chunkToolCall.userConfirmed
       }
       findToolCall.resultState = chunkToolCall.resultState || findToolCall.resultState
       findToolCall.hitlStatus = chunkToolCall.hitlStatus || findToolCall.hitlStatus

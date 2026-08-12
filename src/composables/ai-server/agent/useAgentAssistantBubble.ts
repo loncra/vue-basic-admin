@@ -65,12 +65,12 @@ export function getToolChainStatus(block: AgentToolCallBlock): ThoughtChainItemT
   const status = getEnumValue(block.status)
   if (status === AGENT_BLOCK_STATUS.RUNNING) {
     return 'loading'
-  }
-  if (block.resultState === 'error' || status === AGENT_BLOCK_STATUS.FAILED) {
+  } else if (block.resultState === 'error' || status === AGENT_BLOCK_STATUS.FAILED) {
     return 'error'
-  }
-  if (block.resultState === 'success') {
+  } else if (block.resultState === 'success') {
     return 'success'
+  } else if (block.userConfirmed === false && getEnumValue(block.status) === AGENT_BLOCK_STATUS.DONE) {
+    return 'abort'
   }
   return undefined
 }

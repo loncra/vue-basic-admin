@@ -671,8 +671,8 @@ const locale: LanguagePack = {
     toolCall:{
       text:'工具调用',
       hitl:{
-        confirm:'执行',
-        cancel:'取消'
+        allow:'允许',
+        reject:'拒绝'
       }
     },
     welcome: {
