@@ -672,7 +672,9 @@ const locale: LanguagePack = {
       text:'工具调用',
       hitl:{
         allow:'允许',
-        reject:'拒绝'
+        allowAll:'允许全部',
+        reject:'拒绝',
+        rejectAll:'拒绝全部',
       }
     },
     welcome: {

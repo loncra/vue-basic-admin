@@ -54,10 +54,13 @@ export function getTavilyExtractResult(json:string){
   return object.results;
 }
 
+export function findToolConfirmedItem(tools:AgentToolCallBlock[]) {
+  return tools.filter(s => getEnumValue(s.status) === AGENT_BLOCK_STATUS.PENDING)
+    .filter(s => s.userConfirmed === undefined) || []
+}
+
 export function hasToolConfirmed(tools:AgentToolCallBlock[]) {
-  return tools.filter(s => s.hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING)
-    .filter(s => s.userConfirmed === undefined)
-    .length > 0
+  return findToolConfirmedItem(tools).length > 0
 }
 
 /** TOOL 状态 → ThoughtChainItemType.status */
@@ -151,6 +154,12 @@ export function useAgentAssistantBubble(
     }
   }
 
+  async function clickAllToolConfirmed(tools:AgentToolCallBlock[], confirmed:boolean) {
+    for (const tool of tools) {
+      await clickToolConfirmed(tool, confirmed)
+    }
+  }
+
   async function clickToolConfirmed(tool:AgentToolCallBlock, confirmed:boolean) {
     const contents = item.content as AgentSseMessageContent[]
     const find = contents.find(c => c.id === tool.id)
@@ -171,8 +180,8 @@ export function useAgentAssistantBubble(
 
       const toolBlocks = contents
         .filter(s => s.type === AGENT_CONTENT_TYPE.TOOL)
-        .filter(s => (s as AgentToolCallBlock).hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING)
-        .filter(s => (s as AgentToolCallBlock).userConfirmed === undefined)
+        .filter(s => getEnumValue((s as AgentToolCallBlock).status) === AGENT_BLOCK_STATUS.PENDING)
+        .filter(s => (s as AgentToolCallBlock).userConfirmed !== undefined)
       const confirmResults = toolBlocks.map(s => ({
           toolCallId: (s as AgentToolCallBlock).id,
           confirmed: (s as AgentToolCallBlock).userConfirmed || false,
@@ -192,6 +201,7 @@ export function useAgentAssistantBubble(
 
   return {
     clickToolConfirmed,
+    clickAllToolConfirmed,
     toolCallExpandedState,
     groupedBlocks,
     hasContent,

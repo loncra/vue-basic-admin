@@ -28,6 +28,8 @@ export {
 export {
   getTavilySearchSourceConfig,
   getTavilyExtractResult,
+  findToolConfirmedItem,
+  hasToolConfirmed,
   isBlockRunning,
   getToolChainStatus,
   useAgentAssistantBubble,

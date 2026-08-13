@@ -15,9 +15,10 @@ import {
   getTavilyExtractResult,
   getTavilySearchSourceConfig,
   isBlockRunning,
+  hasToolConfirmed,
+  findToolConfirmedItem,
   useAgentAssistantBubble
 } from "@/composables";
-import {hasToolConfirmed} from "@/composables/ai-server/agent/useAgentAssistantBubble.ts";
 import type {AgentMessageEntity} from "@/types/apis";
 import {getEnumName, getEnumValue} from "@/utils";
 
@@ -29,6 +30,7 @@ const model = defineModel<ChatBubbleItem>("item",{required: true})
 
 const {
   toggleToolCallExpanded,
+  clickAllToolConfirmed,
   clickToolConfirmed,
   toolCallExpandedState,
   groupedBlocks,
@@ -84,18 +86,33 @@ const {
         :classes="{ body: '!p-0' }"
       >
         <template #title>
-          <a-space>
-            <icon-font type="loncra-square-terminal" />
-            <span>
-              {{$t('agent.toolCall.text')}}
-            </span>
-            <RightOutlined
-              v-if="!hasToolConfirmed(group.toolBlocks)"
-              class="text-xs text-text-quaternary cursor-pointer transition-transform duration-300"
-              :class="{ 'rotate-90': toolCallExpandedState[group.groupId] }"
-              @click.stop="toggleToolCallExpanded(group.groupId)"
-            />
-          </a-space>
+          <a-flex gap="small" :justify="hasToolConfirmed(group.toolBlocks) ? 'space-between' : undefined" align="center" >
+            <a-space :class="hasToolConfirmed(group.toolBlocks) ? undefined : 'cursor-pointer'" @click="hasToolConfirmed(group.toolBlocks) ? undefined : toggleToolCallExpanded(group.groupId)">
+              <icon-font type="loncra-square-terminal" />
+              <span>
+                {{$t('agent.toolCall.text')}}
+              </span>
+              <RightOutlined
+                v-if="!hasToolConfirmed(group.toolBlocks)"
+                class="text-xs text-text-quaternary transition-transform duration-300"
+                :class="{ 'rotate-90': toolCallExpandedState[group.groupId] }"
+              />
+            </a-space>
+            <a-space v-if="findToolConfirmedItem(group.toolBlocks).length > 1">
+              <a-button size="small" type="primary" @click.stop="clickAllToolConfirmed(group.toolBlocks, true)">
+                <template #icon>
+                  <icon-font type="loncra-clipboard-check" />
+                </template>
+                {{$t('agent.toolCall.hitl.allowAll')}}
+              </a-button>
+              <a-button size="small" danger @click.stop="clickAllToolConfirmed(group.toolBlocks, false)">
+                <template #icon>
+                  <icon-font type="loncra-clipboard-x" />
+                </template>
+                {{$t('agent.toolCall.hitl.rejectAll')}}
+              </a-button>
+            </a-space>
+          </a-flex>
         </template>
         <Transition name="tool-call-expand">
           <div class="p-sm" v-if="toolCallExpandedState[group.groupId]" key="expanded">
@@ -154,13 +171,13 @@ const {
               </template>
               <template #footer="{ item }">
                 <a-space v-if="item.data.hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING && item.data.userConfirmed === undefined">
-                  <a-button type="primary" @click="clickToolConfirmed(item.data as AgentToolCallBlock, true)">
+                  <a-button size="small" type="primary" @click="clickToolConfirmed(item.data as AgentToolCallBlock, true)">
                     <template #icon>
                       <icon-font type="loncra-clipboard-check" />
                     </template>
                     {{$t('agent.toolCall.hitl.allow')}}
                   </a-button>
-                  <a-button @click="clickToolConfirmed(item.data as AgentToolCallBlock, false)">
+                  <a-button size="small" danger @click="clickToolConfirmed(item.data as AgentToolCallBlock, false)">
                     <template #icon>
                       <icon-font type="loncra-clipboard-x" />
                     </template>
