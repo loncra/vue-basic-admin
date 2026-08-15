@@ -147,9 +147,6 @@ export const MODEL_GENERATE_OPTION_STRING_KEYS = [
   'reasoningEffort',
 ] as const satisfies ReadonlyArray<ModelGenerateOptionKey>
 
-export const MODEL_SETTING_DEFAULT_ICON = 'loncra-sticker'
-export const MODEL_SETTING_MANUFACTURER_DEFAULT_ICON = 'loncra-building'
-
 export const MODEL_SETTING_AUTHORITY = {
   FIND: 'perms[ai_server_mode_setting:find]',
   GET: 'perms[ai_server_mode_setting:get]',
@@ -159,8 +156,6 @@ export const MODEL_SETTING_AUTHORITY = {
 } as const
 
 export const MODEL_SETTING_MANUFACTURER_CODE_QUERY = 'manufacturerCode'
-
-export const MODEL_SETTING_MANUFACTURER_FILTER_JEQ = 'filter_[manufacturer.code_jeq]'
 
 export const STREAM_APPEND_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [
   AGENT_CONTENT_TYPE.THINK,

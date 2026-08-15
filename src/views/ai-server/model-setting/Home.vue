@@ -27,11 +27,8 @@ import {getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {
   MODEL_SETTING_AUTHORITY,
-  MODEL_SETTING_DEFAULT_ICON,
   MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  MODEL_SETTING_MANUFACTURER_DEFAULT_ICON,
-  MODEL_SETTING_MANUFACTURER_FILTER_JEQ,
   SYSTEM_CONSTANT,
   YES_OR_NO_TYPE,
 } from '@/constants'
@@ -132,14 +129,14 @@ const manufacturerMenuItems = computed(() =>
   manufacturers.value.map((item) => ({
     key: item.code,
     label: item.name,
-    iconType: String(item.metadata?.icon || MODEL_SETTING_MANUFACTURER_DEFAULT_ICON),
+    iconType: String(item.metadata?.icon || 'loncra-building'),
   })),
 )
 
 function selectManufacturer(item: DataDictionaryEntity) {
   selectedManufacturer.value = item
   selectedKeys.value = [item.code]
-  options.value.query[MODEL_SETTING_MANUFACTURER_FILTER_JEQ] = item.code
+  options.value.query['filter_[manufacturer.code_jeq]'] = item.code
   modelSettingTable.value?.fetchDataSource()
 }
 
@@ -321,7 +318,7 @@ onMounted(mounted)
                 <a-space>
                   <icon-font
                     icon="icon align"
-                    :type="record.icon || MODEL_SETTING_DEFAULT_ICON"
+                    :type="record.icon || 'loncra-sticker'"
                   />
                   <span>{{ record.name }}</span>
                 </a-space>

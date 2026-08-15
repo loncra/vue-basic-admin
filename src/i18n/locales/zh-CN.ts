@@ -500,7 +500,6 @@ const locale: LanguagePack = {
       additionalInformation:'补充说明',
       initializeTimeout:'初始化超时',
       client:'传输配置',
-      clientType:'传输类型',
       command:'启动命令',
       args:'启动参数',
       env:'环境变量',
@@ -512,12 +511,9 @@ const locale: LanguagePack = {
       openConnectionOnStartup:'启动时建连',
       resumableStreams:'可恢复流',
       clarifyTools:'澄清策略',
-      fetchTools:'拉取工具',
-      fetchToolsNeedKeyAndType:'请先填写包标识和传输类型再拉取工具',
       toolName:'工具名',
       description:'工具描述',
       maxClarifyRounds:'最大澄清轮次',
-      key:'键',
     }
   },
   messageServer:{

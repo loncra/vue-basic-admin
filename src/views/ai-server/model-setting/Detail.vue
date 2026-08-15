@@ -15,9 +15,7 @@ import {
   MODEL_DEFAULT_OPTIONS_KEY,
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
   MODEL_GENERATE_OPTION_KEYS,
-  MODEL_SETTING_DEFAULT_ICON,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  MODEL_SETTING_MANUFACTURER_DEFAULT_ICON,
   MODEL_TYPE,
   VALUE_TYPE,
   YES_OR_NO_TYPE,
@@ -115,7 +113,7 @@ onMounted(async () => {
         {{ entity.model }}
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('aiServer.modelSetting.icon')">
-        <icon-font class="icon" :type="entity.icon || MODEL_SETTING_DEFAULT_ICON" />
+        <icon-font class="icon" :type="entity.icon || 'loncra-sticker'" />
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.type')">
         {{ getEnumName(entity.type) }}
@@ -127,7 +125,7 @@ onMounted(async () => {
         <a-space>
           <icon-font
             class="icon"
-            :type="String(entity.manufacturer?.metadata?.icon || MODEL_SETTING_MANUFACTURER_DEFAULT_ICON)"
+            :type="String(entity.manufacturer?.metadata?.icon || 'loncra-building')"
           />
           <span>{{ entity.manufacturer?.name || '' }}</span>
         </a-space>

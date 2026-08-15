@@ -328,57 +328,53 @@ function isStringOption(key: string) {
         </a-col>
       </template>
 
-      <a-divider class="m-0 mb-md" orientation="left" plain>
-        <a-space>
-          <icon-font class="icon" type="loncra-sliders-horizontal" />
-          {{ globalProperties.$t('aiServer.modelSetting.defaultOptions') }}
-        </a-space>
-      </a-divider>
-
-      <a-row :gutter="16">
-        <a-col
-          v-for="key in MODEL_GENERATE_OPTION_KEYS"
-          :key="key"
-          :xs="24"
-          :sm="24"
-          :md="12"
-          :lg="12"
-          :xl="12"
-          :xxl="12"
-        >
-          <a-form-item
-            :name="['metadata', MODEL_DEFAULT_OPTIONS_KEY, key]"
-            :label="globalProperties.$t(`aiServer.modelSetting.options.${key}.label`)"
-            :help="globalProperties.$t(`aiServer.modelSetting.options.${key}.help`)"
-          >
-            <a-input-number
-              v-if="isNumberOption(key)"
-              class="w-full"
-              v-model:value="generateOptions[key] as number | null"
-            />
-            <a-select
-              v-else-if="isBooleanOption(key)"
-              class="w-full"
-              allow-clear
-              v-model:value="generateOptions[key] as number | undefined"
-              :options="options.enabledOptions"
-              :field-names="{label: 'name'}"
-            />
-            <a-input
-              v-else-if="isStringOption(key)"
-              v-model:value="generateOptions[key] as string"
-              allow-clear
-            />
-          </a-form-item>
-        </a-col>
-      </a-row>
-
       <a-form-item name="description" :label="globalProperties.$t('aiServer.modelSetting.description')">
         <a-textarea v-model:value="options.entity.description" :rows="3" show-count :maxlength="512" />
       </a-form-item>
       <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
         <a-textarea v-model:value="options.entity.remark" :rows="3" show-count :maxlength="256" />
       </a-form-item>
+
+      <a-collapse expand-icon-placement="end" :class="options.entity.id ? undefined : 'mb-lg'">
+        <a-collapse-panel>
+          <template #header>
+            <icon-font class="icon aligin" type="loncra-sliders-horizontal" />
+            {{ globalProperties.$t('aiServer.modelSetting.defaultOptions') }}
+          </template>
+          <a-space orientation="vertical" class="w-full" >
+            <a-flex justify="space-between" align="center" :key="key" v-for="key in MODEL_GENERATE_OPTION_KEYS">
+              <a-flex vertical :gap="2">
+                <a-typography-text strong>
+                  {{ globalProperties.$t(`aiServer.modelSetting.options.${key}.label`) }}
+                </a-typography-text>
+                <a-typography-text type="secondary" class="text-sm">
+                  {{ globalProperties.$t(`aiServer.modelSetting.options.${key}.help`) }}
+                </a-typography-text>
+              </a-flex>
+              <a-input-number
+                class="w-25"
+                v-if="isNumberOption(key)"
+                v-model:value="generateOptions[key] as number | null"
+              />
+              <a-select
+                v-else-if="isBooleanOption(key)"
+                class="w-25"
+                allow-clear
+                v-model:value="generateOptions[key] as number | undefined"
+                :options="options.enabledOptions"
+                :field-names="{label: 'name'}"
+              />
+              <a-input
+                class="w-25"
+                v-else-if="isStringOption(key)"
+                v-model:value="generateOptions[key] as string"
+                allow-clear
+              />
+            </a-flex>
+          </a-space>
+        </a-collapse-panel>
+      </a-collapse>
+
     </l-basic-form>
   </div>
 </template>
