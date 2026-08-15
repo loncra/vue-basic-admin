@@ -41,6 +41,9 @@ export const AGENT_BLOCK_STATUS = {
   FAILED: 'failed',
 } as const
 
+
+export const TOKEN_USAGE_TYPE: Readonly<AgentSseMessageContent['type']> = AGENT_CONTENT_TYPE.TOKEN_USAGE
+
 export const BLOCK_RUNNING_STATUS_VALUE:ReadonlyArray<string> = [AGENT_BLOCK_STATUS.READY, AGENT_BLOCK_STATUS.PENDING, AGENT_BLOCK_STATUS.RUNNING]
 
 export const STREAM_RUNNING_STATUS_VALUE:ReadonlyArray<number> = [AGENT_CHAT_STATUS.READY, AGENT_CHAT_STATUS.RUNNING]
@@ -52,6 +55,8 @@ export const AGENT_TOOL_BLOCK_STATUS = {
   SUBMITTED:"submitted",
   FINISHED:"finished",
 } as const
+
+export const AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE:ReadonlyArray<string> = [AGENT_TOOL_BLOCK_STATUS.PENDING, AGENT_TOOL_BLOCK_STATUS.ASKING]
 
 export const AGENT_CHAT_STATUS_STYLE = {
   [AGENT_CHAT_STATUS.READY]: {
@@ -169,9 +174,29 @@ export const UPDATE_CONVERSATION_TYPES: ReadonlyArray<AgentSseMessageContent['ty
   AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
 ]
 
-export const TOKEN_USAGE_TYPE: Readonly<AgentSseMessageContent['type']> = AGENT_CONTENT_TYPE.TOKEN_USAGE
+export const MCP_PACKAGE_AUTHORITY = {
+  PAGE: 'perms[ai_mcp_package:page]',
+  GET: 'perms[ai_mcp_package:get]',
+  SAVE: 'perms[ai_mcp_package:save]',
+  DELETE: 'perms[ai_mcp_package:delete]',
+} as const
 
-export const STREAM_UPDATE_TYPE: ReadonlyArray<AgentSseMessageContent['type']> = [AGENT_CONTENT_TYPE.STREAM_START, AGENT_CONTENT_TYPE.STREAM_STOP, AGENT_CONTENT_TYPE.STREAM_END]
+export const MCP_PACKAGE_ROUTE = {
+  HOME: 'ai_server_mcp_package',
+  ADD: 'ai_server_mcp_package_add',
+  EDIT: 'ai_server_mcp_package_edit',
+  DETAIL: 'ai_server_mcp_package_detail',
+} as const
+
+
+/** 对齐 McpClientTypeEnum.getName() */
+export const MCP_CLIENT_TYPE = {
+  SSE: 'sse',
+  STDIO: 'stdio',
+  STREAMABLE_HTTP: 'streamableHttp',
+} as const
+
+export const MCP_CLIENT_HTTP_TYPE_VALUE:ReadonlyArray<string> = [MCP_CLIENT_TYPE.SSE, MCP_CLIENT_TYPE.STREAMABLE_HTTP]
 
 export const AGENT_CHAT_TYPE_STYLE = {
   "10":{

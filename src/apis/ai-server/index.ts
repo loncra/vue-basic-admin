@@ -3,3 +3,4 @@
  */
 export * from './agentService.ts'
 export * from './modelSettingService.ts'
+export * from './aiMcpPackageService.ts'

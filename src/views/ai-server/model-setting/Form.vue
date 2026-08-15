@@ -10,7 +10,7 @@ import type {
   NameValueEnumMetadata,
   RestResult,
 } from '@/types/apis'
-import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {booleanToYesOrNo, getEnumValue, requireNonNullOrUndefined, yesOrNoToBoolean} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
@@ -62,39 +62,6 @@ function toManufacturerSnapshot(entity: DataDictionaryEntity): ModelSettingManuf
     valueType: entity.valueType,
     metadata: entity.metadata ? {...entity.metadata} : {},
   }
-}
-
-/** 表单 YesOrNo(0/1) → GenerateOptions boolean（后端 toBoolean 不认数字） */
-function yesOrNoToBoolean(value: unknown): boolean | undefined {
-  if (value === null || value === undefined || value === '') {
-    return undefined
-  }
-  if (typeof value === 'boolean') {
-    return value
-  }
-  const numeric = Number(getEnumValue(value as number | NameValueEnumMetadata<number>))
-  if (numeric === YES_OR_NO_TYPE.YES) {
-    return true
-  }
-  if (numeric === YES_OR_NO_TYPE.NO) {
-    return false
-  }
-  return undefined
-}
-
-/** 落库 boolean → 表单 YesOrNo */
-function booleanToYesOrNo(value: unknown): number | undefined {
-  if (value === null || value === undefined || value === '') {
-    return undefined
-  }
-  if (typeof value === 'boolean') {
-    return value ? YES_OR_NO_TYPE.YES : YES_OR_NO_TYPE.NO
-  }
-  const numeric = Number(getEnumValue(value as number | NameValueEnumMetadata<number>))
-  if (numeric === YES_OR_NO_TYPE.YES || numeric === YES_OR_NO_TYPE.NO) {
-    return numeric
-  }
-  return undefined
 }
 
 function cleanGenerateOptions(source: ModelGenerateOptions | undefined): ModelGenerateOptions {

@@ -186,7 +186,7 @@ const onResourceSelect: NonNullable<TableProps['rowSelection']>['onSelect'] = (
 }
 
 function findParentNode(parentIds:number[]):ResourceEntity[] {
-  const parentNode = findAllTreeNodes(r => parentIds.includes(r.id), options.value.resourceDataSource);
+  const parentNode = findAllTreeNodes(r => parentIds.includes(Number(r.id)), options.value.resourceDataSource);
   const ids = [
     ...new Set(
       parentNode

@@ -2,7 +2,7 @@
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
 import {ResourceServerService} from '@/apis'
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {booleanToYesOrNo, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {
   EnumBucketsResponseBody,
@@ -63,23 +63,13 @@ const generateOptions = computed(() => {
   return (raw && typeof raw === 'object' ? raw : {}) as ModelGenerateOptions
 })
 
-function toYesOrNoValue(value: unknown): number | undefined {
-  if (value === null || value === undefined || value === '') {
-    return undefined
-  }
-  if (typeof value === 'boolean') {
-    return value ? YES_OR_NO_TYPE.YES : YES_OR_NO_TYPE.NO
-  }
-  return Number(getEnumValue(value as number | NameValueEnumMetadata<number>))
-}
-
 function optionDisplay(key: (typeof MODEL_GENERATE_OPTION_KEYS)[number]) {
   const value = generateOptions.value[key]
   if (value === null || value === undefined || value === '') {
     return ''
   }
   if ((MODEL_GENERATE_OPTION_BOOLEAN_KEYS as readonly string[]).includes(key)) {
-    const yn = toYesOrNoValue(value)
+    const yn = booleanToYesOrNo(value)
     const matched = yesOrNoOptions.value.find((item) => getEnumValue(item) === yn)
     return matched ? getEnumName(matched) : String(yn)
   }

@@ -14,6 +14,7 @@ import {getEnumValue} from "@/utils";
 import {
   AGENT_BLOCK_STATUS,
   AGENT_CONTENT_TYPE,
+  AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE,
   AGENT_TOOL_BLOCK_STATUS,
   BLOCK_RUNNING_STATUS_VALUE
 } from "@/constants";
@@ -55,7 +56,9 @@ export function getTavilyExtractResult(json:string){
 }
 
 export function findToolConfirmedItem(tools:AgentToolCallBlock[]) {
-  return tools.filter(s => getEnumValue(s.status) === AGENT_BLOCK_STATUS.PENDING)
+  return tools
+    .filter(s => AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE.includes(s.hitlStatus))
+    .filter(s => getEnumValue(s.status) === AGENT_BLOCK_STATUS.PENDING)
     .filter(s => s.userConfirmed === undefined) || []
 }
 
@@ -167,7 +170,7 @@ export function useAgentAssistantBubble(
       return
     }
     const findTool = find as AgentToolCallBlock
-    if (findTool.hitlStatus !== AGENT_TOOL_BLOCK_STATUS.PENDING) {
+    if (!AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE.includes(findTool.hitlStatus)) {
       return
     }
 

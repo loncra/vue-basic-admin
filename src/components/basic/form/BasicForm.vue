@@ -188,7 +188,7 @@ async function mounted() {
   }
   currentRoute.value = globalProperties.$route;
   await nextTick()
-  doPostMounted()
+  await doPostMounted()
 }
 
 async function doPostMounted() {
@@ -257,14 +257,14 @@ watch(
     <l-menu-title-card >
       <l-form id="form" ref="formRef" @finish="onFinish" :model="entity">
         <a-spin :spinning="spinning">
-          <a-row :gutter="[configProviderStore.getToken().marginMD]">
+          <a-row :gutter="[configProviderStore.getToken().sizeMD]">
             <slot name="rowLayout"></slot>
           </a-row>
           <slot></slot>
           <div v-if="entity.id && creationTime" class="mb-md">
             <a-divider orientation="left" plain>
               <a-space>
-                <icon-font class="icon" type="loncra-timer-reset" />
+                <icon-font class="icon align" type="loncra-timer-reset" />
                 <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
               </a-space>
             </a-divider>

@@ -149,3 +149,10 @@ export const YES_OR_NO_TYPE = {
   YES:1,
   NO:0
 } as const
+
+export const SYSTEM_MODULE_NAME = {
+  RESOURCE_SERVER:'resource-server',
+  AI_SERVER:'ai-server',
+  AUTH_SERVER:'auth-server',
+  MESSAGE_SERVER:'message-server'
+} as const

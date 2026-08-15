@@ -47,7 +47,7 @@ const props = withDefaults(
     actionItems?: NonNullable<MenuProps['items']>
     operationDataTraceTarget?:string,
     redirect: RouteLocationRaw
-    postGetEntity?:(entity: TEntity) => void
+    postGetEntity?:(entity: TEntity) => TEntity | Promise<TEntity>
     service: DetailSearchService<TEntity>
     titleText?: (title:string, entity: TEntity) => string
   }>(),
