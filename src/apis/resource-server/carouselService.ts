@@ -45,4 +45,5 @@ export class CarouselService extends PageRestfulCrudService<CarouselSavePayload,
   revoke(ids:number[]):Promise<RestResult<void>> {
     return axios.post(CarouselService.SERVICE_REVOKE, formUrlEncoded({ids}))
   }
+
 }

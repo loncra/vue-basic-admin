@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, computed, getCurrentInstance, inject, ref} from 'vue'
 import type {
-  DataDictionaryEntity,
+  DataDictionaryMetadata,
   EnumBucketsResponseBody,
   ModelGenerateOptions,
   ModelSettingEntity,
@@ -14,7 +14,6 @@ import {booleanToYesOrNo, getEnumValue, requireNonNullOrUndefined, yesOrNoToBool
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
-import {DataDictionaryService} from '@/apis/resource-server/dataDictionaryService.ts'
 import {
   MODEL_DEFAULT_OPTIONS_KEY,
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
@@ -42,7 +41,6 @@ const closeLayoutTab = inject<(page: string, activatePane: boolean) => void>(
 )
 
 const service = new ModelSettingService()
-const dataDictionaryService = new DataDictionaryService()
 
 function createEmptyManufacturer(): ModelSettingManufacturerMetadata {
   return {
@@ -51,16 +49,6 @@ function createEmptyManufacturer(): ModelSettingManufacturerMetadata {
     value: '',
     valueType: VALUE_TYPE.STRING,
     metadata: {},
-  }
-}
-
-function toManufacturerSnapshot(entity: DataDictionaryEntity): ModelSettingManufacturerMetadata {
-  return {
-    code: entity.code,
-    name: entity.name,
-    value: entity.value ?? '',
-    valueType: entity.valueType,
-    metadata: entity.metadata ? {...entity.metadata} : {},
   }
 }
 
@@ -155,16 +143,15 @@ const redirect = computed(() => {
 })
 
 async function loadManufacturerByCode(code: string) {
-  const result = await dataDictionaryService.page({
-    number: 1,
-    size: 1,
-    ['filter_[code_eq]']: code,
-  })
-  const entity = result.data?.elements?.[0]
+  const result:RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([code])
+  if (!result.data) {
+    return false
+  }
+  const entity = result.data[code]?.[0]
   if (!entity) {
     return false
   }
-  options.value.entity.manufacturer = toManufacturerSnapshot(entity)
+  options.value.entity.manufacturer = entity as ModelSettingManufacturerMetadata
   return true
 }
 

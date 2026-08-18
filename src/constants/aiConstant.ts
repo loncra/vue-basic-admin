@@ -174,6 +174,8 @@ export const MCP_PACKAGE_AUTHORITY = {
   GET: 'perms[ai_mcp_package:get]',
   SAVE: 'perms[ai_mcp_package:save]',
   DELETE: 'perms[ai_mcp_package:delete]',
+  RELEASE: 'perms[ai_mcp_package:release]',
+  REVOKE: 'perms[ai_mcp_package:revoke]'
 } as const
 
 export const MCP_PACKAGE_ROUTE = {

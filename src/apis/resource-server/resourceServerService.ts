@@ -7,6 +7,7 @@ import axios from "@/requests/http.ts";
 import type {
   CaptchaToken,
   CaptchaTokenType,
+  DataDictionaryMetadata,
   EnumBucketsRequestBody,
   EnumBucketsResponseBody,
   IdValueMetadata,
@@ -31,6 +32,10 @@ export class ResourceServerService {
   static readonly CAPTCHA_GENERATE_GENERATE_TOKEN_URL = ResourceServerService.BASE_URL + '/captcha/generateToken'
   static readonly CAPTCHA_GENERATE_CAPTCHA_TOKEN_URL = ResourceServerService.BASE_URL + '/captcha/generateCaptcha'
 
+  static readonly GET_DATA_DICTIONARIES_BY_TYPE_IDS_URL = ResourceServerService.BASE_URL + '/data/dictionary/groupByTypIds'
+
+  static readonly GET_DATA_DICTIONARIES_BY_CODES_URL = ResourceServerService.BASE_URL + '/data/dictionary/groupByCodes'
+
   /** `POST .../enumerate`：按请求体拉取多组枚举 */
   static getServiceEnumerates(filter: EnumBucketsRequestBody): Promise<RestResult<EnumBucketsResponseBody>> {
     return axios.post(ResourceServerService.GET_SERVICE_ENUMERATE_URL, filter)
@@ -39,6 +44,14 @@ export class ResourceServerService {
   /** `GET .../enumerate/{service}/{enumerateName}`：单枚举 */
   static getServiceEnumerate<I,V>(service: string, enumerateName:string): Promise<RestResult<IdValueMetadata<I,V>[]>> {
     return axios.get(ResourceServerService.GET_SERVICE_ENUMERATE_URL + '/' + service + '/' + enumerateName)
+  }
+
+  static findDataDictionariesByTypeIds(typeIds:number[]):Promise<RestResult<Record<number, DataDictionaryMetadata[]>>> {
+    return axios.post(ResourceServerService.GET_DATA_DICTIONARIES_BY_TYPE_IDS_URL,formUrlEncoded({typeIds}))
+  }
+
+  static findDataDictionariesByCodes(codes:string[]):Promise<RestResult<Record<string, DataDictionaryMetadata[]>>> {
+    return axios.post(ResourceServerService.GET_DATA_DICTIONARIES_BY_CODES_URL,formUrlEncoded({codes}))
   }
 
   static generateCaptchaToken(type:CaptchaTokenType):Promise<RestResult<CaptchaToken>> {

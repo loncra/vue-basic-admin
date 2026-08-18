@@ -12,7 +12,7 @@ import {
 } from 'vue'
 import {App, Input, type MenuProps, Select} from 'antdv-next'
 import type {
-  DataDictionaryEntity,
+  DataDictionaryMetadata,
   EnumBucketsResponseBody,
   FilterRequest,
   ModelSettingEntity,
@@ -20,7 +20,6 @@ import type {
   RestResult,
   TreeSortMetadata,
 } from '@/types/apis'
-import {DataDictionaryService} from '@/apis/resource-server/dataDictionaryService.ts'
 import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
 import {ResourceServerService} from '@/apis'
 import {getEnumName, requireNonNullOrUndefined} from '@/utils'
@@ -30,7 +29,6 @@ import {
   MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
   SYSTEM_CONSTANT,
-  YES_OR_NO_TYPE,
 } from '@/constants'
 import type {SearchableColumnType} from "@/types/composables";
 
@@ -45,13 +43,12 @@ const globalProperties =
     .globalProperties
 const principalStore = usePrincipalStore()
 
-const dataDictionaryService = new DataDictionaryService()
 const modelSettingService = new ModelSettingService()
 
 const modelSettingTable = ref()
-const manufacturers = ref<DataDictionaryEntity[]>([])
+const manufacturers = ref<DataDictionaryMetadata[]>([])
 const manufacturersLoading = ref(false)
-const selectedManufacturer = ref<DataDictionaryEntity | null>(null)
+const selectedManufacturer = ref<DataDictionaryMetadata | null>(null)
 const selectedKeys = ref<string[]>([])
 
 const options = ref<{
@@ -133,7 +130,7 @@ const manufacturerMenuItems = computed(() =>
   })),
 )
 
-function selectManufacturer(item: DataDictionaryEntity) {
+function selectManufacturer(item: DataDictionaryMetadata) {
   selectedManufacturer.value = item
   selectedKeys.value = [item.code]
   options.value.query['filter_[manufacturer.code_jeq]'] = item.code
@@ -150,13 +147,8 @@ const onManufacturerMenuClick: MenuProps['onClick'] = (info) => {
 async function loadManufacturers() {
   manufacturersLoading.value = true
   try {
-    const result = await dataDictionaryService.page({
-      number: 1,
-      size: 1000,
-      ['filter_[code_like]']: MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
-      ['filter_[enabled_eq]']: YES_OR_NO_TYPE.YES,
-    })
-    manufacturers.value = result.data?.elements || []
+    const result:RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([MODEL_SETTING_MANUFACTURER_CODE_PREFIX])
+    manufacturers.value = result.data?.[MODEL_SETTING_MANUFACTURER_CODE_PREFIX] || []
   } finally {
     manufacturersLoading.value = false
   }

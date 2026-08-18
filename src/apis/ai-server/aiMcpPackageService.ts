@@ -29,6 +29,10 @@ export class AiMcpPackageService extends PageRestfulCrudService<
 
   static readonly TOOLS_URL = AiMcpPackageService.SERVICE_URL + '/tools'
 
+  static readonly RELEASE_URL = AiMcpPackageService.SERVICE_URL + '/release'
+
+  static readonly REVOKE_URL = AiMcpPackageService.SERVICE_URL + '/revoke'
+
   constructor() {
     super(AiMcpPackageService.SERVICE_URL)
   }
@@ -41,5 +45,13 @@ export class AiMcpPackageService extends PageRestfulCrudService<
   /** `POST /ai/mcp/package/tools` */
   listTools(entity: McpClientTransportMetadata): Promise<RestResult<McpToolMetadata[]>> {
     return axios.post(AiMcpPackageService.TOOLS_URL, entity)
+  }
+
+  release(ids:number[]):Promise<RestResult<void>> {
+    return axios.post(AiMcpPackageService.RELEASE_URL, formUrlEncoded({ids}))
+  }
+
+  revoke(ids:number[]):Promise<RestResult<void>> {
+    return axios.post(AiMcpPackageService.REVOKE_URL, formUrlEncoded({ids}))
   }
 }

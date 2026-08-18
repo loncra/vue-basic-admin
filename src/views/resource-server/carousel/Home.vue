@@ -138,6 +138,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
     },
   ]
 }
+
 const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
   return [
     {

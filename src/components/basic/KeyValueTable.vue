@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, computed, getCurrentInstance, watch} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import type {KeyValueRow} from "@/types/composables";
 import LTooltipValidationFormItem from "@/components/basic/TooltipValidationFormItem.vue";
@@ -32,7 +32,7 @@ const emits = defineEmits<{
 const model = defineModel<KeyValueRow[]>("value", {default: () => []})
 
 const keyValueColumns = computed<ColumnType<KeyValueRow>[]>(() => {
-  const result = [{
+  const result:ColumnType<KeyValueRow>[] = [{
     title: globalProperties.$t('common.name'),
     dataIndex: 'key',
     key: 'key',
@@ -96,8 +96,6 @@ function confirmAllEditingRows() {
     }
   }
 }
-
-watch(() => model, () => console.info(model.value), {deep: true})
 
 defineExpose({confirmAllEditingRows})
 

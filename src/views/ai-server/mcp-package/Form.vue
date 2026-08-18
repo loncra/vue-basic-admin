@@ -13,7 +13,7 @@ import type {
 } from '@/types/apis'
 import {loadIcon, requireNonNullOrUndefined} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
-import {DataDictionaryService, ResourceServerService} from '@/apis'
+import {ResourceServerService} from '@/apis'
 import {AiMcpPackageService} from '@/apis/ai-server/aiMcpPackageService.ts'
 import {
   ICON_SELECT_MODE,
@@ -43,7 +43,6 @@ const globalProperties =
 const configProviderStore = useConfigProviderStore();
 
 const service = new AiMcpPackageService()
-const dataDictionaryService = new DataDictionaryService()
 
 function createEmptyEntity(): McpPackageEntity {
   return {
@@ -161,17 +160,6 @@ function postGetEntity(entity: McpPackageEntity) {
   return entity
 }
 
-async function loadGroup() {
-  const result = await dataDictionaryService.page({
-    number: 1,
-    size: 1000,
-    ['filter_[code_like]']: MCP_GROUP_CODE_PREFIX,
-    ['filter_[enabled_eq]']: YES_OR_NO_TYPE.YES,
-  })
-  options.value.groupOptions = result.data?.elements || []
-  console.info(options.value.groupOptions)
-}
-
 async function preMounted() {
   options.value.spinning = true
   const enums: RestResult<EnumBucketsResponseBody> =
@@ -199,7 +187,10 @@ async function preMounted() {
     options.value.typeOptions = (aiServer['PackageTypeEnum'] || []) as NameValueEnumMetadata<number>[]
     options.value.clientTypeOptions = (aiServer['McpClientTypeEnum'] || []) as NameValueEnumMetadata<string>[]
   }
-  await loadGroup()
+  const result:RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([MCP_GROUP_CODE_PREFIX])
+  if (result.data) {
+    options.value.groupOptions = result.data[MCP_GROUP_CODE_PREFIX] ?? []
+  }
   for (const icon of options.value.icons) {
     const iconData:IconfontJson = await loadIcon(import.meta.env.VITE_APP_SITE_URL + icon)
     options.value.iconOptions.push(iconData)

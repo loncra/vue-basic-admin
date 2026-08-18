@@ -18,7 +18,6 @@ const getCheckboxProps: NonNullable<TableProps["rowSelection"]>["getCheckboxProp
 <template>
   <div>
     <l-resource-table
-      ref="table"
       :row-selection="{fixed: true, type: 'checkbox',getCheckboxProps: getCheckboxProps}"
     />
   </div>

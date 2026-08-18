@@ -43,7 +43,6 @@ const rowActions: ActionDefinition<RoleEntity>[] = [
   <div>
     <l-role-table
       :row-actions="rowActions"
-      ref="table"
       :row-selection="rowSelection"
     />
   </div>
