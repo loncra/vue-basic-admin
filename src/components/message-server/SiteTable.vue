@@ -20,7 +20,7 @@ import type {
   NameValueEnumMetadata,
   RestResult
 } from "@/types/apis";
-import {YES_OR_NO_TYPE} from "@/constants";
+import {SITE_MESSAGE_AUTHORITY, YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LSiteTable',
@@ -39,7 +39,7 @@ const globalProperties =
 
 const actionButtons = ref<ActionDefinition<SiteMessageEntity>[]>([{
   id: "send",
-  permission:'perms[message_server_site:send]',
+  permission:SITE_MESSAGE_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.site.routePage')}),
   icon:() => createIcon('loncra-send'),
   run:() => void globalProperties.$router.push({name:'message_server_site_send'})
@@ -157,9 +157,9 @@ onMounted(mounted)
     :query="props.query"
     :hide-title="props.preview"
     :authority="{
-      export:'perms[message_server_site:export]',
-      detail:'perms[message_server_site:get]',
-      delete:'perms[message_server_site:delete]'
+      export:SITE_MESSAGE_AUTHORITY.EXPORT,
+      detail:SITE_MESSAGE_AUTHORITY.GET,
+      delete:SITE_MESSAGE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"

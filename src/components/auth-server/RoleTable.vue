@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
+import {
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  markRaw,
+  onMounted,
+  ref
+} from 'vue'
 import type {TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
@@ -10,12 +17,13 @@ import type {
   RestResult,
   RoleEntity
 } from "@/types/apis";
-import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {mergeDefinitions} from "@/composables/basic/action";
+import {ROLE_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
 
 defineOptions({
   name: 'LRoleTable',
@@ -40,7 +48,7 @@ const service = new RoleService()
 
 const actionButtons = ref<ActionDefinition<RoleEntity>[]>([])
 
-const columns = ref<SearchableColumnType[]>([
+const columns = computed<SearchableColumnType[]>(() => [
   {
     title: globalProperties.$t('common.name'),
     dataIndex: 'name',
@@ -121,27 +129,23 @@ async function mounted() {
       },
     });
   }
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[
+      {"id":"YesOrNo"},
+      {"id":"ResourceSourceEnum"}
+    ]
+  })
   if (enums.data) {
     for (const dataIndex of yesOrNoFields){
-      const genderCol = columns.value[columns.value.findIndex(s => s.dataIndex === dataIndex)];
-      if (genderCol?.search) {
-        genderCol.search.props = genderCol.search.props ?? {}
-        genderCol.search.props.options = enums.data['resource-server']?.YesOrNo
-      }
+      applyColumnOptions(columns.value, dataIndex, enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.YesOrNo || [])
     }
-
-    const statusCol = columns.value.find((s) => s.dataIndex === 'sources')
-    if (statusCol?.search) {
-      statusCol.search.props = statusCol.search.props ?? {}
-      statusCol.search.props.options = enums.data['resource-server']?.ResourceSourceEnum
-    }
+    applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceSourceEnum || [])
   }
-  if (principalStore.hasPermission('perms[auth_server_role:save]')) {
+  if (principalStore.hasPermission(ROLE_AUTHORITY.SAVE)) {
     actionButtons.value.push(
       {
         id: 'addChild',
-        permission: 'perms[auth_server_role:save]',
+        permission: ROLE_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
@@ -171,10 +175,10 @@ onMounted(mounted)
     :row-actions="mergeDefinitions(actionButtons, props.rowActions ?? [])"
     :record-actions="!props.preview"
     :authority="{
-      add:'perms[auth_server_role:save]',
-      edit:'perms[auth_server_role:save]',
-      detail:'perms[auth_server_role:get]',
-      delete:'perms[auth_server_role:delete]'
+      add:ROLE_AUTHORITY.SAVE,
+      edit:ROLE_AUTHORITY.SAVE,
+      detail:ROLE_AUTHORITY.GET,
+      delete:ROLE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.rowSelection"

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {SearchableColumnType} from "@/types/composables";
 import {SmsTemplateService} from "@/apis/message-server/sms/templateService.ts";
+import {SMS_MESSAGE_TEMPLATE_AUTHORITY} from '@/constants'
 
 defineOptions({
   name: 'MessageServerSmsTemplateHome',
@@ -15,7 +16,7 @@ const globalProperties =
 
 const service = new SmsTemplateService('alibabaCloud')
 
-const columns = ref<SearchableColumnType[]>([{
+const columns = computed<SearchableColumnType[]>(() => [{
   title: globalProperties.$t('common.channel'),
   dataIndex: "channel",
   ellipsis: true,
@@ -66,7 +67,7 @@ const columns = ref<SearchableColumnType[]>([{
     :service="service"
     :columns="columns"
     :authority="{
-      detail:'perms[message_server_sms_template:get]'
+      detail:SMS_MESSAGE_TEMPLATE_AUTHORITY.GET,
     }"
     :scroll="{x:'max-content'}"
     @detail="r => globalProperties.$router.push({name:'message_server_sms_template_detail', query:{id:r.id}})"

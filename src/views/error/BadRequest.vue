@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import imageSrc from '@/assets/400.svg'
 import {requireNonNullOrUndefined} from "@/utils";
 
@@ -10,29 +10,28 @@ defineOptions({
 const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
 const globalProperties = instance.appContext.config.globalProperties;
 
-const options = ref({
-  dataSource: [],
-  columns: [
-    {
-      title: globalProperties.$t('error.code'),
-      dataIndex: "code",
-      ellipsis: true,
-      width: 200
-    },
-    {
-      title: globalProperties.$t('error.field'),
-      dataIndex: "field",
-      ellipsis: true,
-      width: 200
-    },
-    {
-      title: globalProperties.$t('error.errorMessage'),
-      dataIndex: "defaultMessage",
-      ellipsis: true,
-      width: 300
-    }
-  ]
-});
+const dataSource = ref([]);
+
+const columns = computed(() => [
+  {
+    title: globalProperties.$t('error.code'),
+    dataIndex: "code",
+    ellipsis: true,
+    width: 200
+  },
+  {
+    title: globalProperties.$t('error.field'),
+    dataIndex: "field",
+    ellipsis: true,
+    width: 200
+  },
+  {
+    title: globalProperties.$t('error.errorMessage'),
+    dataIndex: "defaultMessage",
+    ellipsis: true,
+    width: 300
+  }
+])
 
 function mounted() {
   const value = sessionStorage.getItem(import.meta.env.VITE_APP_SESSION_STORAGE_BAD_REQUEST_NAME);
@@ -41,7 +40,7 @@ function mounted() {
   }
   const json = JSON.parse(value) || [];
   if (json.length > 0) {
-    options.value.dataSource = json;
+    dataSource.value = json;
   }
   sessionStorage.removeItem(import.meta.env.VITE_APP_SESSION_STORAGE_BAD_REQUEST_NAME);
 }
@@ -59,8 +58,8 @@ onMounted(mounted)
         </div>
         <a-divider>{{ globalProperties.$t('error.badRequest.title') }}</a-divider>
         <a-table :pagination="false"
-                 :data-source="options.dataSource"
-                 :columns="options.columns"
+                 :data-source="dataSource"
+                 :columns="columns"
                  :scroll="{ x: 'max-content'}"
                  bordered>
         </a-table>

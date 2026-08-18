@@ -37,6 +37,7 @@ const readCount = ref<number>(0)
 async function postGetEntity(entity:BatchMessageEntity){
   const result:RestResult<number> = await siteService.countRead(Number(entity.id));
   readCount.value = result?.data || 0
+  return entity
 }
 
 </script>

@@ -15,12 +15,17 @@ import type {
   FilterRequest,
   McpPackageEntity,
   McpPackageSavePayload,
-  NameValueEnumMetadata,
   RestResult,
 } from '@/types/apis'
 import {AiMcpPackageService} from '@/apis/ai-server/aiMcpPackageService.ts'
 import {ResourceServerService} from '@/apis'
-import {createIcon, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {
+  applyColumnOptions,
+  createIcon,
+  getEnumName,
+  getEnumValue,
+  requireNonNullOrUndefined
+} from '@/utils'
 import {
   ICON_SELECT_MODE,
   MCP_GROUP_CODE_PREFIX,
@@ -277,14 +282,6 @@ async function doRevoke(ids: number[]) {
   }
 }
 
-function applyColumnOptions(dataIndex: string, enumOptions: NameValueEnumMetadata<number | string>[]) {
-  const column = columns.value.find((item) => item.dataIndex === dataIndex || item.key === dataIndex)
-  if (column?.search) {
-    column.search.props = column.search.props ?? {}
-    column.search.props.options = enumOptions
-  }
-}
-
 async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> =
     await ResourceServerService.getServiceEnumerates({
@@ -305,12 +302,12 @@ async function mounted() {
   const resourceServer = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
   const aiServer = enums.data[SYSTEM_MODULE_NAME.AI_SERVER] ?? {}
 
-  applyColumnOptions("authMode", aiServer["McpPackageAuthModeEnum"] || [])
-  applyColumnOptions("origin", aiServer["PackageOriginEnum"] || [])
-  applyColumnOptions("type", aiServer["PackageTypeEnum"] || [])
+  applyColumnOptions(columns.value,"authMode", aiServer?.McpPackageAuthModeEnum || [])
+  applyColumnOptions(columns.value,"origin", aiServer?.PackageOriginEnum || [])
+  applyColumnOptions(columns.value,"type", aiServer?.PackageTypeEnum || [])
 
-  applyColumnOptions("status", resourceServer["DataStatusEnum"] || [])
-  applyColumnOptions("dynamicActivation",resourceServer["YesOrNo"] || [])
+  applyColumnOptions(columns.value,"status", resourceServer?.DataStatusEnum || [])
+  applyColumnOptions(columns.value,"dynamicActivation",resourceServer?.YesOrNo || [])
 
   const dataDictionaryResult:RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([MCP_GROUP_CODE_PREFIX])
   if (!dataDictionaryResult.data) {
@@ -318,7 +315,7 @@ async function mounted() {
   }
 
   for (const key in dataDictionaryResult.data) {
-    applyColumnOptions(key,(dataDictionaryResult.data[key] || []).map(item => ({name: item.name, value: item.code})))
+    applyColumnOptions(columns.value,key,(dataDictionaryResult.data[key] || []).map(item => ({name: item.name, value: item.code})))
   }
 }
 

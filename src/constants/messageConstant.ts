@@ -146,3 +146,41 @@ export const PIP_WIDTH_RATIO = 0.28
 export const PIP_MAX_WIDTH_PX = 200
 /** 无真实视频流时用于布局计算的默认宽高（与 PREVATE 约束 ideal 一致） */
 export const PRIVATE_VIDEO_LAYOUT_METRICS: VideoMetrics = {width: 1280, height: 720, aspect: 16 / 9}
+
+
+export const BATCH_MESSAGE_AUTHORITY = {
+  DELETE: 'perms[message_server_batch:delete]',
+  GET: 'perms[message_server_batch:get]',
+  EXPORT: 'perms[message_server_batch:export]',
+} as const
+
+export const EMAIL_MESSAGE_AUTHORITY = {
+  DELETE: 'perms[message_server_email:delete]',
+  GET: 'perms[message_server_email:get]',
+  EXPORT: 'perms[message_server_email:export]',
+  SEND:'perms[message_server_email:send]',
+} as const
+
+export const SITE_MESSAGE_AUTHORITY = {
+  DELETE: 'perms[message_server_site:delete]',
+  GET: 'perms[message_server_site:get]',
+  EXPORT: 'perms[message_server_site:export]',
+  SEND:'perms[message_server_site:send]',
+} as const
+
+export const SMS_MESSAGE_AUTHORITY = {
+  DELETE: 'perms[message_server_sms:delete]',
+  GET: 'perms[message_server_sms:get]',
+  EXPORT: 'perms[message_server_sms:export]',
+  SEND:'perms[message_server_sms:send]',
+} as const
+
+export const SMS_MESSAGE_TEMPLATE_AUTHORITY = {
+  FIND:'perms[message_server_sms_template:find]',
+  GET:'perms[message_server_sms_template:get]',
+} as const
+
+export const SMS_MESSAGE_SIGN_AUTHORITY = {
+  FIND:'perms[message_server_sms_sign:find]',
+  GET:'perms[message_server_sms_sign:get]',
+} as const

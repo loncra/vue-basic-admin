@@ -13,7 +13,10 @@ import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
-import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY} from "@/constants/systemConstant.ts";
+import {
+  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
+  SYSTEM_MODULE_NAME
+} from "@/constants/systemConstant.ts";
 import {VALUE_TYPE} from "@/constants/resourceConstant.ts";
 
 defineOptions({
@@ -55,10 +58,15 @@ const options = ref<{
 
 async function preMounted() {
 
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ValueTypeEnum"}, {"id":"YesOrNo"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
+      {"id":"ValueTypeEnum"},
+      {"id":"YesOrNo"}
+    ]
+  })
   if (enums.data) {
-    options.value.valueTypeOptions = enums.data['resource-server']?.ValueTypeEnum as NameValueEnumMetadata<number>[]
-    options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
+    options.value.valueTypeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ValueTypeEnum as NameValueEnumMetadata<number>[]
+    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.YesOrNo as NameValueEnumMetadata<number>[]
   }
   if (globalProperties.$route.query.parentId) {
     const result:RestResult<DataDictionaryEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)
@@ -72,7 +80,7 @@ async function preMounted() {
       options.value.entity.typeId = Number(result.data.id)
     }
   } else if (!globalProperties.$route.query.id) {
-    const field = 'id  parentId  typeId'
+    const field = 'id parentId typeId'
     sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_BAD_REQUEST_NAME, JSON.stringify([{code:"400", field:field, defaultMessage: globalProperties.$t('error.notNull')}]));
     globalProperties.$router.push({name:"400"});
     closeLayoutTab?.(globalProperties.$route.fullPath, false)

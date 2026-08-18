@@ -25,7 +25,6 @@ const entity = ref<DataDictionaryEntity>({
   value: "",
   valueType: VALUE_TYPE.STRING,
   version: 0
-
 })
 
 </script>

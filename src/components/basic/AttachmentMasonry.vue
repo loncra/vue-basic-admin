@@ -11,8 +11,8 @@ defineOptions({
   name: 'LAttachmentMasonry',
 })
 
-const props =withDefaults(defineProps<{
-  bucket:string
+const props = withDefaults(defineProps<{
+  bucket?:string
 }>(),{
   bucket:'user.file'
 })

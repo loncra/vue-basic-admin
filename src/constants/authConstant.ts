@@ -55,3 +55,23 @@ export const LOGIN_TYPE = {
   /** 二维码登录 */
   QR_CODE: 'QR_CODE',
 } as const
+
+
+export const ROLE_AUTHORITY = {
+  DELETE: 'perms[auth_server_role:delete]',
+  GET: 'perms[auth_server_role:get]',
+  SAVE:'perms[auth_server_role:save]',
+} as const
+
+export const RESOURCE_AUTHORITY = {
+  DELETE: 'perms[auth_server_authority_resource:delete]',
+  GET: 'perms[auth_server_authority_resource:get]',
+  SAVE:'perms[auth_server_authority_resource:save]',
+} as const
+
+export const CONSOLE_USER_AUTHORITY = {
+  DELETE: 'perms[auth_server_console_user:delete]',
+  GET: 'perms[auth_server_console_user:get]',
+  SAVE:'perms[auth_server_console_user:save]',
+  EXPORT: 'perms[auth_server_console_user:export]',
+} as const

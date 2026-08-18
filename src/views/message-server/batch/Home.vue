@@ -1,12 +1,26 @@
 <script setup lang="ts">
 
-import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {
+  applyColumnOptions,
+  dateTimeFormat,
+  getEnumName,
+  getEnumValue,
+  requireNonNullOrUndefined
+} from "@/utils";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
+import {
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  markRaw,
+  onMounted
+} from "vue";
 import type {SearchableColumnType} from "@/types/composables";
 import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
 import {ResourceServerService} from "@/apis";
 import {BatchMessageService} from "@/apis/message-server/batchMessageService.js";
+import {BATCH_MESSAGE_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
+import {DateRangePicker, Select} from "antdv-next";
 
 defineOptions({
   name: 'MessageServerBatchHome',
@@ -18,13 +32,19 @@ const globalProperties =
 
 const service = new BatchMessageService();
 
-const columns = ref<SearchableColumnType[]>([
+const columns = computed<SearchableColumnType[]>(() => [
   {
     title: globalProperties.$t('common.type'),
     dataIndex: "type",
     ellipsis: true,
     key: "type",
-    width: 80
+    width: 80,
+    search:{
+      component: markRaw(Select),
+      class:'w-full',
+      props:{classes:{root:'w-full'}, fieldNames:{label:'name'}, placeholder: globalProperties.$t('search.placeholder.select')},
+      expression:'eq'
+    },
   },
   {
     title: globalProperties.$t('common.creationTime'),
@@ -32,13 +52,23 @@ const columns = ref<SearchableColumnType[]>([
     ellipsis: true,
     key: "creation_time",
     width: 210,
+    search:{
+      component: markRaw(DateRangePicker),
+      props:{},
+      expression:'between'
+    },
   },
   {
     title: globalProperties.$t('common.status'),
     dataIndex: "executeStatus",
     key: "execute_status",
     ellipsis: true,
-    width: 80
+    width: 80,
+    search:{
+      component: markRaw(Select),
+      props:{classes:{root:'w-full'}, fieldNames:{label:'name'}, placeholder: globalProperties.$t('search.placeholder.select')},
+      expression:'eq'
+    },
   },
   {
     title: globalProperties.$t('messageServer.batch.count'),
@@ -66,26 +96,22 @@ const columns = ref<SearchableColumnType[]>([
     dataIndex: "completeTime",
     ellipsis: true,
     width: 210,
+    search:{
+      component: markRaw(DateRangePicker),
+      props:{},
+      expression:'between'
+    },
   }
 ])
 
 async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    "resource-server": [{"id": "ExecuteStatus"}, {"id": "CloudChannelEnum"}],
-    "message-server": [{"id": "MessageTypeEnum"}]
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{"id": "ExecuteStatus"}],
+    [SYSTEM_MODULE_NAME.MESSAGE_SERVER]: [{"id": "BatchMessageTypeEnum"}]
   })
   if (enums.data) {
-    const statusCol = columns.value.find((s) => s.dataIndex === 'executeStatus')
-    if (statusCol?.search) {
-      statusCol.search.props = statusCol.search.props ?? {}
-      statusCol.search.props.options = enums.data['resource-server']?.ExecuteStatus
-    }
-
-    const typeCol = columns.value.find((s) => s.dataIndex === 'type')
-    if (typeCol?.search) {
-      typeCol.search.props = typeCol.search.props ?? {}
-      typeCol.search.props.options = enums.data['message-server']?.MessageTypeEnum
-    }
+    applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ExecuteStatus || [])
+    applyColumnOptions(columns.value, 'type', enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.BatchMessageTypeEnum || [])
   }
 }
 
@@ -99,9 +125,9 @@ onMounted(mounted)
       :service="service"
       :columns="columns"
       :authority="{
-      export:'perms[message_server_batch:export]',
-      detail:'perms[message_server_batch:get]',
-      delete:'perms[message_server_batch:delete]'
+      export:BATCH_MESSAGE_AUTHORITY.EXPORT,
+      detail:BATCH_MESSAGE_AUTHORITY.GET,
+      delete:BATCH_MESSAGE_AUTHORITY.DELETE
     }"
       :scroll="{x:'max-content'}"
       :row-selection="{fixed: true, type: 'checkbox'}"

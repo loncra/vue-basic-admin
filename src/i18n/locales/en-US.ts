@@ -19,6 +19,7 @@ const locale: LanguagePack = {
     save: 'Save',
     add: 'Add {name}',
     edit: 'Edit {name}',
+    applet:'wechat',
     all: 'All {name}',
     export: {
       all: 'Export all',
@@ -69,6 +70,8 @@ const locale: LanguagePack = {
     home: 'Home',
     parent: 'Parent',
     addChild: 'Add {name} child',
+    avatar: 'Avatar',
+    group: 'Group',
     open: 'On',
     close: 'Off',
     border: 'Border',
@@ -118,6 +121,30 @@ const locale: LanguagePack = {
       confirmTitle: 'Confirm revoke',
       confirmSingle: 'Are you sure you want to revoke this record?',
       confirmBatch: 'Are you sure you want to revoke {count} record(s)?',
+    },
+  },
+  captcha:{
+    text:'captcha',
+    sendTo:'The verification code has been sent to {target}. Please check your inbox',
+    countdown:'Can retry after s seconds',
+    resend:{
+      prompt:'Didn\'t get it?',
+      action:'Resend'
+    }
+  },
+  forgotPassword:{
+    title:'🔒Forgot password? ',
+    subSelectTypeTitle:'Choose email or phone number to retrieve, we will send instructions for resetting the password',
+    step:{
+      sendCaptcha:{
+        action:'Retrieve password',
+        subTitle:'Choose email or phone number to retrieve, and we will send instructions for resetting the password.',
+      },
+      backRestPassword:'Reset Password',
+      multiUsersSelected:{
+        subTitle:'The system has found multiple accounts under {type}: {target}. Please select the account that needs to retrieve the password.',
+        action:'Confirm'
+      }
     },
   },
   operation: {
@@ -352,30 +379,6 @@ const locale: LanguagePack = {
     reLogin: 'Sign in again',
     page: 'Sign in',
   },
-  captcha:{
-    text:'captcha',
-    sendTo:'The verification code has been sent to {target}. Please check your inbox',
-    countdown:'Can retry after s seconds',
-    resend:{
-      prompt:'Didn\'t get it?',
-      action:'Resend'
-    }
-  },
-  forgotPassword:{
-    title:'🔒Forgot password? ',
-    subSelectTypeTitle:'Choose email or phone number to retrieve, we will send instructions for resetting the password',
-    step:{
-      sendCaptcha:{
-        action:'Retrieve password',
-        subTitle:'Choose email or phone number to retrieve, and we will send instructions for resetting the password.',
-      },
-      backRestPassword:'Reset Password',
-      multiUsersSelected:{
-        subTitle:'The system has found multiple accounts under {type}: {target}. Please select the account that needs to retrieve the password.',
-        action:'Confirm'
-      }
-    },
-  },
   workbench: {
     personalActivity: 'Personal activity',
     quickAccess: 'Quick access',
@@ -427,7 +430,6 @@ const locale: LanguagePack = {
       image: 'Image content',
       dataContent: 'Data content',
       routePage: 'Carousel',
-      link: 'Link',
       showtime: 'Display time',
       immediately: 'Immediately',
       permanent: 'Permanent',

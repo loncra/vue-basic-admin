@@ -6,6 +6,7 @@ import {dayjsFormat} from './dateUtils'
 import type {NameValueEnumMetadata} from '@/types/apis'
 import i18n from '@/i18n'
 import {YES_OR_NO_TYPE} from '@/constants'
+import type {SearchableColumnType} from "@/types/composables";
 
 /**
  * 值转换函数类型
@@ -371,6 +372,14 @@ export function validatePassword(newPassword:string, confirmPassword:string) {
     return Promise.reject(message);
   } else {
     return Promise.resolve();
+  }
+}
+
+export function applyColumnOptions(columns:SearchableColumnType[], dataIndex: string, enumOptions: NameValueEnumMetadata<number | string>[]) {
+  const column = columns.find((item) => item.dataIndex === dataIndex || item.key === dataIndex)
+  if (column?.search) {
+    column.search.props = column.search.props ?? {}
+    column.search.props.options = enumOptions
   }
 }
 

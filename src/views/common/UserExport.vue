@@ -8,7 +8,7 @@ import {
   getEnumName,
   requireNonNullOrUndefined
 } from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import type {ExportDataMetadata, FileObject} from "@/types/apis";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
@@ -22,7 +22,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const columns:SearchableColumnType[] = [{
+const columns = computed<SearchableColumnType[]>(() => [{
   title: globalProperties.$t('common.creationTime'),
   dataIndex: "creationTime",
   ellipsis: true,
@@ -64,7 +64,7 @@ const columns:SearchableColumnType[] = [{
   ellipsis: true,
   key:'expiresTime',
   width: 210
-}]
+}])
 
 const service = new UserExportService();
 const selectedRows = ref<ExportDataMetadata[]>([]);

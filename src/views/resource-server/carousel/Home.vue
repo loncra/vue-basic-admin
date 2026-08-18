@@ -35,7 +35,7 @@ import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
 import type {ActionDefinition, GridExposed} from '@/types/composables'
 import LBasicImage from "@/components/basic/BasicImage.vue";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {CAROUSEL_AUTHORITY, SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from "@/constants";
 
 interface TabDataSource {
   key: string
@@ -69,13 +69,6 @@ function getCoverImageSrc(cover: CarouselEntity['cover']) {
   return AttachmentService.query(cover.bucketName, cover.objectName)
 }
 
-const carouselAuthority = {
-  add: 'perms[resource_server_carousel:save]',
-  edit: 'perms[resource_server_carousel:save]',
-  delete: 'perms[resource_server_carousel:delete]',
-  detail: false,
-} as const
-
 const options = ref<{
   typeOptions: NameValueEnumMetadata<number>[]
   loading: boolean
@@ -91,7 +84,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'add',
-      permission: carouselAuthority.add,
+      permission: CAROUSEL_AUTHORITY.SAVE,
       label: () => globalProperties.$t('common.add', {name: ''}),
       icon: () => createIcon('loncra-file-plus'),
       run: () => {
@@ -100,7 +93,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'deleteSelected',
-      permission: carouselAuthority.delete,
+      permission: CAROUSEL_AUTHORITY.DELETE,
       enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
         globalProperties.$t('common.delete.selected', {
@@ -116,7 +109,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'releaseSelect',
-      permission: 'perms[resource_server_carousel:release]',
+      permission:CAROUSEL_AUTHORITY.RELEASE,
       enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
         globalProperties.$t('common.release.selected', {
@@ -127,7 +120,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'revokeSelect',
-      permission: 'perms[resource_server_carousel:revoke]',
+      permission: CAROUSEL_AUTHORITY.REVOKE,
       enabled: (ctx) => getRevokeSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
         globalProperties.$t('common.revoke.selected', {
@@ -143,7 +136,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'release',
-      permission: 'perms[resource_server_carousel:release]',
+      permission: CAROUSEL_AUTHORITY.RELEASE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
       label: () => globalProperties.$t('common.release.text'),
       icon: () => createIcon('loncra-screen-share'),
@@ -151,7 +144,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'revoke',
-      permission: 'perms[resource_server_carousel:revoke]',
+      permission: CAROUSEL_AUTHORITY.REVOKE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) === 20,
       label: () => globalProperties.$t('common.revoke.text'),
       icon: () => createIcon('loncra-screen-share-off'),
@@ -159,7 +152,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'edit',
-      permission: carouselAuthority.edit,
+      permission: CAROUSEL_AUTHORITY.GET,
       enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
       label: () => globalProperties.$t('common.edit'),
       icon: () => createIcon('loncra-file-pen-line'),
@@ -307,11 +300,11 @@ async function mounted() {
   options.value.loading = true
 
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    'resource-server': [{id: 'CarouselTypeEnum'}],
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: 'CarouselTypeEnum'}],
   })
   // FIXME 这里不应该用枚举，应该用字典去灵活配置样式
   if (enums.data) {
-    options.value.typeOptions = enums.data['resource-server']?.CarouselTypeEnum as NameValueEnumMetadata<number>[]
+    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.CarouselTypeEnum as NameValueEnumMetadata<number>[]
     for (const item of options.value.typeOptions) {
       tabDataSource.value.push({
         key: String(item.value),
@@ -369,14 +362,7 @@ onActivated(activated)
                 <a-empty />
               </template>
 
-<!--              <a-carousel class="mx-auto w-full max-w-[375px]" v-else :autoplay="{ dotDuration: true }" :autoplay-speed="5000" arrows>-->
               <a-carousel v-else :autoplay="{ dotDuration: true }" :autoplay-speed="5000" arrows>
-<!--                <div
-                  class="w-full aspect-[2/1] max-h-[360px] overflow-hidden rounded-lg bg-elevated"
-                  :key="entity.id"
-                  v-for="entity of item?.carouselDataSource || []"
-                >-->
-
                 <div
                   class="aspect-square h-[360px] overflow-hidden bg-mask"
                   :key="entity.id"
@@ -399,7 +385,12 @@ onActivated(activated)
               v-model:selected-items="item.selectedItems"
               :immediate="false"
               :drag="dragEnabled"
-              :authority="carouselAuthority"
+              :authority="{
+                add: CAROUSEL_AUTHORITY.SAVE,
+                edit: CAROUSEL_AUTHORITY.SAVE,
+                delete: CAROUSEL_AUTHORITY.DELETE,
+                detail: false,
+              }"
               :actions="bulkActions()"
               :item-actions="itemActionDefinitions()"
               @deleted="onGridDeleted"

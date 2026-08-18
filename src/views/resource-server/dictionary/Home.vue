@@ -11,7 +11,13 @@ import {
   ref
 } from "vue";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
-import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
+import {
+  applyColumnOptions,
+  findAllTreeNodes,
+  findFirstTreeNode,
+  requireNonNullOrUndefined,
+  unmergeTree
+} from "@/utils";
 import {App, Input, Select, type TableProps} from "antdv-next";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import type {DataDictionary, DictionaryTypeProps, RestResult, TreeSortMetadata} from "@/types/apis";
@@ -24,19 +30,21 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from "@/constants/systemConstant.ts";
+import {DATA_DICTIONARY_AUTHORITY, DICTIONARY_TYPE_AUTHORITY} from "@/constants";
+
+defineOptions({
+  name: 'ResourceServerDictionaryHome'
+})
 
 const { message } = App.useApp()
+
 const DEFAULT_DICTIONARY_TYPE_DEFAULT = {
   code: "",
   name: "",
   id:null as unknown as number,
   version:null as unknown as number,
 }
-
-defineOptions({
-  name: 'ResourceServerDictionaryHome'
-})
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -187,25 +195,23 @@ function onSaveSuccessDictionaryType() {
 }
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ValueTypeEnum"}, {"id":"YesOrNo"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[
+      {"id":"ValueTypeEnum"},
+      {"id":"YesOrNo"}
+    ]
+  })
   if (enums.data) {
-    const enabledCol = options.value.dataDictionary.columns[options.value.dataDictionary.columns.findIndex(s => s.dataIndex === "enabled")]
-    if (enabledCol?.search) {
-      enabledCol.search.props = enabledCol.search.props ?? {}
-      enabledCol.search.props.options = enums.data['resource-server']?.YesOrNo
-    }
-
-    const valueTypeCol = options.value.dataDictionary.columns[options.value.dataDictionary.columns.findIndex(s => s.dataIndex === "valueType")]
-    if (valueTypeCol?.search) {
-      valueTypeCol.search.props = valueTypeCol.search.props ?? {}
-      valueTypeCol.search.props.options = enums.data['resource-server']?.ValueTypeEnum
-    }
+    const resourceServer = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
+    applyColumnOptions(options.value.dataDictionary.columns, "enabled",resourceServer?.YesOrNo ||[])
+    applyColumnOptions(options.value.dataDictionary.columns, "valueType",resourceServer?.ValueTypeEnum ||[])
   }
-  if (principalStore.hasPermission('perms[resource_server_data_dictionary:save]')) {
+
+  if (principalStore.hasPermission(DATA_DICTIONARY_AUTHORITY.SAVE)) {
     options.value.dictionaryType.rowActions.push(
       {
         id: 'addChild',
-        permission: 'perms[resource_server_data_dictionary:save]',
+        permission: DATA_DICTIONARY_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
@@ -281,9 +287,9 @@ onMounted(mounted)
             :columns="options.dictionaryType.columns"
             :row-actions="options.dictionaryType.rowActions"
             :authority="{
-              edit:'perms[resource_server_dictionary_type:save]',
-              add:'perms[resource_server_dictionary_type:save]',
-              delete:'perms[resource_server_dictionary_type:delete]'
+              edit:DICTIONARY_TYPE_AUTHORITY.SAVE,
+              add:DICTIONARY_TYPE_AUTHORITY.SAVE,
+              delete:DICTIONARY_TYPE_AUTHORITY.DELETE,
             }"
             :scroll="{x:'max-content'}"
             :row-selection="{fixed:true, type: 'checkbox'}"
@@ -303,7 +309,7 @@ onMounted(mounted)
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'name'">
                 <a-tooltip :title="record.code">
-                  <span>{{record.name}}</span>
+                  <span class="cursor-pointer">{{record.name}}</span>
                 </a-tooltip>
               </template>
             </template>
@@ -324,10 +330,10 @@ onMounted(mounted)
             :service="dataDictionaryService"
             :columns="options.dataDictionary.columns"
             :authority="{
-              add:'perms[resource_server_data_dictionary:save]',
-              edit:'perms[resource_server_data_dictionary:save]',
-              delete:'perms[resource_server_data_dictionary:delete]',
-              detail:'perms[resource_server_data_dictionary:get]'
+              add:DATA_DICTIONARY_AUTHORITY.SAVE,
+              edit:DATA_DICTIONARY_AUTHORITY.SAVE,
+              delete:DATA_DICTIONARY_AUTHORITY.DELETE,
+              detail:DATA_DICTIONARY_AUTHORITY.GET
             }"
             :scroll="{x:'max-content'}"
             :row-selection="{fixed: true, type: 'checkbox'}"

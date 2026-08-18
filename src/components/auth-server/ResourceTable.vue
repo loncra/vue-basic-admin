@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
+import {
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  markRaw,
+  onMounted,
+  ref
+} from 'vue'
 import {App, Input, Select, type TableProps} from 'antdv-next';
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {
@@ -9,11 +16,12 @@ import type {
   RestResult,
   TreeSortMetadata
 } from "@/types/apis";
-import {createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
+import {RESOURCE_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
 
 defineOptions({
   name: 'LResourceTable',
@@ -38,7 +46,7 @@ const { message } = App.useApp()
 
 const service = new ResourceService()
 
-const columns = ref<SearchableColumnType[]>([
+const columns = computed<SearchableColumnType[]>(() => [
   {
     title: globalProperties.$t('common.name'),
     dataIndex: 'name',
@@ -148,31 +156,19 @@ async function mounted() {
       },
     });
   }
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"}],"auth-server":[{"id":"ResourceTypeEnum"},{"id":'ResourceCategoryEnum'}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{"id":"ResourceSourceEnum"}],
+    [SYSTEM_MODULE_NAME.AUTH_SERVER]:[{"id":"ResourceTypeEnum"},{"id":'ResourceCategoryEnum'}]})
   if (enums.data) {
-    const typeCol = columns.value[columns.value.findIndex(s => s.dataIndex === "type")];
-    if (typeCol?.search) {
-      typeCol.search.props = typeCol.search.props ?? {}
-      typeCol.search.props.options = enums.data['auth-server']?.ResourceTypeEnum
-    }
-
-    const categoryCol = columns.value[columns.value.findIndex(s => s.dataIndex === "category")];
-    if (categoryCol?.search) {
-      categoryCol.search.props = categoryCol.search.props ?? {}
-      categoryCol.search.props.options = enums.data['auth-server']?.ResourceCategoryEnum
-    }
-
-    const statusCol = columns.value.find((s) => s.dataIndex === 'sources')
-    if (statusCol?.search) {
-      statusCol.search.props = statusCol.search.props ?? {}
-      statusCol.search.props.options = enums.data['resource-server']?.ResourceSourceEnum
-    }
+    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceTypeEnum || [])
+    applyColumnOptions(columns.value, "category", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceCategoryEnum || [])
+    applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceSourceEnum || [])
   }
-  if (principalStore.hasPermission('perms[resource_server_data_dictionary:save]')) {
+  if (principalStore.hasPermission(RESOURCE_AUTHORITY.SAVE)) {
     rowActions.value.push(
       {
         id: 'addChild',
-        permission: 'perms[resource_server_data_dictionary:save]',
+        permission: RESOURCE_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
@@ -233,10 +229,10 @@ onMounted(mounted)
     :row-actions="rowActions"
     :record-actions="!props.preview"
     :authority="{
-      add:'perms[auth_server_authority_resource:save]',
-      edit:'perms[auth_server_authority_resource:save]',
-      detail:'perms[auth_server_authority_resource:get]',
-      delete:'perms[auth_server_authority_resource:delete]'
+      add:RESOURCE_AUTHORITY.SAVE,
+      edit:RESOURCE_AUTHORITY.SAVE,
+      detail:RESOURCE_AUTHORITY.GET,
+      delete:RESOURCE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content', y: 350}"
     :row-selection="props.rowSelection"

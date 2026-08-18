@@ -21,6 +21,7 @@ const locale: LanguagePack = {
     add: '添加{name}',
     edit: '编辑{name}',
     all: '全部{name}',
+    applet:'小程序',
     used:'已使用',
     export: {
       all: '导出全部',

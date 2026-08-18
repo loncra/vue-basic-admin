@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue';
 import {
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  markRaw,
+  onMounted,
+  ref
+} from 'vue';
+import {
+  applyColumnOptions,
   createIcon,
   dateTimeFormat,
   getEnumName,
@@ -15,6 +23,7 @@ import {ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody, FilterRequest, RestResult} from "@/types/apis";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
+import {EMAIL_MESSAGE_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
 
 defineOptions({
   name: 'LEmailTable',
@@ -33,7 +42,7 @@ const globalProperties =
 
 const actionButtons = ref<ActionDefinition<EmailMessageEntity>[]>([{
   id: "send",
-  permission:'perms[message_server_email:send]',
+  permission:EMAIL_MESSAGE_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.email.routePage')}),
   icon:() => createIcon('loncra-send'),
   run:() => void globalProperties.$router.push({name:'message_server_email_send'})
@@ -41,7 +50,7 @@ const actionButtons = ref<ActionDefinition<EmailMessageEntity>[]>([{
 
 const service = new EmailMessageService();
 
-const columns = ref<SearchableColumnType[]>([
+const columns = computed<SearchableColumnType[]>(() => [
   {
     title: globalProperties.$t('common.creationTime'),
     dataIndex: "creationTime",
@@ -119,24 +128,18 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ExecuteStatus"},{"id":"CloudChannelEnum"}],"message-server":[{"id":"MessageTypeEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
+      {"id":"ExecuteStatus"},
+      {"id":"CloudChannelEnum"}
+    ],
+    [SYSTEM_MODULE_NAME.MESSAGE_SERVER]:[
+      {"id":"MessageTypeEnum"}
+    ]
+  })
   if (enums.data) {
-    const statusCol = columns.value.find((s) => s.dataIndex === 'executeStatus')
-    if (statusCol?.search) {
-      statusCol.search.props = statusCol.search.props ?? {}
-      statusCol.search.props.options = enums.data['resource-server']?.ExecuteStatus
-    }
-
-    const typeCol = columns.value.find((s) => s.dataIndex === 'type')
-    if (typeCol?.search) {
-      typeCol.search.props = typeCol.search.props ?? {}
-      typeCol.search.props.options = enums.data['message-server']?.MessageTypeEnum
-    }
-    const channelCol = columns.value.find((s) => s.dataIndex === 'channel')
-    if (channelCol?.search) {
-      channelCol.search.props = channelCol.search.props ?? {}
-      channelCol.search.props.options = enums.data['resource-server']?.CloudChannelEnum
-    }
+    applyColumnOptions(columns.value, "executeStatus", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ExecuteStatus || [])
+    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.MessageTypeEnum || [])
   }
 }
 
@@ -153,9 +156,9 @@ onMounted(mounted)
     :query="props.query"
     :hide-title="props.preview"
     :authority="{
-      export:'perms[message_server_email:export]',
-      detail:'perms[message_server_email:get]',
-      delete:'perms[message_server_email:delete]'
+      export:EMAIL_MESSAGE_AUTHORITY.EXPORT,
+      detail:EMAIL_MESSAGE_AUTHORITY.GET,
+      delete:EMAIL_MESSAGE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"

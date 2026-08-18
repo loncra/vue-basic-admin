@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {SearchableColumnType} from "@/types/composables";
 import {SmsSignService} from "@/apis/message-server/sms/signService.ts";
+import {SMS_MESSAGE_SIGN_AUTHORITY} from '@/constants'
 
 defineOptions({
   name: 'MessageServerSmsSignHome',
@@ -15,7 +16,7 @@ const globalProperties =
 
 const service = new SmsSignService('alibabaCloud')
 
-const columns = ref<SearchableColumnType[]>([{
+const columns = computed<SearchableColumnType[]>(() => [{
   title: globalProperties.$t('common.channel'),
   dataIndex: "channel",
   ellipsis: true,
@@ -55,7 +56,7 @@ const columns = ref<SearchableColumnType[]>([{
     :service="service"
     :columns="columns"
     :authority="{
-      detail:'perms[message_server_sms_sgin:get]',
+      detail:SMS_MESSAGE_SIGN_AUTHORITY.GET,
     }"
     :scroll="{x:'max-content'}"
     @detail="r => globalProperties.$router.push({name:'message_server_sms_sgin_detail', query:{id:r.id}})"

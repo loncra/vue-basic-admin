@@ -6,13 +6,14 @@ import type {
 } from '@/types/apis'
 import {ResourceServerService} from '@/apis'
 import type {Router} from 'vue-router'
+import {SYSTEM_MODULE_NAME} from "@/constants";
 
 /**
  * 加载消息服务侧发送表单常用枚举
  */
 export async function loadMessageSendEnums() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    'message-server': [{id: 'SiteMessagePushableChannelEnum'}, {id: 'MessageTypeEnum'}],
+    [SYSTEM_MODULE_NAME.MESSAGE_SERVER]: [{id: 'SiteMessagePushableChannelEnum'}, {id: 'MessageTypeEnum'}],
   })
   const bucket = enums.data?.['message-server']
   return {

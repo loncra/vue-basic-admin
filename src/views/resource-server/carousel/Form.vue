@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import type {
   CarouselEntity,
   CarouselSavePayload,
@@ -32,7 +32,6 @@ const coverUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined
 
 const options = ref<{
   entity:CarouselSavePayload
-  linkOptions:NameValueEnumMetadata<string>[]
   typeOptions:NameValueEnumMetadata<number>[]
   spinning:boolean
 }>({
@@ -51,13 +50,14 @@ const options = ref<{
     expirationTime: null as unknown as number,
     showtime: null as unknown as number,
   },
-  linkOptions:[
-    {name: 'http://', value: 'http://'},
-    {name: 'https://', value: 'https://'},
-    {name: '小程序页面', value: 'applet://'}
-  ],
   typeOptions:[]
 })
+
+const linkOptions = computed<NameValueEnumMetadata<string>[]>(() => [
+  {name: 'http://', value: 'http://'},
+  {name: 'https://', value: 'https://'},
+  {name: globalProperties.$t('common.applet'), value: 'applet://'}
+])
 
 async function preMounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"CarouselTypeEnum"}]})
@@ -143,7 +143,7 @@ async function preSubmit() {
 
       <a-form-item :label="globalProperties.$t('common.link')" :name="['link','value']" :rules="[{ required: true, trigger: 'change'}]">
         <a-space-compact block>
-          <a-select v-model:value="options.entity.link.id" style="width: 120px" :options="options.linkOptions"/>
+          <a-select v-model:value="options.entity.link.id" style="width: 120px" :options="linkOptions"/>
           <a-input v-model:value="options.entity.link.value" />
         </a-space-compact>
       </a-form-item>

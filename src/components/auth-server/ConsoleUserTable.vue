@@ -1,13 +1,14 @@
 <script setup lang="ts">
 
 import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
-import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
-import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {applyColumnOptions, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import {CONSOLE_USER_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
 
 defineOptions({
   name: 'LConsoleUserTableTable',
@@ -25,7 +26,7 @@ const props = withDefaults(defineProps<{
 
 const consoleUserService = new ConsoleUserService()
 
-const columns = ref<SearchableColumnType[]>([
+const columns = computed<SearchableColumnType[]>(() => [
   {
     title: globalProperties.$t('common.realName'),
     dataIndex: 'realName',
@@ -112,21 +113,16 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[
+      {"id":"GenderEnum"},
+      {"id":"UserStatus"}
+    ]
+  })
   if (enums.data) {
-    const genderCol = columns.value[columns.value.findIndex(s => s.dataIndex === "gender")];
-    if (genderCol?.search) {
-      genderCol.search.props = genderCol.search.props ?? {}
-      genderCol.search.props.options = enums.data['resource-server']?.GenderEnum
-    }
-
-    const statusCol = columns.value.find((s) => s.dataIndex === 'status')
-    if (statusCol?.search) {
-      statusCol.search.props = statusCol.search.props ?? {}
-      statusCol.search.props.options = enums.data['resource-server']?.UserStatus
-    }
+    applyColumnOptions(columns.value, "gender", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.GenderEnum || [])
+    applyColumnOptions(columns.value, "status", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.UserStatus || [])
   }
-
 }
 
 onMounted(mounted)
@@ -139,11 +135,11 @@ onMounted(mounted)
     :columns="columns"
     :record-actions="!props.preview"
     :authority="{
-      add:'perms[auth_server_console_user:save]',
-      export:'perms[auth_server_console_user:export]',
-      edit:'perms[auth_server_console_user:save]',
-      detail:'perms[auth_server_console_user:get]',
-      delete:'perms[auth_server_console_user:delete]'
+      add:CONSOLE_USER_AUTHORITY.SAVE,
+      export:CONSOLE_USER_AUTHORITY.EXPORT,
+      edit:CONSOLE_USER_AUTHORITY.SAVE,
+      detail:CONSOLE_USER_AUTHORITY.GET,
+      delete:CONSOLE_USER_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"

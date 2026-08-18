@@ -6,8 +6,10 @@ import {requireNonNullOrUndefined} from '@/utils'
 defineOptions({
   name: 'ErrorNotFound',
 })
+
 const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
 const globalProperties = instance.appContext.config.globalProperties
+
 </script>
 
 <template>
