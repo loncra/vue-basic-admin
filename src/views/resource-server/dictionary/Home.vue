@@ -35,7 +35,8 @@ import {
   OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY,
   RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
-  RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY
+  RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY,
+  SYSTEM_ENUM_TYPE
 } from "@/constants";
 
 defineOptions({
@@ -202,14 +203,13 @@ function onSaveSuccessDictionaryType() {
 async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[
-      {"id":"ValueTypeEnum"},
-      {"id":"YesOrNo"}
+      {id: SYSTEM_ENUM_TYPE.VALUE_TYPE_ENUM},
+      {id: SYSTEM_ENUM_TYPE.YES_OR_NO}
     ]
   })
   if (enums.data) {
-    const resourceServer = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
-    applyColumnOptions(options.value.dataDictionary.columns, "enabled",resourceServer?.YesOrNo ||[])
-    applyColumnOptions(options.value.dataDictionary.columns, "valueType",resourceServer?.ValueTypeEnum ||[])
+    applyColumnOptions(options.value.dataDictionary.columns, "enabled", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] || [])
+    applyColumnOptions(options.value.dataDictionary.columns, "valueType", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.VALUE_TYPE_ENUM] || [])
   }
 
   if (principalStore.hasPermission(RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.SAVE)) {

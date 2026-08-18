@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue';
 import {
+  applyColumnOptions,
   createIcon,
   dateTimeFormat,
   getEnumName,
@@ -23,6 +24,8 @@ import type {
 import {
   MESSAGE_SERVER_SITE_AUTHORITY,
   MESSAGE_SERVER_SITE_ROUTE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
   YES_OR_NO_TYPE
 } from "@/constants";
 
@@ -123,24 +126,11 @@ const columns = ref<SearchableColumnType[]>([
 ])
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ExecuteStatus"},{"id":"CloudChannelEnum"}],"message-server":[{"id":"MessageTypeEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.EXECUTE_STATUS},{id:SYSTEM_ENUM_TYPE.CLOUD_CHANNEL_ENUM}],[SYSTEM_MODULE_NAME.MESSAGE_SERVER]:[{id:SYSTEM_ENUM_TYPE.MESSAGE_TYPE_ENUM}]})
   if (enums.data) {
-    const statusCol = columns.value.find((s) => s.dataIndex === 'executeStatus')
-    if (statusCol?.search) {
-      statusCol.search.props = statusCol.search.props ?? {}
-      statusCol.search.props.options = enums.data['resource-server']?.ExecuteStatus
-    }
-
-    const typeCol = columns.value.find((s) => s.dataIndex === 'type')
-    if (typeCol?.search) {
-      typeCol.search.props = typeCol.search.props ?? {}
-      typeCol.search.props.options = enums.data['message-server']?.MessageTypeEnum
-    }
-    const channelCol = columns.value.find((s) => s.dataIndex === 'channel')
-    if (channelCol?.search) {
-      channelCol.search.props = channelCol.search.props ?? {}
-      channelCol.search.props.options = enums.data['resource-server']?.CloudChannelEnum
-    }
+    applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS] ?? [])
+    applyColumnOptions(columns.value, 'type', enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.[SYSTEM_ENUM_TYPE.MESSAGE_TYPE_ENUM] ?? [])
+    applyColumnOptions(columns.value, 'channel', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.CLOUD_CHANNEL_ENUM] ?? [])
   }
 }
 

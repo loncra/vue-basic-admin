@@ -11,6 +11,7 @@ import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {
   AUTH_SERVER_CONSOLE_USER_AUTHORITY,
   AUTH_SERVER_CONSOLE_USER_ROUTE,
+  SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
 
@@ -119,13 +120,13 @@ const columns = computed<SearchableColumnType[]>(() => [
 async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[
-      {"id":"GenderEnum"},
-      {"id":"UserStatus"}
+      {id: SYSTEM_ENUM_TYPE.GENDER_ENUM},
+      {id: SYSTEM_ENUM_TYPE.USER_STATUS}
     ]
   })
   if (enums.data) {
-    applyColumnOptions(columns.value, "gender", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.GenderEnum || [])
-    applyColumnOptions(columns.value, "status", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.UserStatus || [])
+    applyColumnOptions(columns.value, "gender", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.GENDER_ENUM] || [])
+    applyColumnOptions(columns.value, "status", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.USER_STATUS] || [])
   }
 }
 

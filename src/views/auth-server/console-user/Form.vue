@@ -6,7 +6,7 @@ import type {
 } from "@/types/apis/auth-server/consoleUserDomain";
 import type {NameValueEnumMetadata, RestResult, RoleEntity} from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ConsoleUserService, ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
@@ -51,13 +51,13 @@ const options = ref<{
 
 async function mounted() {
   options.value.spinning = true
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"GenderEnum"}, {"id":"UserStatus"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.GENDER_ENUM}, {id:SYSTEM_ENUM_TYPE.USER_STATUS}]})
   if (enums.data) {
     const responseBody: EnumBucketsResponseBody = enums.data
-    const resourceServer = responseBody['resource-server'] ?? {}
+    const resourceServer = responseBody[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
 
-    options.value.genderOptions = resourceServer.GenderEnum ?? []
-    options.value.statusOptions = resourceServer.UserStatus ?? []
+    options.value.genderOptions = resourceServer[SYSTEM_ENUM_TYPE.GENDER_ENUM] ?? []
+    options.value.statusOptions = resourceServer[SYSTEM_ENUM_TYPE.USER_STATUS] ?? []
   }
 
   options.value.spinning = false

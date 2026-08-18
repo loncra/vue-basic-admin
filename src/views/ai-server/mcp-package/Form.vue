@@ -23,6 +23,7 @@ import {
   MCP_PACKAGE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_CONSTANT,
+  SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   TIME_UNIT_TYPE,
   YES_OR_NO_TYPE,
@@ -166,14 +167,14 @@ async function preMounted() {
   const enums: RestResult<EnumBucketsResponseBody> =
     await ResourceServerService.getServiceEnumerates({
       [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-        {id: "YesOrNo"},
-        {id: "TimeUnitEnum"},
+        {id: SYSTEM_ENUM_TYPE.YES_OR_NO},
+        {id: SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM},
       ],
       [SYSTEM_MODULE_NAME.AI_SERVER]: [
-        {id: "McpPackageAuthModeEnum"},
-        {id: "PackageOriginEnum"},
-        {id: "PackageTypeEnum"},
-        {id: "McpClientTypeEnum"},
+        {id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_AUTH_MODE_ENUM},
+        {id: SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM},
+        {id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM},
+        {id: SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM},
       ],
     })
   if (enums.data) {

@@ -31,6 +31,7 @@ import {
   MCP_GROUP_CODE_PREFIX,
   MCP_PACKAGE_AUTHORITY,
   MCP_PACKAGE_ROUTE,
+  SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
 } from '@/constants'
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
@@ -286,28 +287,25 @@ async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> =
     await ResourceServerService.getServiceEnumerates({
       [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-        {id: "YesOrNo"},
-        {id: "DataStatusEnum"},
+        {id: SYSTEM_ENUM_TYPE.YES_OR_NO},
+        {id: SYSTEM_ENUM_TYPE.DATA_STATUS_ENUM},
       ],
       [SYSTEM_MODULE_NAME.AI_SERVER]: [
-        {id: "McpPackageAuthModeEnum"},
-        {id: "PackageOriginEnum"},
-        {id: "PackageTypeEnum"},
+        {id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_AUTH_MODE_ENUM},
+        {id: SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM},
+        {id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM},
       ],
     })
   if (!enums.data) {
     return
   }
 
-  const resourceServer = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
-  const aiServer = enums.data[SYSTEM_MODULE_NAME.AI_SERVER] ?? {}
+  applyColumnOptions(columns.value, "authMode", enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MCP_PACKAGE_AUTH_MODE_ENUM] || [])
+  applyColumnOptions(columns.value, "origin", enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM] || [])
+  applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM] || [])
 
-  applyColumnOptions(columns.value,"authMode", aiServer?.McpPackageAuthModeEnum || [])
-  applyColumnOptions(columns.value,"origin", aiServer?.PackageOriginEnum || [])
-  applyColumnOptions(columns.value,"type", aiServer?.PackageTypeEnum || [])
-
-  applyColumnOptions(columns.value,"status", resourceServer?.DataStatusEnum || [])
-  applyColumnOptions(columns.value,"dynamicActivation",resourceServer?.YesOrNo || [])
+  applyColumnOptions(columns.value, "status", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.DATA_STATUS_ENUM] || [])
+  applyColumnOptions(columns.value, "dynamicActivation", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] || [])
 
   const dataDictionaryResult:RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([MCP_GROUP_CODE_PREFIX])
   if (!dataDictionaryResult.data) {

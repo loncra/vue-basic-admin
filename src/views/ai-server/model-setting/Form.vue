@@ -25,6 +25,7 @@ import {
   MODEL_TYPE,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_CONSTANT,
+  SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   VALUE_TYPE,
   YES_OR_NO_TYPE,
@@ -161,12 +162,12 @@ async function loadManufacturerByCode(code: string) {
 async function preMounted() {
   const enums: RestResult<EnumBucketsResponseBody> =
     await ResourceServerService.getServiceEnumerates({
-      [SYSTEM_MODULE_NAME.AI_SERVER]: [{id: 'ModelTypeEnum'}],
-      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: 'YesOrNo'}],
+      [SYSTEM_MODULE_NAME.AI_SERVER]: [{id: SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM}],
+      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.YES_OR_NO}],
     })
   if (enums.data) {
-    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.ModelTypeEnum as NameValueEnumMetadata<number>[]
-    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.YesOrNo as NameValueEnumMetadata<number>[]
+    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM] as NameValueEnumMetadata<number>[]
+    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
   }
 
   const isEdit = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined

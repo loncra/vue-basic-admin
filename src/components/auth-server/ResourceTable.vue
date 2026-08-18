@@ -24,6 +24,7 @@ import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {
   AUTH_SERVER_RESOURCE_AUTHORITY,
   AUTH_SERVER_RESOURCE_ROUTE,
+  SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
 
@@ -161,12 +162,12 @@ async function mounted() {
     });
   }
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{"id":"ResourceSourceEnum"}],
-    [SYSTEM_MODULE_NAME.AUTH_SERVER]:[{"id":"ResourceTypeEnum"},{"id":'ResourceCategoryEnum'}]})
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM}],
+    [SYSTEM_MODULE_NAME.AUTH_SERVER]:[{id:SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM},{id:SYSTEM_ENUM_TYPE.RESOURCE_CATEGORY_ENUM}]})
   if (enums.data) {
-    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceTypeEnum || [])
-    applyColumnOptions(columns.value, "category", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceCategoryEnum || [])
-    applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceSourceEnum || [])
+    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM] || [])
+    applyColumnOptions(columns.value, "category", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_CATEGORY_ENUM] || [])
+    applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM] || [])
   }
   if (principalStore.hasPermission(AUTH_SERVER_RESOURCE_AUTHORITY.SAVE)) {
     rowActions.value.push(

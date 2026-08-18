@@ -12,6 +12,7 @@ import type {
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {DefaultOptionType} from '@v-c/select'
 import {requireNonNullOrUndefined} from "@/utils";
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";
 
 defineOptions({
   name: 'LUserSelect',
@@ -87,9 +88,9 @@ function onSelect(value:string) {
 }
 
 async function mounted(){
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM}]})
   if (enums.data) {
-    const userTypeOptionsData =  enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]
+    const userTypeOptionsData =  enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM] as NameValueEnumMetadata<string>[]
     userTypeOptions.value = userTypeOptionsData.map(v => ({
       label:globalProperties.$t('common.all', {name:' ' + v.name}),
       value: v.value,

@@ -30,6 +30,8 @@ import {
   MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
   SYSTEM_CONSTANT,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
 } from '@/constants'
 import type {SearchableColumnType} from "@/types/composables";
 
@@ -194,13 +196,13 @@ function onAdd() {
 async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> =
     await ResourceServerService.getServiceEnumerates({
-      'ai-server': [{id: 'ModelTypeEnum'}],
-      'resource-server': [{id: 'YesOrNo'}],
+      [SYSTEM_MODULE_NAME.AI_SERVER]: [{id: SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM}],
+      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.YES_OR_NO}],
     })
   if (enums.data) {
-    options.value.typeOptions = (enums.data['ai-server']?.ModelTypeEnum ||
+    options.value.typeOptions = (enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM] ||
       []) as NameValueEnumMetadata<number>[]
-    options.value.enabledOptions = (enums.data['resource-server']?.YesOrNo ||
+    options.value.enabledOptions = (enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] ||
       []) as NameValueEnumMetadata<number>[]
 
     const typeCol = options.value.columns?.find((c) => c && 'dataIndex' in c && c.dataIndex === 'type')

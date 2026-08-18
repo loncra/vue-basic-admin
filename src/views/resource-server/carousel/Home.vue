@@ -39,6 +39,7 @@ import {
   RESOURCE_SERVER_CAROUSEL_AUTHORITY,
   RESOURCE_SERVER_CAROUSEL_ROUTE,
   SYSTEM_CONSTANT,
+  SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
 
@@ -305,11 +306,11 @@ async function mounted() {
   options.value.loading = true
 
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: 'CarouselTypeEnum'}],
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.CAROUSEL_TYPE_ENUM}],
   })
   // FIXME 这里不应该用枚举，应该用字典去灵活配置样式
   if (enums.data) {
-    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.CarouselTypeEnum as NameValueEnumMetadata<number>[]
+    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.CAROUSEL_TYPE_ENUM] as NameValueEnumMetadata<number>[]
     for (const item of options.value.typeOptions) {
       tabDataSource.value.push({
         key: String(item.value),

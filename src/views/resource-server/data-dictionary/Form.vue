@@ -9,7 +9,7 @@ import type {
   RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
@@ -61,13 +61,13 @@ async function preMounted() {
 
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-      {"id":"ValueTypeEnum"},
-      {"id":"YesOrNo"}
+      {id: SYSTEM_ENUM_TYPE.VALUE_TYPE_ENUM},
+      {id: SYSTEM_ENUM_TYPE.YES_OR_NO}
     ]
   })
   if (enums.data) {
-    options.value.valueTypeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ValueTypeEnum as NameValueEnumMetadata<number>[]
-    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.YesOrNo as NameValueEnumMetadata<number>[]
+    options.value.valueTypeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.VALUE_TYPE_ENUM] as NameValueEnumMetadata<number>[]
+    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
   }
   if (globalProperties.$route.query.parentId) {
     const result:RestResult<DataDictionaryEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)

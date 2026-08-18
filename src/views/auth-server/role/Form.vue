@@ -17,7 +17,7 @@ import type {FilterRequest} from "@/types/apis/common.js";
 import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
-import {AUTH_SERVER_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from "@/constants";
+import {AUTH_SERVER_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE} from "@/constants";
 
 defineOptions({
   name: 'AuthServerRoleForm'
@@ -82,12 +82,12 @@ function toSourceSelectOptions(
 
 async function mounted() {
 
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"YesOrNo"}, {"id":"ResourceSourceEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.YES_OR_NO}, {id:SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM}]})
   if (enums.data) {
-    options.value.modifiableOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
-    options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
-    options.value.removableOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
-    options.value.sourceOptions = enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]
+    options.value.modifiableOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
+    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
+    options.value.removableOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
+    options.value.sourceOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM] as NameValueEnumMetadata<string>[]
   }
   if (globalProperties.$route.query.parentId) {
     const result:RestResult<RoleEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)

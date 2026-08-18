@@ -10,7 +10,7 @@ import type {
   RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";
 import {ResourceServerService} from "@/apis";
 import {CarouselService} from "@/apis/resource-server/carouselService.ts";
 import {disableDate, disableTime} from "@/utils/dateUtils";
@@ -61,10 +61,10 @@ const linkOptions = computed<NameValueEnumMetadata<string>[]>(() => [
 ])
 
 async function preMounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"CarouselTypeEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.CAROUSEL_TYPE_ENUM}]})
 
   if (enums.data) {
-    options.value.typeOptions = enums.data['resource-server']?.CarouselTypeEnum as NameValueEnumMetadata<number>[]
+    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.CAROUSEL_TYPE_ENUM] as NameValueEnumMetadata<number>[]
   }
   if (globalProperties.$route.query.type) {
     options.value.entity.type = Number(globalProperties.$route.query.type)

@@ -6,19 +6,19 @@ import type {
 } from '@/types/apis'
 import {ResourceServerService} from '@/apis'
 import type {Router} from 'vue-router'
-import {SYSTEM_MODULE_NAME} from "@/constants";
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";
 
 /**
  * 加载消息服务侧发送表单常用枚举
  */
 export async function loadMessageSendEnums() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    [SYSTEM_MODULE_NAME.MESSAGE_SERVER]: [{id: 'SiteMessagePushableChannelEnum'}, {id: 'MessageTypeEnum'}],
+    [SYSTEM_MODULE_NAME.MESSAGE_SERVER]: [{id: SYSTEM_ENUM_TYPE.SITE_MESSAGE_PUSHABLE_CHANNEL_ENUM}, {id: SYSTEM_ENUM_TYPE.MESSAGE_TYPE_ENUM}],
   })
-  const bucket = enums.data?.['message-server']
+  const bucket = enums.data?.[SYSTEM_MODULE_NAME.MESSAGE_SERVER]
   return {
-    typeOptions: (bucket?.MessageTypeEnum ?? []) as NameValueEnumMetadata<number>[],
-    channelOptions: (bucket?.SiteMessagePushableChannelEnum ?? []) as NameValueEnumMetadata<number>[],
+    typeOptions: (bucket?.[SYSTEM_ENUM_TYPE.MESSAGE_TYPE_ENUM] ?? []) as NameValueEnumMetadata<number>[],
+    channelOptions: (bucket?.[SYSTEM_ENUM_TYPE.SITE_MESSAGE_PUSHABLE_CHANNEL_ENUM] ?? []) as NameValueEnumMetadata<number>[],
   }
 }
 

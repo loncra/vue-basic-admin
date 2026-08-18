@@ -26,6 +26,7 @@ import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.t
 import {
   MESSAGE_SERVER_EMAIL_AUTHORITY,
   MESSAGE_SERVER_EMAIL_ROUTE,
+  SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
 
@@ -134,16 +135,16 @@ const columns = computed<SearchableColumnType[]>(() => [
 async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-      {"id":"ExecuteStatus"},
-      {"id":"CloudChannelEnum"}
+      {id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS},
+      {id: SYSTEM_ENUM_TYPE.CLOUD_CHANNEL_ENUM}
     ],
     [SYSTEM_MODULE_NAME.MESSAGE_SERVER]:[
-      {"id":"MessageTypeEnum"}
+      {id: SYSTEM_ENUM_TYPE.MESSAGE_TYPE_ENUM}
     ]
   })
   if (enums.data) {
-    applyColumnOptions(columns.value, "executeStatus", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ExecuteStatus || [])
-    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.MessageTypeEnum || [])
+    applyColumnOptions(columns.value, "executeStatus", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS] || [])
+    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.[SYSTEM_ENUM_TYPE.MESSAGE_TYPE_ENUM] || [])
   }
 }
 

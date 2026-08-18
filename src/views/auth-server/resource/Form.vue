@@ -8,7 +8,7 @@ import type {
 } from "@/types/apis";
 import type {IconfontJson} from "@/types/composables/common";
 import {requireNonNullOrUndefined} from "@/utils";
-import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
@@ -62,11 +62,11 @@ const options = ref<{
 
 async function mounted() {
 
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"ResourceSourceEnum"},{"id":"YesOrNo"}],"auth-server":[{"id":"ResourceTypeEnum"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM},{id:SYSTEM_ENUM_TYPE.YES_OR_NO}],[SYSTEM_MODULE_NAME.AUTH_SERVER]:[{id:SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM}]})
   if (enums.data) {
-    options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
-    options.value.sourceOptions = enums.data['resource-server']?.ResourceSourceEnum as NameValueEnumMetadata<string>[]
-    options.value.typeOptions = enums.data['auth-server']?.ResourceTypeEnum as NameValueEnumMetadata<string>[]
+    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
+    options.value.sourceOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM] as NameValueEnumMetadata<string>[]
+    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM] as NameValueEnumMetadata<string>[]
   }
   if (globalProperties.$route.query.parentId) {
     const result:RestResult<ResourceEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)

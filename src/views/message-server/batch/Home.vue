@@ -22,6 +22,7 @@ import {BatchMessageService} from "@/apis/message-server/batchMessageService.js"
 import {
   MESSAGE_SERVER_BATCH_AUTHORITY,
   MESSAGE_SERVER_BATCH_ROUTE,
+  SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
 import {DateRangePicker, Select} from "antdv-next";
@@ -110,12 +111,12 @@ const columns = computed<SearchableColumnType[]>(() => [
 
 async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{"id": "ExecuteStatus"}],
-    [SYSTEM_MODULE_NAME.MESSAGE_SERVER]: [{"id": "BatchMessageTypeEnum"}]
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS}],
+    [SYSTEM_MODULE_NAME.MESSAGE_SERVER]: [{id: SYSTEM_ENUM_TYPE.BATCH_MESSAGE_TYPE_ENUM}]
   })
   if (enums.data) {
-    applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ExecuteStatus || [])
-    applyColumnOptions(columns.value, 'type', enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.BatchMessageTypeEnum || [])
+    applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS] || [])
+    applyColumnOptions(columns.value, 'type', enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.[SYSTEM_ENUM_TYPE.BATCH_MESSAGE_TYPE_ENUM] || [])
   }
 }
 

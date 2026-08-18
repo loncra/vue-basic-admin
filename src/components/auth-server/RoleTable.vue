@@ -23,7 +23,12 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {mergeDefinitions} from "@/composables/basic/action";
-import {AUTH_SERVER_ROLE_AUTHORITY, AUTH_SERVER_ROLE_ROUTE, SYSTEM_MODULE_NAME} from "@/constants";
+import {
+  AUTH_SERVER_ROLE_AUTHORITY,
+  AUTH_SERVER_ROLE_ROUTE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from "@/constants";
 
 defineOptions({
   name: 'LRoleTable',
@@ -131,15 +136,15 @@ async function mounted() {
   }
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[
-      {"id":"YesOrNo"},
-      {"id":"ResourceSourceEnum"}
+      {id: SYSTEM_ENUM_TYPE.YES_OR_NO},
+      {id: SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM}
     ]
   })
   if (enums.data) {
     for (const dataIndex of yesOrNoFields){
-      applyColumnOptions(columns.value, dataIndex, enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.YesOrNo || [])
+      applyColumnOptions(columns.value, dataIndex, enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] || [])
     }
-    applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceSourceEnum || [])
+    applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM] || [])
   }
   if (principalStore.hasPermission(AUTH_SERVER_ROLE_AUTHORITY.SAVE)) {
     actionButtons.value.push(

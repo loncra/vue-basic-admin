@@ -19,6 +19,8 @@ import {
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
   MODEL_TYPE,
   OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
   VALUE_TYPE,
   YES_OR_NO_TYPE,
 } from '@/constants'
@@ -87,10 +89,10 @@ const redirect = computed(() => {
 onMounted(async () => {
   const enums: RestResult<EnumBucketsResponseBody> =
     await ResourceServerService.getServiceEnumerates({
-      'resource-server': [{id: 'YesOrNo'}],
+      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.YES_OR_NO}],
     })
   if (enums.data) {
-    yesOrNoOptions.value = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
+    yesOrNoOptions.value = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
   }
 })
 </script>

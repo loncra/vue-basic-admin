@@ -1,4 +1,5 @@
 import type {AgentChatStatus, AgentSseMessageContent} from "@/types/composables";
+import {MCP_CLIENT_TYPE} from "@/constants/variableConstant.ts";
 
 export const AGENT_CHAT_CONTEXT_PROVIDE_KEY = "agentChatContextProvide"
 
@@ -190,14 +191,6 @@ export const MCP_PACKAGE_ROUTE = {
   ADD: 'ai_server_mcp_package_add',
   EDIT: 'ai_server_mcp_package_edit',
   DETAIL: 'ai_server_mcp_package_detail',
-} as const
-
-
-/** 对齐 McpClientTypeEnum.getName() */
-export const MCP_CLIENT_TYPE = {
-  SSE: 'sse',
-  STDIO: 'stdio',
-  STREAMABLE_HTTP: 'streamableHttp',
 } as const
 
 export const MCP_CLIENT_HTTP_TYPE_VALUE:ReadonlyArray<string> = [MCP_CLIENT_TYPE.SSE, MCP_CLIENT_TYPE.STREAMABLE_HTTP]

@@ -74,37 +74,6 @@ export const HTTP_REQUEST_METHOD = {
   TRACE: 'TRACE',
 }
 
-export const TIME_UNIT_TYPE = {
-  /**
-   * Time unit representing one thousandth of a microsecond.
-   */
-  NANOSECONDS: "NANOSECONDS",
-  /**
-   * Time unit representing one thousandth of a millisecond.
-   */
-  MICROSECONDS: "MICROSECONDS",
-  /**
-   * Time unit representing one thousandth of a second.
-   */
-  MILLISECONDS: "MILLISECONDS",
-  /**
-   * Time unit representing one second.
-   */
-  SECONDS: "SECONDS",
-  /**
-   * Time unit representing sixty seconds.
-   */
-  MINUTES: "MINUTES",
-  /**
-   * Time unit representing sixty minutes.
-   */
-  HOURS: "HOURS",
-  /**
-   * Time unit representing twenty four hours.
-   */
-  DAYS: "DAYS",
-}
-
 export const DATE_TIME_FORMAT = {
   POST_DATE_FORMAT: import.meta.env.VITE_APP_POST_DATE_FORMAT,
   POST_DATETIME_FORMAT: import.meta.env.VITE_APP_POST_DATETIME_FORMAT,
@@ -143,11 +112,6 @@ export const CHAT_BUBBLE_TYPE = {
   SYSTEM:'system',
   USER:'user',
   DIVIDER:"divider"
-} as const
-
-export const YES_OR_NO_TYPE = {
-  YES:1,
-  NO:0
 } as const
 
 export const SYSTEM_MODULE_NAME = {

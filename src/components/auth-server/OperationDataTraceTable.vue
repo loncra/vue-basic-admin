@@ -3,7 +3,12 @@
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import {DatePicker, Input, InputNumber, Select} from 'antdv-next';
 import {OperationDataTraceAuditEventService, ResourceServerService} from "@/apis";
-import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from "@/utils";
+import {
+  applyColumnOptions,
+  dateTimeFormat,
+  postTimestampFormat,
+  requireNonNullOrUndefined
+} from "@/utils";
 import type {
   AuditEventEntity,
   EnumBucketsResponseBody,
@@ -12,7 +17,7 @@ import type {
 } from "@/types/apis";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from "@/constants";
+import {AUTH_SERVER_AUDIT_EVENT_ROUTE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";
 
 defineOptions({
   name: 'LOperationDataTraceTable',
@@ -130,13 +135,9 @@ if (props.date) {
 }
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({"resource-server":[{"id":"OperationDataType"}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.OPERATION_DATA_TYPE}]})
   if (enums.data) {
-    const typeCol = columns.value[columns.value.findIndex(s => s.dataIndex === "type")];
-    if (typeCol?.search) {
-      typeCol.search.props = typeCol.search.props ?? {}
-      typeCol.search.props.options = enums.data['resource-server']?.OperationDataType
-    }
+    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.OPERATION_DATA_TYPE] ?? [])
   }
   if (props.detailView) {
     columns.value = columns.value.filter(v => !["target", "auditType", "traceId"].includes(v.dataIndex as string))
