@@ -271,11 +271,11 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
           >
             <a-select
               class="w-full"
-              :value="options.entity.group?.code"
+              :value="options.entity.category?.code"
               :options="options.groupOptions"
               :field-names="{ label: 'name', value: 'code' }"
               allow-clear
-              @change="(_value:string,option:DataDictionaryMetadata) => options.entity.group = option"
+              @change="(_value:string,option:DataDictionaryMetadata) => options.entity.category = option"
             />
           </a-form-item>
         </a-col>

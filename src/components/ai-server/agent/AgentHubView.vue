@@ -5,7 +5,7 @@ import {
   computed,
   defineAsyncComponent,
   getCurrentInstance,
-  h, ref
+  ref
 } from "vue";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 
@@ -26,7 +26,7 @@ const hubViews = {
   ),
 }
 
-const value = ref<string>('LAgentHubMcp')
+const value = ref<keyof typeof hubViews>('LAgentHubMcp')
 
 const options = computed(() => [{
   value: 'LAgentHubMcp',
@@ -41,13 +41,13 @@ const options = computed(() => [{
 </script>
 
 <template>
-  <div class="p-md">
-    <a-space orientation="vertical" size="large">
-      <div class="text-center">
-        <a-segmented v-model:value="value" :options="options" shape="round" />
-      </div>
-      <a-divider class="m-0" />
+  <a-flex vertical gap="large" class="size-full min-h-0 overflow-hidden p-md">
+    <div class="shrink-0 text-center">
+      <a-segmented v-model:value="value" :options="options" shape="round" />
+    </div>
+    <a-divider class="m-0 shrink-0" />
+    <div class="min-h-0 flex-[1_1_0] overflow-hidden">
       <component :is="hubViews[value]" />
-    </a-space>
-  </div>
+    </div>
+  </a-flex>
 </template>

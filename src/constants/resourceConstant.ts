@@ -14,3 +14,6 @@ export const VALUE_TYPE = {
   DATE_TIME: 50,
   TIME: 60,
 } as const
+
+export const DATA_DICTIONARY_ALL_VALUE = "*"
+export const DATA_DICTIONARY_ALL_CODE = "system.all"
