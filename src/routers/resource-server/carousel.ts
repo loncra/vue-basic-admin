@@ -1,13 +1,14 @@
 import type {RouteRecordRaw} from 'vue-router'
+import {RESOURCE_SERVER_CAROUSEL_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
 
 /** 数据字典相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/carousel',
     component: () => import('@/views/resource-server/carousel/Home.vue'),
-    name: 'resource_server_carousel',
+    name: RESOURCE_SERVER_CAROUSEL_ROUTE.HOME,
     meta: {
-      applicationName: 'resource-server',
+      applicationName: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
       requiresAuth: true,
       single: true,
     },
@@ -15,10 +16,10 @@ const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/carousel/edit',
     component: () => import('@/views/resource-server/carousel/Form.vue'),
-    name: 'resource_server_carousel_edit',
+    name: RESOURCE_SERVER_CAROUSEL_ROUTE.EDIT,
     meta: {
       dynamicTitle: true,
-      applicationName: 'resource-server',
+      applicationName: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
       icon: 'loncra-file-pen-line',
       parent: '/resource-server/carousel',
       requiresFullyAuth: true,
@@ -27,9 +28,9 @@ const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/carousel/add',
     component: () => import('@/views/resource-server/carousel/Form.vue'),
-    name: 'resource_server_carousel_add',
+    name: RESOURCE_SERVER_CAROUSEL_ROUTE.ADD,
     meta: {
-      applicationName: 'resource-server',
+      applicationName: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
       icon: 'loncra-file-plus',
       parent: '/resource-server/carousel',
       requiresFullyAuth: true,

@@ -4,6 +4,7 @@ import {ConsoleUserService} from "@/apis";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {ConsoleUserEntity} from "@/types/apis/auth-server/consoleUserDomain";
+import {AUTH_SERVER_CONSOLE_USER_ROUTE} from '@/constants';
 
 defineOptions({
   name: 'AuthServerConsoleUserDetail'
@@ -61,7 +62,7 @@ const entity = ref<ConsoleUserEntity>({
   <div>
     <l-basic-detail
       operation-data-trace-target="tb_console_user"
-      :redirect="{name:'auth_server_user_console'}"
+      :redirect="{name:AUTH_SERVER_CONSOLE_USER_ROUTE.HOME}"
       :title-text="(title:string, _entity:ConsoleUserEntity) => title + ' (' + _entity.realName + ')'"
       :service="service"
       :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"

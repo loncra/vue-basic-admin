@@ -147,7 +147,7 @@ export const MODEL_GENERATE_OPTION_STRING_KEYS = [
   'reasoningEffort',
 ] as const satisfies ReadonlyArray<ModelGenerateOptionKey>
 
-export const MODEL_SETTING_AUTHORITY = {
+export const AI_SERVER_MODEL_SETTING_AUTHORITY = {
   FIND: 'perms[ai_server_mode_setting:find]',
   GET: 'perms[ai_server_mode_setting:get]',
   SAVE: 'perms[ai_server_mode_setting:save]',
@@ -155,7 +155,7 @@ export const MODEL_SETTING_AUTHORITY = {
   SORT: 'perms[ai_server_mode_setting:sort]',
 } as const
 
-export const MODEL_SETTING_ROUTE = {
+export const AI_SERVER_MODEL_SETTING_ROUTE = {
   HOME: 'ai_server_model_setting',
   ADD: 'ai_server_model_setting_add',
   EDIT: 'ai_server_model_setting_edit',

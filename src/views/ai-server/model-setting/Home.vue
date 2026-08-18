@@ -25,10 +25,10 @@ import {ResourceServerService} from '@/apis'
 import {getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {
-  MODEL_SETTING_AUTHORITY,
+  AI_SERVER_MODEL_SETTING_AUTHORITY,
+  AI_SERVER_MODEL_SETTING_ROUTE,
   MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  MODEL_SETTING_ROUTE,
   SYSTEM_CONSTANT,
 } from '@/constants'
 import type {SearchableColumnType} from "@/types/composables";
@@ -120,7 +120,7 @@ const modelSettingActionContextExtras = computed(() => ({
 }))
 
 const dragEnabled = computed(() =>
-  principalStore.hasPermission(MODEL_SETTING_AUTHORITY.SORT),
+  principalStore.hasPermission(AI_SERVER_MODEL_SETTING_AUTHORITY.SORT),
 )
 
 const manufacturerMenuItems = computed(() =>
@@ -186,7 +186,7 @@ function onAdd() {
     return
   }
   void globalProperties.$router.push({
-    name: MODEL_SETTING_ROUTE.ADD,
+    name: AI_SERVER_MODEL_SETTING_ROUTE.ADD,
     query: {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: selectedManufacturer.value.code},
   })
 }
@@ -279,17 +279,17 @@ onMounted(mounted)
             :service="modelSettingService"
             :columns="options.columns"
             :authority="{
-              add: MODEL_SETTING_AUTHORITY.SAVE,
-              edit: MODEL_SETTING_AUTHORITY.SAVE,
-              delete: MODEL_SETTING_AUTHORITY.DELETE,
-              detail: MODEL_SETTING_AUTHORITY.GET,
+              add: AI_SERVER_MODEL_SETTING_AUTHORITY.SAVE,
+              edit: AI_SERVER_MODEL_SETTING_AUTHORITY.SAVE,
+              delete: AI_SERVER_MODEL_SETTING_AUTHORITY.DELETE,
+              detail: AI_SERVER_MODEL_SETTING_AUTHORITY.GET,
             }"
             :scroll="{x: 'max-content'}"
             :row-selection="{fixed: true, type: 'checkbox'}"
             @drop="onDrop"
             @add="onAdd"
-            @detail="r => globalProperties.$router.push({name: MODEL_SETTING_ROUTE.DETAIL,query: {id: String(r.id)},})"
-            @edit="r =>globalProperties.$router.push({name: MODEL_SETTING_ROUTE.EDIT,query: {id: String(r.id)},})
+            @detail="r => globalProperties.$router.push({name: AI_SERVER_MODEL_SETTING_ROUTE.DETAIL,query: {id: String(r.id)},})"
+            @edit="r =>globalProperties.$router.push({name: AI_SERVER_MODEL_SETTING_ROUTE.EDIT,query: {id: String(r.id)},})
             "
           >
             <template #title>

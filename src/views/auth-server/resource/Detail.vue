@@ -4,7 +4,7 @@ import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {ResourceService} from "@/apis";
 import type {ResourceEntity} from "@/types/apis";
-import {RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
+import {AUTH_SERVER_RESOURCE_ROUTE, RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
 
 defineOptions({
   name: 'AuthServerResourceDetail'
@@ -38,7 +38,7 @@ const entity = ref<ResourceEntity>({
   <div>
     <l-basic-detail
       operation-data-trace-target="tb_resource"
-      :redirect="{name:'auth_server_resource'}"
+      :redirect="{name:AUTH_SERVER_RESOURCE_ROUTE.HOME}"
       :title-text="(title:string, _entity:ResourceEntity) => title + ' (' + _entity.name + ')'"
       :service="service"
       :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"

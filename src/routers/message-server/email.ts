@@ -1,21 +1,22 @@
 import type {RouteRecordRaw} from 'vue-router'
+import {MESSAGE_SERVER_EMAIL_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
 
 /** 短信消息相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/message-server/email',
     component: () => import('@/views/message-server/email/Home.vue'),
-    name: 'message_server_email',
+    name: MESSAGE_SERVER_EMAIL_ROUTE.HOME,
     meta: {
-      applicationName: 'message-server',
+      applicationName: SYSTEM_MODULE_NAME.MESSAGE_SERVER,
       requiresAuth: true
     },
   },{
     path: '/message-server/email/send',
     component: () => import('@/views/message-server/email/Send.vue'),
-    name: 'message_server_email_send',
+    name: MESSAGE_SERVER_EMAIL_ROUTE.SEND,
     meta: {
-      applicationName: 'message-server',
+      applicationName: SYSTEM_MODULE_NAME.MESSAGE_SERVER,
       requiresAuth: true,
       icon: 'loncra-send',
       parent: '/message-server/email',
@@ -24,9 +25,9 @@ const router: RouteRecordRaw[] = [
   },{
     path: '/message-server/email/detail',
     component: () => import('@/views/message-server/email/Detail.vue'),
-    name: 'message_server_email_detail',
+    name: MESSAGE_SERVER_EMAIL_ROUTE.DETAIL,
     meta: {
-      applicationName: 'message-server',
+      applicationName: SYSTEM_MODULE_NAME.MESSAGE_SERVER,
       requiresAuth: true,
       icon: 'loncra-file-search',
       parent: '/message-server/email',

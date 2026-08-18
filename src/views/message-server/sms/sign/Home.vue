@@ -4,7 +4,7 @@ import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} fr
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {SearchableColumnType} from "@/types/composables";
 import {SmsSignService} from "@/apis/message-server/sms/signService.ts";
-import {SMS_MESSAGE_SIGN_AUTHORITY} from '@/constants'
+import {MESSAGE_SERVER_SMS_SIGN_AUTHORITY} from '@/constants'
 
 defineOptions({
   name: 'MessageServerSmsSignHome',
@@ -56,7 +56,7 @@ const columns = computed<SearchableColumnType[]>(() => [{
     :service="service"
     :columns="columns"
     :authority="{
-      detail:SMS_MESSAGE_SIGN_AUTHORITY.GET,
+      detail:MESSAGE_SERVER_SMS_SIGN_AUTHORITY.GET,
     }"
     :scroll="{x:'max-content'}"
     @detail="r => globalProperties.$router.push({name:'message_server_sms_sgin_detail', query:{id:r.id}})"

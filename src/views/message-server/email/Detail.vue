@@ -6,7 +6,7 @@ import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
-import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MessageServerEmailDetail',
@@ -36,7 +36,7 @@ const entity = ref<EmailMessageEntity>({
   <div>
     <l-basic-detail
       operation-data-trace-target="tb_email_message"
-      :redirect="{name:'message_server_email'}"
+      :redirect="{name:MESSAGE_SERVER_EMAIL_ROUTE.HOME}"
       :title-text="(title:string, _entity:EmailMessageEntity) => title + ' (' + _entity.id + ')'"
       :service="service"
       :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 1,sm: 1,xs: 1}"

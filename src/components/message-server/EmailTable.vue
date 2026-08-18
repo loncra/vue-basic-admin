@@ -23,7 +23,11 @@ import {ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody, FilterRequest, RestResult} from "@/types/apis";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
-import {EMAIL_MESSAGE_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
+import {
+  MESSAGE_SERVER_EMAIL_AUTHORITY,
+  MESSAGE_SERVER_EMAIL_ROUTE,
+  SYSTEM_MODULE_NAME
+} from "@/constants";
 
 defineOptions({
   name: 'LEmailTable',
@@ -42,10 +46,10 @@ const globalProperties =
 
 const actionButtons = ref<ActionDefinition<EmailMessageEntity>[]>([{
   id: "send",
-  permission:EMAIL_MESSAGE_AUTHORITY.SEND,
+  permission:MESSAGE_SERVER_EMAIL_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.email.routePage')}),
   icon:() => createIcon('loncra-send'),
-  run:() => void globalProperties.$router.push({name:'message_server_email_send'})
+  run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_EMAIL_ROUTE.SEND})
 }])
 
 const service = new EmailMessageService();
@@ -156,13 +160,13 @@ onMounted(mounted)
     :query="props.query"
     :hide-title="props.preview"
     :authority="{
-      export:EMAIL_MESSAGE_AUTHORITY.EXPORT,
-      detail:EMAIL_MESSAGE_AUTHORITY.GET,
-      delete:EMAIL_MESSAGE_AUTHORITY.DELETE
+      export:MESSAGE_SERVER_EMAIL_AUTHORITY.EXPORT,
+      detail:MESSAGE_SERVER_EMAIL_AUTHORITY.GET,
+      delete:MESSAGE_SERVER_EMAIL_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"
-    @detail="r => globalProperties.$router.push({name:'message_server_email_detail', query:{id:String(r.id)}})"
+    @detail="r => globalProperties.$router.push({name:MESSAGE_SERVER_EMAIL_ROUTE.DETAIL, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'channel'">

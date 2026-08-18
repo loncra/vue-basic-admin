@@ -21,7 +21,11 @@ import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
-import {RESOURCE_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
+import {
+  AUTH_SERVER_RESOURCE_AUTHORITY,
+  AUTH_SERVER_RESOURCE_ROUTE,
+  SYSTEM_MODULE_NAME
+} from "@/constants";
 
 defineOptions({
   name: 'LResourceTable',
@@ -164,16 +168,16 @@ async function mounted() {
     applyColumnOptions(columns.value, "category", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceCategoryEnum || [])
     applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceSourceEnum || [])
   }
-  if (principalStore.hasPermission(RESOURCE_AUTHORITY.SAVE)) {
+  if (principalStore.hasPermission(AUTH_SERVER_RESOURCE_AUTHORITY.SAVE)) {
     rowActions.value.push(
       {
         id: 'addChild',
-        permission: RESOURCE_AUTHORITY.SAVE,
+        permission: AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
-            globalProperties.$router.push({name:'auth_server_resource_add_child', query:{parentId:String(ctx.record.id)}})
+            globalProperties.$router.push({name:AUTH_SERVER_RESOURCE_ROUTE.ADD_CHILD, query:{parentId:String(ctx.record.id)}})
           }
         },
       }
@@ -229,16 +233,16 @@ onMounted(mounted)
     :row-actions="rowActions"
     :record-actions="!props.preview"
     :authority="{
-      add:RESOURCE_AUTHORITY.SAVE,
-      edit:RESOURCE_AUTHORITY.SAVE,
-      detail:RESOURCE_AUTHORITY.GET,
-      delete:RESOURCE_AUTHORITY.DELETE
+      add:AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
+      edit:AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
+      detail:AUTH_SERVER_RESOURCE_AUTHORITY.GET,
+      delete:AUTH_SERVER_RESOURCE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content', y: 350}"
     :row-selection="props.rowSelection"
-    @add="globalProperties.$router.push({name:'auth_server_resource_add'})"
-    @detail="r => globalProperties.$router.push({name:'auth_server_resource_detail', query:{id:String(r.id)}})"
-    @edit="r => globalProperties.$router.push({name:'auth_server_resource_edit', query:{id:String(r.id)}})"
+    @add="globalProperties.$router.push({name:AUTH_SERVER_RESOURCE_ROUTE.ADD})"
+    @detail="r => globalProperties.$router.push({name:AUTH_SERVER_RESOURCE_ROUTE.DETAIL, query:{id:String(r.id)}})"
+    @edit="r => globalProperties.$router.push({name:AUTH_SERVER_RESOURCE_ROUTE.EDIT, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'name'">

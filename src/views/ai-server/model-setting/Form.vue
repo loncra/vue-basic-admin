@@ -15,15 +15,16 @@ import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
 import {
+  AI_SERVER_MODEL_SETTING_ROUTE,
   MODEL_DEFAULT_OPTIONS_KEY,
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
   MODEL_GENERATE_OPTION_KEYS,
   MODEL_GENERATE_OPTION_NUMBER_KEYS,
   MODEL_GENERATE_OPTION_STRING_KEYS,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  MODEL_SETTING_ROUTE,
   MODEL_TYPE,
-  SYSTEM_CONSTANT, SYSTEM_MODULE_NAME,
+  SYSTEM_CONSTANT,
+  SYSTEM_MODULE_NAME,
   VALUE_TYPE,
   YES_OR_NO_TYPE,
 } from '@/constants'
@@ -138,7 +139,7 @@ const generateOptions = computed({
 const redirect = computed(() => {
   const code = options.value.entity.manufacturer?.code
   return {
-    name: MODEL_SETTING_ROUTE.HOME,
+    name: AI_SERVER_MODEL_SETTING_ROUTE.HOME,
     query: code ? {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: code} : {},
   }
 })

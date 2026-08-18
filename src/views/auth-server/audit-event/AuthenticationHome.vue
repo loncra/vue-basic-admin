@@ -5,6 +5,7 @@ import {type ComponentInternalInstance, getCurrentInstance, markRaw, ref} from '
 import {DatePicker, Input} from 'antdv-next';
 import type {AuditEventEntity} from '@/types/apis/auth-server/auditDomain';
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
 import type {SearchableColumnType} from "@/types/composables";
 
 defineOptions({
@@ -80,7 +81,7 @@ const columns = ref<SearchableColumnType[]>([
 
 function openAuthenticationDetail(r: AuditEventEntity) {
   globalProperties.$router.push({
-    name: 'auth_server_audit_event_authentication_detail',
+    name: AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION_DETAIL,
     query:{id:String(r.id),after:postTimestampFormat(r.timestamp)}
   })
 }

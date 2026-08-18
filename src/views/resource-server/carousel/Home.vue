@@ -35,7 +35,12 @@ import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
 import type {ActionDefinition, GridExposed} from '@/types/composables'
 import LBasicImage from "@/components/basic/BasicImage.vue";
-import {CAROUSEL_AUTHORITY, SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from "@/constants";
+import {
+  RESOURCE_SERVER_CAROUSEL_AUTHORITY,
+  RESOURCE_SERVER_CAROUSEL_ROUTE,
+  SYSTEM_CONSTANT,
+  SYSTEM_MODULE_NAME
+} from "@/constants";
 
 interface TabDataSource {
   key: string
@@ -84,16 +89,16 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'add',
-      permission: CAROUSEL_AUTHORITY.SAVE,
+      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE,
       label: () => globalProperties.$t('common.add', {name: ''}),
       icon: () => createIcon('loncra-file-plus'),
       run: () => {
-        void globalProperties.$router.push({name: 'resource_server_carousel_add', query: {type: tabActiveKey.value}})
+        void globalProperties.$router.push({name: RESOURCE_SERVER_CAROUSEL_ROUTE.ADD, query: {type: tabActiveKey.value}})
       },
     },
     {
       id: 'deleteSelected',
-      permission: CAROUSEL_AUTHORITY.DELETE,
+      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.DELETE,
       enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
         globalProperties.$t('common.delete.selected', {
@@ -109,7 +114,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'releaseSelect',
-      permission:CAROUSEL_AUTHORITY.RELEASE,
+      permission:RESOURCE_SERVER_CAROUSEL_AUTHORITY.RELEASE,
       enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
         globalProperties.$t('common.release.selected', {
@@ -120,7 +125,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'revokeSelect',
-      permission: CAROUSEL_AUTHORITY.REVOKE,
+      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.REVOKE,
       enabled: (ctx) => getRevokeSelectedEntities(ctx.selectedItems).length > 0,
       label: (ctx) =>
         globalProperties.$t('common.revoke.selected', {
@@ -136,7 +141,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'release',
-      permission: CAROUSEL_AUTHORITY.RELEASE,
+      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.RELEASE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
       label: () => globalProperties.$t('common.release.text'),
       icon: () => createIcon('loncra-screen-share'),
@@ -144,7 +149,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'revoke',
-      permission: CAROUSEL_AUTHORITY.REVOKE,
+      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.REVOKE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) === 20,
       label: () => globalProperties.$t('common.revoke.text'),
       icon: () => createIcon('loncra-screen-share-off'),
@@ -152,13 +157,13 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     },
     {
       id: 'edit',
-      permission: CAROUSEL_AUTHORITY.GET,
+      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.GET,
       enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
       label: () => globalProperties.$t('common.edit'),
       icon: () => createIcon('loncra-file-pen-line'),
       run: (ctx) => {
         void globalProperties.$router.push({
-          name: 'resource_server_carousel_edit',
+          name: RESOURCE_SERVER_CAROUSEL_ROUTE.EDIT,
           query: {id: String(ctx.record!.id)},
         })
       },
@@ -167,7 +172,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
 }
 
 const dragEnabled = computed(() =>
-  principalStore.hasPermission(CAROUSEL_AUTHORITY.SAVE),
+  principalStore.hasPermission(RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE),
 )
 
 const statusSetting = {
@@ -386,9 +391,9 @@ onActivated(activated)
               :immediate="false"
               :drag="dragEnabled"
               :authority="{
-                add: CAROUSEL_AUTHORITY.SAVE,
-                edit: CAROUSEL_AUTHORITY.SAVE,
-                delete: CAROUSEL_AUTHORITY.DELETE,
+                add: RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE,
+                edit: RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE,
+                delete: RESOURCE_SERVER_CAROUSEL_AUTHORITY.DELETE,
                 detail: false,
               }"
               :actions="bulkActions()"

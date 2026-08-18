@@ -9,7 +9,7 @@ import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
 import {SiteMessageService} from "@/apis/message-server";
 import type {RestResult} from "@/types/apis";
-import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_SERVER_BATCH_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MessageServerBatchDetail'
@@ -46,7 +46,7 @@ async function postGetEntity(entity:BatchMessageEntity){
   <div>
     <l-basic-detail
       :post-get-entity="postGetEntity"
-      :redirect="{name:'message_server_batch'}"
+      :redirect="{name:MESSAGE_SERVER_BATCH_ROUTE.HOME}"
       :title-text="(title:string, _entity:BatchMessageEntity) => title + ' (' + _entity.id + ')'"
       :service="service"
       :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"

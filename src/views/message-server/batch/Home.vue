@@ -19,7 +19,11 @@ import type {SearchableColumnType} from "@/types/composables";
 import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
 import {ResourceServerService} from "@/apis";
 import {BatchMessageService} from "@/apis/message-server/batchMessageService.js";
-import {BATCH_MESSAGE_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
+import {
+  MESSAGE_SERVER_BATCH_AUTHORITY,
+  MESSAGE_SERVER_BATCH_ROUTE,
+  SYSTEM_MODULE_NAME
+} from "@/constants";
 import {DateRangePicker, Select} from "antdv-next";
 
 defineOptions({
@@ -125,13 +129,13 @@ onMounted(mounted)
       :service="service"
       :columns="columns"
       :authority="{
-      export:BATCH_MESSAGE_AUTHORITY.EXPORT,
-      detail:BATCH_MESSAGE_AUTHORITY.GET,
-      delete:BATCH_MESSAGE_AUTHORITY.DELETE
+      export:MESSAGE_SERVER_BATCH_AUTHORITY.EXPORT,
+      detail:MESSAGE_SERVER_BATCH_AUTHORITY.GET,
+      delete:MESSAGE_SERVER_BATCH_AUTHORITY.DELETE
     }"
       :scroll="{x:'max-content'}"
       :row-selection="{fixed: true, type: 'checkbox'}"
-      @detail="r => globalProperties.$router.push({name:'message_server_batch_detail', query:{id:String(r.id)}})"
+      @detail="r => globalProperties.$router.push({name:MESSAGE_SERVER_BATCH_ROUTE.DETAIL, query:{id:String(r.id)}})"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'creationTime'">

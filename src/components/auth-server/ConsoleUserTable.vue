@@ -8,7 +8,11 @@ import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
 import {applyColumnOptions, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import {CONSOLE_USER_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
+import {
+  AUTH_SERVER_CONSOLE_USER_AUTHORITY,
+  AUTH_SERVER_CONSOLE_USER_ROUTE,
+  SYSTEM_MODULE_NAME
+} from "@/constants";
 
 defineOptions({
   name: 'LConsoleUserTableTable',
@@ -135,17 +139,17 @@ onMounted(mounted)
     :columns="columns"
     :record-actions="!props.preview"
     :authority="{
-      add:CONSOLE_USER_AUTHORITY.SAVE,
-      export:CONSOLE_USER_AUTHORITY.EXPORT,
-      edit:CONSOLE_USER_AUTHORITY.SAVE,
-      detail:CONSOLE_USER_AUTHORITY.GET,
-      delete:CONSOLE_USER_AUTHORITY.DELETE
+      add:AUTH_SERVER_CONSOLE_USER_AUTHORITY.SAVE,
+      export:AUTH_SERVER_CONSOLE_USER_AUTHORITY.EXPORT,
+      edit:AUTH_SERVER_CONSOLE_USER_AUTHORITY.SAVE,
+      detail:AUTH_SERVER_CONSOLE_USER_AUTHORITY.GET,
+      delete:AUTH_SERVER_CONSOLE_USER_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"
-    @add="globalProperties.$router.push({name:'auth_server_console_user_add'})"
-    @detail="r => globalProperties.$router.push({name:'auth_server_console_user_detail', query:{id:String(r.id)}})"
-    @edit="r => globalProperties.$router.push({name:'auth_server_console_user_edit', query:{id:String(r.id)}})"
+    @add="globalProperties.$router.push({name:AUTH_SERVER_CONSOLE_USER_ROUTE.ADD})"
+    @detail="r => globalProperties.$router.push({name:AUTH_SERVER_CONSOLE_USER_ROUTE.DETAIL, query:{id:String(r.id)}})"
+    @edit="r => globalProperties.$router.push({name:AUTH_SERVER_CONSOLE_USER_ROUTE.EDIT, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'gender'">

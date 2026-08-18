@@ -148,39 +148,64 @@ export const PIP_MAX_WIDTH_PX = 200
 export const PRIVATE_VIDEO_LAYOUT_METRICS: VideoMetrics = {width: 1280, height: 720, aspect: 16 / 9}
 
 
-export const BATCH_MESSAGE_AUTHORITY = {
+export const MESSAGE_SERVER_BATCH_AUTHORITY = {
   DELETE: 'perms[message_server_batch:delete]',
   GET: 'perms[message_server_batch:get]',
   EXPORT: 'perms[message_server_batch:export]',
 } as const
 
-export const EMAIL_MESSAGE_AUTHORITY = {
+export const MESSAGE_SERVER_EMAIL_AUTHORITY = {
   DELETE: 'perms[message_server_email:delete]',
   GET: 'perms[message_server_email:get]',
   EXPORT: 'perms[message_server_email:export]',
   SEND:'perms[message_server_email:send]',
 } as const
 
-export const SITE_MESSAGE_AUTHORITY = {
+export const MESSAGE_SERVER_SITE_AUTHORITY = {
   DELETE: 'perms[message_server_site:delete]',
   GET: 'perms[message_server_site:get]',
   EXPORT: 'perms[message_server_site:export]',
   SEND:'perms[message_server_site:send]',
 } as const
 
-export const SMS_MESSAGE_AUTHORITY = {
+export const MESSAGE_SERVER_SMS_AUTHORITY = {
   DELETE: 'perms[message_server_sms:delete]',
   GET: 'perms[message_server_sms:get]',
   EXPORT: 'perms[message_server_sms:export]',
   SEND:'perms[message_server_sms:send]',
 } as const
 
-export const SMS_MESSAGE_TEMPLATE_AUTHORITY = {
+export const MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY = {
   FIND:'perms[message_server_sms_template:find]',
   GET:'perms[message_server_sms_template:get]',
 } as const
 
-export const SMS_MESSAGE_SIGN_AUTHORITY = {
+export const MESSAGE_SERVER_SMS_SIGN_AUTHORITY = {
   FIND:'perms[message_server_sms_sign:find]',
   GET:'perms[message_server_sms_sign:get]',
+} as const
+
+export const MESSAGE_SERVER_BATCH_ROUTE = {
+  HOME: 'message_server_batch',
+  DETAIL: 'message_server_batch_detail',
+} as const
+
+export const MESSAGE_SERVER_EMAIL_ROUTE = {
+  HOME: 'message_server_email',
+  SEND: 'message_server_email_send',
+  DETAIL: 'message_server_email_detail',
+} as const
+
+export const MESSAGE_SERVER_SITE_ROUTE = {
+  HOME: 'message_server_site',
+  SEND: 'message_server_site_send',
+  DETAIL: 'message_server_site_detail',
+} as const
+
+export const MESSAGE_SERVER_SMS_ROUTE = {
+  HOME: 'message_server_sms',
+  TEMPLATE: 'message_server_sms_template',
+  SIGN: 'message_server_sms_sign',
+  SEND: 'message_server_sms_send',
+  DETAIL: 'message_server_sms_detail',
 } as const

@@ -17,6 +17,7 @@ import type {FilterRequest} from "@/types/apis/common.js";
 import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
+import {AUTH_SERVER_ROLE_ROUTE} from "@/constants";
 
 defineOptions({
   name: 'AuthServerRoleForm'
@@ -210,7 +211,7 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
       :post-get-entity="postGetEntity"
       :pre-mounted="mounted"
       :title-text="setPageTitle"
-      :redirect="{name:'auth_server_role'}"
+      :redirect="{name:AUTH_SERVER_ROLE_ROUTE.HOME}"
       :service="service"
       v-model:entity="options.entity"
       :spinning="options.spinning"

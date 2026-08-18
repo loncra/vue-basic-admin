@@ -4,6 +4,7 @@ import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 
 import {AuditEventService} from "@/apis/auth-server/auditEventService.ts";
+import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
 import type {AuditEventEntity} from "@/types/apis/auth-server/auditDomain";
 import type {RestResult} from "@/types/apis";
 
@@ -33,7 +34,7 @@ async function getDetail(id: string): Promise<RestResult<AuditEventEntity>> {
   <div>
     <l-basic-detail
       :query-fields="['id','after']"
-      :redirect="{name: globalProperties.$route.name === 'auth_server_audit_event_authentication_detail' ? 'auth_server_audit_event_authentication' : 'auth_server_audit_event_operation_data_trace'}"
+      :redirect="{name: globalProperties.$route.name === AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION_DETAIL ? AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION : AUTH_SERVER_AUDIT_EVENT_ROUTE.OPERATION_DATA_TRACE}"
       :get-detail="getDetail"
       :service="service"
       :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"

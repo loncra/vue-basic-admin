@@ -20,7 +20,11 @@ import type {
   NameValueEnumMetadata,
   RestResult
 } from "@/types/apis";
-import {SITE_MESSAGE_AUTHORITY, YES_OR_NO_TYPE} from "@/constants";
+import {
+  MESSAGE_SERVER_SITE_AUTHORITY,
+  MESSAGE_SERVER_SITE_ROUTE,
+  YES_OR_NO_TYPE
+} from "@/constants";
 
 defineOptions({
   name: 'LSiteTable',
@@ -39,10 +43,10 @@ const globalProperties =
 
 const actionButtons = ref<ActionDefinition<SiteMessageEntity>[]>([{
   id: "send",
-  permission:SITE_MESSAGE_AUTHORITY.SEND,
+  permission:MESSAGE_SERVER_SITE_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.site.routePage')}),
   icon:() => createIcon('loncra-send'),
-  run:() => void globalProperties.$router.push({name:'message_server_site_send'})
+  run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_SITE_ROUTE.SEND})
 }])
 
 const service = new SiteMessageService();
@@ -157,13 +161,13 @@ onMounted(mounted)
     :query="props.query"
     :hide-title="props.preview"
     :authority="{
-      export:SITE_MESSAGE_AUTHORITY.EXPORT,
-      detail:SITE_MESSAGE_AUTHORITY.GET,
-      delete:SITE_MESSAGE_AUTHORITY.DELETE
+      export:MESSAGE_SERVER_SITE_AUTHORITY.EXPORT,
+      detail:MESSAGE_SERVER_SITE_AUTHORITY.GET,
+      delete:MESSAGE_SERVER_SITE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"
-    @detail="r => globalProperties.$router.push({name:'message_server_site_detail', query:{id:String(r.id)}})"
+    @detail="r => globalProperties.$router.push({name:MESSAGE_SERVER_SITE_ROUTE.DETAIL, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'creationTime'">

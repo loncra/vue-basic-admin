@@ -16,7 +16,7 @@ import {disableDate, disableTime} from "@/utils/dateUtils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import type {Dayjs} from "dayjs";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {CAROUSEL_TYPE} from "@/constants/resourceConstant.ts";
+import {CAROUSEL_TYPE, RESOURCE_SERVER_CAROUSEL_ROUTE} from "@/constants/resourceConstant.ts";
 
 defineOptions({
   name: 'ResourceServerCarouseForm',
@@ -101,7 +101,7 @@ async function preSubmit() {
       :pre-mounted="preMounted"
       :pre-submit="preSubmit"
       :title-text="setPageTitle"
-      :redirect="{name:'resource_server_carousel'}"
+      :redirect="{name:RESOURCE_SERVER_CAROUSEL_ROUTE.HOME}"
       :service="service"
       v-model:entity="options.entity"
       :spinning="options.spinning"

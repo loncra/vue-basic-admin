@@ -1,22 +1,23 @@
 import type {RouteRecordRaw} from 'vue-router'
+import {AUTH_SERVER_ROLE_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
 
 /** 角色相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/auth-server/role',
     component: () => import('@/views/auth-server/role/Home.vue'),
-    name: 'auth_server_role',
+    name: AUTH_SERVER_ROLE_ROUTE.HOME,
     meta: {
-      applicationName: 'auth-server',
+      applicationName: SYSTEM_MODULE_NAME.AUTH_SERVER,
       requiresAuth: true,
     },
   },
   {
     path: '/auth-server/role/addChild',
     component: () => import('@/views/auth-server/role/Form.vue'),
-    name: 'auth_server_role_add_child',
+    name: AUTH_SERVER_ROLE_ROUTE.ADD_CHILD,
     meta: {
-      applicationName: 'auth-server',
+      applicationName: SYSTEM_MODULE_NAME.AUTH_SERVER,
       icon: 'loncra-list-tree',
       parent: '/auth-server/role',
       requiresFullyAuth: true,
@@ -25,10 +26,10 @@ const router: RouteRecordRaw[] = [
   {
     path: '/auth-server/role/edit',
     component: () => import('@/views/auth-server/role/Form.vue'),
-    name: 'auth_server_role_edit',
+    name: AUTH_SERVER_ROLE_ROUTE.EDIT,
     meta: {
       dynamicTitle: true,
-      applicationName: 'auth-server',
+      applicationName: SYSTEM_MODULE_NAME.AUTH_SERVER,
       icon: 'loncra-file-pen-line',
       parent: '/auth-server/role',
       requiresFullyAuth: true,
@@ -37,9 +38,9 @@ const router: RouteRecordRaw[] = [
   {
     path: '/auth-server/role/add',
     component: () => import('@/views/auth-server/role/Form.vue'),
-    name: 'auth_server_role_add',
+    name: AUTH_SERVER_ROLE_ROUTE.ADD,
     meta: {
-      applicationName: 'auth-server',
+      applicationName: SYSTEM_MODULE_NAME.AUTH_SERVER,
       icon: 'loncra-file-plus',
       parent: '/auth-server/role',
       requiresFullyAuth: true,
@@ -48,10 +49,10 @@ const router: RouteRecordRaw[] = [
   {
     path: '/auth-server/role/detail',
     component: () => import('@/views/auth-server/role/Detail.vue'),
-    name: 'auth_server_role_detail',
+    name: AUTH_SERVER_ROLE_ROUTE.DETAIL,
     meta: {
       dynamicTitle: true,
-      applicationName: 'auth-server',
+      applicationName: SYSTEM_MODULE_NAME.AUTH_SERVER,
       icon: 'loncra-file-search',
       parent: '/auth-server/role',
       requiresFullyAuth: true,

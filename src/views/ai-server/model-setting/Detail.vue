@@ -12,11 +12,11 @@ import type {
   RestResult,
 } from '@/types/apis'
 import {
+  AI_SERVER_MODEL_SETTING_ROUTE,
   MODEL_DEFAULT_OPTIONS_KEY,
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
   MODEL_GENERATE_OPTION_KEYS,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  MODEL_SETTING_ROUTE,
   MODEL_TYPE,
   VALUE_TYPE,
   YES_OR_NO_TYPE,
@@ -78,7 +78,7 @@ function optionDisplay(key: (typeof MODEL_GENERATE_OPTION_KEYS)[number]) {
 const redirect = computed(() => {
   const code = entity.value.manufacturer?.code
   return {
-    name: MODEL_SETTING_ROUTE.HOME,
+    name: AI_SERVER_MODEL_SETTING_ROUTE.HOME,
     query: code ? {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: code} : {},
   }
 })

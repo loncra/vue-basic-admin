@@ -23,7 +23,7 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {mergeDefinitions} from "@/composables/basic/action";
-import {ROLE_AUTHORITY, SYSTEM_MODULE_NAME} from "@/constants";
+import {AUTH_SERVER_ROLE_AUTHORITY, AUTH_SERVER_ROLE_ROUTE, SYSTEM_MODULE_NAME} from "@/constants";
 
 defineOptions({
   name: 'LRoleTable',
@@ -141,16 +141,16 @@ async function mounted() {
     }
     applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceSourceEnum || [])
   }
-  if (principalStore.hasPermission(ROLE_AUTHORITY.SAVE)) {
+  if (principalStore.hasPermission(AUTH_SERVER_ROLE_AUTHORITY.SAVE)) {
     actionButtons.value.push(
       {
         id: 'addChild',
-        permission: ROLE_AUTHORITY.SAVE,
+        permission: AUTH_SERVER_ROLE_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
-            globalProperties.$router.push({name:'auth_server_role_add_child', query:{parentId:String(ctx.record.id)}})
+            globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.ADD_CHILD, query:{parentId:String(ctx.record.id)}})
           }
         },
       }
@@ -175,16 +175,16 @@ onMounted(mounted)
     :row-actions="mergeDefinitions(actionButtons, props.rowActions ?? [])"
     :record-actions="!props.preview"
     :authority="{
-      add:ROLE_AUTHORITY.SAVE,
-      edit:ROLE_AUTHORITY.SAVE,
-      detail:ROLE_AUTHORITY.GET,
-      delete:ROLE_AUTHORITY.DELETE
+      add:AUTH_SERVER_ROLE_AUTHORITY.SAVE,
+      edit:AUTH_SERVER_ROLE_AUTHORITY.SAVE,
+      detail:AUTH_SERVER_ROLE_AUTHORITY.GET,
+      delete:AUTH_SERVER_ROLE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.rowSelection"
-    @add="globalProperties.$router.push({name:'auth_server_role_add'})"
-    @detail="r => globalProperties.$router.push({name:'auth_server_role_detail', query:{id:String(r.id)}})"
-    @edit="r => globalProperties.$router.push({name:'auth_server_role_edit', query:{id:String(r.id)}})"
+    @add="globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.ADD})"
+    @detail="r => globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.DETAIL, query:{id:String(r.id)}})"
+    @edit="r => globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.EDIT, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'sources'">

@@ -12,7 +12,7 @@ import LTipTap from "@/components/tiptap/TipTap.vue";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageSendPayload} from "@/types/apis/message-server/emailDomain.ts";
-import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 import {
   loadMessageSendEnums,
   navigateAfterMessageSend
@@ -64,7 +64,7 @@ async function doSubmit(){
   try {
     await attachmentUploadRef.value?.upload()
     const result = await service.send(options.value.form);
-    navigateAfterMessageSend(router, result.data, 'message_server_email')
+    navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_EMAIL_ROUTE.HOME)
     message.success(result.message)
   } catch (error) {
     message.error(error instanceof Error ? error.message : String(error))

@@ -12,7 +12,7 @@ import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourc
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
-import {GENDER} from "@/constants/authConstant.ts";
+import {AUTH_SERVER_CONSOLE_USER_ROUTE, GENDER} from "@/constants/authConstant.ts";
 import type {TableProps} from "antdv-next";
 
 defineOptions({
@@ -92,7 +92,7 @@ function resetFields() {
       operation-data-trace-target="tb_console_user"
       :pre-mounted="mounted"
       :title-text="setPageTitle"
-      :redirect="{name:'auth_server_user_console'}"
+      :redirect="{name:AUTH_SERVER_CONSOLE_USER_ROUTE.HOME}"
       :service="service"
       v-model:entity="options.entity"
       :spinning="options.spinning"

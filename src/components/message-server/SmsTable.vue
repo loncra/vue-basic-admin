@@ -28,9 +28,10 @@ import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
 import {
-  SMS_MESSAGE_AUTHORITY,
-  SMS_MESSAGE_SIGN_AUTHORITY,
-  SMS_MESSAGE_TEMPLATE_AUTHORITY,
+  MESSAGE_SERVER_SMS_AUTHORITY,
+  MESSAGE_SERVER_SMS_ROUTE,
+  MESSAGE_SERVER_SMS_SIGN_AUTHORITY,
+  MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY,
   SYSTEM_MODULE_NAME
 } from "@/constants";
 
@@ -51,22 +52,22 @@ const globalProperties =
 
 const actionButtons = ref<ActionDefinition<SmsMessageEntity>[]>([{
   id: "send",
-  permission:SMS_MESSAGE_AUTHORITY.SEND,
+  permission:MESSAGE_SERVER_SMS_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.sms.routePage')}),
   icon:() => createIcon('loncra-send'),
-  run:() => void globalProperties.$router.push({name:'message_server_sms_send'})
+  run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_SMS_ROUTE.SEND})
 },{
   id: "template",
-  permission:SMS_MESSAGE_TEMPLATE_AUTHORITY.FIND,
+  permission:MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY.FIND,
   label:() => globalProperties.$t('messageServer.sms.template.routePage'),
   icon:() => createIcon('loncra-layout-template'),
-  run:() => void globalProperties.$router.push({name:'message_server_sms_template'})
+  run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_SMS_ROUTE.TEMPLATE})
 },{
   id: "sign",
-  permission:SMS_MESSAGE_SIGN_AUTHORITY.FIND,
+  permission:MESSAGE_SERVER_SMS_SIGN_AUTHORITY.FIND,
   label:() => globalProperties.$t('messageServer.sms.sign.routePage'),
   icon:() => createIcon('loncra-signature'),
-  run:() => void globalProperties.$router.push({name:'message_server_sms_sign'})
+  run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_SMS_ROUTE.SIGN})
 }])
 
 const service = new SmsMessageService();
@@ -189,13 +190,13 @@ onMounted(mounted)
     :query="props.query"
     :hide-title="props.preview"
     :authority="{
-      export:SMS_MESSAGE_AUTHORITY.EXPORT,
-      detail:SMS_MESSAGE_AUTHORITY.GET,
-      delete:SMS_MESSAGE_AUTHORITY.DELETE
+      export:MESSAGE_SERVER_SMS_AUTHORITY.EXPORT,
+      detail:MESSAGE_SERVER_SMS_AUTHORITY.GET,
+      delete:MESSAGE_SERVER_SMS_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.preview ? false : {fixed: true, type: 'checkbox'}"
-    @detail="r => globalProperties.$router.push({name:'message_server_sms_detail', query:{id:String(r.id)}})"
+    @detail="r => globalProperties.$router.push({name:MESSAGE_SERVER_SMS_ROUTE.DETAIL, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'channel'">

@@ -5,7 +5,7 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {SmsMessageService} from "@/apis/message-server";
 import type {SmsMessageEntity} from "@/types/apis";
-import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_SERVER_SMS_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MessageServerEmailDetail',
@@ -36,7 +36,7 @@ const entity = ref<SmsMessageEntity>({
   <div>
     <l-basic-detail
       operation-data-trace-target="tb_sms_message"
-      :redirect="{name:'message_server_sms'}"
+      :redirect="{name:MESSAGE_SERVER_SMS_ROUTE.HOME}"
       :title-text="(title:string, _entity:SmsMessageEntity) => title + ' (' + _entity.id + ')'"
       :service="service"
       :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 1,sm: 1,xs: 1}"

@@ -13,7 +13,7 @@ import {ResourceServerService, ResourceService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
-import {RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
+import {AUTH_SERVER_RESOURCE_ROUTE, RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
 import LIconSelect from "@/components/basic/IconSelect.vue";
 
 defineOptions({
@@ -98,7 +98,7 @@ function setPageTitle(title:string, entity: ResourceEntity | ResourceSavePayload
       :pre-mounted="mounted"
       operation-data-trace-target="tb_resource"
       :title-text="setPageTitle"
-      :redirect="{name:'auth_server_resource'}"
+      :redirect="{name:AUTH_SERVER_RESOURCE_ROUTE.HOME}"
       :service="service"
       v-model:entity="options.entity"
       :spinning="options.spinning"

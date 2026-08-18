@@ -12,6 +12,7 @@ import type {
 } from "@/types/apis";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from "@/constants";
 
 defineOptions({
   name: 'LOperationDataTraceTable',
@@ -156,7 +157,7 @@ onMounted(mounted)
     :columns="columns"
     :authority="{detail:'perms[auth_server_audit_event:get]'}"
     :scroll="{x:'max-content'}"
-    @detail="r => globalProperties.$router.push({name:'auth_server_audit_event_operation_data_trace_detail', query:{id:String(r.id),after:postTimestampFormat(r.timestamp)}})"
+    @detail="r => globalProperties.$router.push({name:AUTH_SERVER_AUDIT_EVENT_ROUTE.OPERATION_DATA_TRACE_DETAIL, query:{id:String(r.id),after:postTimestampFormat(r.timestamp)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'creationTime'">

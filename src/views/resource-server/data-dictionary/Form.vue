@@ -17,7 +17,7 @@ import {
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
   SYSTEM_MODULE_NAME
 } from "@/constants/systemConstant.ts";
-import {VALUE_TYPE} from "@/constants/resourceConstant.ts";
+import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE, VALUE_TYPE} from "@/constants/resourceConstant.ts";
 
 defineOptions({
   name: 'ResourceServerDataDictionaryForm',
@@ -118,7 +118,7 @@ function setPageTitle(title:string, entity: DataDictionaryEntity | DataDictionar
       :pre-mounted="preMounted"
       :post-mounted="postMounted"
       :title-text="setPageTitle"
-      :redirect="{name:'resource_server_dictionary', query:{typeId:options.entity.typeId}}"
+      :redirect="{name:RESOURCE_SERVER_DATA_DICTIONARY_ROUTE.HOME, query:{typeId:options.entity.typeId}}"
       :service="service"
       v-model:entity="options.entity"
       :spinning="options.spinning"

@@ -6,7 +6,11 @@ import {SiteMessageService} from "@/apis/message-server";
 import type {SiteMessageEntity} from "@/types/apis/message-server/siteDomain.ts";
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {MESSAGE_TYPE, SITE_PUSHABLE} from "@/constants/messageConstant.ts";
+import {
+  MESSAGE_SERVER_SITE_ROUTE,
+  MESSAGE_TYPE,
+  SITE_PUSHABLE
+} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'MessageServerSiteDetail',
@@ -39,7 +43,7 @@ const entity = ref<SiteMessageEntity>({
   <div>
     <l-basic-detail
       operation-data-trace-target="tb_site_message"
-      :redirect="{name:'message_server_site'}"
+      :redirect="{name:MESSAGE_SERVER_SITE_ROUTE.HOME}"
       :title-text="(title:string, _entity:SiteMessageEntity) => title + ' (' + _entity.id + ')'"
       :service="service"
       :column="{xxxl: 3,xxl: 3,xl: 3,lg: 1,md: 1,sm: 1,xs: 1}"

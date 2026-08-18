@@ -31,7 +31,11 @@ import LModalForm from "@/components/basic/form/ModalForm.vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from "@/constants/systemConstant.ts";
-import {DATA_DICTIONARY_AUTHORITY, DATA_DICTIONARY_ROUTE, DICTIONARY_TYPE_AUTHORITY} from "@/constants";
+import {
+  RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY,
+  RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
+  RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY
+} from "@/constants";
 
 defineOptions({
   name: 'ResourceServerDictionaryHome'
@@ -207,11 +211,11 @@ async function mounted() {
     applyColumnOptions(options.value.dataDictionary.columns, "valueType",resourceServer?.ValueTypeEnum ||[])
   }
 
-  if (principalStore.hasPermission(DATA_DICTIONARY_AUTHORITY.SAVE)) {
+  if (principalStore.hasPermission(RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.SAVE)) {
     options.value.dictionaryType.rowActions.push(
       {
         id: 'addChild',
-        permission: DATA_DICTIONARY_AUTHORITY.SAVE,
+        permission: RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
@@ -287,9 +291,9 @@ onMounted(mounted)
             :columns="options.dictionaryType.columns"
             :row-actions="options.dictionaryType.rowActions"
             :authority="{
-              edit:DICTIONARY_TYPE_AUTHORITY.SAVE,
-              add:DICTIONARY_TYPE_AUTHORITY.SAVE,
-              delete:DICTIONARY_TYPE_AUTHORITY.DELETE,
+              edit:RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY.SAVE,
+              add:RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY.SAVE,
+              delete:RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY.DELETE,
             }"
             :scroll="{x:'max-content'}"
             :row-selection="{fixed:true, type: 'checkbox'}"
@@ -330,17 +334,17 @@ onMounted(mounted)
             :service="dataDictionaryService"
             :columns="options.dataDictionary.columns"
             :authority="{
-              add:DATA_DICTIONARY_AUTHORITY.SAVE,
-              edit:DATA_DICTIONARY_AUTHORITY.SAVE,
-              delete:DATA_DICTIONARY_AUTHORITY.DELETE,
-              detail:DATA_DICTIONARY_AUTHORITY.GET
+              add:RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.SAVE,
+              edit:RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.SAVE,
+              delete:RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.DELETE,
+              detail:RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.GET
             }"
             :scroll="{x:'max-content'}"
             :row-selection="{fixed: true, type: 'checkbox'}"
             @drop="onDrop"
-            @add="globalProperties.$router.push({name:DATA_DICTIONARY_ROUTE.ADD,query:{typeId: selectedDictionaryType?.id }})"
-            @detail="r => globalProperties.$router.push({name:DATA_DICTIONARY_ROUTE.DETAIL, query:{id:String(r.id)}})"
-            @edit="r => globalProperties.$router.push({name:DATA_DICTIONARY_ROUTE.EDIT, query:{id:String(r.id)}})"
+            @add="globalProperties.$router.push({name:RESOURCE_SERVER_DATA_DICTIONARY_ROUTE.ADD,query:{typeId: selectedDictionaryType?.id }})"
+            @detail="r => globalProperties.$router.push({name:RESOURCE_SERVER_DATA_DICTIONARY_ROUTE.DETAIL, query:{id:String(r.id)}})"
+            @edit="r => globalProperties.$router.push({name:RESOURCE_SERVER_DATA_DICTIONARY_ROUTE.EDIT, query:{id:String(r.id)}})"
           >
 
             <template #title>

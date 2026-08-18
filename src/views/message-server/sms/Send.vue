@@ -20,7 +20,7 @@ import LUserSelect from "@/components/basic/UserSelect.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {SmsMessageService} from "@/apis/message-server";
 import useApp from "antdv-next/dist/app/useApp";
-import {MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_SERVER_SMS_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 import {navigateAfterMessageSend} from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
 import {YES_OR_NO_TYPE} from "@/constants";
@@ -136,7 +136,7 @@ async function doSubmit(){
   options.value.loading = true;
   try {
     const result = await service.send(options.value.form);
-    navigateAfterMessageSend(router, result.data, 'message_server_sms')
+    navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_SMS_ROUTE.HOME)
     message.success(result.message)
   } catch (error) {
     message.error(error instanceof Error ? error.message : String(error))

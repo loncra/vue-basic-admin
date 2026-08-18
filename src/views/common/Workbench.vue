@@ -8,6 +8,7 @@ import {OperationDataTraceAuditEventService} from "@/apis";
 import type {AuditEventEntity, RestResult, TotalPage} from "@/types/apis";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from "@/constants";
 
 defineOptions({
   name: 'CommonWorkbench'
@@ -142,7 +143,7 @@ onMounted(mounted)
                   <a-typography-text
                     :ellipsis="{ tooltip: item.data?.metadata?.name }"
                     class=" flex-1 cursor-pointer"
-                    @click="globalProperties.$router.push({name:'auth_server_audit_event_authentication_detail', query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
+                    @click="globalProperties.$router.push({name:AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION_DETAIL, query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
                     {{ item.data?.metadata?.name }}
                   </a-typography-text>
                 </a-flex>
@@ -160,7 +161,7 @@ onMounted(mounted)
                   <a-typography-text
                     :ellipsis="{ tooltip: item.data?.metadata?.name }"
                     class=" flex-1 cursor-pointer"
-                    @click="globalProperties.$router.push({name:'auth_server_audit_event_authentication_detail', query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
+                    @click="globalProperties.$router.push({name:AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION_DETAIL, query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
                     {{ item.data?.metadata?.name }}
                   </a-typography-text>
                 </a-flex>
@@ -178,7 +179,7 @@ onMounted(mounted)
                   <a-typography-text
                     :ellipsis="{ tooltip: item.data?.metadata?.name }"
                     class=" flex-1 cursor-pointer"
-                    @click="globalProperties.$router.push({name:'auth_server_audit_event_authentication_detail', query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
+                    @click="globalProperties.$router.push({name:AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION_DETAIL, query:{id:String(item.id),after:postTimestampFormat(item.timestamp)}})">
                     {{ item.data?.metadata?.name }}
                   </a-typography-text>
                 </a-flex>
