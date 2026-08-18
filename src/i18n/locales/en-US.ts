@@ -33,6 +33,7 @@ const locale: LanguagePack = {
     rejected:'rejected',
     ignore:'ignore',
     rename:'Rename',
+    icon: 'Icon',
     copy:'Copy',
     read: {
       time: 'Read time',
@@ -391,7 +392,6 @@ const locale: LanguagePack = {
     resource: {
       applicationName: 'Application name',
       page: 'Route path',
-      icon: 'Icon',
       routePage: 'Permissions',
     },
     auditEvent: {
@@ -694,6 +694,11 @@ const locale: LanguagePack = {
       cache:'cache',
       total:'total',
       cacheHitRate:'cache hit rate',
+    },
+    hub:{
+      text:'Plugin Hub',
+      mcp:'MCP',
+      skill:'Skill'
     },
     workspace:{
       title:'Workspace',

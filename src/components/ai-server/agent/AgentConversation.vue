@@ -25,7 +25,14 @@ const {
   cancelEditWorkspace,
   confirmEditWorkspace,
   onConversationMenuClick,
-} = useAgentConversation()
+} = useAgentConversation({
+  onActivateConversation:() => emits('buttonClick','agentView')
+})
+
+const emits = defineEmits<{
+  buttonClick:[view:string]
+}>()
+
 </script>
 
 <template>
@@ -33,19 +40,19 @@ const {
     vertical
     class="h-full min-h-0 overflow-hidden"
   >
-<!--    <a-flex
+   <a-flex
       vertical
       class="p-md"
     >
-      <a-button block type="primary" @click="newAgent">
+      <a-button block type="primary" @click="emits('buttonClick','agentHubView')">
         <template #icon>
-          <icon-font type="loncra-plus"/>
+          <icon-font type="loncra-store"/>
         </template>
-        {{ $t('agent.creation') }}
+        {{ $t('agent.hub.text') }}
       </a-button>
-    </a-flex>-->
+    </a-flex>
 
-    <a-divider plain orientation="left" class="mb-0">
+    <a-divider plain orientation="left" class="mt-0 mb-0">
       <a-space>
         <icon-font type="loncra-folder"/>
         <span>{{ $t('agent.workspace.title') }}</span>

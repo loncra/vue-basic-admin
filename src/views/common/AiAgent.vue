@@ -8,6 +8,7 @@ import {getEnumValue} from "@/utils";
 import {AGENT_CONVERSATION_TYPE} from "@/constants";
 import type {ActiveAgentConversationItem} from "@/types/composables";
 import {ref} from "vue";
+import LAgentHubView from "@/components/ai-server/agent/AgentHubView.vue";
 
 defineOptions({
   name: 'CommonAiAgent',
@@ -22,6 +23,8 @@ const {conversationActive} = provideAgentChatContext({
 function onSenderSubmit(body: ActiveAgentConversationItem) {
   console.log('onSenderSubmit', body)
 }
+
+const currentView = ref<string>()
 
 </script>
 
@@ -46,14 +49,19 @@ function onSenderSubmit(body: ActiveAgentConversationItem) {
             max="25%"
             :collapsible="{ end: true }"
           >
-            <l-agent-conversation />
+            <l-agent-conversation @button-click="(view) => currentView = view" />
           </a-splitter-panel>
           <a-splitter-panel
             class="h-full min-h-0 overflow-hidden"
           >
             <l-agent-view
+              v-if="currentView === 'agentView'"
               ref="agentViewRef"
               @sender-submit="onSenderSubmit"
+            />
+
+            <l-agent-hub-view
+              v-else-if="currentView === 'agentHubView'"
             />
           </a-splitter-panel>
         </a-splitter>

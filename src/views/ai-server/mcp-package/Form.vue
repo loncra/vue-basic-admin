@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {
+  DataDictionaryMetadata,
   EnumBucketsResponseBody,
   McpPackageEntity,
   McpPackageSavePayload,
@@ -10,13 +11,15 @@ import type {
   StdioMcpClientTransportMetadata,
   StreamableHttpMcpClientTransportMetadata,
 } from '@/types/apis'
-import {requireNonNullOrUndefined} from '@/utils'
+import {loadIcon, requireNonNullOrUndefined} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
-import {ResourceServerService} from '@/apis'
+import {DataDictionaryService, ResourceServerService} from '@/apis'
 import {AiMcpPackageService} from '@/apis/ai-server/aiMcpPackageService.ts'
 import {
+  ICON_SELECT_MODE,
   MCP_CLIENT_HTTP_TYPE_VALUE,
   MCP_CLIENT_TYPE,
+  MCP_GROUP_CODE_PREFIX,
   MCP_PACKAGE_ROUTE,
   SYSTEM_CONSTANT,
   SYSTEM_MODULE_NAME,
@@ -26,6 +29,8 @@ import {
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LMcpClarifyPolicyTable from "@/components/ai-server/mcp/McpClarifyPolicyTable.vue";
 import LKeyValueTable from "@/components/basic/KeyValueTable.vue";
+import LIconSelect from "@/components/basic/IconSelect.vue";
+import type {IconfontJson} from "@/types/composables";
 
 defineOptions({
   name: 'AiServerMcpPackageForm',
@@ -38,6 +43,7 @@ const globalProperties =
 const configProviderStore = useConfigProviderStore();
 
 const service = new AiMcpPackageService()
+const dataDictionaryService = new DataDictionaryService()
 
 function createEmptyEntity(): McpPackageEntity {
   return {
@@ -53,6 +59,7 @@ function createEmptyEntity(): McpPackageEntity {
     status: undefined as unknown as number,
     type: undefined as unknown as number,
     dynamicActivation: YES_OR_NO_TYPE.NO,
+    icon:'',
     initializeTimeout: {
       value:1,
       unit: TIME_UNIT_TYPE.MINUTES
@@ -89,6 +96,9 @@ const options = ref<{
   yesOrNoOptions: NameValueEnumMetadata<number>[]
   clientTypeOptions: NameValueEnumMetadata<string>[]
   timeOptions: NameValueEnumMetadata<string>[]
+  groupOptions:DataDictionaryMetadata[]
+  icons:string[]
+  iconOptions: IconfontJson[]
 }>({
   spinning: false,
   fetchingTools: false,
@@ -99,6 +109,9 @@ const options = ref<{
   yesOrNoOptions: [],
   clientTypeOptions: [],
   timeOptions:[],
+  icons:["/font_ai_icon/iconfont.json"],
+  iconOptions:[],
+  groupOptions:[]
 })
 
 const headerTableRef = ref<{ confirmAllEditingRows: () => void }>()
@@ -148,6 +161,17 @@ function postGetEntity(entity: McpPackageEntity) {
   return entity
 }
 
+async function loadGroup() {
+  const result = await dataDictionaryService.page({
+    number: 1,
+    size: 1000,
+    ['filter_[code_like]']: MCP_GROUP_CODE_PREFIX,
+    ['filter_[enabled_eq]']: YES_OR_NO_TYPE.YES,
+  })
+  options.value.groupOptions = result.data?.elements || []
+  console.info(options.value.groupOptions)
+}
+
 async function preMounted() {
   options.value.spinning = true
   const enums: RestResult<EnumBucketsResponseBody> =
@@ -174,6 +198,11 @@ async function preMounted() {
     options.value.authModeOptions = (aiServer['McpPackageAuthModeEnum'] || []) as NameValueEnumMetadata<number>[]
     options.value.typeOptions = (aiServer['PackageTypeEnum'] || []) as NameValueEnumMetadata<number>[]
     options.value.clientTypeOptions = (aiServer['McpClientTypeEnum'] || []) as NameValueEnumMetadata<string>[]
+  }
+  await loadGroup()
+  for (const icon of options.value.icons) {
+    const iconData:IconfontJson = await loadIcon(import.meta.env.VITE_APP_SITE_URL + icon)
+    options.value.iconOptions.push(iconData)
   }
   options.value.spinning = false
 }
@@ -219,6 +248,34 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
             <a-input
               v-model:value="options.entity.packageKey"
               :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+          <a-form-item
+            name="icon"
+            :label="globalProperties.$t('common.icon')"
+          >
+            <l-icon-select
+              class="w-full"
+              :mode="ICON_SELECT_MODE.AVATAR"
+              v-model:value="options.entity.icon"
+              :options="options.iconOptions"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+          <a-form-item
+            name="group"
+            :label="globalProperties.$t('common.group')"
+          >
+            <a-select
+              class="w-full"
+              :value="options.entity.group?.code"
+              :options="options.groupOptions"
+              :field-names="{ label: 'name', value: 'code' }"
+              allow-clear
+              @change="(_value:string,option:DataDictionaryMetadata) => options.entity.group = option"
             />
           </a-form-item>
         </a-col>

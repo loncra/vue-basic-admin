@@ -55,6 +55,7 @@ const locale: LanguagePack = {
     realName: '真实姓名',
     send: '发送{name}',
     name:'名称',
+    icon:'图标',
     enabled: '启用',
     verified: '是否认证{name}',
     disabled: '禁用',
@@ -64,6 +65,8 @@ const locale: LanguagePack = {
     home: '首页',
     parent:'父类',
     addChild:'添加{name}子级',
+    avatar:'头像',
+    group:'所属分组',
     open:'开启',
     copy:'复制',
     close:'关闭',
@@ -385,7 +388,6 @@ const locale: LanguagePack = {
     resource:{
       applicationName: '应用名称',
       page:'路由页面',
-      icon:'图标',
       routePage:'权限',
     },
     auditEvent:{
@@ -687,6 +689,11 @@ const locale: LanguagePack = {
       cache:'缓存命中',
       cacheHitRate:'缓存命率',
       total:'词元消耗统计',
+    },
+    hub:{
+      text:'插件市场',
+      mcp:'MCP 插件',
+      skill:'技能插件'
     },
     creation:'创建智能体',
     workspace:{

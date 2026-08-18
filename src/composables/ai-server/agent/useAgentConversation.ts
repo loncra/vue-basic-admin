@@ -9,7 +9,9 @@ import type {MenuInfo} from "@v-c/menu";
 import {type MenuItemType, type MenuProps} from "antdv-next";
 import {useAgentChatContext} from "@/composables";
 
-export function useAgentConversation() {
+export function useAgentConversation(params:{
+  onActivateConversation:(conversation:AgentConversationItem) => void
+}) {
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
@@ -67,6 +69,7 @@ export function useAgentConversation() {
       })
     } else if (itemInfo.key === 'creation') {
       await activateConversation(conversation)
+      params.onActivateConversation(conversation);
     }
   }
 
@@ -108,6 +111,7 @@ export function useAgentConversation() {
       }
       if (activate) {
         await activateConversation(activate)
+        params.onActivateConversation(activate);
       }
 
     } finally {
@@ -171,7 +175,9 @@ export function useAgentConversation() {
     if (!item) {
       return
     }
-    await activateConversation(item as AgentConversationItem)
+    const conversation = item as AgentConversationItem
+    await activateConversation(conversation)
+    params.onActivateConversation(conversation);
   }
 
   onMounted(() => {

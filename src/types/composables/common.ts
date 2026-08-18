@@ -1,3 +1,5 @@
+import {ICON_SELECT_AVATAR_MODE_VALUE, ICON_SELECT_MODE} from "@/constants";
+
 export interface IconfontGlyph {
   font_class: string
   name: string
@@ -5,6 +7,7 @@ export interface IconfontGlyph {
   unicode:string
   unicode_decimal:number
 }
+
 export interface IconfontJson {
   name: string
   css_prefix_text: string
@@ -71,3 +74,7 @@ export interface KeyValueRow {
   editing:boolean,
   origin?:KeyValueRow
 }
+
+export type IconSelectModeType = typeof ICON_SELECT_MODE.VIEW | typeof ICON_SELECT_MODE.AVATAR  | typeof ICON_SELECT_MODE.INPUT
+
+export type IconSelectAvatarModeValueType = typeof ICON_SELECT_AVATAR_MODE_VALUE.AVATAR | typeof ICON_SELECT_AVATAR_MODE_VALUE.ICON | typeof ICON_SELECT_AVATAR_MODE_VALUE.INPUT

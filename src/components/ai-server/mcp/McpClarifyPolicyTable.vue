@@ -23,7 +23,7 @@ const globalProperties =
 
 const props = withDefaults(defineProps<{
   formItemNamePrefix: string[]
-  edit:boolean
+  edit?:boolean
   mcpClient:McpClientTransportMetadata
 }>(),{
   edit:true,

@@ -14,6 +14,7 @@ import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourc
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
 import {RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
+import LIconSelect from "@/components/basic/IconSelect.vue";
 
 defineOptions({
   name: 'AuthServerResourceForm'
@@ -139,16 +140,8 @@ function setPageTitle(title:string, entity: ResourceEntity | ResourceSavePayload
 
       </template>
 
-      <a-form-item name="icon" :label="globalProperties.$t('authServer.resource.icon')">
-        <a-tabs :items="options.iconOptions.map(icon => ({key: icon.name, label: icon.name, icons: icon.glyphs.map(glyph => ({key: glyph.icon_id, value: icon.css_prefix_text + glyph.font_class}))}))">
-          <template #contentRender="{item}">
-            <a-space wrap>
-              <a-button size="large" @click="() => options.entity.icon = glyph.value" :type="options.entity.icon === glyph.value ? 'primary' : 'default'"  v-for="glyph in item.icons" :key="glyph.key">
-                <icon-font class="icon text-2xl" :type="glyph.value"/>
-              </a-button>
-            </a-space>
-          </template>
-        </a-tabs>
+      <a-form-item name="icon" :label="globalProperties.$t('common.icon')">
+        <l-icon-select :options="options.iconOptions" v-model:value="options.entity.icon" />
       </a-form-item>
       <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
         <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />

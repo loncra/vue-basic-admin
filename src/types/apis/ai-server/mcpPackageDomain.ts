@@ -1,5 +1,5 @@
 import type {
-  BasicIdMetadata,
+  BasicIdMetadata, DataDictionaryMetadata,
   NameValueEnumMetadata,
   TimeProperties,
   VersionEntityMetadata,
@@ -80,6 +80,8 @@ export interface McpPackageSavePayload extends BasicIdMetadata<number>, VersionE
   type: NameValueEnumMetadata<number> | number
   dynamicActivation: NameValueEnumMetadata<number> | number
   initializeTimeout: TimeProperties
+  icon:string
+  group?:DataDictionaryMetadata
   metadata: McpPackageMetadata
 }
 

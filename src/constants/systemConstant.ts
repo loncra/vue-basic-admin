@@ -156,3 +156,21 @@ export const SYSTEM_MODULE_NAME = {
   AUTH_SERVER:'auth-server',
   MESSAGE_SERVER:'message-server'
 } as const
+
+export const ICON_SELECT_MODE = {
+  VIEW:'view',
+  AVATAR:'avatar',
+  INPUT:'input'
+}
+
+export const ICON_SELECT_AVATAR_MODE_VALUE = {
+  ICON:'icon://',
+  AVATAR:'avatar://',
+  INPUT:'text://'
+}
+
+export const AVATAR_SCHEMES = [
+  ICON_SELECT_AVATAR_MODE_VALUE.ICON,
+  ICON_SELECT_AVATAR_MODE_VALUE.AVATAR,
+  ICON_SELECT_AVATAR_MODE_VALUE.INPUT,
+] as const

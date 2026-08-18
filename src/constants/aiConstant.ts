@@ -100,8 +100,8 @@ export const MODEL_TYPE = {
   MUSIC:50,
 } as const
 
-/** 模型厂商字典 code 前缀，对齐 tb 样例 `system.ai.model.*` */
 export const MODEL_SETTING_MANUFACTURER_CODE_PREFIX = 'system.ai.model'
+export const MCP_GROUP_CODE_PREFIX = 'system.ai.mcp.group'
 
 /** 对齐 {@code ModelSettingMetadata.MODEL_DEFAULT_OPTIONS_KEY} */
 export const MODEL_DEFAULT_OPTIONS_KEY = 'options'
