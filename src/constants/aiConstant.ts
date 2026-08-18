@@ -155,6 +155,13 @@ export const MODEL_SETTING_AUTHORITY = {
   SORT: 'perms[ai_server_mode_setting:sort]',
 } as const
 
+export const MODEL_SETTING_ROUTE = {
+  HOME: 'ai_server_model_setting',
+  ADD: 'ai_server_model_setting_add',
+  EDIT: 'ai_server_model_setting_edit',
+  DETAIL: 'ai_server_model_setting_detail',
+} as const
+
 export const MODEL_SETTING_MANUFACTURER_CODE_QUERY = 'manufacturerCode'
 
 export const STREAM_APPEND_TYPES: ReadonlyArray<AgentSseMessageContent['type']> = [

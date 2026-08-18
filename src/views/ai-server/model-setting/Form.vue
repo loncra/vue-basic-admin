@@ -21,8 +21,9 @@ import {
   MODEL_GENERATE_OPTION_NUMBER_KEYS,
   MODEL_GENERATE_OPTION_STRING_KEYS,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
+  MODEL_SETTING_ROUTE,
   MODEL_TYPE,
-  SYSTEM_CONSTANT,
+  SYSTEM_CONSTANT, SYSTEM_MODULE_NAME,
   VALUE_TYPE,
   YES_OR_NO_TYPE,
 } from '@/constants'
@@ -137,7 +138,7 @@ const generateOptions = computed({
 const redirect = computed(() => {
   const code = options.value.entity.manufacturer?.code
   return {
-    name: 'ai_server_model_setting',
+    name: MODEL_SETTING_ROUTE.HOME,
     query: code ? {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: code} : {},
   }
 })
@@ -158,12 +159,12 @@ async function loadManufacturerByCode(code: string) {
 async function preMounted() {
   const enums: RestResult<EnumBucketsResponseBody> =
     await ResourceServerService.getServiceEnumerates({
-      'ai-server': [{id: 'ModelTypeEnum'}],
-      'resource-server': [{id: 'YesOrNo'}],
+      [SYSTEM_MODULE_NAME.AI_SERVER]: [{id: 'ModelTypeEnum'}],
+      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: 'YesOrNo'}],
     })
   if (enums.data) {
-    options.value.typeOptions = enums.data['ai-server']?.ModelTypeEnum as NameValueEnumMetadata<number>[]
-    options.value.enabledOptions = enums.data['resource-server']?.YesOrNo as NameValueEnumMetadata<number>[]
+    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.ModelTypeEnum as NameValueEnumMetadata<number>[]
+    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.YesOrNo as NameValueEnumMetadata<number>[]
   }
 
   const isEdit = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined

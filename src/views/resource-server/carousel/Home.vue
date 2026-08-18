@@ -167,7 +167,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
 }
 
 const dragEnabled = computed(() =>
-  principalStore.hasPermission('perms[resource_server_carousel:save]'),
+  principalStore.hasPermission(CAROUSEL_AUTHORITY.SAVE),
 )
 
 const statusSetting = {

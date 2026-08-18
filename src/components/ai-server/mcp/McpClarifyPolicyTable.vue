@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<{
 })
 
 const clarifyPolicyColumns = computed<ColumnType<McpClarifyToolPolicyMetadata>[]>(() => {
-  const result = [
+  const result:ColumnType<McpClarifyToolPolicyMetadata>[] = [
     {
       title: globalProperties.$t('aiServer.mcpPackage.toolName'),
       dataIndex: 'toolName',

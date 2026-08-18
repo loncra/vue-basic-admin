@@ -1,4 +1,5 @@
 import type {RouteRecordRaw} from 'vue-router'
+import {DATA_DICTIONARY_ROUTE} from '@/constants'
 
 /** 数据字典相关路由 */
 const router: RouteRecordRaw[] = [
@@ -26,7 +27,7 @@ const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/dictionary/edit',
     component: () => import('@/views/resource-server/data-dictionary/Form.vue'),
-    name: 'resource_server_data_dictionary_edit',
+    name: DATA_DICTIONARY_ROUTE.EDIT,
     meta: {
       dynamicTitle: true,
       applicationName: 'resource-server',
@@ -38,7 +39,7 @@ const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/dictionary/add',
     component: () => import('@/views/resource-server/data-dictionary/Form.vue'),
-    name: 'resource_server_data_dictionary_add',
+    name: DATA_DICTIONARY_ROUTE.ADD,
     meta: {
       applicationName: 'resource-server',
       icon: 'loncra-file-plus',
@@ -49,7 +50,7 @@ const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/dictionary/detail',
     component: () => import('@/views/resource-server/data-dictionary/Detail.vue'),
-    name: 'resource_server_data_dictionary_detail',
+    name: DATA_DICTIONARY_ROUTE.DETAIL,
     meta: {
       dynamicTitle: true,
       applicationName: 'resource-server',

@@ -26,6 +26,12 @@ export const DATA_DICTIONARY_AUTHORITY = {
   SORT: 'perms[resource_server_data_dictionary:sort]',
 } as const
 
+export const DATA_DICTIONARY_ROUTE = {
+  ADD: 'resource_server_data_dictionary_add',
+  EDIT: 'resource_server_data_dictionary_edit',
+  DETAIL: 'resource_server_data_dictionary_detail',
+} as const
+
 export const DICTIONARY_TYPE_AUTHORITY = {
   FIND: 'perms[resource_server_dictionary_type:find]',
   GET: 'perms[resource_server_dictionary_type:get]',

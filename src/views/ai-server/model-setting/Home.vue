@@ -28,6 +28,7 @@ import {
   MODEL_SETTING_AUTHORITY,
   MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
+  MODEL_SETTING_ROUTE,
   SYSTEM_CONSTANT,
 } from '@/constants'
 import type {SearchableColumnType} from "@/types/composables";
@@ -185,7 +186,7 @@ function onAdd() {
     return
   }
   void globalProperties.$router.push({
-    name: 'ai_server_model_setting_add',
+    name: MODEL_SETTING_ROUTE.ADD,
     query: {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: selectedManufacturer.value.code},
   })
 }
@@ -287,8 +288,8 @@ onMounted(mounted)
             :row-selection="{fixed: true, type: 'checkbox'}"
             @drop="onDrop"
             @add="onAdd"
-            @detail="r => globalProperties.$router.push({name: 'ai_server_model_setting_detail',query: {id: String(r.id)},})"
-            @edit="r =>globalProperties.$router.push({name: 'ai_server_model_setting_edit',query: {id: String(r.id)},})
+            @detail="r => globalProperties.$router.push({name: MODEL_SETTING_ROUTE.DETAIL,query: {id: String(r.id)},})"
+            @edit="r =>globalProperties.$router.push({name: MODEL_SETTING_ROUTE.EDIT,query: {id: String(r.id)},})
             "
           >
             <template #title>

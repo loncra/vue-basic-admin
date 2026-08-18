@@ -31,7 +31,7 @@ import LModalForm from "@/components/basic/form/ModalForm.vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from "@/constants/systemConstant.ts";
-import {DATA_DICTIONARY_AUTHORITY, DICTIONARY_TYPE_AUTHORITY} from "@/constants";
+import {DATA_DICTIONARY_AUTHORITY, DATA_DICTIONARY_ROUTE, DICTIONARY_TYPE_AUTHORITY} from "@/constants";
 
 defineOptions({
   name: 'ResourceServerDictionaryHome'
@@ -338,9 +338,9 @@ onMounted(mounted)
             :scroll="{x:'max-content'}"
             :row-selection="{fixed: true, type: 'checkbox'}"
             @drop="onDrop"
-            @add="globalProperties.$router.push({name:'resource_server_data_dictionary_add',query:{typeId: selectedDictionaryType?.id }})"
-            @detail="r => globalProperties.$router.push({name:'resource_server_data_dictionary_detail', query:{id:String(r.id)}})"
-            @edit="r => globalProperties.$router.push({name:'resource_server_data_dictionary_edit', query:{id:String(r.id)}})"
+            @add="globalProperties.$router.push({name:DATA_DICTIONARY_ROUTE.ADD,query:{typeId: selectedDictionaryType?.id }})"
+            @detail="r => globalProperties.$router.push({name:DATA_DICTIONARY_ROUTE.DETAIL, query:{id:String(r.id)}})"
+            @edit="r => globalProperties.$router.push({name:DATA_DICTIONARY_ROUTE.EDIT, query:{id:String(r.id)}})"
           >
 
             <template #title>
