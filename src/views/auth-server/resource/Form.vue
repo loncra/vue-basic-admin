@@ -8,6 +8,7 @@ import type {
 } from "@/types/apis";
 import type {IconfontJson} from "@/types/composables/common";
 import {requireNonNullOrUndefined} from "@/utils";
+import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
@@ -96,7 +97,7 @@ function setPageTitle(title:string, entity: ResourceEntity | ResourceSavePayload
   <div>
     <l-basic-form
       :pre-mounted="mounted"
-      operation-data-trace-target="tb_resource"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.RESOURCE"
       :title-text="setPageTitle"
       :redirect="{name:AUTH_SERVER_RESOURCE_ROUTE.HOME}"
       :service="service"

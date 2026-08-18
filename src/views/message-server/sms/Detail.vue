@@ -6,6 +6,7 @@ import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {SmsMessageService} from "@/apis/message-server";
 import type {SmsMessageEntity} from "@/types/apis";
 import {MESSAGE_SERVER_SMS_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
 
 defineOptions({
   name: 'MessageServerEmailDetail',
@@ -35,7 +36,7 @@ const entity = ref<SmsMessageEntity>({
 <template>
   <div>
     <l-basic-detail
-      operation-data-trace-target="tb_sms_message"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.SMS_MESSAGE"
       :redirect="{name:MESSAGE_SERVER_SMS_ROUTE.HOME}"
       :title-text="(title:string, _entity:SmsMessageEntity) => title + ' (' + _entity.id + ')'"
       :service="service"

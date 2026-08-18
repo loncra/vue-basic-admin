@@ -5,6 +5,7 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {ResourceService} from "@/apis";
 import type {ResourceEntity} from "@/types/apis";
 import {AUTH_SERVER_RESOURCE_ROUTE, RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
+import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
 
 defineOptions({
   name: 'AuthServerResourceDetail'
@@ -37,7 +38,7 @@ const entity = ref<ResourceEntity>({
 <template>
   <div>
     <l-basic-detail
-      operation-data-trace-target="tb_resource"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.RESOURCE"
       :redirect="{name:AUTH_SERVER_RESOURCE_ROUTE.HOME}"
       :title-text="(title:string, _entity:ResourceEntity) => title + ' (' + _entity.name + ')'"
       :service="service"

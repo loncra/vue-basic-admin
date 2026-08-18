@@ -62,7 +62,7 @@ async function doSubmit(){
   try {
     await Promise.all([coverUploadRef.value?.upload(), attachmentUploadRef.value?.upload()])
     /*const result = await service.send(options.value.form);
-    navigateAfterMessageSend(router, result.data, MESSAGE_SITE_ROUTE.HOME)
+    navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_SITE_ROUTE.HOME)
     message.success(result.message)*/
   } catch (error) {
     message.error(error instanceof Error ? error.message : String(error))

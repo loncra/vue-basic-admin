@@ -9,6 +9,7 @@ import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {
   MESSAGE_SERVER_SITE_ROUTE,
   MESSAGE_TYPE,
+  OPERATION_DATA_TRACE_TABLE,
   SITE_PUSHABLE
 } from "@/constants/messageConstant.ts";
 
@@ -42,7 +43,7 @@ const entity = ref<SiteMessageEntity>({
 <template>
   <div>
     <l-basic-detail
-      operation-data-trace-target="tb_site_message"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.SITE_MESSAGE"
       :redirect="{name:MESSAGE_SERVER_SITE_ROUTE.HOME}"
       :title-text="(title:string, _entity:SiteMessageEntity) => title + ' (' + _entity.id + ')'"
       :service="service"

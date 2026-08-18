@@ -7,6 +7,7 @@ import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
 import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
 
 defineOptions({
   name: 'MessageServerEmailDetail',
@@ -35,7 +36,7 @@ const entity = ref<EmailMessageEntity>({
 <template>
   <div>
     <l-basic-detail
-      operation-data-trace-target="tb_email_message"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.EMAIL_MESSAGE"
       :redirect="{name:MESSAGE_SERVER_EMAIL_ROUTE.HOME}"
       :title-text="(title:string, _entity:EmailMessageEntity) => title + ' (' + _entity.id + ')'"
       :service="service"

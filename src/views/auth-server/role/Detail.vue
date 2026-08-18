@@ -4,7 +4,7 @@ import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
 import type {RoleEntity} from "@/types/apis/auth-server/roleDomain";
-import {AUTH_SERVER_ROLE_ROUTE} from '@/constants';
+import {AUTH_SERVER_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
 
 defineOptions({
   name: 'AuthServerRoleHome'
@@ -33,7 +33,7 @@ const entity = ref<RoleEntity>({
 <template>
   <div>
     <l-basic-detail
-      operation-data-trace-target="tb_role"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ROLE"
       :redirect="{name:AUTH_SERVER_ROLE_ROUTE.HOME}"
       :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'"
       :service="service"

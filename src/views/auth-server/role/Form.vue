@@ -17,7 +17,7 @@ import type {FilterRequest} from "@/types/apis/common.js";
 import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
-import {AUTH_SERVER_ROLE_ROUTE} from "@/constants";
+import {AUTH_SERVER_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from "@/constants";
 
 defineOptions({
   name: 'AuthServerRoleForm'
@@ -207,7 +207,7 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
   <div>
     <l-basic-form
       @resetFields="resetFields"
-      operation-data-trace-target="tb_role"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ROLE"
       :post-get-entity="postGetEntity"
       :pre-mounted="mounted"
       :title-text="setPageTitle"

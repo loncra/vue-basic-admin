@@ -174,3 +174,17 @@ export const AVATAR_SCHEMES = [
   ICON_SELECT_AVATAR_MODE_VALUE.AVATAR,
   ICON_SELECT_AVATAR_MODE_VALUE.INPUT,
 ] as const
+
+export const OPERATION_DATA_TRACE_TABLE = {
+  DICTIONARY_TYPE: 'tb_dictionary_type',
+  DATA_DICTIONARY: 'tb_data_dictionary',
+  CAROUSEL: 'tb_carousel',
+  SMS_MESSAGE: 'tb_sms_message',
+  SITE_MESSAGE: 'tb_site_message',
+  EMAIL_MESSAGE: 'tb_email_message',
+  ROLE: 'tb_role',
+  RESOURCE: 'tb_resource',
+  CONSOLE_USER: 'tb_console_user',
+  AI_MODEL_SETTING: 'tb_ai_model_setting',
+  AI_MCP_PACKAGE: 'tb_ai_mcp_package',
+} as const

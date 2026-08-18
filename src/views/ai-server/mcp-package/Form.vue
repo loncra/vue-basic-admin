@@ -21,6 +21,7 @@ import {
   MCP_CLIENT_TYPE,
   MCP_GROUP_CODE_PREFIX,
   MCP_PACKAGE_ROUTE,
+  OPERATION_DATA_TRACE_TABLE,
   SYSTEM_CONSTANT,
   SYSTEM_MODULE_NAME,
   TIME_UNIT_TYPE,
@@ -210,7 +211,7 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
 <template>
   <div>
     <l-basic-form
-      operation-data-trace-target="tb_ai_mcp_package"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_MCP_PACKAGE"
       :pre-mounted="preMounted"
       :post-get-entity="postGetEntity"
       :title-text="setPageTitle"

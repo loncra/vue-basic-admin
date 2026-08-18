@@ -32,6 +32,7 @@ import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictio
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from "@/constants/systemConstant.ts";
 import {
+  OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY,
   RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
   RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY
@@ -375,7 +376,7 @@ onMounted(mounted)
       @success="onSaveSuccessDictionaryType"
       :title="globalProperties.$t('common.add', {name: ' ' + globalProperties.$t('resourceServer.dictionaryType.routePage')})"
       v-model:open="options.dictionaryType.formOpen"
-      operation-data-trace-target="tb_dictionary_type"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.DICTIONARY_TYPE"
       :service="dictionaryTypeService"
       v-model:entity="options.dictionaryType.entity"
     >

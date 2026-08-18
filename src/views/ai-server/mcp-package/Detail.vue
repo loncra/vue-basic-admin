@@ -12,6 +12,7 @@ import {
   MCP_CLIENT_HTTP_TYPE_VALUE,
   MCP_CLIENT_TYPE,
   MCP_PACKAGE_ROUTE,
+  OPERATION_DATA_TRACE_TABLE,
   TIME_UNIT_TYPE,
   YES_OR_NO_TYPE,
 } from '@/constants'
@@ -90,7 +91,7 @@ function postGetEntity(entity: McpPackageEntity) {
   <div>
     <l-basic-detail
       :post-get-entity="postGetEntity"
-      operation-data-trace-target="tb_ai_mcp_package"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_MCP_PACKAGE"
       :redirect="{name: MCP_PACKAGE_ROUTE.HOME}"
       :title-text="(title: string, record: McpPackageEntity) => title + ' (' + record.name + ')'"
       :service="service"

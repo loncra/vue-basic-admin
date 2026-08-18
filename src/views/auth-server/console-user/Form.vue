@@ -6,6 +6,7 @@ import type {
 } from "@/types/apis/auth-server/consoleUserDomain";
 import type {NameValueEnumMetadata, RestResult, RoleEntity} from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
+import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ConsoleUserService, ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
@@ -89,7 +90,7 @@ function resetFields() {
   <div>
     <l-basic-form
       @resetFields="resetFields"
-      operation-data-trace-target="tb_console_user"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.CONSOLE_USER"
       :pre-mounted="mounted"
       :title-text="setPageTitle"
       :redirect="{name:AUTH_SERVER_CONSOLE_USER_ROUTE.HOME}"

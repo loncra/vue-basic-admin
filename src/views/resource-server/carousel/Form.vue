@@ -10,6 +10,7 @@ import type {
   RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
+import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
 import {ResourceServerService} from "@/apis";
 import {CarouselService} from "@/apis/resource-server/carouselService.ts";
 import {disableDate, disableTime} from "@/utils/dateUtils";
@@ -96,7 +97,7 @@ async function preSubmit() {
 <template>
   <div>
     <l-basic-form
-      operation-data-trace-target="tb_carousel"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.CAROUSEL"
       :post-get-entity="postGetEntity"
       :pre-mounted="preMounted"
       :pre-submit="preSubmit"

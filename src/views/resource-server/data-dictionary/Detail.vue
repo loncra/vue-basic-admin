@@ -5,6 +5,7 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE, VALUE_TYPE} from "@/constants/resourceConstant.ts";
+import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
 
 defineOptions({
   name: 'ResourceServerDataDictionaryDetail',
@@ -32,7 +33,7 @@ const entity = ref<DataDictionaryEntity>({
 <template>
   <div>
     <l-basic-detail
-      operation-data-trace-target="tb_data_dictionary"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.DATA_DICTIONARY"
       :redirect="{name:RESOURCE_SERVER_DATA_DICTIONARY_ROUTE.HOME}"
       :title-text="(title:string, _entity:DataDictionaryEntity) => title + ' (' + _entity.name + ')'"
       :service="service"

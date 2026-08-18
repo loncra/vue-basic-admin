@@ -9,6 +9,7 @@ import type {
   RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
+import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
@@ -114,7 +115,7 @@ function setPageTitle(title:string, entity: DataDictionaryEntity | DataDictionar
 <template>
   <div>
     <l-basic-form
-      operation-data-trace-target="tb_data_dictionary"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.DATA_DICTIONARY"
       :pre-mounted="preMounted"
       :post-mounted="postMounted"
       :title-text="setPageTitle"

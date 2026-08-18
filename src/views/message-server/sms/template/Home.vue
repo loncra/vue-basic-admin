@@ -70,7 +70,6 @@ const columns = computed<SearchableColumnType[]>(() => [{
       detail:MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY.GET,
     }"
     :scroll="{x:'max-content'}"
-    @detail="r => globalProperties.$router.push({name:'message_server_sms_template_detail', query:{id:r.id}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'creationTime'">

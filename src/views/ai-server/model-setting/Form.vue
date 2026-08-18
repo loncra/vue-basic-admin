@@ -23,6 +23,7 @@ import {
   MODEL_GENERATE_OPTION_STRING_KEYS,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
   MODEL_TYPE,
+  OPERATION_DATA_TRACE_TABLE,
   SYSTEM_CONSTANT,
   SYSTEM_MODULE_NAME,
   VALUE_TYPE,
@@ -249,7 +250,7 @@ function isStringOption(key: string) {
 <template>
   <div>
     <l-basic-form
-      operation-data-trace-target="tb_ai_model_setting"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_MODEL_SETTING"
       :pre-mounted="preMounted"
       :post-get-entity="postGetEntity"
       :pre-submit="preSubmit"

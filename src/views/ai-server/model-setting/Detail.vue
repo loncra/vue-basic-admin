@@ -18,6 +18,7 @@ import {
   MODEL_GENERATE_OPTION_KEYS,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
   MODEL_TYPE,
+  OPERATION_DATA_TRACE_TABLE,
   VALUE_TYPE,
   YES_OR_NO_TYPE,
 } from '@/constants'
@@ -97,7 +98,7 @@ onMounted(async () => {
 <template>
   <div>
     <l-basic-detail
-      operation-data-trace-target="tb_ai_model_setting"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_MODEL_SETTING"
       :redirect="redirect"
       :title-text="(title: string, _entity: ModelSettingEntity) => title + ' (' + _entity.name + ')'"
       :service="service"
