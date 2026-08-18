@@ -16,6 +16,7 @@ import {ResourceServerService} from '@/apis'
 import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
 import {
   AI_SERVER_MODEL_SETTING_ROUTE,
+  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
   MODEL_DEFAULT_OPTIONS_KEY,
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
   MODEL_GENERATE_OPTION_KEYS,
@@ -30,7 +31,6 @@ import {
   VALUE_TYPE,
   YES_OR_NO_TYPE,
 } from '@/constants'
-import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY} from '@/constants/systemConstant.ts'
 
 defineOptions({
   name: 'AiServerModelSettingForm',

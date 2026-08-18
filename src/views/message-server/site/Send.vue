@@ -12,7 +12,7 @@ import type {SiteMessageSendPayload} from "@/types/apis/message-server/siteDomai
 import LTipTap from "@/components/tiptap/TipTap.vue";
 
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {MESSAGE_TYPE, SITE_PUSHABLE} from "@/constants/messageConstant.ts";
+import {MESSAGE_TYPE, SITE_PUSHABLE} from "@/constants";
 import {loadMessageSendEnums} from "@/composables/message-server/useMessageSendFlow.ts";
 
 defineOptions({

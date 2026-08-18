@@ -9,7 +9,7 @@ import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
 import {SiteMessageService} from "@/apis/message-server";
 import type {RestResult} from "@/types/apis";
-import {MESSAGE_SERVER_BATCH_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_SERVER_BATCH_ROUTE, MESSAGE_TYPE} from "@/constants";
 
 defineOptions({
   name: 'MessageServerBatchDetail'

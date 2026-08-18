@@ -2,17 +2,17 @@
 
 import {type Component, computed, onMounted, onUnmounted, ref} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
-import {DATE_TIME_FORMAT} from "@/constants/systemConstant.ts";
+import {
+  CHAT_CALL_MINI_SIZE,
+  CHAT_CALL_SCENE,
+  CHAT_CALL_UI_MODE,
+  DATE_TIME_FORMAT
+} from "@/constants";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
 import {provideChatCallMedia, useChatCallModalExpose,} from "@/composables";
 import type {ChatCallModalInnerProps} from "@/types/composables";
 import LChatCallPrivateTypeLayout
   from "@/components/message-server/chat/ChatCallPrivateTypeLayout.vue";
-import {
-  CHAT_CALL_MINI_SIZE,
-  CHAT_CALL_SCENE,
-  CHAT_CALL_UI_MODE,
-} from "@/constants/messageConstant.ts";
 
 defineOptions({
   name: 'LChatCallModel',

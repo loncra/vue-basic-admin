@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
+import {RESOURCE_TYPE} from "@/constants";
 import type {ResourceEntity} from "@/types/apis";
 import {
   type ComponentInternalInstance,

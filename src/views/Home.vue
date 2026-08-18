@@ -3,7 +3,7 @@ import HomeLayout from '@/components/layout/HomeLayout.vue'
 import LChatCallModel from "@/components/message-server/chat/ChatCallModel.vue";
 import {useChatNotification} from "@/composables";
 import {toRef} from "vue";
-import {TIME_UNIT_TYPE} from "@/constants/systemConstant.ts";
+import {TIME_UNIT_TYPE} from "@/constants";
 import type {TimeProperties} from "@/types/apis";
 
 defineOptions({

@@ -5,7 +5,7 @@ import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrivateChatCallLayout} from "@/composables";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {onMounted} from "vue";
-import {CHAT_CALL_PRIVATE_ROLE_TYPE} from "@/constants/messageConstant.ts";
+import {CHAT_CALL_PRIVATE_ROLE_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LChatCallPrivateTypeLayout',

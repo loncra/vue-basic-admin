@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {SYSTEM_CONSTANT} from "@/constants";
 
 import {
   type ComponentInternalInstance,

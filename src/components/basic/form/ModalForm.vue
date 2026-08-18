@@ -5,7 +5,7 @@ import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, getCurrentInstance, h, ref, watch} from "vue";
 import type {BasicCrudService, BasicIdMetadata, RestResult} from "@/types/apis";
 import type {BasicAuthorityProps} from "@/types/composables";
-import {SYSTEM_CONSTANT} from "@/constants/systemConstant.ts";
+import {SYSTEM_CONSTANT} from "@/constants";
 import {isResultSuccess} from "@/requests";
 import {App, Button} from "antdv-next";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";

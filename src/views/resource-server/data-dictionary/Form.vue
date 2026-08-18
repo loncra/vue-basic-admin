@@ -9,16 +9,18 @@ import type {
   RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE} from "@/constants";
+import {
+  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
+  OPERATION_DATA_TRACE_TABLE,
+  RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  VALUE_TYPE
+} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
 import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
-import {
-  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
-  SYSTEM_MODULE_NAME
-} from "@/constants/systemConstant.ts";
-import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE, VALUE_TYPE} from "@/constants/resourceConstant.ts";
 
 defineOptions({
   name: 'ResourceServerDataDictionaryForm',

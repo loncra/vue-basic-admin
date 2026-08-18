@@ -1,16 +1,3 @@
-/** 对齐后端 GenderEnum */
-export const GENDER = {
-  MALE: 10,
-  FEMALE: 20,
-  UNKNOWN: 30,
-} as const
-
-/** 对齐后端 ResourceCategoryEnum */
-export const RESOURCE_CATEGORY = {
-  PLUGIN: 10,
-  CUSTOMIZE: 20,
-} as const
-
 /**
  * 资源类型常量
  * 用于标识权限资源的结构类型
@@ -55,7 +42,6 @@ export const LOGIN_TYPE = {
   /** 二维码登录 */
   QR_CODE: 'QR_CODE',
 } as const
-
 
 export const AUTH_SERVER_ROLE_AUTHORITY = {
   DELETE: 'perms[auth_server_role:delete]',

@@ -11,7 +11,7 @@ import {
 } from '@/types/apis'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
-import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants/authConstant.js'
+import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants'
 import {createIcon, requireNonNullOrUndefined} from '@/utils'
 import {ResourceServerService} from "@/apis";
 import type {TianaiCaptchaInstance} from "../../../../env";

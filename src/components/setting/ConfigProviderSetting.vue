@@ -10,7 +10,7 @@ import {
   CREATE_SUCCESS_BACK,
   type CreateSuccessBackValue,
   type ThemeMode
-} from "@/constants/configProviderConstant.ts";
+} from "@/constants";
 
 defineOptions({
   name: 'LConfigProviderSetting',

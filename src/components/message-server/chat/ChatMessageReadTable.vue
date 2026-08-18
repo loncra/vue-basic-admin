@@ -13,11 +13,10 @@ import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
 import type {TableProps} from "antdv-next";
-import {SOCKET_EVENT_TYPE} from "@/constants/messageConstant.ts";
+import {SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
-import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LChatMessageReadTable',

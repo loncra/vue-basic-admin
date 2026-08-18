@@ -12,13 +12,12 @@ import LTipTap from "@/components/tiptap/TipTap.vue";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageSendPayload} from "@/types/apis/message-server/emailDomain.ts";
-import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
+import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE, YES_OR_NO_TYPE} from "@/constants";
 import {
   loadMessageSendEnums,
   navigateAfterMessageSend
 } from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
-import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'MessageServerEmailSend',

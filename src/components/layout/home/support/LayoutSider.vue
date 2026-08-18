@@ -2,7 +2,7 @@
 import {useConfigProviderStore} from '@/stores/configProviderStore.js'
 import LLogo from '@/components/Logo.vue'
 import LMenu from '@/components/layout/Menu.vue'
-import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
+import {RESOURCE_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LLayoutSider',

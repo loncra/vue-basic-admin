@@ -5,7 +5,7 @@ import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue"
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {ChatCallType, UserChatParticipantEntity} from "@/types/apis";
 import type {MenuItemType} from "antdv-next";
-import {CHAT_CALL_TYPE} from "@/constants/messageConstant.ts";
+import {CHAT_CALL_TYPE} from "@/constants";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {ServerConversationItem} from "@/types/composables";
 import {ChatCallService} from "@/apis/message-server/chatCallService.ts";

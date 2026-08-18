@@ -10,8 +10,8 @@ import {
   MESSAGE_SERVER_SITE_ROUTE,
   MESSAGE_TYPE,
   OPERATION_DATA_TRACE_TABLE,
-  SITE_PUSHABLE
-} from "@/constants/messageConstant.ts";
+  YES_OR_NO_TYPE
+} from "@/constants";
 
 defineOptions({
   name: 'MessageServerSiteDetail',
@@ -28,7 +28,7 @@ const entity = ref<SiteMessageEntity>({
   channels: [],
   content: "",
   id: 0,
-  pushable: SITE_PUSHABLE.NO,
+  pushable: YES_OR_NO_TYPE.NO,
   readTime: 0,
   readable: 0,
   remark: "",

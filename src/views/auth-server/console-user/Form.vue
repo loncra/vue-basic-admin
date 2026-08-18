@@ -6,14 +6,20 @@ import type {
 } from "@/types/apis/auth-server/consoleUserDomain";
 import type {NameValueEnumMetadata, RestResult, RoleEntity} from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE} from "@/constants";
+import {
+  AUTH_SERVER_CONSOLE_USER_ROUTE,
+  GENDER,
+  OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_CONSTANT,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  VALID_REGX
+} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ConsoleUserService, ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import {SYSTEM_CONSTANT, VALID_REGX} from "@/constants/systemConstant.ts";
-import {AUTH_SERVER_CONSOLE_USER_ROUTE, GENDER} from "@/constants/authConstant.ts";
 import type {TableProps} from "antdv-next";
 
 defineOptions({

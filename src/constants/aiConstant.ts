@@ -1,61 +1,19 @@
 import type {AgentChatStatus, AgentSseMessageContent} from "@/types/composables";
-import {MCP_CLIENT_TYPE} from "@/constants/variableConstant.ts";
+import {
+  AGENT_BLOCK_STATUS,
+  AGENT_CHAT_STATUS,
+  AGENT_CONTENT_TYPE,
+  AGENT_TOOL_BLOCK_STATUS,
+  MCP_CLIENT_TYPE
+} from "@/constants/variableConstant.ts";
 
 export const AGENT_CHAT_CONTEXT_PROVIDE_KEY = "agentChatContextProvide"
-
-export const AGENT_CONVERSATION_TYPE = {
-  DEFAULT_WORKSPACE:10,
-  CUSTOMIZE_WORKSPACE:20,
-  WORKSPACE_CONVERSATION:30
-} as const
-
-export const AGENT_CHAT_STATUS = {
-  READY:10,
-  RUNNING:20,
-  REQUEST_STOP:25,
-  STOPPED:30,
-  COMPLETED:35,
-  FAILED:40
-} as const
-
-/** 助手消息 content 块 type（对齐后端 AgentContentType） */
-export const AGENT_CONTENT_TYPE = {
-  THINK: "think",
-  TOOL:"tool",
-  ANSWER:"answer",
-  ERROR:"error",
-  AGENT_STATUS_CHANGE:"agentStatusChange",
-  TOKEN_USAGE:"tokenUsage",
-  STREAM_START:"streamStart",
-  STREAM_STOP:"streamStop",
-  STREAM_END:"streamEnd",
-  ASSISTANT:"assistant",
-  GENERATE_CONVERSATION_NAME:"generateConversationName"
-} as const
-
-/** 助手 content 块 status */
-export const AGENT_BLOCK_STATUS = {
-  READY:'ready',
-  PENDING:'pending',
-  RUNNING: 'running',
-  DONE: 'done',
-  FAILED: 'failed',
-} as const
-
 
 export const TOKEN_USAGE_TYPE: Readonly<AgentSseMessageContent['type']> = AGENT_CONTENT_TYPE.TOKEN_USAGE
 
 export const BLOCK_RUNNING_STATUS_VALUE:ReadonlyArray<string> = [AGENT_BLOCK_STATUS.READY, AGENT_BLOCK_STATUS.PENDING, AGENT_BLOCK_STATUS.RUNNING]
 
 export const STREAM_RUNNING_STATUS_VALUE:ReadonlyArray<number> = [AGENT_CHAT_STATUS.READY, AGENT_CHAT_STATUS.RUNNING]
-
-export const AGENT_TOOL_BLOCK_STATUS = {
-  PENDING:"pending",
-  ASKING:"asking",
-  ALLOWED:"allowed",
-  SUBMITTED:"submitted",
-  FINISHED:"finished",
-} as const
 
 export const AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE:ReadonlyArray<string> = [AGENT_TOOL_BLOCK_STATUS.PENDING, AGENT_TOOL_BLOCK_STATUS.ASKING]
 
@@ -91,15 +49,6 @@ export const AGENT_CHAT_STATUS_STYLE = {
     spin: false,
   },
 } as const satisfies Record<AgentChatStatus, { icon: string; textClass: string; spin: boolean }>
-
-
-export const MODEL_TYPE = {
-  CHAT:10,
-  IMAGE:20,
-  VIDEO:30,
-  VOICE:40,
-  MUSIC:50,
-} as const
 
 export const MODEL_SETTING_MANUFACTURER_CODE_PREFIX = 'system.ai.model'
 export const MCP_GROUP_CODE_PREFIX = 'system.ai.mcp.group'

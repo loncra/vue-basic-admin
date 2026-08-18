@@ -6,8 +6,7 @@ import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
-import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
-import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
+import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE, OPERATION_DATA_TRACE_TABLE} from "@/constants";
 
 defineOptions({
   name: 'MessageServerEmailDetail',

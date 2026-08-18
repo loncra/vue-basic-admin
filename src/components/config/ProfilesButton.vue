@@ -3,7 +3,7 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import type {MenuItemType} from 'antdv-next'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
+import {RESOURCE_TYPE} from "@/constants";
 import type {MenuInfo} from '@v-c/menu'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";

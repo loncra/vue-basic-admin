@@ -30,13 +30,14 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import {SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from "@/constants/systemConstant.ts";
 import {
   OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY,
   RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
   RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY,
-  SYSTEM_ENUM_TYPE
+  SYSTEM_CONSTANT,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
 } from "@/constants";
 
 defineOptions({

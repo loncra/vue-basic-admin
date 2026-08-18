@@ -7,7 +7,7 @@ import type {
 } from "@/types/apis";
 import {getEnumName, getEnumValue} from "@/utils";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
-import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants/messageConstant.ts";
+import {CHAAT_ROOM_VIEW_MODAL_TYPE} from "@/constants";
 import {AuthServerService} from "@/apis";
 import LChatMessageHistories from "@/components/message-server/chat/ChatMessageHistories.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";

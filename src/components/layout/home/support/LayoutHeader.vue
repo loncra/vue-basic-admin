@@ -2,9 +2,8 @@
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
 import LMenu from '@/components/layout/Menu.vue'
-import {RESOURCE_TYPE} from "@/constants/authConstant.ts";
-import {h, onMounted, resolveComponent, type VNode} from "vue";
-import type {ResourceEntity} from "@/types/apis";
+import {RESOURCE_TYPE} from "@/constants";
+import {onMounted} from "vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 
 defineOptions({

@@ -8,7 +8,7 @@ import {
   CHAT_CALL_PRIVATE_ROLE_TYPE,
   CHAT_CALL_TYPE,
   SOCKET_EVENT_TYPE,
-} from "@/constants/messageConstant.ts";
+} from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {Participant, Room} from "livekit-client";
 import {

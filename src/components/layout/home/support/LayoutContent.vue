@@ -5,7 +5,8 @@ import {
   type ComponentInternalInstance,
   getCurrentInstance,
   nextTick,
-  onMounted, onUnmounted,
+  onMounted,
+  onUnmounted,
   provide,
   ref,
   watch
@@ -16,7 +17,7 @@ import {
   APP_RELOAD_PROVIDE_KEY,
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
   LAYOUT_PANE_TITLE_PROVIDE_KEY
-} from '@/constants/systemConstant'
+} from '@/constants'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {RouteResourceMetadata} from '@/types/apis'
 import i18n from "@/i18n";

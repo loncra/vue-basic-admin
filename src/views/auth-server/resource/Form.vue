@@ -8,13 +8,18 @@ import type {
 } from "@/types/apis";
 import type {IconfontJson} from "@/types/composables/common";
 import {requireNonNullOrUndefined} from "@/utils";
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE} from "@/constants";
+import {
+  AUTH_SERVER_RESOURCE_ROUTE,
+  OPERATION_DATA_TRACE_TABLE,
+  RESOURCE_CATEGORY,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService, ResourceService} from "@/apis";
 import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
-import {AUTH_SERVER_RESOURCE_ROUTE, RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
 import LIconSelect from "@/components/basic/IconSelect.vue";
 
 defineOptions({

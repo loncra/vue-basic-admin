@@ -4,8 +4,11 @@ import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {ResourceService} from "@/apis";
 import type {ResourceEntity} from "@/types/apis";
-import {AUTH_SERVER_RESOURCE_ROUTE, RESOURCE_CATEGORY} from "@/constants/authConstant.ts";
-import {OPERATION_DATA_TRACE_TABLE} from "@/constants";
+import {
+  AUTH_SERVER_RESOURCE_ROUTE,
+  OPERATION_DATA_TRACE_TABLE,
+  RESOURCE_CATEGORY
+} from "@/constants";
 
 defineOptions({
   name: 'AuthServerResourceDetail'

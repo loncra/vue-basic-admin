@@ -15,13 +15,18 @@ import {SmsSignService} from "@/apis/message-server/sms/signService.ts";
 import {SmsTemplateService} from "@/apis/message-server/sms/templateService.ts";
 import {AuthServerService, ResourceServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, YES_OR_NO_TYPE} from "@/constants";
+import {
+  MESSAGE_SERVER_SMS_ROUTE,
+  MESSAGE_TYPE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  YES_OR_NO_TYPE
+} from "@/constants";
 import type {SearchableColumnType} from "@/types/composables";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {SmsMessageService} from "@/apis/message-server";
 import useApp from "antdv-next/dist/app/useApp";
-import {MESSAGE_SERVER_SMS_ROUTE, MESSAGE_TYPE} from "@/constants/messageConstant.ts";
 import {navigateAfterMessageSend} from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
 

@@ -5,23 +5,6 @@ export const USER_CHAT_CONTEXT_PROVIDE_KEY = "userChatContext"
 export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModalExpose"
 export const CHAT_CALL_MEDIA_PROVIDE_KEY = "chatCallMedia"
 
-/** 对齐后端 MessageTypeEnum */
-export const MESSAGE_TYPE = {
-  NOTICE: 10,
-  WARNING: 20,
-  SYSTEM: 30,
-  CAPTCHA: 40,
-  PROMOTION: 50,
-  IM: 60,
-  UNKNOWN: 99,
-} as const
-
-/** 站内信是否推送（对齐 YesOrNo） */
-export const SITE_PUSHABLE = {
-  NO: 0,
-  YES: 1,
-} as const
-
 /**
  * 消息分组
  */
@@ -108,18 +91,6 @@ export const VIDEO_CHAT_CONSTRAINTS = {
   },
 } satisfies Record<string, MediaStreamConstraints>
 
-export const CHAT_CALL_TYPE = {
-  VIDEO:"10",
-  VOICE:"20"
-} as const
-
-/** 通话场景：决定布局与采集档位（与 type 视频/语音正交） */
-export const CHAT_CALL_SCENE = {
-  PRIVATE: 10,
-  GROUP: 20,
-  MEETING: 30
-} as const
-
 export const CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE = {
   DEFAULT:"default",
   LEFT_RIGHT:"leftRight"
@@ -146,7 +117,6 @@ export const PIP_WIDTH_RATIO = 0.28
 export const PIP_MAX_WIDTH_PX = 200
 /** 无真实视频流时用于布局计算的默认宽高（与 PREVATE 约束 ideal 一致） */
 export const PRIVATE_VIDEO_LAYOUT_METRICS: VideoMetrics = {width: 1280, height: 720, aspect: 16 / 9}
-
 
 export const MESSAGE_SERVER_BATCH_AUTHORITY = {
   DELETE: 'perms[message_server_batch:delete]',

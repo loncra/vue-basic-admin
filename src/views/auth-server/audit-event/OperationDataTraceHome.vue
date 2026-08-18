@@ -6,7 +6,6 @@ defineOptions({
   name: 'AuthServerOperationDataTraceEventHome'
 })
 
-
 </script>
 
 <template>

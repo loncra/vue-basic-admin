@@ -10,14 +10,19 @@ import type {
   RestResult
 } from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";
+import {
+  CAROUSEL_TYPE,
+  OPERATION_DATA_TRACE_TABLE,
+  RESOURCE_SERVER_CAROUSEL_ROUTE,
+  SYSTEM_ENUM_TYPE
+} from "@/constants";
+import {SYSTEM_MODULE_NAME} from "@/constants/systemConstant";
 import {ResourceServerService} from "@/apis";
 import {CarouselService} from "@/apis/resource-server/carouselService.ts";
 import {disableDate, disableTime} from "@/utils/dateUtils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import type {Dayjs} from "dayjs";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {CAROUSEL_TYPE, RESOURCE_SERVER_CAROUSEL_ROUTE} from "@/constants/resourceConstant.ts";
 
 defineOptions({
   name: 'ResourceServerCarouseForm',

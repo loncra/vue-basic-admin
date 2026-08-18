@@ -24,11 +24,10 @@ import {
 import {Conversations as AxConversations,} from '@antdv-next/x'
 import type {ServerConversationItem} from "@/types/composables";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants/messageConstant.ts";
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, YES_OR_NO_TYPE} from "@/constants";
 import type {MenuItemType} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
 import {useChatContext, useConversationActions} from "@/composables/message-server/chat";
-import {YES_OR_NO_TYPE} from "@/constants";
 
 defineOptions({
   name: 'LChatConversation',

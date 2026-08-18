@@ -1,9 +1,5 @@
 import type {NameValueEnumMetadata} from "@/types/apis";
-import {
-  type CreateSuccessBackValue,
-  type ThemeMode,
-  type ThemeValue
-} from "@/constants/configProviderConstant.ts";
+import {type CreateSuccessBackValue, type ThemeMode, type ThemeValue} from "@/constants";
 import type {MappingAlgorithm} from "antdv-next/dist/theme";
 import type {GlobalConfigProps} from "antdv-next/dist/notification/interface";
 import type {ConfigOptions} from "antdv-next/dist/message/interface";

@@ -4,16 +4,16 @@ import LLogo from "@/components/Logo.vue";
 import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {createIcon, requireNonNullOrUndefined, validatePassword} from "@/utils";
-import {CAPTCHA_TOKEN_TYPE} from "@/constants/messageConstant.ts";
+import {CAPTCHA_TOKEN_TYPE, VALID_REGX} from "@/constants";
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {
   CaptchaToken,
-  IdNameValueMetadata, IdValueMetadata,
+  IdNameValueMetadata,
+  IdValueMetadata,
   PageRequest,
   PlatformUser,
   RestResult
 } from "@/types/apis";
-import {VALID_REGX} from "@/constants/systemConstant.ts";
 import useApp from "antdv-next/dist/app/useApp";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 

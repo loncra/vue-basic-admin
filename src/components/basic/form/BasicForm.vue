@@ -14,10 +14,11 @@ import {
   watch
 } from "vue";
 import {
+  CREATE_SUCCESS_BACK,
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
   LAYOUT_PANE_TITLE_PROVIDE_KEY,
   SYSTEM_CONSTANT
-} from "@/constants/systemConstant.ts";
+} from "@/constants";
 import type {BasicCrudService, BasicIdMetadata, RestResult} from "@/types/apis";
 import type {BasicAuthorityProps} from "@/types/composables";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -29,7 +30,6 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {getRouteTitle} from "@/routers";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 import i18n from "@/i18n";
-import {CREATE_SUCCESS_BACK} from "@/constants/configProviderConstant.ts";
 
 defineOptions({
   name: 'LBasicForm',
