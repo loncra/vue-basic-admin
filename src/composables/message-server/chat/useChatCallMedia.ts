@@ -8,6 +8,8 @@ import {
   CHAT_CALL_PRIVATE_ROLE_TYPE,
   CHAT_CALL_TYPE,
   SOCKET_EVENT_TYPE,
+  USER_CHAT_CALL_PARTICIPANT_STATUS,
+  USER_CHAT_PARTICIPANT_TYPE,
 } from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {Participant, Room} from "livekit-client";
@@ -115,7 +117,7 @@ export function provideChatCallMedia(): ChatCallMediaExpose {
       return
     }
 
-    const isVideoCall = String(getEnumValue(call.type)) === CHAT_CALL_TYPE.VIDEO
+    const isVideoCall = getEnumValue(call.type) === CHAT_CALL_TYPE.VIDEO
     mediaOptions.value.cameraEnabled = isVideoCall
 
     const constraints = getMediaStreamConstraintsByCall(call)
@@ -223,7 +225,7 @@ export function provideChatCallMedia(): ChatCallMediaExpose {
     }
     const participant = result.data
     chatCallExpose.updateParticipant(participant)
-    if (getEnumValue(participant.status) !== 40) {
+    if (getEnumValue(participant.status) !== USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE) {
       return
     }
 
@@ -233,14 +235,14 @@ export function provideChatCallMedia(): ChatCallMediaExpose {
       await room.connect(String(participant.metadata.liveKit.id), participant.metadata.liveKit.value)
       bindRemoteMediaEvents(room)
     } else {
-      const caller = userCall.participants.find(s => getEnumValue(s.type) === 31)
-      if (caller && getEnumValue(caller.status) === 10) {
+      const caller = userCall.participants.find(s => getEnumValue(s.type) === USER_CHAT_PARTICIPANT_TYPE.CALLER)
+      if (caller && getEnumValue(caller.status) === USER_CHAT_CALL_PARTICIPANT_STATUS.INITIATING) {
         await ChatCallService.accept(Number(chatCallExpose.context.userChatCall.id))
         return
       }
     }
 
-    if ((userCall.participants || []).every(s => getEnumValue(s.status) === 40)) {
+    if ((userCall.participants || []).every(s => getEnumValue(s.status) === USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE)) {
       await nextTick()
       room.on(RoomEvent.TrackSubscribed, (track, _publication, trackParticipant) => {
         if (trackParticipant.isLocal) {

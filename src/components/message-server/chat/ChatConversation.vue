@@ -209,8 +209,8 @@ defineExpose({
       v-if="conversationCount > 0"
       class="min-h-0 size-full flex-[1_1_0] p-0! gap-0!">
       <template #iconRender="{ item }">
-        <a-flex justify="center" align="center" :class="'h-full relative ' + (getEnumValue(item.data.muted) === 1 ? 'opacity-80' : '')">
-          <a-badge size="small" :dot="getEnumValue(item.data.muted) === 1" :count="messageServerStore.getUserChatUnreadQuantity(item.key)" >
+        <a-flex justify="center" align="center" :class="'h-full relative ' + (getEnumValue(item.data.muted) === YES_OR_NO_TYPE.YES ? 'opacity-80' : '')">
+          <a-badge size="small" :dot="getEnumValue(item.data.muted) === YES_OR_NO_TYPE.YES" :count="messageServerStore.getUserChatUnreadQuantity(item.key)" >
             <a-avatar-group :max="{count: 3}" v-if="(item.data.cover || []).length > 0" size="large" class="[&>*:not(:first-child)]:-ms-8!">
               <a-avatar v-for="c in item.data.cover" :key="c.objectName" :src="AttachmentService.query(c.bucketName, c.objectName)" />
             </a-avatar-group>
@@ -218,10 +218,10 @@ defineExpose({
               {{ item?.label.substring(0,1) }}
             </a-avatar>
           </a-badge>
-          <div v-if="getEnumValue(item.data.pinned) === 1" class="inline-block absolute top-0 left-0 pl-xxs pr-xxs opacity-80 border border-solid border-warning-border bg-warning rounded-full">
+          <div v-if="getEnumValue(item.data.pinned) === YES_OR_NO_TYPE.YES" class="inline-block absolute top-0 left-0 pl-xxs pr-xxs opacity-80 border border-solid border-warning-border bg-warning rounded-full">
             <icon-font class="text-md text-white" type="loncra-heart" />
           </div>
-          <div v-if="getEnumValue(item.data.muted) === 1" class="inline-block absolute bottom-0 left-0 pl-xxs pr-xxs border border-dashed opacity-80 bg-elevated rounded-full">
+          <div v-if="getEnumValue(item.data.muted) === YES_OR_NO_TYPE.YES" class="inline-block absolute bottom-0 left-0 pl-xxs pr-xxs border border-dashed opacity-80 bg-elevated rounded-full">
             <icon-font class="text-md text-error" :type="(item.data.mentions || []).length > 0 ? 'loncra-at-sign' : 'loncra-megaphone-off'" />
           </div>
         </a-flex>

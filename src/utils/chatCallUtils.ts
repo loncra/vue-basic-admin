@@ -4,8 +4,13 @@ import {createIcon} from "@/utils/resourceUtils.ts";
 import {
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
   CHAT_CALL_SCENE,
+  CHAT_CALL_TYPE,
   PIP_MAX_WIDTH_PX,
   PIP_WIDTH_RATIO,
+  USER_CHAT_CALL_PARTICIPANT_ERROR_STATUS_VALUE,
+  USER_CHAT_CALL_PARTICIPANT_PROCESSING_STATUS_VALUE,
+  USER_CHAT_CALL_PARTICIPANT_STATUS,
+  USER_CHAT_ROOM_TYPE,
   VIDEO_CHAT_CONSTRAINTS
 } from "@/constants";
 import type {
@@ -18,13 +23,13 @@ import type {
 
 export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> | number) {
   const value = getEnumValue(status)
-  if ([50,60,61,63].includes(value)) {
+  if (USER_CHAT_CALL_PARTICIPANT_ERROR_STATUS_VALUE.includes(value)) {
     return "error"
-  } else if ([10, 20, 30].includes(value)) {
+  } else if (USER_CHAT_CALL_PARTICIPANT_PROCESSING_STATUS_VALUE.includes(value)) {
     return "processing"
-  } else if ([40].includes(value)) {
+  } else if (value === USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE) {
     return "success"
-  } else if ([62].includes(value)) {
+  } else if (value === USER_CHAT_CALL_PARTICIPANT_STATUS.NO_ANSWER) {
     return "default"
   } else {
     return "warning"
@@ -33,7 +38,7 @@ export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> |
 
 export function getCallIcon(type:NameValueEnumMetadata<number> | number, vnode?:Record<string, unknown>) {
   let result: string;
-  if (getEnumValue(type) === 10) {
+  if (getEnumValue(type) === CHAT_CALL_TYPE.VIDEO) {
     result = "loncra-video"
   } else {
     result = "loncra-mic"
@@ -60,7 +65,7 @@ export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
 
 
 export function getMediaStreamConstraintsByRoom(room:UserChatRoomEntity) {
-  if (getEnumValue(room.type) === 20) {
+  if (getEnumValue(room.type) === USER_CHAT_ROOM_TYPE.PRIVATE_CHAT) {
     return VIDEO_CHAT_CONSTRAINTS.PREVATE;
   } else {
     return VIDEO_CHAT_CONSTRAINTS.GROUP;

@@ -17,7 +17,13 @@ import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/u
 import {useChatContext} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
-import {CHAT_BUBBLE_TYPE, CHAT_EVERYONE_ID, SOCKET_EVENT_TYPE} from "@/constants";
+import {
+  CHAT_BUBBLE_TYPE,
+  CHAT_EVERYONE_ID,
+  SOCKET_EVENT_TYPE,
+  USER_CHAT_CONVERSATION_STATUS,
+  USER_CHAT_ROOM_TYPE
+} from "@/constants";
 import LChatBubbleList from "@/components/message-server/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AuthServerService} from "@/apis";
@@ -51,11 +57,11 @@ const instructionMap = computed(() => ({
 }))
 
 const placeholderText = computed(() => {
-  if (getEnumValue(conversation.value?.item?.data?.status) === 20) {
+  if (getEnumValue(conversation.value?.item?.data?.status) === USER_CHAT_CONVERSATION_STATUS.EXIST) {
     return globalProperties.$t('chat.view.placeholder.exitRoom')
-  } else if (getEnumValue(conversation.value?.item?.data?.status) === 25) {
+  } else if (getEnumValue(conversation.value?.item?.data?.status) === USER_CHAT_CONVERSATION_STATUS.REMOVE) {
     return globalProperties.$t('chat.view.placeholder.roomRemove')
-  } else if (getEnumValue(conversation.value?.item?.data?.status) === 30) {
+  } else if (getEnumValue(conversation.value?.item?.data?.status) === USER_CHAT_CONVERSATION_STATUS.DISBAND) {
     return globalProperties.$t('chat.view.placeholder.disbandRoom')
   } else {
     return globalProperties.$t('chat.view.placeholder.text')
@@ -301,11 +307,11 @@ defineExpose({
         v-if="conversation?.item?.data"
         :slot-config="conversation.item.data.draft ?? []"
         v-model:ref-messages="refMessages"
-        :instruction-map="getEnumValue(conversation?.item?.data?.room.type) === 20 ? undefined :  instructionMap "
+        :instruction-map="getEnumValue(conversation?.item?.data?.room.type) === USER_CHAT_ROOM_TYPE.PRIVATE_CHAT ? undefined :  instructionMap "
         :sending="conversation.sending"
         :upload-options="conversation.item.data?.room?.id ? {param:{prefix:'user_chat_room/' + conversation.item.data.room.id}} : undefined"
         :placeholder="placeholderText"
-        :disabled="getEnumValue(conversation.item.data.status) !== 10"
+        :disabled="getEnumValue(conversation.item.data.status) !== USER_CHAT_CONVERSATION_STATUS.ENABLED"
         @jump-to-reference="(body) => chatBubbleList?.jumpToMessage(String(body.id))"
         @submit="onSendMessage"
         :sender-insert-instruction="onSenderInsertInstruction"
@@ -331,7 +337,7 @@ defineExpose({
             </template>
           </a-space>
         </template>
-        <template #leftExtra v-if="getEnumValue(conversation?.item?.data?.room.type) === 20">
+        <template #leftExtra v-if="getEnumValue(conversation?.item?.data?.room.type) === USER_CHAT_ROOM_TYPE.PRIVATE_CHAT">
           <l-chat-call-button
             :participants="conversation.participants"
             :conversation="conversation.item"

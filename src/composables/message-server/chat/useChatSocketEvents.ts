@@ -11,7 +11,7 @@ import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 import {addBubbleListMessage, getEnumValue} from '@/utils'
-import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from '@/constants'
+import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE, USER_CHAT_MESSAGE_TYPE} from '@/constants'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 
 /**
@@ -28,9 +28,9 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
 
   function getMessageRole(message:UserChatMessageResponseBody | UserChatMessageEntity) {
 
-    if (getEnumValue(message.type) === 10) {
+    if (getEnumValue(message.type) === USER_CHAT_MESSAGE_TYPE.USER) {
       return CHAT_BUBBLE_TYPE.AI
-    } else if (getEnumValue(message.type) === 20) {
+    } else if (getEnumValue(message.type) === USER_CHAT_MESSAGE_TYPE.SYSTEM) {
       return CHAT_BUBBLE_TYPE.SYSTEM
     } else {
       return message.principal === principalStore.state.name ? CHAT_BUBBLE_TYPE.USER : CHAT_BUBBLE_TYPE.AI
@@ -40,7 +40,7 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
   async function onChatMessageReceived(
     result: RestResult<UserChatMessageResponseBody | UserChatMessageEntity>,
   ): Promise<void> {
-    if (!result.data || (result.data.principal === principalStore.state.name && getEnumValue(result.data.type) === 10)) {
+    if (!result.data || (result.data.principal === principalStore.state.name && getEnumValue(result.data.type) === USER_CHAT_MESSAGE_TYPE.USER)) {
       return
     }
     const active = conversationActive.value

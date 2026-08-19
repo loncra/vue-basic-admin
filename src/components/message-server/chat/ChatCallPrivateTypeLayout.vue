@@ -5,7 +5,7 @@ import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrivateChatCallLayout} from "@/composables";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {onMounted} from "vue";
-import {CHAT_CALL_PRIVATE_ROLE_TYPE} from "@/constants";
+import {CHAT_CALL_PRIVATE_ROLE_TYPE, USER_CHAT_CALL_STATUS} from "@/constants";
 
 defineOptions({
   name: 'LChatCallPrivateTypeLayout',
@@ -179,7 +179,7 @@ function onRemotePanelClick() {
 
     <!-- 私聊专属：分屏切换（紧挨外壳麦/摄像头按钮） -->
     <a-button
-      v-if="!isCallMinimized && getEnumValue(chatCallExpose.context.userChatCall?.status) !== 30"
+      v-if="!isCallMinimized && getEnumValue(chatCallExpose.context.userChatCall?.status) !== USER_CHAT_CALL_STATUS.COMPLETED"
       class="absolute bottom-0 left-19 z-30 m-xs opacity-0 transition-opacity duration-300 group-hover:opacity-30"
       variant="outlined"
       @click.stop="toggleSplitScreen"

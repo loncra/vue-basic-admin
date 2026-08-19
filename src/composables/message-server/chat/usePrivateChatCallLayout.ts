@@ -23,6 +23,7 @@ import {
   CHAT_CALL_TYPE,
   CHAT_CALL_UI_MODE,
   PRIVATE_VIDEO_LAYOUT_METRICS,
+  USER_CHAT_CALL_PARTICIPANT_STATUS,
 } from "@/constants";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
@@ -233,7 +234,7 @@ export function usePrivateChatCallLayout() {
     }
 
     const callEntity = chatCallExpose.context.userChatCall
-    const key = String(getEnumValue(callEntity.type)) === CHAT_CALL_TYPE.VIDEO
+    const key = getEnumValue(callEntity.type) === CHAT_CALL_TYPE.VIDEO
       ? 'chat.call.video.title'
       : 'chat.call.voice.title'
 
@@ -261,7 +262,7 @@ export function usePrivateChatCallLayout() {
   })
 
   const remoteVideoConnected = computed(() =>
-    targetParticipant.value ? getEnumValue(targetParticipant.value.status) === 40 : false,
+    targetParticipant.value ? getEnumValue(targetParticipant.value.status) === USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE : false,
   )
 
   const localParticipantDetails = computed(() => principalStore.state.details?.metadata)

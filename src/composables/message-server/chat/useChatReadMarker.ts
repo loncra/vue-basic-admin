@@ -5,7 +5,7 @@ import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 import {getEnumValue} from '@/utils'
-import {YES_OR_NO_TYPE} from "@/constants";
+import {USER_CHAT_MESSAGE_TYPE, YES_OR_NO_TYPE} from "@/constants";
 
 /**
  * 可见消息已读上报队列。
@@ -23,7 +23,7 @@ export function useChatReadMarker(conversation: Ref<UserChatConversationActivePr
   function isReadableMessage(
     message: UserChatMessageResponseBody | UserChatMessageEntity | undefined,
   ): boolean {
-    if (!message || getEnumValue(message.type) === 20) {
+    if (!message || getEnumValue(message.type) === USER_CHAT_MESSAGE_TYPE.SYSTEM) {
       return false
     }
     const readable = (message as UserChatMessageResponseBody).readable

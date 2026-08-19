@@ -1,6 +1,7 @@
 import {computed, type Ref, ref} from 'vue'
 import type {UserChatConversationResponseBody} from '@/types/apis'
 import {getEnumValue} from '@/utils'
+import {YES_OR_NO_TYPE} from '@/constants'
 
 /**
  * 会话列表状态与变更集中管理。
@@ -14,7 +15,7 @@ export function useChatConversations() {
   >
 
   function isPinned(item: UserChatConversationResponseBody): boolean {
-    return getEnumValue(item.pinned) === 1
+    return getEnumValue(item.pinned) === YES_OR_NO_TYPE.YES
   }
 
   function getConversationActiveTime(item: UserChatConversationResponseBody): number {

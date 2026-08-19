@@ -26,7 +26,8 @@ import {
   CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY,
   CHAT_CALL_UI_MODE,
   MESSAGE_GROUP,
-  SOCKET_EVENT_TYPE
+  SOCKET_EVENT_TYPE,
+  USER_CHAT_CALL_STATUS
 } from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {isBusinessSuccess} from "@/requests";
@@ -110,7 +111,7 @@ export function provideChatCallExpose(config:UseChatCallModalParams) {
     const modal = context.value.modal as ChatCallModalInnerProps
     try {
       modal.loading = true
-      if (context.value.userChatCall && getEnumValue(context.value.userChatCall.status) !== 30) {
+      if (context.value.userChatCall && getEnumValue(context.value.userChatCall.status) !== USER_CHAT_CALL_STATUS.COMPLETED) {
         await ChatCallService.completed(Number(context.value.userChatCall.id))
       }
 

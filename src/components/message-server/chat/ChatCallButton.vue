@@ -77,9 +77,10 @@ async function startCall(type: ChatCallType) {
   }
 }
 
-function onMenuClick(e: { key: string}) {
-  if (e.key === CHAT_CALL_TYPE.VIDEO || e.key === CHAT_CALL_TYPE.VOICE) {
-    void startCall(e.key)
+function onMenuClick(e: { key: string | number}) {
+  const type = Number(e.key)
+  if (type === CHAT_CALL_TYPE.VIDEO || type === CHAT_CALL_TYPE.VOICE) {
+    void startCall(type)
   }
 }
 

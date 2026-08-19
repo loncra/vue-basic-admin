@@ -19,7 +19,7 @@ import type {
 import {AttachmentService} from '@/apis'
 import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {createIcon, dateFormat, requireNonNullOrUndefined} from '@/utils'
-import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {DEFAULT_PAGE_RESULT_VALUE, USER_CHAT_MESSAGE_TYPE} from '@/constants'
 import {Dayjs} from 'dayjs'
 
 /**
@@ -135,7 +135,7 @@ export function useChatHistories(roomId: Ref<number>) {
       number: number,
       withoutReadableAnchor: true,
       totalPage: true,
-      'filter_[type_eq]': 10,
+      'filter_[type_eq]': USER_CHAT_MESSAGE_TYPE.USER,
     }
     loading.value = true
     try {

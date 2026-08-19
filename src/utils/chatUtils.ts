@@ -20,7 +20,7 @@ import type {
   InstructionBlock,
   TextBlock
 } from "@/types/composables";
-import {CHAT_BUBBLE_TYPE} from "@/constants";
+import {CHAT_BUBBLE_TYPE, USER_CHAT_ROOM_TYPE} from "@/constants";
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
@@ -132,7 +132,7 @@ export function getMessageContent(lastUserMessage: UserChatMessageEntity | undef
     return ''
   }
   let content = ''
-  if (conversation && getEnumValue(conversation.room.type) === 10 && (lastUserMessage as ParticipantMetadataMessageResponseBody).participant) {
+  if (conversation && getEnumValue(conversation.room.type) === USER_CHAT_ROOM_TYPE.GROUP_CHAT && (lastUserMessage as ParticipantMetadataMessageResponseBody).participant) {
     const p = (lastUserMessage as ParticipantMetadataMessageResponseBody).participant
     content += '[' + AuthServerService.getPrincipalNameByUserDetails(p.metadata.details) + ']: '
   }

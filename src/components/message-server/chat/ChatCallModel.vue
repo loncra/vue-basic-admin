@@ -6,7 +6,8 @@ import {
   CHAT_CALL_MINI_SIZE,
   CHAT_CALL_SCENE,
   CHAT_CALL_UI_MODE,
-  DATE_TIME_FORMAT
+  DATE_TIME_FORMAT,
+  USER_CHAT_CALL_STATUS
 } from "@/constants";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
 import {provideChatCallMedia, useChatCallModalExpose,} from "@/composables";
@@ -33,7 +34,7 @@ const isNativeFullscreen = computed(() => modal.value.fullscreen ?? false)
 const isCallMinimized = computed(() => modal.value.uiMode === CHAT_CALL_UI_MODE.MINIMIZED)
 const isCallExpanded = computed(() => !isCallMinimized.value)
 const showMediaToolbar = computed(() =>
-  isCallExpanded.value && getEnumValue(chatCallModelContext.context.userChatCall?.status) !== 30,
+  isCallExpanded.value && getEnumValue(chatCallModelContext.context.userChatCall?.status) !== USER_CHAT_CALL_STATUS.COMPLETED,
 )
 
 const callLayout = computed(() => {
@@ -130,7 +131,7 @@ onUnmounted(() => {
             <a-statistic-timer
               :value="chatCallModelContext.context.userChatCall.startTime"
               :format="DATE_TIME_FORMAT.POST_TIME_FORMAT"
-              v-if="getEnumValue(chatCallModelContext.context.userChatCall.status) === 20"
+              v-if="getEnumValue(chatCallModelContext.context.userChatCall.status) === USER_CHAT_CALL_STATUS.ACTIVE"
               :classes="{root:'inline-block',content:'text-DEFAULT'}"
               type="countup"
             />
