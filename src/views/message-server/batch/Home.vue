@@ -22,6 +22,7 @@ import {BatchMessageService} from "@/apis/message-server/batchMessageService.js"
 import {
   MESSAGE_SERVER_BATCH_AUTHORITY,
   MESSAGE_SERVER_BATCH_ROUTE,
+  EXECUTE_STATUS_TYPE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
@@ -147,7 +148,7 @@ onMounted(mounted)
         </template>
         <template v-if="column.dataIndex === 'executeStatus'">
           <a-space>
-            <template v-if="getEnumValue(record.executeStatus) === 99">
+            <template v-if="getEnumValue(record.executeStatus) === EXECUTE_STATUS_TYPE.FAILURE">
               <a-tooltip :title="record.exception">
                 <icon-font class="icon align" type="loncra-message-circle-warning"/>
               </a-tooltip>

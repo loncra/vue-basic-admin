@@ -181,13 +181,13 @@ async function preMounted() {
     const resourceServer = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
     const aiServer = enums.data[SYSTEM_MODULE_NAME.AI_SERVER] ?? {}
 
-    options.value.originOptions = (aiServer['PackageOriginEnum'] || []) as NameValueEnumMetadata<number>[]
-    options.value.yesOrNoOptions = (resourceServer['YesOrNo'] || []) as NameValueEnumMetadata<number>[]
-    options.value.timeOptions = (resourceServer['TimeUnitEnum'] || []) as NameValueEnumMetadata<string>[]
+    options.value.originOptions = (aiServer[SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM] || []) as NameValueEnumMetadata<number>[]
+    options.value.yesOrNoOptions = (resourceServer[SYSTEM_ENUM_TYPE.YES_OR_NO] || []) as NameValueEnumMetadata<number>[]
+    options.value.timeOptions = (resourceServer[SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM] || []) as NameValueEnumMetadata<string>[]
 
-    options.value.authModeOptions = (aiServer['McpPackageAuthModeEnum'] || []) as NameValueEnumMetadata<number>[]
-    options.value.typeOptions = (aiServer['PackageTypeEnum'] || []) as NameValueEnumMetadata<number>[]
-    options.value.clientTypeOptions = (aiServer['McpClientTypeEnum'] || []) as NameValueEnumMetadata<string>[]
+    options.value.authModeOptions = (aiServer[SYSTEM_ENUM_TYPE.MCP_PACKAGE_AUTH_MODE_ENUM] || []) as NameValueEnumMetadata<number>[]
+    options.value.typeOptions = (aiServer[SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM] || []) as NameValueEnumMetadata<number>[]
+    options.value.clientTypeOptions = (aiServer[SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM] || []) as NameValueEnumMetadata<string>[]
   }
   const result:RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([MCP_GROUP_CODE_PREFIX])
   if (result.data) {

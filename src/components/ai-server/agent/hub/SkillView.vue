@@ -2,7 +2,7 @@
 import {AiMcpPackageService} from "@/apis";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {McpPackageEntity, PageRequest, RestResult, TotalPage} from "@/types/apis";
-import {DEFAULT_PAGE_RESULT_VALUE} from "@/constants";
+import {DATA_STATUS, DEFAULT_PAGE_RESULT_VALUE, PACKAGE_TYPE} from "@/constants";
 import {requireNonNullOrUndefined} from "@/utils";
 
 defineOptions({
@@ -34,8 +34,8 @@ async function loadData(request:PageRequest) {
   try {
     const result:RestResult<TotalPage<McpPackageEntity>> = await service.page({
       ...request,
-      'filter_[status_eq]':20,
-      'filter_[type_eq]':20,
+      'filter_[status_eq]': DATA_STATUS.RELEASE,
+      'filter_[type_eq]': PACKAGE_TYPE.HUB,
     })
 
     if (result.data) {

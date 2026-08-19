@@ -10,9 +10,11 @@ import type {
 } from "@/types/apis";
 import {
   DATA_DICTIONARY_ALL_CODE,
+  DATA_STATUS,
   DEFAULT_PAGE_RESULT_VALUE,
   ICON_SELECT_MODE,
   MCP_GROUP_CODE_PREFIX,
+  PACKAGE_TYPE,
 } from "@/constants";
 import {addAllDataDictionary, requireNonNullOrUndefined} from "@/utils";
 import LIconSelect from "@/components/basic/IconSelect.vue";
@@ -55,8 +57,8 @@ async function loadData(request: PageRequest) {
   try {
     const param: PageRequest = {
       ...request,
-      'filter_[status_eq]': 20,
-      'filter_[type_eq]': 20,
+      'filter_[status_eq]': DATA_STATUS.RELEASE,
+      'filter_[type_eq]': PACKAGE_TYPE.HUB,
     }
 
     if (activeGroupCode.value !== DATA_DICTIONARY_ALL_CODE) {

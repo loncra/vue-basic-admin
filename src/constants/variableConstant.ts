@@ -64,6 +64,30 @@ export const YES_OR_NO_TYPE = {
   NO:0
 } as const
 
+/** 对齐后端 DataStatusEnum */
+export const DATA_STATUS = {
+  NEW: 10,
+  RELEASE: 20,
+  REVOKE: 30,
+} as const
+
+/** 对齐后端 PackageTypeEnum */
+export const PACKAGE_TYPE = {
+  SYSTEM: 10,
+  HUB: 20,
+} as const
+
+/** 对齐后端 ExecuteStatus（`SYSTEM_ENUM_TYPE.EXECUTE_STATUS` 是枚举类名） */
+export const EXECUTE_STATUS_TYPE = {
+  PENDING: -1,
+  PROCESSING: 0,
+  SUCCESS: 1,
+  RETRYING: 2,
+  IGNORE: 3,
+  FAILURE: 99,
+  UNKNOWN: 404,
+} as const
+
 /** 对齐 McpClientTypeEnum.getName() */
 export const MCP_CLIENT_TYPE = {
   SSE: 'sse',

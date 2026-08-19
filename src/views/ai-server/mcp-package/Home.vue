@@ -27,6 +27,7 @@ import {
   requireNonNullOrUndefined
 } from '@/utils'
 import {
+  DATA_STATUS,
   ICON_SELECT_MODE,
   MCP_GROUP_CODE_PREFIX,
   MCP_PACKAGE_AUTHORITY,
@@ -211,7 +212,7 @@ const itemActionDefinitions = function(): ActionDefinition<McpPackageSavePayload
     {
       id: 'release',
       permission: MCP_PACKAGE_AUTHORITY.RELEASE,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
+      enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.release.text'),
       icon: () => createIcon('loncra-screen-share'),
       run: (ctx) => release([Number(ctx.record!.id)]),
@@ -219,7 +220,7 @@ const itemActionDefinitions = function(): ActionDefinition<McpPackageSavePayload
     {
       id: 'revoke',
       permission: MCP_PACKAGE_AUTHORITY.REVOKE,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) === 20,
+      enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.revoke.text'),
       icon: () => createIcon('loncra-screen-share-off'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
@@ -228,11 +229,14 @@ const itemActionDefinitions = function(): ActionDefinition<McpPackageSavePayload
 }
 
 function getReleaseSelectedEntities(selectedRows: McpPackageSavePayload[]) {
-  return selectedRows.filter(e => [10, 30].includes(getEnumValue(e.status ?? 0)))
+  return selectedRows.filter((e) => {
+    const status = getEnumValue(e.status ?? 0)
+    return status === DATA_STATUS.NEW || status === DATA_STATUS.REVOKE
+  })
 }
 
 function getRevokeSelectedEntities(selectedRows: McpPackageSavePayload[]) {
-  return selectedRows.filter(e => [20].includes(getEnumValue(e.status ?? 0)))
+  return selectedRows.filter(e => getEnumValue(e.status ?? 0) === DATA_STATUS.RELEASE)
 }
 
 function release(ids: number[]) {

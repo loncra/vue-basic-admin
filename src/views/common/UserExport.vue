@@ -13,6 +13,7 @@ import type {ExportDataMetadata, FileObject} from "@/types/apis";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {UserExportService} from "@/apis/resource-server/userExportService.ts";
+import {EXECUTE_STATUS_TYPE} from "@/constants";
 
 defineOptions({
   name: 'CommonUserExport',
@@ -86,11 +87,11 @@ const actions: ActionDefinition<ExportDataMetadata>[] = [{
   id: 'downloadSelected',
   permission: true,
   label: (ctx) => globalProperties.$t('common.download.selected',{count: ctx.selectedItems.length}),
-  enabled: (ctx) => ctx.selectedItems.some((item) => item.executeStatus.value === 1),
+  enabled: (ctx) => ctx.selectedItems.some((item) => item.executeStatus.value === EXECUTE_STATUS_TYPE.SUCCESS),
   icon: () => createIcon('loncra-download', 'align'),
   run: (ctx) => {
     const files: FileObject[] = ctx.selectedItems
-      .filter((item) => item.executeStatus.value === 1)
+      .filter((item) => item.executeStatus.value === EXECUTE_STATUS_TYPE.SUCCESS)
       .map((item) => item.metadata)
       .map((metadata) => metadata.data as FileObject)
       AttachmentService.downloads(files)

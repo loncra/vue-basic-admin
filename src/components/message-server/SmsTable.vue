@@ -32,6 +32,7 @@ import {
   MESSAGE_SERVER_SMS_ROUTE,
   MESSAGE_SERVER_SMS_SIGN_AUTHORITY,
   MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY,
+  EXECUTE_STATUS_TYPE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
@@ -217,7 +218,7 @@ onMounted(mounted)
       </template>
       <template v-if="column.dataIndex === 'executeStatus'">
         <a-space>
-          <template v-if="getEnumValue(record.executeStatus) === 99">
+          <template v-if="getEnumValue(record.executeStatus) === EXECUTE_STATUS_TYPE.FAILURE">
             <a-tooltip :title="record.exception">
               <icon-font class="icon align" type="loncra-message-circle-warning"/>
             </a-tooltip>

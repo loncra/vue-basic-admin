@@ -36,6 +36,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import type {ActionDefinition, GridExposed} from '@/types/composables'
 import LBasicImage from "@/components/basic/BasicImage.vue";
 import {
+  DATA_STATUS,
   RESOURCE_SERVER_CAROUSEL_AUTHORITY,
   RESOURCE_SERVER_CAROUSEL_ROUTE,
   SYSTEM_CONSTANT,
@@ -143,7 +144,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     {
       id: 'release',
       permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.RELEASE,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
+      enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.release.text'),
       icon: () => createIcon('loncra-screen-share'),
       run: (ctx) => release([Number(ctx.record!.id)]),
@@ -151,7 +152,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     {
       id: 'revoke',
       permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.REVOKE,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) === 20,
+      enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.revoke.text'),
       icon: () => createIcon('loncra-screen-share-off'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
@@ -159,7 +160,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
     {
       id: 'edit',
       permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.GET,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) !== 20,
+      enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.edit'),
       icon: () => createIcon('loncra-file-pen-line'),
       run: (ctx) => {
@@ -177,23 +178,26 @@ const dragEnabled = computed(() =>
 )
 
 const statusSetting = {
-  "10": {
+  [DATA_STATUS.NEW]: {
     color: "blue"
   },
-  "30": {
+  [DATA_STATUS.REVOKE]: {
     color: "yellow"
   },
-  "20": {
+  [DATA_STATUS.RELEASE]: {
     color: "green"
   }
 } as const
 
 function getReleaseSelectedEntities(selectedRows: CarouselEntity[]) {
-  return selectedRows.filter(e => [10, 30].includes(getEnumValue(e.status ?? 0)))
+  return selectedRows.filter((e) => {
+    const status = getEnumValue(e.status ?? 0)
+    return status === DATA_STATUS.NEW || status === DATA_STATUS.REVOKE
+  })
 }
 
 function getRevokeSelectedEntities(selectedRows: CarouselEntity[]) {
-  return selectedRows.filter(e => [20].includes(getEnumValue(e.status ?? 0)))
+  return selectedRows.filter(e => getEnumValue(e.status ?? 0) === DATA_STATUS.RELEASE)
 }
 
 async function loadCarouselPreview(tab: TabDataSource): Promise<void> {
@@ -202,7 +206,7 @@ async function loadCarouselPreview(tab: TabDataSource): Promise<void> {
     const carouselDataSource: RestResult<{elements: CarouselEntity[]}> = await carouselService.page({
       number: -1,
       'filter_[type_eq]': tab.key,
-      'filter_[status_eq]': 20,
+      'filter_[status_eq]': DATA_STATUS.RELEASE,
     })
     if (carouselDataSource.data) {
       tab.carouselDataSource = carouselDataSource.data.elements
@@ -408,7 +412,7 @@ onActivated(activated)
               <template #item="{ record, itemActions, dragEnabled: itemDragEnabled, onDragStart, onDragEnd }">
                 <a-badge-ribbon
                   :text="getEnumName(record.status)"
-                  :color="statusSetting[String(getEnumValue(record.status ?? 0)) as keyof typeof statusSetting]?.color || 'blue'"
+                  :color="statusSetting[getEnumValue(record.status ?? 0) as keyof typeof statusSetting]?.color || 'blue'"
                 >
                   <a-tooltip>
                     <template #title>
