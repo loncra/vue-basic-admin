@@ -15,7 +15,8 @@ import type {AgentMessageLoaderApi} from '@/composables/ai-server/agent/useAgent
 import type {ThoughtChainItemType} from "@antdv-next/x";
 
 export interface AgentConversationItem extends AgentConversationEntity {
-  editing: boolean
+  editing: boolean,
+  original?:string
 }
 
 export interface ActiveAgentConversationItem

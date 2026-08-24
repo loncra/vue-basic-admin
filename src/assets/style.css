@@ -131,6 +131,8 @@
     @apply h-full border-r border-solid border-r-border-secondary bg-container;
   }
 
+  .folder-edit .ant-menu-inline,
+  .folder-edit .ant-menu-horizontal,
   .agent-side-menu .ant-menu-inline,
   .agent-side-menu .ant-menu-horizontal,
   .layout-sider .ant-menu-inline,
@@ -143,6 +145,7 @@
   }
 
   .layout-sider .ant-menu-sub,
+  .folder-edit .ant-menu-sub,
   .agent-side-menu .ant-menu-sub {
     @apply bg-container;
   }
@@ -468,5 +471,13 @@
   /* 防止 thought-chain 内容溢出 */
   .antd-thought-chain-node-box {
     @apply min-w-0;
+  }
+
+  /*.folder-edit .ant-menu-item {
+    @apply p-xxs
+  }*/
+  .folder-edit .ant-menu-item,
+  .folder-edit .ant-menu-submenu-title{
+    @apply h-md leading-md mb-0
   }
 }

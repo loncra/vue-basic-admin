@@ -290,6 +290,12 @@ const locale: LanguagePack = {
     errorMessage:'错误信息',
     code:'错误代码',
     field:'字段信息',
+    exists:{
+      filename:'{name}文件已存在'
+    },
+    invalid:{
+      filename:'文件名格式错误，必须要代码有文件后缀。'
+    },
     unSupport: {
       userMedia:'当前浏览器不支持用户媒体调用'
     },
@@ -517,6 +523,23 @@ const locale: LanguagePack = {
       toolName:'工具名',
       description:'工具描述',
       maxClarifyRounds:'最大澄清轮次',
+    },
+    skillPackage:{
+      routePage:'技能广场配置',
+      packageKey:'包标识',
+      origin:'来源',
+      summary:'摘要',
+      tags:'标签',
+      additionalInformation:'补充说明',
+      latestVersion:'最新版本',
+      defaultUpdatePolicy:'更新策略',
+      sourceType:'来源类型',
+      files:'技能目录',
+      assets:'资源文件',
+      add:{
+        file:'新增文件',
+        folder:'新增目录',
+      }
     }
   },
   messageServer:{

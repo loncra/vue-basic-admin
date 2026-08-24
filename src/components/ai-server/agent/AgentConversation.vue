@@ -99,7 +99,7 @@ const emits = defineEmits<{
           <template #labelRender="item">
             <a-space-compact
               v-if="item.editing"
-              class="w-full"
+              block
               @click.stop
               @mousedown.stop
             >

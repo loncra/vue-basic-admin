@@ -151,4 +151,12 @@ export const OPERATION_DATA_TRACE_TABLE = {
   CONSOLE_USER: 'tb_console_user',
   AI_MODEL_SETTING: 'tb_ai_model_setting',
   AI_MCP_PACKAGE: 'tb_ai_mcp_package',
+  AI_SKILL_PACKAGE: 'tb_ai_skill_package',
+} as const
+
+export const FILE_SUFFIX_REGEX = /\.[^./\\]+$/
+
+export const FOLDER_ADD_TYPE = {
+  FOLDER:'folder',
+  FILE:'file'
 } as const

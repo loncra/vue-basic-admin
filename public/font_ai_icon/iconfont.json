@@ -1,13 +1,41 @@
 {
   "id": "5215889",
-  "name": "ai 厂商 logo",
+  "name": "厂商 logo",
   "font_family": "iconfont",
   "css_prefix_text": "icon-",
   "description": "",
   "glyphs": [
     {
+      "icon_id": "42695966",
+      "name": "qwen",
+      "font_class": "qwen",
+      "unicode": "e957",
+      "unicode_decimal": 59735
+    },
+    {
+      "icon_id": "11155543",
+      "name": "nvidia",
+      "font_class": "nvidia",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "46116104",
+      "name": "meta",
+      "font_class": "meta",
+      "unicode": "e783",
+      "unicode_decimal": 59267
+    },
+    {
+      "icon_id": "42485581",
+      "name": "microsoft",
+      "font_class": "microsoft",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
       "icon_id": "43955069",
-      "name": "Ollama",
+      "name": "ollama",
       "font_class": "ollama",
       "unicode": "e60c",
       "unicode_decimal": 58892
@@ -28,7 +56,7 @@
     },
     {
       "icon_id": "46051464",
-      "name": "阿里云百炼",
+      "name": "dash-scope",
       "font_class": "dash-scope",
       "unicode": "e628",
       "unicode_decimal": 58920

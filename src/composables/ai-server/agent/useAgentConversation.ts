@@ -79,6 +79,7 @@ export function useAgentConversation(params:{
     if (editing) {
       cancelEditWorkspace(editing)
     }
+    conversation.original = conversation.name
     conversation.editing = true
   }
 
@@ -144,6 +145,8 @@ export function useAgentConversation(params:{
   function cancelEditWorkspace(item: AgentConversationItem): void {
     if (item.id) {
       item.editing = false
+      item.name = item.original
+      delete item.original
     } else {
       conversations.value = conversations.value.filter(d => d.key !== item.key)
     }

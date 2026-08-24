@@ -52,6 +52,7 @@ export const AGENT_CHAT_STATUS_STYLE = {
 
 export const MODEL_SETTING_MANUFACTURER_CODE_PREFIX = 'system.ai.model'
 export const MCP_GROUP_CODE_PREFIX = 'system.ai.mcp.group'
+export const SKILL_GROUP_CODE_PREFIX = 'system.ai.skill.group'
 
 /** 对齐 {@code ModelSettingMetadata.MODEL_DEFAULT_OPTIONS_KEY} */
 export const MODEL_DEFAULT_OPTIONS_KEY = 'options'
@@ -140,6 +141,22 @@ export const MCP_PACKAGE_ROUTE = {
   ADD: 'ai_server_mcp_package_add',
   EDIT: 'ai_server_mcp_package_edit',
   DETAIL: 'ai_server_mcp_package_detail',
+} as const
+
+export const SKILL_PACKAGE_AUTHORITY = {
+  PAGE: 'perms[ai_skill_package:page]',
+  GET: 'perms[ai_skill_package:get]',
+  SAVE: 'perms[ai_skill_package:save]',
+  DELETE: 'perms[ai_skill_package:delete]',
+  RELEASE: 'perms[ai_skill_package:release]',
+  REVOKE: 'perms[ai_skill_package:revoke]',
+  SNAPSHOT: 'perms[ai_skill_package:snapshot]',
+} as const
+
+export const SKILL_PACKAGE_ROUTE = {
+  HOME: 'ai_server_skill_package',
+  ADD: 'ai_server_skill_package_add',
+  EDIT: 'ai_server_skill_package_edit',
 } as const
 
 export const MCP_CLIENT_HTTP_TYPE_VALUE:ReadonlyArray<string> = [MCP_CLIENT_TYPE.SSE, MCP_CLIENT_TYPE.STREAMABLE_HTTP]

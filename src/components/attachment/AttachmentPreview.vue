@@ -249,7 +249,7 @@ const classes = computed(() => ({
             <slot name="itemRender" :file="file" />
           </template>
         </l-attachment-file-preview>
-        <span :class="['flex flex-col gap-1',classes?.meta]" v-if="slots.itemTitle || slots.itemDescription">
+        <span :class="['flex flex-col gap-1',classes?.meta]" >
           <a-typography-text strong v-if="slots.itemTitle" >
             <slot name="itemTitle" :file="file" />
           </a-typography-text>

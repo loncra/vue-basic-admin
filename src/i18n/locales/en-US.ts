@@ -296,6 +296,12 @@ const locale: LanguagePack = {
     unSupport: {
       userMedia:'The current browser does not support user media access'
     },
+    invalid:{
+      filename:'Invalid file name format. A file extension is required.'
+    },
+    exists:{
+      filename:'{name}file already exists'
+    },
     valid: {
       phoneNumber: 'Invalid phone number format',
       password:
@@ -523,6 +529,23 @@ const locale: LanguagePack = {
       toolName: 'Tool name',
       description: 'Description',
       maxClarifyRounds: 'Max clarify rounds',
+    },
+    skillPackage: {
+      routePage: 'Skill marketplace config',
+      packageKey: 'Package key',
+      origin: 'Origin',
+      summary: 'Summary',
+      tags: 'Tags',
+      additionalInformation: 'Additional information',
+      latestVersion: 'Latest version',
+      defaultUpdatePolicy: 'Update policy',
+      sourceType: 'Source type',
+      files: 'Skill files',
+      assets: 'Assets',
+      add:{
+        file: 'Add file',
+        folder: 'Add folder',
+      }
     },
   },
   messageServer: {
