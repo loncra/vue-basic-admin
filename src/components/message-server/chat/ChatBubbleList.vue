@@ -21,26 +21,6 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-/*const props = withDefaults(
-  defineProps<ChatBubbleListProps>(),
-  {
-    throttleCollectVisibleWait: 500,
-    throttleOnScrollWait: 300,
-    topThreshold: 250,
-    scrollToBottomThreshold: 100,
-    timeDividerGap: TIME_DIVIDER_GAP_MS,
-  },
-)*/
-
-// 在 useChatBubbleList 调用之前添加：
-/*const chatBubbleListProps: Ref<ChatBubbleListProps> = computed(() => ({
-  scrollToBottomThreshold: props.scrollToBottomThreshold!,
-  throttleOnScrollWait: props.throttleOnScrollWait!,
-  throttleCollectVisibleWait: props.throttleCollectVisibleWait,
-  topThreshold: props.topThreshold,
-  timeDividerGap: props.timeDividerGap,
-}))*/
-
 const emit = defineEmits<{
   reedit: [content: ChatContentBlock[]]
   referenceMessage: [message: UserChatMessageResponseBody]

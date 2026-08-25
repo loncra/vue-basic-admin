@@ -5,8 +5,7 @@ import type {
   ObjectWriteResult,
   VersionEntityMetadata,
 } from '@/types/apis'
-import type {MenuItemType} from "@v-c/menu/dist/interface.js";
-import {FOLDER_ADD_TYPE} from "@/constants";
+import type {FileItem} from "@/types/composables/fileEditor.ts";
 
 export interface SkillPackageMetadata {
   source?: Record<string, unknown>
@@ -30,15 +29,6 @@ export interface SkillPackageSavePayload extends BasicIdMetadata<number>, Versio
   file?: ObjectWriteResult
 }
 
-export interface SkillPackageFile extends Omit<MenuItemType, 'type'> {
-  content?: string | ObjectWriteResult,
-  type?: typeof FOLDER_ADD_TYPE.FILE | typeof FOLDER_ADD_TYPE.FOLDER
-  editing?: boolean
-  readonly?: boolean
-  original?:string
-  children?: SkillPackageFile[]
-}
-
 export interface SkillPackageEntity extends SkillPackageSavePayload {
-  files?: SkillPackageFile[]
+  files?: FileItem[]
 }

@@ -36,7 +36,6 @@ const emit = defineEmits<{
     <template #renderBlock="{block:block}">
       <div v-if="block.type === 'custom' && block.slotKind === 'files'">
         <l-attachment-upload
-          :show-filename="false"
           preview
           v-model:value="block.files"
         />

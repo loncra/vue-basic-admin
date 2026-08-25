@@ -14,10 +14,11 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<AttachmentPreviewFileProps>(),{
-  enabledDelete: true,
   border:false,
   disabled:false,
-  enabledDownload: true,
+  canPreview:(file:UploadFile<ObjectWriteResult>) => file.type?.includes('image/') || file.type?.includes('video/'),
+  canDelete:(file:UploadFile<ObjectWriteResult>) => true,
+  canDownload:(file:UploadFile<ObjectWriteResult>) => file.response !== undefined
 })
 
 const slots = useSlots()
@@ -76,10 +77,6 @@ async function doRemove(file: UploadFile<ObjectWriteResult>) {
   }
 }
 
-function canPreview(file:UploadFile<ObjectWriteResult>) {
-  return file.type?.includes('image/') || file.type?.includes('video/')
-}
-
 function onDownload(file: ObjectWriteResult) {
   download(file);
   emit("download", file)
@@ -115,15 +112,15 @@ defineExpose({
     <slot name="itemRender" v-if="slots.itemRender" :file="file" />
     <l-basic-image
       :preview="false"
-      v-if="file.thumbUrl"
+      v-else-if="file.thumbUrl"
       class="size-full object-cover"
       :src="file.thumbUrl"
       loading="lazy"
-    >
-
-    </l-basic-image>
+    />
     <span v-else class="inline-flex size-full items-center justify-center">
-      <icon-font class="text-2xl" :type="getFileIcon()" />
+      <slot name="itemIcon" :file="file">
+        <icon-font class="text-2xl" :type="getFileIcon()" />
+      </slot>
     </span>
     <span
       v-if="!props.disabled"
@@ -132,14 +129,14 @@ defineExpose({
       <span
         role="button"
         tabindex="-1"
-        v-if="file.status !== 'uploading' && canPreview(file)"
+        v-if="file.status !== 'uploading' && props.canPreview(file)"
         class="cursor-pointer p-0.5 text-white"
         @click.stop="onClickPreview"
       >
         <icon-font type="loncra-view" />
       </span>
       <span
-        v-if="enabledDelete && file.status !== 'uploading'"
+        v-if="props.canDelete(file) && file.status !== 'uploading'"
         role="button"
         tabindex="-1"
         class="cursor-pointer p-0.5 text-white"
@@ -148,7 +145,7 @@ defineExpose({
         <icon-font type="loncra-archive-x" />
       </span>
       <span
-        v-if="file.response && file.status !== 'uploading'"
+        v-if="file.response && props.canDownload(file) && file.status !== 'uploading'"
         role="button"
         tabindex="-1"
         class="cursor-pointer p-0.5 text-white"

@@ -25,6 +25,7 @@ import {
   isUploadFile,
   normalizeAttachmentToList,
 } from "@/utils/fileUtils.ts";
+import type {UploadChangeParam} from "antdv-next";
 
 defineOptions({
   name: 'LAttachmentUpload',
@@ -38,8 +39,8 @@ const props = withDefaults(defineProps<AttachmentUploadProps>(),{
   bucket:'user.file',
   disabled:false,
   preview: false,
-  multiple:true,
-  maxCount:20
+  showFilename: true,
+  multiple:true
 })
 
 const uploadOptionsRef = ref<Record<string, unknown>>({})
@@ -48,6 +49,11 @@ const value = defineModel<AttachmentValue>('value');
 const fileList = ref<AttachmentFileItem[]>([])
 const syncing = ref<boolean>(false)
 const slots = useSlots()
+
+const emit = defineEmits<{
+  remove: [file:UploadFile<ObjectWriteResult>]
+  change: [info: UploadChangeParam]
+}>()
 
 const formItemContext = useFormItemContext()
 
@@ -160,17 +166,25 @@ defineExpose({
     v-model:file-list="fileList"
     :preview="props.preview"
     v-bind="$attrs"
+    :can-preview="props.canPreview"
+    :can-delete="props.canDelete"
+    :can-download="props.canDownload"
     :classes="mergedClasses"
     :styles="mergedStyles"
     :max-count="props.maxCount"
     :multiple="props.multiple"
     :accept="props.accept"
     :disabled="props.disabled"
+    @remove="(file) => emit('remove', file)"
+    @change="(info) => emit('change', info)"
     :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.LIST"
     v-if="props.mode === ATTACHMENT_UPLOAD_MODE.DRAGGER"
   >
     <template #itemRender="{file}" v-if="slots.itemRender">
       <slot name="itemRender" :file="file" />
+    </template>
+    <template #itemIcon="{file}" v-if="slots.itemIcon">
+      <slot name="itemIcon" :file="file" />
     </template>
     <template #itemTitle="{file}" v-if="slots.itemTitle" >
       <slot name="itemTitle" :file="file" />
@@ -183,13 +197,19 @@ defineExpose({
   <l-attachment-picture-card-upload
     v-model:file-list="fileList"
     :preview="props.preview"
+    :can-preview="props.canPreview"
+    :can-delete="props.canDelete"
+    :can-download="props.canDownload"
     v-bind="$attrs"
     :disabled="props.disabled"
     :max-count="props.maxCount"
     :multiple="props.multiple"
     :accept="props.accept"
+    :show-filename="props.showFilename"
     :classes="mergedClasses"
     :styles="mergedStyles"
+    @remove="(file) => emit('remove', file)"
+    @change="(info) => emit('change', info)"
     :mode="props?.previewMode || ATTACHMENT_PREVIEW_MODE.PICTURE_CARD"
     v-else-if="props.mode === ATTACHMENT_UPLOAD_MODE.PICTURE_CARD"
   >
@@ -198,6 +218,9 @@ defineExpose({
     </template>
     <template #itemRender="{file}" v-if="slots.itemRender">
       <slot name="itemRender" :file="file" />
+    </template>
+    <template #itemIcon="{file}" v-if="slots.itemIcon">
+      <slot name="itemIcon" :file="file" />
     </template>
     <template #itemTitle="{file}" v-if="slots.itemTitle" >
       <slot name="itemTitle" :file="file" />

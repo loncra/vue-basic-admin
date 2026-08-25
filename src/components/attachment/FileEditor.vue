@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import type {MenuItemType} from "antdv-next";
-import type {ObjectWriteResult, SkillPackageFile} from "@/types/apis";
+import type {MenuItemType, UploadChangeParam} from "antdv-next";
+import type {ObjectWriteResult} from "@/types/apis";
 import {createIcon, filterTreeDeep, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {FOLDER_ADD_TYPE} from "@/constants";
@@ -9,9 +9,11 @@ import type {MenuInfo} from "@v-c/menu";
 import useApp from "antdv-next/dist/app/useApp";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import type {AttachmentFileItem} from "@/types/composables/attachmentUpload.ts";
+import type {UploadFile} from "antdv-next/dist/upload/interface";
+import type {FileItem} from "@/types/composables";
 
 defineOptions({
-  name: 'LSkillFileEditor',
+  name: 'LFileEditor',
 })
 
 const props = withDefaults(
@@ -19,7 +21,7 @@ const props = withDefaults(
     readonly?: boolean
     name?:string
     bucket?:string
-    getIcon?:(item:SkillPackageFile) => string
+    getIcon?:(item:FileItem) => string
   }>(),
   {
     bucket:'temp',
@@ -34,18 +36,18 @@ const globalProperties =
 const {modal} = useApp()
 
 const selectedKeys = defineModel<string[]>('selectedKeys', {default:() => []})
-const items = defineModel<SkillPackageFile[]>('items', {default:() => []})
+const items = defineModel<FileItem[]>('items', {default:() => []})
 
 const attachmentValue = ref<AttachmentFileItem[]>([])
 
 const state = ref<{
   openKeys:string[]
-  selectedItem?:SkillPackageFile
+  selectedItem?:FileItem
 }>({
   openKeys:[]
 })
 
-function onItemClick(item:SkillPackageFile) {
+function onItemClick(item:FileItem) {
   state.value.selectedItem = item
   if (item.type === FOLDER_ADD_TYPE.FOLDER) {
     attachmentValue.value = getAttachment(item.children || [])
@@ -55,7 +57,7 @@ function onItemClick(item:SkillPackageFile) {
 
 }
 
-function addFolder(parent?:SkillPackageFile) {
+function addFolder(parent?:FileItem) {
   const item = {
     key: String(crypto.randomUUID()),
     label: '',
@@ -66,7 +68,7 @@ function addFolder(parent?:SkillPackageFile) {
   addItem(item, parent)
 }
 
-function addFile(parent?:SkillPackageFile) {
+function addFile(parent?:FileItem) {
   const item = {
     key: String(crypto.randomUUID()),
     label: '',
@@ -81,24 +83,43 @@ function addFile(parent?:SkillPackageFile) {
   addItem(item, parent)
 }
 
-function getAttachment(items:SkillPackageFile[]):AttachmentFileItem[] {
-  const result:AttachmentFileItem[] = []
+function resolveIcon(item: FileItem): string {
+  return props.getIcon?.(item)
+    ?? (item.type === FOLDER_ADD_TYPE.FILE ? 'loncra-file' : 'loncra-folder')
+}
+
+function iconOfUploadFile(file: UploadFile<ObjectWriteResult>): string {
+  const item = state.value.selectedItem?.children?.find(child => child.key === file.uid)
+  return item ? resolveIcon(item) : 'loncra-file'
+}
+
+function isFolderFile(file:UploadFile<ObjectWriteResult>) {
+  const item = state.value.selectedItem?.children?.find(child => child.key === file.uid)
+  if (!item) {
+    return false
+  }
+  return item.type === FOLDER_ADD_TYPE.FOLDER
+}
+
+function getAttachment(items: FileItem[]): AttachmentFileItem[] {
+  const result: AttachmentFileItem[] = []
   for (const item of items) {
-    if (typeof item.content === 'string' || item.type === FOLDER_ADD_TYPE.FOLDER) {
-      const object:ObjectWriteResult = {
-        bucketName: props.bucket,
-        lastModified: 0,
-        size: 0,
-        etag: item.key as string,
-        objectName: item.label as string
-      }
-      result.push(object)
+    if (item.content && typeof item.content === 'object' && 'objectName' in item.content) {
+      result.push(item.content)
+      continue
+    }
+    if (item.type === FOLDER_ADD_TYPE.FOLDER || typeof item.content === 'string') {
+      result.push({
+        uid: String(item.key),
+        name: String(item.label ?? ''),
+        status: 'done',
+      })
     }
   }
   return result
 }
 
-function addItem(item: SkillPackageFile, parent?:SkillPackageFile) {
+function addItem(item: FileItem, parent?:FileItem) {
   if (parent) {
     parent.children = parent.children || []
     parent.children.push(item)
@@ -107,7 +128,7 @@ function addItem(item: SkillPackageFile, parent?:SkillPackageFile) {
   }
 }
 
-function cancelEdit(item: SkillPackageFile): void {
+function cancelEdit(item: FileItem): void {
   if (item.original) {
     item.label = item.original
     delete item.original
@@ -116,21 +137,28 @@ function cancelEdit(item: SkillPackageFile): void {
 
 }
 
-async function confirmEdit(item: SkillPackageFile): Promise<void> {
+async function confirmEdit(item: FileItem): Promise<void> {
   item.editing = false
   delete item.original
 }
 
-function renameItem(item: SkillPackageFile) {
+function renameItem(item: FileItem) {
   item.original = item.label as string
   item.editing = true
 }
 
-function doDelete(item: SkillPackageFile) {
+function doDelete(item: FileItem) {
   items.value = filterTreeDeep(p => p.key !== item.key, items.value)
 }
 
-async function onOperationMenuClick(itemInfo: MenuInfo, item: SkillPackageFile) {
+function onAttachmentChange(info:UploadChangeParam) {
+  if (!state.value.selectedItem) {
+    return
+  }
+  state.value.selectedItem.children = info.fileList.map(f => ({key:f.uid, label:f.name, type:FOLDER_ADD_TYPE.FILE}))
+}
+
+async function onOperationMenuClick(itemInfo: MenuInfo, item: FileItem) {
   if (itemInfo.key === 'rename') {
     renameItem(item)
   } else if (itemInfo.key === 'delete' && item) {
@@ -144,7 +172,7 @@ async function onOperationMenuClick(itemInfo: MenuInfo, item: SkillPackageFile) 
   }
 }
 
-function createMenu(item: SkillPackageFile) {
+function createMenu(item: FileItem) {
   const menu = {
     items: [] as MenuItemType[],
     onClick: (menuItem: MenuInfo) => onOperationMenuClick(menuItem, item),
@@ -218,7 +246,7 @@ function createMenu(item: SkillPackageFile) {
         :items="items"
       >
         <template #iconRender="item">
-          <icon-font :type="item.type === FOLDER_ADD_TYPE.FILE ? 'loncra-file' : 'loncra-folder'" />
+          <icon-font :type="resolveIcon(item)" />
         </template>
         <template #labelRender="item">
           <a-space-compact
@@ -296,25 +324,23 @@ function createMenu(item: SkillPackageFile) {
           class="shrink-0 w-full p-xs border-b border-border-secondary"
         >
           <a-flex flex="1" gap="small" align="center">
-            <icon-font :type="state.selectedItem.type === FOLDER_ADD_TYPE.FILE ? 'loncra-file' : 'loncra-folder'" />
+            <icon-font :type="resolveIcon(state.selectedItem)" />
             <a-typography-text ellipsis>{{state.selectedItem.label}}</a-typography-text>
           </a-flex>
-          <a-space-compact v-if="!props.readonly" class="shrink-0">
-            <a-tooltip v-if="state.selectedItem.type === FOLDER_ADD_TYPE.FILE" :title="globalProperties.$t('connom.copy')">
-              <a-button size="small" >
-                <template #icon>
-                  <icon-font type="loncra-copy" />
-                </template>
-              </a-button>
-            </a-tooltip>
-            <a-tooltip  v-if="state.selectedItem.type === FOLDER_ADD_TYPE.FOLDER" :title="globalProperties.$t('aiServer.skillPackage.add.file')">
-              <a-button size="small">
-                <template #icon>
-                  <icon-font type="loncra-upload" />
-                </template>
-              </a-button>
-            </a-tooltip>
-          </a-space-compact>
+          <a-tooltip v-if="state.selectedItem.type === FOLDER_ADD_TYPE.FILE" :title="globalProperties.$t('common.copy')">
+            <a-button size="small" >
+              <template #icon>
+                <icon-font type="loncra-copy" />
+              </template>
+            </a-button>
+          </a-tooltip>
+          <a-tooltip v-if="state.selectedItem.type === FOLDER_ADD_TYPE.FOLDER" :title="globalProperties.$t('common.delete.selected',{count:(state.selectedItem.children || []).length})">
+            <a-button :disabled="(state.selectedItem.children || []).length <= 0" danger type="primary" size="small" >
+              <template #icon>
+                <icon-font type="loncra-archive-x" />
+              </template>
+            </a-button>
+          </a-tooltip>
         </a-flex>
         <a-flex flex="1" class="size-full p-xs" >
           <a-textarea
@@ -325,8 +351,16 @@ function createMenu(item: SkillPackageFile) {
           <l-attachment-upload
             v-else-if="state.selectedItem.type === FOLDER_ADD_TYPE.FOLDER"
             :value="attachmentValue"
+            :can-preview="(file) => !isFolderFile(file)"
+            :can-download="(file) => !isFolderFile(file)"
             mode="picture-card"
-          />
+            @remove="(file) => doDelete({key:file.uid})"
+            @change="(info) => onAttachmentChange(info)"
+          >
+            <template #itemIcon="{ file }">
+              <icon-font class="text-2xl" :type="iconOfUploadFile(file)" />
+            </template>
+          </l-attachment-upload>
         </a-flex>
       </a-flex>
 

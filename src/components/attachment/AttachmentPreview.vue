@@ -30,6 +30,7 @@ const props = withDefaults(defineProps<AttachmentPreviewProps>(),{
   showFilename: true,
   disabled:false,
   preview:false,
+  canDelete:(file:UploadFile<ObjectWriteResult>) => true,
 })
 
 const previewImageGroup = ref({
@@ -55,6 +56,10 @@ const modalOptions = ref<{
   open:false
 })
 
+const emit = defineEmits<{
+  remove: [file:UploadFile<ObjectWriteResult>]
+}>()
+
 function getAlertType(status:string | undefined) {
   if (status === undefined) {
     return 'warning'
@@ -76,6 +81,7 @@ const imageFiles = computed(() =>
 
 function postRemove(file:UploadFile<ObjectWriteResult>) {
   fileList.value = fileList.value.filter(f => f.uid !== file.uid)
+  emit("remove", file)
 }
 
 function onDownload(file: ObjectWriteResult) {
@@ -187,7 +193,11 @@ const classes = computed(() => ({
                 :file="file"
                 :enabled-download="false"
                 :enabled-delete="false"
-              />
+              >
+                <template #itemIcon="{file}" v-if="slots.itemIcon">
+                  <slot name="itemIcon" :file="file" />
+                </template>
+              </l-attachment-file-preview>
               <a-flex vertical flex="1" class="min-w-0">
                 <a-flex flex="1" class="min-w-0">
                   <a-flex vertical flex="1" class="min-w-0">
@@ -227,7 +237,7 @@ const classes = computed(() => ({
         :key="file.uid"
         v-for="file in fileList"
         :class="[
-          'flex flex-inline flex-col p-xs border rounded-lg',
+          'inline-flex flex-col p-xs border rounded-lg',
           preview ? 'border-border-secondary bg-container' : [
             file.status === undefined ? 'border-warning-border bg-warning-bg' : '',
             file.status === 'uploading' ? 'border-info-border bg-info-bg' : '',
@@ -236,7 +246,10 @@ const classes = computed(() => ({
           ]
         ]">
         <l-attachment-file-preview
-          :enabled-delete="!preview"
+          class="shrink-0"
+          :can-delete="(file) => !preview && props.canDelete(file)"
+          :can-preview="props.canPreview"
+          :can-download="props.canDownload"
           :border="!preview"
           :item-class="classes?.item"
           :item-style="props.styles?.item"
@@ -248,20 +261,42 @@ const classes = computed(() => ({
           <template #itemRender="{file}" v-if="slots.itemRender">
             <slot name="itemRender" :file="file" />
           </template>
+          <template #itemIcon="{file}" v-if="slots.itemIcon">
+            <slot name="itemIcon" :file="file" />
+          </template>
         </l-attachment-file-preview>
-        <span :class="['flex flex-col gap-1',classes?.meta]" >
-          <a-typography-text strong v-if="slots.itemTitle" >
+        <span
+          v-if="slots.itemTitle || slots.itemDescription || showFilename"
+          :class="['mt-1 flex w-[84px] text-center min-w-0 flex-col gap-1 overflow-hidden', classes?.meta]"
+        >
+          <a-typography-text
+            v-if="slots.itemTitle"
+            strong
+            :ellipsis="{ tooltip: true }"
+            class="block w-full"
+          >
             <slot name="itemTitle" :file="file" />
           </a-typography-text>
-          <a-typography-text v-else-if="showFilename" ellipsis>
-            {{file.name}}
+          <a-typography-text
+            v-else-if="showFilename"
+            :ellipsis="{ tooltip: true }"
+            class="block w-full"
+          >
+            {{ file.name }}
           </a-typography-text>
-          <a-typography-text v-if="slots.itemDescription">
+          <a-typography-text
+            v-if="slots.itemDescription"
+            :ellipsis="{ tooltip: true }"
+            class="block w-full"
+          >
             <slot name="itemDescription" :file="file" />
           </a-typography-text>
         </span>
       </span>
-      <slot name="pictureCardAfter" />
+      <slot
+        name="pictureCardAfter"
+        :show-meta="!!(slots.itemTitle || slots.itemDescription || showFilename)"
+      />
     </span>
   </span>
 

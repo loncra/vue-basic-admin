@@ -12,11 +12,11 @@ import LMarkdown from "@/components/basic/markdown/Markdown.vue"
 
 import {RightOutlined,} from '@antdv-next/icons'
 import {
+  findToolConfirmedItem,
   getTavilyExtractResult,
   getTavilySearchSourceConfig,
-  isBlockRunning,
   hasToolConfirmed,
-  findToolConfirmedItem,
+  isBlockRunning,
   useAgentAssistantBubble
 } from "@/composables";
 import type {AgentMessageEntity} from "@/types/apis";
@@ -193,6 +193,7 @@ const {
       <!-- 错误 -->
       <a-alert
         v-if="group.errorBlock"
+        class="items-baseline"
         type="error"
         show-icon
         :message="group.errorBlock.metadata.message"

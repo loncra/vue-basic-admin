@@ -75,16 +75,14 @@ export type AttachmentUploadStylesType = SemanticStylesType<
 export type AttachmentUploadResolvedClassNames = Readonly<AttachmentUploadSemanticClassNames>
 export type AttachmentUploadResolvedStyles = Readonly<AttachmentUploadSemanticStyles>
 
-export interface AttachmentUploadPublicDomProps {
+export interface AttachmentUploadPublicDomProps extends AttachmentOperationProps {
   classes?: AttachmentUploadClassNamesType
   styles?: AttachmentUploadStylesType
-  disabled?:boolean
 }
 
-export interface AttachmentUploadDomProps {
+export interface AttachmentUploadDomProps extends AttachmentOperationProps {
   classes?: AttachmentUploadResolvedClassNames
   styles?: AttachmentUploadResolvedStyles
-  disabled?:boolean
 }
 
 export interface AttachmentUploadProps extends BasicAttachmentProps, AttachmentUploadPublicDomProps {
@@ -99,7 +97,7 @@ export interface AttachmentUploadProps extends BasicAttachmentProps, AttachmentU
   previewMode?:AttachmentPreviewMode
 }
 
-export interface AttachmentPreviewProps extends AttachmentUploadDomProps {
+export interface AttachmentPreviewProps extends AttachmentUploadDomProps, AttachmentOperationProps {
   mode?: AttachmentPreviewMode
   changeThumbUrl?: boolean
   showFilename?:boolean
@@ -108,14 +106,18 @@ export interface AttachmentPreviewProps extends AttachmentUploadDomProps {
   width?:string,
 }
 
-export interface AttachmentPreviewFileProps {
+export interface AttachmentPreviewFileProps extends AttachmentOperationProps{
   file: UploadFile<ObjectWriteResult>
   border?:boolean
-  disabled?:boolean
-  enabledDelete?:boolean
-  enabledDownload?:boolean
   itemClass?: string
   itemStyle?: CSSProperties
+}
+
+export interface AttachmentOperationProps {
+  disabled?:boolean
+  canPreview?:(file:UploadFile<ObjectWriteResult>) => boolean | undefined
+  canDelete?:(file:UploadFile<ObjectWriteResult>) => boolean | undefined
+  canDownload?:(file:UploadFile<ObjectWriteResult>) => boolean | undefined
 }
 
 export interface AttachmentDraggerUploadProps extends AttachmentPreviewProps, BasicAttachmentProps {

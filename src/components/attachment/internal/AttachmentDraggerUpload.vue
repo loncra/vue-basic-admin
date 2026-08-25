@@ -10,6 +10,8 @@ import type {
 import {ATTACHMENT_PREVIEW_MODE} from "@/constants";
 import {useAttachmentUploadFiles} from "@/composables/attachment/useAttachmentUploadFiles.js";
 import type {UploadChangeParam} from "antdv-next";
+import type {UploadFile} from "antdv-next/dist/upload/interface";
+import type {ObjectWriteResult} from "@/types/apis";
 
 defineOptions({
   name: 'LAttachmentDraggerUpload',
@@ -31,7 +33,8 @@ const {uploadFiles} = useAttachmentUploadFiles(fileList)
 const slots = useSlots();
 
 const emit = defineEmits<{
-  change: [info: UploadChangeParam]
+  change: [info: UploadChangeParam],
+  remove: [file:UploadFile<ObjectWriteResult>]
 }>()
 
 function onChange(info: UploadChangeParam) {
@@ -56,6 +59,10 @@ const uploadStyles = computed(() => ({
     :styles="props.styles"
     :preview="preview"
     :mode="props.mode"
+    :can-preview="props.canPreview"
+    :can-delete="props.canDelete"
+    :can-download="props.canDownload"
+    @remove="(file) => emit('remove', file)"
   >
     <template #listBefore v-if="!props.maxCount || uploadFiles.length < props.maxCount || props.preview">
       <a-upload-dragger
@@ -86,6 +93,9 @@ const uploadStyles = computed(() => ({
     </template>
     <template v-if="slots.itemRender" #itemRender="{file}">
       <slot name="itemRender" :file="file" />
+    </template>
+    <template #itemIcon="{file}" v-if="slots.itemIcon">
+      <slot name="itemIcon" :file="file" />
     </template>
     <template #itemTitle="{file}" v-if="slots.itemTitle" >
       <slot name="itemTitle" :file="file" />

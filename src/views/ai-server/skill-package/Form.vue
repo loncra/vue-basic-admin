@@ -6,7 +6,6 @@ import type {
   NameValueEnumMetadata,
   RestResult,
   SkillPackageEntity,
-  SkillPackageFile,
   SkillPackageSavePayload,
 } from '@/types/apis'
 import {loadIcon, requireNonNullOrUndefined} from '@/utils'
@@ -24,8 +23,8 @@ import {
   SYSTEM_MODULE_NAME,
 } from '@/constants'
 import LIconSelect from '@/components/basic/IconSelect.vue'
-import type {IconfontJson} from '@/types/composables'
-import LSkillFileEditor from "@/components/ai-server/skill/SkillFileEditor.vue";
+import type {FileItem, IconfontJson} from '@/types/composables'
+import LFileEditor from "@/components/attachment/FileEditor.vue";
 
 defineOptions({
   name: 'AiServerSkillPackageForm',
@@ -43,7 +42,7 @@ service.save = (entity: SkillPackageSavePayload) => {
   return saveEntity(payload)
 }
 
-function createDefaultFiles(): SkillPackageFile[] {
+function createDefaultFiles(): FileItem[] {
   return [
     {
       label: 'SKILL.md',
@@ -297,8 +296,7 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
             :label="globalProperties.$t('aiServer.skillPackage.files')"
             :rules="[{required: true}]"
           >
-<!--            <l-skill-folder-editor v-model:files="options.entity.files" :name="options.entity.packageKey" />-->
-            <l-skill-file-editor v-model:items="options.entity.files" :name="options.entity.packageKey" />
+            <l-file-editor v-model:items="options.entity.files" :name="options.entity.packageKey" />
           </a-form-item>
         </a-col>
         <a-col :span="24">
@@ -327,19 +325,6 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
             />
           </a-form-item>
         </a-col>
-
-<!--        <a-col :span="24">
-          <a-form-item
-            name="assetFiles"
-            :label="globalProperties.$t('aiServer.skillPackage.assets')"
-          >
-            <l-attachment-upload
-              :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER"
-              bucket="temp"
-              v-model:value="options.entity.assetFiles"
-            />
-          </a-form-item>
-        </a-col>-->
       </template>
     </l-basic-form>
   </div>

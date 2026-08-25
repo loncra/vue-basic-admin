@@ -477,7 +477,7 @@
     @apply p-xxs
   }*/
   .folder-edit .ant-menu-item,
-  .folder-edit .ant-menu-submenu-title{
-    @apply h-md leading-md mb-0
+  .folder-edit .ant-menu-submenu-title {
+    @apply h-[32px] leading-[32px] mb-0
   }
 }
