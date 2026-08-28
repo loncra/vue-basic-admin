@@ -175,3 +175,26 @@ export const AGENT_CHAT_TYPE_STYLE = {
     icon:'loncra-bot',
   }
 } as const
+
+export const SKILL_SOURCE_TYPE = {
+  /**
+   * 手动录入
+   */
+  MANUAL:20,
+  /**
+   * GIT 导入
+   */
+  GIT:10
+} as const
+
+export const SKILL_UPDATE_POLICY = {
+  /**
+   * 手动更新
+   */
+  MANUAL:10,
+
+  /**
+   * 自动更新
+   */
+  AUTOMATIC:20
+}

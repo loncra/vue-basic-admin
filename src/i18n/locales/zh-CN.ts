@@ -27,6 +27,7 @@ const locale: LanguagePack = {
       all: '导出全部',
       selected: '导出 ({count}) 条记录',
     },
+    nextStep:'下一步',
     detail: '{name}详情',
     action: '操作',
     reset: '重置',

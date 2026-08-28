@@ -75,8 +75,12 @@ function getAlertType(status:string | undefined) {
   }
 }
 
+function isImageFile(file:UploadFile<ObjectWriteResult>) {
+  return file.type !== 'directory' && file.type?.includes('image/') && (file.thumbUrl || file.url)
+}
+
 const imageFiles = computed(() =>
-  fileList.value.filter(f => f.type?.includes('image/') && (f.thumbUrl || f.url) )
+  fileList.value.filter(isImageFile)
 )
 
 function postRemove(file:UploadFile<ObjectWriteResult>) {
@@ -128,7 +132,7 @@ function openPreview(file: UploadFile<ObjectWriteResult>) {
 }
 
 async function ensureThumbUrl(file: UploadFile<ObjectWriteResult>) {
-  if (file.thumbUrl) {
+  if (file.type === 'directory' || file.thumbUrl) {
     return
   }
   if (file.url && file.type?.includes('image/')) {

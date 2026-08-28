@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<AttachmentPictureCardUploadProps>(), {
 
 const fileList = defineModel<AttachmentFileItem[]>('fileList', {default:() => []})
 
-const {uploadFiles} = useAttachmentUploadFiles(fileList)
+const {uploadFiles, antdFileList, onAntdFileListChange} = useAttachmentUploadFiles(fileList)
 
 const slots = useSlots()
 
@@ -35,6 +35,7 @@ const emit = defineEmits<{
 }>()
 
 function onChange(info: UploadChangeParam) {
+  onAntdFileListChange(info)
   emit('change', info)
 }
 
@@ -81,7 +82,7 @@ const uploadStyles = computed(() => ({
           ]"
           :classes="uploadClasses"
           :styles="uploadStyles"
-          v-model:file-list="uploadFiles"
+          :file-list="antdFileList"
           :before-upload="() => false"
           :show-upload-list="false"
           :max-count="props.maxCount"

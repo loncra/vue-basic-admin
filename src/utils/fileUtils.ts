@@ -1,7 +1,11 @@
 import type {VideoThumbnailResult} from '@/types/composables/common'
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {ObjectWriteResult} from "@/types/apis";
-import type {AttachmentFileItem, AttachmentValue} from "@/types/composables/attachmentUpload.ts";
+import type {
+  AttachmentFileItem,
+  AttachmentPathItem,
+  AttachmentValue
+} from "@/types/composables/attachmentUpload.ts";
 import {AttachmentService} from "@/apis";
 
 /**
@@ -230,4 +234,114 @@ export function denormalizeAttachmentFromList(
     return mode === 'single' ? undefined : []
   }
   return mode === 'single' ? list[0] : [...list]
+}
+
+function relativePathOf(file: UploadFile): string | undefined {
+  const raw = file.originFileObj as File | undefined
+  const path = raw?.webkitRelativePath?.replaceAll('\\', '/').replace(/^\/+|\/+$/g, '')
+  return path || undefined
+}
+
+export function buildAttachmentPathTree(
+  files: UploadFile<ObjectWriteResult>[],
+): AttachmentPathItem[] {
+  const roots: AttachmentPathItem[] = []
+  const folders = new Map<string, AttachmentPathItem>()
+  function folderNode(absPath: string, name: string): AttachmentPathItem {
+    let node = folders.get(absPath)
+    if (node) {
+      return node
+    }
+    node = {
+      uid: `dir:${absPath}`,
+      name,
+      type:'directory',
+      children: [],
+    }
+    folders.set(absPath, node)
+    return node
+  }
+  function parentList(dirAbsPath: string): AttachmentPathItem[] {
+    if (!dirAbsPath) {
+      return roots
+    }
+    let siblings = roots
+    let acc = ''
+    for (const seg of dirAbsPath.split('/')) {
+      acc = acc ? `${acc}/${seg}` : seg
+      const node = folderNode(acc, seg)
+      if (!siblings.includes(node)) {
+        siblings.push(node)
+      }
+      siblings = node.children!
+    }
+    return siblings
+  }
+  for (const file of files) {
+    const path = relativePathOf(file)
+    if (!path) {
+      roots.push({ ...file })
+      continue
+    }
+    const parts = path.split('/').filter(Boolean)
+    const fileName = parts.pop()!
+    const dirAbs = parts.join('/')
+    parentList(dirAbs).push({
+      ...file,
+      name: fileName,
+    })
+  }
+  applyAttachmentDirectoryProgress(roots)
+  return roots
+}
+
+/** 树上的文件节点（保留原引用；目录节点不包含在内） */
+export function collectAttachmentFileLeaves(
+  nodes: AttachmentPathItem[] = [],
+): AttachmentPathItem[] {
+  const result: AttachmentPathItem[] = []
+  for (const node of nodes) {
+    if (node.type === 'directory') {
+      result.push(...collectAttachmentFileLeaves(node.children ?? []))
+    } else {
+      result.push(node)
+    }
+  }
+  return result
+}
+
+/** 按子孙文件 size 加权，把目录的 size / percent / status 对齐到叶子 */
+export function applyAttachmentDirectoryProgress(nodes: AttachmentPathItem[] = []): void {
+  for (const node of nodes) {
+    if (node.type !== 'directory') {
+      continue
+    }
+    applyAttachmentDirectoryProgress(node.children ?? [])
+    const leaves = collectAttachmentFileLeaves([node])
+    const total = leaves.reduce((sum, file) => sum + (file.size || 0), 0)
+    const loaded = leaves.reduce(
+      (sum, file) => sum + ((file.size || 0) * (file.percent || 0)) / 100,
+      0,
+    )
+    const percent = total > 0 ? Math.floor((loaded * 100) / total) : 0
+    if (node.size !== total) {
+      node.size = total
+    }
+    if (node.percent !== percent) {
+      node.percent = percent
+    }
+    let status: AttachmentPathItem['status']
+    if (leaves.some((file) => file.status === 'error')) {
+      status = 'error'
+    } else if (leaves.length > 0 && leaves.every((file) => file.status === 'done')) {
+      status = 'done'
+    } else if (leaves.some((file) => file.status === 'uploading')) {
+      status = 'uploading'
+    } else {
+      status = undefined
+    }
+    if (node.status !== status) {
+      node.status = status
+    }
+  }
 }

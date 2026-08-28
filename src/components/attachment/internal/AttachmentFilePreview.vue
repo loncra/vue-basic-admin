@@ -39,6 +39,8 @@ function getFileIcon() {
     return 'loncra-file-image'
   } else if (props.file?.type?.includes("video/")) {
     return 'loncra-file-play'
+  } else if (props.file?.type === 'directory') {
+    return 'loncra-folder'
   } else {
     return 'loncra-file-up'
   }

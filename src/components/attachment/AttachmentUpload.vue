@@ -8,6 +8,7 @@ import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants";
 import LAttachmentDraggerUpload from "@/components/attachment/internal/AttachmentDraggerUpload.vue";
 import type {
   AttachmentFileItem,
+  AttachmentPathItem,
   AttachmentUploadExecutorOptions,
   AttachmentUploadProps,
   AttachmentValue
@@ -19,6 +20,8 @@ import {
   uploadFile as uploadAttachmentFile
 } from "@/composables/attachment/useAttachmentUploadExecutor.js";
 import {
+  applyAttachmentDirectoryProgress,
+  collectAttachmentFileLeaves,
   denormalizeAttachmentFromList,
   detectAttachmentValueMode,
   isObjectWriteResult,
@@ -62,7 +65,7 @@ watch(value, (v) => {
     return
   }
   fileList.value = normalizeAttachmentToList(v ?? undefined)
-}, {immediate: true, deep: true})
+}, {immediate: true})
 
 watch(fileList, (list) => {
   syncing.value = true
@@ -106,10 +109,11 @@ function getObjectWriteResult(item:AttachmentFileItem): ObjectWriteResult | unde
 }
 
 async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undefined> {
-  const list = fileList.value
-  const existing = list.filter(s => isObjectWriteResult(s) || (isUploadFile(s) && s.response && s.status === 'done'))
-  const pending = list.filter(
-    (item): item is UploadFile => isUploadFile(item) && !!item.originFileObj,
+  const tree = fileList.value as AttachmentPathItem[]
+  const leaves = collectAttachmentFileLeaves(tree)
+  const existing = leaves.filter(s => isObjectWriteResult(s) || (isUploadFile(s) && s.response && s.status === 'done'))
+  const pending = leaves.filter(
+    (item): item is UploadFile => isUploadFile(item) && !!item.originFileObj && !item.response,
   )
 
   if (pending.length === 0) {
@@ -117,27 +121,45 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
   }
 
   const options = buildExecutorOptions()
-  await Promise.all(
-    pending.map(async (file) => file.response = await uploadAttachmentFile(file, props.bucket, options)),
+  const stopProgressWatch = watch(
+    () => pending.map((file) => [file.percent, file.status]),
+    () => applyAttachmentDirectoryProgress(tree),
+    {flush: 'sync'},
   )
+  try {
+    await Promise.all(
+      pending.map(async (file) => file.response = await uploadAttachmentFile(file, props.bucket, options))
+    )
+  } finally {
+    stopProgressWatch()
+    applyAttachmentDirectoryProgress(tree)
+  }
 
-  const results = list
-    .map((item) => {
-      if (isObjectWriteResult(item)) {
-        return item
-      }
-      if (isUploadFile(item) && item.response) {
-        return item.response
-      }
-      return null
-    })
-    .filter((item): item is ObjectWriteResult => item !== null)
+  const hasDirectory = tree.some((item) => item.type === 'directory')
+  if (!hasDirectory) {
+    const results = leaves
+      .map((item) => {
+        if (isObjectWriteResult(item)) {
+          return item
+        }
+        if (isUploadFile(item) && item.response) {
+          return item.response
+        }
+        return null
+      })
+      .filter((item): item is ObjectWriteResult => item !== null)
 
-  syncing.value = true
-  fileList.value = results
-  value.value = denormalizeAttachmentFromList(results, value.value ?? undefined, props.maxCount)
-  await nextTick()
-  syncing.value = false
+    syncing.value = true
+    fileList.value = results
+    value.value = denormalizeAttachmentFromList(results, value.value ?? undefined, props.maxCount)
+    await nextTick()
+    syncing.value = false
+    return resolveUploadResult(results)
+  }
+
+  const results = leaves
+    .map((item) => getObjectWriteResult(item))
+    .filter((item): item is ObjectWriteResult => item !== undefined)
 
   return resolveUploadResult(results)
 }

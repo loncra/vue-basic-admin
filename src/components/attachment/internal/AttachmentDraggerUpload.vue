@@ -29,7 +29,7 @@ const globalProperties =
     .globalProperties
 
 const fileList = defineModel<AttachmentFileItem[]>('fileList', {default:() => []})
-const {uploadFiles} = useAttachmentUploadFiles(fileList)
+const {uploadFiles, antdFileList, onAntdFileListChange} = useAttachmentUploadFiles(fileList)
 const slots = useSlots();
 
 const emit = defineEmits<{
@@ -38,6 +38,7 @@ const emit = defineEmits<{
 }>()
 
 function onChange(info: UploadChangeParam) {
+  onAntdFileListChange(info)
   emit('change', info)
 }
 
@@ -73,7 +74,7 @@ const uploadStyles = computed(() => ({
         :multiple="props.multiple"
         :accept="props.accept"
         v-if="!preview && !props.disabled"
-        v-model:file-list="uploadFiles"
+        :file-list="antdFileList"
         :before-upload="() => false"
         :show-upload-list="false"
         @change="onChange"

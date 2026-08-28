@@ -49,7 +49,11 @@ async function singleUpload(
   }
 
   const formData = new FormData()
-  formData.append(options.postFilename, file.originFileObj as Blob)
+  formData.append(
+    options.postFilename,
+    file.originFileObj as Blob,
+    (file.originFileObj as File).webkitRelativePath || file.name,
+  )
   appendFormParams(formData, options)
 
   try {
@@ -98,7 +102,11 @@ async function createMultipartUploadSuccess(
     }
 
     const formData = new FormData()
-    formData.append(options.postFilename, fileData)
+    formData.append(
+      options.postFilename,
+      fileData,
+      (file.originFileObj as File).webkitRelativePath || file.name
+    )
     chunks.push({
       id: i,
       uploadSize: 0,
@@ -129,7 +137,7 @@ async function multipartUpload(
   options: AttachmentUploadExecutorOptions,
 ): Promise<ObjectWriteResult> {
   const param: Record<string, unknown> = {
-    objectName: file.name,
+    objectName: (file.originFileObj as File).webkitRelativePath || file.name,
     size: file.size,
     contentType: file.type,
   }

@@ -4,6 +4,7 @@ import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {
   type ComponentInternalInstance,
+  computed,
   getCurrentInstance,
   h,
   inject,
@@ -20,7 +21,6 @@ import {
   SYSTEM_CONSTANT
 } from "@/constants";
 import type {BasicCrudService, BasicIdMetadata, RestResult} from "@/types/apis";
-import type {BasicAuthorityProps} from "@/types/composables";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {App, Checkbox} from "antdv-next";
@@ -51,10 +51,20 @@ const props = withDefaults(
   defineProps<{
     operationDataTraceTarget:string,
     service: BasicCrudService<TBody,TEntity>
-    authority?: BasicAuthorityProps
     preMounted?: () => void | Promise<void>
     postMounted?: () => void | Promise<void>
     preSubmit?: () => void | Promise<void>
+    postSubmit?:(result:RestResult<TId>, postValue:TBody) => boolean | Promise<boolean>
+    saveButton?: {
+      show?:boolean
+      icon?:string
+      text:string
+    }
+    resetButton?: {
+      show?:boolean
+      icon?:string
+      text:string
+    }
     postGetEntity?:(entity: TEntity) => TEntity | Promise<TEntity>
     redirect: RouteLocationRaw
     titleText?: (title:string, entity: TEntity | TBody) => string
@@ -76,6 +86,20 @@ const emit = defineEmits<{
   (e: 'resetFields'): void
 }>()
 
+const resolvedSaveButton = computed(() => ({
+  show: true,
+  icon: 'loncra-save',
+  text: i18n.global.t('common.save'),
+  ...props.saveButton,      // 调用方覆盖则整体覆盖
+}))
+
+const resolvedResetButton = computed(() => ({
+  show: true,
+  icon: 'loncra-history',
+  text: i18n.global.t('common.reset'),
+  ...props.resetButton,
+}))
+
 async function doSubmit() {
   spinning.value = true
   try {
@@ -85,7 +109,15 @@ async function doSubmit() {
     const result = await props.service.save(entity.value)
     if(!isResultSuccess(result)) {
       message.warning(result.message)
-      return ;
+      return
+    }
+    let postSubmitResult = false
+    if (props.postSubmit) {
+      postSubmitResult = await props.postSubmit(result, entity.value)
+    }
+    if (postSubmitResult) {
+      emit('success', result)
+      return
     }
     if(result.status === 200) {
       emit('success', result)
@@ -128,7 +160,7 @@ function createdAfterSetting(result:RestResult<TId>) {
           configProviderStore.setCreateSuccessBack(CREATE_SUCCESS_BACK.CURRENT)
         }
       },
-      footer: ({ extra }: any) => {
+      footer: ({ extra }) => {
         return [
           h(Checkbox, {
             checked:rememberMe.value,
@@ -271,19 +303,22 @@ watch(
             <l-operation-data-trace-table hide-title detailView :date="creationTime" :query="{'filter_[data.operationTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationTrace.id_eq]':entity.id}"/>
           </div>
           <a-space>
-            <a-button type="primary" html-type="submit" :loading="spinning">
+            <slot name="beforeButton"></slot>
+            <a-button v-if="resolvedSaveButton.show" type="primary" html-type="submit" :loading="spinning">
               <template #icon>
-                <icon-font class="icon" type="loncra-save" />
+                <icon-font class="icon" :type="resolvedSaveButton.icon" />
               </template>
-              <span>{{ globalProperties.$t('common.save') }}</span>
+              <span>{{ resolvedSaveButton.text }}</span>
             </a-button>
 
-            <a-button html-type="reset" :disabled="spinning">
+            <a-button v-if="resolvedResetButton.show" html-type="reset" :disabled="spinning">
               <template #icon>
-                <icon-font class="icon" type="loncra-history" />
+                <icon-font class="icon" :type="resolvedResetButton.icon" />
               </template>
-              <span>{{ globalProperties.$t('common.reset') }}</span>
+              <span>{{ resolvedResetButton.text}}</span>
             </a-button>
+
+            <slot name="afterButton"></slot>
           </a-space>
         </a-spin>
       </l-form>

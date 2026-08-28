@@ -12,6 +12,10 @@ export type AttachmentPreviewMode = typeof ATTACHMENT_PREVIEW_MODE.PICTURE_CARD 
 
 export type AttachmentFileItem = UploadFile<ObjectWriteResult> | ObjectWriteResult
 
+export interface AttachmentPathItem extends UploadFile<ObjectWriteResult> {
+  children?: AttachmentPathItem[]
+}
+
 export type AttachmentValue =
   | AttachmentFileItem
   | AttachmentFileItem[]

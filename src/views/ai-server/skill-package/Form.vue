@@ -13,21 +13,25 @@ import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 import {AiSkillPackageService} from '@/apis/ai-server/aiSkillPackageService.ts'
 import {
-  FOLDER_ADD_TYPE,
+  ATTACHMENT_UPLOAD_MODE,
   ICON_SELECT_MODE,
   OPERATION_DATA_TRACE_TABLE,
   SKILL_GROUP_CODE_PREFIX,
   SKILL_PACKAGE_ROUTE,
+  SKILL_SOURCE_TYPE,
+  SKILL_UPDATE_POLICY,
   SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
 } from '@/constants'
 import LIconSelect from '@/components/basic/IconSelect.vue'
-import type {FileItem, IconfontJson} from '@/types/composables'
+import type {IconfontJson} from '@/types/composables'
 import LFileEditor from "@/components/attachment/FileEditor.vue";
+import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import type {AttachmentUploadExpose} from "@/types/composables/attachmentUpload.ts";
 
 defineOptions({
-  name: 'AiServerSkillPackageForm',
+  name: 'AiServerSkillPackageAddForm',
 })
 
 const globalProperties =
@@ -35,33 +39,6 @@ const globalProperties =
     .globalProperties
 
 const service = new AiSkillPackageService()
-const saveEntity = service.save.bind(service)
-service.save = (entity: SkillPackageSavePayload) => {
-  const payload: SkillPackageEntity = {...entity}
-  delete payload.files
-  return saveEntity(payload)
-}
-
-function createDefaultFiles(): FileItem[] {
-  return [
-    {
-      label: 'SKILL.md',
-      key: 'SKILL.md',
-      type: FOLDER_ADD_TYPE.FILE,
-      readonly: true,
-      content: '---\nname: skill-name\ndescription: Use when ...\n---\n\n# Skill\n\n',
-    }, {
-      key: String(crypto.randomUUID()),
-      label: '1',
-      type: FOLDER_ADD_TYPE.FOLDER,
-      children: [{
-        key: String(crypto.randomUUID()),
-        label: '2',
-        type: FOLDER_ADD_TYPE.FOLDER,
-      }]
-    }
-  ]
-}
 
 function createEmptyEntity(): SkillPackageEntity {
   return {
@@ -78,8 +55,7 @@ function createEmptyEntity(): SkillPackageEntity {
     icon: '',
     defaultUpdatePolicy: undefined as unknown as number,
     sourceType: undefined as unknown as number,
-    metadata: {},
-    files: createDefaultFiles()
+    metadata: {}
   }
 }
 
@@ -102,16 +78,13 @@ const options = ref<{
   sourceTypeOptions: [],
   icons: ['/font_ai_icon/iconfont.json'],
   iconOptions: [],
-  groupOptions: [],
+  groupOptions: []
 })
 
+const attachmentUpload = ref<AttachmentUploadExpose>()
+
 function postGetEntity(entity: SkillPackageEntity) {
-  if (!entity.files?.length) {
-    entity.files = createDefaultFiles()
-  }
-  /*if (!entity.assetFiles) {
-    entity.assetFiles = []
-  }*/
+
   if (!entity.metadata) {
     entity.metadata = {}
   }
@@ -157,6 +130,24 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
   }
   return title
 }
+
+async function postSubmit(result:RestResult<number>, entity: SkillPackageEntity) {
+  options.value.entity.id = result.data
+  try {
+    options.value.spinning = true
+    await attachmentUpload?.value?.upload()
+  } finally {
+    options.value.spinning = false
+  }
+  return false
+}
+
+function onSourceTypeChange(value:number) {
+  if (value === SKILL_SOURCE_TYPE.MANUAL) {
+    options.value.entity.defaultUpdatePolicy = SKILL_UPDATE_POLICY.MANUAL
+  }
+}
+
 </script>
 
 <template>
@@ -168,6 +159,7 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
       :title-text="setPageTitle"
       :redirect="{name: SKILL_PACKAGE_ROUTE.HOME}"
       :service="service"
+      :post-submit="postSubmit"
       v-model:entity="options.entity"
       :spinning="options.spinning"
     >
@@ -257,6 +249,7 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
           >
             <a-select
               class="w-full"
+              :disabled="options.entity.sourceType === SKILL_SOURCE_TYPE.MANUAL"
               v-model:value="options.entity.defaultUpdatePolicy"
               :options="options.updatePolicyOptions"
               :field-names="{label: 'name'}"
@@ -273,59 +266,55 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
               v-model:value="options.entity.sourceType"
               :options="options.sourceTypeOptions"
               :field-names="{label: 'name'}"
+              @change="onSourceTypeChange"
               allow-clear
             />
           </a-form-item>
         </a-col>
-        <a-col :span="24">
-          <a-form-item
-            name="tags"
-            :label="globalProperties.$t('aiServer.skillPackage.tags')"
-          >
-            <a-select
-              class="w-full"
-              mode="tags"
-              max-tag-count="responsive"
-              v-model:value="options.entity.tags"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="24">
-          <a-form-item
-            name="files"
-            :label="globalProperties.$t('aiServer.skillPackage.files')"
-            :rules="[{required: true}]"
-          >
-            <l-file-editor v-model:items="options.entity.files" :name="options.entity.packageKey" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="24">
-          <a-form-item
-            name="summary"
-            :label="globalProperties.$t('aiServer.skillPackage.summary')"
-          >
-            <a-textarea
-              v-model:value="options.entity.summary"
-              :rows="4"
-              show-count
-              :maxlength="512"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="24">
-          <a-form-item
-            name="additionalInformation"
-            :label="globalProperties.$t('aiServer.skillPackage.additionalInformation')"
-          >
-            <a-textarea
-              v-model:value="options.entity.additionalInformation"
-              :rows="4"
-              show-count
-              :maxlength="512"
-            />
-          </a-form-item>
-        </a-col>
       </template>
+      <a-form-item
+        name="tags"
+        :label="globalProperties.$t('aiServer.skillPackage.tags')"
+      >
+        <a-select
+          class="w-full"
+          mode="tags"
+          max-tag-count="responsive"
+          v-model:value="options.entity.tags"
+        />
+      </a-form-item>
+      <a-form-item
+        name="files"
+        :label="globalProperties.$t('aiServer.skillPackage.files')"
+      >
+        <a-flex gap="middle" vertical>
+          <l-attachment-upload directory ref="attachmentUpload" :upload-options="{param:{prefix:'ai/skill/' + options.entity.id, randomName:false}}" bucket="system.file" :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER" />
+          <l-file-editor v-if="options.entity.id" :path="'ai/skill/' + options.entity.id" :name="options.entity.packageKey"/>
+        </a-flex>
+      </a-form-item>
+      <a-form-item
+        name="summary"
+        :label="globalProperties.$t('aiServer.skillPackage.summary')"
+      >
+        <a-textarea
+          v-model:value="options.entity.summary"
+          :rows="4"
+          show-count
+          :maxlength="512"
+        />
+      </a-form-item>
+      <a-form-item
+        name="additionalInformation"
+        :label="globalProperties.$t('aiServer.skillPackage.additionalInformation')"
+      >
+        <a-textarea
+          v-model:value="options.entity.additionalInformation"
+          :rows="4"
+          show-count
+          :maxlength="512"
+        />
+      </a-form-item>
+
     </l-basic-form>
   </div>
 </template>

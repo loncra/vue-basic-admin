@@ -2,10 +2,8 @@ import type {
   BasicIdMetadata,
   DataDictionaryMetadata,
   NameValueEnumMetadata,
-  ObjectWriteResult,
   VersionEntityMetadata,
 } from '@/types/apis'
-import type {FileItem} from "@/types/composables/fileEditor.ts";
 
 export interface SkillPackageMetadata {
   source?: Record<string, unknown>
@@ -26,9 +24,7 @@ export interface SkillPackageSavePayload extends BasicIdMetadata<number>, Versio
   defaultUpdatePolicy: NameValueEnumMetadata<number> | number
   sourceType?: NameValueEnumMetadata<number> | number
   metadata: SkillPackageMetadata
-  file?: ObjectWriteResult
 }
 
 export interface SkillPackageEntity extends SkillPackageSavePayload {
-  files?: FileItem[]
 }
