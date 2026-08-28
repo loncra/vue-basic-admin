@@ -1,6 +1,6 @@
 import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants";
 import type {CSSProperties} from 'vue'
-import type {ObjectWriteResult} from "@/types/apis";
+import type {EditObjectItemInfo, ObjectItemInfo, ObjectWriteResult} from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {
   SemanticClassNamesType,
@@ -10,10 +10,18 @@ import type {
 export type AttachmentUploadMode = typeof ATTACHMENT_UPLOAD_MODE.PICTURE_CARD | typeof ATTACHMENT_UPLOAD_MODE.DRAGGER | typeof ATTACHMENT_UPLOAD_MODE.CUSTOMIZE
 export type AttachmentPreviewMode = typeof ATTACHMENT_PREVIEW_MODE.PICTURE_CARD | typeof ATTACHMENT_PREVIEW_MODE.LIST
 
-export type AttachmentFileItem = UploadFile<ObjectWriteResult> | ObjectWriteResult
+export type AttachmentFileItem = UploadFile<ObjectWriteResult> | ObjectWriteResult | ObjectItemInfo
 
 export interface AttachmentPathItem extends UploadFile<ObjectWriteResult> {
   children?: AttachmentPathItem[]
+}
+
+export interface FileEditorProps  {
+  readonly?: boolean
+  name?: string
+  path: string
+  bucket:string
+  getIcon?: (item: EditObjectItemInfo) => string
 }
 
 export type AttachmentValue =

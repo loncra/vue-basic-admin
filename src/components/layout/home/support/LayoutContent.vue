@@ -439,7 +439,7 @@ onUnmounted(() => routeCacheVersions.value = {})
             </template>
             <template #leftExtra>
               <div class="mr-xs">
-                <a-tooltip :title="globalProperties.$t('layoutContent.reload')">
+                <a-tooltip :title="globalProperties.$t('common.refresh')">
                   <a-button type="text" @click="reload">
                     <template #icon>
                       <icon-font class="icon align" type="loncra-refresh-cw"/>

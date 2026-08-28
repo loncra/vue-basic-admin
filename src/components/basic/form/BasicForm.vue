@@ -71,7 +71,7 @@ const props = withDefaults(
   }>(),
   {
     postGetEntity: (entity: TEntity) => entity,
-    titleText: (title:string, entity: TEntity | TBody) => title,
+    titleText: (title:string) => title,
   },
 )
 
@@ -160,7 +160,7 @@ function createdAfterSetting(result:RestResult<TId>) {
           configProviderStore.setCreateSuccessBack(CREATE_SUCCESS_BACK.CURRENT)
         }
       },
-      footer: ({ extra }) => {
+      footer: ({ extra }:any) => {
         return [
           h(Checkbox, {
             checked:rememberMe.value,
@@ -181,6 +181,7 @@ function createdAfterSetting(result:RestResult<TId>) {
 
   if (configProviderStore.state.createSuccessBack === CREATE_SUCCESS_BACK.HOME) {
     globalProperties.$router.push(props.redirect)
+    closeLayoutTab?.(globalProperties.$route.fullPath, false);
   }
 
 }

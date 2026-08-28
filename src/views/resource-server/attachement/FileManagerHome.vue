@@ -72,6 +72,9 @@ const query = ref<FilterRequest>({
   type:'',
   filename:null
 });
+
+const expandedRowKeys = ref<string[]>([])
+
 const loading = ref<boolean>(false);
 
 const table = ref();
@@ -149,8 +152,42 @@ async function doDelete(records: ObjectItemInfo[]) {
   } catch (e) {
     message.error(e instanceof Error ? e.message : String(e))
   } finally {
-
     loading.value = false
+  }
+}
+
+async function onDirClick(record:ObjectItemInfo) {
+  if (!record.dir) {
+    return
+  }
+  if (!record.children) {
+    try {
+      record.loading = true
+      const result:RestResult<ObjectItemInfo[]> = await service.find({
+        type:segmented.value.value,
+        filename:record.objectName
+      })
+      record.children = result.data ?? []
+      if (!expandedRowKeys.value.includes(record.id)) {
+        record.children.filter(c => c.dir)
+          .forEach(c => {
+            c.userMetadata = {}
+            c.userMetadata['X-Amz-Meta-Original-Filename'] = c.objectName
+              .replaceAll(record.objectName, '')
+              .replaceAll('/', '')
+          })
+        expandedRowKeys.value = [...expandedRowKeys.value, record.id]
+      }
+    } finally {
+      record.loading = false
+    }
+    return
+  } else {
+    if (expandedRowKeys.value.some(e => e === record.id)) {
+      expandedRowKeys.value = expandedRowKeys.value.filter(e => e !== record.id)
+    } else {
+      expandedRowKeys.value = [...expandedRowKeys.value, record.id]
+    }
   }
 }
 
@@ -178,7 +215,6 @@ onMounted(mounted)
           <a-typography-text strong>{{ name }}({{objects || 0}})</a-typography-text>
           <div>{{ globalProperties.$t('common.used') }}:{{ byteFormat(size || 0)}}</div>
         </template>
-
       </a-segmented>
     </div>
     <l-crud-table
@@ -196,20 +232,32 @@ onMounted(mounted)
       :authority="{
         delete:'perms[resource_server_attachment:delete]'
       }"
+      :expandable="{
+        expandedRowKeys:expandedRowKeys,
+        expandIcon: () => null,
+        onExpandedRowsChange:(expandedRows:string[]) => expandedRowKeys = expandedRows
+      }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'uploader' && !record.dir">
           {{ record?.userMetadata['X-Amz-Meta-Uploader-Id'] }}
         </template>
         <template v-if="column.dataIndex === 'filename'">
-          {{record?.userMetadata['X-Amz-Meta-Original-Filename'] || record.objectName}}
+          <a-space :class="record.dir ? 'cursor-pointer' : undefined" @click="onDirClick(record)">
+            <icon-font v-if="!record.loading" class="icon align" :type="record.dir ? (expandedRowKeys.includes(record.id) ? 'loncra-folder-open' : 'loncra-folder-closed') : 'loncra-file'" />
+            <icon-font v-else class="icon align" type="loncra-loader-pinwheel" spin/>
+
+            <template v-if="!record.dir">{{record?.userMetadata?.['X-Amz-Meta-Original-Filename'] || record.objectName}}</template>
+            <template v-else>
+              {{(record?.userMetadata?.['X-Amz-Meta-Original-Filename'] || record.objectName).replaceAll('/','')}}
+            </template>
+          </a-space>
         </template>
         <template v-if="column.dataIndex === 'lastModified' && !record.dir">
           {{ dateTimeFormat(record.lastModified) }}
         </template>
-
         <template v-if="column.dataIndex === 'size'">
-          {{ byteFormat(record.size) }}
+          <span>{{ record.size > 0 ? byteFormat(record.size) : '—' }}</span>
         </template>
       </template>
     </l-crud-table>

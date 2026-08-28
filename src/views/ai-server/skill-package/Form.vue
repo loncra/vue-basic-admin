@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, nextTick, ref} from 'vue'
 import type {
   DataDictionaryMetadata,
   EnumBucketsResponseBody,
@@ -131,8 +131,9 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
   return title
 }
 
-async function postSubmit(result:RestResult<number>, entity: SkillPackageEntity) {
+async function postSubmit(result:RestResult<number>) {
   options.value.entity.id = result.data
+  await nextTick()
   try {
     options.value.spinning = true
     await attachmentUpload?.value?.upload()
@@ -288,8 +289,8 @@ function onSourceTypeChange(value:number) {
         :label="globalProperties.$t('aiServer.skillPackage.files')"
       >
         <a-flex gap="middle" vertical>
-          <l-attachment-upload directory ref="attachmentUpload" :upload-options="{param:{prefix:'ai/skill/' + options.entity.id, randomName:false}}" bucket="system.file" :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER" />
-          <l-file-editor v-if="options.entity.id" :path="'ai/skill/' + options.entity.id" :name="options.entity.packageKey"/>
+          <l-attachment-upload v-if="options.entity.id === undefined" directory ref="attachmentUpload" :upload-options="{param:{prefix:'ai/skill/' + options.entity.id, randomName:false}}" bucket="system.file" :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER" />
+          <l-file-editor v-else bucket="system.file" :path="'ai/skill/' + options.entity.id + '/'" :name="options.entity.packageKey"/>
         </a-flex>
       </a-form-item>
       <a-form-item

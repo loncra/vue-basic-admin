@@ -1,6 +1,6 @@
 import type {
-  CompleteMultipartUploadBody,
-  FileObject,
+  CompleteMultipartUploadBody, CopyFileObject,
+  FileObject, MoveFileObject,
   MultipartUploadInitData,
   MultipartUploadPartData,
   ObjectItemInfo,
@@ -33,6 +33,10 @@ export class AttachmentService {
   static readonly BUCKETS_URL = AttachmentService.BASE_URL + '/buckets'
 
   static readonly FIND_ATTACHMENT_URL = AttachmentService.BASE_URL + '/find'
+
+  static readonly COPY_ATTACHMENT_URL = AttachmentService.BASE_URL + '/copy'
+
+  static readonly MOVE_ATTACHMENT_URL = AttachmentService.BASE_URL + '/move'
 
   static readonly MY_RESOURCE_URL = AttachmentService.BASE_URL + '/my/find'
 
@@ -115,6 +119,14 @@ export class AttachmentService {
       url += '&filename=' + filename
     }
     return axios.post(url)
+  }
+
+  static copyAttachment(copyObject:CopyFileObject):Promise<RestResult<ObjectWriteResult>> {
+    return axios.post(AttachmentService.COPY_ATTACHMENT_URL, copyObject)
+  }
+
+  static moveAttachment(moveObject:MoveFileObject):Promise<RestResult<ObjectWriteResult>> {
+    return axios.post(AttachmentService.MOVE_ATTACHMENT_URL, moveObject)
   }
 
   static myResource(type:string, filename:string):Promise<RestResult<ObjectWriteResult[]>> {

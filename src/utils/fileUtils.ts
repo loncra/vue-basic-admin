@@ -1,12 +1,17 @@
 import type {VideoThumbnailResult} from '@/types/composables/common'
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import type {ObjectWriteResult} from "@/types/apis";
+import type {ObjectItemInfo, ObjectWriteResult} from "@/types/apis";
 import type {
   AttachmentFileItem,
   AttachmentPathItem,
   AttachmentValue
 } from "@/types/composables/attachmentUpload.ts";
 import {AttachmentService} from "@/apis";
+import {
+  FILE_OR_FOLDER_NAME_MAX_LENGTH,
+  RESERVED_FILE_OR_FOLDER_NAME,
+  VALID_REGX
+} from "@/constants";
 
 /**
  * 格式化字节大小为可读的字符串
@@ -157,6 +162,13 @@ export function isUploadFile(item: unknown): item is UploadFile {
   return !!item && typeof item === 'object' && 'uid' in item
 }
 
+export function isObjectItemInfo(item: unknown): item is ObjectWriteResult {
+  return !!item
+    && typeof item === 'object'
+    && 'bucketName' in item
+    && 'objectName' in item
+}
+
 export function convertUploadFiles(
   fileList: AttachmentFileItem[],
 ): UploadFile<ObjectWriteResult>[] {
@@ -178,12 +190,34 @@ export function convertUploadFiles(
       })
     } else if (isUploadFile(file)) {
       result.push(file)
+    } else if (isObjectItemInfo(file)) {
+      const item = file as ObjectItemInfo
+      const contentType = file?.userMetadata?.['Content-Type'] || ''
+      if (item.dir) {
+
+      }
+      const url = ''//AttachmentService.query(file.bucketName, item.objectName)
+      result.push({
+        uid: item.etag,
+        name: item?.userMetadata?.['X-Amz-Meta-Original-Filename'] || item.objectName,
+        url,
+        thumbUrl: ['image/', 'video/'].some(v => contentType.startsWith(v)) ? url : undefined,
+        type: contentType || undefined,
+        size: file.size || 0,
+        percent: 100,
+        status: 'done',
+        response: file,
+      })
     }
   }
 
   return result
 }
 
+/**
+ * @deprecated
+ * @param file
+ */
 export function displayUploadFileToListItem(
   file: UploadFile<ObjectWriteResult>,
 ): AttachmentFileItem {
@@ -211,7 +245,7 @@ export function detectAttachmentValueMode(
 
 export function normalizeAttachmentToList(
   value: AttachmentValue | null,
-): (UploadFile | ObjectWriteResult)[] {
+): (UploadFile | ObjectWriteResult | ObjectItemInfo)[] {
   if (value == null) {
     return []
   }
@@ -344,4 +378,22 @@ export function applyAttachmentDirectoryProgress(nodes: AttachmentPathItem[] = [
       node.status = status
     }
   }
+}
+
+/** @returns 错误 i18n key；通过则 undefined */
+export function validateFileOrFolderName(name: string | undefined): string | undefined {
+  const value = name?.trim() ?? ''
+  if (!value) {
+    return 'error.valid.fileOrFolderName.empty'
+  }
+  if (RESERVED_FILE_OR_FOLDER_NAME.has(value)) {
+    return 'error.valid.fileOrFolderName.reserved'
+  }
+  if (value.length > FILE_OR_FOLDER_NAME_MAX_LENGTH) {
+    return 'error.valid.fileOrFolderName.tooLong'
+  }
+  if (VALID_REGX.ILLEGAL_FILE_OR_FOLDER_NAME.test(value)) {
+    return 'error.valid.fileOrFolderName.illegal'
+  }
+  return undefined
 }

@@ -35,6 +35,7 @@ const locale: LanguagePack = {
     ignore:'ignore',
     rename:'Rename',
     icon: 'Icon',
+    refresh: 'Refresh',
     copy:'Copy',
     read: {
       time: 'Read time',
@@ -304,8 +305,13 @@ const locale: LanguagePack = {
     },
     valid: {
       phoneNumber: 'Invalid phone number format',
-      password:
-        'Password must include at least three of: uppercase letters, lowercase letters, digits, and symbols',
+      password:'Password must include at least three of: uppercase letters, lowercase letters, digits, and symbols',
+      fileOrFolderName: {
+        empty: 'Name cannot be empty',
+        reserved: 'Name cannot be . or ..',
+        illegal: 'Name cannot contain / \\ < > " | ? * or control characters',
+        tooLong: 'Name cannot exceed 255 characters',
+      }
     },
     notEq: '{target} does not match {source}',
     badRequest: {
@@ -335,6 +341,7 @@ const locale: LanguagePack = {
   },
   attachment: {
     text: 'Attachment',
+    upload:'Upload',
     uploading: 'Uploading{percent}',
     dragger: {
       title: 'Click or drag files to this area to upload',
@@ -351,7 +358,6 @@ const locale: LanguagePack = {
     loading: 'Loading…',
     pin: 'Pin',
     unpin: 'Unpin',
-    reload: 'Reload',
     fullscreen: 'Enter fullscreen',
     exitFullscreen: 'Exit fullscreen',
     close: {

@@ -82,6 +82,15 @@ export interface FileObject {
   extraHeaders?: Record<string, string>
 }
 
+export interface CopyFileObject {
+  source: FileObject
+  target: FileObject
+}
+
+export interface MoveFileObject extends CopyFileObject {
+  deleteBucketIfEmpty?:boolean
+}
+
 export interface ObjectWriteResult extends FileObject {
   etag: string
   size: number
@@ -104,6 +113,12 @@ export interface CompleteMultipartUploadBody {
   parts: IdValueMetadata<string, number>[]
 }
 
+export interface EditObjectItemInfo extends ObjectItemInfo{
+  editing?:boolean
+  content?:string
+  key:string,
+  editName:string
+}
 
 export interface ObjectItemInfo extends BasicIdMetadata<string> {
   /**
@@ -171,9 +186,15 @@ export interface ObjectItemInfo extends BasicIdMetadata<string> {
    *
    * @return true 表示是目录，否则 false
    */
-  dir: string
-
-  [key:string]: unknown
+  dir: boolean
+  /**
+   * 叶子节点
+   */
+  children?:ObjectItemInfo[]
+  /**
+   * 加载中
+   */
+  loading?:boolean
 }
 
 /**

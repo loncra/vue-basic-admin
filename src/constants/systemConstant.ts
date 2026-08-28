@@ -58,8 +58,11 @@ export const HTTP = {
 export const VALID_REGX = {
   PHONE_NUMBER: /^1[3456789]\d{9}$/,
   PASSWORD: /^(?!^[0-9a-z]+$)(?!^[0-9A-Z]+$)(?!^[0-9\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[a-zA-Z]+$)(?!^[a-z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)(?!^[A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$)[a-z0-9A-Z\x21-\x2f\x3a-\x40\x5b-\x60\x7B-\x7F]+$/,
+  ILLEGAL_FILE_OR_FOLDER_NAME: /[\u0000-\u001f\u007f/\\<>"|?*]/
 } as const
 
+export const RESERVED_FILE_OR_FOLDER_NAME = new Set(['.', '..'])
+export const FILE_OR_FOLDER_NAME_MAX_LENGTH = 255
 /**
  * http 请求方法
  */
@@ -154,9 +157,3 @@ export const OPERATION_DATA_TRACE_TABLE = {
   AI_SKILL_PACKAGE: 'tb_ai_skill_package',
 } as const
 
-export const FILE_SUFFIX_REGEX = /\.[^./\\]+$/
-
-export const FOLDER_ADD_TYPE = {
-  FOLDER:'folder',
-  FILE:'file'
-} as const

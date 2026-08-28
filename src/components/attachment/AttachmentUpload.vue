@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {computed, nextTick, onMounted, ref, toRef, useSlots, watch} from "vue";
+import {computed, nextTick, ref, toRef, useSlots, watch} from "vue";
 import {useMergeSemantic, useToArr, useToProps} from 'antdv-next/dist/_util/hooks/useMergeSemantic'
 import {useFormItemContext} from "antdv-next/dist/form/context";
 import type {ObjectWriteResult} from "@/types/apis";
@@ -46,8 +46,6 @@ const props = withDefaults(defineProps<AttachmentUploadProps>(),{
   multiple:true
 })
 
-const uploadOptionsRef = ref<Record<string, unknown>>({})
-
 const value = defineModel<AttachmentValue>('value');
 const fileList = ref<AttachmentFileItem[]>([])
 const syncing = ref<boolean>(false)
@@ -87,8 +85,8 @@ function buildExecutorOptions(): AttachmentUploadExecutorOptions {
   return {
     postFilename: props.postFilename,
     promiseLimit: props.promiseLimit,
-    param: uploadOptionsRef.value.param as Record<string, unknown> | undefined,
-    headers: uploadOptionsRef.value.headers as Record<string, string> | undefined,
+    param: (props.uploadOptions?.param ?? {}) as Record<string, unknown>,
+    headers: (props.uploadOptions?.headers ?? {}) as Record<string, string>,
   }
 }
 
@@ -112,9 +110,7 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
   const tree = fileList.value as AttachmentPathItem[]
   const leaves = collectAttachmentFileLeaves(tree)
   const existing = leaves.filter(s => isObjectWriteResult(s) || (isUploadFile(s) && s.response && s.status === 'done'))
-  const pending = leaves.filter(
-    (item): item is UploadFile => isUploadFile(item) && !!item.originFileObj && !item.response,
-  )
+  const pending = leaves.filter((item): item is UploadFile => isUploadFile(item) && !!item.originFileObj && !item.response)
 
   if (pending.length === 0) {
     return resolveUploadResult(existing)
@@ -163,13 +159,6 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
 
   return resolveUploadResult(results)
 }
-
-
-function mounted() {
-  uploadOptionsRef.value = {param: {}, headers: {}, ...props.uploadOptions || {}}
-}
-
-onMounted(mounted)
 
 defineExpose({
   upload,

@@ -478,6 +478,6 @@
   }*/
   .folder-edit .ant-menu-item,
   .folder-edit .ant-menu-submenu-title {
-    @apply h-[32px] leading-[32px] mb-0
+    @apply h-[32px] leading-[32px] mb-0 pe-xs
   }
 }

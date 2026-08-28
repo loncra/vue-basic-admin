@@ -69,6 +69,7 @@ const locale: LanguagePack = {
     addChild:'添加{name}子级',
     avatar:'头像',
     group:'所属分组',
+    refresh: '刷新',
     open:'开启',
     copy:'复制',
     close:'关闭',
@@ -302,7 +303,13 @@ const locale: LanguagePack = {
     },
     valid:{
       phoneNumber:'手机号码格式不正确',
-      password:'密码段中在要求的四种(大写字母，小写字母，数字，标点符号)类型中至少存在三种'
+      password:'密码段中在要求的四种(大写字母，小写字母，数字，标点符号)类型中至少存在三种',
+      fileOrFolderName: {
+        empty: '名称不能为空',
+        reserved: '名称不能为 . 或 ..',
+        illegal: '名称不能包含 / \\ < > " | ? * 及控制字符',
+        tooLong: '名称不能超过 255 个字符',
+      }
     },
     notEq:'{target}与{source}不一致',
     badRequest:{
@@ -331,6 +338,7 @@ const locale: LanguagePack = {
   },
   attachment: {
     text:'附件',
+    upload:'上传',
     uploading: '上传中{percent}',
     dragger:{
       title:'点击或拖动文件至该区域进行上传',
@@ -347,7 +355,6 @@ const locale: LanguagePack = {
     loading: '加载中...',
     pin: '固定',
     unpin: '解除固定',
-    reload: '刷新',
     fullscreen: '进入全屏',
     exitFullscreen: '退出全屏',
     close: {
