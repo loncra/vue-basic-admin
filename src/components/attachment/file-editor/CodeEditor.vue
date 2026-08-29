@@ -1,8 +1,30 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, watch} from 'vue'
-import {basicSetup} from 'codemirror'
+import {closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap} from '@codemirror/autocomplete'
+import {defaultKeymap, history, historyKeymap} from '@codemirror/commands'
+import {
+  bracketMatching,
+  defaultHighlightStyle,
+  foldGutter,
+  foldKeymap,
+  indentOnInput,
+  syntaxHighlighting,
+} from '@codemirror/language'
+import {lintKeymap} from '@codemirror/lint'
+import {highlightSelectionMatches, searchKeymap} from '@codemirror/search'
 import {EditorState} from '@codemirror/state'
-import {EditorView} from '@codemirror/view'
+import {
+  crosshairCursor,
+  drawSelection,
+  dropCursor,
+  EditorView,
+  highlightActiveLine,
+  highlightActiveLineGutter,
+  highlightSpecialChars,
+  keymap,
+  lineNumbers,
+  rectangularSelection,
+} from '@codemirror/view'
 import {oneDark} from '@codemirror/theme-one-dark'
 import {loadLanguage} from '@/composables/attachment/filePaneKinds.ts'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
@@ -25,6 +47,38 @@ const configProviderStore = useConfigProviderStore()
 let view: EditorView | undefined
 let createGeneration = 0
 
+const editorSetup = [
+  lineNumbers(),
+  highlightActiveLineGutter(),
+  highlightSpecialChars(),
+  history(),
+  foldGutter({
+    openText: '▾',
+    closedText: '▸',
+  }),
+  drawSelection(),
+  dropCursor(),
+  EditorState.allowMultipleSelections.of(true),
+  indentOnInput(),
+  syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
+  bracketMatching(),
+  closeBrackets(),
+  autocompletion(),
+  rectangularSelection(),
+  crosshairCursor(),
+  highlightActiveLine(),
+  highlightSelectionMatches(),
+  keymap.of([
+    ...closeBracketsKeymap,
+    ...defaultKeymap,
+    ...searchKeymap,
+    ...historyKeymap,
+    ...foldKeymap,
+    ...completionKeymap,
+    ...lintKeymap,
+  ]),
+]
+
 async function createEditor() {
   const generation = ++createGeneration
   view?.destroy()
@@ -37,7 +91,7 @@ async function createEditor() {
     return
   }
   const extensions = [
-    basicSetup,
+    editorSetup,
     EditorView.lineWrapping,
     EditorView.editable.of(!props.readonly),
     EditorState.readOnly.of(props.readonly),

@@ -1,8 +1,8 @@
 import {
   createIcon,
-  filterTreeDeep,
+  filterTreeDeep, findAllTreeNodes,
   findFirstTreeNode,
-  requireNonNullOrUndefined,
+  requireNonNullOrUndefined, unmergeTree,
   validateFileOrFolderName
 } from '@/utils'
 import {
@@ -90,9 +90,7 @@ export function useFileEditor(
     try {
       state.value.loading = true
       const result:RestResult<ObjectItemInfo[]> = await AttachmentService.findAttachment(bucket,path)
-      const data = result.data || []
-      data.filter(c => c.dir).forEach(c => toEditObjectItemInfo(c, path))
-      state.value.dataSource = data
+      state.value.dataSource = (result.data || []).map(c => toEditObjectItemInfo(c, path))
     } finally {
       state.value.loading = false
     }
@@ -252,6 +250,7 @@ export function useFileEditor(
     const next = list[i + 1] ?? list[i - 1]
     state.value.tabs = list.filter(t => t.id !== id)
     state.value.selectedItem = next
+    dropPane(id)
   }
 
   function closeTabsForRemoved(item: ObjectItemInfo) {
@@ -261,17 +260,20 @@ export function useFileEditor(
       }
       return !(item.dir && t.objectName.startsWith(item.objectName))
     })
+    const removed = state.value.tabs.filter(t => !remaining.some(r => r.id === t.id))
     const activeGone = !remaining.some(t => t.id === state.value.selectedItem?.id)
     state.value.tabs = remaining
     if (activeGone) {
       state.value.selectedItem = remaining[remaining.length - 1]
     }
+    removed.forEach((t) => dropPane(t.id))
   }
 
   function clearTabs() {
     state.value.tabs = []
     state.value.selectedItem = undefined
     paneSaves.clear()
+    paneHostRefs.clear()
     for (const key of Object.keys(tabMeta)) {
       delete tabMeta[key]
     }
@@ -279,10 +281,24 @@ export function useFileEditor(
 
   const tabMeta = reactive<Record<string, {dirty: boolean; mode: string}>>({})
   const paneSaves = new Map<string, () => Promise<void>>()
+  const paneHostRefs = new Map<string, (el: unknown) => void>()
+
+  function setTabMeta(key: string, next: {dirty: boolean; mode: string}) {
+    const current = tabMeta[key]
+    if (current?.dirty === next.dirty && current.mode === next.mode) {
+      return
+    }
+    tabMeta[key] = next
+  }
+
+  function dropPane(key: string) {
+    paneSaves.delete(key)
+    paneHostRefs.delete(key)
+    delete tabMeta[key]
+  }
 
   function onPaneDirtyChange(key: string, dirty: boolean) {
-    const current = tabMeta[key]
-    tabMeta[key] = {dirty, mode: current?.mode ?? 'view'}
+    setTabMeta(key, {dirty, mode: tabMeta[key]?.mode ?? 'view'})
   }
 
   function bindPaneHost(key: string, el: unknown) {
@@ -292,14 +308,22 @@ export function useFileEditor(
     } | null
     if (!host) {
       paneSaves.delete(key)
-      delete tabMeta[key]
       return
     }
     paneSaves.set(key, host.save)
-    tabMeta[key] = {
+    setTabMeta(key, {
       dirty: tabMeta[key]?.dirty ?? false,
       mode: host.kind.mode,
+    })
+  }
+
+  function paneHostRef(key: string) {
+    let fn = paneHostRefs.get(key)
+    if (!fn) {
+      fn = (el) => bindPaneHost(key, el)
+      paneHostRefs.set(key, fn)
     }
+    return fn
   }
 
   function onCloseTab(key: string) {
@@ -409,12 +433,14 @@ export function useFileEditor(
     await loadDataSource(props.bucket, props.path)
   }
 
-  function onDownloadFile(item:ObjectItemInfo) {
-    AttachmentService.download(props.bucket, item.objectName)
+  function onSelectOpenFile(item:ObjectItemInfo) {
+    const paths = filterTreeDeep(p => p.id === item.id, state.value.dataSource)
+    const parents = unmergeTree(paths).filter(p => p.dir).map(p => p.id);
+    state.value.openKeys = [...state.value.openKeys, ...parents]
   }
 
-  function onCopyFile(item:ObjectItemInfo) {
-
+  function onDownloadFile(item:ObjectItemInfo) {
+    AttachmentService.download(props.bucket, item.objectName)
   }
 
   const tabItems = computed(() =>
@@ -447,13 +473,13 @@ export function useFileEditor(
     onRefresh,
     cancelEdit,
     confirmEdit,
+    onSelectOpenFile,
     onDownloadFile,
-    onCopyFile,
     onUploadChange,
     tabItems,
     tabMeta,
     onPaneDirtyChange,
-    bindPaneHost,
+    paneHostRef,
     onCloseTab,
     saveActive,
     activeCanSave,

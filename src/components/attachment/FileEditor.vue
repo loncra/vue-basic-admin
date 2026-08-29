@@ -34,13 +34,13 @@ const {
   tabItems,
   tabMeta,
   onPaneDirtyChange,
-  bindPaneHost,
+  paneHostRef,
   onCloseTab,
   saveActive,
   activeCanSave,
   onUploadChange,
+  onSelectOpenFile,
   onDownloadFile,
-  onCopyFile,
   state
 } = useFileEditor(props)
 
@@ -207,7 +207,7 @@ const {
               root: 'min-h-0 h-full',
               body: 'min-h-0 h-full overflow-hidden',
               content: 'min-h-0 h-full',
-              item:'p-xs',
+              item:'p-xs m-0',
               header:'pr-xs mb-0'
             }"
             @change="activateTab"
@@ -245,7 +245,7 @@ const {
                 v-if="item.file"
                 :key="item.key"
                 class="size-full min-h-0"
-                :ref="(el) => bindPaneHost(item.key, el)"
+                :ref="paneHostRef(item.key)"
                 :item="item.file"
                 :bucket="props.bucket"
                 :readonly="props.readonly"
@@ -262,17 +262,17 @@ const {
                     </template>
                   </a-button>
                 </a-tooltip>
+                <a-tooltip :title="$t('common.locate')">
+                  <a-button @click="onSelectOpenFile(state.selectedItem)">
+                    <template #icon>
+                      <icon-font type="loncra-locate-fixed"/>
+                    </template>
+                  </a-button>
+                </a-tooltip>
                 <a-tooltip :title="$t('common.download.text')">
                   <a-button @click="onDownloadFile(state.selectedItem)">
                     <template #icon>
                       <icon-font type="loncra-download"/>
-                    </template>
-                  </a-button>
-                </a-tooltip>
-                <a-tooltip :title="$t('common.copy')">
-                  <a-button @click="onCopyFile(state.selectedItem)">
-                    <template #icon>
-                      <icon-font type="loncra-copy"/>
                     </template>
                   </a-button>
                 </a-tooltip>

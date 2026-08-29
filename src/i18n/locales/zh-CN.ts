@@ -354,6 +354,7 @@ const locale: LanguagePack = {
       unknown:'文件'
     },
     fileEditor: {
+      locate:'定位文件',
       unsupported: '不支持在线打开此文件',
       tooLarge: '文件过大，请下载后查看',
       unsavedConfirm: '有未保存的修改，确定关闭该文件吗？未保存的内容将丢失。',

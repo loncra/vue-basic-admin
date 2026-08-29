@@ -1,6 +1,6 @@
 import type {ObjectItemInfo} from '@/types/apis'
 import type {FilePaneContext, ResolvedFilePaneKind} from "@/types/composables";
-import {AUDIO_EXT, IMAGE_EXT, TEXT_EXT, TEXT_MAX_BYTES, VIDEO_EXT} from "@/constants";
+import {AUDIO_EXT, IMAGE_EXT, TEXT_MAX_BYTES, VIDEO_EXT} from "@/constants";
 import type {LanguageSupport} from "@codemirror/language";
 
 function extOf(name: string): string {
@@ -28,15 +28,7 @@ export function resolveFilePaneKind(ctx: FilePaneContext): ResolvedFilePaneKind 
   if (ctx.mime.startsWith('audio/') || AUDIO_EXT.has(ctx.ext)) {
     return {id: 'audio', mode: 'view'}
   }
-  if (
-    ctx.mime.startsWith('text/')
-    || ctx.mime === 'application/json'
-    || ctx.mime === 'application/xml'
-    || TEXT_EXT.has(ctx.ext)
-  ) {
-    return {id: 'text', mode: 'edit'}
-  }
-  return {id: 'fallback', mode: 'view'}
+  return {id: 'text', mode: 'edit'}
 }
 
 export function isTextTooLarge(size: number): boolean {

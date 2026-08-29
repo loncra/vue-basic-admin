@@ -357,6 +357,7 @@ const locale: LanguagePack = {
       unknown:'file'
     },
     fileEditor: {
+      locate:'Select opened file',
       unsupported: 'This file cannot be opened in the editor.',
       tooLarge: 'File is too large. Download it instead.',
       unsavedConfirm: 'You have unsaved changes. Close this file anyway? Unsaved edits will be lost.',
