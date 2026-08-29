@@ -1,6 +1,6 @@
 import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants";
 import type {CSSProperties} from 'vue'
-import type {EditObjectItemInfo, ObjectItemInfo, ObjectWriteResult} from "@/types/apis";
+import type {ObjectItemInfo, ObjectWriteResult} from "@/types/apis";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {
   SemanticClassNamesType,
@@ -11,6 +11,22 @@ export type AttachmentUploadMode = typeof ATTACHMENT_UPLOAD_MODE.PICTURE_CARD | 
 export type AttachmentPreviewMode = typeof ATTACHMENT_PREVIEW_MODE.PICTURE_CARD | typeof ATTACHMENT_PREVIEW_MODE.LIST
 
 export type AttachmentFileItem = UploadFile<ObjectWriteResult> | ObjectWriteResult | ObjectItemInfo
+
+export type FilePaneKindId = 'image' | 'video' | 'audio' | 'text' | 'fallback'
+export type FilePaneMode = 'view' | 'edit'
+
+export interface FilePaneContext {
+  name: string
+  mime: string
+  ext: string
+  size: number
+}
+
+export interface ResolvedFilePaneKind {
+  id: FilePaneKindId
+  mode: FilePaneMode
+}
+
 
 export interface AttachmentPathItem extends UploadFile<ObjectWriteResult> {
   children?: AttachmentPathItem[]

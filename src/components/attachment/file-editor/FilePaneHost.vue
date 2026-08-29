@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import {computed} from 'vue'
-import {AttachmentService} from '@/apis'
+import {computed, watch} from 'vue'
 import type {ObjectItemInfo} from '@/types/apis'
-import {
-  buildFilePaneContext,
-  resolveFilePaneKind,
-} from '@/composables/attachment/filePaneKinds.ts'
+import {useFilePane} from '@/composables/attachment/useFilePane.ts'
 import ImagePane from './panes/ImagePane.vue'
 import VideoPane from './panes/VideoPane.vue'
 import AudioPane from './panes/AudioPane.vue'
+import TextPane from './panes/TextPane.vue'
 import UnsupportedPane from './panes/UnsupportedPane.vue'
 
 defineOptions({
@@ -18,39 +15,85 @@ defineOptions({
 const props = defineProps<{
   item: ObjectItemInfo
   bucket: string
+  readonly: boolean
+  rootPath: string
 }>()
 
-const context = computed(() => buildFilePaneContext(props.item))
-const kind = computed(() => resolveFilePaneKind(context.value))
-const src = computed(() => AttachmentService.query(props.bucket, props.item.objectName))
+const emit = defineEmits<{
+  dirtyChange: [dirty: boolean]
+}>()
+
+const pane = useFilePane(props)
 
 const viewer = computed(() => {
-  switch (kind.value.id) {
+  if (pane.paneReason.value) {
+    return UnsupportedPane
+  }
+  switch (pane.kind.value.id) {
     case 'image':
       return ImagePane
     case 'video':
       return VideoPane
     case 'audio':
       return AudioPane
+    case 'text':
+      return TextPane
     default:
       return UnsupportedPane
   }
 })
+
 const paneProps = computed(() => {
-  if (kind.value.id === 'image') {
-    return {src: src.value, alt: context.value.name}
+  if (pane.paneReason.value) {
+    return {reason: pane.paneReason.value}
   }
-  if (kind.value.id === 'video' || kind.value.id === 'audio') {
-    return {src: src.value}
+  switch (pane.kind.value.id) {
+    case 'image':
+      return {src: pane.src.value, alt: pane.context.value.name}
+    case 'video':
+    case 'audio':
+      return {src: pane.src.value}
+    case 'text':
+      return {
+        ext: pane.context.value.ext,
+        readonly: props.readonly,
+        modelValue: pane.content.value,
+        'onUpdate:modelValue': pane.updateContent,
+      }
+    default:
+      return {reason: 'unsupported' as const}
   }
-  return {}
+})
+
+const showViewer = computed(
+  () => pane.kind.value.id !== 'text' || !pane.loading.value || !!pane.paneReason.value,
+)
+
+watch(
+  pane.dirty,
+  (value) => emit('dirtyChange', value),
+  {immediate: true},
+)
+
+defineExpose({
+  dirty: pane.dirty,
+  save: pane.save,
+  kind: pane.kind,
 })
 </script>
 
 <template>
-  <component
-    :is="viewer"
-    class="size-full"
-    v-bind="paneProps"
-  />
+  <a-spin
+    :spinning="pane.loading.value"
+    class="size-full-spin size-full min-h-0"
+  >
+    <div class="size-full min-h-0">
+      <component
+        v-if="showViewer"
+        :is="viewer"
+        class="size-full min-h-0"
+        v-bind="paneProps"
+      />
+    </div>
+  </a-spin>
 </template>

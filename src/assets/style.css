@@ -286,9 +286,16 @@
     @apply size-full min-h-0;
   }
 
+  .size-full-spin.ant-spin-nested-loading {
+    @apply size-full min-h-0;
+  }
 
   .size-full-spin .ant-spin-container {
     @apply size-full min-h-0 flex flex-col;
+  }
+
+  .size-full-spin.ant-spin-nested-loading > div > .ant-spin {
+    @apply max-h-none h-full;
   }
 
   /* ========== 表格拖拽落点 / 预览 ========== */

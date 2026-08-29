@@ -28,23 +28,21 @@ const {
   cancelEdit,
   onMenuClick,
   activateTab,
-  closeTab,
   fileUploadTrigger,
   dirUploadTrigger,
   onRootUpload,
   tabItems,
+  tabMeta,
+  onPaneDirtyChange,
+  bindPaneHost,
+  onCloseTab,
+  saveActive,
+  activeCanSave,
   onUploadChange,
   onDownloadFile,
   onCopyFile,
   state
 } = useFileEditor(props)
-
-function onTabEdit(targetKey: string | MouseEvent | KeyboardEvent, action: string) {
-  if (action !== 'remove' || typeof targetKey !== 'string') {
-    return
-  }
-  closeTab(targetKey)
-}
 
 </script>
 
@@ -210,10 +208,9 @@ function onTabEdit(targetKey: string | MouseEvent | KeyboardEvent, action: strin
               body: 'min-h-0 h-full overflow-hidden',
               content: 'min-h-0 h-full',
               item:'p-xs',
-              header:'pl-xs pr-xs'
+              header:'pr-xs mb-0'
             }"
             @change="activateTab"
-            @edit="onTabEdit"
           >
             <template #labelRender="{ item }">
               <a-flex
@@ -221,7 +218,9 @@ function onTabEdit(targetKey: string | MouseEvent | KeyboardEvent, action: strin
                 gap="small"
                 class="group relative overflow-hidden"
               >
-                <icon-font class="shrink-0 m-0!" :type="item.iconType" />
+                <a-badge :dot="tabMeta[item.key]?.dirty" :offset="[0, 0]">
+                  <icon-font class="shrink-0 m-0!" :type="item.iconType" />
+                </a-badge>
                 <a-typography-text
                   class="min-w-0 flex-1"
                   :ellipsis="{ tooltip: { title: item.label, mouseEnterDelay: 1 } }"
@@ -231,8 +230,8 @@ function onTabEdit(targetKey: string | MouseEvent | KeyboardEvent, action: strin
                 <a-button
                   type="text"
                   size="small"
-                  class="absolute right-0 top-1/2 z-1 -translate-y-1/2 bg-container opacity-0 group-hover:opacity-100 text-text-secondary"
-                  @click.stop="closeTab(item.key)"
+                  class="absolute right-0 top-1/2 z-1 -translate-y-1/2 bg-container opacity-0 group-hover:opacity-80 text-text-secondary"
+                  @click.stop="onCloseTab(item.key)"
                   @mousedown.stop
                 >
                   <template #icon>
@@ -245,12 +244,24 @@ function onTabEdit(targetKey: string | MouseEvent | KeyboardEvent, action: strin
               <l-file-pane-host
                 v-if="item.file"
                 :key="item.key"
+                class="size-full min-h-0"
+                :ref="(el) => bindPaneHost(item.key, el)"
                 :item="item.file"
                 :bucket="props.bucket"
+                :readonly="props.readonly"
+                :root-path="props.path"
+                @dirty-change="(dirty: boolean) => onPaneDirtyChange(item.key, dirty)"
               />
             </template>
             <template #rightExtra>
               <a-space-compact v-if="state.selectedItem" size="small">
+                <a-tooltip v-if="activeCanSave" :title="$t('common.save')">
+                  <a-button @click="saveActive">
+                    <template #icon>
+                      <icon-font type="loncra-save"/>
+                    </template>
+                  </a-button>
+                </a-tooltip>
                 <a-tooltip :title="$t('common.download.text')">
                   <a-button @click="onDownloadFile(state.selectedItem)">
                     <template #icon>

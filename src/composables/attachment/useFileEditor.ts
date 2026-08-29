@@ -1,5 +1,8 @@
 import {
-  createIcon, filterTreeDeep, findFirstTreeNode, requireNonNullOrUndefined,
+  createIcon,
+  filterTreeDeep,
+  findFirstTreeNode,
+  requireNonNullOrUndefined,
   validateFileOrFolderName
 } from '@/utils'
 import {
@@ -7,6 +10,7 @@ import {
   computed,
   getCurrentInstance,
   onMounted,
+  reactive,
   ref,
   watch
 } from 'vue'
@@ -267,7 +271,64 @@ export function useFileEditor(
   function clearTabs() {
     state.value.tabs = []
     state.value.selectedItem = undefined
+    paneSaves.clear()
+    for (const key of Object.keys(tabMeta)) {
+      delete tabMeta[key]
+    }
   }
+
+  const tabMeta = reactive<Record<string, {dirty: boolean; mode: string}>>({})
+  const paneSaves = new Map<string, () => Promise<void>>()
+
+  function onPaneDirtyChange(key: string, dirty: boolean) {
+    const current = tabMeta[key]
+    tabMeta[key] = {dirty, mode: current?.mode ?? 'view'}
+  }
+
+  function bindPaneHost(key: string, el: unknown) {
+    const host = el as {
+      save: () => Promise<void>
+      kind: {id: string; mode: string}
+    } | null
+    if (!host) {
+      paneSaves.delete(key)
+      delete tabMeta[key]
+      return
+    }
+    paneSaves.set(key, host.save)
+    tabMeta[key] = {
+      dirty: tabMeta[key]?.dirty ?? false,
+      mode: host.kind.mode,
+    }
+  }
+
+  function onCloseTab(key: string) {
+    if (tabMeta[key]?.dirty) {
+      modal.confirm({
+        content: globalProperties.$t('attachment.fileEditor.unsavedConfirm'),
+        onOk: () => closeTab(key),
+      })
+      return
+    }
+    closeTab(key)
+  }
+
+  function saveActive() {
+    const id = state.value.selectedItem?.id
+    if (!id) {
+      return
+    }
+    void paneSaves.get(id)?.()
+  }
+
+  const activeCanSave = computed(() => {
+    const id = state.value.selectedItem?.id
+    if (!id || props.readonly) {
+      return false
+    }
+    const meta = tabMeta[id]
+    return meta?.mode === 'edit' && meta.dirty
+  })
 
   async function onMenuClick(item: EditObjectItemInfo) {
     if (item.dir) {
@@ -390,6 +451,12 @@ export function useFileEditor(
     onCopyFile,
     onUploadChange,
     tabItems,
+    tabMeta,
+    onPaneDirtyChange,
+    bindPaneHost,
+    onCloseTab,
+    saveActive,
+    activeCanSave,
     onRootUpload:(directory:boolean) => openUpload(directory, undefined),
     getDisplayName,
     state

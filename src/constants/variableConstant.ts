@@ -258,3 +258,15 @@ export const MESSAGE_TYPE = {
   IM: 60,
   UNKNOWN: 99,
 } as const
+
+
+export const IMAGE_EXT = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico'])
+export const VIDEO_EXT = new Set(['mp4', 'webm', 'ogg', 'mov', 'm4v'])
+export const AUDIO_EXT = new Set(['mp3', 'wav', 'flac', 'm4a', 'aac'])
+export const TEXT_EXT = new Set([
+  'md', 'markdown', 'json', 'js', 'mjs', 'cjs', 'ts', 'tsx', 'jsx',
+  'vue', 'py', 'yml', 'yaml', 'sh', 'bash', 'html', 'htm', 'css',
+  'xml', 'txt', 'toml', 'ini', 'env', 'gitignore', 'sql', 'java',
+])
+
+export const TEXT_MAX_BYTES = 5 * 1024 * 1024
