@@ -2,9 +2,9 @@
 
 import {useFileEditor} from '@/composables'
 import type {FileEditorProps} from "@/types/composables/attachmentUpload.ts";
-import {computed, h} from "vue";
+import {h} from "vue";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import LFileUnsupportedPane from "@/components/attachment/file-editor/panes/UnsupportedPane.vue";
+import LFilePaneHost from "@/components/attachment/file-editor/FilePaneHost.vue";
 
 defineOptions({
   name: 'LFileEditor',
@@ -241,8 +241,13 @@ function onTabEdit(targetKey: string | MouseEvent | KeyboardEvent, action: strin
                 </a-button>
               </a-flex>
             </template>
-            <template #contentRender>
-              <l-file-unsupported-pane />
+            <template #contentRender="{ item }">
+              <l-file-pane-host
+                v-if="item.file"
+                :key="item.key"
+                :item="item.file"
+                :bucket="props.bucket"
+              />
             </template>
             <template #rightExtra>
               <a-space-compact v-if="state.selectedItem" size="small">

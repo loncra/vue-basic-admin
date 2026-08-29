@@ -361,7 +361,7 @@ export function useFileEditor(
       key: file.id,
       label: getDisplayName(file),
       iconType: resolveIcon(file),
-      closable: true,
+      file,
     })),
   )
 
