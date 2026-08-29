@@ -338,7 +338,10 @@ const locale: LanguagePack = {
   },
   attachment: {
     text:'附件',
-    upload:'上传',
+    upload:{
+      file:'上传文件',
+      directory:'上传目录',
+    },
     uploading: '上传中{percent}',
     dragger:{
       title:'点击或拖动文件至该区域进行上传',

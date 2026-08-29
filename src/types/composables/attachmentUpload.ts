@@ -21,7 +21,7 @@ export interface FileEditorProps  {
   name?: string
   path: string
   bucket:string
-  getIcon?: (item: EditObjectItemInfo) => string
+  getIcon?: (item: ObjectItemInfo) => string
 }
 
 export type AttachmentValue =

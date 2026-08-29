@@ -5,11 +5,13 @@ import {
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref, watch} from 'vue'
 import type {FileEditorProps} from "@/types/composables/attachmentUpload.ts";
 import type {EditObjectItemInfo, ObjectItemInfo, ObjectWriteResult, RestResult} from "@/types/apis";
-import type {MenuItemType} from "antdv-next";
+import type {MenuItemType, UploadChangeParam} from "antdv-next";
 import type {MenuInfo} from "@v-c/menu";
 import useApp from "antdv-next/dist/app/useApp";
 import {AttachmentService} from "@/apis";
 import {isBusinessSuccess} from "@/requests";
+import type {UploadFile} from "antdv-next/dist/upload/interface";
+import {uploadFile} from "@/composables";
 
 export function useFileEditor(
   props: FileEditorProps
@@ -27,13 +29,25 @@ export function useFileEditor(
     currentEditItem?: EditObjectItemInfo
     dataSource:ObjectItemInfo[]
     loading:boolean
+    upload:{
+      session:number
+      directory:boolean
+    }
   }>({
     loading:true,
     openKeys: [],
-    dataSource:[]
+    dataSource:[],
+    upload:{
+      session:0,
+      directory:false
+    }
   })
 
-  function resolveIcon(item: EditObjectItemInfo): string {
+  const fileUploadTrigger = ref<HTMLElement>()
+  const dirUploadTrigger = ref<HTMLElement>()
+  const uploadTarget = ref<ObjectItemInfo>()
+
+  function resolveIcon(item: ObjectItemInfo): string {
     if (item.dir) {
       return state.value.openKeys.includes(item.id) ? 'loncra-folder-open' : 'loncra-folder-closed'
     } else {
@@ -77,7 +91,7 @@ export function useFileEditor(
     state.value.currentEditItem.editName = getDisplayName(item);
   }
 
-  function onOperationMenuClick(menuItem: MenuInfo, item: ObjectItemInfo) {
+  async function onOperationMenuClick(menuItem: MenuInfo, item: ObjectItemInfo) {
     if (menuItem.key === 'rename') {
       renameItem(item)
     } else if (menuItem.key === 'delete' && item) {
@@ -86,6 +100,61 @@ export function useFileEditor(
         content: globalProperties.$t('common.delete.confirmSingle'),
         onOk: () => doDelete(item!),
       })
+    } else if (menuItem.key === 'refresh') {
+      await reloadChildren(item)
+    } else if (menuItem.key === 'uploadFile') {
+      openUpload(false,item)
+    } else if (menuItem.key === 'uploadDirectory') {
+      openUpload(true,item)
+    }
+  }
+
+  async function reloadChildren(item: ObjectItemInfo) {
+    state.value.openKeys = state.value.openKeys.filter(k => k !== item.id)
+    delete item.children
+    await loadChildren(item)
+  }
+
+  function openUpload(directory:boolean, item?: ObjectItemInfo) {
+    const trigger = directory ? dirUploadTrigger.value : fileUploadTrigger.value
+    if ((item && !item.dir) || !trigger) {
+      return
+    }
+    uploadTarget.value = item
+    trigger.click()
+  }
+
+  async function onUploadChange(info: UploadChangeParam) {
+    const target = uploadTarget.value
+    const files = info.fileList.filter((file): file is UploadFile => !!file.originFileObj)
+    if ((target && !target?.dir) || files.length === 0 || state.value.loading) {
+      return
+    }
+    state.value.loading = true
+    try {
+      await Promise.all(
+        files.map((file) =>
+          uploadFile(file, props.bucket, {
+            postFilename: 'file',
+            promiseLimit: 3,
+            param: {
+              prefix: target?.objectName || props.path,
+              randomName: false,
+            },
+          }),
+        ),
+      )
+      if (target) {
+        await reloadChildren(target)
+      } else {
+        await loadDataSource(props.bucket,props.path)
+      }
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : String(e))
+    } finally {
+      state.value.loading = false
+      uploadTarget.value = undefined
+      state.value.upload.session++
     }
   }
 
@@ -114,9 +183,13 @@ export function useFileEditor(
           key: 'refresh',
           icon: () => createIcon('loncra-refresh-cw'),
         },{
-          label: globalProperties.$t('attachment.upload'),
-          key: 'upload',
+          label: globalProperties.$t('attachment.upload.file'),
+          key: 'uploadFile',
           icon: () => createIcon('loncra-upload'),
+        },{
+          label: globalProperties.$t('attachment.upload.directory'),
+          key: 'uploadDirectory',
+          icon: () => createIcon('loncra-hard-drive-upload'),
         }
       )
     }
@@ -142,6 +215,8 @@ export function useFileEditor(
   async function onMenuClick(item: EditObjectItemInfo) {
     if (item.dir) {
       await loadChildren(item)
+    } else {
+      state.value.selectedItem = item
     }
   }
 
@@ -210,6 +285,19 @@ export function useFileEditor(
     }
   }
 
+  async function onRefresh() {
+    state.value.openKeys = []
+    await loadDataSource(props.bucket, props.path)
+  }
+
+  function onDownloadFile(item:ObjectItemInfo) {
+    AttachmentService.download(props.bucket, item.objectName)
+  }
+
+  function onCopyFile(item:ObjectItemInfo) {
+
+  }
+
   watch(
     () => [props.path, props.bucket],
     () => loadDataSource(props.bucket, props.path)
@@ -219,10 +307,17 @@ export function useFileEditor(
 
   return {
     resolveIcon,
+    fileUploadTrigger,
+    dirUploadTrigger,
     createMenu,
     onMenuClick,
+    onRefresh,
     cancelEdit,
     confirmEdit,
+    onDownloadFile,
+    onCopyFile,
+    onUploadChange,
+    onRootUpload:(directory:boolean) => openUpload(directory, undefined),
     getDisplayName,
     state
   }

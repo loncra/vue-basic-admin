@@ -341,7 +341,10 @@ const locale: LanguagePack = {
   },
   attachment: {
     text: 'Attachment',
-    upload:'Upload',
+    upload:{
+      file:'Upload file',
+      directory:'Upload directory',
+    },
     uploading: 'Uploading{percent}',
     dragger: {
       title: 'Click or drag files to this area to upload',
