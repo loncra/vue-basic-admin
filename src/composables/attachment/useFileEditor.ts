@@ -2,7 +2,14 @@ import {
   createIcon, filterTreeDeep, findFirstTreeNode, requireNonNullOrUndefined,
   validateFileOrFolderName
 } from '@/utils'
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref, watch} from 'vue'
+import {
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  onMounted,
+  ref,
+  watch
+} from 'vue'
 import type {FileEditorProps} from "@/types/composables/attachmentUpload.ts";
 import type {EditObjectItemInfo, ObjectItemInfo, ObjectWriteResult, RestResult} from "@/types/apis";
 import type {MenuItemType, UploadChangeParam} from "antdv-next";
@@ -26,6 +33,7 @@ export function useFileEditor(
   const state = ref<{
     openKeys: string[]
     selectedItem?: ObjectItemInfo
+    tabs: ObjectItemInfo[]
     currentEditItem?: EditObjectItemInfo
     dataSource:ObjectItemInfo[]
     loading:boolean
@@ -36,6 +44,7 @@ export function useFileEditor(
   }>({
     loading:true,
     openKeys: [],
+    tabs: [],
     dataSource:[],
     upload:{
       session:0,
@@ -164,6 +173,7 @@ export function useFileEditor(
       const result:RestResult<void> = await AttachmentService.removeAttachment([{bucketName: props.bucket, objectName: item.objectName}])
       message.success(result.message)
       state.value.dataSource = filterTreeDeep(p => p.id !== item.id, state.value.dataSource)
+      closeTabsForRemoved(item)
     } catch (e) {
       message.error(e instanceof Error ? e.message : String(e))
     } finally {
@@ -212,12 +222,59 @@ export function useFileEditor(
     return menu
   }
 
+  function openTab(item: ObjectItemInfo) {
+    if (item.dir) {
+      return
+    }
+    if (!state.value.tabs.some(t => t.id === item.id)) {
+      state.value.tabs = [...state.value.tabs, item]
+    }
+    state.value.selectedItem = item
+  }
+
+  function activateTab(id: string) {
+    const found = state.value.tabs.find(t => t.id === id)
+    if (found) {
+      state.value.selectedItem = found
+    }
+  }
+
+  function closeTab(id: string) {
+    const list = state.value.tabs
+    const i = list.findIndex(t => t.id === id)
+    if (i === -1) {
+      return
+    }
+    const next = list[i + 1] ?? list[i - 1]
+    state.value.tabs = list.filter(t => t.id !== id)
+    state.value.selectedItem = next
+  }
+
+  function closeTabsForRemoved(item: ObjectItemInfo) {
+    const remaining = state.value.tabs.filter((t) => {
+      if (t.id === item.id) {
+        return false
+      }
+      return !(item.dir && t.objectName.startsWith(item.objectName))
+    })
+    const activeGone = !remaining.some(t => t.id === state.value.selectedItem?.id)
+    state.value.tabs = remaining
+    if (activeGone) {
+      state.value.selectedItem = remaining[remaining.length - 1]
+    }
+  }
+
+  function clearTabs() {
+    state.value.tabs = []
+    state.value.selectedItem = undefined
+  }
+
   async function onMenuClick(item: EditObjectItemInfo) {
     if (item.dir) {
       await loadChildren(item)
-    } else {
-      state.value.selectedItem = item
+      return
     }
+    openTab(item)
   }
 
   function cancelEdit(item:EditObjectItemInfo) {
@@ -287,6 +344,7 @@ export function useFileEditor(
 
   async function onRefresh() {
     state.value.openKeys = []
+    clearTabs()
     await loadDataSource(props.bucket, props.path)
   }
 
@@ -298,9 +356,21 @@ export function useFileEditor(
 
   }
 
+  const tabItems = computed(() =>
+    state.value.tabs.map((file) => ({
+      key: file.id,
+      label: getDisplayName(file),
+      iconType: resolveIcon(file),
+      closable: true,
+    })),
+  )
+
   watch(
     () => [props.path, props.bucket],
-    () => loadDataSource(props.bucket, props.path)
+    () => {
+      clearTabs()
+      loadDataSource(props.bucket, props.path)
+    }
   )
 
   onMounted(() => loadDataSource(props.bucket, props.path))
@@ -311,12 +381,15 @@ export function useFileEditor(
     dirUploadTrigger,
     createMenu,
     onMenuClick,
+    activateTab,
+    closeTab,
     onRefresh,
     cancelEdit,
     confirmEdit,
     onDownloadFile,
     onCopyFile,
     onUploadChange,
+    tabItems,
     onRootUpload:(directory:boolean) => openUpload(directory, undefined),
     getDisplayName,
     state

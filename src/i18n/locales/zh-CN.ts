@@ -352,6 +352,10 @@ const locale: LanguagePack = {
       video:'视频',
       audio:'音频',
       unknown:'文件'
+    },
+    fileEditor: {
+      unsupported: '不支持在线打开此文件',
+      tooLarge: '文件过大，请下载后查看',
     }
   },
   layoutContent: {

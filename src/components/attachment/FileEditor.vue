@@ -2,8 +2,9 @@
 
 import {useFileEditor} from '@/composables'
 import type {FileEditorProps} from "@/types/composables/attachmentUpload.ts";
-import {h} from "vue";
+import {computed, h} from "vue";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
+import LFileUnsupportedPane from "@/components/attachment/file-editor/panes/UnsupportedPane.vue";
 
 defineOptions({
   name: 'LFileEditor',
@@ -26,14 +27,24 @@ const {
   confirmEdit,
   cancelEdit,
   onMenuClick,
+  activateTab,
+  closeTab,
   fileUploadTrigger,
   dirUploadTrigger,
   onRootUpload,
+  tabItems,
   onUploadChange,
   onDownloadFile,
   onCopyFile,
   state
 } = useFileEditor(props)
+
+function onTabEdit(targetKey: string | MouseEvent | KeyboardEvent, action: string) {
+  if (action !== 'remove' || typeof targetKey !== 'string') {
+    return
+  }
+  closeTab(targetKey)
+}
 
 </script>
 
@@ -110,7 +121,7 @@ const {
                 :inline-indent="configProviderStore.getToken().sizeXS"
                 :expand-icon="h('span')"
                 :open-keys="state.openKeys"
-                :selected-keys="[state?.selectedItem?.id]"
+                :selected-keys="state.selectedItem ? [state.selectedItem.id] : []"
               >
                 <template #iconRender="item">
                   <icon-font v-if="!item.loading" :type="resolveIcon(item)" />
@@ -160,22 +171,22 @@ const {
                       {{getDisplayName(item)}}
                     </a-typography-text>
                     <span class="relative inline-flex shrink-0 items-center justify-end" v-if="!item.readonly">
-                  <a-dropdown
-                    :menu="createMenu(item)"
-                  >
-                    <a-button
-                      type="text"
-                      size="small"
-                      class="absolute opacity-0 transition-opacity duration-300 group-hover:static group-hover:opacity-100"
-                      @click.stop
-                      @mousedown.stop
-                    >
-                      <template #icon>
-                        <icon-font type="loncra-ellipsis"/>
-                      </template>
-                    </a-button>
-                  </a-dropdown>
-                </span>
+                      <a-dropdown
+                        :menu="createMenu(item)"
+                      >
+                        <a-button
+                          type="text"
+                          size="small"
+                          class="absolute opacity-0 transition-opacity duration-300 group-hover:static group-hover:opacity-100"
+                          @click.stop
+                          @mousedown.stop
+                        >
+                          <template #icon>
+                            <icon-font type="loncra-ellipsis"/>
+                          </template>
+                        </a-button>
+                      </a-dropdown>
+                    </span>
                   </a-flex>
                 </template>
               </a-menu>
@@ -185,38 +196,73 @@ const {
       </a-splitter-panel>
       <a-splitter-panel class="min-h-0 size-full">
         <a-flex
-          v-if="state.selectedItem"
+          v-if="state.tabs.length"
           vertical
           class="min-h-0 h-full overflow-hidden"
         >
-          <a-flex
-            justify="space-between"
-            align="center"
-            class="shrink-0 w-full p-xs border-b border-border-secondary"
+          <a-tabs
+            hide-add
+            :destroy-on-hidden="false"
+            :active-key="state.selectedItem?.id"
+            :items="tabItems"
+            :classes="{
+              root: 'min-h-0 h-full',
+              body: 'min-h-0 h-full overflow-hidden',
+              content: 'min-h-0 h-full',
+              item:'p-xs',
+              header:'pl-xs pr-xs'
+            }"
+            @change="activateTab"
+            @edit="onTabEdit"
           >
-            <a-flex flex="1" gap="small" align="center">
-              <icon-font :type="resolveIcon(state.selectedItem)" />
-              <a-typography-text ellipsis>{{ getDisplayName(state.selectedItem) }}</a-typography-text>
-            </a-flex>
-            <a-space-compact size="small">
-              <a-tooltip :title="$t('common.download.text')">
-                <a-button @click="onDownloadFile(state.selectedItem)">
+            <template #labelRender="{ item }">
+              <a-flex
+                align="center"
+                gap="small"
+                class="group relative overflow-hidden"
+              >
+                <icon-font class="shrink-0 m-0!" :type="item.iconType" />
+                <a-typography-text
+                  class="min-w-0 flex-1"
+                  :ellipsis="{ tooltip: { title: item.label, mouseEnterDelay: 1 } }"
+                >
+                  {{ item.label }}
+                </a-typography-text>
+                <a-button
+                  type="text"
+                  size="small"
+                  class="absolute right-0 top-1/2 z-1 -translate-y-1/2 bg-container opacity-0 group-hover:opacity-100 text-text-secondary"
+                  @click.stop="closeTab(item.key)"
+                  @mousedown.stop
+                >
                   <template #icon>
-                    <icon-font type="loncra-download"/>
+                    <icon-font type="loncra-x"/>
                   </template>
                 </a-button>
-              </a-tooltip>
-              <a-tooltip :title="$t('common.copy')">
-                <a-button @click="onCopyFile(state.selectedItem)">
-                  <template #icon>
-                    <icon-font type="loncra-copy"/>
-                  </template>
-                </a-button>
-              </a-tooltip>
-            </a-space-compact>
-          </a-flex>
-          <a-flex flex="1" class="size-full p-xs" >
-          </a-flex>
+              </a-flex>
+            </template>
+            <template #contentRender>
+              <l-file-unsupported-pane />
+            </template>
+            <template #rightExtra>
+              <a-space-compact v-if="state.selectedItem" size="small">
+                <a-tooltip :title="$t('common.download.text')">
+                  <a-button @click="onDownloadFile(state.selectedItem)">
+                    <template #icon>
+                      <icon-font type="loncra-download"/>
+                    </template>
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip :title="$t('common.copy')">
+                  <a-button @click="onCopyFile(state.selectedItem)">
+                    <template #icon>
+                      <icon-font type="loncra-copy"/>
+                    </template>
+                  </a-button>
+                </a-tooltip>
+              </a-space-compact>
+            </template>
+          </a-tabs>
         </a-flex>
         <a-flex v-else class="size-full" align="center" justify="center">
           <a-empty />

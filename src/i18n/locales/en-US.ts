@@ -355,6 +355,10 @@ const locale: LanguagePack = {
       video:'video',
       audio:'audio',
       unknown:'file'
+    },
+    fileEditor: {
+      unsupported: 'This file cannot be opened in the editor.',
+      tooLarge: 'File is too large. Download it instead.',
     }
   },
   layoutContent: {
