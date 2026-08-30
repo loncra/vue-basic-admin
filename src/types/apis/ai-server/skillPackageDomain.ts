@@ -27,4 +27,5 @@ export interface SkillPackageSavePayload extends BasicIdMetadata<number>, Versio
 }
 
 export interface SkillPackageEntity extends SkillPackageSavePayload {
+  executeStatus?: NameValueEnumMetadata<number> | number
 }

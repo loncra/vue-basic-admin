@@ -552,6 +552,7 @@ const locale: LanguagePack = {
       defaultUpdatePolicy:'更新策略',
       sourceType:'来源类型',
       files:'技能目录',
+      gitUrl:'Git 地址',
       assets:'资源文件',
       add:{
         file:'新增文件',

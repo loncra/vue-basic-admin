@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, nextTick, ref} from 'vue'
+import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from 'vue'
 import type {
   DataDictionaryMetadata,
   EnumBucketsResponseBody,
@@ -8,7 +8,7 @@ import type {
   SkillPackageEntity,
   SkillPackageSavePayload,
 } from '@/types/apis'
-import {loadIcon, requireNonNullOrUndefined} from '@/utils'
+import {getEnumValue, loadIcon, requireNonNullOrUndefined} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 import {AiSkillPackageService} from '@/apis/ai-server/aiSkillPackageService.ts'
@@ -83,6 +83,22 @@ const options = ref<{
 
 const attachmentUpload = ref<AttachmentUploadExpose>()
 
+const gitUrl = computed({
+  get() {
+    const source = options.value.entity.metadata?.source
+    return typeof source?.url === 'string' ? source.url : ''
+  },
+  set(value: string) {
+    if (!options.value.entity.metadata) {
+      options.value.entity.metadata = {}
+    }
+    options.value.entity.metadata.source = {
+      ...(options.value.entity.metadata.source || {}),
+      url: value,
+    }
+  },
+})
+
 function postGetEntity(entity: SkillPackageEntity) {
 
   if (!entity.metadata) {
@@ -131,14 +147,35 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
   return title
 }
 
+function preSubmit() {
+  const entity = options.value.entity
+  delete entity.executeStatus
+  const sourceType = getEnumValue(entity.sourceType)
+  if (!entity.metadata) {
+    entity.metadata = {}
+  }
+  if (sourceType === SKILL_SOURCE_TYPE.GIT) {
+    entity.metadata.source = {
+      type: 'GIT',
+      url: gitUrl.value.trim(),
+    }
+  } else if (sourceType === SKILL_SOURCE_TYPE.MANUAL) {
+    entity.metadata.source = {
+      type: 'MANUAL',
+    }
+  }
+}
+
 async function postSubmit(result:RestResult<number>) {
   options.value.entity.id = result.data
   await nextTick()
-  try {
-    options.value.spinning = true
-    await attachmentUpload?.value?.upload()
-  } finally {
-    options.value.spinning = false
+  if (getEnumValue(options.value.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL) {
+    try {
+      options.value.spinning = true
+      await attachmentUpload?.value?.upload()
+    } finally {
+      options.value.spinning = false
+    }
   }
   return false
 }
@@ -157,6 +194,7 @@ function onSourceTypeChange(value:number) {
       :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_SKILL_PACKAGE"
       :pre-mounted="preMounted"
       :post-get-entity="postGetEntity"
+      :pre-submit="preSubmit"
       :title-text="setPageTitle"
       :redirect="{name: SKILL_PACKAGE_ROUTE.HOME}"
       :service="service"
@@ -250,7 +288,7 @@ function onSourceTypeChange(value:number) {
           >
             <a-select
               class="w-full"
-              :disabled="options.entity.sourceType === SKILL_SOURCE_TYPE.MANUAL"
+              :disabled="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL"
               v-model:value="options.entity.defaultUpdatePolicy"
               :options="options.updatePolicyOptions"
               :field-names="{label: 'name'}"
@@ -261,6 +299,7 @@ function onSourceTypeChange(value:number) {
           <a-form-item
             name="sourceType"
             :label="globalProperties.$t('aiServer.skillPackage.sourceType')"
+            :rules="[{required: true}]"
           >
             <a-select
               class="w-full"
@@ -268,11 +307,18 @@ function onSourceTypeChange(value:number) {
               :options="options.sourceTypeOptions"
               :field-names="{label: 'name'}"
               @change="onSourceTypeChange"
-              allow-clear
             />
           </a-form-item>
         </a-col>
       </template>
+      <a-form-item
+        v-if="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.GIT"
+        :name="['metadata', 'source', 'url']"
+        :label="globalProperties.$t('aiServer.skillPackage.gitUrl')"
+        :rules="[{required: true}]"
+      >
+        <a-input v-model:value="gitUrl" />
+      </a-form-item>
       <a-form-item
         name="tags"
         :label="globalProperties.$t('aiServer.skillPackage.tags')"
@@ -285,6 +331,7 @@ function onSourceTypeChange(value:number) {
         />
       </a-form-item>
       <a-form-item
+        v-if="options.entity.id !== undefined || getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL"
         name="files"
         :label="globalProperties.$t('aiServer.skillPackage.files')"
       >
