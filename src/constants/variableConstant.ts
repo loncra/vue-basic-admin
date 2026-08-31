@@ -73,6 +73,8 @@ export const DATA_STATUS = {
   REVOKE: 30,
 } as const
 
+export const DATA_RELEASE_STATUS:ReadonlyArray<number> = [DATA_STATUS.NEW, DATA_STATUS.REVOKE]
+
 /** 对齐后端 PackageTypeEnum */
 export const PACKAGE_TYPE = {
   SYSTEM: 10,
@@ -89,6 +91,8 @@ export const EXECUTE_STATUS_TYPE = {
   FAILURE: 99,
   UNKNOWN: 404,
 } as const
+
+export const EXECUTE_TYPE_RETRY_STATUS:ReadonlyArray<number> = [EXECUTE_STATUS_TYPE.PENDING, EXECUTE_STATUS_TYPE.FAILURE, EXECUTE_STATUS_TYPE.UNKNOWN]
 
 /** 对齐 McpClientTypeEnum.getName() */
 export const MCP_CLIENT_TYPE = {

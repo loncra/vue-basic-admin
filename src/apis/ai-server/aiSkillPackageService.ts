@@ -28,6 +28,7 @@ export class AiSkillPackageService extends PageRestfulCrudService<
   static readonly RELEASE_URL = AiSkillPackageService.SERVICE_URL + '/release'
 
   static readonly REVOKE_URL = AiSkillPackageService.SERVICE_URL + '/revoke'
+  static readonly REINGEST_ULR = AiSkillPackageService.SERVICE_URL + '/reingest'
 
   constructor() {
     super(AiSkillPackageService.SERVICE_URL)
@@ -44,5 +45,9 @@ export class AiSkillPackageService extends PageRestfulCrudService<
 
   revoke(ids: number[]): Promise<RestResult<void>> {
     return axios.post(AiSkillPackageService.REVOKE_URL, formUrlEncoded({ids}))
+  }
+
+  reingest(ids: number[]): Promise<RestResult<void>> {
+    return axios.post(AiSkillPackageService.REINGEST_ULR, formUrlEncoded({ids}))
   }
 }

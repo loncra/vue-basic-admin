@@ -24,6 +24,10 @@ export interface GitSkillSourceMetadata extends SkillSourceMetadata{
   path?: string
 }
 
+export interface SkillPackageMetadata {
+  source:SkillSourceMetadata
+}
+
 export interface SkillPackageSavePayload extends BasicIdMetadata<number>, VersionEntityMetadata {
   name: string
   packageKey: string
@@ -38,9 +42,9 @@ export interface SkillPackageSavePayload extends BasicIdMetadata<number>, Versio
   latestVersion?: string
   defaultUpdatePolicy: NameValueEnumMetadata<number> | number
   sourceType?: NameValueEnumMetadata<number> | number
-  metadata?: SkillSourceMetadata
+  metadata: SkillPackageMetadata
+  executeStatus?: NameValueEnumMetadata<number> | number
 }
 
 export interface SkillPackageEntity extends SkillPackageSavePayload {
-  executeStatus?: NameValueEnumMetadata<number> | number
 }

@@ -567,6 +567,13 @@ const locale: LanguagePack = {
           subTitle:'分支名或 tag（如 main、v1.2.0）'
         }
       },
+      reingest:{
+        confirmSingle:'确定要摄取该记录吗？',
+        confirmBatch:'确定要摄取 {count} 条记录吗？',
+        confirmTitle:'摄取确认',
+        text:'摄取',
+        selected:'摄取 {count} 条记录'
+      },
       assets:'资源文件',
       add:{
         file:'新增文件',

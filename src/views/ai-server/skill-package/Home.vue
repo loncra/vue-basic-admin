@@ -28,7 +28,9 @@ import {
   requireNonNullOrUndefined,
 } from '@/utils'
 import {
+  DATA_RELEASE_STATUS,
   DATA_STATUS,
+  EXECUTE_TYPE_RETRY_STATUS,
   ICON_SELECT_MODE,
   SKILL_GROUP_CODE_PREFIX,
   SKILL_PACKAGE_AUTHORITY,
@@ -227,6 +229,17 @@ const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
       icon: () => createIcon('loncra-screen-share-off'),
       run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
+    {
+      id: 'reingestSelect',
+      permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
+      enabled: (ctx) => getReingestSelectedEntities(ctx.selectedItems).length > 0,
+      label: (ctx) =>
+        globalProperties.$t('aiServer.skillPackage.reingest.selected', {
+          count: getReingestSelectedEntities(ctx.selectedItems).length,
+        }),
+      icon: () => createIcon('loncra-folder-sync'),
+      run: (ctx) => reingest(getReingestSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
+    },
   ]
 }
 
@@ -248,14 +261,23 @@ const itemActionDefinitions = function (): ActionDefinition<SkillPackageSavePayl
       icon: () => createIcon('loncra-screen-share-off'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
     },
+    {
+      id: 'reingest',
+      permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
+      enabled: (ctx) => EXECUTE_TYPE_RETRY_STATUS.includes(getEnumValue(ctx.record!.executeStatus ?? 0)),
+      label: () => globalProperties.$t('aiServer.skillPackage.reingest.text'),
+      icon: () => createIcon('loncra-folder-sync'),
+      run: (ctx) => reingest([Number(ctx.record!.id)]),
+    }
   ]
 }
 
 function getReleaseSelectedEntities(selectedRows: SkillPackageSavePayload[]) {
-  return selectedRows.filter((e) => {
-    const status = getEnumValue(e.status ?? 0)
-    return status === DATA_STATUS.NEW || status === DATA_STATUS.REVOKE
-  })
+  return selectedRows.filter((e) => DATA_RELEASE_STATUS.includes(getEnumValue(e.status ?? 0)))
+}
+
+function getReingestSelectedEntities(selectedRows: SkillPackageSavePayload[]) {
+  return selectedRows.filter((e) => EXECUTE_TYPE_RETRY_STATUS.includes(getEnumValue(e.executeStatus ?? 0)))
 }
 
 function getRevokeSelectedEntities(selectedRows: SkillPackageSavePayload[]) {
@@ -303,6 +325,30 @@ function revoke(ids: number[]) {
 async function doRevoke(ids: number[]) {
   try {
     const result: RestResult<void> = await service.revoke(ids)
+    message.success(result.message)
+    table.value.fetchDataSource()
+  } catch (e) {
+    message.error(e instanceof Error ? e.message : String(e))
+  }
+}
+
+function reingest(ids: number[]) {
+  if (ids.length === 0) {
+    return
+  }
+  const content = ids.length === 1
+    ? globalProperties.$t('aiServer.skillPackage.reingest.confirmSingle')
+    : globalProperties.$t('aiServer.skillPackage.reingest.confirmBatch', {count: ids.length})
+  modal.confirm({
+    title: globalProperties.$t('aiServer.skillPackage.reingest.confirmTitle'),
+    content,
+    onOk: () => doReingest(ids),
+  })
+}
+
+async function doReingest(ids: number[]) {
+  try {
+    const result: RestResult<void> = await service.reingest(ids)
     message.success(result.message)
     table.value.fetchDataSource()
   } catch (e) {

@@ -9,6 +9,7 @@ import type {
   RestResult,
   SkillPackageEntity,
   SkillPackageSavePayload,
+  SkillSourceMetadata,
 } from '@/types/apis'
 import {getEnumValue, loadIcon} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
@@ -52,7 +53,10 @@ function createEmptyEntity(): SkillPackageEntity {
     type: undefined as unknown as number,
     icon: '',
     defaultUpdatePolicy: undefined as unknown as number,
-    sourceType: undefined as unknown as number
+    sourceType: undefined as unknown as number,
+    metadata:{
+      source:{type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
+    }
   }
 }
 
@@ -96,12 +100,12 @@ const attachmentUpload = ref<AttachmentUploadExpose>()
   },
 })*/
 
-function postGetEntity(entity: SkillPackageEntity) {
+/*function postGetEntity(entity: SkillPackageEntity) {
   if (!entity.metadata) {
-    entity.metadata = {type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
+    entity.metadata.source = {type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
   }
   return entity
-}
+}*/
 
 async function preMounted() {
   options.value.spinning = true
@@ -176,12 +180,14 @@ async function postSubmit(result:RestResult<number>) {
 }
 
 function onSourceTypeChange(value:number) {
-  delete options.value.entity.metadata
+  options.value.entity.metadata = {
+    source: {type:value} as SkillSourceMetadata
+  }
   if (value === SKILL_SOURCE_TYPE.MANUAL) {
     options.value.entity.defaultUpdatePolicy = SKILL_UPDATE_POLICY.MANUAL
-    options.value.entity.metadata = {type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
+    options.value.entity.metadata.source = {type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
   } else {
-    options.value.entity.metadata = {type:SKILL_SOURCE_TYPE.GIT, url:''} as GitSkillSourceMetadata
+    options.value.entity.metadata.source = {type:SKILL_SOURCE_TYPE.GIT, url:''} as GitSkillSourceMetadata
   }
 }
 
@@ -192,7 +198,6 @@ function onSourceTypeChange(value:number) {
     <l-basic-form
       :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_SKILL_PACKAGE"
       :pre-mounted="preMounted"
-      :post-get-entity="postGetEntity"
       :title-text="setPageTitle"
       :redirect="{name: SKILL_PACKAGE_ROUTE.HOME}"
       :service="service"
@@ -237,7 +242,7 @@ function onSourceTypeChange(value:number) {
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
-            name="group"
+            name="category"
             :label="$t('common.group')"
             :rules="[{required: true}]"
           >
@@ -311,13 +316,13 @@ function onSourceTypeChange(value:number) {
         </a-col>
       </template>
       <a-form-item
-        v-if="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.GIT && options.entity.metadata"
+        v-if="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.GIT"
         :name="['metadata', 'source', 'url']"
         :label="$t('aiServer.skillPackage.git.url')"
         :rules="[{required: true}]"
       >
         <a-space-compact block>
-          <a-input v-model:value="(options.entity.metadata as GitSkillSourceMetadata).url" />
+          <a-input v-model:value="(options.entity.metadata.source as GitSkillSourceMetadata).url" />
           <a-space-addon>
             <a-space>
               <a-tooltip :title="$t('aiServer.skillPackage.git.path.subTitle')">
@@ -326,7 +331,7 @@ function onSourceTypeChange(value:number) {
               <span>{{$t('aiServer.skillPackage.git.path.title')}}</span>
             </a-space>
           </a-space-addon>
-          <a-input class="w-60" v-model:value="(options.entity.metadata as GitSkillSourceMetadata).path" />
+          <a-input class="w-70" v-model:value="(options.entity.metadata.source as GitSkillSourceMetadata).path" />
           <a-space-addon>
             <a-space>
               <a-tooltip :title="$t('aiServer.skillPackage.git.ref.subTitle')">
@@ -335,7 +340,7 @@ function onSourceTypeChange(value:number) {
               <span>{{$t('aiServer.skillPackage.git.ref.title')}}</span>
             </a-space>
           </a-space-addon>
-          <a-input class="w-40" v-model:value="(options.entity.metadata as GitSkillSourceMetadata).ref" />
+          <a-input class="w-50" v-model:value="(options.entity.metadata.source as GitSkillSourceMetadata).ref" />
           <a-space-addon>
             <a-space>
               <a-tooltip :title="$t('aiServer.skillPackage.git.sha.subTitle')">
@@ -344,7 +349,7 @@ function onSourceTypeChange(value:number) {
               <span>{{$t('aiServer.skillPackage.git.sha.title')}}</span>
             </a-space>
           </a-space-addon>
-          <a-input class="w-60" v-model:value="(options.entity.metadata as GitSkillSourceMetadata).sha" />
+          <a-input class="w-70" v-model:value="(options.entity.metadata.source as GitSkillSourceMetadata).sha" />
         </a-space-compact>
       </a-form-item>
       <a-form-item

@@ -207,7 +207,7 @@ const {
               root: 'min-h-0 h-full',
               body: 'min-h-0 h-full overflow-hidden',
               content: 'min-h-0 h-full',
-              item:'p-xs m-0',
+              item:'pl-xs pr-xs pt-xs m-0 pb-sm',
               header:'pr-xs mb-0'
             }"
             @change="activateTab"

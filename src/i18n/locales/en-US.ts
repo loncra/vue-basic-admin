@@ -557,7 +557,26 @@ const locale: LanguagePack = {
       sourceType: 'Source type',
       files: 'Skill files',
       git:{
-        url: 'Git URL'
+        url: 'Git URL',
+        path:{
+          title: 'Skill path',
+          subTitle: 'Skill root inside the repo, relative to the repo root. Leave empty if the whole repo is this Skill.'
+        },
+        sha:{
+          title: 'Commit SHA',
+          subTitle: 'Used to reproduce the snapshot and later check for new commits'
+        },
+        ref:{
+          title: 'Git ref',
+          subTitle: 'Branch or tag (for example main, v1.2.0)'
+        }
+      },
+      reingest:{
+        confirmSingle: 'Are you sure you want to ingest this record?',
+        confirmBatch: 'Are you sure you want to ingest {count} record(s)?',
+        confirmTitle: 'Confirm ingest',
+        text: 'Ingest',
+        selected: 'Ingest {count} record(s)'
       },
       assets: 'Assets',
       add:{
