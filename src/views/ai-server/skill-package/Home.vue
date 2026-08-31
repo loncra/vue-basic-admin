@@ -24,6 +24,7 @@ import {
   createIcon,
   getEnumName,
   getEnumValue,
+  getExecuteBadgeStatus,
   requireNonNullOrUndefined,
 } from '@/utils'
 import {
@@ -404,7 +405,7 @@ onMounted(mounted)
           {{ getEnumName(record.sourceType) }}
         </template>
         <template v-if="column.dataIndex === 'executeStatus'">
-          {{ getEnumName(record.executeStatus) }}
+          <a-badge :status="getExecuteBadgeStatus(record.executeStatus)" :text="getEnumName(record.executeStatus)" />
         </template>
       </template>
     </l-crud-table>

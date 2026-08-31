@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from 'vue'
+import {nextTick, ref} from 'vue'
 import type {
   DataDictionaryMetadata,
   EnumBucketsResponseBody,
+  GitSkillSourceMetadata,
+  ManualSkillSourceMetadata,
   NameValueEnumMetadata,
   RestResult,
   SkillPackageEntity,
   SkillPackageSavePayload,
 } from '@/types/apis'
-import {getEnumValue, loadIcon, requireNonNullOrUndefined} from '@/utils'
+import {getEnumValue, loadIcon} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 import {AiSkillPackageService} from '@/apis/ai-server/aiSkillPackageService.ts'
@@ -34,10 +36,6 @@ defineOptions({
   name: 'AiServerSkillPackageAddForm',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
 const service = new AiSkillPackageService()
 
 function createEmptyEntity(): SkillPackageEntity {
@@ -54,8 +52,7 @@ function createEmptyEntity(): SkillPackageEntity {
     type: undefined as unknown as number,
     icon: '',
     defaultUpdatePolicy: undefined as unknown as number,
-    sourceType: undefined as unknown as number,
-    metadata: {}
+    sourceType: undefined as unknown as number
   }
 }
 
@@ -83,7 +80,7 @@ const options = ref<{
 
 const attachmentUpload = ref<AttachmentUploadExpose>()
 
-const gitUrl = computed({
+/*const gitUrl = computed({
   get() {
     const source = options.value.entity.metadata?.source
     return typeof source?.url === 'string' ? source.url : ''
@@ -97,12 +94,11 @@ const gitUrl = computed({
       url: value,
     }
   },
-})
+})*/
 
 function postGetEntity(entity: SkillPackageEntity) {
-
   if (!entity.metadata) {
-    entity.metadata = {}
+    entity.metadata = {type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
   }
   return entity
 }
@@ -147,12 +143,11 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
   return title
 }
 
-function preSubmit() {
+/*function preSubmit() {
   const entity = options.value.entity
-  delete entity.executeStatus
   const sourceType = getEnumValue(entity.sourceType)
   if (!entity.metadata) {
-    entity.metadata = {}
+    entity.metadata = {type:SKILL_SOURCE_TYPE.MANUAL}
   }
   if (sourceType === SKILL_SOURCE_TYPE.GIT) {
     entity.metadata.source = {
@@ -164,7 +159,7 @@ function preSubmit() {
       type: 'MANUAL',
     }
   }
-}
+}*/
 
 async function postSubmit(result:RestResult<number>) {
   options.value.entity.id = result.data
@@ -181,8 +176,12 @@ async function postSubmit(result:RestResult<number>) {
 }
 
 function onSourceTypeChange(value:number) {
+  delete options.value.entity.metadata
   if (value === SKILL_SOURCE_TYPE.MANUAL) {
     options.value.entity.defaultUpdatePolicy = SKILL_UPDATE_POLICY.MANUAL
+    options.value.entity.metadata = {type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
+  } else {
+    options.value.entity.metadata = {type:SKILL_SOURCE_TYPE.GIT, url:''} as GitSkillSourceMetadata
   }
 }
 
@@ -194,7 +193,6 @@ function onSourceTypeChange(value:number) {
       :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_SKILL_PACKAGE"
       :pre-mounted="preMounted"
       :post-get-entity="postGetEntity"
-      :pre-submit="preSubmit"
       :title-text="setPageTitle"
       :redirect="{name: SKILL_PACKAGE_ROUTE.HOME}"
       :service="service"
@@ -206,7 +204,7 @@ function onSourceTypeChange(value:number) {
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
             name="name"
-            :label="globalProperties.$t('common.name')"
+            :label="$t('common.name')"
             :rules="[{required: true}]"
           >
             <a-input v-model:value="options.entity.name" />
@@ -215,19 +213,19 @@ function onSourceTypeChange(value:number) {
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
             name="packageKey"
-            :label="globalProperties.$t('aiServer.skillPackage.packageKey')"
+            :label="$t('aiServer.skillPackage.packageKey')"
             :rules="[{required: true}]"
           >
             <a-input
               v-model:value="options.entity.packageKey"
-              :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined"
+              :disabled="$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined"
             />
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
             name="icon"
-            :label="globalProperties.$t('common.icon')"
+            :label="$t('common.icon')"
           >
             <l-icon-select
               class="w-full"
@@ -240,7 +238,8 @@ function onSourceTypeChange(value:number) {
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
             name="group"
-            :label="globalProperties.$t('common.group')"
+            :label="$t('common.group')"
+            :rules="[{required: true}]"
           >
             <a-select
               class="w-full"
@@ -255,7 +254,7 @@ function onSourceTypeChange(value:number) {
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
             name="origin"
-            :label="globalProperties.$t('aiServer.skillPackage.origin')"
+            :label="$t('aiServer.skillPackage.origin')"
             :rules="[{required: true}]"
           >
             <a-select
@@ -269,7 +268,7 @@ function onSourceTypeChange(value:number) {
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
             name="type"
-            :label="globalProperties.$t('common.type')"
+            :label="$t('common.type')"
             :rules="[{required: true}]"
           >
             <a-select
@@ -283,7 +282,7 @@ function onSourceTypeChange(value:number) {
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
             name="defaultUpdatePolicy"
-            :label="globalProperties.$t('aiServer.skillPackage.defaultUpdatePolicy')"
+            :label="$t('aiServer.skillPackage.defaultUpdatePolicy')"
             :rules="[{required: true}]"
           >
             <a-select
@@ -298,7 +297,7 @@ function onSourceTypeChange(value:number) {
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item
             name="sourceType"
-            :label="globalProperties.$t('aiServer.skillPackage.sourceType')"
+            :label="$t('aiServer.skillPackage.sourceType')"
             :rules="[{required: true}]"
           >
             <a-select
@@ -312,16 +311,45 @@ function onSourceTypeChange(value:number) {
         </a-col>
       </template>
       <a-form-item
-        v-if="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.GIT"
+        v-if="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.GIT && options.entity.metadata"
         :name="['metadata', 'source', 'url']"
-        :label="globalProperties.$t('aiServer.skillPackage.gitUrl')"
+        :label="$t('aiServer.skillPackage.git.url')"
         :rules="[{required: true}]"
       >
-        <a-input v-model:value="gitUrl" />
+        <a-space-compact block>
+          <a-input v-model:value="(options.entity.metadata as GitSkillSourceMetadata).url" />
+          <a-space-addon>
+            <a-space>
+              <a-tooltip :title="$t('aiServer.skillPackage.git.path.subTitle')">
+                <icon-font type="loncra-circle-question-mark"></icon-font>
+              </a-tooltip>
+              <span>{{$t('aiServer.skillPackage.git.path.title')}}</span>
+            </a-space>
+          </a-space-addon>
+          <a-input class="w-60" v-model:value="(options.entity.metadata as GitSkillSourceMetadata).path" />
+          <a-space-addon>
+            <a-space>
+              <a-tooltip :title="$t('aiServer.skillPackage.git.ref.subTitle')">
+                <icon-font type="loncra-circle-question-mark"></icon-font>
+              </a-tooltip>
+              <span>{{$t('aiServer.skillPackage.git.ref.title')}}</span>
+            </a-space>
+          </a-space-addon>
+          <a-input class="w-40" v-model:value="(options.entity.metadata as GitSkillSourceMetadata).ref" />
+          <a-space-addon>
+            <a-space>
+              <a-tooltip :title="$t('aiServer.skillPackage.git.sha.subTitle')">
+                <icon-font type="loncra-circle-question-mark"></icon-font>
+              </a-tooltip>
+              <span>{{$t('aiServer.skillPackage.git.sha.title')}}</span>
+            </a-space>
+          </a-space-addon>
+          <a-input class="w-60" v-model:value="(options.entity.metadata as GitSkillSourceMetadata).sha" />
+        </a-space-compact>
       </a-form-item>
       <a-form-item
         name="tags"
-        :label="globalProperties.$t('aiServer.skillPackage.tags')"
+        :label="$t('aiServer.skillPackage.tags')"
       >
         <a-select
           class="w-full"
@@ -333,7 +361,7 @@ function onSourceTypeChange(value:number) {
       <a-form-item
         v-if="options.entity.id !== undefined || getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL"
         name="files"
-        :label="globalProperties.$t('aiServer.skillPackage.files')"
+        :label="$t('aiServer.skillPackage.files')"
       >
         <a-flex gap="middle" vertical>
           <l-attachment-upload v-if="options.entity.id === undefined" directory ref="attachmentUpload" :upload-options="{param:{prefix:'ai/skill/' + options.entity.id, randomName:false}}" bucket="system.file" :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER" />
@@ -342,7 +370,7 @@ function onSourceTypeChange(value:number) {
       </a-form-item>
       <a-form-item
         name="summary"
-        :label="globalProperties.$t('aiServer.skillPackage.summary')"
+        :label="$t('aiServer.skillPackage.summary')"
       >
         <a-textarea
           v-model:value="options.entity.summary"
@@ -353,7 +381,7 @@ function onSourceTypeChange(value:number) {
       </a-form-item>
       <a-form-item
         name="additionalInformation"
-        :label="globalProperties.$t('aiServer.skillPackage.additionalInformation')"
+        :label="$t('aiServer.skillPackage.additionalInformation')"
       >
         <a-textarea
           v-model:value="options.entity.additionalInformation"

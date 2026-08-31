@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import {dayjsFormat} from './dateUtils'
 import type {NameValueEnumMetadata} from '@/types/apis'
 import i18n from '@/i18n'
-import {YES_OR_NO_TYPE} from '@/constants'
+import {EXECUTE_STATUS_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import type {SearchableColumnType} from "@/types/composables";
 
 /**
@@ -318,6 +318,7 @@ export function getEnumValue<TValue>(value: NameValueEnumMetadata<TValue> | TVal
   }
   return value as TValue
 }
+
 /** 从元数据取展示名，裸值则转成字符串 */
 export function getEnumName<TValue>(value: NameValueEnumMetadata<TValue> | TValue): string {
   if (isNameValueEnumMetadata(value)) {
@@ -385,4 +386,19 @@ export function applyColumnOptions(columns:SearchableColumnType[], dataIndex: st
 
 export function isTauri(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+}
+
+export function getExecuteBadgeStatus(executeStatus:NameValueEnumMetadata<number> | number) {
+  const status = getEnumValue(executeStatus)
+  if (status === EXECUTE_STATUS_TYPE.PENDING) {
+    return "default"
+  } else if (status === EXECUTE_STATUS_TYPE.PROCESSING) {
+    return "processing"
+  } else if (status === EXECUTE_STATUS_TYPE.SUCCESS) {
+    return "success"
+  } else if (status === EXECUTE_STATUS_TYPE.FAILURE) {
+    return "error"
+  } else {
+    return "warning"
+  }
 }

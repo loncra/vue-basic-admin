@@ -4,9 +4,24 @@ import type {
   NameValueEnumMetadata,
   VersionEntityMetadata,
 } from '@/types/apis'
+import {SKILL_SOURCE_TYPE} from "@/constants";
 
-export interface SkillPackageMetadata {
-  source?: Record<string, unknown>
+
+export type SkillSourceMetadataType = typeof SKILL_SOURCE_TYPE.GIT | typeof SKILL_SOURCE_TYPE.MANUAL
+
+export interface SkillSourceMetadata {
+  type:SkillSourceMetadataType
+}
+export interface ManualSkillSourceMetadata extends SkillSourceMetadata{
+  type: typeof SKILL_SOURCE_TYPE.MANUAL
+}
+
+export interface GitSkillSourceMetadata extends SkillSourceMetadata{
+  type: typeof SKILL_SOURCE_TYPE.GIT
+  url: string
+  ref?: string
+  sha?: string
+  path?: string
 }
 
 export interface SkillPackageSavePayload extends BasicIdMetadata<number>, VersionEntityMetadata {
@@ -23,7 +38,7 @@ export interface SkillPackageSavePayload extends BasicIdMetadata<number>, Versio
   latestVersion?: string
   defaultUpdatePolicy: NameValueEnumMetadata<number> | number
   sourceType?: NameValueEnumMetadata<number> | number
-  metadata: SkillPackageMetadata
+  metadata?: SkillSourceMetadata
 }
 
 export interface SkillPackageEntity extends SkillPackageSavePayload {

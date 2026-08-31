@@ -552,7 +552,21 @@ const locale: LanguagePack = {
       defaultUpdatePolicy:'更新策略',
       sourceType:'来源类型',
       files:'技能目录',
-      gitUrl:'Git 地址',
+      git:{
+        url:'Git 地址',
+        path:{
+          title:'skill 路径',
+          subTitle:'仓库内 Skill 根目录，相对仓库根，可空表示整个仓库即为该 Skill。'
+        },
+        sha:{
+          title:'提交的 SHA值',
+          subTitle:'用于复现与日后对比是否有新提交'
+        },
+        ref:{
+          title:'Git 引用',
+          subTitle:'分支名或 tag（如 main、v1.2.0）'
+        }
+      },
       assets:'资源文件',
       add:{
         file:'新增文件',

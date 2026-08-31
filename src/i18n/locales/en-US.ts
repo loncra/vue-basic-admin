@@ -556,7 +556,9 @@ const locale: LanguagePack = {
       defaultUpdatePolicy: 'Update policy',
       sourceType: 'Source type',
       files: 'Skill files',
-      gitUrl: 'Git URL',
+      git:{
+        url: 'Git URL'
+      },
       assets: 'Assets',
       add:{
         file: 'Add file',
