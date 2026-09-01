@@ -208,6 +208,9 @@ defineExpose({
     <template #title v-if="slots.title">
       <slot name="title"/>
     </template>
+    <template #expandedRowRender="{record, index, indent, expanded}">
+      <slot v-if="slots.expandedRowRender" name="expandedRowRender" :indent="indent" :record="record" :index="index" :expanded="expanded"/>
+    </template>
     <template #bodyCell="{ text, record, index, column}">
 
       <slot v-if="slots.bodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>

@@ -40,3 +40,12 @@ export interface SkillPackageSnapshotPayload {
   releaseVersion: string
   changelog?: string
 }
+
+export interface SkillReleaseEntity {
+  id?: number
+  aiSkillPackageId?: number
+  releaseVersion?: string
+  changelog?: string
+  releaseTime?: number
+  enabled?: NameValueEnumMetadata<number> | number
+}

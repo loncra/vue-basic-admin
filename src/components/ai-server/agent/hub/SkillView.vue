@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {AiSkillPackageService, ResourceServerService} from '@/apis'
-import {onMounted, ref} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import type {
   DataDictionaryMetadata,
   PageRequest,
@@ -17,8 +17,10 @@ import {
   PLUGIN_TARGET_TYPE,
   SKILL_GROUP_CODE_PREFIX,
 } from '@/constants'
-import {addAllDataDictionary} from '@/utils'
+import {addAllDataDictionary, requireNonNullOrUndefined} from '@/utils'
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
+import LAgentHubSkillReleaseChangeLog
+  from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
 
 defineOptions({
   name: 'LAgentHubSkill',
@@ -37,6 +39,10 @@ const emits = defineEmits<{
   installed: [result: UserPluginInstallResult]
   uninstalled: [id: number]
 }>()
+
+const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
+  getCurrentInstance(),
+).appContext.config.globalProperties
 
 const service = new AiSkillPackageService()
 
@@ -131,6 +137,20 @@ onMounted(mounted)
         >
           <template #title="{ record }">
             {{ record.name }} {{ record.latestVersion }}
+          </template>
+          <template #after="{ record }">
+            <a-collapse
+              ghost
+              :classes="{body:'p-0', header:'pl-0 pr-0'}"
+              :items="[{ key: 'changelog', label: globalProperties.$t('agent.hub.changelog.text') }]"
+            >
+              <template #contentRender>
+                <l-agent-hub-skill-release-change-log
+                  v-if="record.id"
+                  :package-id="record.id"
+                />
+              </template>
+            </a-collapse>
           </template>
         </l-agent-hub-plugin-info-card>
       </a-spin>

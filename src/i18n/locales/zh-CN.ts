@@ -768,6 +768,9 @@ const locale: LanguagePack = {
       mcp:'MCP 插件',
       skill:'技能插件',
       myPlugin:'我的插件',
+      changelog:{
+        text:'更新日志',
+      },
       install:'安装',
       installTitle:'安装 {name}',
       uninstall:{

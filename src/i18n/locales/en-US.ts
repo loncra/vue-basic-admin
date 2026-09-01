@@ -772,6 +772,9 @@ const locale: LanguagePack = {
       mcp:'MCP',
       skill:'Skill',
       myPlugin:'My plugins',
+      changelog:{
+        text:'Changelog',
+      },
       install:'Install',
       installTitle:'Install {name}',
       uninstall:{

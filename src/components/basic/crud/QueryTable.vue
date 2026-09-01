@@ -432,6 +432,9 @@ defineExpose({
         </a-space>
       </div>
     </template>
+    <template #expandedRowRender="{record, index, indent, expanded}">
+      <slot v-if="slots.expandedRowRender" name="expandedRowRender" :indent="indent" :record="record" :index="index" :expanded="expanded"/>
+    </template>
   </a-table>
 </template>
 

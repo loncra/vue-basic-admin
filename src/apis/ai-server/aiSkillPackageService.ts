@@ -4,6 +4,7 @@ import type {
   SkillPackageEntity,
   SkillPackageSavePayload,
   SkillPackageSnapshotPayload,
+  SkillReleaseEntity,
   TotalPage,
 } from '@/types/apis'
 import axios from '@/requests/http.ts'
@@ -54,5 +55,10 @@ export class AiSkillPackageService extends PageRestfulCrudService<
 
   snapshot(id: number, body: SkillPackageSnapshotPayload): Promise<RestResult<number>> {
     return axios.post(AiSkillPackageService.SERVICE_URL + '/' + id + '/snapshot', body)
+  }
+
+  /** `GET /ai/skill/package/release/{id}` */
+  static listReleases(packageId: number): Promise<RestResult<SkillReleaseEntity[]>> {
+    return axios.get(AiSkillPackageService.SERVICE_URL + '/release/' + packageId)
   }
 }

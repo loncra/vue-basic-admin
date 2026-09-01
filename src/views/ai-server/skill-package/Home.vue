@@ -9,7 +9,7 @@ import {
   onMounted,
   ref,
 } from 'vue'
-import {Input, Select} from 'antdv-next'
+import {Input, Select, Table} from 'antdv-next'
 import type {
   DataDictionaryMetadata,
   EnumBucketsResponseBody,
@@ -43,6 +43,8 @@ import {
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
 import useApp from 'antdv-next/dist/app/useApp'
 import LIconSelect from '@/components/basic/IconSelect.vue'
+import LAgentHubSkillReleaseChangeLog
+  from "@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue";
 
 defineOptions({
   name: 'AiServerSkillPackageHome',
@@ -475,6 +477,7 @@ onMounted(mounted)
         delete: SKILL_PACKAGE_AUTHORITY.DELETE,
         detail: SKILL_PACKAGE_AUTHORITY.GET,
       }"
+      :expandable="{ rowExpandable: (record:SkillPackageEntity) => getEnumValue(record.status) === DATA_STATUS.RELEASE }"
       :scroll="{x: 'max-content'}"
       :row-selection="{fixed: true, type: 'checkbox'}"
       @add="globalProperties.$router.push({name: SKILL_PACKAGE_ROUTE.ADD})"
@@ -495,6 +498,14 @@ onMounted(mounted)
       :actions="bulkActions()"
       :row-actions="itemActionDefinitions()"
     >
+      <template #expandedRowRender="{ record }">
+        <a-flex vertical gap="middle">
+          <a-typography-text>
+            {{$t('agent.hub.changelog.text')}}
+          </a-typography-text>
+          <l-agent-hub-skill-release-change-log :package-id="record.id" />
+        </a-flex>
+      </template>
       <template #bodyCell="{column, record}">
         <template v-if="column.dataIndex === 'name'">
           <a-space>
