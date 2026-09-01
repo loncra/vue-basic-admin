@@ -1,4 +1,6 @@
-import type {NameValueEnumMetadata} from '@/types/apis'
+import type {IdNameMetadata, NameValueEnumMetadata} from '@/types/apis'
+import type {McpPackageEntity} from './mcpPackageDomain'
+import type {SkillPackageEntity} from './skillPackageDomain'
 
 /**
  * 用户广场插件安装（对齐 `UserPluginInstallRequestBody` / `UserPluginInstallResult`）
@@ -12,11 +14,18 @@ export interface UserPluginInstallRequestBody {
   agentConversationIds?: number[]
 }
 
+export interface UserPluginInstallMetadata {
+  releaseVersion?: string
+  releaseId?: number
+}
+
 export interface UserPluginInstallResult {
   id?: number
   targetType?: NameValueEnumMetadata<number> | number
   packageId?: number
   workspaceScope?: NameValueEnumMetadata<number> | number
   status?: NameValueEnumMetadata<number> | number
-  agentConversationIds?: number[]
+  workspaces?: IdNameMetadata[]
+  metadata?: UserPluginInstallMetadata
+  pluginPackage?: McpPackageEntity | SkillPackageEntity
 }

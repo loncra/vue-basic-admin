@@ -1,6 +1,7 @@
 import type {RestResult, UserPluginInstallRequestBody, UserPluginInstallResult} from '@/types/apis'
 import axios from '@/requests/http.ts'
 import {getEnumValue} from '@/utils'
+import {PLUGIN_TARGET_TYPE} from '@/constants'
 
 /**
  * 用户广场插件安装：`/api[/ai-server]/ai/user/plugin/install`
@@ -42,5 +43,20 @@ export class AiUserPluginInstallService {
       map.set(install.packageId, install)
     }
     return map
+  }
+
+  static isSkillOutdated(
+    installs: UserPluginInstallResult[],
+    record: {id?: number; latestVersion?: string},
+  ): boolean {
+    if (record.id == null || !record.latestVersion) {
+      return false
+    }
+    const install = installs.find(
+      (item) =>
+        getEnumValue(item.targetType) === PLUGIN_TARGET_TYPE.SKILL && item.packageId === record.id,
+    )
+    const locked = install?.metadata?.releaseVersion
+    return Boolean(locked) && locked !== record.latestVersion
   }
 }

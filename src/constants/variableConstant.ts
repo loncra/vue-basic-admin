@@ -16,6 +16,7 @@ export const SYSTEM_ENUM_TYPE = {
   MCP_CLIENT_TYPE_ENUM: 'McpClientTypeEnum',
   MESSAGE_TYPE_ENUM: 'MessageTypeEnum',
   PACKAGE_ORIGIN_ENUM: 'PackageOriginEnum',
+  PLUGIN_TARGET_TYPE_ENUM: 'PluginTargetTypeEnum',
   SKILL_SOURCE_TYPE_ENUM: 'SkillSourceTypeEnum',
   UPDATE_POLICY_ENUM: 'UpdatePolicyEnum',
   MODEL_TYPE_ENUM: 'ModelTypeEnum',

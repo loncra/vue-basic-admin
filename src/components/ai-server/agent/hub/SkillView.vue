@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {AiSkillPackageService, ResourceServerService} from '@/apis'
+import {AiSkillPackageService, AiUserPluginInstallService, ResourceServerService} from '@/apis'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import type {
   DataDictionaryMetadata,
@@ -91,6 +91,10 @@ async function loadData(request: PageRequest) {
   }
 }
 
+function isSkillOutdated(record: SkillPackageEntity) {
+  return AiUserPluginInstallService.isSkillOutdated(props.installs, record)
+}
+
 async function mounted() {
   const result: RestResult<Record<string, DataDictionaryMetadata[]>> =
     await ResourceServerService.findDataDictionariesByCodes([SKILL_GROUP_CODE_PREFIX])
@@ -136,12 +140,14 @@ onMounted(mounted)
           @uninstalled="emits('uninstalled', $event)"
         >
           <template #title="{ record }">
-            {{ record.name }} {{ record.latestVersion }}
+            <a-badge :dot="isSkillOutdated(record)">
+              {{ record.name }} {{ record.latestVersion }}
+            </a-badge>
           </template>
           <template #after="{ record }">
             <a-collapse
               ghost
-              :classes="{body:'p-0', header:'pl-0 pr-0'}"
+              :classes="{body:'p-0', header:'pl-0 pr-0 border-t border-border-secondary'}"
               :items="[{ key: 'changelog', label: globalProperties.$t('agent.hub.changelog.text') }]"
             >
               <template #contentRender>
