@@ -473,10 +473,18 @@ onMounted(mounted)
         add: SKILL_PACKAGE_AUTHORITY.SAVE,
         edit: SKILL_PACKAGE_AUTHORITY.SAVE,
         delete: SKILL_PACKAGE_AUTHORITY.DELETE,
+        detail: SKILL_PACKAGE_AUTHORITY.GET,
       }"
       :scroll="{x: 'max-content'}"
       :row-selection="{fixed: true, type: 'checkbox'}"
       @add="globalProperties.$router.push({name: SKILL_PACKAGE_ROUTE.ADD})"
+      @detail="
+        (record) =>
+          globalProperties.$router.push({
+            name: SKILL_PACKAGE_ROUTE.DETAIL,
+            query: {id: String(record.id)},
+          })
+      "
       @edit="
         (record) =>
           globalProperties.$router.push({

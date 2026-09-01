@@ -34,6 +34,18 @@ const router: RouteRecordRaw[] = [
       requiresFullyAuth: true,
     },
   },
+  {
+    path: '/ai-server/ai/skill/package/detail',
+    component: () => import('@/views/ai-server/skill-package/Detail.vue'),
+    name: SKILL_PACKAGE_ROUTE.DETAIL,
+    meta: {
+      dynamicTitle: true,
+      applicationName: SYSTEM_MODULE_NAME.AI_SERVER,
+      icon: 'loncra-file-search',
+      parent: '/ai-server/ai/skill/package',
+      requiresAuth: true,
+    },
+  },
 ]
 
 export default router

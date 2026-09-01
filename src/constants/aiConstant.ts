@@ -157,6 +157,7 @@ export const SKILL_PACKAGE_ROUTE = {
   HOME: 'ai_server_skill_package',
   ADD: 'ai_server_skill_package_add',
   EDIT: 'ai_server_skill_package_edit',
+  DETAIL: 'ai_server_skill_package_detail',
 } as const
 
 export const MCP_CLIENT_HTTP_TYPE_VALUE:ReadonlyArray<string> = [MCP_CLIENT_TYPE.SSE, MCP_CLIENT_TYPE.STREAMABLE_HTTP]

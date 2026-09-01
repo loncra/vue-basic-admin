@@ -71,7 +71,10 @@ provide(LAYOUT_PANE_TITLE_PROVIDE_KEY, setPaneName)
 
 function setPaneName(fullPath: string, name: string) {
   const pane = panes.value.find((p) => p.path === fullPath)
-  if (pane) pane.name = name
+  if (!pane) {
+    return
+  }
+  pane.name = name
 }
 
 function getFixedRoutesFromRouter(): RouteResourceMetadata[] {
@@ -432,7 +435,7 @@ onUnmounted(() => routeCacheVersions.value = {})
                     class="icon align"
                     :type="item.iconString || 'loncra-file'"
                   />
-                  <a-badge dot :count="messageServerStore.getUnreadQuantityByType(item.route)">
+                  <a-badge :key="item.label" dot :count="messageServerStore.getUnreadQuantityByType(item.route)">
                     <span>{{item.label}}</span>
                   </a-badge>
                 </a-space>

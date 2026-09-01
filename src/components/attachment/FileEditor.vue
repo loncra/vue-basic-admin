@@ -93,20 +93,22 @@ const {
                   </template>
                 </a-button>
               </a-tooltip>
-              <a-tooltip :title="$t('attachment.upload.file')">
-                <a-button @click="onRootUpload(false)">
-                  <template #icon>
-                    <icon-font type="loncra-upload"/>
-                  </template>
-                </a-button>
-              </a-tooltip>
-              <a-tooltip :title="$t('attachment.upload.directory')">
-                <a-button @click="onRootUpload(true)">
-                  <template #icon>
-                    <icon-font type="loncra-hard-drive-upload"/>
-                  </template>
-                </a-button>
-              </a-tooltip>
+              <template v-if="!props.readonly">
+                <a-tooltip :title="$t('attachment.upload.file')">
+                  <a-button @click="onRootUpload(false)">
+                    <template #icon>
+                      <icon-font type="loncra-upload"/>
+                    </template>
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip :title="$t('attachment.upload.directory')">
+                  <a-button @click="onRootUpload(true)">
+                    <template #icon>
+                      <icon-font type="loncra-hard-drive-upload"/>
+                    </template>
+                  </a-button>
+                </a-tooltip>
+              </template>
             </a-space-compact>
           </a-flex>
 
@@ -168,7 +170,7 @@ const {
                     >
                       {{getDisplayName(item)}}
                     </a-typography-text>
-                    <span class="relative inline-flex shrink-0 items-center justify-end" v-if="!item.readonly">
+                    <span class="relative inline-flex shrink-0 items-center justify-end" v-if="!item.readonly && !props.readonly">
                       <a-dropdown
                         :menu="createMenu(item)"
                       >
