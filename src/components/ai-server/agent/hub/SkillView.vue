@@ -104,7 +104,7 @@ onMounted(mounted)
     <template #contentRender>
       <a-spin :spinning="loading" class="size-full-spin">
         <a-flex vertical class="flex-[1_1_0] overflow-y-auto" gap="large" v-if="(dataSource.elements || []).length > 0">
-          <a-card :key="record.id" v-for="record of dataSource.elements || []" :title="record.name"
+          <a-card :key="record.id" v-for="record of dataSource.elements || []" :title="record.name + ' ' + record.latestVersion"
                   size="small">
             <template #extra>
               <a-button size="small" type="primary" disabled>
@@ -117,21 +117,16 @@ onMounted(mounted)
             <a-flex gap="middle" vertical class="w-full">
               <a-flex gap="middle" class="w-full">
                 <l-icon-select :mode="ICON_SELECT_MODE.AVATAR" preview v-model:value="record.icon"/>
-                <a-flex gap="middle" vertical class="w-full">
+                <a-flex gap="small" vertical class="w-full">
                   <a-flex justify="space-between" align="center">
                     <a-space wrap class="flex-1">
                       <a-tag :key="tag" v-for="tag of record.tags">
                         {{ tag }}
                       </a-tag>
                     </a-space>
-                    <a-space class="shrink-0" size="small">
-                      <a-typography-text v-if="record.latestVersion" type="secondary" class="text-xs">
-                        {{ record.latestVersion }}
-                      </a-typography-text>
-                      <a-typography-text type="secondary" class="text-xs">
-                        {{ globalProperties.$dayjs(record.creationTime).fromNow() }}
-                      </a-typography-text>
-                    </a-space>
+                    <a-typography-text type="secondary" class="text-xs">
+                      {{ globalProperties.$dayjs(record.creationTime).fromNow() }}
+                    </a-typography-text>
                   </a-flex>
                   <div class="max-h-30 w-full overflow-auto">
                     {{ record.summary }}

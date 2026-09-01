@@ -117,7 +117,7 @@ onMounted(mounted)
             <a-flex gap="middle" vertical class="w-full">
               <a-flex gap="middle" class="w-full">
                 <l-icon-select :mode="ICON_SELECT_MODE.AVATAR" preview v-model:value="record.icon"/>
-                <a-flex gap="middle" vertical class="w-full">
+                <a-flex gap="small" vertical class="w-full">
                   <a-flex justify="space-between" align="center">
                     <a-space wrap class="flex-1">
                       <a-tag :key="tag" v-for="tag of record.tags">
