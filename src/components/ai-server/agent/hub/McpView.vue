@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import {AiMcpPackageService, ResourceServerService} from "@/apis";
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
+import {AiMcpPackageService, AiUserPluginInstallService, ResourceServerService} from '@/apis'
+import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {
   DataDictionaryMetadata,
   McpPackageEntity,
   PageRequest,
   RestResult,
-  TotalPage
-} from "@/types/apis";
+  TotalPage,
+  UserPluginInstallResult,
+} from '@/types/apis'
 import {
   DATA_DICTIONARY_ALL_CODE,
   DATA_STATUS,
@@ -15,18 +16,36 @@ import {
   ICON_SELECT_MODE,
   MCP_GROUP_CODE_PREFIX,
   PACKAGE_TYPE,
-} from "@/constants";
-import {addAllDataDictionary, requireNonNullOrUndefined} from "@/utils";
-import LIconSelect from "@/components/basic/IconSelect.vue";
+  PLUGIN_TARGET_TYPE,
+} from '@/constants'
+import {addAllDataDictionary, requireNonNullOrUndefined} from '@/utils'
+import LIconSelect from '@/components/basic/IconSelect.vue'
+import LAgentHubPluginInstall from '@/components/ai-server/agent/hub/PluginInstallModal.vue'
+import useApp from 'antdv-next/dist/app/useApp'
 
 defineOptions({
   name: 'LAgentHubMcp',
 })
 
+const props = withDefaults(
+  defineProps<{
+    installs?: UserPluginInstallResult[]
+  }>(),
+  {
+    installs: () => [],
+  },
+)
+
+const emits = defineEmits<{
+  installed: [result: UserPluginInstallResult]
+  uninstalled: [id: number]
+}>()
+
 const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
   getCurrentInstance(),
 ).appContext.config.globalProperties
 
+const {modal, message} = useApp()
 const service = new AiMcpPackageService()
 
 const loading = ref<boolean>(false)
@@ -39,10 +58,20 @@ const dataSource = ref<TotalPage<McpPackageEntity>>({
 
 const groups = ref<DataDictionaryMetadata[]>([])
 const activeGroupCode = ref<string>()
+const installOpen = ref(false)
+const installPackage = ref<McpPackageEntity>()
+
+const installByPackageId = computed(() =>
+  AiUserPluginInstallService.mapInstallsByPackageId(props.installs, PLUGIN_TARGET_TYPE.MCP),
+)
+
+function isInstalled(record: McpPackageEntity) {
+  return record.id != null && installByPackageId.value.has(record.id)
+}
 
 function onTabChange(key: string) {
   activeGroupCode.value = key
-  loadData({number: 1, size: 10}) // 按分组筛时把 key 带进 filter
+  loadData({number: 1, size: 10})
 }
 
 function onChangePage(page: number, pageSize: number) {
@@ -50,6 +79,36 @@ function onChangePage(page: number, pageSize: number) {
     number: page,
     size: pageSize,
   })
+}
+
+function onInstall(record: McpPackageEntity) {
+  if (record.id == null) {
+    return
+  }
+  installPackage.value = record
+  installOpen.value = true
+}
+
+function onUninstall(record: McpPackageEntity) {
+  const install = record.id == null ? undefined : installByPackageId.value.get(record.id)
+  if (install?.id == null) {
+    return
+  }
+  modal.confirm({
+    title: globalProperties.$t('agent.hub.uninstall.confirmTitle'),
+    content: globalProperties.$t('agent.hub.uninstall.confirmSingle', {name: record.name}),
+    onOk: () => doUninstall(install.id as number),
+  })
+}
+
+async function doUninstall(id: number) {
+  const result: RestResult<void> = await AiUserPluginInstallService.uninstall(id)
+  message.success(result.message)
+  emits('uninstalled', id)
+}
+
+function onInstalled(result: UserPluginInstallResult) {
+  emits('installed', result)
 }
 
 async function loadData(request: PageRequest) {
@@ -75,7 +134,8 @@ async function loadData(request: PageRequest) {
 }
 
 async function mounted() {
-  const result: RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([MCP_GROUP_CODE_PREFIX])
+  const result: RestResult<Record<string, DataDictionaryMetadata[]>> =
+    await ResourceServerService.findDataDictionariesByCodes([MCP_GROUP_CODE_PREFIX])
   if (!result.data) {
     return
   }
@@ -87,7 +147,6 @@ async function mounted() {
 }
 
 onMounted(mounted)
-
 </script>
 
 <template>
@@ -107,11 +166,23 @@ onMounted(mounted)
           <a-card :key="record.id" v-for="record of dataSource.elements || []" :title="record.name"
                   size="small">
             <template #extra>
-              <a-button size="small" type="primary">
+              <a-button
+                v-if="isInstalled(record)"
+                danger
+                type="primary"
+                size="small"
+                @click="onUninstall(record)"
+              >
+                <template #icon>
+                  <icon-font type="loncra-trash-2"/>
+                </template>
+                {{ globalProperties.$t('agent.hub.uninstall.text') }}
+              </a-button>
+              <a-button v-else size="small" type="primary" @click="onInstall(record)">
                 <template #icon>
                   <icon-font type="loncra-download"/>
                 </template>
-                安装
+                {{ globalProperties.$t('agent.hub.install') }}
               </a-button>
             </template>
             <a-flex gap="middle" vertical class="w-full">
@@ -151,4 +222,11 @@ onMounted(mounted)
       </a-spin>
     </template>
   </a-tabs>
+  <l-agent-hub-plugin-install
+    v-model:open="installOpen"
+    :target-type="PLUGIN_TARGET_TYPE.MCP"
+    :package-id="installPackage?.id"
+    :package-name="installPackage?.name"
+    @installed="onInstalled"
+  />
 </template>

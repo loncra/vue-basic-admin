@@ -771,7 +771,23 @@ const locale: LanguagePack = {
       text:'Plugin Hub',
       mcp:'MCP',
       skill:'Skill',
+      myPlugin:'My plugins',
       install:'Install',
+      installTitle:'Install {name}',
+      uninstall:{
+        text:'Uninstall',
+        confirmTitle:'Uninstall',
+        confirmSingle:'Uninstall {name}?',
+      },
+      workspaceScope:{
+        text:'Scope',
+        all:'All workspaces',
+        specific:'Selected workspaces',
+      },
+      workspace:{
+        required:'Select at least one workspace',
+        empty:'No workspace yet',
+      },
     },
     workspace:{
       title:'Workspace',

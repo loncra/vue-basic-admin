@@ -767,7 +767,23 @@ const locale: LanguagePack = {
       text:'插件市场',
       mcp:'MCP 插件',
       skill:'技能插件',
+      myPlugin:'我的插件',
       install:'安装',
+      installTitle:'安装 {name}',
+      uninstall:{
+        text:'卸载',
+        confirmTitle:'卸载确认',
+        confirmSingle:'确定要卸载 {name} 吗？',
+      },
+      workspaceScope:{
+        text:'生效范围',
+        all:'全部工作空间',
+        specific:'指定工作空间',
+      },
+      workspace:{
+        required:'指定工作空间时至少选择一个工作空间',
+        empty:'暂无工作空间',
+      },
     },
     creation:'创建智能体',
     workspace:{

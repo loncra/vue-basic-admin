@@ -139,6 +139,18 @@ export const AGENT_CONVERSATION_TYPE = {
   WORKSPACE_CONVERSATION:30
 } as const
 
+/** 对齐后端 PluginTargetTypeEnum */
+export const PLUGIN_TARGET_TYPE = {
+  SKILL: 10,
+  MCP: 20,
+} as const
+
+/** 对齐后端 PluginInstallWorkspaceScopeEnum：USER=全部工作空间，ORG=指定工作空间 */
+export const PLUGIN_INSTALL_WORKSPACE_SCOPE = {
+  USER: 10,
+  ORG: 20,
+} as const
+
 export const AGENT_CHAT_STATUS = {
   READY:10,
   RUNNING:20,

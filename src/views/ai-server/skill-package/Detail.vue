@@ -4,8 +4,9 @@ import {AiSkillPackageService} from '@/apis/ai-server/aiSkillPackageService.ts'
 import {getEnumName, getEnumValue, getExecuteBadgeStatus, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {
-  GitSkillSourceMetadata, ManualSkillSourceMetadata, SkillPackageEntity,
-  SkillPackageSavePayload
+  GitSkillSourceMetadata,
+  ManualSkillSourceMetadata,
+  SkillPackageEntity
 } from '@/types/apis'
 import {
   ICON_SELECT_MODE,

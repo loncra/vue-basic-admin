@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import {AiSkillPackageService, ResourceServerService} from '@/apis'
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
+import {AiSkillPackageService, AiUserPluginInstallService, ResourceServerService} from '@/apis'
+import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {
   DataDictionaryMetadata,
   PageRequest,
   RestResult,
   SkillPackageEntity,
   TotalPage,
+  UserPluginInstallResult,
 } from '@/types/apis'
 import {
   DATA_DICTIONARY_ALL_CODE,
@@ -14,19 +15,37 @@ import {
   DEFAULT_PAGE_RESULT_VALUE,
   ICON_SELECT_MODE,
   PACKAGE_TYPE,
+  PLUGIN_TARGET_TYPE,
   SKILL_GROUP_CODE_PREFIX,
 } from '@/constants'
 import {addAllDataDictionary, requireNonNullOrUndefined} from '@/utils'
 import LIconSelect from '@/components/basic/IconSelect.vue'
+import LAgentHubPluginInstall from '@/components/ai-server/agent/hub/PluginInstallModal.vue'
+import useApp from 'antdv-next/dist/app/useApp'
 
 defineOptions({
   name: 'LAgentHubSkill',
 })
 
+const props = withDefaults(
+  defineProps<{
+    installs?: UserPluginInstallResult[]
+  }>(),
+  {
+    installs: () => [],
+  },
+)
+
+const emits = defineEmits<{
+  installed: [result: UserPluginInstallResult]
+  uninstalled: [id: number]
+}>()
+
 const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
   getCurrentInstance(),
 ).appContext.config.globalProperties
 
+const {modal, message} = useApp()
 const service = new AiSkillPackageService()
 
 const loading = ref<boolean>(false)
@@ -39,6 +58,16 @@ const dataSource = ref<TotalPage<SkillPackageEntity>>({
 
 const groups = ref<DataDictionaryMetadata[]>([])
 const activeGroupCode = ref<string>()
+const installOpen = ref(false)
+const installPackage = ref<SkillPackageEntity>()
+
+const installByPackageId = computed(() =>
+  AiUserPluginInstallService.mapInstallsByPackageId(props.installs, PLUGIN_TARGET_TYPE.SKILL),
+)
+
+function isInstalled(record: SkillPackageEntity) {
+  return record.id != null && installByPackageId.value.has(record.id)
+}
 
 function onTabChange(key: string) {
   activeGroupCode.value = key
@@ -50,6 +79,36 @@ function onChangePage(page: number, pageSize: number) {
     number: page,
     size: pageSize,
   })
+}
+
+function onInstall(record: SkillPackageEntity) {
+  if (record.id == null) {
+    return
+  }
+  installPackage.value = record
+  installOpen.value = true
+}
+
+function onUninstall(record: SkillPackageEntity) {
+  const install = record.id == null ? undefined : installByPackageId.value.get(record.id)
+  if (install?.id == null) {
+    return
+  }
+  modal.confirm({
+    title: globalProperties.$t('agent.hub.uninstall.confirmTitle'),
+    content: globalProperties.$t('agent.hub.uninstall.confirmSingle', {name: record.name}),
+    onOk: () => doUninstall(install.id as number),
+  })
+}
+
+async function doUninstall(id: number) {
+  const result: RestResult<void> = await AiUserPluginInstallService.uninstall(id)
+  message.success(result.message)
+  emits('uninstalled', id)
+}
+
+function onInstalled(result: UserPluginInstallResult) {
+  emits('installed', result)
 }
 
 async function loadData(request: PageRequest) {
@@ -107,7 +166,19 @@ onMounted(mounted)
           <a-card :key="record.id" v-for="record of dataSource.elements || []" :title="record.name + ' ' + record.latestVersion"
                   size="small">
             <template #extra>
-              <a-button size="small" type="primary" disabled>
+              <a-button
+                v-if="isInstalled(record)"
+                size="small"
+                danger
+                type="primary"
+                @click="onUninstall(record)"
+              >
+                <template #icon>
+                  <icon-font type="loncra-trash-2"/>
+                </template>
+                {{ globalProperties.$t('agent.hub.uninstall.text') }}
+              </a-button>
+              <a-button v-else size="small" type="primary" @click="onInstall(record)">
                 <template #icon>
                   <icon-font type="loncra-download"/>
                 </template>
@@ -151,4 +222,11 @@ onMounted(mounted)
       </a-spin>
     </template>
   </a-tabs>
+  <l-agent-hub-plugin-install
+    v-model:open="installOpen"
+    :target-type="PLUGIN_TARGET_TYPE.SKILL"
+    :package-id="installPackage?.id"
+    :package-name="installPackage?.name"
+    @installed="onInstalled"
+  />
 </template>
