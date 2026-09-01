@@ -3,6 +3,7 @@ import type {
   RestResult,
   SkillPackageEntity,
   SkillPackageSavePayload,
+  SkillPackageSnapshotPayload,
   TotalPage,
 } from '@/types/apis'
 import axios from '@/requests/http.ts'
@@ -49,5 +50,9 @@ export class AiSkillPackageService extends PageRestfulCrudService<
 
   reingest(ids: number[]): Promise<RestResult<void>> {
     return axios.post(AiSkillPackageService.REINGEST_ULR, formUrlEncoded({ids}))
+  }
+
+  snapshot(id: number, body: SkillPackageSnapshotPayload): Promise<RestResult<number>> {
+    return axios.post(AiSkillPackageService.SERVICE_URL + '/' + id + '/snapshot', body)
   }
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LCrudTable from '@/components/basic/crud/CrudTable.vue'
+import LForm from '@/components/Form.vue'
 import {
   type ComponentInternalInstance,
   computed,
@@ -30,6 +31,7 @@ import {
 import {
   DATA_RELEASE_STATUS,
   DATA_STATUS,
+  EXECUTE_STATUS_TYPE,
   EXECUTE_TYPE_RETRY_STATUS,
   ICON_SELECT_MODE,
   SKILL_GROUP_CODE_PREFIX,
@@ -205,6 +207,15 @@ const options = ref<{
 
 const table = ref()
 
+const snapshotOpen = ref(false)
+const snapshotSpinning = ref(false)
+const snapshotPackageId = ref<number>()
+const snapshotFormRef = ref()
+const snapshotForm = ref({
+  releaseVersion: '',
+  changelog: '',
+})
+
 const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
   return [
     {
@@ -246,9 +257,18 @@ const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
 const itemActionDefinitions = function (): ActionDefinition<SkillPackageSavePayload>[] {
   return [
     {
+      id: 'snapshot',
+      permission: SKILL_PACKAGE_AUTHORITY.SNAPSHOT,
+      enabled: (ctx) => getEnumValue(ctx.record!.executeStatus ?? 0) === EXECUTE_STATUS_TYPE.SUCCESS,
+      label: () => globalProperties.$t('aiServer.skillPackage.snapshot.text'),
+      icon: () => createIcon('loncra-package'),
+      run: (ctx) => openSnapshot(ctx.record!),
+    },
+    {
       id: 'release',
       permission: SKILL_PACKAGE_AUTHORITY.RELEASE,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
+      enabled: (ctx) =>
+        getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE && Boolean(ctx.record!.latestVersion),
       label: () => globalProperties.$t('common.release.text'),
       icon: () => createIcon('loncra-screen-share'),
       run: (ctx) => release([Number(ctx.record!.id)]),
@@ -273,7 +293,9 @@ const itemActionDefinitions = function (): ActionDefinition<SkillPackageSavePayl
 }
 
 function getReleaseSelectedEntities(selectedRows: SkillPackageSavePayload[]) {
-  return selectedRows.filter((e) => DATA_RELEASE_STATUS.includes(getEnumValue(e.status ?? 0)))
+  return selectedRows.filter(
+    (e) => DATA_RELEASE_STATUS.includes(getEnumValue(e.status ?? 0)) && Boolean(e.latestVersion),
+  )
 }
 
 function getReingestSelectedEntities(selectedRows: SkillPackageSavePayload[]) {
@@ -353,6 +375,39 @@ async function doReingest(ids: number[]) {
     table.value.fetchDataSource()
   } catch (e) {
     message.error(e instanceof Error ? e.message : String(e))
+  }
+}
+
+function openSnapshot(record: SkillPackageSavePayload) {
+  snapshotPackageId.value = Number(record.id)
+  snapshotForm.value = {
+    releaseVersion: '',
+    changelog: '',
+  }
+  snapshotOpen.value = true
+}
+
+function cancelSnapshot() {
+  snapshotFormRef.value?.resetFields?.()
+}
+
+async function onSnapshotOk() {
+  await snapshotFormRef.value?.validate()
+  const packageId = snapshotPackageId.value
+  if (!packageId || snapshotSpinning.value) {
+    return
+  }
+  snapshotSpinning.value = true
+  try {
+    const result: RestResult<number> = await service.snapshot(packageId, {
+      releaseVersion: snapshotForm.value.releaseVersion.trim(),
+      changelog: snapshotForm.value.changelog.trim() || undefined,
+    })
+    message.success(result.message)
+    snapshotOpen.value = false
+    table.value.fetchDataSource()
+  } finally {
+    snapshotSpinning.value = false
   }
 }
 
@@ -455,5 +510,39 @@ onMounted(mounted)
         </template>
       </template>
     </l-crud-table>
+    <a-modal
+      v-model:open="snapshotOpen"
+      :title="globalProperties.$t('aiServer.skillPackage.snapshot.title')"
+      :ok-text="globalProperties.$t('aiServer.skillPackage.snapshot.text')"
+      :confirm-loading="snapshotSpinning"
+      :mask-closable="false"
+      destroy-on-hidden
+      @ok="onSnapshotOk"
+      @cancel="cancelSnapshot"
+    >
+      <l-form id="snapshot-form" ref="snapshotFormRef" :model="snapshotForm" @finish="onSnapshotOk">
+        <a-form-item
+          name="releaseVersion"
+          :label="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersion')"
+          :rules="[{required: true}]"
+        >
+          <a-input
+            v-model:value="snapshotForm.releaseVersion"
+            :placeholder="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersionPlaceholder')"
+          />
+        </a-form-item>
+        <a-form-item
+          name="changelog"
+          :label="globalProperties.$t('aiServer.skillPackage.snapshot.changelog')"
+        >
+          <a-textarea
+            v-model:value="snapshotForm.changelog"
+            :rows="4"
+            show-count
+            :maxlength="512"
+          />
+        </a-form-item>
+      </l-form>
+    </a-modal>
   </div>
 </template>

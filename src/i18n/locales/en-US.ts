@@ -571,12 +571,20 @@ const locale: LanguagePack = {
           subTitle: 'Branch or tag (for example main, v1.2.0)'
         }
       },
+      automaticUpdateInterval:'Automatic update interval',
       reingest:{
         confirmSingle: 'Are you sure you want to ingest this record?',
         confirmBatch: 'Are you sure you want to ingest {count} record(s)?',
         confirmTitle: 'Confirm ingest',
         text: 'Ingest',
         selected: 'Ingest {count} record(s)'
+      },
+      snapshot:{
+        text: 'Pack',
+        title: 'Pack version',
+        releaseVersion: 'Version',
+        releaseVersionPlaceholder: 'e.g. 1.0.0',
+        changelog: 'Changelog',
       },
       assets: 'Assets',
       add:{

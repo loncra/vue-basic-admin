@@ -26,6 +26,7 @@ import {
   SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
+  TIME_UNIT_TYPE,
 } from '@/constants'
 import LIconSelect from '@/components/basic/IconSelect.vue'
 import type {IconfontJson} from '@/types/composables'
@@ -67,6 +68,7 @@ const options = ref<{
   typeOptions: NameValueEnumMetadata<number>[]
   updatePolicyOptions: NameValueEnumMetadata<number>[]
   sourceTypeOptions: NameValueEnumMetadata<number>[]
+  timeOptions:NameValueEnumMetadata<string>[]
   groupOptions: DataDictionaryMetadata[]
   icons: string[]
   iconOptions: IconfontJson[]
@@ -75,6 +77,7 @@ const options = ref<{
   entity: createEmptyEntity(),
   originOptions: [],
   typeOptions: [],
+  timeOptions:[],
   updatePolicyOptions: [],
   sourceTypeOptions: [],
   icons: ['/font_ai_icon/iconfont.json'],
@@ -113,6 +116,7 @@ async function preMounted() {
     await ResourceServerService.getServiceEnumerates({
       [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
         {id: SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM},
+        {id: SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM},
       ],
       [SYSTEM_MODULE_NAME.AI_SERVER]: [
         {id: SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM},
@@ -127,6 +131,7 @@ async function preMounted() {
     options.value.typeOptions = (aiServer[SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM] || []) as NameValueEnumMetadata<number>[]
     options.value.updatePolicyOptions = (resourceServer[SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM] || []) as NameValueEnumMetadata<number>[]
     options.value.sourceTypeOptions = (aiServer[SYSTEM_ENUM_TYPE.SKILL_SOURCE_TYPE_ENUM] || []) as NameValueEnumMetadata<number>[]
+    options.value.timeOptions = (resourceServer[SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM] || []) as NameValueEnumMetadata<string>[]
   }
   const result: RestResult<Record<string, DataDictionaryMetadata[]>> =
     await ResourceServerService.findDataDictionariesByCodes([SKILL_GROUP_CODE_PREFIX])
@@ -177,6 +182,15 @@ async function postSubmit(result:RestResult<number>) {
     }
   }
   return false
+}
+
+function onDefaultUpdatePolicyChange(value:number) {
+  if (value !== SKILL_UPDATE_POLICY.AUTOMATIC) {
+    return
+  }
+  if (!options.value.entity.metadata.updatePolicyTime) {
+    options.value.entity.metadata.updatePolicyTime = {value:1, unit:TIME_UNIT_TYPE.DAYS}
+  }
 }
 
 function onSourceTypeChange(value:number) {
@@ -290,13 +304,28 @@ function onSourceTypeChange(value:number) {
             :label="$t('aiServer.skillPackage.defaultUpdatePolicy')"
             :rules="[{required: true}]"
           >
-            <a-select
-              class="w-full"
-              :disabled="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL"
-              v-model:value="options.entity.defaultUpdatePolicy"
-              :options="options.updatePolicyOptions"
-              :field-names="{label: 'name'}"
-            />
+            <a-space-compact block>
+              <a-select
+                class="w-full"
+                :disabled="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL"
+                v-model:value="options.entity.defaultUpdatePolicy"
+                :options="options.updatePolicyOptions"
+                @change="onDefaultUpdatePolicyChange"
+                :field-names="{label: 'name'}"
+              />
+              <template v-if="options.entity.metadata.updatePolicyTime && getEnumValue(options.entity.defaultUpdatePolicy) === SKILL_UPDATE_POLICY.AUTOMATIC">
+                <a-space-addon>
+                  {{$t('aiServer.skillPackage.automaticUpdateInterval')}}
+                </a-space-addon>
+                <a-input-number class="w-60" v-model:value="options.entity.metadata.updatePolicyTime.value" :min="1" />
+                <a-select
+                  :options="options.timeOptions"
+                  class="w-auto"
+                  :field-names="{label: 'name'}"
+                  v-model:value="options.entity.metadata.updatePolicyTime.unit"
+                />
+              </template>
+            </a-space-compact>
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">

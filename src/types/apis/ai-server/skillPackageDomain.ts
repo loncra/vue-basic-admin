@@ -2,6 +2,7 @@ import type {
   BasicIdMetadata,
   DataDictionaryMetadata,
   NameValueEnumMetadata,
+  TimeProperties,
   VersionEntityMetadata,
 } from '@/types/apis'
 import {SKILL_SOURCE_TYPE} from "@/constants";
@@ -26,6 +27,7 @@ export interface GitSkillSourceMetadata extends SkillSourceMetadata{
 
 export interface SkillPackageMetadata {
   source:SkillSourceMetadata
+  updatePolicyTime?:TimeProperties
 }
 
 export interface SkillPackageSavePayload extends BasicIdMetadata<number>, VersionEntityMetadata {
@@ -47,4 +49,9 @@ export interface SkillPackageSavePayload extends BasicIdMetadata<number>, Versio
 }
 
 export interface SkillPackageEntity extends SkillPackageSavePayload {
+}
+
+export interface SkillPackageSnapshotPayload {
+  releaseVersion: string
+  changelog?: string
 }

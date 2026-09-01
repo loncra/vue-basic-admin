@@ -1,6 +1,8 @@
 import type {
-  CompleteMultipartUploadBody, CopyFileObject,
-  FileObject, MoveFileObject,
+  CompleteMultipartUploadBody,
+  CopyFileObject,
+  FileObject,
+  MoveFileObject,
   MultipartUploadInitData,
   MultipartUploadPartData,
   ObjectItemInfo,
@@ -113,8 +115,8 @@ export class AttachmentService {
     return axios.get(AttachmentService.BUCKETS_URL)
   }
 
-  static findAttachment(type:string, filename:string):Promise<RestResult<ObjectItemInfo[]>> {
-    let url = AttachmentService.FIND_ATTACHMENT_URL + "?type=" + type
+  static findAttachment(type:string, filename:string, recursive:boolean = false):Promise<RestResult<ObjectItemInfo[]>> {
+    let url = AttachmentService.FIND_ATTACHMENT_URL + "?type=" + type + "&recursive=" + recursive
     if (filename) {
       url += '&filename=' + filename
     }
@@ -134,7 +136,7 @@ export class AttachmentService {
     if (filename) {
       url += '&filename=' + filename
     }
-    url += '&formatObjectWriteResult=' + true
+    url += '&formatObjectWriteResult=' + true + '&recursive=' + true
     return axios.post(url)
   }
 
