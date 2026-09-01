@@ -1,6 +1,7 @@
 export * from './agentMessageDomain'
 export * from './agentConversationDomain'
 export * from './modelSettingDomain'
+export * from './pluginPackageDomain'
 export * from './mcpPackageDomain'
 export * from './skillPackageDomain'
 export * from './userPluginInstallDomain'

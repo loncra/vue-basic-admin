@@ -1,10 +1,5 @@
-import type {
-  BasicIdMetadata,
-  DataDictionaryMetadata,
-  NameValueEnumMetadata,
-  TimeProperties,
-  VersionEntityMetadata,
-} from '@/types/apis'
+import type {NameValueEnumMetadata, TimeProperties} from '@/types/apis'
+import type {PluginPackageMetadata} from './pluginPackageDomain'
 import {SKILL_SOURCE_TYPE} from "@/constants";
 
 
@@ -30,17 +25,7 @@ export interface SkillPackageMetadata {
   updatePolicyTime?:TimeProperties
 }
 
-export interface SkillPackageSavePayload extends BasicIdMetadata<number>, VersionEntityMetadata {
-  name: string
-  packageKey: string
-  summary?: string
-  tags?: string[]
-  additionalInformation?: string
-  origin: NameValueEnumMetadata<number> | number
-  status: NameValueEnumMetadata<number> | number
-  type: NameValueEnumMetadata<number> | number
-  icon: string
-  category?: DataDictionaryMetadata
+export interface SkillPackageSavePayload extends PluginPackageMetadata {
   latestVersion?: string
   defaultUpdatePolicy: NameValueEnumMetadata<number> | number
   sourceType?: NameValueEnumMetadata<number> | number

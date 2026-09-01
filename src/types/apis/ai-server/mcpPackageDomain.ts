@@ -1,10 +1,5 @@
-import type {
-  BasicIdMetadata,
-  DataDictionaryMetadata,
-  NameValueEnumMetadata,
-  TimeProperties,
-  VersionEntityMetadata,
-} from '@/types/apis'
+import type {NameValueEnumMetadata, TimeProperties} from '@/types/apis'
+import type {PluginPackageMetadata} from './pluginPackageDomain'
 import type {MCP_CLIENT_TYPE} from '@/constants'
 import type {KeyValueRow} from "@/types/composables";
 
@@ -69,20 +64,10 @@ export interface McpPackageMetadata {
   clarifyPolicies: McpClarifyToolPolicyMetadata[]
 }
 
-export interface McpPackageSavePayload extends BasicIdMetadata<number>, VersionEntityMetadata {
-  name: string
-  packageKey: string
-  summary?: string
-  tags?: string[]
-  additionalInformation?: string
+export interface McpPackageSavePayload extends PluginPackageMetadata {
   authMode: NameValueEnumMetadata<number> | number
-  origin: NameValueEnumMetadata<number> | number
-  status: NameValueEnumMetadata<number> | number
-  type: NameValueEnumMetadata<number> | number
   dynamicActivation: NameValueEnumMetadata<number> | number
   initializeTimeout: TimeProperties
-  icon:string
-  category?:DataDictionaryMetadata
   metadata: McpPackageMetadata
 }
 
