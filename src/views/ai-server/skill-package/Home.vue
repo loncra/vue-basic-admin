@@ -523,12 +523,12 @@ onMounted(mounted)
       <l-form id="snapshot-form" ref="snapshotFormRef" :model="snapshotForm" @finish="onSnapshotOk">
         <a-form-item
           name="releaseVersion"
-          :label="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersion')"
+          :label="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersion.text')"
           :rules="[{required: true}]"
         >
           <a-input
             v-model:value="snapshotForm.releaseVersion"
-            :placeholder="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersionPlaceholder')"
+            :placeholder="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersion.placeholder')"
           />
         </a-form-item>
         <a-form-item

@@ -578,8 +578,10 @@ const locale: LanguagePack = {
       snapshot:{
         text:'打包',
         title:'打包版本',
-        releaseVersion:'版本号',
-        releaseVersionPlaceholder:'如 1.0.0',
+        releaseVersion:{
+          text:'版本号',
+          placeholder:'如 1.0.0',
+        },
         changelog:'变更说明',
       },
       assets:'资源文件',

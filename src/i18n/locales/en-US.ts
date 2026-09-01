@@ -582,8 +582,10 @@ const locale: LanguagePack = {
       snapshot:{
         text: 'Pack',
         title: 'Pack version',
-        releaseVersion: 'Version',
-        releaseVersionPlaceholder: 'e.g. 1.0.0',
+        releaseVersion:{
+          text:'Version',
+          placeholder: 'e.g. 1.0.0',
+        },
         changelog: 'Changelog',
       },
       assets: 'Assets',
