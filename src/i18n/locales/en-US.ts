@@ -770,7 +770,8 @@ const locale: LanguagePack = {
     hub:{
       text:'Plugin Hub',
       mcp:'MCP',
-      skill:'Skill'
+      skill:'Skill',
+      install:'Install',
     },
     workspace:{
       title:'Workspace',

@@ -200,21 +200,31 @@ const columns = computed<SearchableColumnType[]>(() => [
 const options = ref<{
   selectedRows: SkillPackageEntity[]
   query: FilterRequest
+  snapshot:{
+    modalOpen:boolean
+    packageId?:number
+    spinning:boolean
+    form:{
+      releaseVersion:string
+      changelog:string
+    }
+  }
 }>({
   selectedRows: [],
   query: {},
+  snapshot:{
+    modalOpen:false,
+    spinning:false,
+    form:{
+      releaseVersion:'',
+      changelog:''
+    }
+  }
 })
 
 const table = ref()
 
-const snapshotOpen = ref(false)
-const snapshotSpinning = ref(false)
-const snapshotPackageId = ref<number>()
 const snapshotFormRef = ref()
-const snapshotForm = ref({
-  releaseVersion: '',
-  changelog: '',
-})
 
 const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
   return [
@@ -379,12 +389,12 @@ async function doReingest(ids: number[]) {
 }
 
 function openSnapshot(record: SkillPackageSavePayload) {
-  snapshotPackageId.value = Number(record.id)
-  snapshotForm.value = {
+  options.value.snapshot.packageId = Number(record.id)
+  options.value.snapshot.form = {
     releaseVersion: '',
     changelog: '',
   }
-  snapshotOpen.value = true
+  options.value.snapshot.modalOpen = true
 }
 
 function cancelSnapshot() {
@@ -393,21 +403,18 @@ function cancelSnapshot() {
 
 async function onSnapshotOk() {
   await snapshotFormRef.value?.validate()
-  const packageId = snapshotPackageId.value
-  if (!packageId || snapshotSpinning.value) {
+  const packageId = options.value.snapshot.packageId
+  if (!packageId || options.value.snapshot.spinning) {
     return
   }
-  snapshotSpinning.value = true
+  options.value.snapshot.spinning = true
   try {
-    const result: RestResult<number> = await service.snapshot(packageId, {
-      releaseVersion: snapshotForm.value.releaseVersion.trim(),
-      changelog: snapshotForm.value.changelog.trim() || undefined,
-    })
+    const result: RestResult<number> = await service.snapshot(packageId, options.value.snapshot.form)
     message.success(result.message)
-    snapshotOpen.value = false
+    options.value.snapshot.modalOpen = false
     table.value.fetchDataSource()
   } finally {
-    snapshotSpinning.value = false
+    options.value.snapshot.spinning = false
   }
 }
 
@@ -511,23 +518,23 @@ onMounted(mounted)
       </template>
     </l-crud-table>
     <a-modal
-      v-model:open="snapshotOpen"
+      v-model:open="options.snapshot.modalOpen"
       :title="globalProperties.$t('aiServer.skillPackage.snapshot.title')"
       :ok-text="globalProperties.$t('aiServer.skillPackage.snapshot.text')"
-      :confirm-loading="snapshotSpinning"
+      :confirm-loading="options.snapshot.spinning"
       :mask-closable="false"
       destroy-on-hidden
       @ok="onSnapshotOk"
       @cancel="cancelSnapshot"
     >
-      <l-form id="snapshot-form" ref="snapshotFormRef" :model="snapshotForm" @finish="onSnapshotOk">
+      <l-form id="snapshot-form" ref="snapshotFormRef" :model="options.snapshot.form" @finish="onSnapshotOk">
         <a-form-item
           name="releaseVersion"
           :label="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersion.text')"
           :rules="[{required: true}]"
         >
           <a-input
-            v-model:value="snapshotForm.releaseVersion"
+            v-model:value="options.snapshot.form.releaseVersion"
             :placeholder="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersion.placeholder')"
           />
         </a-form-item>
@@ -536,7 +543,7 @@ onMounted(mounted)
           :label="globalProperties.$t('aiServer.skillPackage.snapshot.changelog')"
         >
           <a-textarea
-            v-model:value="snapshotForm.changelog"
+            v-model:value="options.snapshot.form.changelog"
             :rows="4"
             show-count
             :maxlength="512"

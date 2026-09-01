@@ -48,6 +48,7 @@ function createEmptyEntity(): SkillPackageEntity {
     packageKey: '',
     summary: '',
     tags: [],
+    category: undefined as unknown as DataDictionaryMetadata,
     additionalInformation: '',
     origin: undefined as unknown as number,
     status: undefined as unknown as number,
@@ -86,29 +87,6 @@ const options = ref<{
 })
 
 const attachmentUpload = ref<AttachmentUploadExpose>()
-
-/*const gitUrl = computed({
-  get() {
-    const source = options.value.entity.metadata?.source
-    return typeof source?.url === 'string' ? source.url : ''
-  },
-  set(value: string) {
-    if (!options.value.entity.metadata) {
-      options.value.entity.metadata = {}
-    }
-    options.value.entity.metadata.source = {
-      ...(options.value.entity.metadata.source || {}),
-      url: value,
-    }
-  },
-})*/
-
-/*function postGetEntity(entity: SkillPackageEntity) {
-  if (!entity.metadata) {
-    entity.metadata.source = {type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
-  }
-  return entity
-}*/
 
 async function preMounted() {
   options.value.spinning = true
@@ -151,24 +129,6 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
   }
   return title
 }
-
-/*function preSubmit() {
-  const entity = options.value.entity
-  const sourceType = getEnumValue(entity.sourceType)
-  if (!entity.metadata) {
-    entity.metadata = {type:SKILL_SOURCE_TYPE.MANUAL}
-  }
-  if (sourceType === SKILL_SOURCE_TYPE.GIT) {
-    entity.metadata.source = {
-      type: 'GIT',
-      url: gitUrl.value.trim(),
-    }
-  } else if (sourceType === SKILL_SOURCE_TYPE.MANUAL) {
-    entity.metadata.source = {
-      type: 'MANUAL',
-    }
-  }
-}*/
 
 async function postSubmit(result:RestResult<number>) {
   options.value.entity.id = result.data

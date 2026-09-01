@@ -42,6 +42,7 @@ const entity = ref<McpPackageEntity>({
   origin: 0,
   status: 0,
   type: 0,
+  icon: "",
   dynamicActivation: YES_OR_NO_TYPE.NO,
   initializeTimeout: {
     value:0,
@@ -52,7 +53,7 @@ const entity = ref<McpPackageEntity>({
       type: MCP_CLIENT_TYPE.STREAMABLE_HTTP,
     },
     clarifyPolicies: [],
-  },
+  }
 })
 
 const configProviderStore = useConfigProviderStore()

@@ -766,7 +766,8 @@ const locale: LanguagePack = {
     hub:{
       text:'插件市场',
       mcp:'MCP 插件',
-      skill:'技能插件'
+      skill:'技能插件',
+      install:'安装',
     },
     creation:'创建智能体',
     workspace:{

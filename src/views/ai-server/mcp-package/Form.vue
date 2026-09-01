@@ -59,6 +59,7 @@ function createEmptyEntity(): McpPackageEntity {
     origin: undefined as unknown as number,
     status: undefined as unknown as number,
     type: undefined as unknown as number,
+    category:undefined as unknown as DataDictionaryMetadata,
     dynamicActivation: YES_OR_NO_TYPE.NO,
     icon:'',
     initializeTimeout: {

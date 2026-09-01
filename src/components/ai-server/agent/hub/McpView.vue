@@ -103,7 +103,7 @@ onMounted(mounted)
   >
     <template #contentRender>
       <a-spin :spinning="loading" class="size-full-spin">
-        <a-flex vertical class="flex-[1_1_0] overflow-y-auto" gap="large">
+        <a-flex vertical class="flex-[1_1_0] overflow-y-auto" gap="large" v-if="(dataSource.elements || []).length > 0">
           <a-card :key="record.id" v-for="record of dataSource.elements || []" :title="record.name"
                   size="small">
             <template #extra>
@@ -144,6 +144,9 @@ onMounted(mounted)
             :total="dataSource.totalCount"
             @change="onChangePage"
           />
+        </a-flex>
+        <a-flex v-else justify="center" align="center" class="size-full">
+          <a-empty />
         </a-flex>
       </a-spin>
     </template>
