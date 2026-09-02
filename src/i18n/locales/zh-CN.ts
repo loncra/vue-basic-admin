@@ -328,6 +328,7 @@ const locale: LanguagePack = {
       title: '页面内容已失效',
       subTitle: '找不到这条信息。若刚在别处删除过，请从列表重新进入。',
     },
+    global:'服务器异常，请稍后再试',
   },
   search:{
     text:'搜索',
@@ -377,8 +378,17 @@ const locale: LanguagePack = {
   auth: {
     title: '开箱即用的开发基础',
     subTitle: '通过配置式生成，快速构建企业级应用，让开发更高效、更专注',
-    welcomeTitle: '欢迎回来👋🏻',
-    welcomeSubTitle: '请输入您的账户信息，以开始使用系统。',
+    welcome:{
+      title: '欢迎回来👋🏻',
+      subTitle: '请输入您的账户信息，以开始使用系统。',
+      action: '登录',
+    },
+    register:{
+      action:'注册',
+      title: '创建个人账户🙋',
+      phoneSubtitle: '输入手机号码并完成短信验证，即可创建个人账户',
+      accountSubtitle: '设置登录账户和密码，即可创建个人账户',
+    },
     principal:'用户信息',
     account: '登录账户',
     password: '登录密码',
@@ -386,14 +396,13 @@ const locale: LanguagePack = {
     newPassword:'新密码',
     rememberMe: '记住我',
     forgotPassword: '忘记密码?',
-    login: '登录',
     log:'登录日志',
-    phoneLogin: '手机号码登录',
+    phoneLogin: '手机号码',
     qrCodeLogin: '扫码登录',
     accountLogin: '账户密码',
     noAccount: '没有账户？',
     createAccount: '创建账户',
-    reLogin:'重新登录',
+    reLogin:'返回登录',
     page:'用户登录'
   },
   workbench: {

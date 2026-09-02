@@ -3,7 +3,7 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import type {MenuItemType} from 'antdv-next'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {RESOURCE_TYPE} from "@/constants";
+import {AUTHENTICATION_TYPE, RESOURCE_TYPE} from "@/constants";
 import type {MenuInfo} from '@v-c/menu'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
@@ -35,7 +35,7 @@ const operateItems = ref<MenuItemType[]>([
 
 function onOperateClickItem(e: MenuInfo) {
   if (e.key === 'logout') {
-    globalProperties.$router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME})
+    globalProperties.$router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME, params:{authenticationType: (principalStore.state.type || AUTHENTICATION_TYPE.CONSOLE).toLowerCase()}})
   }
   const selected = operateItems.value.find(
     (menuItem) => menuItem != null && menuItem.type !== 'divider' && menuItem.key === e.key,

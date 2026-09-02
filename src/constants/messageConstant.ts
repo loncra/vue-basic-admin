@@ -75,12 +75,6 @@ export const SOCKET_EVENT_TYPE = {
   CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID:'chat_participant_refresh_by_room_id'
 } as const
 
-export const CAPTCHA_TOKEN_TYPE = {
-  SMS:'sms',
-  EMAIL:'email',
-  TIANAI:'tianai'
-}
-
 export const CHAT_EVERYONE_ID = 'EVERYONE'
 
 export const VIDEO_CHAT_CONSTRAINTS = {

@@ -10,15 +10,12 @@ import type {ObjectWriteResult} from "@/types/apis";
 /**
  * 账户认证类型
  */
-export type AuthenticationType = typeof AUTHENTICATION_TYPE.CONSOLE
+export type AuthenticationType = typeof AUTHENTICATION_TYPE[keyof typeof AUTHENTICATION_TYPE]
 
 /**
  * 登录方式类型
  */
-export type LoginType =
-  | typeof LOGIN_TYPE.USERNAME_PASSWORD
-  | typeof LOGIN_TYPE.PHONE_CAPTCHA
-  | typeof LOGIN_TYPE.QR_CODE
+export type LoginType = typeof LOGIN_TYPE[keyof typeof LOGIN_TYPE]
 
 /**
  * 登录信息
@@ -26,6 +23,7 @@ export type LoginType =
 export interface AuthCredentials {
   username: string
   password: string
+  confirmPassword?:string
   loginType: LoginType
   captchaType?: string
   [key: string]: unknown
@@ -52,6 +50,7 @@ export interface UserMetadata {
   phoneNumberVerified?: NameValueEnumMetadata<number>
   gender?: NameValueEnumMetadata<number>
   realName?: string
+  nickname?: string
   [key: string]: unknown
 }
 
@@ -97,7 +96,7 @@ export interface AuthenticationInfo {
   authenticated: boolean
   principal: Principal
   lastAuthenticationTime?: number
-  type: string
+  type: AuthenticationType
   name: string
   shortName: string
   grantedAuthorities: string[]
@@ -168,6 +167,7 @@ export interface PlatformUser extends BasicSystemUser, VersionEntityMetadata {
    * 真实姓名
    */
   realName?:string
+  nickname?:string
 
   avatar?:ObjectWriteResult
 }

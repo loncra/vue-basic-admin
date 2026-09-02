@@ -43,3 +43,9 @@ export const RESOURCE_SERVER_CAROUSEL_ROUTE = {
   EDIT: 'resource_server_carousel_edit',
   ADD: 'resource_server_carousel_add',
 } as const
+
+export const CAPTCHA_TOKEN_TYPE = {
+  SMS:'sms',
+  EMAIL:'email',
+  TIANAI:'tianai'
+}

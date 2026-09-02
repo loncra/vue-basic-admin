@@ -331,6 +331,7 @@ const locale: LanguagePack = {
       subTitle:
         'This record could not be found. It may have been deleted elsewhere. Please open it again from the list.',
     },
+    global:'The server is experiencing an issue. Please try again later',
   },
   search: {
     text: 'Search',
@@ -391,13 +392,14 @@ const locale: LanguagePack = {
     rememberMe: 'Remember me',
     forgotPassword: 'Forgot password?',
     login: 'Sign in',
+    register:'Sign up',
     log: 'Sign-in log',
-    phoneLogin: 'Sign in with phone',
+    phoneLogin: 'With phone',
     qrCodeLogin: 'QR code sign-in',
-    accountLogin: 'Sign in with account',
+    accountLogin: 'With account',
     noAccount: "Don't have an account?",
     createAccount: 'Create account',
-    reLogin: 'Sign in again',
+    reLogin: 'Return Sign in',
     page: 'Sign in',
   },
   workbench: {

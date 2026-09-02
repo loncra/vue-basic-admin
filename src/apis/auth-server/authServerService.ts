@@ -51,19 +51,19 @@ export class AuthServerService {
   }
 
   static resetPassword(
-    type:string,
-    userId:number,
+    type: string,
+    userId: number,
     newPassword: string,
     confirmPassword: string,
-    appendParams?:Record<string, unknown>
-  ):Promise<RestResult<void>> {
+    appendParams?: Record<string, unknown>
+  ): Promise<RestResult<void>> {
     return axios.post(AuthServerService.REST_PASSWORD_URL, {
       type,
       userId,
       newPassword,
       confirmPassword
     }, {
-      params:formUrlEncoded({...appendParams || {}})
+      params: formUrlEncoded({...appendParams || {}})
     })
   }
 
@@ -99,7 +99,7 @@ export class AuthServerService {
     idNameValueMetadata: boolean = true,
     desensitizeName: boolean = true
   ): Promise<RestResult<IdNameValueMetadata<PlatformUser[]>[]>> {
-    if (desensitizeName){
+    if (desensitizeName) {
       return axios.post(AuthServerService.SYSTEM_USERS_URL, formUrlEncoded({
         ...request,
         idNameValueMetadata
@@ -129,10 +129,10 @@ export class AuthServerService {
     })
   }
 
-  static getPrincipalNameByUserDetails(details:PlatformUser | UserMetadata, defaultValue:string = i18n.global.t('common.unname')):string {
+  static getPrincipalNameByUserDetails(details: PlatformUser | UserMetadata, defaultValue: string = i18n.global.t('common.unname')): string {
     if (!details) {
       return ''
     }
-    return String(details.realName || details.username || defaultValue)
+    return String(details.realName || details.nickname || details.username || defaultValue)
   }
 }

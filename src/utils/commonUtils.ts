@@ -361,12 +361,12 @@ export function booleanToYesOrNo(value: unknown): number | undefined {
   return undefined
 }
 
-export function validatePassword(newPassword:string, confirmPassword:string) {
+export function validatePassword(newPassword:string, confirmPassword:string, i18nKey:string='auth.newPassword') {
   if (confirmPassword !== newPassword) {
     const message = i18n.global.t(
       'error.notEq',
       {
-        target:i18n.global.t('auth.newPassword'),
+        target:i18n.global.t(i18nKey),
         source:i18n.global.t('common.confirmPassword')
       }
     )

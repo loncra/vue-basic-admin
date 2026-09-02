@@ -8,7 +8,6 @@ import type {
   RouteResourceMetadata
 } from '@/types/apis'
 import {AuthServerService} from '@/apis'
-import {isResultSuccess} from '@/requests'
 import {
   type RouteLocationNormalized,
   type RouteMeta,
@@ -132,9 +131,9 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
     }
     state.value.loading = true;
     const result:RestResult<ResourceEntity[]> = await AuthServerService.principalResources(types, mergeTree)
-    if (!isResultSuccess(result)) {
+    /*if (!isResultSuccess(result)) {
       return []
-    }
+    }*/
     const menu = result.data ?? []
     state.value.menu = menu
     state.value.loading = false

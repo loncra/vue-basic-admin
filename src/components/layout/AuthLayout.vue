@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import LAuthLayoutRight, {
-  type AuthLayoutRightProps,
-} from '@/components/layout/auth/LayoutRight.vue'
+import LAuthLayoutRight from '@/components/layout/auth/LayoutRight.vue'
 import LAuthLayoutLeft, {type AuthLayoutLeftProps} from '@/components/layout/auth/LayoutLeft.vue'
+import type {LogoProps} from "@/types/composables";
 
 defineOptions({
   name: 'LAuthLayout',
@@ -10,7 +9,7 @@ defineOptions({
 
 export interface AuthLayoutProp {
   left?: Partial<AuthLayoutLeftProps>
-  right?: Partial<AuthLayoutRightProps>
+  right?: Partial<LogoProps>
 }
 
 const props = withDefaults(defineProps<AuthLayoutProp>(), {
@@ -47,8 +46,6 @@ const props = withDefaults(defineProps<AuthLayoutProp>(), {
         class="h-full bg-container shadow-ter border-l border-l-border-secondary border-solid"
       >
         <l-auth-layout-right
-          :title="props.left.title || $t('auth.welcomeTitle')"
-          :sub-title="props.left.subTitle || $t('auth.welcomeSubTitle')"
           :logo="props.left.logo"
         />
       </a-col>

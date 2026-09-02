@@ -26,8 +26,8 @@ export const RESOURCE_TYPE = {
 export const AUTHENTICATION_TYPE = {
   /** 控制台/后台用户 */
   CONSOLE: 'CONSOLE',
-  /** 前台会员用户 */
-  MEMBER: 'MEMBER',
+  /** 前台个人用户 */
+  PERSONAL: 'PERSONAL',
 } as const
 
 /**
@@ -37,6 +37,8 @@ export const AUTHENTICATION_TYPE = {
 export const LOGIN_TYPE = {
   /** 用户名密码登录 */
   USERNAME_PASSWORD: 'USERNAME_PASSWORD',
+  /** 用户名密码注册后自动登录 */
+  USERNAME_PASSWORD_REGISTER: 'USERNAME_PASSWORD_REGISTER',
   /** 手机号登录 */
   PHONE_CAPTCHA: 'PHONE_CAPTCHA',
   /** 二维码登录 */

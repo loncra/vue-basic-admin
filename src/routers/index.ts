@@ -8,7 +8,7 @@ import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {PrepareData, ResourceEntity,} from "@/types/apis";
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
-import {RESOURCE_TYPE} from "@/constants";
+import {AUTHENTICATION_TYPE, RESOURCE_TYPE} from "@/constants";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@/utils'
@@ -139,7 +139,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     // 认证页面路由
-    path: '/' + import.meta.env.VITE_APP_AUTH_PAGE_NAME,
+    path: '/' + import.meta.env.VITE_APP_AUTH_PAGE_NAME + '/:authenticationType(console|personal)?',
     name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
     component: Auth
   },
@@ -374,7 +374,9 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
     sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME, to.fullPath)
     return {
       name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
-      query: {authenticationType: principalStore.state.type},
+      params: {
+        authenticationType:(principalStore.state.type || AUTHENTICATION_TYPE.CONSOLE).toLowerCase(),
+      },
     }
   }
 
