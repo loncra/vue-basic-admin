@@ -6,7 +6,7 @@ import type {
   VersionEntityMetadata
 } from '@/types/apis/common'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants'
-import type {ObjectWriteResult} from "@/types/apis";
+import type {ObjectWriteResult, PersonalEnterprise} from "@/types/apis";
 
 /**
  * 账户认证类型
@@ -80,7 +80,6 @@ export interface AccessToken {
 export interface Details {
   metadata: UserMetadata
   token?: AccessToken
-
   [key: string]: unknown
 }
 
@@ -103,7 +102,8 @@ export interface AuthenticationInfo {
   name: string
   shortName: string
   grantedAuthorities: string[]
-  rememberMe: boolean
+  rememberMe: boolean,
+  enterpriseDataSource:PersonalEnterprise[]
 }
 
 /**

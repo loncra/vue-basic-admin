@@ -44,7 +44,7 @@ export class EnterpriseService extends PageRestfulCrudService<
   }
 
   /** `POST /enterprise/switch`；`enterpriseId` 为空表示切回个人空间 */
-  switch(enterpriseId?: number | null): Promise<RestResult<number>> {
+  switch(enterpriseId?: number | null): Promise<RestResult<number | undefined>> {
     if (enterpriseId) {
       return axios.put(EnterpriseService.SWITCH_URL,formUrlEncoded({enterpriseId}))
     } else {

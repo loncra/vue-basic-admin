@@ -1,11 +1,12 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
-import {AuthServerService} from '@/apis'
+import {AuthServerService, EnterpriseService} from '@/apis'
 import {
   type AuthCredentials,
   type AuthenticationInfo,
   type AuthenticationType,
   type ObjectWriteResult,
+  type PersonalEnterprise,
   type PrepareData,
   type RestResult
 } from '@/types/apis'
@@ -46,10 +47,12 @@ const RESET: AuthenticationInfo = {
   type: 'CONSOLE',
   rememberMe: false,
   grantedAuthorities: [],
+  enterpriseDataSource:[]
 }
 
 export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   const state: Ref<AuthenticationInfo> = ref(RESET)
+  const enterpriseService = new EnterpriseService()
 
   /**
    * 检查是否有指定权限
@@ -132,6 +135,10 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return state.value.name === principal
   }
 
+  async function switchEnterprise(enterpriseId:number | null) {
+    return await enterpriseService.switch(enterpriseId);
+  }
+
   /**
    * 准备（初始化）应用数据
    */
@@ -152,6 +159,8 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     }
     localStorage.setItem(deviceIdName, deviceIdentified)
 
+    const enterpriseDataSource:RestResult<PersonalEnterprise[]> = await enterpriseService.my()
+    data.enterpriseDataSource = enterpriseDataSource.data || []
     setState(data)
 
     return data
@@ -213,6 +222,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     login,
     logout,
     prepare,
+    switchEnterprise,
     // 工具方法
     $reset,
     setState,

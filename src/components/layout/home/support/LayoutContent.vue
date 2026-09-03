@@ -3,6 +3,7 @@
 import {type RouteLocationNormalized, type RouteLocationNormalizedLoaded} from 'vue-router'
 import {
   type ComponentInternalInstance,
+  computed,
   getCurrentInstance,
   nextTick,
   onMounted,
@@ -12,11 +13,15 @@ import {
   watch
 } from 'vue'
 import type {MenuItemType} from 'antdv-next'
-import {createIcon, requireNonNullOrUndefined} from '@/utils'
+import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {
   APP_RELOAD_PROVIDE_KEY,
+  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
+  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
-  LAYOUT_PANE_TITLE_PROVIDE_KEY
+  LAYOUT_PANE_TITLE_PROVIDE_KEY,
+  OPERATION_DATA_TRACE_TABLE,
+  SWITCH_WORKSPACE_PROVIDE_KEY
 } from '@/constants'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {RouteResourceMetadata} from '@/types/apis'
@@ -24,6 +29,7 @@ import i18n from "@/i18n";
 import {getRouteTitle} from '@/routers'
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import LLayoutFooter from "@/components/layout/LayoutFooter.vue";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'LLayoutContent',
@@ -35,10 +41,12 @@ const globalProperties =
 
 const menuPrincipalStore = useMenuPrincipalStore()
 const messageServerStore = useMessageServerStore()
+const principalStore = usePrincipalStore()
 
 const activeKey = ref<string>('')
 const isRouterAlive = ref(true)
 const isFullscreen = ref(false)
+const switchingWorkspace = ref(false)
 const isFullscreenExiting = ref(false)
 const routeCacheVersions = ref<Record<string, number>>({})
 const panes = ref<RouteResourceMetadata[]>([])
@@ -60,14 +68,55 @@ const operateItems = ref<MenuItemType[]>([
   },
 ])
 
+provide(APP_RELOAD_PROVIDE_KEY, reload)
+provide(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, removePaneByPage)
+provide(LAYOUT_PANE_TITLE_PROVIDE_KEY, setPaneName)
+provide(SWITCH_WORKSPACE_PROVIDE_KEY, switchWorkspace)
+
+
+const switchItems = computed(()=>{
+  if (principalStore.state.enterpriseDataSource.length <= 0) {
+    return []
+  }
+  const result = []
+  result.push({
+    type:'group',
+    label:globalProperties.$t('systemSetting.enterprise.title'),
+    key:'enterprise',
+    icon:createIcon('loncra-building', 'align'),
+    children:principalStore
+      .state
+      .enterpriseDataSource
+      .map(item => ({data:item, label:item.name,key:String(item.id), menuType:OPERATION_DATA_TRACE_TABLE.ENTERPRISE}))
+  },{
+    type: 'divider',
+  },{
+    label:principalStore.getName(),
+    key:principalStore.state.name,
+    menuType:OPERATION_DATA_TRACE_TABLE.PERSONAL_USER
+  })
+  return result
+})
+
+async function switchWorkspace(item: { key:string }) {
+  try {
+    switchingWorkspace.value = true
+    if (item.key === principalStore.state.name) {
+      await principalStore.switchEnterprise(null)
+    } else {
+      await principalStore.switchEnterprise(Number(item.key))
+    }
+    await globalProperties.$router.push({name:import.meta.env.VITE_APP_HOME_ROUTE_PAGE_NAME})
+    location.reload()
+  } finally {
+    switchingWorkspace.value = false
+  }
+}
+
 function isRoutePageLoading(itemKey: string | number): boolean {
   const p = menuPrincipalStore.state.routeEnterPage
   return Boolean(p?.loading && String(itemKey) === p.fullPath)
 }
-
-provide(APP_RELOAD_PROVIDE_KEY, reload)
-provide(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, removePaneByPage)
-provide(LAYOUT_PANE_TITLE_PROVIDE_KEY, setPaneName)
 
 function setPaneName(fullPath: string, name: string) {
   const pane = panes.value.find((p) => p.path === fullPath)
@@ -442,6 +491,52 @@ onUnmounted(() => routeCacheVersions.value = {})
             </template>
             <template #leftExtra>
               <div class="mr-xs">
+                <a-dropdown @menu-click="switchWorkspace" :menu="{ items: switchItems, selectable: true, defaultSelectedKeys:[String(principalStore.state.details.metadata?.enterprise?.id || principalStore.state.name)] }" v-if="switchItems.length > 0" placement="bottomLeft" :arrow="{ pointAtCenter: true }">
+                  <a-button type="text" :loading="switchingWorkspace">
+                    <template #icon v-if="!switchingWorkspace">
+                      <icon-font :type="principalStore.state.details.metadata.enterprise ? 'loncra-building' : 'loncra-user'"/>
+                    </template>
+                    <template v-if="principalStore.state.details.metadata.enterprise">
+                      {{principalStore.state.details.metadata.enterprise.name}}
+                    </template>
+                    <template v-else>
+                      {{$t('auth.personalAccount')}}
+                    </template>
+                  </a-button>
+                  <template #labelRender="item">
+                    <template v-if="item.menuType === OPERATION_DATA_TRACE_TABLE.ENTERPRISE || item.menuType === OPERATION_DATA_TRACE_TABLE.PERSONAL_USER">
+                      <a-flex
+                        gap="small"
+                        align="center"
+                        v-if="item.menuType === OPERATION_DATA_TRACE_TABLE.ENTERPRISE"
+                      >
+                        <a-tag :color="AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR[Number(getEnumValue(item.data.role))] || 'purple'" variant="outlined">
+                          <template #icon>
+                            <icon-font :type="AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON[Number(getEnumValue(item.data.role))]"/>
+                          </template>
+                        </a-tag>
+                        <span>
+                          {{ item.label }}
+                        </span>
+                      </a-flex>
+                      <a-flex
+                        gap="small"
+                        align="center"
+                        v-else
+                      >
+                        <a-tag color="blue" variant="outlined">
+                          <template #icon>
+                            <icon-font type="loncra-user"/>
+                          </template>
+                          {{$t('auth.personalAccount')}}
+                        </a-tag>
+                        <span>
+                          {{ principalStore.getName()}}
+                        </span>
+                      </a-flex>
+                    </template>
+                  </template>
+                </a-dropdown>
                 <a-tooltip :title="globalProperties.$t('common.refresh')">
                   <a-button type="text" @click="reload">
                     <template #icon>

@@ -1,6 +1,7 @@
 export const APP_RELOAD_PROVIDE_KEY = 'reload'
 export const LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY = "closeContentTab"
 export const LAYOUT_PANE_TITLE_PROVIDE_KEY = "paneTitle"
+export const SWITCH_WORKSPACE_PROVIDE_KEY = "switchWorkspace"
 
 export const SYSTEM_CONSTANT = {
   ID_NAME: 'id'
@@ -156,5 +157,6 @@ export const OPERATION_DATA_TRACE_TABLE = {
   AI_MCP_PACKAGE: 'tb_ai_mcp_package',
   AI_SKILL_PACKAGE: 'tb_ai_skill_package',
   ENTERPRISE: 'tb_enterprise',
+  PERSONAL_USER: 'tb_personal_user',
 } as const
 

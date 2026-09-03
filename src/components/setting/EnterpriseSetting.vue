@@ -1,24 +1,24 @@
 <script setup lang="ts">
 
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from "vue";
 import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
   ICON_SELECT_AVATAR_MODE_VALUE,
   ICON_SELECT_MODE,
-  OPERATION_DATA_TRACE_TABLE
+  OPERATION_DATA_TRACE_TABLE,
+  SWITCH_WORKSPACE_PROVIDE_KEY
 } from "@/constants";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 import {EnterpriseService} from "@/apis";
-import type {EnterprisePayload, PersonalEnterprise, RestResult} from "@/types/apis";
+import type {EnterprisePayload, PersonalEnterprise} from "@/types/apis";
 import LIconSelect from "@/components/basic/IconSelect.vue";
 import type {IconfontJson} from "@/types/composables";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import useApp from "antdv-next/dist/app/useApp";
-import {isBusinessSuccess} from "@/requests";
 
 defineOptions({
   name: 'LEnterpriseSetting',
@@ -29,7 +29,9 @@ const globalProperties =
     .globalProperties
 
 const principalStore = usePrincipalStore()
-const {modal, message} = useApp()
+const {modal} = useApp()
+
+const switchWorkspace = inject<(item: {key:string}) => void>(SWITCH_WORKSPACE_PROVIDE_KEY)
 
 const options = ref<{
   modal:{
@@ -37,7 +39,6 @@ const options = ref<{
     form:EnterprisePayload
   }
   iconOptions: IconfontJson[]
-  dataSource:PersonalEnterprise[]
   loading:boolean
 }>({
   modal:{
@@ -45,7 +46,6 @@ const options = ref<{
     form:createDefaultEntity()
   },
   iconOptions:[],
-  dataSource:[],
   loading:false
 })
 
@@ -61,40 +61,12 @@ const service = new EnterpriseService()
 async function onSaveSuccess() {
   modalForm.value.cancel();
   options.value.modal.form = createDefaultEntity()
-  loadDataSource()
-}
-
-async function loadDataSource() {
-  options.value.loading = true
-  try {
-    await principalStore.prepare()
-    const result:RestResult<PersonalEnterprise[]> = await service.my()
-    options.value.dataSource = result.data || []
-  } finally {
-    options.value.loading = false
-  }
-}
-
-async function mounted() {
-  await loadDataSource()
+  location.reload()
 }
 
 function onEdit(item:PersonalEnterprise) {
   options.value.modal.form = {...item}
   options.value.modal.open = true
-}
-
-async function onSwitch(id:number | null) {
-  options.value.loading = true
-  try {
-    const result:RestResult<number> = await service.switch(id)
-    if (isBusinessSuccess(result)) {
-      message.success(result.message)
-      await loadDataSource()
-    }
-  } finally {
-    options.value.loading = false
-  }
 }
 
 function onLeave(item:PersonalEnterprise) {
@@ -118,13 +90,11 @@ async function doLeave(id:number) {
   options.value.loading = true
   try {
     await service.leave(id)
-    await loadDataSource()
+    await principalStore.prepare()
   } finally {
     options.value.loading = false
   }
 }
-
-onMounted(mounted)
 
 </script>
 
@@ -150,12 +120,12 @@ onMounted(mounted)
       <a-flex
         vertical
         gap="middle"
-        v-if="options.dataSource.length > 0"
+        v-if="principalStore.state.enterpriseDataSource.length > 0"
         class="rounded-lg p-sm border border-border-secondary"
       >
         <template
           :key="item.id"
-          v-for="item of options.dataSource"
+          v-for="item of principalStore.state.enterpriseDataSource"
         >
           <a-flex
             junstify="space-between"
@@ -195,7 +165,7 @@ onMounted(mounted)
               <a-button
                 v-else-if="principalStore.state.details.metadata?.enterprise?.id !== String(item.id)"
                 size="small"
-                @click.stop="onSwitch(Number(item.id))"
+                @click.stop="switchWorkspace?.({key:String(item.id)})"
               >
                 <template #icon>
                   <icon-font type="loncra-repeat"/>
@@ -248,7 +218,7 @@ onMounted(mounted)
             <a-button
               v-if="principalStore.state.details.metadata.enterprise !== undefined"
               size="small"
-              @click.stop="onSwitch(null)"
+              @click.stop="switchWorkspace?.({key:principalStore.state.name})"
             >
               <template #icon>
                 <icon-font type="loncra-repeat"/>
@@ -258,109 +228,6 @@ onMounted(mounted)
           </a-space>
         </a-flex>
       </a-flex>
-<!--      <a-collapse
-        expand-icon-placement="end"
-        :classes="{header:'items-center'}"
-        v-if="options.dataSource.length > 0"
-      >
-        <a-collapse-panel
-          :collapsible="principalStore.state.details.metadata?.enterprise?.id !== String(item.id) ? 'disabled' : undefined"
-          :key="item.id"
-          v-for="item of options.dataSource"
-        >
-          <template #header>
-            <a-flex gap="small" align="center">
-              <l-icon-select preview :value="item.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + item.name" />
-              <a-typography-text>{{ item.name }}</a-typography-text>
-              <a-tag :color="AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR[Number(getEnumValue(item.role))] || 'purple'" variant="outlined">
-                <template #icon>
-                  <icon-font :type="AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON[Number(getEnumValue(item.role))]"/>
-                </template>
-                {{getEnumName(item.role)}}
-              </a-tag>
-              <a-tag color="success" v-if="principalStore.state.details.metadata?.enterprise?.id === String(item.id)">
-                <template #icon>
-                  <icon-font type="loncra-user-round-check"/>
-                </template>
-                {{$t('common.current')}}
-              </a-tag>
-            </a-flex>
-          </template>
-          <template #extra>
-            <a-space>
-              <a-button
-                v-if="getEnumValue(item.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER && principalStore.state.details.metadata?.enterprise?.id === String(item.id)"
-                size="small"
-                @click.stop="onEdit(item)"
-              >
-                <template #icon>
-                  <icon-font type="loncra-file-pen-line"/>
-                </template>
-                {{ $t('common.edit') }}
-              </a-button>
-              <a-button
-                v-else-if="principalStore.state.details.metadata?.enterprise?.id !== String(item.id)"
-                size="small"
-                @click.stop="onSwitch(Number(item.id))"
-              >
-                <template #icon>
-                  <icon-font type="loncra-repeat"/>
-                </template>
-                {{ $t('systemSetting.enterprise.switch') }}
-              </a-button>
-              <a-button
-                size="small"
-                type="primary"
-                v-if="principalStore.state.details.metadata?.enterprise?.id === String(item.id)"
-                danger
-                @click.stop="onLeave(item)"
-              >
-                <template #icon>
-                  <icon-font type="loncra-log-out"/>
-                </template>
-                <template v-if="getEnumValue(item.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER">
-                  {{ $t('systemSetting.enterprise.disband.action') }}
-                </template>
-                <template v-else>
-                  {{ $t('systemSetting.enterprise.leave.action') }}
-                </template>
-              </a-button>
-            </a-space>
-          </template>
-        </a-collapse-panel>
-        <a-collapse-panel collapsible="disabled">
-          <template #header>
-            <a-flex gap="small" align="center">
-              <l-user-avatar :user="principalStore.state.details.metadata" />
-              <a-typography-text>{{ principalStore.getName()}}</a-typography-text>
-              <a-tag color="blue" variant="outlined">
-                <template #icon>
-                  <icon-font type="loncra-user"/>
-                </template>
-                {{$t('auth.personalAccount')}}
-              </a-tag>
-              <a-tag color="success" v-if="principalStore.state.details.metadata.enterprise === undefined">
-                <template #icon>
-                  <icon-font type="loncra-user-round-check"/>
-                </template>
-                {{$t('common.current')}}
-              </a-tag>
-            </a-flex>
-          </template>
-          <template #extra>
-            <a-button
-              v-if="principalStore.state.details.metadata.enterprise !== undefined"
-              size="small"
-              @click.stop="onSwitch(null)"
-            >
-              <template #icon>
-                <icon-font type="loncra-repeat"/>
-              </template>
-              {{ $t('systemSetting.enterprise.switch') }}
-            </a-button>
-          </template>
-        </a-collapse-panel>
-      </a-collapse>-->
       <a-empty v-else />
     </a-spin>
   </a-flex>
