@@ -1,5 +1,6 @@
 import type {
   BasicIdMetadata,
+  IdNameMetadata,
   NameValueEnumMetadata,
   TimeProperties,
   VersionEntityMetadata
@@ -51,6 +52,8 @@ export interface UserMetadata {
   gender?: NameValueEnumMetadata<number>
   realName?: string
   nickname?: string
+  tenantId:string
+  enterprise?:IdNameMetadata
   [key: string]: unknown
 }
 

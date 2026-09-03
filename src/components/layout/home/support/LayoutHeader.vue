@@ -5,13 +5,14 @@ import LMenu from '@/components/layout/Menu.vue'
 import {RESOURCE_TYPE} from "@/constants";
 import {onMounted} from "vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'LLayoutHeader',
 })
 
 const menuPrincipalStore = useMenuPrincipalStore()
-
+const principalStore = usePrincipalStore()
 const messageServerStore = useMessageServerStore()
 
 async function mounted(){
@@ -45,6 +46,17 @@ onMounted(mounted)
       </a-breadcrumb>
       <span />
       <a-space align="center">
+        <a-tag :color="principalStore.state.details.metadata.enterprise ? 'gold' : 'blue'" variant="outlined">
+          <template #icon>
+            <icon-font :type="principalStore.state.details.metadata.enterprise ? 'loncra-building' : 'loncra-user'"/>
+          </template>
+          <template v-if="principalStore.state.details.metadata.enterprise">
+            {{principalStore.state.details.metadata.enterprise.name}}
+          </template>
+          <template v-else>
+            {{$t('auth.personalAccount')}}
+          </template>
+        </a-tag>
         <l-menu
           :badges="['my_message']"
           :menu-types="[RESOURCE_TYPE.TOOL]"

@@ -172,7 +172,7 @@ onMounted(mounted)
     </div>
 
     <a-typography-title :level="4" class="text-center">
-      {{ principalStore.state.details?.metadata?.realName || principalStore.state?.name }}
+      {{ principalStore.getName() }}
     </a-typography-title>
     <a-spin :spinning="loading" >
       <l-form :model="form" ref="formRef" @finish="updatePassword">

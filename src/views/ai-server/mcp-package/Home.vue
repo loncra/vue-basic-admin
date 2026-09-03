@@ -28,7 +28,7 @@ import {
 } from '@/utils'
 import {
   DATA_STATUS,
-  ICON_SELECT_MODE,
+  ICON_SELECT_AVATAR_MODE_VALUE,
   MCP_GROUP_CODE_PREFIX,
   MCP_PACKAGE_AUTHORITY,
   MCP_PACKAGE_ROUTE,
@@ -361,7 +361,7 @@ onMounted(mounted)
       <template #bodyCell="{column, record}">
         <template v-if="column.dataIndex === 'name'">
           <a-space>
-            <l-icon-select :mode="ICON_SELECT_MODE.AVATAR" preview :value="record.icon"  />
+            <l-icon-select preview :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name"  />
             {{ record.name }}
           </a-space>
         </template>

@@ -12,36 +12,31 @@ const locale: LanguagePack = {
     id: 'ID',
     setting: 'Settings',
     me: 'Me',
+    noMore: 'No more data available',
     creationTime: 'Created at',
+    link: 'Link URL',
     ip: 'IP address',
-    noMore:'No more data available',
     system: 'System information',
     save: 'Save',
     add: 'Add {name}',
     edit: 'Edit {name}',
-    applet:'wechat',
     all: 'All {name}',
+    applet: 'Mini program',
+    used: 'Used',
     export: {
       all: 'Export all',
       selected: 'Export ({count}) record(s)',
     },
-    used:'Used',
-    link:'Link URL',
+    nextStep: 'Next step',
     detail: '{name} details',
     action: 'Actions',
     reset: 'Reset',
-    accept:'accept',
-    rejected:'rejected',
-    ignore:'ignore',
-    rename:'Rename',
-    icon: 'Icon',
-    refresh: 'Refresh',
-    copy:'Copy',
     read: {
       time: 'Read time',
       readable: 'Unread {count}',
       unreadable: 'Read {count}',
     },
+    rename: 'Rename',
     delete: {
       text: 'Delete',
       selected: 'Delete ({count}) record(s)',
@@ -58,10 +53,11 @@ const locale: LanguagePack = {
     content: 'Content',
     gender: 'Gender',
     remark: 'Remark',
-    unSupport:'Your browser does not support this operation',
+    unSupport: 'Your browser does not support this operation',
     realName: 'Full name',
     send: 'Send {name}',
     name: 'Name',
+    icon: 'Icon',
     enabled: 'Enabled',
     verified: 'Verified {name}',
     disabled: 'Disabled',
@@ -73,7 +69,9 @@ const locale: LanguagePack = {
     addChild: 'Add {name} child',
     avatar: 'Avatar',
     group: 'Group',
+    refresh: 'Refresh',
     open: 'On',
+    copy: 'Copy',
     close: 'Off',
     border: 'Border',
     size: 'Size',
@@ -89,6 +87,9 @@ const locale: LanguagePack = {
       parameter: 'Request parameters',
       body: 'Request body',
     },
+    accept: 'Accept',
+    rejected: 'Rejected',
+    ignore: 'Ignore',
     cover: 'Cover',
     sort: 'Sort order',
     value: 'Value',
@@ -124,28 +125,31 @@ const locale: LanguagePack = {
       confirmBatch: 'Are you sure you want to revoke {count} record(s)?',
     },
   },
-  captcha:{
-    text:'captcha',
-    sendTo:'The verification code has been sent to {target}. Please check your inbox',
-    countdown:'Can retry after s seconds',
-    resend:{
-      prompt:'Didn\'t get it?',
-      action:'Resend'
-    }
+  captcha: {
+    text: 'Verification code',
+    sendTo: 'The verification code has been sent to {type} {target}. Please check it.',
+    countdown: 'Can retry after s seconds',
+    resend: {
+      prompt: "Didn't get it?",
+      action: 'Resend',
+    },
   },
-  forgotPassword:{
-    title:'🔒Forgot password? ',
-    subSelectTypeTitle:'Choose email or phone number to retrieve, we will send instructions for resetting the password',
-    step:{
-      sendCaptcha:{
-        action:'Retrieve password',
-        subTitle:'Choose email or phone number to retrieve, and we will send instructions for resetting the password.',
+  forgotPassword: {
+    title: '🔒Forgot password?',
+    subSelectTypeTitle:
+      'Choose email or phone number to retrieve, we will send instructions for resetting the password',
+    step: {
+      sendCaptcha: {
+        action: 'Retrieve password',
+        subTitle:
+          'Choose email or phone number to retrieve, and we will send instructions for resetting the password.',
       },
-      backRestPassword:'Reset Password',
-      multiUsersSelected:{
-        subTitle:'The system has found multiple accounts under {type}: {target}. Please select the account that needs to retrieve the password.',
-        action:'Confirm'
-      }
+      backRestPassword: 'Reset password',
+      multiUsersSelected: {
+        subTitle:
+          'The system has found multiple accounts under {type}: {target}. Please select the account that needs to retrieve the password.',
+        action: 'Confirm',
+      },
     },
   },
   operation: {
@@ -267,6 +271,11 @@ const locale: LanguagePack = {
         subTitle: 'Text or link color on hover.',
       },
     },
+    enterprise: {
+      title: 'Enterprises',
+      creation: 'Add enterprise',
+      leave:'Leave'
+    },
     account: {
       avatar: {
         supportFormat: 'Only JPEG, PNG, JPG, and BMP images are supported',
@@ -278,6 +287,7 @@ const locale: LanguagePack = {
     tab: {
       accountSetting: 'Account settings',
       configProviderSetting: 'System settings',
+      enterpriseSetting: 'Enterprise management',
     },
   },
   form: {
@@ -294,24 +304,25 @@ const locale: LanguagePack = {
     errorMessage: 'Error message',
     code: 'Error code',
     field: 'Field information',
+    exists: {
+      filename: '{name} file already exists',
+    },
+    invalid: {
+      filename: 'Invalid file name format. A file extension is required.',
+    },
     unSupport: {
-      userMedia:'The current browser does not support user media access'
-    },
-    invalid:{
-      filename:'Invalid file name format. A file extension is required.'
-    },
-    exists:{
-      filename:'{name}file already exists'
+      userMedia: 'The current browser does not support user media access',
     },
     valid: {
       phoneNumber: 'Invalid phone number format',
-      password:'Password must include at least three of: uppercase letters, lowercase letters, digits, and symbols',
+      password:
+        'Password must include at least three of: uppercase letters, lowercase letters, digits, and symbols',
       fileOrFolderName: {
         empty: 'Name cannot be empty',
         reserved: 'Name cannot be . or ..',
         illegal: 'Name cannot contain / \\ < > " | ? * or control characters',
         tooLong: 'Name cannot exceed 255 characters',
-      }
+      },
     },
     notEq: '{target} does not match {source}',
     badRequest: {
@@ -331,7 +342,7 @@ const locale: LanguagePack = {
       subTitle:
         'This record could not be found. It may have been deleted elsewhere. Please open it again from the list.',
     },
-    global:'The server is experiencing an issue. Please try again later',
+    global: 'The server is experiencing an issue. Please try again later',
   },
   search: {
     text: 'Search',
@@ -342,27 +353,28 @@ const locale: LanguagePack = {
   },
   attachment: {
     text: 'Attachment',
-    upload:{
-      file:'Upload file',
-      directory:'Upload directory',
+    upload: {
+      file: 'Upload file',
+      directory: 'Upload directory',
     },
     uploading: 'Uploading{percent}',
     dragger: {
       title: 'Click or drag files to this area to upload',
       subTitle: 'Up to {maxCount} file(s); {count} uploaded',
     },
-    type:{
-      image:'image',
-      video:'video',
-      audio:'audio',
-      unknown:'file'
+    type: {
+      image: 'Image',
+      video: 'Video',
+      audio: 'Audio',
+      unknown: 'File',
     },
     fileEditor: {
-      locate:'Select opened file',
+      locate: 'Select opened file',
       unsupported: 'This file cannot be opened in the editor.',
       tooLarge: 'File is too large. Download it instead.',
-      unsavedConfirm: 'You have unsaved changes. Close this file anyway? Unsaved edits will be lost.',
-    }
+      unsavedConfirm:
+        'You have unsaved changes. Close this file anyway? Unsaved edits will be lost.',
+    },
   },
   layoutContent: {
     loading: 'Loading…',
@@ -382,8 +394,18 @@ const locale: LanguagePack = {
     title: 'Out-of-the-box development foundation',
     subTitle:
       'Build enterprise apps quickly through configuration—development stays efficient and focused.',
-    welcomeTitle: 'Welcome back 👋🏻',
-    welcomeSubTitle: 'Enter your account details to get started.',
+    welcome: {
+      title: 'Welcome back👋🏻',
+      subTitle: 'Please enter your account information to start using the system.',
+      action: 'Sign in',
+    },
+    register: {
+      action: 'Sign up',
+      title: 'Create personal account🙋',
+      phoneSubtitle:
+        'Enter your phone number and complete SMS verification to create a personal account',
+      accountSubtitle: 'Set your sign-in account and password to create a personal account',
+    },
     principal: 'User information',
     account: 'Sign-in account',
     password: 'Password',
@@ -391,15 +413,13 @@ const locale: LanguagePack = {
     newPassword: 'New password',
     rememberMe: 'Remember me',
     forgotPassword: 'Forgot password?',
-    login: 'Sign in',
-    register:'Sign up',
     log: 'Sign-in log',
-    phoneLogin: 'With phone',
+    phoneLogin: 'Phone number',
     qrCodeLogin: 'QR code sign-in',
-    accountLogin: 'With account',
+    accountLogin: 'Account password',
     noAccount: "Don't have an account?",
     createAccount: 'Create account',
-    reLogin: 'Return Sign in',
+    reLogin: 'Return to sign in',
     page: 'Sign in',
   },
   workbench: {
@@ -558,43 +578,43 @@ const locale: LanguagePack = {
       defaultUpdatePolicy: 'Update policy',
       sourceType: 'Source type',
       files: 'Skill files',
-      git:{
+      git: {
         url: 'Git URL',
-        path:{
+        path: {
           title: 'Skill path',
-          subTitle: 'Skill root inside the repo, relative to the repo root. Leave empty if the whole repo is this Skill.'
+          subTitle: 'Skill root inside the repo, relative to the repo root. Leave empty if the whole repo is this Skill.',
         },
-        sha:{
+        sha: {
           title: 'Commit SHA',
-          subTitle: 'Used to reproduce the snapshot and later check for new commits'
+          subTitle: 'Used to reproduce the snapshot and later check for new commits',
         },
-        ref:{
+        ref: {
           title: 'Git ref',
-          subTitle: 'Branch or tag (for example main, v1.2.0)'
-        }
+          subTitle: 'Branch or tag (for example main, v1.2.0)',
+        },
       },
-      automaticUpdateInterval:'Automatic update interval',
-      reingest:{
+      automaticUpdateInterval: 'Automatic update interval',
+      reingest: {
         confirmSingle: 'Are you sure you want to ingest this record?',
         confirmBatch: 'Are you sure you want to ingest {count} record(s)?',
         confirmTitle: 'Confirm ingest',
         text: 'Ingest',
-        selected: 'Ingest {count} record(s)'
+        selected: 'Ingest {count} record(s)',
       },
-      snapshot:{
+      snapshot: {
         text: 'Pack',
         title: 'Pack version',
-        releaseVersion:{
-          text:'Version',
+        releaseVersion: {
+          text: 'Version',
           placeholder: 'e.g. 1.0.0',
         },
         changelog: 'Changelog',
       },
       assets: 'Assets',
-      add:{
+      add: {
         file: 'Add file',
         folder: 'Add folder',
-      }
+      },
     },
   },
   messageServer: {
@@ -661,9 +681,9 @@ const locale: LanguagePack = {
         right: 'Align right',
       },
     },
-    systemUserPanel:{
-      selectedMember:'Selected Member'
-    }
+    systemUserPanel: {
+      selectedMember: 'Selected members',
+    },
   },
   chat: {
     emoji: {
@@ -678,31 +698,31 @@ const locale: LanguagePack = {
       flags: 'Flags',
     },
     call: {
-      video:{
-        action:'Video Call',
-        title: 'video call with {principal}'
+      video: {
+        action: 'Video call',
+        title: 'Video call with {user}',
       },
-      voice:{
-        action:'Voice Call',
-        title: 'voice call with {principal}'
+      voice: {
+        action: 'Voice call',
+        title: 'Voice call with {user}',
       },
-      invitation:'{user} invites you {type}',
-      closeCountdown:'The call has ended and will automatically close after s seconds',
-      reconnectTimeCountdown:'(The call will automatically end after s seconds)',
+      invitation: '{user} invites you {type}',
+      closeCountdown: 'The call has ended and will automatically close after s seconds',
+      reconnectTimeCountdown: '(The call will automatically end after s seconds)',
+    },
+    notification: {
+      mention: '{principal} mentioned you in the message',
     },
     conversation: {
       delete: 'Delete conversation',
-      newMessage:'There are {count} unread messages',
-      draft:'draft',
-      mention:'{count} mentioned you in the message'
+      newMessage: 'There are {count} unread messages',
+      draft: 'Draft',
+      mention: '{count} mentioned you in the message',
     },
+    everyone: 'Everyone',
     pinned: {
       action: 'Pin chat',
       cancel: 'Unpin chat',
-    },
-    everyone:'Everyone',
-    notification:{
-      mention:'{principal} mentioned you in the message'
     },
     muted: {
       action: 'Mute notifications',
@@ -710,15 +730,16 @@ const locale: LanguagePack = {
     },
     history: 'Chat history',
     view: {
-      reference:'reference',
-      reedit:'re-edit',
-      selfUndo:'You have undo this message',
-      undo:{
-        confirmTitle:'Undo Confirmation',
-        confirmContent:'Are you sure you want to undo this message?',
-        action:'undo',
-        messageValue: 'this message has been undo',
-        countdown: '(Irrevocable after s seconds)'
+      reference: 'Reference',
+      reedit: 'Re-edit',
+      selfUndo: 'You have undone this message',
+      undo: {
+        confirmTitle: 'Undo confirmation',
+        confirmContent: 'Are you sure you want to undo this message?',
+        action: 'Undo',
+        time: 'Undone at {time}',
+        messageValue: 'This message has been undone',
+        countdown: '(Cannot be undone after s seconds)',
       },
       placeholder: {
         exitRoom: 'You have left this group',
@@ -726,25 +747,25 @@ const locale: LanguagePack = {
         disbandRoom: 'This group has been disbanded',
         text: 'Type a message; paste files here to send attachments',
       },
-      readable:{
-        jumpTo:'Jump to the earliest unread message',
-        systemMessage:'The following are the earliest unread messages'
-      }
+      readable: {
+        jumpTo: 'Jump to the earliest unread message',
+        systemMessage: 'The following are the earliest unread messages',
+      },
     },
     roomView: {
       addParticipant: 'Start group chat',
       memberManager: 'Manage members',
-      histories:{
-        title:'Chat histories with {name}',
-        positioning:'Position until chat'
+      histories: {
+        title: 'Chat histories with {name}',
+        positioning: 'Locate to this chat position',
       },
       exitRoom: {
-        title: 'Withdrawal Confirmation',
+        title: 'Leave group confirmation',
         content: 'Are you sure you want to leave {name}?',
         action: 'Leave group',
       },
       disbandRoom: {
-        title: 'Dissolution Confirmation',
+        title: 'Disband group confirmation',
         content: 'Are you sure you want to disband {name}?',
         action: 'Disband group',
       },
@@ -752,7 +773,7 @@ const locale: LanguagePack = {
         changeMember: 'Set as member',
         changeCoOwner: 'Set as co-admin',
         removeMember: {
-          confirmTitle: 'Removal Member Confirmation',
+          confirmTitle: 'Remove members confirmation',
           content: 'Remove {count} selected member(s)?',
           action: 'Remove members',
         },
@@ -760,57 +781,57 @@ const locale: LanguagePack = {
     },
   },
   agent: {
+    token: {
+      text: 'Token',
+      input: 'Input tokens',
+      output: 'Output tokens',
+      cache: 'Cache hit',
+      cacheHitRate: 'Cache hit rate',
+      total: 'Token usage statistics',
+    },
+    hub: {
+      text: 'Plugin Hub',
+      mcp: 'MCP plugins',
+      skill: 'Skill plugins',
+      myPlugin: 'My plugins',
+      changelog: {
+        text: 'Changelog',
+      },
+      install: 'Install',
+      installTitle: 'Install {name}',
+      uninstall: {
+        text: 'Uninstall',
+        confirmTitle: 'Confirm uninstall',
+        confirmSingle: 'Are you sure you want to uninstall {name}?',
+      },
+      workspaceScope: {
+        text: 'Scope',
+        all: 'All workspaces',
+        specific: 'Selected workspaces',
+      },
+      workspace: {
+        required: 'Select at least one workspace',
+        empty: 'No workspace yet',
+      },
+    },
     creation: 'Create agent',
-    token:{
-      text:'text',
-      input:'input',
-      output:'output',
-      cache:'cache',
-      total:'total',
-      cacheHitRate:'cache hit rate',
+    workspace: {
+      title: 'Workspace',
+      createPlaceholder: 'Workspace name',
     },
-    hub:{
-      text:'Plugin Hub',
-      mcp:'MCP',
-      skill:'Skill',
-      myPlugin:'My plugins',
-      changelog:{
-        text:'Changelog',
+    think: 'Deep thinking',
+    toolCall: {
+      text: 'Tool call',
+      hitl: {
+        allow: 'Allow',
+        allowAll: 'Allow all',
+        reject: 'Reject',
+        rejectAll: 'Reject all',
       },
-      install:'Install',
-      installTitle:'Install {name}',
-      uninstall:{
-        text:'Uninstall',
-        confirmTitle:'Uninstall',
-        confirmSingle:'Uninstall {name}?',
-      },
-      workspaceScope:{
-        text:'Scope',
-        all:'All workspaces',
-        specific:'Selected workspaces',
-      },
-      workspace:{
-        required:'Select at least one workspace',
-        empty:'No workspace yet',
-      },
-    },
-    workspace:{
-      title:'Workspace',
-      createPlaceholder: 'workspace name',
-    },
-    think:'think',
-    toolCall:{
-      text:'Tool call',
-      hitl:{
-        allow:'allow',
-        allowAll:'allow all',
-        reject:'reject',
-        rejectAll:'reject all',
-      }
     },
     welcome: {
       title: 'Hello, I am Captain.J',
-      description: 'What do you need to do today?'
+      description: 'What do you need to do today?',
     },
     view: {
       placeholder: 'Ask the agent…',

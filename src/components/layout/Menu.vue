@@ -94,7 +94,7 @@ function labelRender(item: ResourceEntity) {
 }
 
 function iconRender(item: ResourceEntity) {
-  const icon = createIcon(item.icon || 'loncra-file')
+  const icon = createIcon(item.icon || 'loncra-file', 'align')
   let trigger = icon
   if (props.badges && props.badges.includes(item.code)) {
     const badge = resolveComponent('ABadge')

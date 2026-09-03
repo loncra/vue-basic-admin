@@ -41,18 +41,22 @@ const state = ref<{
     text: "",
   }
 })
-
-const avatarOptions = computed<{ label: VueNode | string; value: string }[]>(() => [{
-  label: globalProperties.$t("common.link"),
-  value: ICON_SELECT_AVATAR_MODE_VALUE.AVATAR
-},{
-  label: globalProperties.$t("common.icon"),
-  value: ICON_SELECT_AVATAR_MODE_VALUE.ICON
-},{
-  label: globalProperties.$t("common.name"),
-  value: ICON_SELECT_AVATAR_MODE_VALUE.INPUT
-}])
-
+const avatarOptions = computed<{ label: VueNode | string; value: string }[]>(() => {
+  const result =[{
+    label: globalProperties.$t("common.link"),
+    value: ICON_SELECT_AVATAR_MODE_VALUE.AVATAR
+  },{
+    label: globalProperties.$t("common.name"),
+    value: ICON_SELECT_AVATAR_MODE_VALUE.INPUT
+  }]
+  if (props.options.length > 0) {
+    result.push({
+      label: globalProperties.$t("common.icon"),
+        value: ICON_SELECT_AVATAR_MODE_VALUE.ICON
+    })
+  }
+  return result
+})
 
 const modelValue = defineModel("value", {type: String, default: ""})
 
@@ -141,11 +145,11 @@ watch(() => props.options, () => search(), {immediate: true})
 
 <template>
   <template v-if="preview">
-    <a-avatar v-if="state.avatarType === ICON_SELECT_AVATAR_MODE_VALUE.AVATAR  || props.mode === ICON_SELECT_MODE.AVATAR" :src="avatarPayload" />
-    <a-avatar v-else-if="state.avatarType === ICON_SELECT_AVATAR_MODE_VALUE.ICON || props.mode === ICON_SELECT_MODE.VIEW">
+    <a-avatar v-if="parseAvatarModel(modelValue).type === ICON_SELECT_AVATAR_MODE_VALUE.AVATAR" :src="avatarPayload" />
+    <a-avatar v-else-if="parseAvatarModel(modelValue).type === ICON_SELECT_AVATAR_MODE_VALUE.ICON">
       <icon-font :type="avatarPayload" />
     </a-avatar>
-    <a-avatar v-else-if="state.avatarType === ICON_SELECT_AVATAR_MODE_VALUE.INPUT || props.mode === ICON_SELECT_MODE.INPUT">
+    <a-avatar v-else-if="parseAvatarModel(modelValue).type === ICON_SELECT_AVATAR_MODE_VALUE.INPUT">
       {{ avatarPayload.substring(0, 1) }}
     </a-avatar>
   </template>

@@ -32,6 +32,7 @@ const RESET: AuthenticationInfo = {
         name: '否',
         value: 0,
       },
+      tenantId:'',
       realName: '未知',
     },
   },

@@ -9,7 +9,7 @@ import type {
   SkillPackageEntity
 } from '@/types/apis'
 import {
-  ICON_SELECT_MODE,
+  ICON_SELECT_AVATAR_MODE_VALUE,
   OPERATION_DATA_TRACE_TABLE,
   SKILL_PACKAGE_ROUTE,
   SKILL_SOURCE_TYPE,
@@ -83,7 +83,7 @@ function postGetEntity(record: SkillPackageEntity) {
         {{ entity.packageKey }}
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.icon')">
-        <l-icon-select :mode="ICON_SELECT_MODE.AVATAR" preview :value="entity.icon" />
+        <l-icon-select preview :value="entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name" />
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.group')">
         {{ entity.category?.name }}

@@ -165,22 +165,22 @@ onMounted(mounted)
         {{ dateTimeFormat(record.timestamp) }}
       </template>
       <template v-if="column.dataIndex === 'target'">
-        {{ record.data.operationTrace.target }}
+        {{ record.data?.operationTrace?.target }}
       </template>
       <template v-if="column.dataIndex === 'auditType'">
         {{ record.data.metadata.name }}
       </template>
       <template v-if="column.dataIndex === 'traceId'">
-        {{ record.data.operationTrace.id }}
+        {{ record.data?.operationTrace?.id }}
       </template>
       <template v-if="column.dataIndex === 'remark'">
-        {{ record.data.operationTrace.remark }}
+        {{ record.data?.operationTrace?.remark }}
       </template>
       <template v-if="column.dataIndex === 'principal'">
         {{ record.data?.details?.metadata?.realName || record.principal }}
       </template>
       <template v-if="column.dataIndex === 'type'">
-        {{ record.data.operationTrace.type.name }}
+        {{ record.data?.operationTrace?.type?.name }}
       </template>
     </template>
   </l-crud-table>

@@ -27,6 +27,7 @@ const locale: LanguagePack = {
       all: '导出全部',
       selected: '导出 ({count}) 条记录',
     },
+    current:'当前',
     nextStep:'下一步',
     detail: '{name}详情',
     action: '操作',
@@ -265,6 +266,22 @@ const locale: LanguagePack = {
         subTitle: '文本或链接在鼠标悬停时的颜色。',
       },
     },
+    enterprise: {
+      title:'企业列表',
+      creation:'新增企业',
+      edit:'编辑{name}企业',
+      leave:{
+        action:'离开',
+        title:'确定确认',
+        subTitle:'确定要离开{name}企业吗？'
+      },
+      disband:{
+        action:'解散',
+        title:'确定解散',
+        subTitle:'确定要解散{name}企业吗？解散后所属该企业的数据将无法恢复。'
+      },
+      switch:'切换'
+    },
     account:{
       avatar:{
         supportFormat:'仅支持上传 jpeg, png, jpg, bmp 的图片',
@@ -275,7 +292,8 @@ const locale: LanguagePack = {
     },
     tab:{
       accountSetting:'账户设置',
-      configProviderSetting:'系统设置'
+      configProviderSetting:'系统设置',
+      enterpriseSetting:'企业管理'
     }
   },
   form: {
@@ -389,6 +407,7 @@ const locale: LanguagePack = {
       phoneSubtitle: '输入手机号码并完成短信验证，即可创建个人账户',
       accountSubtitle: '设置登录账户和密码，即可创建个人账户',
     },
+    personalAccount:'个人账户',
     principal:'用户信息',
     account: '登录账户',
     password: '登录密码',

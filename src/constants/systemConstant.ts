@@ -155,5 +155,6 @@ export const OPERATION_DATA_TRACE_TABLE = {
   AI_MODEL_SETTING: 'tb_ai_model_setting',
   AI_MCP_PACKAGE: 'tb_ai_mcp_package',
   AI_SKILL_PACKAGE: 'tb_ai_skill_package',
+  ENTERPRISE: 'tb_enterprise',
 } as const
 

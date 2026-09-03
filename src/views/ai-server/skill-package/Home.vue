@@ -9,7 +9,7 @@ import {
   onMounted,
   ref,
 } from 'vue'
-import {Input, Select, Table} from 'antdv-next'
+import {Input, Select} from 'antdv-next'
 import type {
   DataDictionaryMetadata,
   EnumBucketsResponseBody,
@@ -33,7 +33,7 @@ import {
   DATA_STATUS,
   EXECUTE_STATUS_TYPE,
   EXECUTE_TYPE_RETRY_STATUS,
-  ICON_SELECT_MODE,
+  ICON_SELECT_AVATAR_MODE_VALUE,
   SKILL_GROUP_CODE_PREFIX,
   SKILL_PACKAGE_AUTHORITY,
   SKILL_PACKAGE_ROUTE,
@@ -509,7 +509,7 @@ onMounted(mounted)
       <template #bodyCell="{column, record}">
         <template v-if="column.dataIndex === 'name'">
           <a-space>
-            <l-icon-select :mode="ICON_SELECT_MODE.AVATAR" preview :value="record.icon" />
+            <l-icon-select preview :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
             {{ record.name }}
           </a-space>
         </template>

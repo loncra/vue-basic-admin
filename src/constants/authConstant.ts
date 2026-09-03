@@ -93,3 +93,22 @@ export const AUTH_SERVER_ROLE_ROUTE = {
   ADD: 'auth_server_role_add',
   DETAIL: 'auth_server_role_detail',
 } as const
+
+export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR:Record<number, string> = {
+  [10]: 'gold',
+  [20]: 'lime',
+  [30]: 'green',
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON:Record<number, string> = {
+  [10]: 'loncra-crown',
+  [20]: 'loncra-shield',
+  [30]: 'loncra-user-round',
+} as const
+
+
+export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE = {
+  OWNER: 10,
+  ADMIN: 20,
+  MEMBER: 30,
+} as const

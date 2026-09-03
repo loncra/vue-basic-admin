@@ -2,7 +2,6 @@
 import {AiUserPluginInstallService} from '@/apis'
 import LIconSelect from '@/components/basic/IconSelect.vue'
 import LAgentHubPluginInstall from '@/components/ai-server/agent/hub/PluginInstallModal.vue'
-import {ICON_SELECT_MODE} from '@/constants'
 import type {
   PluginPackageMetadata,
   RestResult,
@@ -12,6 +11,7 @@ import type {
 import {requireNonNullOrUndefined} from '@/utils'
 import useApp from 'antdv-next/dist/app/useApp'
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from 'vue'
+import {ICON_SELECT_AVATAR_MODE_VALUE} from "@/constants";
 
 defineOptions({
   name: 'LAgentHubPluginInfoCard',
@@ -118,7 +118,7 @@ function onChangePage(page: number, pageSize: number) {
       </template>
       <a-flex gap="middle" vertical class="w-full">
         <a-flex gap="middle" class="w-full">
-          <l-icon-select :mode="ICON_SELECT_MODE.AVATAR" preview v-model:value="record.icon" />
+          <l-icon-select preview :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
           <a-flex gap="small" vertical class="w-full">
             <a-flex justify="space-between" align="center">
               <a-space wrap class="flex-1">
