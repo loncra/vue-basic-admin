@@ -44,10 +44,10 @@ const entity = defineModel<TBody>("entity", {default: () => {}})
 const open = defineModel<boolean>("open", {default: false})
 
 const emit = defineEmits<{
-  (e: 'success', data: RestResult<TId>): void
-  (e: 'postGet', data: RestResult<TEntity>, entity:TBody): void
-  (e: 'resetFields'): void
-  (e: 'cancel'):void
+  success: [data: RestResult<TId>]
+  postGet: [data: RestResult<TEntity>, entity:TBody]
+  resetFields: []
+  cancel:[]
 }>()
 
 async function doSubmit() {

@@ -23,6 +23,7 @@ const locale: LanguagePack = {
     all: 'All {name}',
     applet: 'Mini program',
     used: 'Used',
+    current: 'Current',
     export: {
       all: 'Export all',
       selected: 'Export ({count}) record(s)',
@@ -274,7 +275,19 @@ const locale: LanguagePack = {
     enterprise: {
       title: 'Enterprises',
       creation: 'Add enterprise',
-      leave:'Leave'
+      edit: 'Edit {name}',
+      leave: {
+        action: 'Leave',
+        title: 'Confirm leave',
+        subTitle: 'Are you sure you want to leave {name}?',
+      },
+      disband: {
+        action: 'Disband',
+        title: 'Confirm disband',
+        subTitle:
+          'Are you sure you want to disband {name}? Data belonging to this enterprise cannot be recovered.',
+      },
+      switch: 'Switch',
     },
     account: {
       avatar: {
@@ -343,6 +356,13 @@ const locale: LanguagePack = {
         'This record could not be found. It may have been deleted elsewhere. Please open it again from the list.',
     },
     global: 'The server is experiencing an issue. Please try again later',
+    http: {
+      requestFailed: 'Request failed',
+      noResponseData: 'The server returned no [data] content',
+      networkError: 'Network request failed. Please check your connection',
+      requestFailedWithStatus: 'Request failed (HTTP {status})',
+      loginExpired: 'Your session has expired. Please sign in again',
+    },
   },
   search: {
     text: 'Search',
@@ -406,6 +426,7 @@ const locale: LanguagePack = {
         'Enter your phone number and complete SMS verification to create a personal account',
       accountSubtitle: 'Set your sign-in account and password to create a personal account',
     },
+    personalAccount: 'Personal account',
     principal: 'User information',
     account: 'Sign-in account',
     password: 'Password',
@@ -448,10 +469,29 @@ const locale: LanguagePack = {
     consoleUser: {
       routePage: 'Employees',
     },
+    personalUser: {
+      routePage: 'Personal users',
+      promoCode: 'Promo code',
+    },
     role: {
       routePage: 'Roles',
       removable: 'Can delete',
       modifiable: 'Can edit',
+    },
+    enterpriseRole: {
+      routePage: 'Enterprise roles',
+    },
+    enterpriseMember: {
+      routePage: 'Enterprise members',
+      invitation: 'Join status',
+      role: 'Member role',
+      principal: 'Principal',
+    },
+    enterprise: {
+      routePage: 'Enterprise',
+      ownerPrincipal: 'Owner principal',
+      disbandTime: 'Disband time',
+      tenantId: 'Tenant',
     },
   },
   resourceServer: {

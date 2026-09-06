@@ -4,9 +4,12 @@
  */
 export * from './authServerService.ts'
 export * from './consoleUserService.ts'
+export * from './personalUserService.ts'
 export * from './resourceService.ts'
 export * from './roleService.ts'
 export * from './enterpriseService.ts'
+export * from './enterpriseRoleService.ts'
+export * from './enterpriseMemberService.ts'
 export * from './authenticationAuditEventService.ts'
 export * from './operationDataTraceAuditEventService.ts'
 export * from './authServerService.ts'

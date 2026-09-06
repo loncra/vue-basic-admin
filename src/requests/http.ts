@@ -1,8 +1,10 @@
 import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig} from 'axios'
 import router from '@/routers'
 import {message} from 'antdv-next'
-import {HTTP} from '@/constants'
+import {AUTHENTICATION_TYPE, HTTP} from '@/constants'
 import {BusinessError, type RestResult} from '@/types/apis'
+import {usePrincipalStore} from "@/stores/principalStore.ts";
+import i18n from '@/i18n'
 
 /** 不弹出错误提示的 HTTP 状态码 */
 const ignoreErrorStatus: number[] = [404]
@@ -95,7 +97,7 @@ function responseInterceptor<T = unknown>(
   // 检查业务是否成功（检查 HTTP 状态码和业务状态码）
   if (!isBusinessSuccess(result)) {
     // 构造错误消息
-    const errorMsg = `[executeCode:${result.executeCode}] ${result.message || '请求失败'}`
+    const errorMsg = `[executeCode:${result.executeCode}] ${result.message || i18n.global.t('error.http.requestFailed')}`
 
     // 如果错误状态码不在忽略列表中，显示错误消息提示用户
     if (!ignoreErrorStatus.includes(response.status)) {
@@ -111,7 +113,7 @@ function responseInterceptor<T = unknown>(
     response.config.headers[import.meta.env.VITE_APP_HEADER_CHECK_SERVER_RESPONSE_DATA_NAME]
   if (checkData && checkDataValues.includes(checkData) && !isResultSuccess(result)) {
     return Promise.reject(
-      new BusinessError(result.executeCode, result.status, '服务器未响应 [data] 内容为'),
+      new BusinessError(result.executeCode, result.status, i18n.global.t('error.http.noResponseData')),
     )
   }
 
@@ -135,7 +137,7 @@ async function responseError<T = unknown>(
 
   // 处理无响应的情况（网络错误）
   if (!error.response) {
-    const errorMsg = '网络请求失败，请检查网络连接'
+    const errorMsg = i18n.global.t('error.http.networkError')
     message.error(errorMsg)
     return Promise.reject(new Error(errorMsg))
   }
@@ -149,13 +151,19 @@ async function responseError<T = unknown>(
 
   if (!serverMessage) {
     const statusStr = status.toString()
-    serverMessage = HTTP.ERROR_MESSAGES[statusStr] || `请求失败 (HTTP ${status})`
+    serverMessage = HTTP.ERROR_MESSAGES[statusStr] || i18n.global.t('error.http.requestFailedWithStatus', {status})
   }
 
   // 统一处理 401 未授权错误
   if (status === 401) {
-    message.error('登录已过期，请重新登录')
-    router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME}).catch(() => {})
+    const principalStore = usePrincipalStore()
+    message.error(i18n.global.t('error.http.loginExpired'))
+    router.push({
+      name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
+      params:{
+        authenticationType: (principalStore.state.type || AUTHENTICATION_TYPE.CONSOLE).toLowerCase()
+      }
+    })
     return Promise.reject(
       new BusinessError(result?.executeCode || '401', status, serverMessage, result?.data),
     )

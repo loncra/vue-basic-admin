@@ -27,6 +27,8 @@ export const SYSTEM_ENUM_TYPE = {
   SITE_MESSAGE_PUSHABLE_CHANNEL_ENUM: 'SiteMessagePushableChannelEnum',
   TIME_UNIT_ENUM: 'TimeUnitEnum',
   USER_STATUS: 'UserStatus',
+  ENTERPRISE_MEMBER_ROLE_ENUM: 'EnterpriseMemberRoleEnum',
+  ENTERPRISE_MEMBER_INVITATION_ENUM: 'EnterpriseMemberInvitationEnum',
   VALUE_TYPE_ENUM: 'ValueTypeEnum',
   YES_OR_NO: 'YesOrNo',
 } as const
@@ -280,10 +282,5 @@ export const MESSAGE_TYPE = {
 export const IMAGE_EXT = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico'])
 export const VIDEO_EXT = new Set(['mp4', 'webm', 'ogg', 'mov', 'm4v'])
 export const AUDIO_EXT = new Set(['mp3', 'wav', 'flac', 'm4a', 'aac'])
-export const TEXT_EXT = new Set([
-  'md', 'markdown', 'json', 'js', 'mjs', 'cjs', 'ts', 'tsx', 'jsx',
-  'vue', 'py', 'yml', 'yaml', 'sh', 'bash', 'html', 'htm', 'css',
-  'xml', 'txt', 'toml', 'ini', 'env', 'gitignore', 'sql', 'java',
-])
 
 export const TEXT_MAX_BYTES = 5 * 1024 * 1024

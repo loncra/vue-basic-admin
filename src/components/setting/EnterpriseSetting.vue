@@ -5,6 +5,7 @@ import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
+  AUTHENTICATION_TYPE,
   ICON_SELECT_AVATAR_MODE_VALUE,
   ICON_SELECT_MODE,
   OPERATION_DATA_TRACE_TABLE,
@@ -12,7 +13,7 @@ import {
 } from "@/constants";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 import {EnterpriseService} from "@/apis";
-import type {EnterprisePayload, PersonalEnterprise} from "@/types/apis";
+import type {EnterprisePayload, PersonalEnterprise, RestResult} from "@/types/apis";
 import LIconSelect from "@/components/basic/IconSelect.vue";
 import type {IconfontJson} from "@/types/composables";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
@@ -31,7 +32,7 @@ const globalProperties =
 const principalStore = usePrincipalStore()
 const {modal} = useApp()
 
-const switchWorkspace = inject<(item: {key:string}) => void>(SWITCH_WORKSPACE_PROVIDE_KEY)
+const switchWorkspace = inject<(id: number | undefined) => void>(SWITCH_WORKSPACE_PROVIDE_KEY)
 
 const options = ref<{
   modal:{
@@ -58,9 +59,13 @@ const modalForm = ref()
 
 const service = new EnterpriseService()
 
-async function onSaveSuccess() {
+function onSaveSuccess(data: RestResult<number | undefined>) {
   modalForm.value.cancel();
   options.value.modal.form = createDefaultEntity()
+  if (data.metadata?.accessToken) {
+    const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
+    localStorage.setItem(accessTokenStorageName, data.metadata.accessToken as string)
+  }
   location.reload()
 }
 
@@ -108,7 +113,7 @@ async function doLeave(id:number) {
       <a-typography-text strong>
         {{ $t('systemSetting.enterprise.title') }}
       </a-typography-text>
-      <a-button size="small" @click="options.modal.open = true">
+      <a-button v-if="principalStore.state.type === AUTHENTICATION_TYPE.PERSONAL" size="small" @click="options.modal.open = true">
         <template #icon>
           <icon-font class="icon" type="loncra-building" />
         </template>
@@ -144,7 +149,7 @@ async function doLeave(id:number) {
                 </template>
                 {{getEnumName(item.role)}}
               </a-tag>
-              <a-tag color="success" v-if="principalStore.state.details.metadata?.enterprise?.id === String(item.id)">
+              <a-tag color="success" v-if="principalStore.state.details.metadata.tenantId === item.tenantId">
                 <template #icon>
                   <icon-font type="loncra-user-round-check"/>
                 </template>
@@ -153,7 +158,7 @@ async function doLeave(id:number) {
             </a-flex>
             <a-space class="shrink-0">
               <a-button
-                v-if="getEnumValue(item.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER && principalStore.state.details.metadata?.enterprise?.id === String(item.id)"
+                v-if="getEnumValue(item.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER && principalStore.state.details.metadata.tenantId === item.tenantId"
                 size="small"
                 @click.stop="onEdit(item)"
               >
@@ -163,9 +168,9 @@ async function doLeave(id:number) {
                 {{ $t('common.edit') }}
               </a-button>
               <a-button
-                v-else-if="principalStore.state.details.metadata?.enterprise?.id !== String(item.id)"
+                v-else-if="principalStore.state.details.metadata.tenantId !== item.tenantId"
                 size="small"
-                @click.stop="switchWorkspace?.({key:String(item.id)})"
+                @click.stop="switchWorkspace?.(item.id)"
               >
                 <template #icon>
                   <icon-font type="loncra-repeat"/>
@@ -175,7 +180,7 @@ async function doLeave(id:number) {
               <a-button
                 size="small"
                 type="primary"
-                v-if="principalStore.state.details.metadata?.enterprise?.id === String(item.id)"
+                v-if="principalStore.state.details.metadata.tenantId === item.tenantId"
                 danger
                 @click.stop="onLeave(item)"
               >
@@ -206,7 +211,7 @@ async function doLeave(id:number) {
               </template>
               {{$t('auth.personalAccount')}}
             </a-tag>
-            <a-tag color="success" v-if="principalStore.state.details.metadata.enterprise === undefined">
+            <a-tag color="success" v-if="principalStore.state.type === AUTHENTICATION_TYPE.PERSONAL">
               <template #icon>
                 <icon-font type="loncra-user-round-check"/>
               </template>
@@ -216,9 +221,9 @@ async function doLeave(id:number) {
 
           <a-space class="shrink-0">
             <a-button
-              v-if="principalStore.state.details.metadata.enterprise !== undefined"
+              v-if="principalStore.state.type !== AUTHENTICATION_TYPE.PERSONAL"
               size="small"
-              @click.stop="switchWorkspace?.({key:principalStore.state.name})"
+              @click.stop="switchWorkspace?.(undefined)"
             >
               <template #icon>
                 <icon-font type="loncra-repeat"/>

@@ -13,9 +13,11 @@ import {ResourceServerService} from "@/apis";
 import type {
   EnumBucketsResponseBody,
   FilterRequest,
+  FindCurdService,
   NameValueEnumMetadata,
   RestResult,
-  RoleEntity
+  RoleEntity,
+  RoleSavePayload
 } from "@/types/apis";
 import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
@@ -24,6 +26,8 @@ import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {mergeDefinitions} from "@/composables/basic/action";
 import {
+  AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
   AUTH_SERVER_ROLE_AUTHORITY,
   AUTH_SERVER_ROLE_ROUTE,
   SYSTEM_ENUM_TYPE,
@@ -44,12 +48,17 @@ const props = withDefaults(defineProps<{
   query?:FilterRequest,
   rowSelection?:TableProps["rowSelection"]
   rowActions?: ActionDefinition<RoleEntity>[]
+  service?: FindCurdService<RoleSavePayload, RoleEntity>
+  authority?: typeof AUTH_SERVER_ROLE_AUTHORITY | typeof AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY
+  route?: typeof AUTH_SERVER_ROLE_ROUTE | typeof AUTH_SERVER_ENTERPRISE_ROLE_ROUTE
 }>(), {
   preview: false,
   rowSelection: () => ({fixed: true, type: 'checkbox'})
 })
 
-const service = new RoleService()
+const service = props.service ?? new RoleService()
+const tableAuthority = computed(() => props.authority ?? AUTH_SERVER_ROLE_AUTHORITY)
+const tableRoute = computed(() => props.route ?? AUTH_SERVER_ROLE_ROUTE)
 
 const actionButtons = ref<ActionDefinition<RoleEntity>[]>([])
 
@@ -146,16 +155,16 @@ async function mounted() {
     }
     applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM] || [])
   }
-  if (principalStore.hasPermission(AUTH_SERVER_ROLE_AUTHORITY.SAVE)) {
+  if (principalStore.hasPermission(tableAuthority.value.SAVE)) {
     actionButtons.value.push(
       {
         id: 'addChild',
-        permission: AUTH_SERVER_ROLE_AUTHORITY.SAVE,
+        permission: tableAuthority.value.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
-            globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.ADD_CHILD, query:{parentId:String(ctx.record.id)}})
+            globalProperties.$router.push({name:tableRoute.value.ADD_CHILD, query:{parentId:String(ctx.record.id)}})
           }
         },
       }
@@ -180,16 +189,16 @@ onMounted(mounted)
     :row-actions="mergeDefinitions(actionButtons, props.rowActions ?? [])"
     :record-actions="!props.preview"
     :authority="{
-      add:AUTH_SERVER_ROLE_AUTHORITY.SAVE,
-      edit:AUTH_SERVER_ROLE_AUTHORITY.SAVE,
-      detail:AUTH_SERVER_ROLE_AUTHORITY.GET,
-      delete:AUTH_SERVER_ROLE_AUTHORITY.DELETE
+      add:tableAuthority.SAVE,
+      edit:tableAuthority.SAVE,
+      detail:tableAuthority.GET,
+      delete:tableAuthority.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.rowSelection"
-    @add="globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.ADD})"
-    @detail="r => globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.DETAIL, query:{id:String(r.id)}})"
-    @edit="r => globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.EDIT, query:{id:String(r.id)}})"
+    @add="globalProperties.$router.push({name:tableRoute.ADD})"
+    @detail="r => globalProperties.$router.push({name:tableRoute.DETAIL, query:{id:String(r.id)}})"
+    @edit="r => globalProperties.$router.push({name:tableRoute.EDIT, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'sources'">

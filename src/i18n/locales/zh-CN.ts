@@ -347,6 +347,13 @@ const locale: LanguagePack = {
       subTitle: '找不到这条信息。若刚在别处删除过，请从列表重新进入。',
     },
     global:'服务器异常，请稍后再试',
+    http:{
+      requestFailed:'请求失败',
+      noResponseData:'服务器未响应 [data] 内容',
+      networkError:'网络请求失败，请检查网络连接',
+      requestFailedWithStatus:'请求失败 (HTTP {status})',
+      loginExpired:'登录已过期，请重新登录',
+    },
   },
   search:{
     text:'搜索',
@@ -450,11 +457,30 @@ const locale: LanguagePack = {
     consoleUser: {
       routePage:'员工'
     },
+    personalUser: {
+      routePage:'个人用户',
+      promoCode:'推荐码',
+    },
     role:{
       routePage:'角色',
       removable:'是否可删除',
       modifiable:'是否可修改'
-    }
+    },
+    enterpriseRole:{
+      routePage:'企业角色',
+    },
+    enterpriseMember:{
+      routePage:'企业成员',
+      invitation:'加入状态',
+      role:'成员角色',
+      principal:'认证主体',
+    },
+    enterprise:{
+      routePage:'企业',
+      ownerPrincipal:'企业主',
+      disbandTime:'解散时间',
+      tenantId:'租户',
+    },
   },
   resourceServer:{
     dataDictionary:{

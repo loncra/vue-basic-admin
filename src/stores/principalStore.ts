@@ -44,7 +44,7 @@ const RESET: AuthenticationInfo = {
   },
   name: '',
   shortName: '',
-  type: 'CONSOLE',
+  type: AUTHENTICATION_TYPE.CONSOLE,
   rememberMe: false,
   grantedAuthorities: [],
   enterpriseDataSource:[]
@@ -135,8 +135,13 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return state.value.name === principal
   }
 
-  async function switchEnterprise(enterpriseId:number | null) {
-    return await enterpriseService.switch(enterpriseId);
+  async function switchEnterprise(enterpriseId:number | undefined) {
+    const result = await enterpriseService.switch(enterpriseId);
+    if (result.data) {
+      const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
+      localStorage.setItem(accessTokenStorageName, result.data)
+    }
+    return result.data
   }
 
   /**
@@ -159,8 +164,10 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     }
     localStorage.setItem(deviceIdName, deviceIdentified)
 
-    const enterpriseDataSource:RestResult<PersonalEnterprise[]> = await enterpriseService.my()
-    data.enterpriseDataSource = enterpriseDataSource.data || []
+    if (data.type !== AUTHENTICATION_TYPE.CONSOLE) {
+      const enterpriseDataSource:RestResult<PersonalEnterprise[]> = await enterpriseService.my()
+      data.enterpriseDataSource = enterpriseDataSource.data || []
+    }
     setState(data)
 
     return data

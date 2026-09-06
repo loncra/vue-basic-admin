@@ -48,6 +48,7 @@ onMounted(mounted)
           :badges="['my_message']"
           :menu-types="[RESOURCE_TYPE.TOOL]"
           :hide-label="true"
+          icon-class="align"
           mode="horizontal"
         />
         <l-profile-button/>

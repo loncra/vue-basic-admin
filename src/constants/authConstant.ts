@@ -26,9 +26,13 @@ export const RESOURCE_TYPE = {
 export const AUTHENTICATION_TYPE = {
   /** 控制台/后台用户 */
   CONSOLE: 'CONSOLE',
-  /** 前台个人用户 */
+  /** 个人用户 */
   PERSONAL: 'PERSONAL',
+  /** 企业用户 */
+  ENTERPRISE:'ENTERPRISE',
 } as const
+
+export const AUTHENTICATION_MEMBER_TYPE:ReadonlyArray<string> = [AUTHENTICATION_TYPE.ENTERPRISE, AUTHENTICATION_TYPE.PERSONAL]
 
 /**
  * 登录方式常量
@@ -64,6 +68,33 @@ export const AUTH_SERVER_CONSOLE_USER_AUTHORITY = {
   EXPORT: 'perms[auth_server_console_user:export]',
 } as const
 
+export const AUTH_SERVER_PERSONAL_USER_AUTHORITY = {
+  PAGE: 'perms[auth_server_personal_user:page]',
+  GET: 'perms[auth_server_personal_user:get]',
+  EXPORT: 'perms[auth_server_personal_user:export]',
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY = {
+  PAGE: 'perms[auth_server_enterprise_member:page]',
+  GET: 'perms[auth_server_enterprise_member:get]',
+  SAVE: 'perms[auth_server_enterprise_member:save]',
+  DELETE: 'perms[auth_server_enterprise_member:delete]',
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE = {
+  HOME: 'auth_server_enterprise_member',
+  DETAIL: 'auth_server_enterprise_member_detail',
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_AUTHORITY = {
+  PAGE: 'perms[auth_server_enterprise:page]',
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_ROUTE = {
+  HOME: 'auth_server_enterprise',
+  DETAIL: 'auth_server_enterprise_detail',
+} as const
+
 export const AUTH_SERVER_AUDIT_EVENT_ROUTE = {
   AUTHENTICATION: 'auth_server_audit_event_authentication',
   OPERATION_DATA_TRACE: 'auth_server_audit_event_operation_data_trace',
@@ -76,6 +107,11 @@ export const AUTH_SERVER_CONSOLE_USER_ROUTE = {
   EDIT: 'auth_server_console_user_edit',
   ADD: 'auth_server_console_user_add',
   DETAIL: 'auth_server_console_user_detail',
+} as const
+
+export const AUTH_SERVER_PERSONAL_USER_ROUTE = {
+  HOME: 'auth_server_personal_user',
+  DETAIL: 'auth_server_personal_user_detail',
 } as const
 
 export const AUTH_SERVER_RESOURCE_ROUTE = {
@@ -94,6 +130,20 @@ export const AUTH_SERVER_ROLE_ROUTE = {
   DETAIL: 'auth_server_role_detail',
 } as const
 
+export const AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY = {
+  DELETE: 'perms[auth_server_enterprise_role:delete]',
+  GET: 'perms[auth_server_enterprise_role:get]',
+  SAVE: 'perms[auth_server_enterprise_role:save]',
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_ROLE_ROUTE = {
+  HOME: 'auth_server_enterprise_role',
+  ADD_CHILD: 'auth_server_enterprise_role_add_child',
+  EDIT: 'auth_server_enterprise_role_edit',
+  ADD: 'auth_server_enterprise_role_add',
+  DETAIL: 'auth_server_enterprise_role_detail',
+} as const
+
 export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR:Record<number, string> = {
   [10]: 'gold',
   [20]: 'lime',
@@ -106,9 +156,14 @@ export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON:Record<number, string> = {
   [30]: 'loncra-user-round',
 } as const
 
-
 export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE = {
   OWNER: 10,
   ADMIN: 20,
   MEMBER: 30,
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION = {
+  INVITED: 10,
+  ACTIVE: 20,
+  CANCEL: 30,
 } as const

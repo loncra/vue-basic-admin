@@ -14,6 +14,8 @@ export interface EnterprisePayload extends VersionEntityMetadata {
 export interface EnterpriseEntity extends EnterprisePayload {
   ownerPrincipal: string
   enabled: NameValueEnumMetadata<number> | number
+  tenantId: string
+  disbandTime?: number
 }
 
 /**
@@ -24,16 +26,4 @@ export interface EnterpriseEntity extends EnterprisePayload {
 export interface PersonalEnterprise extends EnterpriseEntity {
   role?: NameValueEnumMetadata<number> | number
   status?: NameValueEnumMetadata<number> | number
-}
-
-/**
- * 企业成员
- *
- * @author maurice.chen
- */
-export interface EnterpriseMemberEntity extends VersionEntityMetadata {
-  enterpriseId: number
-  principal: string
-  role: NameValueEnumMetadata<number> | number
-  status: NameValueEnumMetadata<number> | number
 }

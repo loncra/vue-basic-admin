@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance, ref, watch} from "vue";
-import {RoleService} from "@/apis/auth-server/roleService.ts";
+import {getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import {EnterpriseRoleService} from "@/apis/auth-server/enterpriseRoleService.ts";
 import type {RoleEntity} from "@/types/apis/auth-server/roleDomain";
-import {AUTH_SERVER_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
-import LResourceTable from "@/components/auth-server/ResourceTable.vue";
+import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
 
 defineOptions({
-  name: 'AuthServerRoleHome'
+  name: 'AuthServerEnterpriseRoleDetail'
 })
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const service = new RoleService()
+const service = new EnterpriseRoleService()
 const entity = ref<RoleEntity>({
   resourceIds: [],
   version: 0,
@@ -29,32 +28,13 @@ const entity = ref<RoleEntity>({
   id: 0
 })
 
-const resourceQuery = ref<Record<string,unknown>>({'filter_[enabled_eq]':'1', 'filter_[sources_jin]':[]})
-
-const resourceTableRef = ref()
-
-function postGetEntity(entity:RoleEntity) {
-  resourceQuery.value['filter_[sources_jin]'] = entity.sources.map(getEnumValue);
-  return entity
-}
-// 表格已挂载 且 实体已加载 → 刷新，两种就绪顺序都能覆盖
-watch(
-  [resourceTableRef, () => entity.value.id],
-  () => {
-    if (resourceTableRef.value && entity.value.id) {
-      resourceTableRef.value.fetchDataSource()
-    }
-  },
-  {immediate: true},
-)
 </script>
 
 <template>
   <div>
     <l-basic-detail
-      :post-get-entity="postGetEntity"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ROLE"
-      :redirect="{name:AUTH_SERVER_ROLE_ROUTE.HOME}"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_ROLE"
+      :redirect="{name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.HOME}"
       :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'"
       :service="service"
       :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"
@@ -85,25 +65,6 @@ watch(
       <a-descriptions-item :label="globalProperties.$t('common.remark')">
         {{ entity.remark || '' }}
       </a-descriptions-item>
-      <template #afterDescriptions>
-        <a-divider orientation="left" plain>
-          <a-space>
-            <icon-font class="icon" type="loncra-accessibility" />
-            {{ globalProperties.$t('authServer.standaloneResource') }}
-          </a-space>
-        </a-divider>
-
-        <l-resource-table
-          :immediate="false"
-          ref="resourceTableRef"
-          :drag="false"
-          preview
-          hide-title
-          :query="resourceQuery"
-          :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: entity.resourceIds}"
-        />
-      </template>
     </l-basic-detail>
-
   </div>
 </template>

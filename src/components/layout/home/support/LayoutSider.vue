@@ -3,12 +3,19 @@ import {useConfigProviderStore} from '@/stores/configProviderStore.js'
 import LLogo from '@/components/Logo.vue'
 import LMenu from '@/components/layout/Menu.vue'
 import {RESOURCE_TYPE} from "@/constants";
+import {ref} from "vue";
 
 defineOptions({
   name: 'LLayoutSider',
 })
 
 const configProviderStore = useConfigProviderStore()
+const logoRef = ref()
+
+defineExpose({
+  switchWorkspace:(id:number | undefined) => logoRef.value?.switchWorkspace(id)
+})
+
 </script>
 
 <template>
@@ -22,8 +29,8 @@ const configProviderStore = useConfigProviderStore()
   >
     <a-flex vertical class="h-full">
       <a-layout-header class="bg-container px-0 border-b border-b-border-secondary border-solid">
-        <a-flex align="center" class="h-full pr-lg pl-lg">
-          <l-logo :hide-text="configProviderStore.state.homeCollapsible"/>
+        <a-flex align="center" class="h-full pr-md pl-md">
+          <l-logo ref="logoRef" :hide-text="configProviderStore.state.homeCollapsible"/>
         </a-flex>
       </a-layout-header>
       <div class="h-full overflow-auto bg-container">

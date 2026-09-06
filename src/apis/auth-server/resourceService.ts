@@ -1,6 +1,7 @@
 import type {ResourceEntity, ResourceSavePayload, RestResult, TreeSortMetadata} from '@/types/apis'
 import {FindRestfulCrudService} from "@/apis/findRestfulCrudService.ts";
 import axios from "@/requests/http.ts";
+import {SYSTEM_CONSTANT} from "@/constants";
 
 /**
  * 资源领域服务：`/api[/auth-server]/resource`
@@ -17,7 +18,7 @@ export class ResourceService extends FindRestfulCrudService<ResourceSavePayload,
     super(ResourceService.SERVICE_URL)
   }
 
-  sort(sorts:TreeSortMetadata<number>[]):Promise<RestResult<void>> {
+  sort(sorts:TreeSortMetadata<ResourceEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[]):Promise<RestResult<void>> {
     return axios.put(ResourceService.SERVICE_SORT, sorts)
   }
 }

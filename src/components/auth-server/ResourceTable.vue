@@ -24,6 +24,7 @@ import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {
   AUTH_SERVER_RESOURCE_AUTHORITY,
   AUTH_SERVER_RESOURCE_ROUTE,
+  SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
@@ -203,7 +204,7 @@ function formatDragPreview(record: ResourceEntity) {
 }
 
 async function onTreeDrop(
-  sorts: TreeSortMetadata<number>[]
+  sorts: TreeSortMetadata<ResourceEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[]
 ) {
   const result: RestResult<void> = await service.sort(sorts)
   message.success(result.message)

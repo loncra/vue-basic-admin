@@ -32,7 +32,7 @@ const tabList = computed(()=> {
     },
   ]
 
-  if (principalStore.state.type === AUTHENTICATION_TYPE.PERSONAL) {
+  if (principalStore.state.type !== AUTHENTICATION_TYPE.CONSOLE) {
     result.push({
       key: 'enterpriseSetting',
       tab: globalProperties.$t('systemSetting.tab.enterpriseSetting'),

@@ -12,27 +12,27 @@ import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeT
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import {RoleService} from "@/apis/auth-server/roleService.ts";
+import {EnterpriseRoleService} from "@/apis/auth-server/enterpriseRoleService.ts";
 import type {FilterRequest} from "@/types/apis/common.js";
 import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
 import {
-  AUTH_SERVER_ROLE_ROUTE,
+  AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
 
 defineOptions({
-  name: 'AuthServerRoleForm'
+  name: 'AuthServerEnterpriseRoleForm'
 })
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const service = new RoleService()
+const service = new EnterpriseRoleService()
 
 const options = ref<{
   entity:RoleSavePayload
@@ -212,11 +212,11 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
   <div>
     <l-basic-form
       @resetFields="resetFields"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ROLE"
+      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_ROLE"
       :post-get-entity="postGetEntity"
       :pre-mounted="mounted"
       :title-text="setPageTitle"
-      :redirect="{name:AUTH_SERVER_ROLE_ROUTE.HOME}"
+      :redirect="{name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.HOME}"
       :service="service"
       v-model:entity="options.entity"
       :spinning="options.spinning"

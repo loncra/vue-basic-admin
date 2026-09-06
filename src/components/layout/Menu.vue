@@ -39,6 +39,7 @@ const props = withDefaults(defineProps<{
   menuTypes: string[]
   hideLabel?: boolean
   badges?:string[]
+  iconClass?:string,
   itemRender?:(item:ResourceEntity, node:VNode) => VNode
 }>(), {
   menuTypes: () => [],
@@ -94,7 +95,7 @@ function labelRender(item: ResourceEntity) {
 }
 
 function iconRender(item: ResourceEntity) {
-  const icon = createIcon(item.icon || 'loncra-file', 'align')
+  const icon = createIcon(item.icon || 'loncra-file', props.iconClass || '')
   let trigger = icon
   if (props.badges && props.badges.includes(item.code)) {
     const badge = resolveComponent('ABadge')
