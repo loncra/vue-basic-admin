@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {
+  EnterpriseRoleEntity,
+  EnterpriseRoleSavePayload,
   EnumBucketsResponseBody,
   NameValueEnumMetadata,
   ResourceEntity,
   RestResult,
-  RoleEntity,
-  RoleSavePayload
+  RoleEntity
 } from "@/types/apis";
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
-import {ResourceServerService} from "@/apis";
+import {ResourceServerService, ResourceService} from "@/apis";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import {EnterpriseRoleService} from "@/apis/auth-server/enterpriseRoleService.ts";
-import type {FilterRequest} from "@/types/apis/common.js";
-import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
 import {
@@ -33,24 +32,23 @@ const globalProperties =
     .globalProperties
 
 const service = new EnterpriseRoleService()
+const resourceService = new ResourceService()
 
 const options = ref<{
-  entity:RoleSavePayload
+  entity:EnterpriseRoleSavePayload
   modifiableOptions:NameValueEnumMetadata<number>[]
   enabledOptions:NameValueEnumMetadata<number>[]
   removableOptions:NameValueEnumMetadata<number>[]
   sourceOptions:NameValueEnumMetadata<string>[]
   spinning:boolean
   resourceDataSource:ResourceEntity[],
-  resourceQuery:FilterRequest,
-  parent?:RoleEntity
+  parent?:EnterpriseRoleEntity
 }>({
   spinning: false,
   entity: {
     id:null as unknown as number,
     version:null as unknown as number,
     enabled: 1,
-    sources: [],
     resourceIds: [],
     removable: 1,
     modifiable: 1,
@@ -63,27 +61,10 @@ const options = ref<{
   enabledOptions:[],
   removableOptions:[],
   sourceOptions:[],
-  resourceQuery:{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':[]},
   resourceDataSource:[]
 })
 
 const resourceTableRef = ref<InstanceType<typeof LResourceTable>>()
-
-type SourceChangeOption = { value: string; name: string }
-
-function toSourceSelectOptions(
-  sources: NameValueEnumMetadata<string>[] | string[] | undefined,
-): SourceChangeOption[] {
-  if (!sources?.length) {
-    return []
-  }
-  return sources.map((s) => ({
-    value: String(getEnumValue(s)),
-    name: isNameValueEnumMetadata(s)
-      ? s.name
-      : (options.value.sourceOptions.find((o) => String(getEnumValue(o)) === s)?.name ?? String(s)),
-  }))
-}
 
 async function mounted() {
 
@@ -100,25 +81,14 @@ async function mounted() {
       options.value.parent = result.data
 
       options.value.entity.parentId = options.value.parent?.id as number
-      options.value.entity.sources = options.value.parent?.sources as string[]
       options.value.entity.resourceIds = options.value.parent?.resourceIds as number[]
       options.value.entity.removable = options.value.parent?.removable as number
       options.value.entity.modifiable = options.value.parent?.modifiable as number
-      sourceChange('', toSourceSelectOptions(options.value.parent?.sources))
     }
   }
 }
 
-function sourceChange(_value: string, _options: SourceChangeOption[]) {
-  if (_options.length <= 0) {
-    resourceTableRef.value?.clearDataSource()
-    return;
-  }
-  options.value.resourceQuery['filter_[sources_jin]'] = _options.map((o) => o.value);
-  resourceTableRef.value?.fetchDataSource()
-}
-
-function setPageTitle(title:string, entity: RoleEntity | RoleSavePayload) {
+function setPageTitle(title:string, entity: EnterpriseRoleEntity | EnterpriseRoleSavePayload) {
   if (options.value.parent) {
     return title + ' (' + options.value.parent.name + ')'
   } else if (entity.id) {
@@ -127,15 +97,9 @@ function setPageTitle(title:string, entity: RoleEntity | RoleSavePayload) {
   return title
 }
 
-function postGetEntity(_entity: RoleEntity) {
-  options.value.resourceQuery['filter_[sources_jin]'] = _entity.sources.map(getEnumValue);
-  resourceTableRef.value?.fetchDataSource()
-  return _entity;
-}
-
 function resetFields() {
   options.value.entity.resourceIds = []
-}
+}``
 
 const onResourceChange: NonNullable<TableProps['rowSelection']>['onChange'] = (
   _selectedRowKeys,
@@ -206,6 +170,13 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
   return parentNode;
 }
 
+async function loadEnterpriseResource() {
+  const result:RestResult<ResourceEntity[]> = await resourceService.findEnterprise({})
+  options.value.resourceDataSource = result.data || []
+}
+
+onMounted(() => loadEnterpriseResource())
+
 </script>
 
 <template>
@@ -213,7 +184,6 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
     <l-basic-form
       @resetFields="resetFields"
       :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_ROLE"
-      :post-get-entity="postGetEntity"
       :pre-mounted="mounted"
       :title-text="setPageTitle"
       :redirect="{name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.HOME}"
@@ -233,22 +203,18 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
           </a-form-item>
         </a-col>
 
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="sources" :label="globalProperties.$t('authServer.source')" :rules="[{required: true, trigger: 'change', type: 'array'}]">
-            <a-select mode="multiple" v-model:value="options.entity.sources" :options="options.sourceOptions" :field-names="{label:'name'}" @change="sourceChange" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+
+        <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" :xxl="8">
           <a-form-item name="removable" :label="globalProperties.$t('authServer.role.removable')">
             <a-select v-model:value="options.entity.removable" :options="options.removableOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+        <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" :xxl="8">
           <a-form-item name="modifiable" :label="globalProperties.$t('authServer.role.modifiable')">
             <a-select v-model:value="options.entity.modifiable" :options="options.modifiableOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+        <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" :xxl="8">
           <a-form-item name="enabled" :label="globalProperties.$t('common.enabled')">
             <a-select v-model:value="options.entity.enabled" :options="options.enabledOptions" :field-names="{label:'name'}" />
           </a-form-item>
@@ -270,7 +236,6 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
         hide-title
         v-model:data-source="options.resourceDataSource"
         root-class="mb-md"
-        :query="options.resourceQuery"
         :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: options.entity.resourceIds, onSelect:onResourceSelect, onChange:onResourceChange}"
       />
 

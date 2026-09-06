@@ -5,7 +5,12 @@ import type {
   VersionEntityMetadata
 } from '@/types/apis/common'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants'
-import type {ObjectWriteResult, PersonalEnterprise} from "@/types/apis";
+import type {
+  EnterpriseRoleEntity,
+  ObjectWriteResult,
+  PersonalEnterprise,
+  RoleEntity
+} from "@/types/apis";
 
 /**
  * 账户认证类型
@@ -127,6 +132,13 @@ export interface BasicSystemUser extends BasicIdMetadata<number>{
   status: NameValueEnumMetadata<number> | number
 
 }
+
+export interface RoleAuthority extends BasicIdMetadata<number> {
+  name:string
+  authority:string
+}
+
+type RoleLike = RoleEntity | EnterpriseRoleEntity
 
 /**
  * 平台用户信息

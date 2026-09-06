@@ -42,7 +42,6 @@ const options = ref<{
   sourceOptions:NameValueEnumMetadata<string>[]
   spinning:boolean
   resourceDataSource:ResourceEntity[],
-  resourceQuery:FilterRequest,
   parent?:RoleEntity
 }>({
   spinning: false,

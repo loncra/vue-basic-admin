@@ -50,6 +50,7 @@ const rowActions: ActionDefinition<RoleEntity>[] = [
   <div>
     <l-role-table
       :service="service"
+      hide-sources
       :authority="AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY"
       :route="AUTH_SERVER_ENTERPRISE_ROLE_ROUTE"
       :row-actions="rowActions"

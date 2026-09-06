@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" >
 import {
   type ComponentInternalInstance,
   computed,
@@ -45,6 +45,7 @@ const principalStore = usePrincipalStore()
 
 const props = withDefaults(defineProps<{
   preview?: boolean
+  hideSources?:boolean
   query?:FilterRequest,
   rowSelection?:TableProps["rowSelection"]
   rowActions?: ActionDefinition<RoleEntity>[]
@@ -53,6 +54,7 @@ const props = withDefaults(defineProps<{
   route?: typeof AUTH_SERVER_ROLE_ROUTE | typeof AUTH_SERVER_ENTERPRISE_ROLE_ROUTE
 }>(), {
   preview: false,
+  hideSources:false,
   rowSelection: () => ({fixed: true, type: 'checkbox'})
 })
 
@@ -129,7 +131,7 @@ const dataSource = ref<RoleEntity[]>([])
 const yesOrNoFields = ["modifiable", "enabled", "removable"];
 
 async function mounted() {
-  if (!props.preview) {
+  if (!props.preview && !props.hideSources) {
     columns.value.splice(2, 0, {
       title: globalProperties.$t('authServer.source'),
       dataIndex: 'sources',

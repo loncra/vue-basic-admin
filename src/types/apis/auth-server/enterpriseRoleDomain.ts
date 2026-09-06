@@ -2,11 +2,11 @@ import type {NameValueEnumMetadata, VersionEntityMetadata,} from "@/types/apis/c
 import type {RoleAuthority} from "@/types/apis";
 
 /**
- * 角色保存请求体
+ * 企业角色保存请求体
  *
  * maurice.chen
  */
-export interface RoleSavePayload extends VersionEntityMetadata, RoleAuthority {
+export interface EnterpriseRoleSavePayload extends VersionEntityMetadata, RoleAuthority {
 
   /**
    * 是否禁用
@@ -14,15 +14,9 @@ export interface RoleSavePayload extends VersionEntityMetadata, RoleAuthority {
   enabled:NameValueEnumMetadata<number> | number
 
   /**
-   * 角色来源
-   */
-  sources:NameValueEnumMetadata<string>[] | string[]
-
-  /**
    * 资源 id 集合
    */
   resourceIds:number[]
-
 
   /**
    * 父类 id
@@ -46,12 +40,12 @@ export interface RoleSavePayload extends VersionEntityMetadata, RoleAuthority {
 }
 
 /**
- * 角色数据类型
+ * 企业角色数据类型
  * @author maurice.chen
  */
-export interface RoleEntity extends RoleSavePayload {
+export interface EnterpriseRoleEntity extends EnterpriseRoleSavePayload {
   /**
    * 子节点
    */
-  children:RoleEntity[];
+  children:EnterpriseRoleSavePayload[];
 }
