@@ -138,8 +138,6 @@ export interface RoleAuthority extends BasicIdMetadata<number> {
   authority:string
 }
 
-type RoleLike = RoleEntity | EnterpriseRoleEntity
-
 /**
  * 平台用户信息
  */
