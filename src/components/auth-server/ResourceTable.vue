@@ -87,7 +87,7 @@ const columns = computed<SearchableColumnType[]>(() => [
       props: {placeholder: globalProperties.$t('search.placeholder.select'), fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
       expression: 'eq',
     },
-  },
+  },/*
   {
     title: globalProperties.$t('authServer.source'),
     dataIndex: 'sources',
@@ -99,7 +99,7 @@ const columns = computed<SearchableColumnType[]>(() => [
       props:{mode:"multiple", placeholder: globalProperties.$t('search.placeholder.select'),fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
       expression:'jin'
     },
-  },
+  },*/
   {
     title: globalProperties.$t('authServer.resource.page'),
     dataIndex: 'page',

@@ -6,8 +6,7 @@ import type {
   EnumBucketsResponseBody,
   NameValueEnumMetadata,
   ResourceEntity,
-  RestResult,
-  RoleEntity
+  RestResult
 } from "@/types/apis";
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
@@ -76,7 +75,7 @@ async function mounted() {
     options.value.sourceOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM] as NameValueEnumMetadata<string>[]
   }
   if (globalProperties.$route.query.parentId) {
-    const result:RestResult<RoleEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)
+    const result:RestResult<EnterpriseRoleEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)
     if (result.data) {
       options.value.parent = result.data
 

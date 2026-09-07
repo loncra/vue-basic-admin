@@ -1,26 +1,17 @@
 <script setup lang="ts">
 
-import LRoleTable from "@/components/auth-server/RoleTable.vue";
-
 import type {TableProps} from "antdv-next";
 
 import {getEnumValue} from "@/utils";
 
-import type {RoleEntity} from '@/types/apis/auth-server/roleDomain';
-
 import type {ActionDefinition} from '@/types/composables';
-import {
-  AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY,
-  AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
-  YES_OR_NO_TYPE
-} from "@/constants";
-import {EnterpriseRoleService} from "@/apis/auth-server/enterpriseRoleService.ts";
+import {YES_OR_NO_TYPE} from "@/constants";
+import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
+import type {EnterpriseRoleEntity} from "@/types/apis";
 
 defineOptions({
   name: 'AuthServerEnterpriseRoleHome'
 })
-
-const service = new EnterpriseRoleService()
 
 const getCheckboxProps: NonNullable<TableProps['rowSelection']>['getCheckboxProps'] = (record) => ({
   disabled: getEnumValue(record.removable) === YES_OR_NO_TYPE.NO,
@@ -32,7 +23,7 @@ const rowSelection: NonNullable<TableProps['rowSelection']> = {
   getCheckboxProps,
 }
 
-const rowActions: ActionDefinition<RoleEntity>[] = [
+const rowActions: ActionDefinition<EnterpriseRoleEntity>[] = [
   {
     id: 'edit',
     visible: (ctx) => getEnumValue(ctx.record!.modifiable) !== YES_OR_NO_TYPE.NO,
@@ -48,11 +39,7 @@ const rowActions: ActionDefinition<RoleEntity>[] = [
 <template>
 
   <div>
-    <l-role-table
-      :service="service"
-      hide-sources
-      :authority="AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY"
-      :route="AUTH_SERVER_ENTERPRISE_ROLE_ROUTE"
+    <l-enterprise-role-table
       :row-actions="rowActions"
       :row-selection="rowSelection"
     />

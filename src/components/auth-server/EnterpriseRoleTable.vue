@@ -9,24 +9,27 @@ import {
 } from 'vue'
 import type {TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
-import {ResourceServerService} from "@/apis";
+import {EnterpriseRoleService, ResourceServerService} from "@/apis";
 import type {
+  EnterpriseRoleEntity,
   EnumBucketsResponseBody,
   FilterRequest,
   NameValueEnumMetadata,
-  RestResult,
-  RoleEntity
+  RestResult
 } from "@/types/apis";
 import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
-import {RoleService} from "@/apis/auth-server/roleService.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {mergeDefinitions} from "@/composables/basic/action";
-import {AUTH_SERVER_ROLE_AUTHORITY, AUTH_SERVER_ROLE_ROUTE, SYSTEM_MODULE_NAME} from "@/constants";
+import {
+  AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
+  SYSTEM_MODULE_NAME
+} from "@/constants";
 
 defineOptions({
-  name: 'LRoleTable',
+  name: 'LEnterpriseRoleTable',
 })
 
 const globalProperties =
@@ -38,15 +41,15 @@ const props = withDefaults(defineProps<{
   preview?: boolean
   query?:FilterRequest,
   rowSelection?:TableProps["rowSelection"]
-  rowActions?: ActionDefinition<RoleEntity>[]
+  rowActions?: ActionDefinition<EnterpriseRoleEntity>[]
 }>(), {
   preview: false,
   rowSelection: () => ({fixed: true, type: 'checkbox'})
 })
 
-const service = new RoleService()
+const service = new EnterpriseRoleService()
 
-const actionButtons = ref<ActionDefinition<RoleEntity>[]>([])
+const actionButtons = ref<ActionDefinition<EnterpriseRoleEntity>[]>([])
 
 const columns = computed<SearchableColumnType[]>(() => [
   {
@@ -111,46 +114,30 @@ const columns = computed<SearchableColumnType[]>(() => [
   },
 ])
 
-const dataSource = ref<RoleEntity[]>([])
+const dataSource = ref<EnterpriseRoleEntity[]>([])
 const yesOrNoFields = ["modifiable", "enabled", "removable"];
 
 async function mounted() {
-  if (!props.preview) {
-    columns.value.splice(2, 0, {
-      title: globalProperties.$t('authServer.source'),
-      dataIndex: 'sources',
-      width: 300,
-      ellipsis:true,
-      key: 'sources',
-      search:{
-        component: markRaw(Select),
-        props:{mode:"multiple", placeholder: globalProperties.$t('search.placeholder.select'),fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
-        expression:'jin'
-      },
-    });
-  }
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[
       {"id":"YesOrNo"},
-      {"id":"ResourceSourceEnum"}
     ]
   })
   if (enums.data) {
     for (const dataIndex of yesOrNoFields){
       applyColumnOptions(columns.value, dataIndex, enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.YesOrNo || [])
     }
-    applyColumnOptions(columns.value, "sources", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.ResourceSourceEnum || [])
   }
-  if (principalStore.hasPermission(AUTH_SERVER_ROLE_AUTHORITY.SAVE)) {
+  if (principalStore.hasPermission(AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.SAVE)) {
     actionButtons.value.push(
       {
         id: 'addChild',
-        permission: AUTH_SERVER_ROLE_AUTHORITY.SAVE,
+        permission: AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
         icon: () => createIcon('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
-            globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.ADD_CHILD, query:{parentId:String(ctx.record.id)}})
+            globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.ADD_CHILD, query:{parentId:String(ctx.record.id)}})
           }
         },
       }
@@ -175,16 +162,16 @@ onMounted(mounted)
     :row-actions="mergeDefinitions(actionButtons, props.rowActions ?? [])"
     :record-actions="!props.preview"
     :authority="{
-      add:AUTH_SERVER_ROLE_AUTHORITY.SAVE,
-      edit:AUTH_SERVER_ROLE_AUTHORITY.SAVE,
-      detail:AUTH_SERVER_ROLE_AUTHORITY.GET,
-      delete:AUTH_SERVER_ROLE_AUTHORITY.DELETE
+      add:AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.SAVE,
+      edit:AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.SAVE,
+      detail:AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.GET,
+      delete:AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content'}"
     :row-selection="props.rowSelection"
-    @add="globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.ADD})"
-    @detail="r => globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.DETAIL, query:{id:String(r.id)}})"
-    @edit="r => globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.EDIT, query:{id:String(r.id)}})"
+    @add="globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.ADD})"
+    @detail="r => globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.DETAIL, query:{id:String(r.id)}})"
+    @edit="r => globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.EDIT, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'sources'">

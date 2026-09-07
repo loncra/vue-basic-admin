@@ -13,7 +13,6 @@ import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import {RoleService} from "@/apis/auth-server/roleService.ts";
-import type {FilterRequest} from "@/types/apis/common.js";
 import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
@@ -43,6 +42,7 @@ const options = ref<{
   spinning:boolean
   resourceDataSource:ResourceEntity[],
   parent?:RoleEntity
+  resourceQuery:Record<string, unknown>
 }>({
   spinning: false,
   entity: {
