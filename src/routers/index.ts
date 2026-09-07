@@ -6,9 +6,9 @@ import type {
 } from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import type {PrepareData, ResourceEntity,} from "@/types/apis";
+import {BusinessError, type PrepareData, type ResourceEntity,} from "@/types/apis";
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
-import {AUTHENTICATION_TYPE, RESOURCE_TYPE} from "@/constants";
+import {AUTHENTICATION_MEMBER_TYPE, AUTHENTICATION_TYPE, RESOURCE_TYPE} from "@/constants";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@/utils'
@@ -344,6 +344,23 @@ const reloadRoute = async (): Promise<RouteRecordRaw[]> => {
   return await loadRouter(serviceName)
 }
 
+export const saveRequestPathThenToAuth = (
+  to:RouteLocationNormalized,
+  authenticationType:string = AUTHENTICATION_TYPE.CONSOLE
+)=> {
+
+  sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME, to.fullPath)
+  if (AUTHENTICATION_MEMBER_TYPE.includes(authenticationType)) {
+    authenticationType = AUTHENTICATION_TYPE.PERSONAL
+  }
+  return {
+    name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
+    params: {
+      authenticationType:(authenticationType).toLowerCase(),
+    },
+  }
+}
+
 const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   // 获取认证状态
   const principalStore = usePrincipalStore()
@@ -360,7 +377,18 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   }
   // 仅在初始状态时尝试加载动态路由
   if (!initialState.value) {
-    await reloadRoute()
+    try {
+      await reloadRoute()
+    } catch (e) {
+      // prepare 阶段 401：必须用 to，此时 router.currentRoute 还是旧值
+      if (e instanceof BusinessError && e.status === 401) {
+        return saveRequestPathThenToAuth(
+          to,
+          String(to.meta.authenticationType || principalStore.state.type),
+        )
+      }
+      throw e
+    }
     menuPrincipalStore.refreshQuickAccess()
     return {...to, replace: true}
   }
@@ -371,13 +399,7 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
 
   // 处理需要认证但未认证的请求
   if (requiresAuth || requiresFullyAuth) {
-    sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME, to.fullPath)
-    return {
-      name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
-      params: {
-        authenticationType:(principalStore.state.type || AUTHENTICATION_TYPE.CONSOLE).toLowerCase(),
-      },
-    }
+    return saveRequestPathThenToAuth(to, String(to.meta.authenticationType || principalStore.state.type))
   }
 
   if (principalStore.isAuthenticated) {

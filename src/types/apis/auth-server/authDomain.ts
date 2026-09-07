@@ -5,12 +5,7 @@ import type {
   VersionEntityMetadata
 } from '@/types/apis/common'
 import {AUTHENTICATION_TYPE, LOGIN_TYPE} from '@/constants'
-import type {
-  EnterpriseRoleEntity,
-  ObjectWriteResult,
-  PersonalEnterprise,
-  RoleEntity
-} from "@/types/apis";
+import type {ObjectWriteResult, PersonalEnterprise} from "@/types/apis";
 
 /**
  * 账户认证类型
@@ -57,6 +52,7 @@ export interface UserMetadata {
   realName?: string
   nickname?: string
   tenantId:string
+  enterpriseId?:number
   [key: string]: unknown
 }
 
@@ -106,7 +102,8 @@ export interface AuthenticationInfo {
   shortName: string
   grantedAuthorities: string[]
   rememberMe: boolean,
-  enterpriseDataSource:PersonalEnterprise[]
+  enterpriseDataSource:PersonalEnterprise[],
+  switchingWorkspace?:boolean
 }
 
 /**
@@ -194,4 +191,9 @@ export interface UserInitializationMetadata {
 export interface AuthFormProp {
   enablePhoneAuth?: boolean
   enableQrCodeAuth?: boolean
+}
+
+export interface RoleAuthority {
+  name:string,
+  authority:string
 }

@@ -5,7 +5,7 @@ import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, o
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
 import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
-import {applyColumnOptions, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {applyColumnOptions, dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {
@@ -154,13 +154,13 @@ onMounted(mounted)
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'gender'">
-        {{ record.gender.name }}
+        {{ getEnumName(record.gender) }}
       </template>
       <template v-if="column.dataIndex === 'lastAuthenticationTime'">
         {{ dateTimeFormat(record.lastAuthenticationTime) }}
       </template>
       <template v-if="column.dataIndex === 'status'">
-        {{ record.status.name }}
+        {{ getEnumName(record.status) }}
       </template>
     </template>
   </l-crud-table>

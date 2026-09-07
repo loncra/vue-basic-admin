@@ -418,7 +418,7 @@ onActivated(activated)
                     <template #title>
                       <a-space orientation="vertical">
                         <span>{{ globalProperties.$t('resourceServer.carousel.showtime') }}: {{ record.showtime ? dateTimeFormat(record.showtime) : globalProperties.$t('resourceServer.carousel.immediately') }}</span>
-                        <span>{{ globalProperties.$t('common.expiresTime') }}: {{ record.expirationTime ? dateTimeFormat(record.expirationTime) : globalProperties.$t('resourceServer.carousel.permanent') }}</span>
+                        <span>{{ globalProperties.$t('common.expiresTime') }}: {{ record.expirationTime ? dateTimeFormat(record.expirationTime) : globalProperties.$t('common.permanent') }}</span>
                       </a-space>
                     </template>
                     <a-card size="small" :title="record.name">

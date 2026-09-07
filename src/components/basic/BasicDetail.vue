@@ -74,7 +74,7 @@ async function mounted() {
   loading.value = true;
   const id = globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] as TId
 
-  const data:Record<string, string>[] = [];
+  const data:Record<string, string>[] = []
   props.queryFields.forEach(field => {
     if (!globalProperties.$route.query[field]) {
       data.push({code:"400",field:field,defaultMessage: globalProperties.$t('error.notNull', {field: field})});

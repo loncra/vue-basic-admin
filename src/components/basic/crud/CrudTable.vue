@@ -213,7 +213,7 @@ defineExpose({
     </template>
     <template #bodyCell="{ text, record, index, column}">
 
-      <slot v-if="slots.bodyCell" name="bodyCell" :text="text" :record="record" :index="index" :column="column"/>
+      <slot v-if="slots.bodyCell" name="bodyCell" :text="text" :record="record as TEntity" :index="index" :column="column"/>
 
       <template v-if="column.dataIndex === 'action'">
         <l-action-button

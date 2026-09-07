@@ -21,6 +21,8 @@ const locale: LanguagePack = {
     add: 'Add {name}',
     edit: 'Edit {name}',
     all: 'All {name}',
+    shard:'Shard',
+    permanent: 'Permanent',
     applet: 'Mini program',
     used: 'Used',
     current: 'Current',
@@ -487,6 +489,14 @@ const locale: LanguagePack = {
       role: 'Member role',
       principal: 'Principal',
     },
+    enterpriseInvitation: {
+      routePage: 'Invitations',
+      inviterPrincipal: 'Inviter',
+      expirationTime: 'Expiration time',
+      roleId: 'Enterprise roles',
+      auditType: 'Audit type',
+      confirm:'Enterprise invitation confirmation'
+    },
     enterprise: {
       routePage: 'Enterprise',
       ownerPrincipal: 'Owner principal',
@@ -515,7 +525,6 @@ const locale: LanguagePack = {
       routePage: 'Carousel',
       showtime: 'Display time',
       immediately: 'Immediately',
-      permanent: 'Permanent',
     },
   },
   aiServer: {

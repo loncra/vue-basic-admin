@@ -141,11 +141,17 @@ const doAuth = async (): Promise<void> => {
   try {
     const data = await principalStore.login(authForm.value, authenticationType.value)
 
-    if (data.authenticated) {
-      socketStore.ensureConnected()
-      globalProperties.$router.push('/')
-      accountLoginCaptchaRef.value.captchaToken = undefined
-      accountLoginCaptchaRef.value.instance = undefined
+    if (!data.authenticated) {
+      return
+    }
+    socketStore.ensureConnected()
+    globalProperties.$router.push('/')
+    accountLoginCaptchaRef.value.captchaToken = undefined
+    accountLoginCaptchaRef.value.instance = undefined
+    const requestPath = sessionStorage.getItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME)
+    if (requestPath) {
+      globalProperties.$router.push(requestPath)
+      sessionStorage.removeItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME)
     }
   } catch (e) {
     if (!(e instanceof BusinessError)) {

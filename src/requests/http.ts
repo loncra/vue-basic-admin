@@ -1,7 +1,7 @@
 import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig} from 'axios'
-import router from '@/routers'
+import router, {saveRequestPathThenToAuth} from '@/routers'
 import {message} from 'antdv-next'
-import {AUTHENTICATION_TYPE, HTTP} from '@/constants'
+import {HTTP} from '@/constants'
 import {BusinessError, type RestResult} from '@/types/apis'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import i18n from '@/i18n'
@@ -158,12 +158,9 @@ async function responseError<T = unknown>(
   if (status === 401) {
     const principalStore = usePrincipalStore()
     message.error(i18n.global.t('error.http.loginExpired'))
-    router.push({
-      name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
-      params:{
-        authenticationType: (principalStore.state.type || AUTHENTICATION_TYPE.CONSOLE).toLowerCase()
-      }
-    })
+    const to = router.currentRoute.value
+    const pushValue = saveRequestPathThenToAuth(to, String(to.meta.authenticationType || principalStore.state.type))
+    router.push(pushValue)
     return Promise.reject(
       new BusinessError(result?.executeCode || '401', status, serverMessage, result?.data),
     )
@@ -174,8 +171,7 @@ async function responseError<T = unknown>(
   const errorRoute = router.getRoutes().find((r) => r.name === statusStr)
   if (errorRoute) {
     sessionStorage.setItem(statusStr, JSON.stringify(result?.data || []))
-    router.push({name: statusStr}).catch(() => {
-    })
+    router.push({name: statusStr}).catch(() => {})
     return Promise.reject(
       new BusinessError(result?.executeCode || statusStr, status, serverMessage, result?.data),
     )

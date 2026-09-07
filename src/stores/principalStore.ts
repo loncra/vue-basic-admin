@@ -89,7 +89,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    * 获取用户显示名称
    */
   function getName(): string {
-    return state.value?.details?.metadata?.realName || state.value?.details?.metadata?.nickname || state.value.name || '未知用户'
+    return AuthServerService.getPrincipalNameByUserDetails(state.value.details?.metadata)
   }
 
   function getRoleName(): string {
@@ -135,13 +135,18 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return state.value.name === principal
   }
 
-  async function switchEnterprise(enterpriseId:number | undefined) {
-    const result = await enterpriseService.switch(enterpriseId);
-    if (result.data) {
-      const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
-      localStorage.setItem(accessTokenStorageName, result.data)
+  async function switchWorkspace(enterpriseId:number | undefined) {
+    try {
+      state.value.switchingWorkspace = true
+      const result = await enterpriseService.switch(enterpriseId);
+      if (result.data) {
+        const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
+        localStorage.setItem(accessTokenStorageName, result.data)
+      }
+      location.href = '/'
+    } finally {
+      state.value.switchingWorkspace = false
     }
-    return result.data
   }
 
   /**
@@ -229,7 +234,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     login,
     logout,
     prepare,
-    switchEnterprise,
+    switchWorkspace,
     // 工具方法
     $reset,
     setState,

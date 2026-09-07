@@ -2,7 +2,7 @@
 
 import type {LogoProps} from '@/types/composables/common'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
 import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
@@ -29,8 +29,6 @@ const principalStore = usePrincipalStore()
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
-
-const switchingWorkspace = ref(false)
 
 const switchItems = computed(()=>{
   if (principalStore.state.enterpriseDataSource.length <= 0) {
@@ -78,24 +76,9 @@ const currentItem = computed<PersonalEnterprise | undefined>(() => {
   return dataSource.find(item => item.tenantId === principalStore.state.details.metadata.tenantId)
 })
 
-async function switchWorkspace(id:number | undefined) {
-  try {
-    switchingWorkspace.value = true
-    await principalStore.switchEnterprise(id)
-    await globalProperties.$router.push({name:import.meta.env.VITE_APP_HOME_ROUTE_PAGE_NAME})
-    location.reload()
-  } finally {
-    switchingWorkspace.value = false
-  }
-}
-
 async function onSwitch(item: { key:string }) {
-  await switchWorkspace(getWorkspaceId(item.key))
+  await principalStore.switchWorkspace(getWorkspaceId(item.key))
 }
-
-defineExpose({
-  switchWorkspace
-})
 
 </script>
 
@@ -126,8 +109,8 @@ defineExpose({
       placement="bottomLeft"
       :arrow="{ pointAtCenter: true }"
     >
-      <a-button class="shrink-0" size="small" type="text" shape="circle" :loading="switchingWorkspace">
-        <template #icon v-if="!switchingWorkspace">
+      <a-button class="shrink-0" size="small" type="text" shape="circle" :loading="principalStore.state.switchingWorkspace">
+        <template #icon v-if="!principalStore.state.switchingWorkspace">
           <icon-font type="loncra-repeat" />
         </template>
       </a-button>

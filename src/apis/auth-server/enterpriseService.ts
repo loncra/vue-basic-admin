@@ -4,7 +4,7 @@
  */
 import type {
   EnterpriseEntity,
-  EnterpriseMemberEntity,
+  EnterpriseInvitationDetail,
   EnterprisePayload,
   PersonalEnterprise,
   RestResult,
@@ -32,7 +32,11 @@ export class EnterpriseService extends PageRestfulCrudService<
 
   static readonly SWITCH_URL = EnterpriseService.SERVICE_URL + '/switch'
 
-  static readonly MEMBERS_LEAVE_URL = EnterpriseService.SERVICE_URL + '/members/leave'
+  static readonly MEMBERS_LEAVE_URL = EnterpriseService.SERVICE_URL + '/member/leave'
+
+  static readonly INVITATION_DETAIL_URL = EnterpriseService.SERVICE_URL + '/invitation/detail'
+
+  static readonly INVITATION_CONFIRM_URL = EnterpriseService.SERVICE_URL + '/invitation/confirm'
 
   constructor() {
     super(EnterpriseService.SERVICE_URL)
@@ -52,34 +56,16 @@ export class EnterpriseService extends PageRestfulCrudService<
     }
   }
 
-  /** `POST /enterprise/invitations/{organizationId}` */
-  invite(organizationId: number, phoneNumber: string): Promise<RestResult<string>> {
-    return axios.post(
-      EnterpriseService.SERVICE_URL + '/invitations/' + organizationId,
-      formUrlEncoded({phoneNumber}),
-    )
-  }
-
-  /** `POST /enterprise/invitations/accept/{code}` */
-  acceptInvitation(code: string): Promise<RestResult<void>> {
-    return axios.post(EnterpriseService.SERVICE_URL + '/invitations/accept/' + code)
-  }
-
-  /** `GET /enterprise/members/{organizationId}` */
-  members(organizationId: number): Promise<RestResult<EnterpriseMemberEntity[]>> {
-    return axios.get(EnterpriseService.SERVICE_URL + '/members/' + organizationId)
-  }
-
-  /** `DELETE /enterprise/members/{organizationId}` */
-  removeMember(organizationId: number, principal: string): Promise<RestResult<void>> {
-    return axios.delete(EnterpriseService.SERVICE_URL + '/members/' + organizationId, {
-      params: formUrlEncoded({principal}),
-    })
-  }
-
   /** `DELETE /enterprise/members/leave/{organizationId}` */
   leave(enterpriseId: number): Promise<RestResult<void>> {
     return axios.delete(EnterpriseService.MEMBERS_LEAVE_URL + '/' + enterpriseId)
   }
 
+  invitationDetail(id: number): Promise<RestResult<EnterpriseInvitationDetail>> {
+    return axios.get(EnterpriseService.INVITATION_DETAIL_URL + '/' + id)
+  }
+
+  invitationConfirm(id:number, confirm:boolean):Promise<RestResult<EnterpriseInvitationDetail>> {
+    return axios.post(EnterpriseService.INVITATION_CONFIRM_URL + '/' + id,formUrlEncoded({confirm}))
+  }
 }

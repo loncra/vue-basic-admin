@@ -162,8 +162,34 @@ export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE = {
   MEMBER: 30,
 } as const
 
+export const AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY = {
+  PAGE: 'perms[auth_server_enterprise_invitation:page]',
+  GET: 'perms[auth_server_enterprise_invitation:get]',
+  SAVE: 'perms[auth_server_enterprise_invitation:save]',
+  DELETE: 'perms[auth_server_enterprise_invitation:delete]',
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE = {
+  HOME: 'auth_server_enterprise_invitation',
+  DETAIL: 'auth_server_enterprise_invitation_detail',
+  CONFIRM: 'auth_server_enterprise_invitation_confirm'
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_INVITATION_STATUS = {
+  EXECUTION:10,
+  EXPIRED:20,
+  CANCELLED:3,
+} as const
+
 export const AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION = {
-  INVITED: 10,
-  ACTIVE: 20,
-  CANCEL: 30,
+  INVITED:10,
+  DISAPPROVED:15,
+  ACTIVE:20,
+  REJECT:25,
+  CANCEL:30
+} as const
+
+export const AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS = {
+  MANUAL: 10,
+  AUTOMATIC: 20
 } as const

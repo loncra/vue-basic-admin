@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
@@ -9,7 +9,6 @@ import {
   ICON_SELECT_AVATAR_MODE_VALUE,
   ICON_SELECT_MODE,
   OPERATION_DATA_TRACE_TABLE,
-  SWITCH_WORKSPACE_PROVIDE_KEY
 } from "@/constants";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 import {EnterpriseService} from "@/apis";
@@ -31,8 +30,6 @@ const globalProperties =
 
 const principalStore = usePrincipalStore()
 const {modal} = useApp()
-
-const switchWorkspace = inject<(id: number | undefined) => void>(SWITCH_WORKSPACE_PROVIDE_KEY)
 
 const options = ref<{
   modal:{
@@ -170,7 +167,7 @@ async function doLeave(id:number) {
               <a-button
                 v-else-if="principalStore.state.details.metadata.tenantId !== item.tenantId"
                 size="small"
-                @click.stop="switchWorkspace?.(item.id)"
+                @click.stop="principalStore.switchWorkspace(item.id)"
               >
                 <template #icon>
                   <icon-font type="loncra-repeat"/>
@@ -223,7 +220,7 @@ async function doLeave(id:number) {
             <a-button
               v-if="principalStore.state.type !== AUTHENTICATION_TYPE.PERSONAL"
               size="small"
-              @click.stop="switchWorkspace?.(undefined)"
+              @click.stop="principalStore.switchWorkspace(undefined)"
             >
               <template #icon>
                 <icon-font type="loncra-repeat"/>

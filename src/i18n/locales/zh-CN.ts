@@ -27,6 +27,7 @@ const locale: LanguagePack = {
       all: '导出全部',
       selected: '导出 ({count}) 条记录',
     },
+    shard:'分享',
     current:'当前',
     nextStep:'下一步',
     detail: '{name}详情',
@@ -71,6 +72,7 @@ const locale: LanguagePack = {
     avatar:'头像',
     group:'所属分组',
     refresh: '刷新',
+    permanent:'永久',
     open:'开启',
     copy:'复制',
     close:'关闭',
@@ -475,6 +477,17 @@ const locale: LanguagePack = {
       role:'成员角色',
       principal:'认证主体',
     },
+    enterpriseInvitation:{
+      routePage:'邀请',
+      inviterPrincipal:'邀请人',
+      roleId:'企业角色',
+      auditType: '审核类型',
+      confirm:'企业邀请确认',
+      invitation:'邀请您加入{name}',
+      expiresTitle:'该邀请已过期，请联系企业人员重新发起邀请。',
+      accept:'接受',
+      reject:'拒绝',
+    },
     enterprise:{
       routePage:'企业',
       ownerPrincipal:'企业主',
@@ -503,7 +516,6 @@ const locale: LanguagePack = {
       routePage:'轮播图',
       showtime:'展示时间',
       immediately:'立即',
-      permanent:'永久',
     }
   },
   aiServer:{
