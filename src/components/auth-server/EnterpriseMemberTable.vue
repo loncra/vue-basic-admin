@@ -3,13 +3,8 @@
 import {EnterpriseMemberService} from '@/apis/auth-server/enterpriseMemberService.ts'
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, Select, type TableProps} from 'antdv-next'
-import {ResourceServerService} from "@/apis";
-import type {
-  EnterpriseMemberEntity,
-  EnumBucketsResponseBody,
-  RestResult,
-  RoleEntity
-} from "@/types/apis";
+import {AuthServerService, ResourceServerService} from "@/apis";
+import type {EnterpriseMemberEntity, EnumBucketsResponseBody, RestResult} from "@/types/apis";
 import {
   applyColumnOptions,
   dateTimeFormat,
@@ -20,11 +15,13 @@ import {
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {
-  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY, AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
+  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE,
   SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME, YES_OR_NO_TYPE
+  SYSTEM_MODULE_NAME
 } from "@/constants";
+import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 defineOptions({
   name: 'LEnterpriseMemberTable',
@@ -45,9 +42,9 @@ const service = new EnterpriseMemberService()
 const columns = computed<SearchableColumnType[]>(() => [
   {
     title: globalProperties.$t('common.realName'),
-    dataIndex: 'nickname',
-    key: 'nickname',
-    width: 150,
+    dataIndex: 'name',
+    key: 'name',
+    width: 250,
     ellipsis: true,
   },
   {
@@ -188,8 +185,11 @@ onMounted(mounted)
     @detail="r => globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE.DETAIL, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
-      <template v-if="column.dataIndex === 'nickname'">
-        {{ record.nickname || '' }}
+      <template v-if="column.dataIndex === 'name'">
+        <a-space>
+          <l-user-avatar :user="record" />
+          {{AuthServerService.getPrincipalNameByUserDetails(record)}}
+        </a-space>
       </template>
       <template v-if="column.dataIndex === 'gender'">
         {{ getEnumName(record.gender) }}

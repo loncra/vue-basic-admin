@@ -160,5 +160,6 @@ export const OPERATION_DATA_TRACE_TABLE = {
   AI_SKILL_PACKAGE: 'tb_ai_skill_package',
   ENTERPRISE: 'tb_enterprise',
   PERSONAL_USER: 'tb_personal_user',
+  ENTERPRISE_INVITATION: 'tb_enterprise_invitation',
 } as const
 

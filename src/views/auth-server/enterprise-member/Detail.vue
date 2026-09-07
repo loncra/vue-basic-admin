@@ -44,10 +44,10 @@ const entity = ref<EnterpriseMemberEntity>({
       name: '',
     },
   },
-  type: {
-    name: '',
-    value: '',
-  },
+  emailVerified: 0,
+  gender: 30,
+  phoneNumberVerified: 0,
+  systemName: ""
 })
 
 function displayName(record: EnterpriseMemberEntity) {

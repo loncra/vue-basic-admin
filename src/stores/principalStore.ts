@@ -89,7 +89,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    * 获取用户显示名称
    */
   function getName(): string {
-    return state.value?.details?.metadata?.realName || state.value?.details?.metadata?.nickname || state.value.name || '未知用户'
+    return AuthServerService.getPrincipalNameByUserDetails(state.value.details?.metadata)
   }
 
   function getRoleName(): string {

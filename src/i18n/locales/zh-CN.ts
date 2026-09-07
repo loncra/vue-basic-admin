@@ -71,6 +71,7 @@ const locale: LanguagePack = {
     avatar:'头像',
     group:'所属分组',
     refresh: '刷新',
+    permanent:'永久',
     open:'开启',
     copy:'复制',
     close:'关闭',
@@ -475,6 +476,13 @@ const locale: LanguagePack = {
       role:'成员角色',
       principal:'认证主体',
     },
+    enterpriseInvitation:{
+      routePage:'邀请',
+      inviterPrincipal:'邀请人',
+      expirationTime:'过期时间',
+      roleId:'企业角色',
+      auditType: '审核类型',
+    },
     enterprise:{
       routePage:'企业',
       ownerPrincipal:'企业主',
@@ -503,7 +511,6 @@ const locale: LanguagePack = {
       routePage:'轮播图',
       showtime:'展示时间',
       immediately:'立即',
-      permanent:'永久',
     }
   },
   aiServer:{

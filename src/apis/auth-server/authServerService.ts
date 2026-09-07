@@ -129,7 +129,10 @@ export class AuthServerService {
     })
   }
 
-  static getPrincipalNameByUserDetails(details: PlatformUser | UserMetadata, defaultValue: string = i18n.global.t('common.unname')): string {
+  static getPrincipalNameByUserDetails(
+    details: PlatformUser | UserMetadata,
+    defaultValue: string = i18n.global.t('common.unname')
+  ): string {
     if (!details) {
       return ''
     }

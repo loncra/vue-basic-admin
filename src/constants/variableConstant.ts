@@ -29,6 +29,8 @@ export const SYSTEM_ENUM_TYPE = {
   USER_STATUS: 'UserStatus',
   ENTERPRISE_MEMBER_ROLE_ENUM: 'EnterpriseMemberRoleEnum',
   ENTERPRISE_MEMBER_INVITATION_ENUM: 'EnterpriseMemberInvitationEnum',
+  ENTERPRISE_INVITATION_STATUS_ENUM: 'EnterpriseInvitationStatusEnum',
+  ENTERPRISE_INVITATION_AUDIT_ENUM: 'EnterpriseInvitationAuditEnum',
   VALUE_TYPE_ENUM: 'ValueTypeEnum',
   YES_OR_NO: 'YesOrNo',
 } as const

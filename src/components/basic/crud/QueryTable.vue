@@ -410,14 +410,14 @@ defineExpose({
           <a-space-compact block>
             <a-button block type="primary" @click="search(column, setSelectedKeys, confirm)">
               <template #icon>
-                <icon-font class="icon" type="loncra-check"/>
+                <icon-font class="icon" type="loncra-search-check"/>
               </template>
               <span>{{ globalProperties.$t('search.text') }}</span>
             </a-button>
 
             <a-button block @click="resetField(column, setSelectedKeys, confirm)">
               <template #icon>
-                <icon-font class="icon" type="loncra-time-reset"/>
+                <icon-font class="icon" type="loncra-timer-reset"/>
               </template>
               <span>{{ globalProperties.$t('common.reset') }}</span>
             </a-button>
