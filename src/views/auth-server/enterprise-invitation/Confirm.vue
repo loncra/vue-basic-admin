@@ -84,35 +84,41 @@ function getInviteeAttr() {
   if (!options.value?.detail?.invitee) {
     return {}
   }
-  if (getEnumValue(options.value.detail.invitee.auditStatus) === AUDIT_STATUS_TYPE.AGREED) {
+  const base = 'authServer.enterpriseInvitation.confirmResult'
+  const invitee = options.value.detail.invitee
+  if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_TYPE.AGREED) {
     return {
       status:"success",
-      title:"您已加入该企业",
-      subTitle:"您已是该企业成员，角色为[" + getEnumName(options.value.detail.invitee.role) + (options.value.detail.invitee?.roles || []).map(role => role.name).join(',') + "]，无需重复接受邀请。"
+      title: globalProperties.$t(`${base}.joined.title`),
+      subTitle: globalProperties.$t(`${base}.joined.subTitle`, {
+        role: getEnumName(invitee.role) + (invitee?.roles || []).map(role => role.name).join(','),
+      }),
     }
-  } else if (getEnumValue(options.value.detail.invitee.auditStatus) === AUDIT_STATUS_TYPE.AUDITABLE) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_TYPE.AUDITABLE) {
     return {
       status:"info",
-      title:"您已加入该企业",
-      subTitle:"您的账户目前处于审核状态，请等待管理员审核。"
+      title: globalProperties.$t(`${base}.auditable.title`),
+      subTitle: globalProperties.$t(`${base}.auditable.subTitle`),
     }
-  } else if (getEnumValue(options.value.detail.invitee.auditStatus) === AUDIT_STATUS_TYPE.REJECTED) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_TYPE.REJECTED) {
     return {
       status:"warning",
-      title:"请求已被您拒绝",
-      subTitle:"您已经拒绝此邀请，如需要重新加入该企业，请联系管理员重新发起新的邀请。"
+      title: globalProperties.$t(`${base}.rejected.title`),
+      subTitle: globalProperties.$t(`${base}.rejected.subTitle`),
     }
-  } else if (getEnumValue(options.value.detail.invitee.auditStatus) === AUDIT_STATUS_TYPE.DISAGREE) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_TYPE.DISAGREE) {
     return {
       status:"error",
-      title:"企业审核不通过",
-      subTitle:"您的加入请求已被企业拒绝，如需要重新加入该企业，请联系管理员重新发起新的邀请。"
+      title: globalProperties.$t(`${base}.disagree.title`),
+      subTitle: globalProperties.$t(`${base}.disagree.subTitle`),
     }
   } else {
     return {
       status:"404",
-      title:"未知的邀请结果",
-      subTitle:"当前企业对该加入的审核结果为[" + getEnumName(options.value.detail.invitee.auditStatus) + "]，请联系管理员进行核实。"
+      title: globalProperties.$t(`${base}.unknown.title`),
+      subTitle: globalProperties.$t(`${base}.unknown.subTitle`, {
+        status: getEnumName(invitee.auditStatus),
+      }),
     }
   }
 }
@@ -182,7 +188,7 @@ onMounted(mounted)
             >
               <template #extra v-if="getEnumValue(options.detail.invitee.status) === USER_STATUS_TYPE.ENABLED && options.detail.enterprise.id !== principalStore.state.details.metadata.enterpriseId">
                 <a-button type="primary" @click="principalStore.switchWorkspace(options.detail.enterprise.id)">
-                  进入工作台
+                  {{ $t('authServer.enterpriseInvitation.enterWorkspace') }}
                 </a-button>
               </template>
             </a-result>

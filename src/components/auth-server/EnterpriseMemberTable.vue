@@ -305,13 +305,13 @@ onMounted(mounted)
                   <template #icon>
                     <icon-font type="loncra-clipboard-check"/>
                   </template>
-                  同意
+                  {{ globalProperties.$t('common.audit.agree') }}
                 </a-button>
                 <a-button type="primary" danger>
                   <template #icon>
                     <icon-font type="loncra-clipboard-x"/>
                   </template>
-                  拒绝
+                  {{ globalProperties.$t('common.audit.reject') }}
                 </a-button>
               </a-flex>
             </l-form>

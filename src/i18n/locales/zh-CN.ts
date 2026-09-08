@@ -50,7 +50,9 @@ const locale: LanguagePack = {
     audit:{
       title:'审核信息',
       text:'审核',
-      selected:'审核 ({count}) 条记录'
+      selected:'审核 ({count}) 条记录',
+      agree:'同意',
+      reject:'拒绝'
     },
     title:'标题',
     serverError: '服务器异常，请稍后在试。',
@@ -493,6 +495,29 @@ const locale: LanguagePack = {
       expiresTitle:'该邀请已过期，请联系企业人员重新发起邀请。',
       accept:'接受',
       reject:'拒绝',
+      enterWorkspace:'进入工作台',
+      confirmResult:{
+        joined:{
+          title:'您已加入该企业',
+          subTitle:'您已是该企业成员，角色为[{role}]，无需重复接受邀请。'
+        },
+        auditable:{
+          title:'您已加入该企业',
+          subTitle:'您的账户目前处于审核状态，请等待管理员审核。'
+        },
+        rejected:{
+          title:'请求已被您拒绝',
+          subTitle:'您已经拒绝此邀请，如需要重新加入该企业，请联系管理员重新发起新的邀请。'
+        },
+        disagree:{
+          title:'企业审核不通过',
+          subTitle:'您的加入请求已被企业拒绝，如需要重新加入该企业，请联系管理员重新发起新的邀请。'
+        },
+        unknown:{
+          title:'未知的邀请结果',
+          subTitle:'当前企业对该加入的审核结果为[{status}]，请联系管理员进行核实。'
+        }
+      },
     },
     enterprise:{
       routePage:'企业',

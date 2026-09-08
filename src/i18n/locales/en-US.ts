@@ -27,8 +27,10 @@ const locale: LanguagePack = {
     auditStatus:'Audit status',
     audit:{
       title:'Audit information',
-      text:'audit',
-      selected:'Audit ({count}) record(s)'
+      text:'Audit',
+      selected:'Audit ({count}) record(s)',
+      agree:'Approve',
+      reject:'Reject'
     },
     used: 'Used',
     current: 'Current',
@@ -497,10 +499,37 @@ const locale: LanguagePack = {
     enterpriseInvitation: {
       routePage: 'Invitations',
       inviterPrincipal: 'Inviter',
-      expirationTime: 'Expiration time',
+      invitedMembers: 'Confirmed users',
       roleId: 'Enterprise roles',
       auditType: 'Audit type',
-      confirm:'Enterprise invitation confirmation'
+      confirm: 'Enterprise invitation confirmation',
+      invitation: 'invites you to join {name}',
+      expiresTitle: 'This invitation has expired. Please contact the enterprise to send a new one.',
+      accept: 'Accept',
+      reject: 'Reject',
+      enterWorkspace: 'Go to workspace',
+      confirmResult: {
+        joined: {
+          title: 'You have joined this enterprise',
+          subTitle: 'You are already a member with the role [{role}]. No need to accept the invitation again.',
+        },
+        auditable: {
+          title: 'You have joined this enterprise',
+          subTitle: 'Your account is under review. Please wait for the administrator to approve it.',
+        },
+        rejected: {
+          title: 'You rejected this request',
+          subTitle: 'You have rejected this invitation. To join this enterprise, ask an administrator to send a new invitation.',
+        },
+        disagree: {
+          title: 'Enterprise review failed',
+          subTitle: 'Your join request was rejected by the enterprise. To join, ask an administrator to send a new invitation.',
+        },
+        unknown: {
+          title: 'Unknown invitation result',
+          subTitle: 'The review result for this join request is [{status}]. Please contact an administrator to verify.',
+        },
+      },
     },
     enterprise: {
       routePage: 'Enterprise',
