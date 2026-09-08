@@ -3,7 +3,7 @@ import imageSrc from '@/assets/403.svg'
 import {usePrincipalStore} from "@/stores/principalStore.js"
 import {type ComponentInternalInstance, getCurrentInstance} from 'vue'
 import {requireNonNullOrUndefined} from "@/utils";
-import {AUTHENTICATION_TYPE} from "@/constants";
+import {getAuthRouterParam} from "@/routers";
 
 defineOptions({
   name: 'ErrorForbidden'
@@ -15,7 +15,7 @@ const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrent
 const globalProperties = instance.appContext.config.globalProperties;
 
 function logout() {
-  globalProperties.$router.push({name: import.meta.env.VITE_APP_AUTH_PAGE_NAME, params:{authenticationType: (principalStore.state.type || AUTHENTICATION_TYPE.CONSOLE).toLowerCase()}})
+  globalProperties.$router.push(getAuthRouterParam(principalStore.state.type))
 }
 </script>
 

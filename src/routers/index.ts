@@ -350,6 +350,12 @@ export const saveRequestPathThenToAuth = (
 )=> {
 
   sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME, to.fullPath)
+  return getAuthRouterParam(authenticationType)
+}
+
+export const getAuthRouterParam =  (
+  authenticationType:string = AUTHENTICATION_TYPE.CONSOLE
+)=> {
   if (AUTHENTICATION_MEMBER_TYPE.includes(authenticationType)) {
     authenticationType = AUTHENTICATION_TYPE.PERSONAL
   }

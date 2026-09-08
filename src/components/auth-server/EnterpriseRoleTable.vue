@@ -14,7 +14,6 @@ import type {
   EnterpriseRoleEntity,
   EnumBucketsResponseBody,
   FilterRequest,
-  NameValueEnumMetadata,
   RestResult
 } from "@/types/apis";
 import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
@@ -56,7 +55,6 @@ const columns = computed<SearchableColumnType[]>(() => [
     title: globalProperties.$t('common.name'),
     dataIndex: 'name',
     key: 'name',
-    width: 150,
     ellipsis:true,
     search:{
       component: markRaw(Input),
@@ -68,7 +66,6 @@ const columns = computed<SearchableColumnType[]>(() => [
     title: globalProperties.$t('authServer.authority'),
     dataIndex: 'authority',
     key: 'authority',
-    width: 150,
     ellipsis:true,
     search:{
       component: markRaw(Input),
@@ -145,10 +142,6 @@ async function mounted() {
   }
 }
 
-function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
-  return sources.map(s => getEnumName(s)).join(",")
-}
-
 onMounted(mounted)
 </script>
 
@@ -174,11 +167,8 @@ onMounted(mounted)
     @edit="r => globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.EDIT, query:{id:String(r.id)}})"
   >
     <template #bodyCell="{ column, record }">
-      <template v-if="column.dataIndex === 'sources'">
-        {{ getSourcesName(record.sources) }}
-      </template>
       <template v-if="yesOrNoFields.includes(column.dataIndex)">
-        {{ record[column.dataIndex]?.name }}
+        {{ getEnumName(record[column.dataIndex as keyof EnterpriseRoleEntity])}}
       </template>
     </template>
   </l-crud-table>

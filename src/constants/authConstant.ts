@@ -162,23 +162,10 @@ export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE = {
   MEMBER: 30,
 } as const
 
-export const AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY = {
-  PAGE: 'perms[auth_server_enterprise_invitation:page]',
-  GET: 'perms[auth_server_enterprise_invitation:get]',
-  SAVE: 'perms[auth_server_enterprise_invitation:save]',
-  DELETE: 'perms[auth_server_enterprise_invitation:delete]',
-} as const
-
 export const AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE = {
   HOME: 'auth_server_enterprise_invitation',
   DETAIL: 'auth_server_enterprise_invitation_detail',
   CONFIRM: 'auth_server_enterprise_invitation_confirm'
-} as const
-
-export const AUTH_SERVER_ENTERPRISE_INVITATION_STATUS = {
-  EXECUTION:10,
-  EXPIRED:20,
-  CANCELLED:3,
 } as const
 
 export const AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION = {
@@ -201,18 +188,8 @@ export const AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY = {
   DELETE: 'perms[auth_server_enterprise_invitation:delete]',
 } as const
 
-export const AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE = {
-  HOME: 'auth_server_enterprise_invitation',
-  DETAIL: 'auth_server_enterprise_invitation_detail',
-} as const
-
 export const AUTH_SERVER_ENTERPRISE_INVITATION_STATUS = {
   EXECUTION: 10,
   EXPIRED: 30,
   CANCELLED: 40,
-} as const
-
-export const AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS = {
-  MANUAL: 10,
-  AUTOMATIC: 20
 } as const

@@ -87,19 +87,7 @@ const columns = computed<SearchableColumnType[]>(() => [
       props: {placeholder: globalProperties.$t('search.placeholder.select'), fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
       expression: 'eq',
     },
-  },/*
-  {
-    title: globalProperties.$t('authServer.source'),
-    dataIndex: 'sources',
-    width: 300,
-    ellipsis:true,
-    key: 'sources',
-    search:{
-      component: markRaw(Select),
-      props:{mode:"multiple", placeholder: globalProperties.$t('search.placeholder.select'),fieldNames:{label:'name'}, classes:{root:'w-full'}, popupMatchSelectWidth:false},
-      expression:'jin'
-    },
-  },*/
+  },
   {
     title: globalProperties.$t('authServer.resource.page'),
     dataIndex: 'page',
@@ -187,7 +175,7 @@ async function mounted() {
   }
 }
 
-function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
+function getSourcesName(sources: NameValueEnumMetadata<string>[] | string[]): string {
   return sources.map(s => getEnumName(s)).join(",")
 }
 
@@ -258,11 +246,11 @@ onMounted(mounted)
       </template>
 
       <template v-if="column.dataIndex === 'type'">
-        {{ record.type.name }}
+        {{ getEnumName(record.type) }}
       </template>
 
       <template v-if="column.dataIndex === 'category'">
-        {{ record.category.name }}
+        {{ getEnumName(record.category) }}
       </template>
     </template>
   </l-crud-table>

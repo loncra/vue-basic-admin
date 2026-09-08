@@ -21,7 +21,7 @@ const locale: LanguagePack = {
     add: 'Add {name}',
     edit: 'Edit {name}',
     all: 'All {name}',
-    shard:'Shard',
+    share:'Share',
     permanent: 'Permanent',
     applet: 'Mini program',
     used: 'Used',

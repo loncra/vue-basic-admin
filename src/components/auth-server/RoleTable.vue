@@ -158,7 +158,7 @@ async function mounted() {
   }
 }
 
-function getSourcesName(sources: NameValueEnumMetadata<number>[]): string {
+function getSourcesName(sources: NameValueEnumMetadata<string>[] | string[]): string {
   return sources.map(s => getEnumName(s)).join(",")
 }
 
@@ -191,7 +191,7 @@ onMounted(mounted)
         {{ getSourcesName(record.sources) }}
       </template>
       <template v-if="yesOrNoFields.includes(column.dataIndex)">
-        {{ record[column.dataIndex]?.name }}
+        {{ getEnumName(record[column.dataIndex as keyof RoleEntity]) }}
       </template>
     </template>
   </l-crud-table>

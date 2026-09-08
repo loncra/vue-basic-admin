@@ -160,6 +160,10 @@ const externalRowSelection = computed((): TableProps['rowSelection'] | false | n
 const tablePassthroughAttrs = computed(() => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {rowSelection: _rowSelection, ...rest} = attrs
+  if (!rest.scroll) {
+    console.info(tableColumns.value)
+    rest.scroll = {x:tableColumns.value.reduce((sum, c) => sum + Number(c.width || 0), 0)}
+  }
   return rest
 })
 
@@ -432,7 +436,7 @@ defineExpose({
         </a-space>
       </div>
     </template>
-    <template v-if="slots.expandedRowRender"  #expandedRowRender="{record, index, indent, expanded}">
+    <template v-if="slots.expandedRowRender" #expandedRowRender="{record, index, indent, expanded}">
       <slot name="expandedRowRender" :indent="indent" :record="record" :index="index" :expanded="expanded"/>
     </template>
   </a-table>

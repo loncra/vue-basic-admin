@@ -116,6 +116,7 @@ const displayColumns = computed<SearchableColumnType[]>(() => {
       dataIndex: 'action',
       key: 'action',
       align: 'center',
+      width: 80,
       fixed: 'right',
     })
   }

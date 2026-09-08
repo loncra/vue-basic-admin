@@ -41,6 +41,7 @@ import LModalForm from "@/components/basic/form/ModalForm.vue";
 import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LQrCodeModal from "@/components/basic/QrCodeModal.vue";
+import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
 
 defineOptions({
   name: 'AuthServerEnterpriseInvitationHome',
@@ -119,13 +120,13 @@ const options = ref<{
   entity:EnterpriseInvitationSavePayload,
   auditTypeOptions:NameValueEnumMetadata<number>[]
   model:boolean
-  shard:{
+  share:{
     open:boolean,
     url:string
   }
 }>({
   model:false,
-  shard:{
+  share:{
     open:false,
     url:''
   },
@@ -136,17 +137,17 @@ const options = ref<{
 const crudTable = ref()
 
 function openShard(entity: EnterpriseInvitationEntity) {
-  options.value.shard.open = true;
-  options.value.shard.url = import.meta.env.VITE_APP_SITE_URL + import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/' + entity.id;
+  options.value.share.open = true;
+  options.value.share.url = import.meta.env.VITE_APP_SITE_URL + import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/' + entity.id;
 }
 
 const itemActionDefinitions = function (): ActionDefinition<EnterpriseInvitationEntity>[] {
   return [
     {
-      id: 'shard',
+      id: 'share',
       permission:AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
-      label: () => globalProperties.$t('common.shard'),
-      icon: () => createIcon('loncra-shard'),
+      label: () => globalProperties.$t('common.share'),
+      icon: () => createIcon('loncra-share'),
       run: (ctx) => openShard(ctx.record!),
     },
   ]
@@ -247,48 +248,52 @@ onMounted(mounted)
           {{ dateTimeFormat(record.creationTime) }}
         </template>
       </template>
-    </l-crud-table>
-  </div>
-
-  <teleport v-if="options.model || options.shard.open" to="body">
-    <l-modal-form
-      ref="editForm"
-      v-if="options.model"
-      @cancel="options.entity = createEmptyForm()"
-      @success="onSuccess"
-      :title="globalProperties.$t('common.add', {name: ' ' + globalProperties.$t('authServer.enterpriseInvitation.routePage')})"
-      v-model:open="options.model"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_INVITATION"
-      :service="service"
-      v-model:entity="options.entity"
-    >
-      <template #rowLayout>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="expirationTime" :label="globalProperties.$t('authServer.enterpriseInvitation.expirationTime')">
-            <a-date-picker :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT" show-time allow-clear class="w-full" v-model:value="options.entity.expirationTime"  />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="auditType" :label="globalProperties.$t('authServer.enterpriseInvitation.auditType')" >
-            <a-select class="w-full" v-model:value="options.entity.auditType" :options="options.auditTypeOptions" :field-names="{label: 'name'}"/>
-          </a-form-item>
-        </a-col>
+      <template #expandedRowRender="{ record }">
+        <l-enterprise-member-table :bordered="false" hide-title preview :query="{'filter_[invitation_id_eq]':record.id}" />
       </template>
+    </l-crud-table>
 
-      <a-form-item name="roleIds" :label="globalProperties.$t('authServer.userRole')" :rules="[{required: true, type:'array'}]">
-        <l-enterprise-role-table preview hide-title :query="{'filter_[enabled_eq]':'1'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
-      </a-form-item>
 
-      <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
-        <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />
-      </a-form-item>
+    <teleport v-if="options.model || options.share.open" to="body">
+      <l-modal-form
+        ref="editForm"
+        v-if="options.model"
+        @cancel="options.entity = createEmptyForm()"
+        @success="onSuccess"
+        :title="globalProperties.$t('common.add', {name: ' ' + globalProperties.$t('authServer.enterpriseInvitation.routePage')})"
+        v-model:open="options.model"
+        :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_INVITATION"
+        :service="service"
+        v-model:entity="options.entity"
+      >
+        <template #rowLayout>
+          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+            <a-form-item name="expirationTime" :label="globalProperties.$t('authServer.enterpriseInvitation.expirationTime')">
+              <a-date-picker :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT" show-time allow-clear class="w-full" v-model:value="options.entity.expirationTime"  />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+            <a-form-item name="auditType" :label="globalProperties.$t('authServer.enterpriseInvitation.auditType')" >
+              <a-select class="w-full" v-model:value="options.entity.auditType" :options="options.auditTypeOptions" :field-names="{label: 'name'}"/>
+            </a-form-item>
+          </a-col>
+        </template>
 
-    </l-modal-form>
+        <a-form-item name="roleIds" :label="globalProperties.$t('authServer.userRole')" :rules="[{required: true, type:'array'}]">
+          <l-enterprise-role-table preview hide-title :query="{'filter_[enabled_eq]':'1'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
+        </a-form-item>
 
-    <l-qr-code-modal
-      v-if="options.shard.open"
-      :url="options.shard.url"
-      v-model:open="options.shard.open"
-    />
-  </teleport>
+        <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
+          <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />
+        </a-form-item>
+
+      </l-modal-form>
+
+      <l-qr-code-modal
+        v-if="options.share.open"
+        :url="options.share.url"
+        v-model:open="options.share.open"
+      />
+    </teleport>
+  </div>
 </template>

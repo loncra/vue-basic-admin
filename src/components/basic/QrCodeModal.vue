@@ -29,7 +29,7 @@ function onCancel() {
 </script>
 
 <template>
-  <a-modal :open="open" :title="$t('common.shard')" :footer="null" @cancel="onCancel">
+  <a-modal :open="open" :title="$t('common.share')" :footer="null" @cancel="onCancel">
     <a-flex vertical gap="middle" align="center">
       <a-qrcode :value="props.url" :size="configProviderStore.getToken().sizeLG * 10"/>
       <a-space-compact block>

@@ -2,9 +2,14 @@
 
 import {EnterpriseMemberService} from '@/apis/auth-server/enterpriseMemberService.ts'
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
-import {DateRangePicker, Input, Select, type TableProps} from 'antdv-next'
+import {DateRangePicker, Select, type TableProps} from 'antdv-next'
 import {AuthServerService, ResourceServerService} from "@/apis";
-import type {EnterpriseMemberEntity, EnumBucketsResponseBody, RestResult} from "@/types/apis";
+import type {
+  EnterpriseMemberEntity,
+  EnumBucketsResponseBody,
+  FilterRequest,
+  RestResult
+} from "@/types/apis";
 import {
   applyColumnOptions,
   dateTimeFormat,
@@ -33,6 +38,7 @@ const globalProperties =
 
 const props = withDefaults(defineProps<{
   preview?: boolean
+  query?:FilterRequest,
 }>(), {
   preview: false,
 })
@@ -44,8 +50,8 @@ const columns = computed<SearchableColumnType[]>(() => [
     title: globalProperties.$t('common.realName'),
     dataIndex: 'name',
     key: 'name',
-    width: 250,
     ellipsis: true,
+    width: 210,
   },
   {
     title: globalProperties.$t('common.gender'),
@@ -53,18 +59,6 @@ const columns = computed<SearchableColumnType[]>(() => [
     key: 'gender',
     width: 120,
     ellipsis: true,
-  },
-  {
-    title: globalProperties.$t('auth.account'),
-    dataIndex: 'username',
-    key: 'username',
-    width: 180,
-    ellipsis: true,
-    search: {
-      component: markRaw(Input),
-      props: {placeholder: globalProperties.$t('search.placeholder.input')},
-      expression: 'like',
-    },
   },
   {
     title: globalProperties.$t('authServer.enterpriseMember.role'),
@@ -159,9 +153,6 @@ const rowActions: ActionDefinition<EnterpriseMemberEntity>[] = [
   {
     id: 'delete',
     visible: (ctx) => getEnumValue(ctx.record?.role) !== AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER,
-  },
-  {
-    id:'detail'
   }
 ]
 
@@ -174,13 +165,14 @@ onMounted(mounted)
     v-bind="$attrs"
     :service="service"
     :columns="columns"
+    :query="props.query"
     :row-actions="rowActions"
     :record-actions="!props.preview"
     :authority="{
       detail: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.GET,
       delete: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.DELETE
     }"
-    :scroll="{x:'max-content'}"
+    :scroll="undefined"
     :row-selection="props.preview ? false : rowSelection"
     @detail="r => globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE.DETAIL, query:{id:String(r.id)}})"
   >

@@ -27,7 +27,7 @@ const locale: LanguagePack = {
       all: '导出全部',
       selected: '导出 ({count}) 条记录',
     },
-    shard:'分享',
+    share:'分享',
     current:'当前',
     nextStep:'下一步',
     detail: '{name}详情',
