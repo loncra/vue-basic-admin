@@ -4,7 +4,7 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService, EnterpriseService} from "@/apis";
 import type {EnterpriseInvitationDetail, RestResult} from "@/types/apis";
-import {AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION, ICON_SELECT_AVATAR_MODE_VALUE} from "@/constants";
+import {AUDIT_STATUS_TYPE, ICON_SELECT_AVATAR_MODE_VALUE, USER_STATUS_TYPE} from "@/constants";
 import LIconSelect from "@/components/basic/IconSelect.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -84,25 +84,25 @@ function getInviteeAttr() {
   if (!options.value?.detail?.invitee) {
     return {}
   }
-  if (getEnumValue(options.value.detail.invitee.invitation) === AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION.ACTIVE) {
+  if (getEnumValue(options.value.detail.invitee.auditStatus) === AUDIT_STATUS_TYPE.AGREED) {
     return {
       status:"success",
       title:"您已加入该企业",
       subTitle:"您已是该企业成员，角色为[" + getEnumName(options.value.detail.invitee.role) + (options.value.detail.invitee?.roles || []).map(role => role.name).join(',') + "]，无需重复接受邀请。"
     }
-  } else if (getEnumValue(options.value.detail.invitee.invitation) === AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION.INVITED) {
+  } else if (getEnumValue(options.value.detail.invitee.auditStatus) === AUDIT_STATUS_TYPE.AUDITABLE) {
     return {
       status:"info",
       title:"您已加入该企业",
       subTitle:"您的账户目前处于审核状态，请等待管理员审核。"
     }
-  } else if (getEnumValue(options.value.detail.invitee.invitation) === AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION.REJECT) {
+  } else if (getEnumValue(options.value.detail.invitee.auditStatus) === AUDIT_STATUS_TYPE.REJECTED) {
     return {
       status:"warning",
       title:"请求已被您拒绝",
       subTitle:"您已经拒绝此邀请，如需要重新加入该企业，请联系管理员重新发起新的邀请。"
     }
-  } else if (getEnumValue(options.value.detail.invitee.invitation) === AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION.DISAPPROVED) {
+  } else if (getEnumValue(options.value.detail.invitee.auditStatus) === AUDIT_STATUS_TYPE.DISAGREE) {
     return {
       status:"error",
       title:"企业审核不通过",
@@ -112,7 +112,7 @@ function getInviteeAttr() {
     return {
       status:"404",
       title:"未知的邀请结果",
-      subTitle:"当前邀请状态结果为为[" + getEnumName(options.value.detail.invitee.invitation) + "]，请联系管理员进行核实。"
+      subTitle:"当前企业对该加入的审核结果为[" + getEnumName(options.value.detail.invitee.auditStatus) + "]，请联系管理员进行核实。"
     }
   }
 }
@@ -180,7 +180,7 @@ onMounted(mounted)
             <a-result
               v-bind="getInviteeAttr()"
             >
-              <template #extra v-if="getEnumValue(options.detail.invitee.invitation) === AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION.ACTIVE && options.detail.enterprise.id !== principalStore.state.details.metadata.enterpriseId">
+              <template #extra v-if="getEnumValue(options.detail.invitee.status) === USER_STATUS_TYPE.ENABLED && options.detail.enterprise.id !== principalStore.state.details.metadata.enterpriseId">
                 <a-button type="primary" @click="principalStore.switchWorkspace(options.detail.enterprise.id)">
                   进入工作台
                 </a-button>

@@ -160,8 +160,7 @@ const externalRowSelection = computed((): TableProps['rowSelection'] | false | n
 const tablePassthroughAttrs = computed(() => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {rowSelection: _rowSelection, ...rest} = attrs
-  if (!rest.scroll) {
-    console.info(tableColumns.value)
+  if (rest.scroll === undefined) {
     rest.scroll = {x:tableColumns.value.reduce((sum, c) => sum + Number(c.width || 0), 0)}
   }
   return rest

@@ -25,5 +25,6 @@ export interface EnterpriseEntity extends EnterprisePayload {
  */
 export interface PersonalEnterprise extends EnterpriseEntity {
   role?: NameValueEnumMetadata<number> | number
-  status?: NameValueEnumMetadata<number> | number
+  auditStatus?: NameValueEnumMetadata<number> | number
+  userStatus?: NameValueEnumMetadata<number> | number
 }

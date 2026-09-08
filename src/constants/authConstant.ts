@@ -79,6 +79,7 @@ export const AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY = {
   GET: 'perms[auth_server_enterprise_member:get]',
   SAVE: 'perms[auth_server_enterprise_member:save]',
   DELETE: 'perms[auth_server_enterprise_member:delete]',
+  AUDIT: 'perms[auth_server_enterprise_member:audit]',
 } as const
 
 export const AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE = {
@@ -168,13 +169,7 @@ export const AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE = {
   CONFIRM: 'auth_server_enterprise_invitation_confirm'
 } as const
 
-export const AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION = {
-  INVITED:10,
-  DISAPPROVED:15,
-  ACTIVE:20,
-  REJECT:25,
-  CANCEL:30
-} as const
+
 
 export const AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS = {
   MANUAL: 10,

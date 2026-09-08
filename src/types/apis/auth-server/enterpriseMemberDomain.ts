@@ -28,9 +28,9 @@ export interface EnterpriseMemberSavePayload extends PlatformUser, VersionEntity
  */
 export interface EnterpriseMemberEntity extends EnterpriseMemberSavePayload {
   /**
-   * 成员加入状态
+   * 审核状态
    */
-  invitation: NameValueEnumMetadata<number> | number
+  auditStatus: NameValueEnumMetadata<number> | number
   /**
    * 最后登录时间
    */
@@ -43,4 +43,6 @@ export interface EnterpriseMemberEntity extends EnterpriseMemberSavePayload {
   initialization:UserInitializationMetadata
 
   roles?:RoleAuthority[]
+
+  remark?:string
 }

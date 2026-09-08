@@ -78,7 +78,7 @@ function handleMenuClick(e: MenuInfo) {
       @click="dispatchAction(loneAction)"
     >
       <template #icon>
-        <component class="icon align" :is="loneAction.icon"/>
+        <component class="icon" :is="loneAction.icon"/>
       </template>
       <span>{{ loneAction.label }}</span>
     </a-button>

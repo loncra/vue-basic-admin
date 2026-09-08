@@ -31,21 +31,29 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
    *
    * @returns 重置后的空菜单数组
    */
-  function $reset():MyMessageState {
+  function $reset() {
     install.value = false;
-    return {...RESET}
+    state.value = {...RESET}
   }
 
   async function installState() {
-    state.value.record = await fetchUnreadQuantity()
-    const siteTypes:RestResult<IdNameMetadata[]> = await MessageServerService.types(MESSAGE_GROUP.SITE)
-    if(siteTypes.data) {
-      state.value.siteTypes = siteTypes.data
+    if (install.value) {
+      return ;
+    }
+    try {
+      state.value.record = await fetchUnreadQuantity()
+      const siteTypes:RestResult<IdNameMetadata[]> = await MessageServerService.types(MESSAGE_GROUP.SITE)
+      if(siteTypes.data) {
+        state.value.siteTypes = siteTypes.data
+      }
+    } finally {
+      install.value = true
     }
   }
 
   function reset() {
-    return $reset()
+    $reset()
+    return state.value
   }
 
   async function fetchUnreadQuantity(): Promise<Partial<Record<MessageGroup, Record<number, unknown>>> | undefined> {
@@ -135,6 +143,8 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
     return 0;
   })
 
+  installState()
+
   return  {
     state,
     getUnreadQuantity,
@@ -142,7 +152,6 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
     getUnreadQuantityByType,
     getUserChatUnreadQuantity,
     setUserChatMessageMutedValue,
-    installState,
     $reset
   }
 })

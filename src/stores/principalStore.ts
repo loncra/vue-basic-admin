@@ -169,10 +169,11 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     }
     localStorage.setItem(deviceIdName, deviceIdentified)
 
-    if (data.type !== AUTHENTICATION_TYPE.CONSOLE) {
+    if (data.type !== AUTHENTICATION_TYPE.CONSOLE && result.data.authenticated) {
       const enterpriseDataSource:RestResult<PersonalEnterprise[]> = await enterpriseService.my()
       data.enterpriseDataSource = enterpriseDataSource.data || []
     }
+
     setState(data)
 
     return data

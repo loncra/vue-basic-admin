@@ -1,9 +1,5 @@
 import type {RouteRecordRaw} from 'vue-router'
-import {
-  AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
-  AUTHENTICATION_TYPE,
-  SYSTEM_MODULE_NAME
-} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
 
 /** 企业邀请相关路由 */
 const router: RouteRecordRaw[] = [
@@ -22,9 +18,9 @@ const router: RouteRecordRaw[] = [
     name: AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE.CONFIRM,
     component: import('@/views/auth-server/enterprise-invitation/Confirm.vue'),
     meta: {
+      quickAccess:false,
       applicationName: SYSTEM_MODULE_NAME.AUTH_SERVER,
-      requiresFullyAuth: true,
-      authenticationType:AUTHENTICATION_TYPE.PERSONAL
+      requiresFullyAuth: true
     },
   },
   {

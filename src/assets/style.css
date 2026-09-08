@@ -487,4 +487,10 @@
   .folder-edit .ant-menu-submenu-title {
     @apply h-[32px] leading-[32px] mb-0 pe-xs
   }
+  .ant-table-expanded-row-fixed {
+    @apply pt-[12px] pr-[10px] pb-[12px] pl-[8px]
+  }
+  .ant-table-expanded-row-fixed .ant-table {
+    @apply rounded-none
+  }
 }

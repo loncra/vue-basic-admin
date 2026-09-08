@@ -5,7 +5,7 @@ import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {EnterpriseMemberEntity} from '@/types/apis/auth-server/enterpriseMemberDomain'
 import {
-  AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION,
+  AUDIT_STATUS_TYPE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
@@ -28,7 +28,7 @@ const entity = ref<EnterpriseMemberEntity>({
   principal: '',
   username: '',
   role: AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.MEMBER,
-  invitation: AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION.INVITED,
+  auditStatus: AUDIT_STATUS_TYPE.AUDITABLE,
   status: {
     value: 99,
     name: '',
@@ -47,7 +47,7 @@ const entity = ref<EnterpriseMemberEntity>({
   emailVerified: 0,
   gender: 30,
   phoneNumberVerified: 0,
-  systemName: ""
+  systemName: "",
 })
 
 function displayName(record: EnterpriseMemberEntity) {
@@ -78,8 +78,8 @@ function displayName(record: EnterpriseMemberEntity) {
       <a-descriptions-item :label="globalProperties.$t('authServer.enterpriseMember.role')">
         {{getEnumName(entity.role)}}
       </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterpriseMember.invitation')">
-        {{getEnumName(entity.invitation)}}
+      <a-descriptions-item :label="globalProperties.$t('common.auditStatus')">
+        {{getEnumName(entity.auditStatus)}}
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.status')">
         {{getEnumName(entity.status)}}

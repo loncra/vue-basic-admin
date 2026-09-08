@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
-import {AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION} from "@/constants";
+import {AUDIT_STATUS_TYPE} from "@/constants";
 
 defineOptions({
   name: 'AuthServerEnterpriseMemberHome'
@@ -10,6 +10,6 @@ defineOptions({
 
 <template>
   <div>
-    <l-enterprise-member-table :query="{'filter_[invitation_eq]':AUTH_SERVER_ENTERPRISE_MEMBER_INVITATION.ACTIVE}"/>
+    <l-enterprise-member-table :query="{'filter_[audit_status_eq]':AUDIT_STATUS_TYPE.AGREED}"/>
   </div>
 </template>

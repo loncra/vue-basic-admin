@@ -12,7 +12,7 @@ export function useActionAuth(): ActionAuth {
       if (permission === true) {
         return true
       }
-      return principalStore.hasPermission(permission as string) || !!permission
+      return principalStore.hasPermission(permission as string)/* || !!permission*/
     },
   }
 }

@@ -30,7 +30,7 @@ export const SYSTEM_ENUM_TYPE = {
   ENTERPRISE_MEMBER_ROLE_ENUM: 'EnterpriseMemberRoleEnum',
   ENTERPRISE_MEMBER_INVITATION_ENUM: 'EnterpriseMemberInvitationEnum',
   ENTERPRISE_INVITATION_STATUS_ENUM: 'EnterpriseInvitationStatusEnum',
-  ENTERPRISE_INVITATION_AUDIT_ENUM: 'EnterpriseInvitationAuditEnum',
+  AUDIT_STATUS_ENUM: 'AuditStatusEnum',
   VALUE_TYPE_ENUM: 'ValueTypeEnum',
   YES_OR_NO: 'YesOrNo',
 } as const
@@ -280,6 +280,49 @@ export const MESSAGE_TYPE = {
   UNKNOWN: 99,
 } as const
 
+export const AUDIT_STATUS_TYPE = {
+    /**
+     * 待审核
+     */
+    AUDITABLE:10,
+
+    /**
+     * 审核通过
+     */
+    AGREED:20,
+
+    /**
+     * 审核不通过
+     */
+    DISAGREE:30,
+
+    /**
+     * 已拒绝
+     */
+    REJECTED:40,
+
+    /**
+     * 未知
+     */
+    UNKNOWN:99,
+} as const
+
+export const USER_STATUS_TYPE = {
+  /**
+   * 启用
+   */
+  ENABLED:1,
+
+  /**
+   * 禁用
+   */
+  DISABLED:0,
+
+  /**
+   * 锁定
+   */
+  LOCK:99
+}
 
 export const IMAGE_EXT = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico'])
 export const VIDEO_EXT = new Set(['mp4', 'webm', 'ogg', 'mov', 'm4v'])

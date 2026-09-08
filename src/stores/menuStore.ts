@@ -50,7 +50,7 @@ export interface MenuState  {
  */
 export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   /** 菜单资源数据状态 */
-  const state = ref<MenuState>(reset())
+  const state = ref<MenuState>({...RESET})
 
   /**
    * 重置菜单状态
@@ -58,14 +58,14 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
    *
    * @returns 重置后的空菜单数组
    */
-  function $reset(): MenuState {
+  function $reset(): void {
     const principalStore = usePrincipalStore();
     const quickAccessRecord = getPrincipalQuickAccessRecord(principalStore.state.name)
     let quickAccess:RouteResourceMetadata[] = []
     if (principalStore.state.name !== '') {
       quickAccess = getCurrentQuickAccess(principalStore.state.name, quickAccessRecord);
     }
-    return {
+    state.value = {
       ...RESET,
       ...{quickAccess}
     }
@@ -96,7 +96,8 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
   }
 
   function reset():MenuState {
-    return $reset()
+    $reset()
+    return state.value
   }
 
   function setRouteEnterLoading(pathKey: string, value: boolean) {
@@ -213,9 +214,12 @@ export const useMenuPrincipalStore = defineStore(STORE.MENU_ID, () => {
       }
     }
     state.value.currentBreadcrumbs = result;
-    if (Object.keys(route.query).length > 0 || route.meta.fixed || ["400", "403", "404"].includes(route.name as string)) {
+    if (route.meta.quickAccess === false || Object.keys(route.query).length > 0 || route.meta.fixed) {
       return
     }
+    /*if (Object.keys(route.query).length > 0 || route.meta.fixed || ["400", "403", "404"].includes(route.name as string)) {
+      return
+    }*/
 
     const last = result.at(-1)
     if (!last) {

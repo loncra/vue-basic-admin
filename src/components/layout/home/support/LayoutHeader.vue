@@ -3,21 +3,12 @@ import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
 import LMenu from '@/components/layout/Menu.vue'
 import {RESOURCE_TYPE} from "@/constants";
-import {onMounted} from "vue";
-import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 
 defineOptions({
   name: 'LLayoutHeader',
 })
 
 const menuPrincipalStore = useMenuPrincipalStore()
-const messageServerStore = useMessageServerStore()
-
-async function mounted(){
-  await messageServerStore.installState()
-}
-
-onMounted(mounted)
 
 </script>
 

@@ -6,7 +6,7 @@ import type {
 } from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {BusinessError, type PrepareData, type ResourceEntity,} from "@/types/apis";
+import {type PrepareData, type ResourceEntity,} from "@/types/apis";
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
 import {AUTHENTICATION_MEMBER_TYPE, AUTHENTICATION_TYPE, RESOURCE_TYPE} from "@/constants";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
@@ -42,6 +42,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     name: '403',
     component: Forbidden,
     meta: {
+      quickAccess:false,
       deactivatedClose: true,
       applicationName: 'system',
       icon: 'loncra-message-circle-warning',
@@ -52,6 +53,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     name: '400',
     component: BadRequest,
     meta: {
+      quickAccess:false,
       applicationName: 'system',
       icon: 'loncra-badge-alert',
       deactivatedClose: true,
@@ -152,7 +154,10 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/error/404',
     name: '404',
-    component: NotFound
+    component: NotFound,
+    meta:{
+      quickAccess:false,
+    }
   },
   {
     // 首页路由，包含子路由
@@ -345,11 +350,11 @@ const reloadRoute = async (): Promise<RouteRecordRaw[]> => {
 }
 
 export const saveRequestPathThenToAuth = (
-  to:RouteLocationNormalized,
+  href:string,
   authenticationType:string = AUTHENTICATION_TYPE.CONSOLE
 )=> {
 
-  sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME, to.fullPath)
+  sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME, href)
   return getAuthRouterParam(authenticationType)
 }
 
@@ -377,24 +382,14 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
     socketStore.disconnect()
     await principalStore.logout()
     clearRoute()
+    menuPrincipalStore.reset()
     return // 继续导航
   } else if (routes.some(route => route.name === to.name)) {
     return
   }
   // 仅在初始状态时尝试加载动态路由
   if (!initialState.value) {
-    try {
-      await reloadRoute()
-    } catch (e) {
-      // prepare 阶段 401：必须用 to，此时 router.currentRoute 还是旧值
-      if (e instanceof BusinessError && e.status === 401) {
-        return saveRequestPathThenToAuth(
-          to,
-          String(to.meta.authenticationType || principalStore.state.type),
-        )
-      }
-      throw e
-    }
+    await reloadRoute()
     menuPrincipalStore.refreshQuickAccess()
     return {...to, replace: true}
   }
@@ -405,7 +400,7 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
 
   // 处理需要认证但未认证的请求
   if (requiresAuth || requiresFullyAuth) {
-    return saveRequestPathThenToAuth(to, String(to.meta.authenticationType || principalStore.state.type))
+    return saveRequestPathThenToAuth(to.fullPath, String(to.meta.authenticationType || principalStore.state.type))
   }
 
   if (principalStore.isAuthenticated) {

@@ -46,6 +46,12 @@ const locale: LanguagePack = {
       confirmSingle: '确定要删除该记录吗？',
       confirmBatch: '确定要删除 {count} 条记录吗？',
     },
+    auditStatus:'审核状态',
+    audit:{
+      title:'审核信息',
+      text:'审核',
+      selected:'审核 ({count}) 条记录'
+    },
     title:'标题',
     serverError: '服务器异常，请稍后在试。',
     confirmPassword:'确认密码',
@@ -473,13 +479,13 @@ const locale: LanguagePack = {
     },
     enterpriseMember:{
       routePage:'企业成员',
-      invitation:'加入状态',
       role:'成员角色',
       principal:'认证主体',
     },
     enterpriseInvitation:{
       routePage:'邀请',
       inviterPrincipal:'邀请人',
+      invitedMembers:'已确认用户',
       roleId:'企业角色',
       auditType: '审核类型',
       confirm:'企业邀请确认',

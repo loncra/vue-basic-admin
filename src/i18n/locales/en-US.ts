@@ -24,6 +24,12 @@ const locale: LanguagePack = {
     share:'Share',
     permanent: 'Permanent',
     applet: 'Mini program',
+    auditStatus:'Audit status',
+    audit:{
+      title:'Audit information',
+      text:'audit',
+      selected:'Audit ({count}) record(s)'
+    },
     used: 'Used',
     current: 'Current',
     export: {
@@ -485,7 +491,6 @@ const locale: LanguagePack = {
     },
     enterpriseMember: {
       routePage: 'Enterprise members',
-      invitation: 'Join status',
       role: 'Member role',
       principal: 'Principal',
     },

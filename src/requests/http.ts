@@ -158,8 +158,9 @@ async function responseError<T = unknown>(
   if (status === 401) {
     const principalStore = usePrincipalStore()
     message.error(i18n.global.t('error.http.loginExpired'))
-    const to = router.currentRoute.value
-    const pushValue = saveRequestPathThenToAuth(to, String(to.meta.authenticationType || principalStore.state.type))
+    const params = new URLSearchParams(location.search)
+    const authenticationType = String(params.get("authenticationType") || principalStore.state.type);
+    const pushValue = saveRequestPathThenToAuth(location.pathname, authenticationType)
     router.push(pushValue)
     return Promise.reject(
       new BusinessError(result?.executeCode || '401', status, serverMessage, result?.data),

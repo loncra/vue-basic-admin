@@ -156,9 +156,11 @@ const itemActionDefinitions = function (): ActionDefinition<EnterpriseInvitation
 async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.AUTH_SERVER]: [
-      {id: SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_STATUS_ENUM},
-      {id: SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_AUDIT_ENUM},
+      {id: SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_STATUS_ENUM}
     ],
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
+      {id: SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM},
+    ]
   })
   if (enums.data) {
     applyColumnOptions(
@@ -169,9 +171,9 @@ async function mounted() {
     applyColumnOptions(
       columns.value,
       'auditType',
-      enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_AUDIT_ENUM] || [],
+      enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM] || [],
     )
-    options.value.auditTypeOptions = (enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_AUDIT_ENUM] || [] ) as NameValueEnumMetadata<number>[]
+    options.value.auditTypeOptions = (enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM] || [] ) as NameValueEnumMetadata<number>[]
   }
 }
 
@@ -249,7 +251,14 @@ onMounted(mounted)
         </template>
       </template>
       <template #expandedRowRender="{ record }">
-        <l-enterprise-member-table :bordered="false" hide-title preview :query="{'filter_[invitation_id_eq]':record.id}" />
+        <l-enterprise-member-table :bordered="false" audit :query="{'filter_[invitation_id_eq]':record.id}">
+          <template #title>
+            <a-space>
+              <icon-font type="loncra-user-check" />
+              {{ globalProperties.$t('authServer.enterpriseInvitation.invitedMembers') }}
+            </a-space>
+          </template>
+        </l-enterprise-member-table>
       </template>
     </l-crud-table>
 
