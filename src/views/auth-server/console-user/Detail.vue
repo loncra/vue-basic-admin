@@ -102,6 +102,7 @@ const entity = ref<ConsoleUserEntity>({
       <a-descriptions-item :label="globalProperties.$t('common.remark')">
         {{ entity.remark || '' }}
       </a-descriptions-item>
+      
     </l-basic-detail>
   </div>
 </template>

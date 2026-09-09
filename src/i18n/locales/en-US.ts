@@ -22,6 +22,7 @@ const locale: LanguagePack = {
     edit: 'Edit {name}',
     all: 'All {name}',
     share:'Share',
+    subTitle:'Subtitle',
     permanent: 'Permanent',
     applet: 'Mini program',
     auditStatus:'Audit status',
@@ -452,6 +453,12 @@ const locale: LanguagePack = {
     createAccount: 'Create account',
     reLogin: 'Return to sign in',
     page: 'Sign in',
+    adminResetPassword: {
+      text: 'Reset password',
+      confirmTitle: 'Confirm password reset',
+      confirmSingle: 'Reset this user’s sign-in password? A new random password will be generated.',
+      success: 'Reset succeeded. New password: {password}',
+    },
   },
   workbench: {
     personalActivity: 'Personal activity',

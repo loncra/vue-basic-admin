@@ -3,17 +3,27 @@
 import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
-import {ResourceServerService} from "@/apis";
-import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
-import {applyColumnOptions, dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
-import type {SearchableColumnType} from "@/types/composables";
+import {AuthServerService, ResourceServerService} from "@/apis";
+import type {ConsoleUserEntity, EnumBucketsResponseBody, RestResult} from "@/types/apis";
+import {
+  applyColumnOptions,
+  createIcon,
+  dateTimeFormat,
+  getEnumName,
+  requireNonNullOrUndefined
+} from "@/utils";
+import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {
   AUTH_SERVER_CONSOLE_USER_AUTHORITY,
   AUTH_SERVER_CONSOLE_USER_ROUTE,
+  AUTH_SERVER_SYSTEM_USER_AUTHORITY,
+  AUTHENTICATION_TYPE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
+import {isBusinessSuccess} from "@/requests";
+import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({
   name: 'LConsoleUserTableTable',
@@ -22,6 +32,8 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+
+const {message, modal} = useApp()
 
 const props = withDefaults(defineProps<{
   preview?: boolean
@@ -121,13 +133,48 @@ async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[
       {id: SYSTEM_ENUM_TYPE.GENDER_ENUM},
-      {id: SYSTEM_ENUM_TYPE.USER_STATUS}
+      {id: SYSTEM_ENUM_TYPE.USER_STATUS_ENUM}
     ]
   })
   if (enums.data) {
     applyColumnOptions(columns.value, "gender", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.GENDER_ENUM] || [])
-    applyColumnOptions(columns.value, "status", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.USER_STATUS] || [])
+    applyColumnOptions(columns.value, "status", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.USER_STATUS_ENUM] || [])
   }
+}
+
+function rowActions(): ActionDefinition<ConsoleUserEntity>[] {
+  return [
+    {
+      id: 'resetPassword',
+      danger: true,
+      permission: AUTH_SERVER_SYSTEM_USER_AUTHORITY.ADMIN_RESET_PASSWORD,
+      label: () => globalProperties.$t('auth.adminResetPassword.text'),
+      icon: () => createIcon('loncra-lock-open'),
+      run: (ctx) => {
+        if (ctx.record?.id == null) {
+          return
+        }
+        modal.confirm({
+          title: globalProperties.$t('auth.adminResetPassword.confirmTitle'),
+          content: globalProperties.$t('auth.adminResetPassword.confirmSingle'),
+          onOk: async () => {
+            const result = await AuthServerService.adminResetPassword(
+              AUTHENTICATION_TYPE.CONSOLE,
+              String(ctx.record!.id),
+            )
+            if (isBusinessSuccess(result)) {
+              message.success({
+                content: globalProperties.$t('auth.adminResetPassword.success', {
+                  password: String(result.data ?? ''),
+                }),
+                duration: 8,
+              })
+            }
+          },
+        })
+      },
+    },
+  ]
 }
 
 onMounted(mounted)
@@ -138,6 +185,7 @@ onMounted(mounted)
     v-bind="$attrs"
     :service="consoleUserService"
     :columns="columns"
+    :row-actions="rowActions()"
     :record-actions="!props.preview"
     :authority="{
       add:AUTH_SERVER_CONSOLE_USER_AUTHORITY.SAVE,

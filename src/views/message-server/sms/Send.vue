@@ -17,7 +17,7 @@ import {AuthServerService, ResourceServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {
   MESSAGE_SERVER_SMS_ROUTE,
-  MESSAGE_TYPE,
+  MESSAGE_TYPE_VALUE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   YES_OR_NO_TYPE
@@ -60,7 +60,7 @@ const options = ref<{
     phoneNumbers: [],
     channel: "alibabaCloud",
     content: '',
-    type: MESSAGE_TYPE.NOTICE,
+    type: MESSAGE_TYPE_VALUE.NOTICE,
     remark: '',
     metadata: {
       signCode: '',

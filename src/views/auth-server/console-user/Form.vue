@@ -8,6 +8,7 @@ import type {NameValueEnumMetadata, RestResult, RoleEntity} from "@/types/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   AUTH_SERVER_CONSOLE_USER_ROUTE,
+  AUTHENTICATION_TYPE,
   GENDER,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_CONSTANT,
@@ -57,13 +58,13 @@ const options = ref<{
 
 async function mounted() {
   options.value.spinning = true
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.GENDER_ENUM}, {id:SYSTEM_ENUM_TYPE.USER_STATUS}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.GENDER_ENUM}, {id:SYSTEM_ENUM_TYPE.USER_STATUS_ENUM}]})
   if (enums.data) {
     const responseBody: EnumBucketsResponseBody = enums.data
     const resourceServer = responseBody[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
 
     options.value.genderOptions = resourceServer[SYSTEM_ENUM_TYPE.GENDER_ENUM] ?? []
-    options.value.statusOptions = resourceServer[SYSTEM_ENUM_TYPE.USER_STATUS] ?? []
+    options.value.statusOptions = resourceServer[SYSTEM_ENUM_TYPE.USER_STATUS_ENUM] ?? []
   }
 
   options.value.spinning = false
@@ -74,8 +75,13 @@ const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = 
   selectedRows
 ) => {
   const rows = selectedRows as RoleEntity[]
-  options.value.entity.resourceIds = rows.flatMap((r) => r.resourceIds ?? [])
   options.value.entity.roleIds = rows.flatMap((r) => (r.id != null ? [r.id] : []))
+  options.value.entity.resourceIds = [
+    ...new Set([
+      ...(options.value.entity.resourceIds ?? []),
+      ...rows.flatMap((r) => r.resourceIds ?? []),
+    ]),
+  ]
 }
 
 function setPageTitle(title:string, entity: ConsoleUserEntity | ConsoleUserSavePayload) {
@@ -145,11 +151,11 @@ function resetFields() {
         </a-space>
       </a-divider>
 
-      <l-role-table preview hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':'CONSOLE'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
+      <l-role-table preview hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTHENTICATION_TYPE.CONSOLE}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
-          <icon-font class="icon" type="loncra-accessibility" />
+          <icon-font class="icon" type="loncra-key-round" />
           {{ globalProperties.$t('authServer.standaloneResource') }}
         </a-space>
       </a-divider>
@@ -159,7 +165,7 @@ function resetFields() {
         preview
         hide-title
         root-class="mb-md"
-        :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':'CONSOLE'}"
+        :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTHENTICATION_TYPE.CONSOLE}"
         :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds}"
       />
 

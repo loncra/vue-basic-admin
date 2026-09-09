@@ -9,7 +9,7 @@ export const SYSTEM_ENUM_TYPE = {
   CLOUD_CHANNEL_ENUM: 'CloudChannelEnum',
   CAROUSEL_TYPE_ENUM: 'CarouselTypeEnum',
   DATA_STATUS_ENUM: 'DataStatusEnum',
-  EXECUTE_STATUS: 'ExecuteStatus',
+  EXECUTE_STATUS_ENUM: 'ExecuteStatus',
   GENDER_ENUM: 'GenderEnum',
   MCP_PACKAGE_AUTH_MODE_ENUM: 'McpPackageAuthModeEnum',
   MCP_PACKAGE_TYPE_ENUM: 'PackageTypeEnum',
@@ -20,16 +20,16 @@ export const SYSTEM_ENUM_TYPE = {
   SKILL_SOURCE_TYPE_ENUM: 'SkillSourceTypeEnum',
   UPDATE_POLICY_ENUM: 'UpdatePolicyEnum',
   MODEL_TYPE_ENUM: 'ModelTypeEnum',
-  OPERATION_DATA_TYPE: 'OperationDataType',
+  OPERATION_DATA_TYPE_ENUM: 'OperationDataType',
   RESOURCE_CATEGORY_ENUM: 'ResourceCategoryEnum',
   RESOURCE_SOURCE_ENUM: 'ResourceSourceEnum',
   RESOURCE_TYPE_ENUM: 'ResourceTypeEnum',
   SITE_MESSAGE_PUSHABLE_CHANNEL_ENUM: 'SiteMessagePushableChannelEnum',
   TIME_UNIT_ENUM: 'TimeUnitEnum',
-  USER_STATUS: 'UserStatus',
+  USER_STATUS_ENUM: 'UserStatus',
   ENTERPRISE_MEMBER_ROLE_ENUM: 'EnterpriseMemberRoleEnum',
-  ENTERPRISE_MEMBER_INVITATION_ENUM: 'EnterpriseMemberInvitationEnum',
   ENTERPRISE_INVITATION_STATUS_ENUM: 'EnterpriseInvitationStatusEnum',
+  AUDIT_TYPE_ENUM: 'AuditTypeEnum',
   AUDIT_STATUS_ENUM: 'AuditStatusEnum',
   VALUE_TYPE_ENUM: 'ValueTypeEnum',
   YES_OR_NO: 'YesOrNo',
@@ -270,7 +270,7 @@ export const USER_CHAT_CALL_PARTICIPANT_STATUS = {
 } as const
 
 /** 对齐后端 MessageTypeEnum */
-export const MESSAGE_TYPE = {
+export const MESSAGE_TYPE_VALUE = {
   NOTICE: 10,
   WARNING: 20,
   SYSTEM: 30,
@@ -280,7 +280,13 @@ export const MESSAGE_TYPE = {
   UNKNOWN: 99,
 } as const
 
-export const AUDIT_STATUS_TYPE = {
+
+export const AUDIT_TYPE_VALUE = {
+  MANUAL: 10,
+  AUTOMATIC: 20
+} as const
+
+export const AUDIT_STATUS_VALUE = {
     /**
      * 待审核
      */

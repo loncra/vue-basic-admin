@@ -135,9 +135,9 @@ if (props.date) {
 }
 
 async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.OPERATION_DATA_TYPE}]})
+  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.OPERATION_DATA_TYPE_ENUM}]})
   if (enums.data) {
-    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.OPERATION_DATA_TYPE] ?? [])
+    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.OPERATION_DATA_TYPE_ENUM] ?? [])
   }
   if (props.detailView) {
     columns.value = columns.value.filter(v => !["target", "auditType", "traceId"].includes(v.dataIndex as string))

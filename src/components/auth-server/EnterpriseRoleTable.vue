@@ -49,6 +49,8 @@ const props = withDefaults(defineProps<{
 const service = new EnterpriseRoleService()
 
 const actionButtons = ref<ActionDefinition<EnterpriseRoleEntity>[]>([])
+  
+const dataSource = defineModel<EnterpriseRoleEntity[]>("dataSource", {default: () => []})
 
 const columns = computed<SearchableColumnType[]>(() => [
   {
@@ -111,7 +113,6 @@ const columns = computed<SearchableColumnType[]>(() => [
   },
 ])
 
-const dataSource = ref<EnterpriseRoleEntity[]>([])
 const yesOrNoFields = ["modifiable", "enabled", "removable"];
 
 async function mounted() {

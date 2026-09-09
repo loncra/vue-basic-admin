@@ -9,7 +9,7 @@ import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
 import {SiteMessageService} from "@/apis/message-server";
 import type {RestResult} from "@/types/apis";
-import {MESSAGE_SERVER_BATCH_ROUTE, MESSAGE_TYPE} from "@/constants";
+import {MESSAGE_SERVER_BATCH_ROUTE, MESSAGE_TYPE_VALUE} from "@/constants";
 
 defineOptions({
   name: 'MessageServerBatchDetail'
@@ -28,7 +28,7 @@ const entity = ref<BatchMessageEntity>({
   failNumber: 0,
   id: 0,
   successNumber: 0,
-  type: MESSAGE_TYPE.NOTICE,
+  type: MESSAGE_TYPE_VALUE.NOTICE,
   version: 0
 })
 

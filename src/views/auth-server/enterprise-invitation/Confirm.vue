@@ -4,7 +4,7 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService, EnterpriseService} from "@/apis";
 import type {EnterpriseInvitationDetail, RestResult} from "@/types/apis";
-import {AUDIT_STATUS_TYPE, ICON_SELECT_AVATAR_MODE_VALUE, USER_STATUS_TYPE} from "@/constants";
+import {AUDIT_STATUS_VALUE, ICON_SELECT_AVATAR_MODE_VALUE, USER_STATUS_TYPE} from "@/constants";
 import LIconSelect from "@/components/basic/IconSelect.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -86,7 +86,7 @@ function getInviteeAttr() {
   }
   const base = 'authServer.enterpriseInvitation.confirmResult'
   const invitee = options.value.detail.invitee
-  if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_TYPE.AGREED) {
+  if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.AGREED) {
     return {
       status:"success",
       title: globalProperties.$t(`${base}.joined.title`),
@@ -94,19 +94,19 @@ function getInviteeAttr() {
         role: getEnumName(invitee.role) + (invitee?.roles || []).map(role => role.name).join(','),
       }),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_TYPE.AUDITABLE) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.AUDITABLE) {
     return {
       status:"info",
       title: globalProperties.$t(`${base}.auditable.title`),
       subTitle: globalProperties.$t(`${base}.auditable.subTitle`),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_TYPE.REJECTED) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.REJECTED) {
     return {
       status:"warning",
       title: globalProperties.$t(`${base}.rejected.title`),
       subTitle: globalProperties.$t(`${base}.rejected.subTitle`),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_TYPE.DISAGREE) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.DISAGREE) {
     return {
       status:"error",
       title: globalProperties.$t(`${base}.disagree.title`),

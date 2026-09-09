@@ -121,12 +121,12 @@ async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
       {id: SYSTEM_ENUM_TYPE.GENDER_ENUM},
-      {id: SYSTEM_ENUM_TYPE.USER_STATUS},
+      {id: SYSTEM_ENUM_TYPE.USER_STATUS_ENUM},
     ],
   })
   if (enums.data) {
     applyColumnOptions(columns.value, 'gender', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.GENDER_ENUM] || [])
-    applyColumnOptions(columns.value, 'status', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.USER_STATUS] || [])
+    applyColumnOptions(columns.value, 'status', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.USER_STATUS_ENUM] || [])
   }
 }
 

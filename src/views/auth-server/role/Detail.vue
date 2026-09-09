@@ -88,7 +88,7 @@ watch(
       <template #afterDescriptions>
         <a-divider orientation="left" plain>
           <a-space>
-            <icon-font class="icon" type="loncra-accessibility" />
+            <icon-font class="icon" type="loncra-key-round" />
             {{ globalProperties.$t('authServer.standaloneResource') }}
           </a-space>
         </a-divider>
@@ -100,7 +100,7 @@ watch(
           preview
           hide-title
           :query="resourceQuery"
-          :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: entity.resourceIds}"
+          :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: entity.resourceIds, getCheckboxProps:() => ({disabled:true})}"
         />
       </template>
     </l-basic-detail>

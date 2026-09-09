@@ -9,12 +9,11 @@ import {
   onMounted,
   ref
 } from 'vue'
-import {DateRangePicker, Select, type TableProps} from 'antdv-next'
+import {DateRangePicker, Select} from 'antdv-next'
 import {AuthServerService, ResourceServerService} from '@/apis'
 import type {
   EnterpriseInvitationEntity,
   EnterpriseInvitationSavePayload,
-  EnterpriseRoleEntity,
   EnumBucketsResponseBody,
   NameValueEnumMetadata,
   RestResult
@@ -30,22 +29,21 @@ import {
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
 import LCrudTable from '@/components/basic/crud/CrudTable.vue'
 import {
-  AUDIT_STATUS_TYPE,
+  AUDIT_STATUS_VALUE,
+  AUDIT_TYPE_VALUE,
   AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
-  AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS,
   AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   AUTHENTICATION_TYPE,
-  DATE_TIME_FORMAT,
-  OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
 } from '@/constants'
-import LModalForm from "@/components/basic/form/ModalForm.vue";
-import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LQrCodeModal from "@/components/basic/QrCodeModal.vue";
 import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
+import LEnterpriseInvitationModal, {
+  createEmptyForm
+} from "@/components/auth-server/EnterpriseInvitationModal.vue";
 
 defineOptions({
   name: 'AuthServerEnterpriseInvitationHome',
@@ -121,7 +119,7 @@ const columns = computed<SearchableColumnType[]>(() => [
 ])
 
 const options = ref<{
-  entity:EnterpriseInvitationSavePayload,
+  entity?:EnterpriseInvitationSavePayload,
   auditTypeOptions:NameValueEnumMetadata<number>[]
   model:boolean
   share:{
@@ -134,7 +132,6 @@ const options = ref<{
     open:false,
     url:''
   },
-  entity:createEmptyForm(),
   auditTypeOptions:[]
 })
 
@@ -163,7 +160,7 @@ async function mounted() {
       {id: SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_STATUS_ENUM}
     ],
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-      {id: SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM},
+      {id: SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM},
     ]
   })
   if (enums.data) {
@@ -175,40 +172,21 @@ async function mounted() {
     applyColumnOptions(
       columns.value,
       'auditType',
-      enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM] || [],
+      enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM] || [],
     )
-    options.value.auditTypeOptions = (enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM] || [] ) as NameValueEnumMetadata<number>[]
+    options.value.auditTypeOptions = (enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM] || [] ) as NameValueEnumMetadata<number>[]
   }
-}
-
-function createEmptyForm():EnterpriseInvitationSavePayload {
-  return {
-    id:null as unknown as number,
-    expirationTime: null as unknown as number,
-    auditType:AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS.AUTOMATIC,
-    roleIds: []
-  }
-}
-
-const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = (
-  _selectedRowKeys,
-  selectedRows
-) => {
-  const rows = selectedRows as EnterpriseRoleEntity[]
-  options.value.entity.roleIds = rows.flatMap((r) => (r.id != null ? [r.id] : []))
 }
 
 function onEdit(record:EnterpriseInvitationEntity | undefined) {
   options.value.model = true
   if (record) {
-    options.value.entity.id = record.id
+    options.value.entity = {...record, expirationTime:record.expirationTime ? globalProperties.$dayjs(record.expirationTime) : undefined}
+  } else {
+    options.value.entity = createEmptyForm()
   }
 }
 
-function onSuccess() {
-  options.value.model = false
-  crudTable.value.fetchDataSource()
-}
 
 onMounted(mounted)
 </script>
@@ -220,10 +198,11 @@ onMounted(mounted)
       :service="service"
       :columns="columns"
       :row-actions="itemActionDefinitions()"
-      :expandable="{ rowExpandable: (record:EnterpriseInvitationEntity) => getEnumValue(record.auditType) === AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS.MANUAL }"
+      :expandable="{ rowExpandable: (record:EnterpriseInvitationEntity) => getEnumValue(record.auditType) === AUDIT_TYPE_VALUE.MANUAL }"
       :authority="{
         detail: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
         delete: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.DELETE,
+        edit:AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.SAVE,
         add:AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.SAVE,
       }"
       :scroll="{x:'max-content'}"
@@ -256,7 +235,7 @@ onMounted(mounted)
         </template>
       </template>
       <template #expandedRowRender="{ record }">
-        <l-enterprise-member-table audit :query="{'filter_[invitation_id_eq]':record.id,'filter_[audit_status_eq]':AUDIT_STATUS_TYPE.AUDITABLE}">
+        <l-enterprise-member-table audit :query="{'filter_[invitation_id_eq]':record.id,'filter_[audit_status_eq]':AUDIT_STATUS_VALUE.AUDITABLE}">
           <template #title>
             <a-space>
               <icon-font type="loncra-user-check" />
@@ -267,41 +246,14 @@ onMounted(mounted)
       </template>
     </l-crud-table>
 
-
     <teleport v-if="options.model || options.share.open" to="body">
-      <l-modal-form
-        ref="editForm"
+      <l-enterprise-invitation-modal
+        @success="crudTable?.fetchDataSource()"
         v-if="options.model"
-        @cancel="options.entity = createEmptyForm()"
-        @success="onSuccess"
-        :title="globalProperties.$t('common.add', {name: ' ' + globalProperties.$t('authServer.enterpriseInvitation.routePage')})"
         v-model:open="options.model"
-        :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_INVITATION"
-        :service="service"
+        :audit-type-options="options.auditTypeOptions"
         v-model:entity="options.entity"
-      >
-        <template #rowLayout>
-          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <a-form-item name="expirationTime" :label="globalProperties.$t('authServer.enterpriseInvitation.expirationTime')">
-              <a-date-picker :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT" show-time allow-clear class="w-full" v-model:value="options.entity.expirationTime"  />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <a-form-item name="auditType" :label="globalProperties.$t('authServer.enterpriseInvitation.auditType')" >
-              <a-select class="w-full" v-model:value="options.entity.auditType" :options="options.auditTypeOptions" :field-names="{label: 'name'}"/>
-            </a-form-item>
-          </a-col>
-        </template>
-
-        <a-form-item name="roleIds" :label="globalProperties.$t('authServer.userRole')" :rules="[{required: true, type:'array'}]">
-          <l-enterprise-role-table preview hide-title :query="{'filter_[enabled_eq]':'1'}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
-        </a-form-item>
-
-        <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
-          <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />
-        </a-form-item>
-
-      </l-modal-form>
+      />
 
       <l-qr-code-modal
         v-if="options.share.open"

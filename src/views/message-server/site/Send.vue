@@ -12,7 +12,7 @@ import type {SiteMessageSendPayload} from "@/types/apis/message-server/siteDomai
 import LTipTap from "@/components/tiptap/TipTap.vue";
 
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {MESSAGE_TYPE, SITE_PUSHABLE} from "@/constants";
+import {MESSAGE_TYPE_VALUE, SITE_PUSHABLE} from "@/constants";
 import {loadMessageSendEnums} from "@/composables/message-server/useMessageSendFlow.ts";
 
 defineOptions({
@@ -40,7 +40,7 @@ const options = ref<{
   loading: false,
   form: {
     toUsers: [],
-    type: MESSAGE_TYPE.NOTICE,
+    type: MESSAGE_TYPE_VALUE.NOTICE,
     content:"",
     title: "",
     pushable: SITE_PUSHABLE.YES,

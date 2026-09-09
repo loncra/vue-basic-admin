@@ -12,7 +12,7 @@ import LTipTap from "@/components/tiptap/TipTap.vue";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageSendPayload} from "@/types/apis/message-server/emailDomain.ts";
-import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE, YES_OR_NO_TYPE} from "@/constants";
+import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE_VALUE, YES_OR_NO_TYPE} from "@/constants";
 import {
   loadMessageSendEnums,
   navigateAfterMessageSend
@@ -43,7 +43,7 @@ const options = ref<{
   loading: false,
   form: {
     toEmails: [],
-    type: MESSAGE_TYPE.NOTICE,
+    type: MESSAGE_TYPE_VALUE.NOTICE,
     content:"",
     title: "",
     attachmentList: [],

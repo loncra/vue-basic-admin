@@ -5,7 +5,7 @@ import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {EnterpriseInvitationEntity} from '@/types/apis/auth-server/enterpriseInvitationDomain'
 import {
-  AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS,
+  AUDIT_TYPE_VALUE,
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   AUTH_SERVER_ENTERPRISE_INVITATION_STATUS,
   OPERATION_DATA_TRACE_TABLE,
@@ -30,7 +30,7 @@ const entity = ref<EnterpriseInvitationEntity>({
   status: AUTH_SERVER_ENTERPRISE_INVITATION_STATUS.EXECUTION,
   expirationTime: 0,
   roles: [],
-  auditType:AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS.AUTOMATIC,
+  auditType:AUDIT_TYPE_VALUE.AUTOMATIC,
   member: null as unknown as EnterpriseMemberEntity,
   principal: "",
   roleIds: []

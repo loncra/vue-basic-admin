@@ -12,9 +12,11 @@ import {
 import {DateRangePicker, Select, type TableProps} from 'antdv-next'
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {
+  EnterpriseInvitationSavePayload,
   EnterpriseMemberEntity,
   EnumBucketsResponseBody,
   FilterRequest,
+  NameValueEnumMetadata,
   RestResult
 } from "@/types/apis";
 import {
@@ -28,10 +30,13 @@ import {
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {
-  AUDIT_STATUS_TYPE,
+  AUDIT_STATUS_VALUE,
+  AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE,
+  AUTH_SERVER_SYSTEM_USER_AUTHORITY,
+  AUTHENTICATION_TYPE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
@@ -39,6 +44,10 @@ import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LForm from "@/components/Form.vue";
 import {isBusinessSuccess} from "@/requests";
 import useApp from "antdv-next/dist/app/useApp";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
+import LEnterpriseInvitationModal, {
+  createEmptyForm
+} from "@/components/auth-server/EnterpriseInvitationModal.vue";
 
 defineOptions({
   name: 'LEnterpriseMemberTable',
@@ -48,7 +57,9 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const {message} = useApp()
+const principalStore = usePrincipalStore()
+
+const {message, modal} = useApp()
 
 const props = withDefaults(defineProps<{
   preview?: boolean
@@ -149,24 +160,36 @@ const auditModal = ref<{
   remark:''
 })
 
+const invitationModal = ref<{
+  entity?:EnterpriseInvitationSavePayload,
+  auditTypeOptions:NameValueEnumMetadata<number>[]
+  open:boolean
+}>({
+  open:false,
+  auditTypeOptions:[]
+})
+
 const crudTable = ref()
 
 async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
       {id: SYSTEM_ENUM_TYPE.GENDER_ENUM},
-      {id: SYSTEM_ENUM_TYPE.USER_STATUS},
+        {id: SYSTEM_ENUM_TYPE.USER_STATUS_ENUM},
+        {id: SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM},
+        {id: SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM},
     ],
     [SYSTEM_MODULE_NAME.AUTH_SERVER]: [
       {id: SYSTEM_ENUM_TYPE.ENTERPRISE_MEMBER_ROLE_ENUM},
-      {id: SYSTEM_ENUM_TYPE.ENTERPRISE_MEMBER_INVITATION_ENUM},
     ],
   })
   if (enums.data) {
     applyColumnOptions(columns.value, 'gender', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.GENDER_ENUM] || [])
-    applyColumnOptions(columns.value, 'status', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.USER_STATUS] || [])
+    applyColumnOptions(columns.value, 'status', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.USER_STATUS_ENUM] || [])
+    applyColumnOptions(columns.value, 'auditStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM] || [])
     applyColumnOptions(columns.value, 'role', enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.ENTERPRISE_MEMBER_ROLE_ENUM] || [])
-    applyColumnOptions(columns.value, 'invitation', enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.ENTERPRISE_MEMBER_INVITATION_ENUM] || [])
+
+    invitationModal.value.auditTypeOptions = (enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM] || []) as NameValueEnumMetadata<number>[]
   }
 
 }
@@ -181,28 +204,67 @@ const rowSelection: NonNullable<TableProps['rowSelection']> = {
   getCheckboxProps,
 }
 
-const rowActions: ActionDefinition<EnterpriseMemberEntity>[] = [
-  {
-    id: 'edit',
-    visible: (ctx) => getEnumValue(ctx.record?.role) !== AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER,
-  },
-  {
-    id: 'delete',
-    visible: (ctx) => getEnumValue(ctx.record?.role) !== AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER,
-  },
-  {
-    id: 'audit',
-    permission: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.AUDIT,
-    enabled: (ctx) => getEnumValue(ctx.record!.auditStatus ?? 0) === AUDIT_STATUS_TYPE.AUDITABLE,
-    label: () => globalProperties.$t('common.audit.text'),
-    icon: () => createIcon('loncra-vote'),
-    run: (ctx) => auditItems([ctx.record!]),
-  },
-]
+function rowActions(): ActionDefinition<EnterpriseMemberEntity>[] {
+  const result:ActionDefinition<EnterpriseMemberEntity>[] = [
+    {
+      id: 'edit',
+      enabled: (ctx) => getEnumValue(ctx.record?.role) !== AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER,
+    },
+    {
+      id: 'delete',
+      enabled: (ctx) => getEnumValue(ctx.record?.role) !== AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER,
+    }
+  ]
+
+  if (props.audit) {
+    result.push({
+      id: 'audit',
+        permission: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.AUDIT,
+        enabled: (ctx) => getEnumValue(ctx.record!.auditStatus ?? 0) === AUDIT_STATUS_VALUE.AUDITABLE,
+        label: () => globalProperties.$t('common.audit.text'),
+        icon: () => createIcon('loncra-vote'),
+        run: (ctx) => auditItems([ctx.record!]),
+    })
+  } else {
+    result.push({
+      id: 'resetPassword',
+      danger: true,
+      permission: AUTH_SERVER_SYSTEM_USER_AUTHORITY.ADMIN_RESET_PASSWORD,
+      visible:(ctx) => principalStore.state.principal.id !== ctx.record?.id,
+      label: () => globalProperties.$t('auth.adminResetPassword.text'),
+      icon: () => createIcon('loncra-lock-open'),
+      run: (ctx) => {
+        if (ctx.record?.id == null) {
+          return
+        }
+        modal.confirm({
+          title: globalProperties.$t('auth.adminResetPassword.confirmTitle'),
+          content: globalProperties.$t('auth.adminResetPassword.confirmSingle'),
+          onOk: async () => {
+            const result = await AuthServerService.adminResetPassword(
+              AUTHENTICATION_TYPE.ENTERPRISE,
+              String(ctx.record!.id),
+            )
+            if (isBusinessSuccess(result)) {
+              message.success({
+                content: globalProperties.$t('auth.adminResetPassword.success', {
+                  password: String(result.data ?? ''),
+                }),
+                duration: 8,
+              })
+            }
+          },
+        })
+      },
+    })
+  }
+
+  return result;
+}
 
 function getAuditSelectedEntities(selectedItems: EnterpriseMemberEntity[]) {
     return selectedItems
-      .filter(item => getEnumValue(item.auditStatus) === AUDIT_STATUS_TYPE.AUDITABLE)
+      .filter(item => getEnumValue(item.auditStatus) === AUDIT_STATUS_VALUE.AUDITABLE)
 }
 
 function auditItems(items: EnterpriseMemberEntity[]) {
@@ -216,18 +278,33 @@ function closeAuditModal() {
 }
 
 function bulkActions(): ActionDefinition<EnterpriseMemberEntity>[] {
-  return [
-    {
-      id: 'auditSelected',
-      enabled: (ctx) => getAuditSelectedEntities(ctx.selectedItems).length > 0,
+  if (props.audit) {
+    return [
+      {
+        id: 'auditSelected',
+        enabled: (ctx) => getAuditSelectedEntities(ctx.selectedItems).length > 0,
+        permission: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.AUDIT,
+        label:(ctx) => globalProperties.$t('common.audit.selected', {
+          count: getAuditSelectedEntities(ctx.selectedItems).length,
+        }),
+        icon: () => createIcon('loncra-vote'),
+        run: (ctx) => auditItems(getAuditSelectedEntities(ctx.selectedItems)),
+      },
+    ]
+  } else {
+    return [{
+      id: 'invitation',
       permission: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.AUDIT,
-      label:(ctx) => globalProperties.$t('common.audit.selected', {
-        count: getAuditSelectedEntities(ctx.selectedItems).length,
-      }),
-      icon: () => createIcon('loncra-vote'),
-      run: (ctx) => auditItems(getAuditSelectedEntities(ctx.selectedItems)),
-    },
-  ]
+      label: () => globalProperties.$t('authServer.enterpriseInvitation.routePage'),
+      icon: () => createIcon('loncra-share'),
+      run: () => invitation(),
+    },]
+  }
+}
+
+function invitation() {
+  invitationModal.value.open = true
+  invitationModal.value.entity = createEmptyForm()
 }
 
 async function onAudit(status:number) {
@@ -260,7 +337,7 @@ onMounted(mounted)
       :columns="columns"
       :query="props.query"
       :actions="bulkActions()"
-      :row-actions="rowActions"
+      :row-actions="rowActions()"
       :record-actions="!props.preview"
       :authority="{
         detail: props.audit ? '' : AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.GET,
@@ -279,6 +356,9 @@ onMounted(mounted)
           <a-space>
             <l-user-avatar :user="record" />
             {{AuthServerService.getPrincipalNameByUserDetails(record)}}
+            <a-typography-text type="success">
+              {{principalStore.state.principal.id === record.id ? '(' +globalProperties.$t('common.me') + ')' : ''}}
+            </a-typography-text>
           </a-space>
         </template>
         <template v-if="column.dataIndex === 'gender'">
@@ -302,7 +382,13 @@ onMounted(mounted)
       </template>
     </l-crud-table>
     <teleport to="body">
-      <a-modal @cancel="closeAuditModal" :open="auditModal.open" :footer="null" :title="globalProperties.$t('common.audit.title')" >
+      <a-modal
+        @cancel="closeAuditModal"
+        v-if="auditModal.open"
+        :open="auditModal.open"
+        :footer="null"
+        :title="globalProperties.$t('common.audit.title')"
+      >
 
           <a-flex vertical gap="middle" >
             <a-flex align="center" gap="small" class="p-sm rounded-lg border border-border-secondary" :key="item.id" v-for="item of auditModal.selectedItems">
@@ -323,13 +409,13 @@ onMounted(mounted)
                 <a-textarea v-model:value="auditModal.remark" :auto-size="{ minRows: 5, maxRows: 10 }"/>
               </a-form-item>
               <a-flex align="center" justify="flex-end" gap="middle">
-                <a-button type="primary" :loading="auditModal.loading" @click="onAudit(AUDIT_STATUS_TYPE.AGREED)">
+                <a-button type="primary" :loading="auditModal.loading" @click="onAudit(AUDIT_STATUS_VALUE.AGREED)">
                   <template #icon>
                     <icon-font type="loncra-clipboard-check"/>
                   </template>
                   {{ globalProperties.$t('common.audit.agree') }}
                 </a-button>
-                <a-button type="primary" danger :loading="auditModal.loading" @click="onAudit(AUDIT_STATUS_TYPE.DISAGREE)">
+                <a-button type="primary" danger :loading="auditModal.loading" @click="onAudit(AUDIT_STATUS_VALUE.DISAGREE)">
                   <template #icon>
                     <icon-font type="loncra-clipboard-x"/>
                   </template>
@@ -339,6 +425,13 @@ onMounted(mounted)
             </l-form>
           </a-flex>
       </a-modal>
+      <l-enterprise-invitation-modal
+        @success="globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE.HOME})"
+        v-if="invitationModal.open"
+        v-model:open="invitationModal.open"
+        :audit-type-options="invitationModal.auditTypeOptions"
+        v-model:entity="invitationModal.entity"
+      />
     </teleport>
   </div>
 </template>

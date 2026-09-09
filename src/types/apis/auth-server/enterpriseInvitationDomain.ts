@@ -1,5 +1,6 @@
 import type {NameValueEnumMetadata, VersionEntityMetadata} from '@/types/apis/common'
 import type {EnterpriseEntity, EnterpriseMemberEntity, RoleAuthority} from "@/types/apis";
+import type {Dayjs} from 'dayjs';
 
 /**
  * 企业邀请请求体
@@ -10,7 +11,7 @@ export interface EnterpriseInvitationSavePayload extends VersionEntityMetadata {
   /**
    * 过期时间
    */
-  expirationTime?: number
+  expirationTime?: number | Dayjs;
   /**
    * 企业内部角色 id
    */

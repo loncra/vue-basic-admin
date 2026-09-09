@@ -8,7 +8,7 @@ import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} fr
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {
   MESSAGE_SERVER_SITE_ROUTE,
-  MESSAGE_TYPE,
+  MESSAGE_TYPE_VALUE,
   OPERATION_DATA_TRACE_TABLE,
   YES_OR_NO_TYPE
 } from "@/constants";
@@ -34,7 +34,7 @@ const entity = ref<SiteMessageEntity>({
   remark: "",
   title: "",
   toUser: "",
-  type: MESSAGE_TYPE.NOTICE,
+  type: MESSAGE_TYPE_VALUE.NOTICE,
   version: 0
 })
 

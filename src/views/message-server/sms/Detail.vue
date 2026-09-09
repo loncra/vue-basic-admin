@@ -5,7 +5,11 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {SmsMessageService} from "@/apis/message-server";
 import type {SmsMessageEntity} from "@/types/apis";
-import {MESSAGE_SERVER_SMS_ROUTE, MESSAGE_TYPE, OPERATION_DATA_TRACE_TABLE} from "@/constants";
+import {
+  MESSAGE_SERVER_SMS_ROUTE,
+  MESSAGE_TYPE_VALUE,
+  OPERATION_DATA_TRACE_TABLE
+} from "@/constants";
 
 defineOptions({
   name: 'MessageServerEmailDetail',
@@ -26,7 +30,7 @@ const entity = ref<SmsMessageEntity>({
   phoneNumber: "",
   principal: "",
   remark: "",
-  type: MESSAGE_TYPE.NOTICE,
+  type: MESSAGE_TYPE_VALUE.NOTICE,
   version: 0
 })
 

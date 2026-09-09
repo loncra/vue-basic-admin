@@ -12,6 +12,7 @@ import type {
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   CAROUSEL_TYPE,
+  DATE_TIME_FORMAT,
   OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_CAROUSEL_ROUTE,
   SYSTEM_ENUM_TYPE
@@ -136,13 +137,24 @@ async function preSubmit() {
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item :label="globalProperties.$t('resourceServer.carousel.showtime')" name="showtime">
-            <a-date-picker show-time class="w-full" v-model:value="options.entity.showtime" />
+            <a-date-picker 
+              :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT" 
+              show-time 
+              class="w-full" 
+              v-model:value="options.entity.showtime" 
+            />
           </a-form-item>
         </a-col>
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item :label="globalProperties.$t('common.expiresTime')" name="expirationTime">
-            <a-date-picker :disabled-date="(value:Dayjs) => disableDate(value, options.entity.showtime as Dayjs)" :disabled-time="(current:Dayjs | null) => disableTime(current, options.entity.showtime as Dayjs)" show-time class="w-full" v-model:value="options.entity.expirationTime as Dayjs" />
+            <a-date-picker 
+              :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT" 
+              :disabled-date="(value:Dayjs) => disableDate(value, options.entity.showtime as Dayjs)" 
+              :disabled-time="(current:Dayjs | null) => disableTime(current, options.entity.showtime as Dayjs)" 
+              show-time class="w-full" 
+              v-model:value="options.entity.expirationTime" 
+            />
           </a-form-item>
         </a-col>
       </template>

@@ -24,9 +24,9 @@ import type {EnumBucketsResponseBody, FilterRequest, RestResult} from "@/types/a
 import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
 import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
 import {
+  EXECUTE_STATUS_TYPE,
   MESSAGE_SERVER_EMAIL_AUTHORITY,
   MESSAGE_SERVER_EMAIL_ROUTE,
-  EXECUTE_STATUS_TYPE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
@@ -136,7 +136,7 @@ const columns = computed<SearchableColumnType[]>(() => [
 async function mounted() {
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-      {id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS},
+      {id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM},
       {id: SYSTEM_ENUM_TYPE.CLOUD_CHANNEL_ENUM}
     ],
     [SYSTEM_MODULE_NAME.MESSAGE_SERVER]:[
@@ -144,7 +144,7 @@ async function mounted() {
     ]
   })
   if (enums.data) {
-    applyColumnOptions(columns.value, "executeStatus", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS] || [])
+    applyColumnOptions(columns.value, "executeStatus", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM] || [])
     applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.[SYSTEM_ENUM_TYPE.MESSAGE_TYPE_ENUM] || [])
   }
 }

@@ -20,9 +20,9 @@ import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
 import {ResourceServerService} from "@/apis";
 import {BatchMessageService} from "@/apis/message-server/batchMessageService.js";
 import {
+  EXECUTE_STATUS_TYPE,
   MESSAGE_SERVER_BATCH_AUTHORITY,
   MESSAGE_SERVER_BATCH_ROUTE,
-  EXECUTE_STATUS_TYPE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
@@ -112,11 +112,11 @@ const columns = computed<SearchableColumnType[]>(() => [
 
 async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS}],
+    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM}],
     [SYSTEM_MODULE_NAME.MESSAGE_SERVER]: [{id: SYSTEM_ENUM_TYPE.BATCH_MESSAGE_TYPE_ENUM}]
   })
   if (enums.data) {
-    applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS] || [])
+    applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM] || [])
     applyColumnOptions(columns.value, 'type', enums.data[SYSTEM_MODULE_NAME.MESSAGE_SERVER]?.[SYSTEM_ENUM_TYPE.BATCH_MESSAGE_TYPE_ENUM] || [])
   }
 }

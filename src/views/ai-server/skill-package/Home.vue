@@ -426,7 +426,7 @@ async function mounted() {
       [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
         {id: SYSTEM_ENUM_TYPE.DATA_STATUS_ENUM},
         {id: SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM},
-        {id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS},
+        {id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM},
       ],
       [SYSTEM_MODULE_NAME.AI_SERVER]: [
         {id: SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM},
@@ -443,7 +443,7 @@ async function mounted() {
   applyColumnOptions(columns.value, 'defaultUpdatePolicy', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM] || [])
   applyColumnOptions(columns.value, 'sourceType', enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.SKILL_SOURCE_TYPE_ENUM] || [])
   applyColumnOptions(columns.value, 'status', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.DATA_STATUS_ENUM] || [])
-  applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS] || [])
+  applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM] || [])
 
   const dataDictionaryResult: RestResult<Record<string, DataDictionaryMetadata[]>> =
     await ResourceServerService.findDataDictionariesByCodes([SKILL_GROUP_CODE_PREFIX])

@@ -87,6 +87,7 @@ const locale: LanguagePack = {
     border:'边框',
     size:'大小',
     lang: '语言',
+    subTitle:'副标题',
     style:'风格',
     other:'其他',
     owner:'所属用户',
@@ -439,7 +440,13 @@ const locale: LanguagePack = {
     noAccount: '没有账户？',
     createAccount: '创建账户',
     reLogin:'返回登录',
-    page:'用户登录'
+    page:'用户登录',
+    adminResetPassword: {
+      text: '重置密码',
+      confirmTitle: '重置密码确认',
+      confirmSingle: '确定要重置该用户的登录密码吗？重置后将生成新的随机密码。',
+      success: '重置成功，新密码：{password}',
+    },
   },
   workbench: {
     personalActivity: '个人动态',

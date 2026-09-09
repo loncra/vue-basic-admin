@@ -32,7 +32,7 @@ export interface CarouselSavePayload extends VersionEntityMetadata {
   /**
    * 过期时间
    */
-  expirationTime?: number| Dayjs;
+  expirationTime?: number | Dayjs;
 
   /**
    * 展示时间

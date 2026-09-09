@@ -61,6 +61,10 @@ export const AUTH_SERVER_RESOURCE_AUTHORITY = {
   SAVE:'perms[auth_server_authority_resource:save]',
 } as const
 
+export const AUTH_SERVER_SYSTEM_USER_AUTHORITY = {
+  ADMIN_RESET_PASSWORD: 'perms[auth_server_system_user:admin_reset_password]',
+} as const
+
 export const AUTH_SERVER_CONSOLE_USER_AUTHORITY = {
   DELETE: 'perms[auth_server_console_user:delete]',
   GET: 'perms[auth_server_console_user:get]',
@@ -167,13 +171,6 @@ export const AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE = {
   HOME: 'auth_server_enterprise_invitation',
   DETAIL: 'auth_server_enterprise_invitation_detail',
   CONFIRM: 'auth_server_enterprise_invitation_confirm'
-} as const
-
-
-
-export const AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS = {
-  MANUAL: 10,
-  AUTOMATIC: 20
 } as const
 
 export const AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY = {
