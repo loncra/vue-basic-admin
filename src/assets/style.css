@@ -487,10 +487,20 @@
   .folder-edit .ant-menu-submenu-title {
     @apply h-[32px] leading-[32px] mb-0 pe-xs
   }
-  .ant-table-expanded-row-fixed {
-    @apply pt-[12px] pr-[10px] pb-[12px] pl-[8px]
+  .ant-table-row-expand-icon {
+    @apply mb-xxs
   }
-  .ant-table-expanded-row-fixed .ant-table {
+  .ant-table-expanded-row-fixed {
+    @apply mt-[calc(var(--ant-margin)*-1)] mb-[calc(var(--ant-margin)*-1)] pl-xs pr-xs
+  }
+  .ant-table-expanded-row-fixed::after {
+    @apply border-e-0 end-0
+  }
+  .ant-table-expanded-row-fixed .ant-table-title,
+  .ant-table-expanded-row-fixed .ant-table-wrapper .ant-table{
     @apply rounded-none
+  }
+  .ant-table-expanded-row-fixed .ant-table-title {
+    @apply border-t-0
   }
 }

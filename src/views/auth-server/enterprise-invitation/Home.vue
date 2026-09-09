@@ -24,14 +24,18 @@ import {
   createIcon,
   dateTimeFormat,
   getEnumName,
+  getEnumValue,
   requireNonNullOrUndefined
 } from '@/utils'
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
 import LCrudTable from '@/components/basic/crud/CrudTable.vue'
 import {
+  AUDIT_STATUS_TYPE,
+  AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
   AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS,
   AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
+  AUTHENTICATION_TYPE,
   DATE_TIME_FORMAT,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
@@ -138,7 +142,7 @@ const crudTable = ref()
 
 function openShard(entity: EnterpriseInvitationEntity) {
   options.value.share.open = true;
-  options.value.share.url = import.meta.env.VITE_APP_SITE_URL + import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/' + entity.id;
+  options.value.share.url = import.meta.env.VITE_APP_SITE_URL + import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/' + entity.id + "?" + AUTH_SERVER_AUTHENTICATION_TYPE_PARAM + '=' + AUTHENTICATION_TYPE.PERSONAL;
 }
 
 const itemActionDefinitions = function (): ActionDefinition<EnterpriseInvitationEntity>[] {
@@ -216,6 +220,7 @@ onMounted(mounted)
       :service="service"
       :columns="columns"
       :row-actions="itemActionDefinitions()"
+      :expandable="{ rowExpandable: (record:EnterpriseInvitationEntity) => getEnumValue(record.auditType) === AUTH_SERVER_ENTERPRISE_INVITATION_AUDITS.MANUAL }"
       :authority="{
         detail: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
         delete: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.DELETE,
@@ -251,7 +256,7 @@ onMounted(mounted)
         </template>
       </template>
       <template #expandedRowRender="{ record }">
-        <l-enterprise-member-table :bordered="false" audit :query="{'filter_[invitation_id_eq]':record.id}">
+        <l-enterprise-member-table audit :query="{'filter_[invitation_id_eq]':record.id,'filter_[audit_status_eq]':AUDIT_STATUS_TYPE.AUDITABLE}">
           <template #title>
             <a-space>
               <icon-font type="loncra-user-check" />

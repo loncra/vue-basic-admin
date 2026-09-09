@@ -37,6 +37,8 @@ import {
 } from "@/constants";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LForm from "@/components/Form.vue";
+import {isBusinessSuccess} from "@/requests";
+import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({
   name: 'LEnterpriseMemberTable',
@@ -45,6 +47,8 @@ defineOptions({
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+
+const {message} = useApp()
 
 const props = withDefaults(defineProps<{
   preview?: boolean
@@ -114,10 +118,8 @@ const columns = computed<SearchableColumnType[]>(() => {
       key: 'phone_number',
       width: 150,
       ellipsis: true,
-    }
-  ]
-  if (!props.audit) {
-    result.push({
+    },
+    {
       title: globalProperties.$t('authServer.lastAuthenticationTime'),
       dataIndex: 'lastAuthenticationTime',
       key: 'last_authentication_time',
@@ -127,7 +129,10 @@ const columns = computed<SearchableColumnType[]>(() => {
         props: {},
         expression: 'between',
       },
-    })
+    }
+  ]
+  if (props.audit) {
+    return result.filter(s => s.key !== 'last_authentication_time')
   }
   return result
 })
@@ -135,14 +140,16 @@ const columns = computed<SearchableColumnType[]>(() => {
 const auditModal = ref<{
   selectedItems:EnterpriseMemberEntity[],
   open:boolean
-  confirm:boolean
+  loading:boolean
   remark:string
 }>({
   selectedItems:[],
   open:false,
-  confirm:false,
+  loading:false,
   remark:''
 })
+
+const crudTable = ref()
 
 async function mounted() {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
@@ -223,8 +230,22 @@ function bulkActions(): ActionDefinition<EnterpriseMemberEntity>[] {
   ]
 }
 
-function onFinish() {
-
+async function onAudit(status:number) {
+  auditModal.value.loading = true
+  try {
+    const ids = auditModal.value.selectedItems.map(r => Number(r.id))
+    const result:RestResult<void> = await service.audit(ids, {
+      status: status,
+      remark: auditModal.value.remark,
+    })
+    if (isBusinessSuccess(result)) {
+      message.success(result.message)
+      closeAuditModal()
+      crudTable.value?.fetchDataSource()
+    }
+  } finally {
+    auditModal.value.loading = false
+  }
 }
 
 onMounted(mounted)
@@ -233,6 +254,7 @@ onMounted(mounted)
 <template>
   <div>
     <l-crud-table
+      ref="crudTable"
       v-bind="$attrs"
       :service="service"
       :columns="columns"
@@ -263,7 +285,7 @@ onMounted(mounted)
           {{ getEnumName(record.gender) }}
         </template>
         <template v-if="column.dataIndex === 'role'">
-          {{ getEnumName(record.role) }} {{(record.roles || []).length > 0 ? ',' + (record.roles || []).map(r => r.name).join(',') : ''}}
+          {{ getEnumName(record.role) }}{{(record.roles || []).length > 0 ? ', ' + (record.roles || []).map(r => r.name).join(',') : ''}}
         </template>
         <template v-if="column.dataIndex === 'auditStatus'">
           {{ getEnumName(record.auditStatus) }}
@@ -280,7 +302,7 @@ onMounted(mounted)
       </template>
     </l-crud-table>
     <teleport to="body">
-      <a-modal @cancel="closeAuditModal" :open="auditModal.open" :footer="null" :title="globalProperties.$t('common.audit.title')" :confirm-loading="auditModal.confirm">
+      <a-modal @cancel="closeAuditModal" :open="auditModal.open" :footer="null" :title="globalProperties.$t('common.audit.title')" >
 
           <a-flex vertical gap="middle" >
             <a-flex align="center" gap="small" class="p-sm rounded-lg border border-border-secondary" :key="item.id" v-for="item of auditModal.selectedItems">
@@ -296,18 +318,18 @@ onMounted(mounted)
                 </a-typography-text>
               </a-flex>
             </a-flex>
-            <l-form id="form" ref="formRef" @finish="onFinish" :model="auditModal">
+            <l-form id="form" ref="formRef" :model="auditModal">
               <a-form-item :label="globalProperties.$t('common.remark')" name="remark">
                 <a-textarea v-model:value="auditModal.remark" :auto-size="{ minRows: 5, maxRows: 10 }"/>
               </a-form-item>
               <a-flex align="center" justify="flex-end" gap="middle">
-                <a-button type="primary">
+                <a-button type="primary" :loading="auditModal.loading" @click="onAudit(AUDIT_STATUS_TYPE.AGREED)">
                   <template #icon>
                     <icon-font type="loncra-clipboard-check"/>
                   </template>
                   {{ globalProperties.$t('common.audit.agree') }}
                 </a-button>
-                <a-button type="primary" danger>
+                <a-button type="primary" danger :loading="auditModal.loading" @click="onAudit(AUDIT_STATUS_TYPE.DISAGREE)">
                   <template #icon>
                     <icon-font type="loncra-clipboard-x"/>
                   </template>

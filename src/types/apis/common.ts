@@ -400,3 +400,8 @@ export interface ContactItem {
   group?: string,
   [key:string]: unknown
 }
+
+export interface AuditMetadata {
+  status:NameValueEnumMetadata<number> | number
+  remark?:string
+}

@@ -1,7 +1,7 @@
 import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig} from 'axios'
 import router, {saveRequestPathThenToAuth} from '@/routers'
 import {message} from 'antdv-next'
-import {HTTP} from '@/constants'
+import {AUTH_SERVER_AUTHENTICATION_TYPE_PARAM, HTTP} from '@/constants'
 import {BusinessError, type RestResult} from '@/types/apis'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import i18n from '@/i18n'
@@ -159,7 +159,7 @@ async function responseError<T = unknown>(
     const principalStore = usePrincipalStore()
     message.error(i18n.global.t('error.http.loginExpired'))
     const params = new URLSearchParams(location.search)
-    const authenticationType = String(params.get("authenticationType") || principalStore.state.type);
+    const authenticationType = String(params.get(AUTH_SERVER_AUTHENTICATION_TYPE_PARAM) || principalStore.state.type);
     const pushValue = saveRequestPathThenToAuth(location.pathname, authenticationType)
     router.push(pushValue)
     return Promise.reject(

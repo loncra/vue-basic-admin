@@ -60,6 +60,7 @@ export interface EnterpriseInvitationEntity extends EnterpriseInvitationSavePayl
    * 邀请状态
    */
   status: NameValueEnumMetadata<number> | number
+  auditType: NameValueEnumMetadata<number> | number
   /**
    * 租户 id
    */

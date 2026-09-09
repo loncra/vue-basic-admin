@@ -188,3 +188,5 @@ export const AUTH_SERVER_ENTERPRISE_INVITATION_STATUS = {
   EXPIRED: 30,
   CANCELLED: 40,
 } as const
+
+export const AUTH_SERVER_AUTHENTICATION_TYPE_PARAM = "authenticationType"
