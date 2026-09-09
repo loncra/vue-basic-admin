@@ -15,6 +15,7 @@ export interface EnterpriseMemberSavePayload extends PlatformUser, VersionEntity
    * 成员认证主体
    */
   principal: string
+  roleIds?:number[]
   /**
    * 成员角色
    */

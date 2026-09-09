@@ -88,8 +88,9 @@ onMounted(() => loadResourceDataSource())
           :drag="false"
           preview
           hide-title
+          v-model:resource-ids="entity.resourceIds"
           v-model:data-source="resourceDataSource"
-          :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: entity.resourceIds, getCheckboxProps:() => ({disabled:true})}"
+          :row-selection="{getCheckboxProps:() => ({disabled:true})}"
         />
       </template>
     </l-basic-detail>

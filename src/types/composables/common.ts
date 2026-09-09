@@ -33,6 +33,24 @@ export type TreeLike<T> = T & {
   children?: TreeLike<T>[]
 }
 
+
+/**
+ * 树形节点条件判断函数类型
+ * 用于判断树节点是否满足特定条件
+ *
+ * @template T - 节点数据类型
+ * @param node - 树节点
+ * @returns 节点是否满足条件
+ */
+export type Predicate<T> = (node: T) => boolean
+
+export interface TreeNodeContext<T> {
+  /** 节点所在的兄弟列表（根层即为整棵树顶层数组） */
+  list: TreeLike<T>[]
+  index: number
+  node: TreeLike<T>
+}
+
 /**
  * 视频缩略图结果接口
  * 包含视频缩略图的 Base64 数据和视频 URL

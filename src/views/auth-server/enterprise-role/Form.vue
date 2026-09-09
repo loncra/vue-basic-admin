@@ -8,13 +8,11 @@ import type {
   ResourceEntity,
   RestResult
 } from "@/types/apis";
-import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService, ResourceService} from "@/apis";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import {EnterpriseRoleService} from "@/apis/auth-server/enterpriseRoleService.ts";
-import type {TableProps} from 'antdv-next'
-import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
 import {
   AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
@@ -63,8 +61,6 @@ const options = ref<{
   resourceDataSource:[]
 })
 
-const resourceTableRef = ref<InstanceType<typeof LResourceTable>>()
-
 async function mounted() {
 
   const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.YES_OR_NO}, {id:SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM}]})
@@ -98,75 +94,6 @@ function setPageTitle(title:string, entity: EnterpriseRoleEntity | EnterpriseRol
 
 function resetFields() {
   options.value.entity.resourceIds = []
-}``
-
-const onResourceChange: NonNullable<TableProps['rowSelection']>['onChange'] = (
-  _selectedRowKeys,
-  _selectedRows,
-  info: { type: RowSelectMethod }
-) => {
-  if (info.type === 'all') {
-    options.value.entity.resourceIds = _selectedRowKeys as number[];
-  }
-}
-
-const onResourceSelect: NonNullable<TableProps['rowSelection']>['onSelect'] = (
-  _record,
-  _selected,
-  _selectedRows,
-) => {
-  const selectedRowIds = Array.from(new Set(_selectedRows.map(s => s.id)));
-  const unmerge = unmergeTree([_record]);
-  const unmergeIds = unmerge.map(u => u.id);
-
-  if (_selected) {
-    const parentIds = [
-      ...new Set(
-        unmerge
-        .map(u => u.parentId)
-        .filter((id): id is number => id != null && id !== _record.id)
-      )
-    ];
-
-    options.value.entity.resourceIds = [
-      ...findParentNode(parentIds).map(r => r.id),
-      ..._selectedRows.map(r => r.id),
-      ...unmerge.filter(d => !selectedRowIds.includes(d.id)).map(r => r.id)
-    ];
-  } else {
-    const parentIds = [
-      ...new Set(
-        unmerge
-        .map(u => u.parentId)
-        .filter((id): id is number => id != null)
-      )
-    ];
-    const parentNode = findParentNode(parentIds);
-    for (const parent of parentNode) {
-      const full:ResourceEntity | undefined = findFirstTreeNode(r => r.id === parent.id, options.value.resourceDataSource);
-      if (full && full.children && !full.children.some(c => selectedRowIds.includes(c.id))) {
-        selectedRowIds.splice(selectedRowIds.indexOf(parent.id), 1);
-        unmergeIds.push(parent.id)
-      }
-    }
-
-    options.value.entity.resourceIds = _selectedRows.filter(s => !unmergeIds.includes(s.id)).map(r => r.id);
-  }
-}
-
-function findParentNode(parentIds:number[]):ResourceEntity[] {
-  const parentNode = findAllTreeNodes(r => parentIds.includes(Number(r.id)), options.value.resourceDataSource);
-  const ids = [
-    ...new Set(
-      parentNode
-      .map(r => r.parentId)
-      .filter((id): id is number => id != null)
-    )
-  ];
-  if (ids.length > 0) {
-    parentNode.push(...findParentNode(ids));
-  }
-  return parentNode;
 }
 
 async function loadEnterpriseResource() {
@@ -233,9 +160,9 @@ onMounted(() => loadEnterpriseResource())
         :drag="false"
         preview
         hide-title
+        v-model:resource-ids="options.entity.resourceIds"
         v-model:data-source="options.resourceDataSource"
         root-class="mb-md"
-        :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: options.entity.resourceIds, onSelect:onResourceSelect, onChange:onResourceChange}"
       />
 
       <a-form-item name="remark" :label="globalProperties.$t('common.remark')">

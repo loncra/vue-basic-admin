@@ -267,10 +267,10 @@ function findParentNode(parentIds:number[]):ResourceEntity[] {
         :drag="false"
         preview
         hide-title
+        v-model:resource-ids="options.entity.resourceIds"
         v-model:data-source="options.resourceDataSource"
         root-class="mb-md"
         :query="options.resourceQuery"
-        :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: options.entity.resourceIds, onSelect:onResourceSelect, onChange:onResourceChange}"
       />
 
       <a-form-item name="remark" :label="globalProperties.$t('common.remark')">

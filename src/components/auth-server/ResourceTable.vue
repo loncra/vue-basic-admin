@@ -16,7 +16,15 @@ import type {
   RestResult,
   TreeSortMetadata
 } from "@/types/apis";
-import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {
+  applyColumnOptions,
+  createIcon,
+  findAllTreeNodes,
+  findFirstTreeNode,
+  getEnumName,
+  requireNonNullOrUndefined,
+  unmergeTree
+} from "@/utils";
 import type {FilterRequest} from '@/types/apis/common';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
@@ -28,6 +36,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from "@/constants";
+import type {RowSelectMethod} from "antdv-next/dist/table/interface";
 
 defineOptions({
   name: 'LResourceTable',
@@ -45,8 +54,7 @@ const props = withDefaults(defineProps<{
   rowSelection?:TableProps["rowSelection"],
 }>(), {
   preview: false,
-  drag:true,
-  rowSelection:() => ({fixed: true, type: 'checkbox'})
+  drag:true
 })
 const { message } = App.useApp()
 
@@ -126,13 +134,91 @@ const columns = computed<SearchableColumnType[]>(() => [
   },
 ])
 
-const dataSource = ref<ResourceEntity[]>([])
+const dataSource = defineModel<ResourceEntity[]>("dataSource",{default:() => []})
+const resourceIds = defineModel<number[]>("resourceIds",{default:() => []})
 const crudTable = ref()
 
 const rowActions = ref<ActionDefinition<ResourceEntity>[]>([])
 
 function removeSelected(selectedRows: ResourceEntity[]) {
   crudTable.value.remove(selectedRows);
+}
+const mergeRowSelection = computed<TableProps["rowSelection"]>(() => ({
+  fixed:true,
+  type: 'checkbox',
+  selectedRowKeys: resourceIds.value,
+  onSelect:onResourceSelect,
+  onChange:onResourceChange,
+  ...props.rowSelection
+}))
+
+const onResourceChange: NonNullable<TableProps['rowSelection']>['onChange'] = (
+  _selectedRowKeys,
+  _selectedRows,
+  info: { type: RowSelectMethod }
+) => {
+  if (info.type === 'all') {
+    resourceIds.value = _selectedRowKeys as number[];
+  }
+}
+
+const onResourceSelect: NonNullable<TableProps['rowSelection']>['onSelect'] = (
+  _record,
+  _selected,
+  _selectedRows,
+) => {
+  const selectedRowIds = Array.from(new Set(_selectedRows.filter(s => s).map(s => s.id)));
+  const unmerge = unmergeTree([_record]);
+  const unmergeIds = unmerge.map(u => u.id);
+
+  if (_selected) {
+    const parentIds = [
+      ...new Set(
+        unmerge
+          .map(u => u.parentId)
+          .filter((id): id is number => id != null && id !== _record.id)
+      )
+    ];
+
+    resourceIds.value = [
+      ...findParentNode(parentIds).map(r => r.id),
+      ..._selectedRows.filter(s => s).map(r => r.id),
+      ...unmerge.filter(d => !selectedRowIds.includes(d.id)).map(r => r.id)
+    ];
+  } else {
+    const parentIds = [
+      ...new Set(
+        unmerge
+          .map(u => u.parentId)
+          .filter((id): id is number => id != null)
+      )
+    ];
+    const parentNode = findParentNode(parentIds);
+    for (const parent of parentNode) {
+      const full:ResourceEntity | undefined = findFirstTreeNode(r => r.id === parent.id, dataSource.value);
+      if (full && full.children && !full.children.some(c => selectedRowIds.includes(c.id))) {
+        selectedRowIds.splice(selectedRowIds.indexOf(parent.id), 1);
+        unmergeIds.push(parent.id)
+      }
+    }
+
+    resourceIds.value = _selectedRows.filter(s => s).filter(s => !unmergeIds.includes(s.id)).map(r => r.id);
+  }
+}
+
+function findParentNode(parentIds:number[]):ResourceEntity[] {
+  const parentNode = findAllTreeNodes(r => parentIds.includes(Number(r.id)), dataSource.value);
+  const ids = [
+    ...new Set(
+      parentNode
+        .map(r => r.parentId)
+        .filter((id): id is number => id != null)
+    )
+  ];
+  if (ids.length > 0) {
+    parentNode.push(...findParentNode(ids));
+  }
+  return parentNode;
 }
 
 async function mounted() {
@@ -229,7 +315,7 @@ onMounted(mounted)
       delete:AUTH_SERVER_RESOURCE_AUTHORITY.DELETE
     }"
     :scroll="{x:'max-content', y: 350}"
-    :row-selection="props.rowSelection"
+    :row-selection="mergeRowSelection"
     @add="globalProperties.$router.push({name:AUTH_SERVER_RESOURCE_ROUTE.ADD})"
     @detail="r => globalProperties.$router.push({name:AUTH_SERVER_RESOURCE_ROUTE.DETAIL, query:{id:String(r.id)}})"
     @edit="r => globalProperties.$router.push({name:AUTH_SERVER_RESOURCE_ROUTE.EDIT, query:{id:String(r.id)}})"

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import {EnterpriseMemberService} from '@/apis/auth-server/enterpriseMemberService.ts'
-import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
-import {type ComponentInternalInstance, getCurrentInstance, ref, watch} from 'vue'
+import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {EnterpriseMemberEntity} from '@/types/apis/auth-server/enterpriseMemberDomain'
 import {
   AUDIT_STATUS_VALUE,
@@ -82,12 +82,6 @@ const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = 
   ]
 }
 
-const resourceSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = (
-  _selectedRowKeys
-) => {
-  entity.value.resourceIds = _selectedRowKeys as number[]
-}
-
 async function postGetEntity(entity: EnterpriseMemberEntity) {
   const result = await resourceService.findEnterprise({})
   resourceDataSource.value = result.data ?? []
@@ -103,8 +97,6 @@ async function onSave() {
     loading.value = false
   }
 }
-
-watch(roleDataSource,(roles) => entity.value.resourceIds = roles.flatMap((r) => r.resourceIds ?? []))
 
 </script>
 
@@ -154,7 +146,13 @@ watch(roleDataSource,(roles) => entity.value.resourceIds = roles.flatMap((r) => 
           </a-space>
         </a-divider>
 
-        <l-enterprise-role-table v-model:data-source="roleDataSource" preview hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1'}" :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange}"/>
+        <l-enterprise-role-table
+          ref="roleTableRef"
+          v-model:data-source="roleDataSource"
+          preview hide-title root-class="mb-md"
+          :query="{'filter_[enabled_eq]':'1'}"
+          :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange,getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER})}"
+        />
 
         <a-divider orientation="left" plain>
           <a-space>
@@ -168,9 +166,11 @@ watch(roleDataSource,(roles) => entity.value.resourceIds = roles.flatMap((r) => 
           :immediate="false"
           :drag="false"
           hide-title
+          v-model:resource-ids="entity.resourceIds"
           v-model:data-source="resourceDataSource"
-          :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: entity.resourceIds,onChange: resourceSelectedChange}"
+          :row-selection="{getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER})}"
         />
+
       </template>
       <template #afterOperationDataTrace>
         <a-divider />

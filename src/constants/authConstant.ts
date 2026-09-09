@@ -163,7 +163,6 @@ export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON:Record<number, string> = {
 
 export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE = {
   OWNER: 10,
-  ADMIN: 20,
   MEMBER: 30,
 } as const
 
