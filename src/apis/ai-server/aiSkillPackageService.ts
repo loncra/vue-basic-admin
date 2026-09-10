@@ -30,7 +30,10 @@ export class AiSkillPackageService extends PageRestfulCrudService<
   static readonly RELEASE_URL = AiSkillPackageService.SERVICE_URL + '/release'
 
   static readonly REVOKE_URL = AiSkillPackageService.SERVICE_URL + '/revoke'
+
   static readonly REINGEST_ULR = AiSkillPackageService.SERVICE_URL + '/reingest'
+
+  static readonly PAGE_ENABLED_ULR = AiSkillPackageService.SERVICE_URL + '/enabled'
 
   constructor() {
     super(AiSkillPackageService.SERVICE_URL)
@@ -39,6 +42,10 @@ export class AiSkillPackageService extends PageRestfulCrudService<
   /** `POST /ai/skill/package`（对齐后端根路径 page，覆盖基类 `/page`） */
   page(request: PageRequest): Promise<RestResult<TotalPage<SkillPackageEntity>>> {
     return axios.post(this.baseUrl, formUrlEncoded(request as Record<string, unknown>))
+  }
+
+  pageEnabled(request: PageRequest): Promise<RestResult<TotalPage<SkillPackageEntity>>>  {
+    return axios.post(AiSkillPackageService.PAGE_ENABLED_ULR, formUrlEncoded(request as Record<string, unknown>))
   }
 
   release(ids: number[]): Promise<RestResult<void>> {
@@ -58,7 +65,7 @@ export class AiSkillPackageService extends PageRestfulCrudService<
   }
 
   /** `GET /ai/skill/package/release/{id}` */
-  static listReleases(packageId: number): Promise<RestResult<SkillReleaseEntity[]>> {
+  listReleases(packageId: number): Promise<RestResult<SkillReleaseEntity[]>> {
     return axios.get(AiSkillPackageService.SERVICE_URL + '/release/' + packageId)
   }
 }

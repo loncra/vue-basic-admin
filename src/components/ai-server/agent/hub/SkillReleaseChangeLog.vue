@@ -19,6 +19,7 @@ const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
 const releases = ref<SkillReleaseEntity[]>([])
 const activeKey = ref<string>()
 const loading = ref(false)
+const service = new AiSkillPackageService()
 
 const tabItems = computed(() =>
   releases.value
@@ -41,7 +42,7 @@ async function loadReleases(packageId: number) {
   loading.value = true
   try {
     const result: RestResult<SkillReleaseEntity[]> =
-      await AiSkillPackageService.listReleases(packageId)
+      await service.listReleases(packageId)
     releases.value = result.data || []
     const first = releases.value.find((item) => item.id != null)
     activeKey.value = first?.id == null ? undefined : String(first.id)

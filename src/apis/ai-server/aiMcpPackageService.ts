@@ -33,6 +33,8 @@ export class AiMcpPackageService extends PageRestfulCrudService<
 
   static readonly REVOKE_URL = AiMcpPackageService.SERVICE_URL + '/revoke'
 
+  static readonly PAGE_ENABLED_ULR = AiMcpPackageService.SERVICE_URL + '/enabled'
+
   constructor() {
     super(AiMcpPackageService.SERVICE_URL)
   }
@@ -40,6 +42,10 @@ export class AiMcpPackageService extends PageRestfulCrudService<
   /** `POST /ai/mcp/package`（对齐后端根路径 page，覆盖基类 `/page`） */
   page(request: PageRequest): Promise<RestResult<TotalPage<McpPackageEntity>>> {
     return axios.post(this.baseUrl, formUrlEncoded(request as Record<string, unknown>))
+  }
+
+  pageEnabled(request: PageRequest): Promise<RestResult<TotalPage<McpPackageEntity>>>  {
+    return axios.post(AiMcpPackageService.PAGE_ENABLED_ULR, formUrlEncoded(request as Record<string, unknown>))
   }
 
   /** `POST /ai/mcp/package/tools` */

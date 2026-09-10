@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import {AiUserPluginInstallService, ResourceServerService} from '@/apis'
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
-import LAgentHubSkillReleaseChangeLog from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
+import LAgentHubSkillReleaseChangeLog
+  from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
 import {
   DEFAULT_PAGE_RESULT_VALUE,
   PLUGIN_TARGET_TYPE,
@@ -43,6 +44,7 @@ const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
 
 const targetTypes = ref<IdValueMetadata<number, string>[]>([])
 const activeKey = ref<string>()
+const install = ref<boolean>(false)
 
 const activeType = computed(() => {
   if (activeKey.value == null || activeKey.value === '') {
@@ -114,15 +116,21 @@ function onChangePage(_page: number, _pageSize: number) {
 }
 
 async function mounted() {
-  const result: RestResult<IdValueMetadata<number, string>[]> =
-    await ResourceServerService.getServiceEnumerate(
-      SYSTEM_MODULE_NAME.AI_SERVER,
-      SYSTEM_ENUM_TYPE.PLUGIN_TARGET_TYPE_ENUM,
-    )
-  targetTypes.value = result.data || []
-  const first = targetTypes.value.at(0)
-  if (first?.id != null) {
-    activeKey.value = String(first.id)
+  install.value = true
+  try {
+
+    const result: RestResult<IdValueMetadata<number, string>[]> =
+      await ResourceServerService.getServiceEnumerate(
+        SYSTEM_MODULE_NAME.AI_SERVER,
+        SYSTEM_ENUM_TYPE.PLUGIN_TARGET_TYPE_ENUM,
+      )
+    targetTypes.value = result.data || []
+    const first = targetTypes.value.at(0)
+    if (first?.id != null) {
+      activeKey.value = String(first.id)
+    }
+  } finally {
+    install.value = false
   }
 }
 
@@ -130,83 +138,85 @@ onMounted(mounted)
 </script>
 
 <template>
-  <a-tabs
-    v-model:active-key="activeKey"
-    tab-placement="left"
-    :classes="{
-      root: 'min-h-0 h-full',
-      body: 'min-h-0 h-full overflow-hidden',
-      item: 'pl-0 m-0',
-      content: 'min-h-0 h-full ',
-    }"
-    :items="targetTypes.map((item) => ({label: item.value, key: String(item.id)}))"
-  >
-    <template #labelRender="{ item }">
-      <a-flex gap="small">
-        <icon-font class="m-0" :type="tabIcon(Number(item.key))" />
-        <span>{{ item.label }}</span>
-      </a-flex>
-    </template>
-    <template #contentRender>
-      <l-agent-hub-plugin-info-card
-        v-if="activeType === PLUGIN_TARGET_TYPE.MCP"
-        :data-source="mcpDataSource"
-        :installs="props.installs"
-        :target-type="PLUGIN_TARGET_TYPE.MCP"
-        @change-page="onChangePage"
-        @installed="emits('installed', $event)"
-        @uninstalled="emits('uninstalled', $event)"
-      >
-        <template #title="{ record }">
-          {{ record.name }}
-        </template>
-        <template #after="{ record }">
-          <a-space wrap>
-            <a-tag v-for="workspace of workspaceTags(record, PLUGIN_TARGET_TYPE.MCP)" :key="workspace.id">
-              {{ workspace.name }}
-            </a-tag>
-          </a-space>
-        </template>
-      </l-agent-hub-plugin-info-card>
-      <l-agent-hub-plugin-info-card
-        v-else-if="activeType === PLUGIN_TARGET_TYPE.SKILL"
-        :data-source="skillDataSource"
-        :installs="props.installs"
-        :target-type="PLUGIN_TARGET_TYPE.SKILL"
-        @change-page="onChangePage"
-        @installed="emits('installed', $event)"
-        @uninstalled="emits('uninstalled', $event)"
-      >
-        <template #title="{ record }">
-          <a-badge :dot="isSkillOutdated(record)">
-            {{ record.name }} {{ record.latestVersion }}
-          </a-badge>
-        </template>
-        <template #after="{ record }">
-          <a-flex vertical gap="small" class="w-full">
+  <a-skeleton active :loading="install">
+    <a-tabs
+      v-model:active-key="activeKey"
+      tab-placement="left"
+      :classes="{
+        root: 'min-h-0 h-full',
+        body: 'min-h-0 h-full overflow-hidden',
+        item: 'pl-0 m-0',
+        content: 'min-h-0 h-full ',
+      }"
+      :items="targetTypes.map((item) => ({label: item.value, key: String(item.id)}))"
+    >
+      <template #labelRender="{ item }">
+        <a-flex gap="small">
+          <icon-font class="m-0" :type="tabIcon(Number(item.key))" />
+          <span>{{ item.label }}</span>
+        </a-flex>
+      </template>
+      <template #contentRender>
+        <l-agent-hub-plugin-info-card
+          v-if="activeType === PLUGIN_TARGET_TYPE.MCP"
+          :data-source="mcpDataSource"
+          :installs="props.installs"
+          :target-type="PLUGIN_TARGET_TYPE.MCP"
+          @change-page="onChangePage"
+          @installed="emits('installed', $event)"
+          @uninstalled="emits('uninstalled', $event)"
+        >
+          <template #title="{ record }">
+            {{ record.name }}
+          </template>
+          <template #after="{ record }">
             <a-space wrap>
-              <a-tag v-for="workspace of workspaceTags(record, PLUGIN_TARGET_TYPE.SKILL)" :key="workspace.id">
+              <a-tag v-for="workspace of workspaceTags(record, PLUGIN_TARGET_TYPE.MCP)" :key="workspace.id">
                 {{ workspace.name }}
               </a-tag>
             </a-space>
-            <a-collapse
-              ghost
-              :classes="{body: 'p-0', header: 'pl-0 pr-0 border-t border-border-secondary'}"
-              :items="[{key: 'changelog', label: globalProperties.$t('agent.hub.changelog.text')}]"
-            >
-              <template #contentRender>
-                <l-agent-hub-skill-release-change-log
-                  v-if="record.id"
-                  :package-id="record.id"
-                />
-              </template>
-            </a-collapse>
-          </a-flex>
-        </template>
-      </l-agent-hub-plugin-info-card>
-      <a-flex v-else justify="center" align="center" class="size-full">
-        <a-empty />
-      </a-flex>
-    </template>
-  </a-tabs>
+          </template>
+        </l-agent-hub-plugin-info-card>
+        <l-agent-hub-plugin-info-card
+          v-else-if="activeType === PLUGIN_TARGET_TYPE.SKILL"
+          :data-source="skillDataSource"
+          :installs="props.installs"
+          :target-type="PLUGIN_TARGET_TYPE.SKILL"
+          @change-page="onChangePage"
+          @installed="emits('installed', $event)"
+          @uninstalled="emits('uninstalled', $event)"
+        >
+          <template #title="{ record }">
+            <a-badge :dot="isSkillOutdated(record)">
+              {{ record.name }} {{ record.latestVersion }}
+            </a-badge>
+          </template>
+          <template #after="{ record }">
+            <a-flex vertical gap="small" class="w-full">
+              <a-space wrap>
+                <a-tag v-for="workspace of workspaceTags(record, PLUGIN_TARGET_TYPE.SKILL)" :key="workspace.id">
+                  {{ workspace.name }}
+                </a-tag>
+              </a-space>
+              <a-collapse
+                ghost
+                :classes="{body: 'p-0', header: 'pl-0 pr-0 border-t border-border-secondary'}"
+                :items="[{key: 'changelog', label: globalProperties.$t('agent.hub.changelog.text')}]"
+              >
+                <template #contentRender>
+                  <l-agent-hub-skill-release-change-log
+                    v-if="record.id"
+                    :package-id="record.id"
+                  />
+                </template>
+              </a-collapse>
+            </a-flex>
+          </template>
+        </l-agent-hub-plugin-info-card>
+        <a-flex v-else justify="center" align="center" class="size-full">
+          <a-empty />
+        </a-flex>
+      </template>
+    </a-tabs>
+  </a-skeleton>
 </template>
