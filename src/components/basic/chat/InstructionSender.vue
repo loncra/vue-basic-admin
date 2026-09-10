@@ -14,6 +14,8 @@ defineOptions({
   name: 'LInstructionSender',
 })
 
+const EMPTY_SLOT_CONFIG: SlotConfigType[] = []
+
 const props = withDefaults(defineProps<{
   slotConfig?: SlotConfigType[]
   placeholder: string
@@ -53,6 +55,12 @@ const slots = defineSlots<{
     index: number
     item: IdValueMetadata<string, string>
     prefix: string
+  }) => unknown
+  instructionListRender?: (props: {
+    items: IdValueMetadata<string, string>[]
+    prefix: string
+    activeIndex: number
+    pick: (item: IdValueMetadata<string, string>) => void
   }) => unknown
 }>()
 
@@ -117,7 +125,7 @@ defineExpose({
 <template>
   <ax-sender
     ref="senderRef"
-    :slot-config="props.disabled ? undefined : (props.slotConfig ?? [])"
+    :slot-config="props.disabled ? undefined : (props.slotConfig ?? EMPTY_SLOT_CONFIG)"
     :suffix="false"
     :placeholder="placeholder"
     :disabled="props.disabled"
@@ -169,25 +177,35 @@ defineExpose({
       <template #content>
         <div class="max-h-60 max-w-60 overflow-auto"
              @mousedown.prevent>
-          <div
-            v-for="(item, index) in instructionOption.displayDataSource"
-            :key="item.id"
-            class="p-xs cursor-pointer rounded-sm"
-            :class="index === instructionOption.activeIndex ? 'bg-primary-bg' : 'hover:bg-fill-secondary'"
-            @mouseenter="instructionOption.activeIndex = index"
-            @click="handleInstructionPick(item)"
-          >
-            <slot
-              v-if="slots.instructionItemRender"
-              name="instructionItemRender"
-              :index="index"
-              :item="item"
-              :prefix="instructionOption.measure.prefix"
-            />
-            <template v-else>
-              {{ item.value }}
-            </template>
-          </div>
+          <slot
+            v-if="slots.instructionListRender"
+            name="instructionListRender"
+            :items="instructionOption.displayDataSource"
+            :prefix="instructionOption.measure.prefix"
+            :active-index="instructionOption.activeIndex"
+            :pick="handleInstructionPick"
+          />
+          <template v-else>
+            <div
+              v-for="(item, index) in instructionOption.displayDataSource"
+              :key="item.id"
+              class="p-xs cursor-pointer rounded-sm"
+              :class="index === instructionOption.activeIndex ? 'bg-primary-bg' : 'hover:bg-fill-secondary'"
+              @mouseenter="instructionOption.activeIndex = index"
+              @click="handleInstructionPick(item)"
+            >
+              <slot
+                v-if="slots.instructionItemRender"
+                name="instructionItemRender"
+                :index="index"
+                :item="item"
+                :prefix="instructionOption.measure.prefix"
+              />
+              <template v-else>
+                {{ item.value }}
+              </template>
+            </div>
+          </template>
         </div>
       </template>
       <span

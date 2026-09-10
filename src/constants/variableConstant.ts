@@ -156,6 +156,20 @@ export const PLUGIN_INSTALL_WORKSPACE_SCOPE = {
   ORG: 20,
 } as const
 
+/** 对齐后端 PluginInstallStatusEnum */
+export const PLUGIN_INSTALL_STATUS = {
+  PENDING: 10,
+  ACTIVATED: 20,
+  DISABLED: 30,
+} as const
+
+/** Agent 点名：TRIGGER 开弹层；MCP/SKILL 写入 instruction 槽 prefix */
+export const AGENT_INSTRUCTION_PREFIX = {
+  TRIGGER: '/',
+  MCP: '/mcp',
+  SKILL: '/skill',
+} as const
+
 export const AGENT_CHAT_STATUS = {
   READY:10,
   RUNNING:20,

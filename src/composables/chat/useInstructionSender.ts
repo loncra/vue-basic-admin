@@ -355,7 +355,7 @@ export function useInstructionSender(
       instructionOption.value.measure.prefix
     )
 
-    instructionOption.value.open = true
+    instructionOption.value.open = instructionOption.value.displayDataSource.length > 0
     bindInstructionViewportWatchers()
   }
 
@@ -395,10 +395,11 @@ export function useInstructionSender(
       return
     }
     const measure = { ...instructionOption.value.measure } // 快照
+    const slotPrefix = String(option.metadata?.slotPrefix ?? measure.prefix)
     const block:SlotConfigType = createInstructionSlot({
       id:String(crypto.randomUUID()),
       value:option,
-      prefix:instructionOption.value.measure.prefix
+      prefix: slotPrefix,
     } as InstructionBlock, configProviderStore, currentInstance)
     params.senderInsertInstruction(sender, block, measure)
     closeInstruction()

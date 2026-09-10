@@ -4,6 +4,8 @@ import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 import {useAgentSender} from "@/composables";
 import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";
+import type {IdValueMetadata} from "@/types/apis";
+import {AGENT_INSTRUCTION_PREFIX} from "@/constants";
 
 import {SenderHeader as AxSenderHeader} from '@antdv-next/x'
 
@@ -25,10 +27,22 @@ const {
   handleCancel,
   workspaceOptions,
   currentType,
+  instructionMap,
+  plusMenuItems,
+  filterInstruction,
+  onPlusMenuClick,
 } = useAgentSender({
   onSubmit:(form:AgentSenderFormProps) => emits("submit", form),
   onCancel:() => emits("cancel"),
 })
+
+function instructionItemIcon(item: IdValueMetadata<string, string>): string {
+  const icon = item.metadata?.icon
+  if (typeof icon === 'string' && icon) {
+    return icon
+  }
+  return item.metadata?.group === 'mcp' ? 'loncra-plug-zap' : 'loncra-sparkles'
+}
 
 defineExpose({
   clear:() => senderRef?.value?.clear(),
@@ -41,6 +55,8 @@ defineExpose({
   <l-instruction-sender
     ref="senderRef"
     :placeholder="$t('agent.view.placeholder')"
+    :instruction-map="instructionMap"
+    :filter-instruction="filterInstruction"
     v-bind="$attrs"
     @submit="handleSubmit"
     @cancel="handleCancel"
@@ -53,6 +69,14 @@ defineExpose({
           </a-tag>
         </template>
       </ax-sender-header>
+    </template>
+    <template #instructionItemRender="{item, prefix}">
+      <a-space v-if="prefix === AGENT_INSTRUCTION_PREFIX.TRIGGER">
+        <icon-font :type="instructionItemIcon(item)"/>
+        <a-typography-text :ellipsis="{tooltip: item.value}">
+          {{ item.value }}
+        </a-typography-text>
+      </a-space>
     </template>
     <template #defaultButton="{components}">
       <component
@@ -68,11 +92,19 @@ defineExpose({
       />
     </template>
     <template #leftExtra>
-      <a-button shape="circle" size="small">
-        <template #icon>
-          <icon-font type="loncra-plus"/>
-        </template>
-      </a-button>
+      <a-dropdown
+        :menu="{ items: plusMenuItems }"
+        :trigger="['click']"
+        :disabled="plusMenuItems.length === 0 || isRunning"
+        placement="topLeft"
+        @menu-click="onPlusMenuClick"
+      >
+        <a-button shape="circle" size="small" :disabled="plusMenuItems.length === 0 || isRunning">
+          <template #icon>
+            <icon-font type="loncra-plus"/>
+          </template>
+        </a-button>
+      </a-dropdown>
       <a-dropdown v-if="currentModel" @menu-click="(info:MenuInfo) => state.form.modelId = Number(info.key)" :menu="{ selectable: true, items: state.modelOptions, defaultSelectedKeys:[String(currentModel.id)]}">
         <a-button color="primary" variant="outlined" size="small" >
           <template #icon>

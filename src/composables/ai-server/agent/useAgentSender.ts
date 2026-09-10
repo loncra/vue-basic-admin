@@ -1,4 +1,12 @@
-import {computed, h, onMounted, ref, watch} from "vue";
+import {
+  type ComponentInternalInstance,
+  computed,
+  getCurrentInstance,
+  h,
+  onMounted,
+  ref,
+  watch
+} from "vue";
 import type {IdValueMetadata, ModelSettingEntity, RestResult} from "@/types/apis";
 import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 import type {
@@ -6,16 +14,28 @@ import type {
   AgentSenderFormProps,
   AgentSenderProps,
   ChatContentBlock,
-  InstructionBlock
+  InstructionBlock,
+  InstructionMeasure,
 } from "@/types/composables";
 import {ResourceServerService} from "@/apis";
 import {ModelSettingService} from "@/apis/ai-server/modelSettingService.ts";
-import {AGENT_CHAT_TYPE_STYLE, AGENT_CONVERSATION_TYPE, MODEL_TYPE} from "@/constants";
+import {
+  AGENT_CHAT_TYPE_STYLE,
+  AGENT_CONVERSATION_TYPE,
+  AGENT_INSTRUCTION_PREFIX,
+  MODEL_TYPE,
+  PLUGIN_INSTALL_STATUS,
+  PLUGIN_INSTALL_WORKSPACE_SCOPE,
+  PLUGIN_TARGET_TYPE,
+} from "@/constants";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import {createIcon, getEnumValue} from "@/utils";
+import {createIcon, createInstructionSlot, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
 import {type MenuItemType, Space} from "antdv-next";
 import {getConversationRuns, useAgentChatContext} from "@/composables";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
+import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
+import type {MenuInfo} from "@v-c/menu";
 
 const modelSettingService = new ModelSettingService()
 
@@ -50,10 +70,51 @@ function toModelMenuItems(models: ModelSettingEntity[]): MenuItemType[] {
   }))
 }
 
+export function toCatalogMenuItems(items: IdValueMetadata<string, string>[]): MenuItemType[] {
+  const groups = new Map<string, {
+    label: string,
+    icon: string,
+    children: NonNullable<MenuItemType[]>
+  }>()
+  for (const item of items) {
+    const group = String(item.metadata?.group ?? '')
+    if (!group) {
+      continue
+    }
+    let bucket = groups.get(group)
+    if (!bucket) {
+      bucket = {
+        label: String(item.metadata?.groupLabel ?? group),
+        icon: group === 'mcp' ? 'loncra-plug-zap' : 'loncra-sparkles',
+        children: [],
+      }
+      groups.set(group, bucket)
+    }
+    bucket.children.push({
+      key: group + ':' + item.id,
+      label: item.value,
+      icon: () => createIcon(String(item.metadata?.icon || bucket.icon)),
+    })
+  }
+  return Array.from(groups.entries()).map(([key, group]) => ({
+    type: 'group' as const,
+    key,
+    label: h(Space, {}, () => [
+      createIcon(group.icon, 'align'),
+      h('span', {}, group.label),
+    ]),
+    children: group.children,
+  }))
+}
+
 export function useAgentSender(
   props:AgentSenderProps
 ) {
 
+  const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
+  const globalProperties = currentInstance.appContext.config.globalProperties
+  const configProviderStore = useConfigProviderStore()
+  const principalStore = usePrincipalStore()
   const {conversationActive, conversations} = useAgentChatContext()
 
   const senderRef = ref<InstanceType<typeof LInstructionSender>>()
@@ -177,6 +238,132 @@ export function useAgentSender(
     }
   })
 
+  function currentWorkspaceId(): number | undefined {
+    if (!conversationActive.value) {
+      return undefined
+    }
+    if (getEnumValue(conversationActive.value.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
+      return conversationActive.value.parentId
+    }
+    return conversationActive.value.id
+  }
+
+  const catalogItems = computed(() => {
+    const workspaceId = currentWorkspaceId()
+    const items: IdValueMetadata<string, string>[] = []
+    for (const item of principalStore.pluginInstalls) {
+      if (getEnumValue(item.status) !== PLUGIN_INSTALL_STATUS.ACTIVATED) {
+        continue
+      }
+      if (!item.pluginPackage || item.packageId == null) {
+        continue
+      }
+      const scope = getEnumValue(item.workspaceScope)
+      if (scope === PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG) {
+        if (workspaceId == null) {
+          continue
+        }
+        if (!item.workspaces?.some((workspace) => String(workspace.id) === String(workspaceId))) {
+          continue
+        }
+      }
+      const targetType = getEnumValue(item.targetType)
+      const isMcp = targetType === PLUGIN_TARGET_TYPE.MCP
+      const isSkill = targetType === PLUGIN_TARGET_TYPE.SKILL
+      if (!isMcp && !isSkill) {
+        continue
+      }
+      items.push({
+        id: String(item.packageId),
+        value: item.pluginPackage.name,
+        metadata: {
+          trigger: AGENT_INSTRUCTION_PREFIX.TRIGGER,
+          group: isMcp ? 'mcp' : 'skill',
+          groupLabel: isMcp
+            ? globalProperties.$t('agent.hub.mcp')
+            : globalProperties.$t('agent.hub.skill'),
+          slotPrefix: isMcp ? AGENT_INSTRUCTION_PREFIX.MCP : AGENT_INSTRUCTION_PREFIX.SKILL,
+          icon: item.pluginPackage.icon,
+        },
+      })
+    }
+    return items
+  })
+
+  const instructionMap = computed(() => ({
+    [AGENT_INSTRUCTION_PREFIX.TRIGGER]: catalogItems.value.filter(
+      (item) => item.metadata?.trigger === AGENT_INSTRUCTION_PREFIX.TRIGGER,
+    ),
+  }))
+
+  const plusMenuItems = computed(() => toCatalogMenuItems(catalogItems.value))
+
+  function filterInstruction(
+    keyword: string,
+    dataSource: IdValueMetadata<string, string>[],
+  ): IdValueMetadata<string, string>[] {
+    const query = keyword.trim().toLowerCase()
+    if (!query) {
+      return dataSource
+    }
+    return dataSource.filter((item) => item.value.toLowerCase().includes(query))
+  }
+
+  function findCatalogItem(key: string | number): IdValueMetadata<string, string> | undefined {
+    const raw = String(key)
+    const separator = raw.indexOf(':')
+    if (separator < 0) {
+      return undefined
+    }
+    const group = raw.slice(0, separator)
+    const id = raw.slice(separator + 1)
+    return catalogItems.value.find(
+      (item) => item.metadata?.group === group && item.id === id,
+    )
+  }
+
+  function insertCatalogItem(
+    option: IdValueMetadata<string, string>,
+    measure?: InstructionMeasure,
+  ): void {
+    const sender = senderRef.value?.getSender()
+    if (!sender) {
+      return
+    }
+    const slotPrefix = String(option.metadata?.slotPrefix ?? measure?.prefix ?? '')
+    if (!slotPrefix) {
+      return
+    }
+    const block = createInstructionSlot(
+      {
+        id: crypto.randomUUID(),
+        type: 'custom',
+        slotKind: 'instruction',
+        value: {id: option.id, value: option.value},
+        prefix: slotPrefix,
+      },
+      configProviderStore,
+      currentInstance,
+    )
+    if (measure) {
+      sender.insert(
+        [block, {type: 'text', value: ' '}],
+        'cursor',
+        measure.prefix + measure.keyword,
+      )
+      return
+    }
+    sender.insert([block, {type: 'text', value: ' '}], 'cursor')
+  }
+
+  function onPlusMenuClick(info: MenuInfo): void {
+    const option = findCatalogItem(info.key)
+    if (!option) {
+      return
+    }
+    insertCatalogItem(option)
+  }
+
   async function mounted() {
     await loadingData()
     onChangeConversation()
@@ -226,6 +413,14 @@ export function useAgentSender(
     handleCancel,
     state,
     isRunning,
-    currentType
+    currentType,
+    catalogItems,
+    instructionMap,
+    plusMenuItems,
+    toCatalogMenuItems,
+    filterInstruction,
+    findCatalogItem,
+    insertCatalogItem,
+    onPlusMenuClick,
   }
 }

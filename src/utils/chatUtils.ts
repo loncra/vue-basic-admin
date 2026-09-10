@@ -20,7 +20,7 @@ import type {
   InstructionBlock,
   TextBlock
 } from "@/types/composables";
-import {CHAT_BUBBLE_TYPE, USER_CHAT_ROOM_TYPE} from "@/constants";
+import {AGENT_INSTRUCTION_PREFIX, CHAT_BUBBLE_TYPE, USER_CHAT_ROOM_TYPE} from "@/constants";
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
@@ -31,7 +31,11 @@ import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
-const instructionIconMap:Record<string, string> = {"@":"loncra-at-sign"}
+const instructionIconMap:Record<string, string> = {
+  "@":"loncra-at-sign",
+  [AGENT_INSTRUCTION_PREFIX.MCP]:"loncra-plug-zap",
+  [AGENT_INSTRUCTION_PREFIX.SKILL]:"loncra-sparkles",
+}
 
 export function createUserAvatarNode(
   user:PlatformUser | UserMetadata,
