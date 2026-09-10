@@ -7,8 +7,9 @@ import {provideAgentChatContext} from "@/composables";
 import {getEnumValue} from "@/utils";
 import {AGENT_CONVERSATION_TYPE} from "@/constants";
 import type {ActiveAgentConversationItem} from "@/types/composables";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import LAgentHubView from "@/components/ai-server/agent/AgentHubView.vue";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'CommonAiAgent',
@@ -25,6 +26,11 @@ function onSenderSubmit(body: ActiveAgentConversationItem) {
 }
 
 const currentView = ref<string>()
+const principalStore = usePrincipalStore()
+
+onMounted(() => {
+  void principalStore.loadPluginInstalls()
+})
 
 </script>
 

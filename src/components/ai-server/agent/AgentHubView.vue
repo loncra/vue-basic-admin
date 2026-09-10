@@ -5,12 +5,10 @@ import {
   computed,
   defineAsyncComponent,
   getCurrentInstance,
-  onMounted,
-  ref
+  ref,
 } from "vue";
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {AiUserPluginInstallService} from "@/apis";
-import type {RestResult, UserPluginInstallResult} from "@/types/apis";
+import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'LAgentHubView',
@@ -19,6 +17,8 @@ defineOptions({
 const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
   getCurrentInstance(),
 ).appContext.config.globalProperties
+
+const principalStore = usePrincipalStore()
 
 const hubViews = {
   LAgentHubMcp: defineAsyncComponent(
@@ -33,7 +33,6 @@ const hubViews = {
 }
 
 const value = ref<keyof typeof hubViews>('LAgentHubMcp')
-const installs = ref<UserPluginInstallResult[]>([])
 
 const options = computed(() => [{
   value: 'LAgentHubMcp',
@@ -49,33 +48,6 @@ const options = computed(() => [{
   icon:createIcon('loncra-package', 'align')
 }])
 
-function onInstalled(result: UserPluginInstallResult) {
-  if (result.packageId == null) {
-    return
-  }
-  const targetType = getEnumValue(result.targetType)
-  const index = installs.value.findIndex(
-    (item) =>
-      getEnumValue(item.targetType) === targetType && item.packageId === result.packageId,
-  )
-  if (index >= 0) {
-    installs.value.splice(index, 1, result)
-    return
-  }
-  installs.value = [result, ...installs.value]
-}
-
-function onUninstalled(id: number) {
-  installs.value = installs.value.filter((item) => item.id !== id)
-}
-
-async function loadInstalls() {
-  const result: RestResult<UserPluginInstallResult[]> = await AiUserPluginInstallService.my()
-  installs.value = result.data || []
-}
-
-onMounted(loadInstalls)
-
 </script>
 
 <template>
@@ -87,9 +59,9 @@ onMounted(loadInstalls)
     <div class="min-h-0 flex-[1_1_0] overflow-hidden">
       <component
         :is="hubViews[value]"
-        :installs="installs"
-        @installed="onInstalled"
-        @uninstalled="onUninstalled"
+        :installs="principalStore.pluginInstalls"
+        @installed="principalStore.upsertPluginInstall"
+        @uninstalled="principalStore.removePluginInstall"
       />
     </div>
   </a-flex>

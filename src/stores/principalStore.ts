@@ -1,6 +1,6 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
-import {AuthServerService, EnterpriseService} from '@/apis'
+import {AiUserPluginInstallService, AuthServerService, EnterpriseService} from '@/apis'
 import {
   type AuthCredentials,
   type AuthenticationInfo,
@@ -8,10 +8,12 @@ import {
   type ObjectWriteResult,
   type PersonalEnterprise,
   type PrepareData,
-  type RestResult
+  type RestResult,
+  type UserPluginInstallResult,
 } from '@/types/apis'
 import {isBusinessSuccess} from '@/requests'
 import {AUTHENTICATION_TYPE, STORE} from '@/constants'
+import {getEnumValue} from '@/utils'
 
 /**
  * 重置状态常量
@@ -52,6 +54,7 @@ const RESET: AuthenticationInfo = {
 
 export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   const state: Ref<AuthenticationInfo> = ref(RESET)
+  const pluginInstalls = ref<UserPluginInstallResult[]>([])
   const enterpriseService = new EnterpriseService()
 
   /**
@@ -202,6 +205,32 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    */
   function $reset(): void {
     state.value = {...RESET}
+    pluginInstalls.value = []
+  }
+
+  async function loadPluginInstalls(): Promise<void> {
+    const result: RestResult<UserPluginInstallResult[]> = await AiUserPluginInstallService.my()
+    pluginInstalls.value = result.data || []
+  }
+
+  function upsertPluginInstall(result: UserPluginInstallResult): void {
+    if (result.packageId == null) {
+      return
+    }
+    const targetType = getEnumValue(result.targetType)
+    const index = pluginInstalls.value.findIndex(
+      (item) =>
+        getEnumValue(item.targetType) === targetType && item.packageId === result.packageId,
+    )
+    if (index >= 0) {
+      pluginInstalls.value.splice(index, 1, result)
+      return
+    }
+    pluginInstalls.value = [result, ...pluginInstalls.value]
+  }
+
+  function removePluginInstall(id: number): void {
+    pluginInstalls.value = pluginInstalls.value.filter((item) => item.id !== id)
   }
 
   /**
@@ -217,6 +246,10 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   return {
     // 状态
     state,
+    pluginInstalls,
+    loadPluginInstalls,
+    upsertPluginInstall,
+    removePluginInstall,
     // 权限检查
     hasPermission,
     hasAnyPermission,
