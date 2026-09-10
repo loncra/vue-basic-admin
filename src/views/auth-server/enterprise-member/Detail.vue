@@ -2,10 +2,12 @@
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import {EnterpriseMemberService} from '@/apis/auth-server/enterpriseMemberService.ts'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
+import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from 'vue'
 import type {EnterpriseMemberEntity} from '@/types/apis/auth-server/enterpriseMemberDomain'
 import {
+  APP_RELOAD_PROVIDE_KEY,
   AUDIT_STATUS_VALUE,
+  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
@@ -16,16 +18,21 @@ import type {TableProps} from 'antdv-next'
 
 import LEnterpriseRoleTable from '@/components/auth-server/EnterpriseRoleTable.vue'
 import LResourceTable from '@/components/auth-server/ResourceTable.vue'
-import {ResourceService} from '@/apis/auth-server/resourceService'
 import useApp from 'antdv-next/dist/app/useApp'
+
+import {ResourceService} from '@/apis/auth-server/resourceService'
+import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
   name: 'AuthServerEnterpriseMemberDetail',
 })
 
+const reload = inject<() => void>(APP_RELOAD_PROVIDE_KEY)
+
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+const principalStore = usePrincipalStore()
 
 const {message} = useApp()
 
@@ -47,7 +54,6 @@ const entity = ref<EnterpriseMemberEntity>({
     value: 99,
     name: '',
   },
-  lastAuthenticationTime: 0,
   initialization: {
     randomPassword: {
       value: YES_OR_NO_TYPE.YES,
@@ -93,6 +99,7 @@ async function onSave() {
   try {
     const result = await service.save(entity.value)
     message.success(result.message)
+    reload?.()
   } finally {
     loading.value = false
   }
@@ -168,14 +175,14 @@ async function onSave() {
           hide-title
           v-model:resource-ids="entity.resourceIds"
           v-model:data-source="resourceDataSource"
-          :row-selection="{getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER})}"
+          :row-selection="{getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER || !principalStore.hasPermission(AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.SAVE)})}"
         />
 
       </template>
-      <template #afterOperationDataTrace>
+      <template #afterOperationDataTrace v-if="principalStore.hasPermission(AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.SAVE)">
         <a-divider />
-        <a-button type="primary" @click="onSave">
-          <icon-font class="icon" type="loncra-save" />
+        <a-button type="primary" @click="onSave" :loading="loading">
+          <icon-font class="icon" type="loncra-save" v-if="!loading"/>
           {{ $t('common.save') }}
         </a-button>
       </template>
