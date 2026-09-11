@@ -31,17 +31,33 @@ const {
   plusMenuItems,
   filterInstruction,
   onPlusMenuClick,
+  toCatalogMenuItems,
+  findCatalogItem,
 } = useAgentSender({
   onSubmit:(form:AgentSenderFormProps) => emits("submit", form),
   onCancel:() => emits("cancel"),
 })
 
-function instructionItemIcon(item: IdValueMetadata<string, string>): string {
-  const icon = item.metadata?.icon
-  if (typeof icon === 'string' && icon) {
-    return icon
+function slashSelectedKeys(
+  items: IdValueMetadata<string, string>[],
+  activeIndex: number,
+): string[] {
+  const item = items[activeIndex]
+  const group = item?.metadata?.group
+  if (!item || typeof group !== 'string' || !group) {
+    return []
   }
-  return item.metadata?.group === 'mcp' ? 'loncra-plug-zap' : 'loncra-sparkles'
+  return [group + ':' + item.id]
+}
+
+function onSlashMenuClick(
+  info: MenuInfo,
+  pick: (item: IdValueMetadata<string, string>) => void,
+): void {
+  const option = findCatalogItem(info.key)
+  if (option) {
+    pick(option)
+  }
 }
 
 defineExpose({
@@ -70,13 +86,15 @@ defineExpose({
         </template>
       </ax-sender-header>
     </template>
-    <template #instructionItemRender="{item, prefix}">
-      <a-space v-if="prefix === AGENT_INSTRUCTION_PREFIX.TRIGGER">
-        <icon-font :type="instructionItemIcon(item)"/>
-        <a-typography-text :ellipsis="{tooltip: item.value}">
-          {{ item.value }}
-        </a-typography-text>
-      </a-space>
+    <template #instructionListRender="{items, prefix, activeIndex, pick}">
+      <a-menu
+        v-if="prefix === AGENT_INSTRUCTION_PREFIX.TRIGGER"
+        class="border-0! bg-transparent! min-w-44"
+        :items="toCatalogMenuItems(items)"
+        :selectable="false"
+        :selected-keys="slashSelectedKeys(items, activeIndex)"
+        @click="(info: MenuInfo) => onSlashMenuClick(info, pick)"
+      />
     </template>
     <template #defaultButton="{components}">
       <component
