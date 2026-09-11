@@ -6,6 +6,7 @@ import type {
   AgentTokenUsageContent,
   BlockDeltaContentMetadata,
   ChatBubbleItem,
+  ChatContentBlock,
 } from '@/types/composables'
 import type {
   AgentMessageEntity,
@@ -15,11 +16,16 @@ import type {
 } from '@/types/apis'
 import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {nextTick, ref} from 'vue'
+import {nextTick, ref, watch} from 'vue'
 import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import type LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import useApp from 'antdv-next/dist/app/useApp'
-import {DEFAULT_BUBBLE_LIST_ROLE, getConversationRuns, useAgentChatContext} from '@/composables'
+import {
+  DEFAULT_BUBBLE_LIST_ROLE,
+  getConversationRuns,
+  setConversationDraft,
+  useAgentChatContext
+} from '@/composables'
 import {
   AGENT_CHAT_STATUS,
   AGENT_CHAT_TYPE_STYLE,
@@ -51,7 +57,7 @@ export function createAgentBubbleListRole() {
 }
 
 export function useAgentView() {
-  const {conversationActive, activateConversation, loader, stream} = useAgentChatContext()
+  const {conversationActive, conversations, activateConversation, loader, stream} = useAgentChatContext()
   const principalStore = usePrincipalStore()
   const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
   const senderRef = ref<InstanceType<typeof LAgentSender>>()
@@ -75,6 +81,14 @@ export function useAgentView() {
       if (!result.data?.conversation) {
         return
       }
+
+      senderRef.value?.clear()
+      setConversationDraft(
+        conversations.value,
+        conversationActive,
+        conversationActive.value.id,
+        [],
+      )
 
       if (result.data.conversation.id !== conversationActive.value.id) {
         const newConversation = {
@@ -107,7 +121,6 @@ export function useAgentView() {
         addBubbleListMessage(userMessage, CHAT_BUBBLE_TYPE.USER, conversationActive.value.dataSource.elements, true)
         addBubbleListMessage(assistantMessage, CHAT_BUBBLE_TYPE.AI, conversationActive.value.dataSource.elements, true)
         stream.connect(result.data.assistantMessageId)
-        senderRef.value?.clear()
         await nextTick()
       }
 
@@ -168,13 +181,36 @@ export function useAgentView() {
     }
   }
 
-  function onReedit(entity:StreamAgentMessageEntity) {
+  function onReedit(entity: StreamAgentMessageEntity) {
     if (currentReedit.value) {
       currentReedit.value.reedit = false
     }
-    entity.reedit = true;
-    currentReedit.value = entity;
-    //senderRef.value?.setValue(entity.content)
+    entity.reedit = true
+    currentReedit.value = entity
+    if (!conversationActive.value) {
+      return
+    }
+    setConversationDraft(
+      conversations.value,
+      conversationActive,
+      conversationActive.value.id,
+      [...(entity.content ?? [])],
+    )
+  }
+
+  watch(
+    () => conversationActive.value?.id,
+    () => {
+      if (!currentReedit.value) {
+        return
+      }
+      currentReedit.value.reedit = false
+      currentReedit.value = undefined
+    },
+  )
+
+  function getSenderSlotConfigValue(): ChatContentBlock[] {
+    return (senderRef.value?.getSlotConfigValue() || []) as ChatContentBlock[]
   }
 
   function onSenderChange(
@@ -224,5 +260,6 @@ export function useAgentView() {
     onSenderChange,
     onSenderSubmit,
     onSenderCancel,
+    getSenderSlotConfigValue,
   }
 }

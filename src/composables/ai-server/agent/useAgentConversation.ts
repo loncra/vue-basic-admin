@@ -7,7 +7,7 @@ import useApp from 'antdv-next/dist/app/useApp'
 import type {AgentChatStatus, AgentConversationItem} from "@/types/composables";
 import type {MenuInfo} from "@v-c/menu";
 import {type MenuItemType, type MenuProps} from "antdv-next";
-import {useAgentChatContext} from "@/composables";
+import {ensureConversationDraftTree, useAgentChatContext} from "@/composables";
 
 export function useAgentConversation(params:{
   onActivateConversation:(conversation:AgentConversationItem) => void
@@ -101,6 +101,7 @@ export function useAgentConversation(params:{
     try {
       const result = await AgentService.findConversation()
       conversations.value = (result.data || []) as AgentConversationItem[]
+      ensureConversationDraftTree(conversations.value)
 
       let activate;
       if (!switchItemId) {
@@ -131,7 +132,8 @@ export function useAgentConversation(params:{
         key: String(crypto.randomUUID()),
         name: '',
         editing: true,
-        type:AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE
+        type:AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE,
+        draft: [],
       },
       ...conversations.value,
     ]

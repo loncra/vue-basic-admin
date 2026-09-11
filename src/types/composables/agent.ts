@@ -16,7 +16,8 @@ import type {ThoughtChainItemType} from "@antdv-next/x";
 
 export interface AgentConversationItem extends AgentConversationEntity {
   editing: boolean,
-  original?:string
+  original?: string
+  draft?: ChatContentBlock[]
 }
 
 export interface ActiveAgentConversationItem
@@ -65,6 +66,7 @@ export interface AgentViewController {
     block?: ScrollLogicalPosition
   }): void
   getScrollBox(): HTMLElement | undefined
+  getSenderSlotConfigValue(): ChatContentBlock[]
 }
 
 export interface AgentSenderFormProps {

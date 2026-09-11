@@ -34,6 +34,7 @@ const {
   getChatType,
   copyText,
   senderRef,
+  getSenderSlotConfigValue,
 } = useAgentView()
 
 const hasMessages = computed(
@@ -58,6 +59,7 @@ defineExpose({
     behavior?: ScrollBehavior
     block?: ScrollLogicalPosition
   }) => bubbleListRef.value?.scrollTo(options),
+  getSenderSlotConfigValue,
 })
 </script>
 
@@ -257,7 +259,13 @@ defineExpose({
       </a-flex>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
-      <l-agent-sender ref="senderRef" @change="onSenderChange" :slotConfig="currentReedit ? currentReedit.content : undefined"  @submit="onSenderSubmit" @cancel="onSenderCancel"/>
+      <l-agent-sender
+        ref="senderRef"
+        :slot-config="conversationActive?.draft"
+        @change="onSenderChange"
+        @submit="onSenderSubmit"
+        @cancel="onSenderCancel"
+      />
     </div>
   </a-flex>
 </template>

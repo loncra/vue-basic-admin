@@ -9,7 +9,10 @@ export {
 export {
   provideAgentChatContext,
   getConversationRuns,
-  useAgentChatContext
+  useAgentChatContext,
+  ensureConversationDraft,
+  ensureConversationDraftTree,
+  setConversationDraft,
 } from './useAgentContext.ts'
 
 export {

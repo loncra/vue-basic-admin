@@ -2,6 +2,7 @@ import type {
   ActiveAgentConversationItem,
   AgentChatContext,
   AgentConversationItem,
+  ChatContentBlock,
   ProvideAgentChatContextOptions,
 } from '@/types/composables'
 import {
@@ -11,10 +12,59 @@ import {
   DEFAULT_PAGE_RESULT_VALUE,
   STREAM_RUNNING_STATUS_VALUE,
 } from '@/constants'
-import {inject, provide, ref} from 'vue'
+import {inject, provide, ref, type Ref} from 'vue'
 import {useAgentMessageLoader, useAgentStream} from '@/composables'
 import {filterTreeDeep, findFirstTreeNode, getEnumValue, unmergeTree} from '@/utils'
 import type {AgentMessageEntity} from "@/types/apis";
+
+export function ensureConversationDraft(item: AgentConversationItem): void {
+  if (!item.draft) {
+    item.draft = []
+  }
+  item.children?.forEach((child) => ensureConversationDraft(child as AgentConversationItem))
+}
+
+export function ensureConversationDraftTree(items: AgentConversationItem[]): void {
+  items.forEach(ensureConversationDraft)
+}
+
+function findConversationItemById(
+  items: AgentConversationItem[],
+  conversationId: number | string,
+): AgentConversationItem | undefined {
+  for (const item of items) {
+    if (Number(item.id) === Number(conversationId)) {
+      return item
+    }
+    const children = item.children as AgentConversationItem[] | undefined
+    if (children?.length) {
+      const found = findConversationItemById(children, conversationId)
+      if (found) {
+        return found
+      }
+    }
+  }
+  return undefined
+}
+
+export function setConversationDraft(
+  conversations: AgentConversationItem[],
+  conversationActive: Ref<ActiveAgentConversationItem | undefined>,
+  conversationId: number | string | undefined,
+  draft: ChatContentBlock[],
+): void {
+  if (conversationId == null) {
+    return
+  }
+  const item = findConversationItemById(conversations, conversationId)
+  if (item) {
+    item.draft = draft
+  }
+  const active = conversationActive.value
+  if (active && Number(active.id) === Number(conversationId)) {
+    active.draft = item?.draft ?? draft
+  }
+}
 
 export function getConversationRuns(conversation:ActiveAgentConversationItem) {
   return conversation.dataSource
@@ -37,6 +87,21 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
     if (conversation.id === conversationActive.value?.id) {
       return conversationActive.value
     }
+
+    const previous = conversationActive.value
+    if (previous?.id != null) {
+      const view = options.view.value
+      if (view) {
+        setConversationDraft(
+          conversations.value,
+          conversationActive,
+          previous.id,
+          view.getSenderSlotConfigValue(),
+        )
+      }
+    }
+
+    ensureConversationDraft(conversation)
 
     stream.disconnectIfRunning()
 
