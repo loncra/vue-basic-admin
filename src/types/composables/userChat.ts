@@ -91,6 +91,8 @@ export interface ChatViewController {
     block?: ScrollLogicalPosition
   }): void
   getSenderSlotConfigValue(): SlotConfigType[]
+  persistSenderDraft(): Promise<void>
+  hydrateSenderDraft(): Promise<void>
 }
 
 export interface ProvideUserChatContextOptions {

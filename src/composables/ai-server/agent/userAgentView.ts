@@ -24,7 +24,8 @@ import {
   DEFAULT_BUBBLE_LIST_ROLE,
   getConversationRuns,
   setConversationDraft,
-  useAgentChatContext
+  useAgentChatContext,
+  useAgentDraftPersist,
 } from '@/composables'
 import {
   AGENT_CHAT_STATUS,
@@ -66,6 +67,20 @@ export function useAgentView() {
 
   const {message} = useApp()
 
+  const {persistSenderDraft, hydrateSenderDraft, schedulePersist, clearPersistedDraft} =
+    useAgentDraftPersist({
+      senderRef,
+      conversationActive,
+      applyDraft: (slots) => {
+        const id = conversationActive.value?.id
+        if (id == null) {
+          return
+        }
+        // 必须走 setConversationDraft：只写 Active 切会话会丢，列表「[草稿]」也读不到。
+        setConversationDraft(conversations.value, conversationActive, id, slots as ChatContentBlock[])
+      },
+    })
+
   async function onSenderSubmit(value: AgentSenderFormProps) {
     if (!conversationActive.value) {
       return
@@ -83,6 +98,8 @@ export function useAgentView() {
       }
 
       senderRef.value?.clear()
+      // 发送成功再清 IDB：失败保留，刷新后还能重试。
+      await clearPersistedDraft()
       setConversationDraft(
         conversations.value,
         conversationActive,
@@ -196,6 +213,7 @@ export function useAgentView() {
       conversationActive.value.id,
       [...(entity.content ?? [])],
     )
+    schedulePersist()
   }
 
   watch(
@@ -218,6 +236,8 @@ export function useAgentView() {
     _event?:Event,
     _slotConfigType?:SlotConfigType[]
   ) {
+    // 只防抖写盘；不要把槽写回绑定中的 slot-config，否则编辑器会整表重建。
+    schedulePersist()
     if (_slotConfigType && _slotConfigType?.length > 0) {
       return
     }
@@ -261,5 +281,7 @@ export function useAgentView() {
     onSenderSubmit,
     onSenderCancel,
     getSenderSlotConfigValue,
+    persistSenderDraft,
+    hydrateSenderDraft,
   }
 }

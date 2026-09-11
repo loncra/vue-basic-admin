@@ -14,7 +14,7 @@ import type {
 } from "@/types/apis";
 import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {useChatContext} from "@/composables/message-server/chat";
+import {useChatContext, useImDraftPersist} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {
@@ -46,6 +46,12 @@ const {on} = useSocketSubscriptions()
 const chatBubbleList = ref<InstanceType<typeof LChatBubbleList>>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const refMessages = ref<UserChatMessageResponseBody[]>([])
+const {persistSenderDraft, hydrateSenderDraft, schedulePersist, clearPersistedDraft} =
+  useImDraftPersist({
+    senderRef,
+    conversation,
+    refMessages,
+  })
 const instructionMap = computed(() => ({
   '@':[
     ...conversation.value
@@ -83,13 +89,15 @@ async function onSendMessage(content: ChatContentBlock[]) {
     }
     const messageBody: UserChatMessageResponseBody = result.data
     addBubbleListMessage(messageBody, CHAT_BUBBLE_TYPE.USER, conversation.value.dataSource.elements)
+    // 发送成功再清 IDB：失败保留，刷新后还能重试。
+    await clearPersistedDraft()
     senderRef.value?.clear()
     conversations.moveToTopByRoomId(messageBody.userChatRoomId, (c) => (c.lastUserMessage = messageBody))
-    await nextTick()
-    chatBubbleList.value?.scrollTo({ top: "bottom", behavior: "smooth" });
-    if (conversation.value?.item?.data?.draft) {
+    if (conversation.value?.item?.data) {
       conversation.value.item.data.draft = []
     }
+    await nextTick()
+    chatBubbleList.value?.scrollTo({ top: "bottom", behavior: "smooth" });
   } finally {
     conversation.value.sending = false
   }
@@ -244,6 +252,7 @@ function onReedit(content:ChatContentBlock[]) {
     return
   }
   conversation.value.item.data.draft = senderRef.value.convertContentBlockToSlotConfig(content)
+  schedulePersist()
 }
 
 function onReferenceMessage(message:UserChatMessageResponseBody) {
@@ -282,7 +291,9 @@ defineExpose({
     behavior?: ScrollBehavior;
     block?: ScrollLogicalPosition;
   }) => chatBubbleList.value?.scrollTo(options),
-  getSenderSlotConfigValue:() => senderRef?.value?.getSlotConfigValue() || []
+  getSenderSlotConfigValue:() => senderRef?.value?.getSlotConfigValue() || [],
+  persistSenderDraft,
+  hydrateSenderDraft,
 })
 </script>
 
@@ -302,9 +313,11 @@ defineExpose({
       </template>
     </l-chat-bubble-list>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
+      <!-- :key 按房间重建，避免槽串房间。@change 只防抖写盘，不要把 getSlotConfigValue 写回 :slot-config（会整表重建编辑器）。 -->
       <l-chat-message-sender
         ref="senderRef"
         v-if="conversation?.item?.data"
+        :key="String(conversation.item.data.room?.id ?? conversation.item.key)"
         :slot-config="conversation.item.data.draft ?? []"
         v-model:ref-messages="refMessages"
         :instruction-map="getEnumValue(conversation?.item?.data?.room.type) === USER_CHAT_ROOM_TYPE.PRIVATE_CHAT ? undefined :  instructionMap "
@@ -314,6 +327,7 @@ defineExpose({
         :disabled="getEnumValue(conversation.item.data.status) !== USER_CHAT_CONVERSATION_STATUS.ENABLED"
         @jump-to-reference="(body) => chatBubbleList?.jumpToMessage(String(body.id))"
         @submit="onSendMessage"
+        @change="schedulePersist"
         :sender-insert-instruction="onSenderInsertInstruction"
         :filter-instruction="onInstructionFilter"
       >

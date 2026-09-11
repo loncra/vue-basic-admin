@@ -23,6 +23,10 @@ export {
   useChatMessageSender,
   type ChatMessageSenderApi,
 } from './useChatMessageSender.ts'
+export {
+  useImDraftPersist,
+  type ImDraftSenderExpose,
+} from './useImDraftPersist.ts'
 export {useChatHistories, type ChatHistoriesApi} from './useChatHistories.ts'
 export {
   useChatCallModalExpose,

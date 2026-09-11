@@ -48,6 +48,7 @@ const slots = defineSlots()
 const emit = defineEmits<{
   submit: [content: ChatContentBlock[]]
   jumpToReference: [body: UserChatMessageResponseBody]
+  change: [value: string, event?: Event, slotConfigType?: SlotConfigType[]]
 }>()
 
 const instructionSenderRef = ref<InstanceType<typeof LInstructionSender>>()
@@ -60,6 +61,7 @@ const {
   clear,
   convertContentBlockToSlotConfig,
   getSlotConfigValue,
+  createFilesSlot,
 } = useChatMessageSender({
   refMessages,
   sending: toRef(props, 'sending'),
@@ -72,6 +74,7 @@ defineExpose({
   clear,
   convertContentBlockToSlotConfig,
   getSlotConfigValue,
+  createFilesSlot,
 })
 </script>
 
@@ -88,6 +91,7 @@ defineExpose({
     :sender-insert-instruction="props.senderInsertInstruction"
     @paste-file="onPasteFiles"
     @submit="handleSubmit"
+    @change="(value, event, slotConfig) => emit('change', value, event, slotConfig)"
   >
     <template v-if="refMessages.length > 0" #header>
       <a-flex

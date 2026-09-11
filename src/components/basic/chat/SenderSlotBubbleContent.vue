@@ -20,13 +20,6 @@ defineProps<{
     >{{ block.value }}
     </span>
 
-    <a-tag variant="outlined" v-else-if="block.type === 'custom' && block.slotKind === 'instruction'">
-      <template #icon v-if="block.prefix === '@'">
-        <icon-font type="loncra-at-sign" />
-      </template>
-      {{ block.value.value }}
-    </a-tag>
-
     <slot v-else name="renderBlock" :block="block" :index="index" />
 
   </template>

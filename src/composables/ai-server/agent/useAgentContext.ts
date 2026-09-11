@@ -47,6 +47,7 @@ function findConversationItemById(
   return undefined
 }
 
+/** 列表项与 Active 必须一起写：activate 会 spread 成新对象，只改 Active.draft 切走就丢。 */
 export function setConversationDraft(
   conversations: AgentConversationItem[],
   conversationActive: Ref<ActiveAgentConversationItem | undefined>,
@@ -92,12 +93,14 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
     if (previous?.id != null) {
       const view = options.view.value
       if (view) {
+        // persist 必须用旧会话 id；先换 conversationActive 再写盘会把旧稿记到新会话。
         setConversationDraft(
           conversations.value,
           conversationActive,
           previous.id,
           view.getSenderSlotConfigValue(),
         )
+        await view.persistSenderDraft()
       }
     }
 

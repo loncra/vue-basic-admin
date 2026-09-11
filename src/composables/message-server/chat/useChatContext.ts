@@ -52,6 +52,11 @@ export function provideUserChatContext(options: ProvideUserChatContextOptions): 
       await loader.switchConversation(item, messageId)
       options.refreshActiveHeader(conversationActive.value.item)
     } else {
+      // 反选会话会卸掉输入框，必须先落盘，否则刷新后该房间草稿丢失。
+      if (options.view.value && conversationActive.value.item?.data) {
+        conversationActive.value.item.data.draft = options.view.value.getSenderSlotConfigValue()
+        await options.view.value.persistSenderDraft()
+      }
       conversationActive.value.item = undefined
       options.refreshActiveHeader(undefined)
     }

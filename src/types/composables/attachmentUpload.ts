@@ -47,6 +47,7 @@ export type AttachmentValue =
 
 export type AttachmentUploadExpose = {
   upload: () => Promise<ObjectWriteResult | ObjectWriteResult[] | undefined>
+  getFiles: () => AttachmentFileItem[]
 }
 
 export interface AttachmentUploadExecutorOptions {

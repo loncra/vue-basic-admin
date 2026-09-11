@@ -14,6 +14,7 @@ import {
 import {isBusinessSuccess} from '@/requests'
 import {AUTHENTICATION_TYPE, STORE} from '@/constants'
 import {getEnumValue} from '@/utils'
+import {clearPrincipal} from '@/composables/chat/draft'
 
 /**
  * 重置状态常量
@@ -122,7 +123,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   async function logout(): Promise<AuthenticationInfo> {
     await AuthServerService.logout()
     localStorage.removeItem(import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME)
-    $reset()
+    await $reset()
     return state.value
   }
 
@@ -201,11 +202,21 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   }
 
   /**
-   * 重置状态
+   * 重置状态，并清掉该用户本机草稿
    */
-  function $reset(): void {
+  async function $reset(): Promise<void> {
+    // RESET 会清掉 name；先记下 principal，否则 clearPrincipal 清不到该用户的草稿。
+    const principal = state.value.name
     state.value = {...RESET}
     pluginInstalls.value = []
+    if (!principal) {
+      return
+    }
+    try {
+      await clearPrincipal(principal)
+    } catch {
+      // IndexedDB 清库失败不阻断登出
+    }
   }
 
   async function loadPluginInstalls(): Promise<void> {

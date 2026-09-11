@@ -58,10 +58,6 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
 
   async function fetchUnreadQuantity(): Promise<Partial<Record<MessageGroup, Record<number, unknown>>> | undefined> {
 
-    if (install.value) {
-      return state.value.record;
-    }
-
     const result:RestResult<Record<MessageGroup, Record<number,number>>> = await MessageServerService.unreadQuantity()
     state.value.record = result?.data || {[MESSAGE_GROUP.SITE]:{}, [MESSAGE_GROUP.USER_CHAT]: {}};
     return state.value.record

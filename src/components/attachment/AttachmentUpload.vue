@@ -160,8 +160,14 @@ async function upload(): Promise<ObjectWriteResult | ObjectWriteResult[] | undef
   return resolveUploadResult(results)
 }
 
+function getFiles(): AttachmentFileItem[] {
+  // 草稿发送兜底：uploadRef 在、内部 fileList 却与槽不一致时，用这份补 origin / 直传。
+  return collectAttachmentFileLeaves(fileList.value as AttachmentPathItem[])
+}
+
 defineExpose({
   upload,
+  getFiles,
   uploadFile: (file: UploadFile) => uploadAttachmentFile(
     file,
     props.bucket,

@@ -67,6 +67,8 @@ export interface AgentViewController {
   }): void
   getScrollBox(): HTMLElement | undefined
   getSenderSlotConfigValue(): ChatContentBlock[]
+  persistSenderDraft(): Promise<void>
+  hydrateSenderDraft(): Promise<void>
 }
 
 export interface AgentSenderFormProps {

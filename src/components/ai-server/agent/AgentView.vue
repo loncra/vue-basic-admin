@@ -35,6 +35,8 @@ const {
   copyText,
   senderRef,
   getSenderSlotConfigValue,
+  persistSenderDraft,
+  hydrateSenderDraft,
 } = useAgentView()
 
 const hasMessages = computed(
@@ -60,6 +62,8 @@ defineExpose({
     block?: ScrollLogicalPosition
   }) => bubbleListRef.value?.scrollTo(options),
   getSenderSlotConfigValue,
+  persistSenderDraft,
+  hydrateSenderDraft,
 })
 </script>
 
@@ -259,8 +263,10 @@ defineExpose({
       </a-flex>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
+      <!-- :key 按会话重建 Sender。@change 只防抖写盘，不要把槽写回 :slot-config。 -->
       <l-agent-sender
         ref="senderRef"
+        :key="String(conversationActive?.id ?? '')"
         :slot-config="conversationActive?.draft"
         @change="onSenderChange"
         @submit="onSenderSubmit"

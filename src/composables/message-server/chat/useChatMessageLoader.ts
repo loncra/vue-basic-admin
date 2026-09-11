@@ -108,7 +108,10 @@ export function useChatMessageLoader(
       return
     }
     if (active.item?.data && view.value) {
+      // 先写回列表项（内存「[草稿]」），再 persist；此时 targetId 仍是旧房间。
+      // 换 item 之后才 hydrate，避免用新房间 id 把旧稿写进 IDB。
       active.item.data.draft = view.value.getSenderSlotConfigValue()
+      await view.value.persistSenderDraft()
     }
     if (active.item?.key === item.key && !reload) {
       active.item = {...active.item, ...item}
@@ -124,6 +127,11 @@ export function useChatMessageLoader(
       if (!active.item?.data?.room) {
         return
       }
+      await nextTick()
+      if (!view.value) {
+        await nextTick()
+      }
+      await view.value?.hydrateSenderDraft()
       await loadParticipant(Number(active.item?.data?.room?.id))
       if (!messageId) {
         await loadPage(Number(active.item.data.room.id), 1, false, reload)
