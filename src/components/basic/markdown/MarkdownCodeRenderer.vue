@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {CodeHighlighter as AxCodeHighlighter, Mermaid as AxMermaid} from '@antdv-next/x'
 import {computed, isVNode, Text, useAttrs, useSlots, type VNode} from 'vue'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {CONFIG_PROVIDER_THEME} from "@/constants";

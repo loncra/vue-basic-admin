@@ -7,8 +7,6 @@ import type {AgentSenderFormProps} from "@/types/composables";
 import type {IdValueMetadata} from "@/types/apis";
 import {AGENT_INSTRUCTION_PREFIX} from "@/constants";
 
-import {SenderHeader as AxSenderHeader} from '@antdv-next/x'
-
 defineOptions({
   name: 'LAgentSender',
 })

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {computed, toRef} from 'vue'
 import type {ActiveChatSession, BubbleListCallbacks, ChatBubbleItem} from '@/types/composables'
-import {BubbleList as AxBubbleList} from '@antdv-next/x'
 import type {BubbleItemType, RoleType} from '@antdv-next/x/dist/bubble/interface'
 import {DEFAULT_BUBBLE_LIST_ROLE, useBubbleList} from '@/composables/chat/useBubbleList.ts'
 

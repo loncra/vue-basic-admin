@@ -2,7 +2,6 @@
 import {AuthServerService} from "@/apis";
 import type {ContactItem, PlatformUser} from "@/types/apis";
 import type {ItemType} from "@antdv-next/x/dist/conversations/interface";
-import {Conversations as AxConversations,} from '@antdv-next/x'
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   type ComponentInternalInstance,

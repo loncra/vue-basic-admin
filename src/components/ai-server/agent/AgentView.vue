@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {Welcome as AxWelcome} from '@antdv-next/x'
 import {AGENT_CONTENT_TYPE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'

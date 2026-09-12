@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {XProvider as AxConfigProvider,} from '@antdv-next/x'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 
 defineOptions({
@@ -11,7 +10,7 @@ const configProviderStore = useConfigProviderStore()
 
 <template>
   <a-style-provider layer>
-    <ax-config-provider
+    <ax-provider
       :locale="(configProviderStore.localeMessage as { antDesign?: object }).antDesign"
       :component-size="configProviderStore.state.componentSize"
       :theme="{ algorithm: configProviderStore.getAlgorithm(), token: configProviderStore.state.token }"
@@ -23,6 +22,6 @@ const configProviderStore = useConfigProviderStore()
           </transition>
         </router-view>
       </a-app>
-    </ax-config-provider>
+    </ax-provider>
   </a-style-provider>
 </template>

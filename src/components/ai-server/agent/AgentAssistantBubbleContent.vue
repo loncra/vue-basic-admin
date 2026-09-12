@@ -1,11 +1,5 @@
 <script setup lang="ts">
 import type {AgentToolCallBlock, ChatBubbleItem,} from '@/types/composables'
-import {
-  Bubble as AxBubble,
-  Sources as AxSources,
-  Think as AxThink,
-  ThoughtChain as AxThoughtChain
-} from "@antdv-next/x"
 import {AGENT_TOOL_BLOCK_STATUS, STREAM_RUNNING_STATUS_VALUE} from "@/constants"
 import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue"
 import LMarkdown from "@/components/basic/markdown/Markdown.vue"

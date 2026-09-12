@@ -8,6 +8,7 @@ import tailwindcss from '@tailwindcss/vite'
 import {AntdvNextResolver} from '@antdv-next/auto-import-resolver'
 // vite.config.ts
 import Components from 'unplugin-vue-components/vite'
+import {AntdvNextXResolver} from "@antdv-next/auto-import-resolver-x";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -18,7 +19,7 @@ export default defineConfig(({ mode }) => {
     clearScreen: false,
     envPrefix: ['VITE_', 'TAURI_'],
     plugins: [
-      vue(),tailwindcss(), Components({ resolvers: [AntdvNextResolver()] })
+      vue(),tailwindcss(), Components({ resolvers: [AntdvNextResolver(), AntdvNextXResolver()] })
     ],
     server: {
       host: '0.0.0.0',
