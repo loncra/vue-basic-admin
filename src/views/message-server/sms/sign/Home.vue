@@ -3,7 +3,7 @@ import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {SearchableColumnType} from "@/types/composables";
-import {SmsSignService} from "@/apis/message-server/sms/signService.ts";
+import {SmsSignService} from "@loncra/client/message";
 import {MESSAGE_SERVER_SMS_SIGN_AUTHORITY} from '@/constants'
 
 defineOptions({

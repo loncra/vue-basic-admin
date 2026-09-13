@@ -12,16 +12,17 @@ import {
   onMounted,
   ref,
 } from "vue";
+import type {CarouselEntity} from "@/types/apis";
 import type {
-  CarouselEntity,
-  EnumBucketsResponseBody,
   FlatSortMetadata,
   NameValueEnumMetadata,
   PageRequest,
-  RestResult,
-} from "@/types/apis";
-import {AttachmentService, ResourceServerService} from "@/apis";
-import {CarouselService} from "@/apis/resource-server/carouselService.ts";
+  RestResult
+} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
+import {AttachmentService, CarouselService} from "@loncra/client/resource";
+import {ResourceServerService} from "@/apis";
+
 import {
   createIcon,
   dateTimeFormat,
@@ -34,7 +35,7 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
 import type {ActionDefinition, GridExposed} from '@/types/composables'
-import LBasicImage from "@/components/basic/BasicImage.vue";
+import {BasicImage as LBasicImage} from '@loncra/antdv'
 import {
   DATA_STATUS,
   RESOURCE_SERVER_CAROUSEL_AUTHORITY,

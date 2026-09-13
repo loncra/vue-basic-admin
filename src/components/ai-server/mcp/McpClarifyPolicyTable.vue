@@ -2,15 +2,15 @@
 
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import type {RestResult} from "@loncra/client/commons";
 import type {
   McpClarifyToolPolicyMetadata,
   McpClientTransportMetadata,
-  McpToolMetadata,
-  RestResult
-} from "@/types/apis";
-import LTooltipValidationFormItem from "@/components/basic/TooltipValidationFormItem.vue";
+  McpToolMetadata
+} from "@loncra/client/ai";
+import {AiMcpPackageService} from "@loncra/client/ai";
+import {TooltipValidationFormItem as LTooltipValidationFormItem} from "@loncra/antdv";
 import {YES_OR_NO_TYPE} from "@/constants";
-import {AiMcpPackageService} from "@/apis";
 import type {ColumnType} from "antdv-next/dist/table/interface";
 
 defineOptions({

@@ -1,12 +1,12 @@
 import type {
-  RestResult,
-  UserChatConversationEntity,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
-  UserChatMessageResponseBody,
+  UserChatMessageResponseBody
 } from '@/types/apis'
+import type {RestResult} from '@loncra/client/commons'
+import type {UserChatConversationEntity} from '@loncra/client/message'
+import {ChatMessageService} from '@loncra/client/message'
 import type {ChatSocketEventsOptions} from '@/types/composables'
-import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'

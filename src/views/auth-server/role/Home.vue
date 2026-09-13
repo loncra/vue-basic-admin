@@ -6,7 +6,7 @@ import type {TableProps} from "antdv-next";
 
 import {getEnumValue} from "@/utils";
 
-import type {RoleEntity} from '@/types/apis/auth-server/roleDomain';
+import type {RoleEntity} from '@loncra/client/auth';
 
 import type {ActionDefinition} from '@/types/composables';
 import {YES_OR_NO_TYPE} from "@/constants";

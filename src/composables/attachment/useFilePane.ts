@@ -1,7 +1,7 @@
 import {computed, onMounted, ref, type Ref} from 'vue'
-import type {ObjectItemInfo} from '@/types/apis'
+import type {ObjectItemInfo} from '@loncra/client/resource'
+import {AttachmentService} from '@loncra/client/resource'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
-import {AttachmentService} from '@/apis'
 import {uploadFile} from '@/composables/attachment/useAttachmentUploadExecutor.ts'
 import {
   buildFilePaneContext,

@@ -8,16 +8,12 @@ import {
   ref,
   watch,
 } from 'vue'
-import type {
-  FilterRequest,
-  ObjectItemInfo,
-  PageResult,
-  RestResult,
-  TotalPage,
-  UserChatMessageResponseBody,
-} from '@/types/apis'
-import {AttachmentService} from '@/apis'
-import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
+import type {UserChatMessageResponseBody} from '@/types/apis'
+import type {FilterRequest, PageResult, RestResult, TotalPage} from '@loncra/client/commons'
+import type {ObjectItemInfo} from '@loncra/client/resource'
+import {AttachmentService} from '@loncra/client/resource'
+import {ChatMessageService} from '@loncra/client/message'
+
 import {createIcon, dateFormat, requireNonNullOrUndefined} from '@/utils'
 import {DEFAULT_PAGE_RESULT_VALUE, USER_CHAT_MESSAGE_TYPE} from '@/constants'
 import {Dayjs} from 'dayjs'

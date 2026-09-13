@@ -8,19 +8,19 @@ import {
   type Ref,
   ref
 } from "vue";
+import type {RestResult} from "@loncra/client/commons";
 import type {
-  RestResult,
   UserChatCallEntity,
   UserChatCallParticipantEntity,
   UserChatCallResponseBody
-} from "@/types/apis";
+} from "@loncra/client/message";
+import {ChatCallService} from "@loncra/client/message";
 import {
   createIcon,
   exitDocumentFullscreenIfNeeded,
   getEnumValue,
   requireNonNullOrUndefined
 } from "@/utils";
-import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useSocketSubscriptions} from "@/composables";
 import {
   CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY,

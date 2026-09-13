@@ -1,4 +1,4 @@
-import type {NameValueEnumMetadata} from "@/types/apis";
+import type {NameValueEnumMetadata} from "@loncra/client/commons";
 import {type CreateSuccessBackValue, type ThemeMode, type ThemeValue} from "@/constants";
 import type {MappingAlgorithm} from "antdv-next/dist/theme";
 import type {GlobalConfigProps} from "antdv-next/dist/notification/interface";

@@ -7,13 +7,16 @@ import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {APP_RELOAD_PROVIDE_KEY, ATTACHMENT_UPLOAD_MODE, VALID_REGX} from "@/constants";
 import type {UploadChangeParam} from "antdv-next";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import type {ObjectWriteResult, RestResult} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
+import type {ObjectWriteResult} from "@loncra/client/resource";
+import {AttachmentService} from "@loncra/client/resource";
 import useApp from "antdv-next/dist/app/useApp";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {AttachmentService, AuthServerService} from "@/apis";
-import LBasicImage from "@/components/basic/BasicImage.vue";
+import {AuthServerService} from "@/apis";
+import {AvatarServerService} from "@loncra/client/auth";
+import {BasicImage as LBasicImage} from '@loncra/antdv'
 import {requireNonNullOrUndefined, validatePassword} from "@/utils";
-import {AvatarServerService} from "@/apis/auth-server/avatarService.ts";
+
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
 defineOptions({

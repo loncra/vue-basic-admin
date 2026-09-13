@@ -2,8 +2,8 @@
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
-import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
+import type {DataDictionaryEntity} from "@loncra/client/resource";
+import {DataDictionaryService} from "@loncra/client/resource";
 import {
   OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,

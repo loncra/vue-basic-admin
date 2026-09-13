@@ -1,6 +1,6 @@
 import type {SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
-import type {ObjectWriteResult} from '@/types/apis'
+import type {ObjectWriteResult} from '@loncra/client/resource'
 import type {InstructionBlock} from '@/types/composables'
 import type {PersistableSlot, PersistableUploadFile} from '@/types/composables/chat/draft.ts'
 import {isInstructionSlot} from '@/composables/chat/useInstructionSender.ts'

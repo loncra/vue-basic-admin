@@ -1,13 +1,13 @@
 import pLimit from 'p-limit'
 import type {AxiosRequestConfig} from 'axios'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
-import {AttachmentService} from '@/apis/resource-server/attachmentService.ts'
 import type {
   MultipartUploadInitData,
   MultipartUploadPartData,
-  ObjectWriteResult,
-  RestResult,
-} from '@/types/apis'
+  ObjectWriteResult
+} from '@loncra/client/resource'
+import {AttachmentService} from '@loncra/client/resource'
+import type {RestResult} from '@loncra/client/commons'
 import type {AttachmentUploadExecutorOptions} from '@/types/composables/attachmentUpload.ts'
 import {formUrlEncoded} from '@/utils'
 import {isResultSuccess} from '@/requests/http'

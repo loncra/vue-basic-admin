@@ -34,7 +34,7 @@ import {
 } from '@/constants'
 
 import i18n, {type LanguagePack} from '@/i18n'
-import type {NameValueEnumMetadata} from '@/types/apis'
+import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import type {ConfigProviderState, ConfigProviderStoredState,} from '@/types/composables'
 
 import type {ComposerTranslation} from 'vue-i18n'

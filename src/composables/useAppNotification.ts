@@ -1,5 +1,5 @@
 import useApp from "antdv-next/dist/app/useApp";
-import type {MessageGroup} from "@/types/apis";
+import type {MessageGroup} from "@loncra/client/message";
 import {MESSAGE_GROUP} from "@/constants";
 import {h, nextTick} from "vue";
 import {Typography} from "antdv-next";

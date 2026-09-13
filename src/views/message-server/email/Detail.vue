@@ -4,8 +4,8 @@ import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
-import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
+import type {EmailMessageEntity} from "@loncra/client/message";
+import {EmailMessageService} from "@loncra/client/message";
 import {
   MESSAGE_SERVER_EMAIL_ROUTE,
   MESSAGE_TYPE_VALUE,

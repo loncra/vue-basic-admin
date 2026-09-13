@@ -1,14 +1,7 @@
-export * from './basicRestfulCrudService'
-export * from './findRestfulCrudService'
-export * from './pageRestfulCrudService'
-export * from './findSearchRestfulService'
-export * from './detailSearchRestfulService'
-export * from './pageSearchRestfulService'
-
 /**
- * @file API 层统一出口
- * @description 聚合各子域服务（auth-server、resource-server）；通用 REST 基类请从具体文件按需导入。
+ * 管理端仅留三个包装：i18n 默认名、验证码弹层、Agent SSE。
+ * 其余 Service 从 @loncra/client 对应子路径导入。
  */
-export * from './auth-server/index'
-export * from './resource-server/index'
-export * from './ai-server/index'
+export {AuthServerService} from './auth-server/authServerService.ts'
+export {ResourceServerService} from './resource-server/resourceServerService.ts'
+export {AgentService} from './ai-server/agentService.ts'

@@ -5,12 +5,13 @@ import type {
   ChatContentBlock,
   UserChatConversationActiveProps,
 } from '@/types/composables'
-import type {RestResult, UserChatMessageResponseBody} from '@/types/apis'
+import type {UserChatMessageResponseBody} from '@/types/apis'
+import type {RestResult} from '@loncra/client/commons'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import type {MenuItemType} from 'antdv-next'
 import {Space, StatisticTimer} from 'antdv-next'
 import useApp from 'antdv-next/dist/app/useApp'
-import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
+import {ChatMessageService} from '@loncra/client/message'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'

@@ -2,13 +2,13 @@
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import {BatchMessageService} from "@/apis/message-server/batchMessageService.js";
-import type {BatchMessageEntity} from "@/types/apis/message-server/batchDomain.ts";
+import type {BatchMessageEntity} from "@loncra/client/message";
+import {BatchMessageService, SiteMessageService} from "@loncra/client/message";
+import type {RestResult} from "@loncra/client/commons";
 import LSmsTable from "@/components/message-server/SmsTable.vue";
 import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
-import {SiteMessageService} from "@/apis/message-server";
-import type {RestResult} from "@/types/apis";
+
 import {MESSAGE_SERVER_BATCH_ROUTE, MESSAGE_TYPE_VALUE} from "@/constants";
 
 defineOptions({

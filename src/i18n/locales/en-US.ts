@@ -1,4 +1,5 @@
 import enUS from 'antdv-next/locale/en_US'
+import loncraEnUS from '@loncra/antdv/locale/en_US'
 import type {LanguagePack} from '@/i18n'
 import 'dayjs/locale/en'
 
@@ -7,7 +8,7 @@ const locale: LanguagePack = {
   fallbackLocale: false,
   name: 'English',
   dayjs: 'en',
-  antDesign: enUS,
+  antDesign: {...enUS, ...loncraEnUS},
   common: {
     id: 'ID',
     setting: 'Settings',

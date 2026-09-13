@@ -7,13 +7,13 @@ import {createIcon, requireNonNullOrUndefined, validatePassword} from "@/utils";
 import {CAPTCHA_TOKEN_TYPE, VALID_REGX} from "@/constants";
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {
-  CaptchaToken,
   IdNameValueMetadata,
   IdValueMetadata,
   PageRequest,
-  PlatformUser,
   RestResult
-} from "@/types/apis";
+} from "@loncra/client/commons";
+import type {PlatformUser} from "@loncra/client/auth";
+import type {CaptchaToken} from "@loncra/client/resource";
 import useApp from "antdv-next/dist/app/useApp";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 

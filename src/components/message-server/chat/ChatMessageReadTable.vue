@@ -7,11 +7,13 @@ import {
   onUnmounted,
   ref
 } from "vue";
-import type {IdValueMetadata, RestResult, UserChatMessageReadResponseBody} from "@/types/apis";
+import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
+import type {UserChatMessageReadResponseBody} from "@loncra/client/message";
+import {ChatMessageService} from "@loncra/client/message";
 import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
+import {usePrincipalStore} from "@/stores/principalStore.ts";
+
 import type {TableProps} from "antdv-next";
 import {SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";

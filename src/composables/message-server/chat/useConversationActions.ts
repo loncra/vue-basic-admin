@@ -1,6 +1,7 @@
 import useApp from 'antdv-next/dist/app/useApp'
-import type {BasicUserChatConversation, RestResult} from '@/types/apis'
-import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
+import type {RestResult} from '@loncra/client/commons'
+import type {BasicUserChatConversation} from '@loncra/client/message'
+import {ChatMessageService} from '@loncra/client/message'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 
 /**

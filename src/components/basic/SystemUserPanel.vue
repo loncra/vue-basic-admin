@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {AuthServerService} from "@/apis";
-import type {ContactItem, PlatformUser} from "@/types/apis";
+import type {ContactItem} from "@/types/apis";
+import type {PlatformUser} from "@loncra/client/auth";
 import type {ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {requireNonNullOrUndefined} from "@/utils";
 import {

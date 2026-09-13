@@ -1,98 +1,27 @@
-/**
- * 资源类型常量
- * 用于标识权限资源的结构类型
- */
-export const RESOURCE_TYPE = {
-  /** 根节点 */
-  ROOT: 'root',
-  /** 目录（分组） */
-  DIRECTORY: 'directory',
-  /** 菜单项 */
-  MENU: 'menu',
-  /** 安全资源（接口权限等） */
-  SECURITY: 'security',
-  /** 工具栏 */
-  TOOL: 'tool',
-  /** 个人中心 */
-  PROFILE: 'profile',
-  /** 导航数据 */
-  NAVIGATION_DATA: 'navigationData',
-} as const
+import {AUTH_SERVER_ENTERPRISE_MEMBER_ROLE} from '@loncra/client/auth'
 
-/**
- * 认证类型常量
- * 区分控制台用户与会员用户的认证方式
- */
-export const AUTHENTICATION_TYPE = {
-  /** 控制台/后台用户 */
-  CONSOLE: 'CONSOLE',
-  /** 个人用户 */
-  PERSONAL: 'PERSONAL',
-  /** 企业用户 */
-  ENTERPRISE:'ENTERPRISE',
-} as const
-
-export const AUTHENTICATION_MEMBER_TYPE:ReadonlyArray<string> = [AUTHENTICATION_TYPE.ENTERPRISE, AUTHENTICATION_TYPE.PERSONAL]
-
-/**
- * 登录方式常量
- * 支持的登录验证方式
- */
-export const LOGIN_TYPE = {
-  /** 用户名密码登录 */
-  USERNAME_PASSWORD: 'USERNAME_PASSWORD',
-  /** 用户名密码注册后自动登录 */
-  USERNAME_PASSWORD_REGISTER: 'USERNAME_PASSWORD_REGISTER',
-  /** 手机号登录 */
-  PHONE_CAPTCHA: 'PHONE_CAPTCHA',
-  /** 二维码登录 */
-  QR_CODE: 'QR_CODE',
-} as const
-
-export const AUTH_SERVER_ROLE_AUTHORITY = {
-  DELETE: 'perms[auth_server_role:delete]',
-  GET: 'perms[auth_server_role:get]',
-  SAVE:'perms[auth_server_role:save]',
-} as const
-
-export const AUTH_SERVER_RESOURCE_AUTHORITY = {
-  DELETE: 'perms[auth_server_authority_resource:delete]',
-  GET: 'perms[auth_server_authority_resource:get]',
-  SAVE:'perms[auth_server_authority_resource:save]',
-} as const
-
-export const AUTH_SERVER_SYSTEM_USER_AUTHORITY = {
-  ADMIN_RESET_PASSWORD: 'perms[auth_server_system_user:admin_reset_password]',
-} as const
-
-export const AUTH_SERVER_CONSOLE_USER_AUTHORITY = {
-  DELETE: 'perms[auth_server_console_user:delete]',
-  GET: 'perms[auth_server_console_user:get]',
-  SAVE:'perms[auth_server_console_user:save]',
-  EXPORT: 'perms[auth_server_console_user:export]',
-} as const
-
-export const AUTH_SERVER_PERSONAL_USER_AUTHORITY = {
-  PAGE: 'perms[auth_server_personal_user:page]',
-  GET: 'perms[auth_server_personal_user:get]',
-  EXPORT: 'perms[auth_server_personal_user:export]',
-} as const
-
-export const AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY = {
-  PAGE: 'perms[auth_server_enterprise_member:page]',
-  GET: 'perms[auth_server_enterprise_member:get]',
-  SAVE: 'perms[auth_server_enterprise_member:save]',
-  DELETE: 'perms[auth_server_enterprise_member:delete]',
-  AUDIT: 'perms[auth_server_enterprise_member:audit]',
-} as const
+export {
+  AUTHENTICATION_MEMBER_TYPE,
+  AUTHENTICATION_TYPE,
+  AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
+  AUTH_SERVER_CONSOLE_USER_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_INVITATION_STATUS,
+  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
+  AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY,
+  AUTH_SERVER_PERSONAL_USER_AUTHORITY,
+  AUTH_SERVER_RESOURCE_AUTHORITY,
+  AUTH_SERVER_ROLE_AUTHORITY,
+  AUTH_SERVER_SYSTEM_USER_AUTHORITY,
+  LOGIN_TYPE,
+  RESOURCE_TYPE,
+} from '@loncra/client/auth'
 
 export const AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE = {
   HOME: 'auth_server_enterprise_member',
   DETAIL: 'auth_server_enterprise_member_detail',
-} as const
-
-export const AUTH_SERVER_ENTERPRISE_AUTHORITY = {
-  PAGE: 'perms[auth_server_enterprise:page]',
 } as const
 
 export const AUTH_SERVER_ENTERPRISE_ROUTE = {
@@ -135,12 +64,6 @@ export const AUTH_SERVER_ROLE_ROUTE = {
   DETAIL: 'auth_server_role_detail',
 } as const
 
-export const AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY = {
-  DELETE: 'perms[auth_server_enterprise_role:delete]',
-  GET: 'perms[auth_server_enterprise_role:get]',
-  SAVE: 'perms[auth_server_enterprise_role:save]',
-} as const
-
 export const AUTH_SERVER_ENTERPRISE_ROLE_ROUTE = {
   HOME: 'auth_server_enterprise_role',
   ADD_CHILD: 'auth_server_enterprise_role_add_child',
@@ -149,40 +72,18 @@ export const AUTH_SERVER_ENTERPRISE_ROLE_ROUTE = {
   DETAIL: 'auth_server_enterprise_role_detail',
 } as const
 
-export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR:Record<number, string> = {
-  [10]: 'gold',
-  [20]: 'lime',
-  [30]: 'green',
-} as const
-
-export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON:Record<number, string> = {
-  [10]: 'loncra-crown',
-  [20]: 'loncra-shield',
-  [30]: 'loncra-user-round',
-} as const
-
-export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE = {
-  OWNER: 10,
-  MEMBER: 30,
-} as const
-
 export const AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE = {
   HOME: 'auth_server_enterprise_invitation',
   DETAIL: 'auth_server_enterprise_invitation_detail',
-  CONFIRM: 'auth_server_enterprise_invitation_confirm'
+  CONFIRM: 'auth_server_enterprise_invitation_confirm',
 } as const
 
-export const AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY = {
-  PAGE: 'perms[auth_server_enterprise_invitation:page]',
-  GET: 'perms[auth_server_enterprise_invitation:get]',
-  SAVE: 'perms[auth_server_enterprise_invitation:save]',
-  DELETE: 'perms[auth_server_enterprise_invitation:delete]',
-} as const
+export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR: Record<number, string> = {
+  [AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER]: 'gold',
+  [AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.MEMBER]: 'green',
+}
 
-export const AUTH_SERVER_ENTERPRISE_INVITATION_STATUS = {
-  EXECUTION: 10,
-  EXPIRED: 30,
-  CANCELLED: 40,
-} as const
-
-export const AUTH_SERVER_AUTHENTICATION_TYPE_PARAM = "authenticationType"
+export const AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON: Record<number, string> = {
+  [AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER]: 'loncra-crown',
+  [AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.MEMBER]: 'loncra-user-round',
+}

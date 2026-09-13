@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
 import {ResourceServerService} from '@/apis'
+import type {ModelGenerateOptions, ModelSettingEntity} from '@loncra/client/ai'
+import {ModelSettingService} from '@loncra/client/ai'
+
 import {booleanToYesOrNo, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
-import type {
-  EnumBucketsResponseBody,
-  ModelGenerateOptions,
-  ModelSettingEntity,
-  NameValueEnumMetadata,
-  RestResult,
-} from '@/types/apis'
+import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {
   AI_SERVER_MODEL_SETTING_ROUTE,
   MODEL_DEFAULT_OPTIONS_KEY,

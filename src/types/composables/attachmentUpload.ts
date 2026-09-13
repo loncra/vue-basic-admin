@@ -1,6 +1,6 @@
 import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants";
 import type {CSSProperties} from 'vue'
-import type {ObjectItemInfo, ObjectWriteResult} from "@/types/apis";
+import type {ObjectItemInfo, ObjectWriteResult} from "@loncra/client/resource";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {
   SemanticClassNamesType,
@@ -26,7 +26,6 @@ export interface ResolvedFilePaneKind {
   id: FilePaneKindId
   mode: FilePaneMode
 }
-
 
 export interface AttachmentPathItem extends UploadFile<ObjectWriteResult> {
   children?: AttachmentPathItem[]

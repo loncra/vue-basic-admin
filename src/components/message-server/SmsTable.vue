@@ -16,17 +16,15 @@ import {
   requireNonNullOrUndefined
 } from '@/utils'
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables';
-import type {
-  EnumBucketsResponseBody,
-  FilterRequest,
-  RestResult,
-  SmsMessageEntity
-} from "@/types/apis";
-import {SmsMessageService} from "@/apis/message-server";
+import type {FilterRequest, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
+import type {SmsMessageEntity} from "@loncra/client/message";
+import {SmsMessageService} from "@loncra/client/message";
+import {ResourceServerService} from "@/apis";
 import {mergeDefinitions} from "@/composables/basic/action";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {DateRangePicker, Input, Select} from "antdv-next";
-import {ResourceServerService} from "@/apis";
+
 import {
   EXECUTE_STATUS_TYPE,
   MESSAGE_SERVER_SMS_AUTHORITY,

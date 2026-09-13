@@ -18,8 +18,8 @@ import type {
   FilterRequest,
   FlatSortMetadata,
   PageRequest,
-  ScrollPageResult,
-} from '@/types/apis'
+  ScrollPageResult
+} from '@loncra/client/commons'
 import type {
   ActionContext,
   ActionPayload,

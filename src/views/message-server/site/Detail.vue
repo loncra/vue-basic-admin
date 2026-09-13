@@ -2,8 +2,8 @@
 
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import {SiteMessageService} from "@/apis/message-server";
-import type {SiteMessageEntity} from "@/types/apis/message-server/siteDomain.ts";
+import type {SiteMessageEntity} from "@loncra/client/message";
+import {SiteMessageService} from "@loncra/client/message";
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import {

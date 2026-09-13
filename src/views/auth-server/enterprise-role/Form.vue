@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
+import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {
   EnterpriseRoleEntity,
   EnterpriseRoleSavePayload,
-  EnumBucketsResponseBody,
-  NameValueEnumMetadata,
-  ResourceEntity,
-  RestResult
-} from "@/types/apis";
+  ResourceEntity
+} from "@loncra/client/auth";
+import {EnterpriseRoleService, ResourceService} from "@loncra/client/auth";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {requireNonNullOrUndefined} from "@/utils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
-import {ResourceServerService, ResourceService} from "@/apis";
+import {ResourceServerService} from "@/apis";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import {EnterpriseRoleService} from "@/apis/auth-server/enterpriseRoleService.ts";
+
 import {
   AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
@@ -128,7 +128,6 @@ onMounted(() => loadEnterpriseResource())
             <a-input v-model:value="options.entity.authority" />
           </a-form-item>
         </a-col>
-
 
         <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" :xxl="8">
           <a-form-item name="removable" :label="globalProperties.$t('authServer.role.removable')">

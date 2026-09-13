@@ -10,16 +10,12 @@ import {
   ref,
 } from 'vue'
 import {Input, Select} from 'antdv-next'
-import type {
-  DataDictionaryMetadata,
-  EnumBucketsResponseBody,
-  FilterRequest,
-  RestResult,
-  SkillPackageEntity,
-  SkillPackageSavePayload,
-} from '@/types/apis'
-import {AiSkillPackageService} from '@/apis/ai-server/aiSkillPackageService.ts'
+import type {FilterRequest, RestResult} from '@loncra/client/commons'
+import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
+import type {SkillPackageEntity, SkillPackageSavePayload} from '@loncra/client/ai'
+import {AiSkillPackageService} from '@loncra/client/ai'
 import {ResourceServerService} from '@/apis'
+
 import {
   applyColumnOptions,
   createIcon,
@@ -42,7 +38,7 @@ import {
 } from '@/constants'
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
 import useApp from 'antdv-next/dist/app/useApp'
-import LIconSelect from '@/components/basic/IconSelect.vue'
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 import LAgentHubSkillReleaseChangeLog
   from "@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue";
 

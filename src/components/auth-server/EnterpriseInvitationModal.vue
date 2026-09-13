@@ -1,6 +1,7 @@
 <script lang="ts">
 import {AUDIT_TYPE_VALUE} from "@/constants"
-import type {EnterpriseInvitationSavePayload} from "@/types/apis"
+import type {EnterpriseInvitationSavePayload} from "@/types/apis";
+import type {NameValueEnumMetadata} from "@loncra/client/commons";
 
 export function createEmptyForm(): EnterpriseInvitationSavePayload {
   return {
@@ -20,10 +21,8 @@ import {
 } from "@/constants";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
-import type {
-  NameValueEnumMetadata
-} from "@/types/apis";
-import {EnterpriseInvitationService} from "@/apis";
+
+import {EnterpriseInvitationService} from "@loncra/client/auth";
 import type {TableProps} from "antdv-next";
 
 defineOptions({

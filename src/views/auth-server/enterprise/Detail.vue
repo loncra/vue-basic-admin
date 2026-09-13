@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import LIconSelect from '@/components/basic/IconSelect.vue'
-import {EnterpriseService} from '@/apis/auth-server/enterpriseService.ts'
+import {IconSelect as LIconSelect} from '@loncra/antdv'
+import type {EnterpriseEntity} from '@loncra/client/auth'
+import {EnterpriseService} from '@loncra/client/auth'
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import type {EnterpriseEntity} from '@/types/apis/auth-server/enterpriseDomain'
 import {
   AUTH_SERVER_ENTERPRISE_ROUTE,
   ICON_SELECT_AVATAR_MODE_VALUE,

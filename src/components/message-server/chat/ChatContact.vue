@@ -1,12 +1,9 @@
 <script setup lang="ts">
 
-import type {
-  ContactItem,
-  PlatformUser,
-  RestResult,
-  UserChatConversationResponseBody
-} from "@/types/apis";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
+import type {ContactItem, UserChatConversationResponseBody} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
+import type {PlatformUser} from "@loncra/client/auth";
+import {ChatMessageService} from "@loncra/client/message";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
 
 defineOptions({

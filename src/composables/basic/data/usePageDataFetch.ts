@@ -9,10 +9,10 @@ import type {
   PageSearchService,
   RestResult,
   ScrollPageResult,
-  TotalPage,
-} from '@/types/apis'
+  TotalPage
+} from '@loncra/client/commons'
+import {PageSearchRestfulService} from '@loncra/client/commons'
 import type {CollectionService} from '@/types/composables/crud/collection.ts'
-import type {PageSearchRestfulService} from '@/apis/pageSearchRestfulService.ts'
 
 export type CollectionPagination = false | PaginationProps
 

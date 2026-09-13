@@ -1,6 +1,8 @@
 <script setup lang="ts">
 
-import {EnterpriseInvitationService} from '@/apis/auth-server/enterpriseInvitationService.ts'
+import {AuthServerService, ResourceServerService} from '@/apis'
+import type {EnterpriseInvitationEntity} from '@loncra/client/auth'
+import {EnterpriseInvitationService} from '@loncra/client/auth'
 import {
   type ComponentInternalInstance,
   computed,
@@ -10,14 +12,10 @@ import {
   ref
 } from 'vue'
 import {DateRangePicker, Select} from 'antdv-next'
-import {AuthServerService, ResourceServerService} from '@/apis'
-import type {
-  EnterpriseInvitationEntity,
-  EnterpriseInvitationSavePayload,
-  EnumBucketsResponseBody,
-  NameValueEnumMetadata,
-  RestResult
-} from '@/types/apis'
+
+import type {EnterpriseInvitationSavePayload} from '@/types/apis'
+import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {
   applyColumnOptions,
   createIcon,
@@ -39,7 +37,7 @@ import {
   SYSTEM_MODULE_NAME,
 } from '@/constants'
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
-import LQrCodeModal from "@/components/basic/QrCodeModal.vue";
+import {QrCodeModal as LQrCodeModal} from '@loncra/antdv'
 import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
 import LEnterpriseInvitationModal, {
   createEmptyForm
@@ -186,7 +184,6 @@ function onEdit(record:EnterpriseInvitationEntity | undefined) {
     options.value.entity = createEmptyForm()
   }
 }
-
 
 onMounted(mounted)
 </script>

@@ -3,7 +3,7 @@ import type {Router} from 'vue-router'
 
 import dayjs from 'dayjs'
 import {dayjsFormat} from './dateUtils'
-import type {NameValueEnumMetadata} from '@/types/apis'
+import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
 import {EXECUTE_STATUS_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import type {SearchableColumnType} from "@/types/composables";
@@ -154,7 +154,6 @@ export function convertFormUrlencoded(
   // 其他类型直接返回
   return val
 }
-
 
 /**
  * 通用数据转换工具
@@ -326,7 +325,6 @@ export function getEnumName<TValue>(value: NameValueEnumMetadata<TValue> | TValu
   }
   return String(value)
 }
-
 
 /** 表单 YesOrNo(0/1) → boolean（后端 toBoolean 不认数字） */
 export function yesOrNoToBoolean(value: unknown): boolean | undefined {

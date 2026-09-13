@@ -2,8 +2,8 @@
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref, watch} from "vue";
-import {RoleService} from "@/apis/auth-server/roleService.ts";
-import type {RoleEntity} from "@/types/apis/auth-server/roleDomain";
+import type {RoleEntity} from "@loncra/client/auth";
+import {RoleService} from "@loncra/client/auth";
 import {AUTH_SERVER_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 

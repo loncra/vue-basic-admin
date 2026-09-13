@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import {AiSkillPackageService} from '@/apis/ai-server/aiSkillPackageService.ts'
-import {getEnumName, getEnumValue, getExecuteBadgeStatus, requireNonNullOrUndefined} from '@/utils'
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {
   GitSkillSourceMetadata,
   ManualSkillSourceMetadata,
   SkillPackageEntity
-} from '@/types/apis'
+} from '@loncra/client/ai'
+import {AiSkillPackageService} from '@loncra/client/ai'
+import {getEnumName, getEnumValue, getExecuteBadgeStatus, requireNonNullOrUndefined} from '@/utils'
+import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {
   ICON_SELECT_AVATAR_MODE_VALUE,
   OPERATION_DATA_TRACE_TABLE,
@@ -16,7 +16,7 @@ import {
   SKILL_UPDATE_POLICY,
 } from '@/constants'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
-import LIconSelect from '@/components/basic/IconSelect.vue'
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 import LFileEditor from '@/components/attachment/FileEditor.vue'
 
 defineOptions({

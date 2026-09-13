@@ -5,8 +5,8 @@ import type {
   BasicIdMetadata,
   FindSearchService,
   PageSearchService,
-  ScrollPageResult,
-} from '@/types/apis'
+  ScrollPageResult
+} from '@loncra/client/commons'
 import {SYSTEM_CONSTANT} from '@/constants'
 
 /**

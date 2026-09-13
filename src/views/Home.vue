@@ -4,7 +4,7 @@ import LChatCallModel from "@/components/message-server/chat/ChatCallModel.vue";
 import {useChatNotification} from "@/composables";
 import {toRef} from "vue";
 import {TIME_UNIT_TYPE} from "@/constants";
-import type {TimeProperties} from "@/types/apis";
+import type {TimeProperties} from "@loncra/client/commons";
 
 defineOptions({
   name: 'IndexHome',

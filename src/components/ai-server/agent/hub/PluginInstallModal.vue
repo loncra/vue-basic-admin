@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import {AiUserPluginInstallService} from '@/apis'
+import type {UserPluginInstallResult} from '@loncra/client/ai'
+import {AiUserPluginInstallService} from '@loncra/client/ai'
 import {useAgentChatContext} from '@/composables'
 import {AGENT_WORKSPACE_TYPE_VALUE, PLUGIN_INSTALL_WORKSPACE_SCOPE} from '@/constants'
-import type {RestResult, UserPluginInstallResult} from '@/types/apis'
+import type {RestResult} from '@loncra/client/commons'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import useApp from 'antdv-next/dist/app/useApp'
 import {

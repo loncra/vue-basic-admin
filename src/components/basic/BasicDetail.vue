@@ -6,7 +6,7 @@ import {
   LAYOUT_PANE_TITLE_PROVIDE_KEY,
   SYSTEM_CONSTANT
 } from "@/constants";
-import type {BasicIdMetadata, DetailSearchService, RestResult} from "@/types/apis";
+import type {BasicIdMetadata, DetailSearchService, RestResult} from "@loncra/client/commons";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,

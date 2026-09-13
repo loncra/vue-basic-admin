@@ -1,14 +1,16 @@
 <script setup lang="ts">
 
-import {EnterpriseService} from '@/apis/auth-server/enterpriseService.ts'
+import {ResourceServerService} from '@/apis'
+import {EnterpriseService} from '@loncra/client/auth'
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, Select} from 'antdv-next'
-import {ResourceServerService} from '@/apis'
-import type {EnumBucketsResponseBody, RestResult} from '@/types/apis'
+
+import type {RestResult} from '@loncra/client/commons'
+import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {applyColumnOptions, dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import type {SearchableColumnType} from '@/types/composables'
 import LCrudTable from '@/components/basic/crud/CrudTable.vue'
-import LIconSelect from '@/components/basic/IconSelect.vue'
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {
   AUTH_SERVER_ENTERPRISE_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_ROUTE,

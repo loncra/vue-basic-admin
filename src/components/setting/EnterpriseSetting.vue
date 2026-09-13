@@ -11,9 +11,10 @@ import {
   OPERATION_DATA_TRACE_TABLE,
 } from "@/constants";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
-import {EnterpriseService} from "@/apis";
-import type {EnterprisePayload, PersonalEnterprise, RestResult} from "@/types/apis";
-import LIconSelect from "@/components/basic/IconSelect.vue";
+import type {EnterprisePayload, PersonalEnterprise} from "@loncra/client/auth";
+import {EnterpriseService} from "@loncra/client/auth";
+import type {RestResult} from "@loncra/client/commons";
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {IconfontJson} from "@/types/composables";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";

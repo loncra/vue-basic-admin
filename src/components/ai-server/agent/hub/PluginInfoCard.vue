@@ -1,13 +1,9 @@
 <script setup lang="ts" generic="T extends PluginPackageMetadata">
-import {AiUserPluginInstallService} from '@/apis'
-import LIconSelect from '@/components/basic/IconSelect.vue'
+import type {PluginPackageMetadata, UserPluginInstallResult} from '@loncra/client/ai'
+import {AiUserPluginInstallService} from '@loncra/client/ai'
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 import LAgentHubPluginInstall from '@/components/ai-server/agent/hub/PluginInstallModal.vue'
-import type {
-  PluginPackageMetadata,
-  RestResult,
-  TotalPage,
-  UserPluginInstallResult,
-} from '@/types/apis'
+import type {RestResult, TotalPage} from '@loncra/client/commons'
 import {requireNonNullOrUndefined} from '@/utils'
 import useApp from 'antdv-next/dist/app/useApp'
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from 'vue'

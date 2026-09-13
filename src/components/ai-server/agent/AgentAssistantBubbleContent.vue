@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type {AgentToolCallBlock, ChatBubbleItem,} from '@/types/composables'
 import {AGENT_TOOL_BLOCK_STATUS, STREAM_RUNNING_STATUS_VALUE} from "@/constants"
-import LMarkdownCodeRenderer from "@/components/basic/markdown/MarkdownCodeRenderer.vue"
-import LMarkdown from "@/components/basic/markdown/Markdown.vue"
+import {Markdown as LMarkdown, MarkdownCodeRenderer as LMarkdownCodeRenderer} from '@loncra/antdv'
 
 import {RightOutlined,} from '@antdv-next/icons'
 import {

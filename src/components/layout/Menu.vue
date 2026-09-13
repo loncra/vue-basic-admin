@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {RESOURCE_TYPE} from "@/constants";
-import type {ResourceEntity} from "@/types/apis";
+import type {ResourceEntity} from "@loncra/client/auth";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,

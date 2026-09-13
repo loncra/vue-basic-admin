@@ -1,13 +1,14 @@
 <script setup lang="ts">
 
-import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
+import type {ObjectItemInfo} from "@loncra/client/resource";
+import {AttachmentService, MyResourceService} from "@loncra/client/resource";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from "vue";
-import type {ObjectItemInfo, RestResult} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
 import type {ResolvedAction} from "@/types/composables";
 import useApp from "antdv-next/dist/app/useApp";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import {MyResourceService} from "@/apis/resource-server/myResourceService.ts";
+
 import LActionButton from "@/components/basic/crud/ActionButton.vue";
 import LAttachmentMasonry from "@/components/basic/AttachmentMasonry.vue";
 

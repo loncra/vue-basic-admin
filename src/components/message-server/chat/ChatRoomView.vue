@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type {
   ContactItem,
-  RestResult,
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
 import {getEnumName, getEnumValue} from "@/utils";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
 import {

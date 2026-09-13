@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
-import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
+import type {ExportDataMetadata, FileObject} from "@loncra/client/resource";
+import {AttachmentService, UserExportService} from "@loncra/client/resource";
 import {
   byteFormat,
   createIcon,
@@ -9,10 +10,9 @@ import {
   requireNonNullOrUndefined
 } from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
-import type {ExportDataMetadata, FileObject} from "@/types/apis";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
-import {UserExportService} from "@/apis/resource-server/userExportService.ts";
+
 import {EXECUTE_STATUS_TYPE} from "@/constants";
 
 defineOptions({

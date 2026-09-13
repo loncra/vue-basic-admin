@@ -1,7 +1,7 @@
 import type {ActionDefinition} from './actionButton.ts'
 import type {QueryCollectionProps} from './collection.ts'
 import type {PaginationProps} from 'antdv-next/dist/pagination'
-import type {BasicIdMetadata, ScrollPageResult,} from '@/types/apis'
+import type {BasicIdMetadata, ScrollPageResult} from '@loncra/client/commons'
 import {SYSTEM_CONSTANT} from '@/constants'
 
 export type CardGridPagination = false | PaginationProps

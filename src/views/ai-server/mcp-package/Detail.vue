@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import {AiMcpPackageService} from '@/apis/ai-server/aiMcpPackageService.ts'
+import type {
+  SseMcpClientTransportMetadata,
+  StdioMcpClientTransportMetadata
+} from '@loncra/client/ai'
+import {AiMcpPackageService} from '@loncra/client/ai'
 import {getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import type {
-  McpPackageEntity,
-  SseMcpClientTransportMetadata,
-  StdioMcpClientTransportMetadata,
-} from '@/types/apis'
+import type {McpPackageEntity} from '@/types/apis'
 import {
   MCP_CLIENT_HTTP_TYPE_VALUE,
   MCP_CLIENT_TYPE,
@@ -17,7 +17,7 @@ import {
   YES_OR_NO_TYPE,
 } from '@/constants'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import LKeyValueTable from "@/components/basic/KeyValueTable.vue";
+import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
 import LMcpClarifyPolicyTable from "@/components/ai-server/mcp/McpClarifyPolicyTable.vue";
 
 defineOptions({

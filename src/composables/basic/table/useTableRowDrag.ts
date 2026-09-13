@@ -1,7 +1,7 @@
 import {computed, ref} from 'vue'
 import type {TableProps} from 'antdv-next'
 import {SYSTEM_CONSTANT} from '@/constants'
-import type {TreeSortMetadata} from '@/types/apis'
+import type {TreeSortMetadata} from '@loncra/client/commons'
 import type {
   DropPosition,
   SearchableColumnType,

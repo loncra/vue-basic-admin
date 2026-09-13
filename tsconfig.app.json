@@ -14,7 +14,17 @@
 
     // Path mapping for cleaner imports.
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@loncra/antdv": ["../packages/antdv/src/index.ts"],
+      "@loncra/antdv/locale/zh_CN": ["../packages/antdv/src/locale/zh_CN.ts"],
+      "@loncra/antdv/locale/en_US": ["../packages/antdv/src/locale/en_US.ts"],
+      "@loncra/client": ["../packages/client/src/index.ts"],
+      "@loncra/client/commons": ["../packages/client/src/commons/index.ts"],
+      "@loncra/client/auth": ["../packages/client/src/auth/index.ts"],
+      "@loncra/client/resource": ["../packages/client/src/resource/index.ts"],
+      "@loncra/client/message": ["../packages/client/src/message/index.ts"],
+      "@loncra/client/ai": ["../packages/client/src/ai/index.ts"],
+      "@loncra/client/adapters/axios": ["../packages/client/src/adapters/axios.ts"]
     },
 
     // `vue-tsc --build` produces a .tsbuildinfo file for incremental type-checking.

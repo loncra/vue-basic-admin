@@ -3,7 +3,7 @@ import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {SearchableColumnType} from "@/types/composables";
-import {SmsTemplateService} from "@/apis/message-server/sms/templateService.ts";
+import {SmsTemplateService} from "@loncra/client/message";
 import {MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY} from '@/constants'
 
 defineOptions({
@@ -57,7 +57,6 @@ const columns = computed<SearchableColumnType[]>(() => [{
   ellipsis: true,
   width: 210
 }])
-
 
 </script>
 

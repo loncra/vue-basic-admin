@@ -2,13 +2,13 @@
 
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref, useSlots} from "vue";
 import type {
-  EnumBucketsResponseBody,
   IdNameValueMetadata,
   NameValueEnumMetadata,
   PageRequest,
-  PlatformUser,
   RestResult
-} from "@/types/apis";
+} from "@loncra/client/commons";
+import type {PlatformUser} from "@loncra/client/auth";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {DefaultOptionType} from '@v-c/select'
 import {requireNonNullOrUndefined} from "@/utils";

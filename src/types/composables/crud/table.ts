@@ -8,7 +8,7 @@ import type {
   FlatSortMetadata,
   ScrollPageResult,
   TreeSortMetadata
-} from "@/types/apis";
+} from "@loncra/client/commons";
 import type {ColumnType} from "antdv-next/dist/table/interface";
 import {SYSTEM_CONSTANT} from "@/constants";
 

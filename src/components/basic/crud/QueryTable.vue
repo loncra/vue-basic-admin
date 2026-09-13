@@ -22,8 +22,8 @@ import type {
   FilterRequest,
   PageRequest,
   ScrollPageResult,
-  TreeSortMetadata,
-} from "@/types/apis";
+  TreeSortMetadata
+} from "@loncra/client/commons";
 import type {
   ActionContext,
   ActionPayload,

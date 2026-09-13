@@ -3,12 +3,12 @@
 import useApp from "antdv-next/dist/app/useApp";
 import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {ChatCallType, UserChatParticipantEntity} from "@/types/apis";
+import type {ChatCallType, UserChatParticipantEntity} from "@loncra/client/message";
+import {ChatCallService} from "@loncra/client/message";
 import type {MenuItemType} from "antdv-next";
 import {CHAT_CALL_TYPE} from "@/constants";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {ServerConversationItem} from "@/types/composables";
-import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import {useChatCallModalExpose} from "@/composables";
 
 defineOptions({

@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import {AiSkillPackageService, AiUserPluginInstallService, ResourceServerService} from '@/apis'
+import {ResourceServerService} from '@/apis'
+import type {SkillPackageEntity, UserPluginInstallResult} from '@loncra/client/ai'
+import {AiSkillPackageService, AiUserPluginInstallService} from '@loncra/client/ai'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
-import type {
-  DataDictionaryMetadata,
-  PageRequest,
-  RestResult,
-  SkillPackageEntity,
-  TotalPage,
-  UserPluginInstallResult,
-} from '@/types/apis'
+import type {PageRequest, RestResult, TotalPage} from '@loncra/client/commons'
+import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
   DATA_DICTIONARY_ALL_CODE,
   DEFAULT_PAGE_RESULT_VALUE,

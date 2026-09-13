@@ -7,14 +7,13 @@ import {
   type Ref,
   ref
 } from "vue";
-import {
-  type ContactItem,
-  type IdNameValueMetadata,
-  type PlatformUser,
-  type RestResult,
-  type UserChatConversationResponseBody,
-  type UserChatMessageResponseBody
+import type {
+  ContactItem,
+  UserChatConversationResponseBody,
+  UserChatMessageResponseBody
 } from "@/types/apis";
+import type {IdNameValueMetadata, RestResult} from "@loncra/client/commons";
+import type {PlatformUser} from "@loncra/client/auth";
 import {requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore";

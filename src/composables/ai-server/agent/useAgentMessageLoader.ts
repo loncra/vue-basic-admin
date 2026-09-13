@@ -7,7 +7,8 @@ import type {
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {AGENT_CONVERSATION_TYPE, CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {AgentService} from '@/apis'
-import type {AgentMessageEntity, PageResult, RestResult} from '@/types/apis'
+import type {AgentMessageEntity} from '@/types/apis'
+import type {PageResult, RestResult} from '@loncra/client/commons'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 
 /**

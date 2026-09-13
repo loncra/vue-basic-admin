@@ -1,12 +1,12 @@
 import type {VideoThumbnailResult} from '@/types/composables/common'
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import type {ObjectItemInfo, ObjectWriteResult} from "@/types/apis";
+import type {ObjectItemInfo, ObjectWriteResult} from "@loncra/client/resource";
+import {AttachmentService} from "@loncra/client/resource";
 import type {
   AttachmentFileItem,
   AttachmentPathItem,
   AttachmentValue
 } from "@/types/composables/attachmentUpload.ts";
-import {AttachmentService} from "@/apis";
 import {
   FILE_OR_FOLDER_NAME_MAX_LENGTH,
   RESERVED_FILE_OR_FOLDER_NAME,

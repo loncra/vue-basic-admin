@@ -10,7 +10,7 @@ import {useAttachmentUploadFiles} from "@/composables/attachment/useAttachmentUp
 import {computed, useSlots} from "vue";
 import type {UploadChangeParam} from "antdv-next";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import type {ObjectWriteResult} from "@/types/apis";
+import type {ObjectWriteResult} from "@loncra/client/resource";
 
 defineOptions({
   name: 'LAttachmentPictureCardUpload',

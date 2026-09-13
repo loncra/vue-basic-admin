@@ -4,8 +4,9 @@ import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {OperationDataTraceAuditEventService} from "@/apis";
-import type {AuditEventEntity, RestResult, TotalPage} from "@/types/apis";
+import type {AuditEventEntity} from "@loncra/client/auth";
+import {OperationDataTraceAuditEventService} from "@loncra/client/auth";
+import type {RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from "@/constants";

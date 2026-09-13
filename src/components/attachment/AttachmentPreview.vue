@@ -14,10 +14,11 @@ import type {VideoThumbnailResult} from "@/types/composables";
 import type {AttachmentPreviewProps} from "@/types/composables/attachmentUpload.ts";
 import {ATTACHMENT_PREVIEW_MODE} from "@/constants";
 import LAttachmentFilePreview from "@/components/attachment/internal/AttachmentFilePreview.vue";
-import type {ObjectWriteResult, RestResult} from "@/types/apis";
-import {AttachmentService} from "@/apis";
+import type {RestResult} from "@loncra/client/commons";
+import type {ObjectWriteResult} from "@loncra/client/resource";
+import {AttachmentService} from "@loncra/client/resource";
 import useApp from "antdv-next/dist/app/useApp";
-import LBasicImage from "@/components/basic/BasicImage.vue";
+import {BasicImage as LBasicImage} from '@loncra/antdv'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
 defineOptions({
@@ -116,7 +117,6 @@ async function doRemove(file: UploadFile<ObjectWriteResult>) {
     message.error(e instanceof Error ? e.message : String(e))
   }
 }
-
 
 function openPreview(file: UploadFile<ObjectWriteResult>) {
   if (file.type?.includes('image/')) {

@@ -8,12 +8,8 @@ import type {
   ChatBubbleItem,
   ChatContentBlock,
 } from '@/types/composables'
-import type {
-  AgentMessageEntity,
-  IdValueMetadata,
-  RestResult,
-  StreamAgentMessageEntity
-} from '@/types/apis'
+import type {AgentMessageEntity, StreamAgentMessageEntity} from '@/types/apis'
+import type {IdValueMetadata, RestResult} from '@loncra/client/commons'
 import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {nextTick, ref, watch} from 'vue'

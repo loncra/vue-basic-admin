@@ -2,16 +2,18 @@
 import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {NameValueEnumMetadata, ObjectWriteResult} from "@/types/apis";
+import type {NameValueEnumMetadata} from "@loncra/client/commons";
+import type {ObjectWriteResult} from "@loncra/client/resource";
+import type {EmailMessageSendPayload} from "@loncra/client/message";
+import {EmailMessageService} from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
-import LTipTap from "@/components/tiptap/TipTap.vue";
+import {Editor as LEditor} from '@loncra/antdv'
 
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
-import type {EmailMessageSendPayload} from "@/types/apis/message-server/emailDomain.ts";
+
 import {MESSAGE_SERVER_EMAIL_ROUTE, MESSAGE_TYPE_VALUE, YES_OR_NO_TYPE} from "@/constants";
 import {
   loadMessageSendEnums,
@@ -112,12 +114,7 @@ onMounted(mounted);
             <a-input v-model:value="options.form.title" />
           </a-form-item>
           <a-form-item :label="globalProperties.$t('common.content')" name="content" :rules="[{required: true, trigger: 'change'}]">
-            <l-tip-tap
-              v-model:value="options.form.content"
-              model="html"
-              class="min-h-100 max-h-120"
-              :toolbar="{ items: ['undo', 'redo', 'divider', 'bold', 'italic', 'underline', 'blockquote', 'heading', 'divider', 'list', 'align', 'divider', 'link', 'picture'] }"
-            />
+            <l-editor v-model:value="options.form.content" :height="400" />
           </a-form-item>
           <a-form-item :label="globalProperties.$t('attachment.text')" name="attachmentList">
             <l-attachment-upload

@@ -1,7 +1,9 @@
 import {useChatCallModalExpose, useSocketSubscriptions} from "@/composables";
 import {inject, markRaw, nextTick, provide, ref, watch,} from "vue";
 import {getEnumValue, getMediaStreamConstraintsByCall} from "@/utils";
-import type {RestResult, UserChatCallParticipantEntity} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
+import type {UserChatCallParticipantEntity} from "@loncra/client/message";
+import {ChatCallService} from "@loncra/client/message";
 import {readVideoMetrics, readVideoMetricsFromElement,} from "@/utils/chatCallUtils.ts";
 import {
   CHAT_CALL_MEDIA_PROVIDE_KEY,
@@ -23,7 +25,6 @@ import {
   type VideoCaptureOptions,
 } from "livekit-client";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {ChatCallService} from "@/apis/message-server/chatCallService.ts";
 import type {
   CallMediaState,
   ChatCallMediaExpose,

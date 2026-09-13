@@ -1,19 +1,10 @@
-import {ICON_SELECT_AVATAR_MODE_VALUE, ICON_SELECT_MODE} from "@/constants";
-
-export interface IconfontGlyph {
-  font_class: string
-  name: string
-  icon_id:string
-  unicode:string
-  unicode_decimal:number
-}
-
-export interface IconfontJson {
-  name: string
-  css_prefix_text: string
-  description:string
-  glyphs: IconfontGlyph[]
-}
+export type {
+  IconfontGlyph,
+  IconfontJson,
+  IconSelectAvatarModeValueType,
+  IconSelectModeType,
+  KeyValueRow,
+} from '@loncra/antdv'
 
 export type RouteTitleParams = Record<string, string>
 
@@ -85,14 +76,3 @@ export interface LogoProps {
   hideText?: boolean
 }
 
-export interface KeyValueRow {
-  id: string
-  key: string
-  value: string[] | string,
-  editing:boolean,
-  origin?:KeyValueRow
-}
-
-export type IconSelectModeType = typeof ICON_SELECT_MODE.VIEW | typeof ICON_SELECT_MODE.AVATAR  | typeof ICON_SELECT_MODE.INPUT
-
-export type IconSelectAvatarModeValueType = typeof ICON_SELECT_AVATAR_MODE_VALUE.AVATAR | typeof ICON_SELECT_AVATAR_MODE_VALUE.ICON | typeof ICON_SELECT_AVATAR_MODE_VALUE.INPUT

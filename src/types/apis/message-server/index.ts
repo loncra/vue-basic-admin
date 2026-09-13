@@ -1,6 +1,3 @@
 export * from './messageDomain'
-export * from './smsDomain'
-export * from './batchDomain'
-export * from './emailDomain'
 export * from './siteDomain'
 export * from './userChatDomain.ts'

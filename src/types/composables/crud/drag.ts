@@ -1,7 +1,6 @@
 import type {Ref} from 'vue'
-import type {FlatSortMetadata} from '@/types/apis'
+import type {FlatSortMetadata} from '@loncra/client/commons'
 import {SYSTEM_CONSTANT} from '@/constants'
-
 
 /** 树形表格拖拽放置位置：目标行上 / 中 / 下 */
 export type DropPosition = -1 | 0 | 1

@@ -1,14 +1,15 @@
 import {type ComponentInternalInstance, computed, getCurrentInstance, type Ref, ref,} from 'vue'
 import type {
   ContactItem,
-  RestResult,
   UserChatConversationResponseBody,
-  UserChatMessageResponseBody,
-  UserChatParticipantEntity,
+  UserChatMessageResponseBody
 } from '@/types/apis'
+import type {RestResult} from '@loncra/client/commons'
+import type {UserChatParticipantEntity} from '@loncra/client/message'
+import {ChatMessageService} from '@loncra/client/message'
 import type {ChatRoomSettingsCallbacks, ChatRoomViewModalOpenType} from '@/types/composables'
 import {AuthServerService} from '@/apis'
-import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
+
 import {useConversationActions} from '@/composables/message-server/chat/useConversationActions.ts'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'

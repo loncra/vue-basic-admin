@@ -11,8 +11,8 @@ import {
   ICON_SELECT_AVATAR_MODE_VALUE
 } from "@/constants";
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import LIconSelect from "@/components/basic/IconSelect.vue";
-import type {PersonalEnterprise} from "@/types/apis";
+import {IconSelect as LIconSelect} from '@loncra/antdv'
+import type {PersonalEnterprise} from "@loncra/client/auth";
 
 defineOptions({
   name: 'LLogo',
@@ -46,7 +46,7 @@ const switchItems = computed(()=>{
       .map(item => ({
         data:item,
         label:item.name,
-        key:getMenuItemKey(AUTHENTICATION_TYPE.ENTERPRISE,item.tenantId),
+        key:getMenuItemKey(AUTHENTICATION_TYPE.ENTERPRISE, item.tenantId ?? ''),
         menuType:AUTHENTICATION_TYPE.ENTERPRISE
       }))
   },{

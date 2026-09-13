@@ -1,167 +1,49 @@
-/**
- * 系统枚举类型常量
- *
- * 收纳所有通过 {@link ResourceServerService.getServiceEnumerates} 查询的枚举名（id 值），
- * 避免在各视图中硬编码魔法值字符串。
- */
-export const SYSTEM_ENUM_TYPE = {
-  BATCH_MESSAGE_TYPE_ENUM: 'BatchMessageTypeEnum',
-  CLOUD_CHANNEL_ENUM: 'CloudChannelEnum',
-  CAROUSEL_TYPE_ENUM: 'CarouselTypeEnum',
-  DATA_STATUS_ENUM: 'DataStatusEnum',
-  EXECUTE_STATUS_ENUM: 'ExecuteStatus',
-  GENDER_ENUM: 'GenderEnum',
-  MCP_PACKAGE_AUTH_MODE_ENUM: 'McpPackageAuthModeEnum',
-  MCP_PACKAGE_TYPE_ENUM: 'PackageTypeEnum',
-  MCP_CLIENT_TYPE_ENUM: 'McpClientTypeEnum',
-  MESSAGE_TYPE_ENUM: 'MessageTypeEnum',
-  PACKAGE_ORIGIN_ENUM: 'PackageOriginEnum',
-  PLUGIN_TARGET_TYPE_ENUM: 'PluginTargetTypeEnum',
-  SKILL_SOURCE_TYPE_ENUM: 'SkillSourceTypeEnum',
-  UPDATE_POLICY_ENUM: 'UpdatePolicyEnum',
-  MODEL_TYPE_ENUM: 'ModelTypeEnum',
-  OPERATION_DATA_TYPE_ENUM: 'OperationDataType',
-  RESOURCE_CATEGORY_ENUM: 'ResourceCategoryEnum',
-  RESOURCE_SOURCE_ENUM: 'ResourceSourceEnum',
-  RESOURCE_TYPE_ENUM: 'ResourceTypeEnum',
-  SITE_MESSAGE_PUSHABLE_CHANNEL_ENUM: 'SiteMessagePushableChannelEnum',
-  TIME_UNIT_ENUM: 'TimeUnitEnum',
-  USER_STATUS_ENUM: 'UserStatus',
-  ENTERPRISE_MEMBER_ROLE_ENUM: 'EnterpriseMemberRoleEnum',
-  ENTERPRISE_INVITATION_STATUS_ENUM: 'EnterpriseInvitationStatusEnum',
-  AUDIT_TYPE_ENUM: 'AuditTypeEnum',
-  AUDIT_STATUS_ENUM: 'AuditStatusEnum',
-  VALUE_TYPE_ENUM: 'ValueTypeEnum',
-  YES_OR_NO: 'YesOrNo',
-} as const
+export {
+  DATA_RELEASE_STATUS,
+  DATA_STATUS,
+  EXECUTE_STATUS_TYPE,
+  EXECUTE_TYPE_RETRY_STATUS,
+  SYSTEM_ENUM_TYPE,
+  TIME_UNIT_TYPE,
+  VALUE_TYPE,
+  YES_OR_NO_TYPE,
+} from '@loncra/client/commons'
 
-export const TIME_UNIT_TYPE = {
-  /**
-   * Time unit representing one thousandth of a microsecond.
-   */
-  NANOSECONDS: "NANOSECONDS",
-  /**
-   * Time unit representing one thousandth of a millisecond.
-   */
-  MICROSECONDS: "MICROSECONDS",
-  /**
-   * Time unit representing one thousandth of a second.
-   */
-  MILLISECONDS: "MILLISECONDS",
-  /**
-   * Time unit representing one second.
-   */
-  SECONDS: "SECONDS",
-  /**
-   * Time unit representing sixty seconds.
-   */
-  MINUTES: "MINUTES",
-  /**
-   * Time unit representing sixty minutes.
-   */
-  HOURS: "HOURS",
-  /**
-   * Time unit representing twenty four hours.
-   */
-  DAYS: "DAYS",
-}
+export {CAROUSEL_TYPE} from '@loncra/client/resource'
 
-export const YES_OR_NO_TYPE = {
-  YES:1,
-  NO:0
-} as const
+export {
+  AGENT_BLOCK_STATUS,
+  AGENT_CHAT_STATUS,
+  AGENT_CONTENT_TYPE,
+  AGENT_CONVERSATION_TYPE,
+  AGENT_TOOL_BLOCK_STATUS,
+  MCP_CLIENT_TYPE,
+  MODEL_TYPE,
+  PACKAGE_TYPE,
+  PLUGIN_INSTALL_STATUS,
+  PLUGIN_INSTALL_WORKSPACE_SCOPE,
+  PLUGIN_TARGET_TYPE,
+} from '@loncra/client/ai'
 
-/** 对齐后端 DataStatusEnum */
-export const DATA_STATUS = {
-  NEW: 10,
-  RELEASE: 20,
-  REVOKE: 30,
-} as const
+export {
+  AUDIT_STATUS_VALUE,
+  AUDIT_TYPE_VALUE,
+  GENDER,
+  RESOURCE_CATEGORY,
+  USER_STATUS_TYPE,
+} from '@loncra/client/auth'
 
-export const DATA_RELEASE_STATUS:ReadonlyArray<number> = [DATA_STATUS.NEW, DATA_STATUS.REVOKE]
-
-/** 对齐后端 PackageTypeEnum */
-export const PACKAGE_TYPE = {
-  SYSTEM: 10,
-  HUB: 20,
-} as const
-
-/** 对齐后端 ExecuteStatus（`SYSTEM_ENUM_TYPE.EXECUTE_STATUS` 是枚举类名） */
-export const EXECUTE_STATUS_TYPE = {
-  PENDING: -1,
-  PROCESSING: 0,
-  SUCCESS: 1,
-  RETRYING: 2,
-  IGNORE: 3,
-  FAILURE: 99,
-  UNKNOWN: 404,
-} as const
-
-export const EXECUTE_TYPE_RETRY_STATUS:ReadonlyArray<number> = [EXECUTE_STATUS_TYPE.PENDING, EXECUTE_STATUS_TYPE.FAILURE, EXECUTE_STATUS_TYPE.UNKNOWN]
-
-/** 对齐 McpClientTypeEnum.getName() */
-export const MCP_CLIENT_TYPE = {
-  SSE: 'sse',
-  STDIO: 'stdio',
-  STREAMABLE_HTTP: 'streamableHttp',
-} as const
-
-/** 对齐后端 CarouselTypeEnum */
-export const CAROUSEL_TYPE = {
-  PC: 10,
-  APP: 20,
-  APPLET: 30,
-} as const
-
-/** 对齐后端 ValueTypeEnum */
-export const VALUE_TYPE = {
-  INTEGER: 10,
-  DOUBLE: 20,
-  STRING: 30,
-  DATE: 40,
-  DATE_TIME: 50,
-  TIME: 60,
-} as const
-
-/** 助手消息 content 块 type（对齐后端 AgentContentType） */
-export const AGENT_CONTENT_TYPE = {
-  THINK: "think",
-  TOOL:"tool",
-  ANSWER:"answer",
-  ERROR:"error",
-  AGENT_STATUS_CHANGE:"agentStatusChange",
-  TOKEN_USAGE:"tokenUsage",
-  STREAM_START:"streamStart",
-  STREAM_STOP:"streamStop",
-  STREAM_END:"streamEnd",
-  ASSISTANT:"assistant",
-  GENERATE_CONVERSATION_NAME:"generateConversationName"
-} as const
-
-export const AGENT_CONVERSATION_TYPE = {
-  DEFAULT_WORKSPACE:10,
-  CUSTOMIZE_WORKSPACE:20,
-  WORKSPACE_CONVERSATION:30
-} as const
-
-/** 对齐后端 PluginTargetTypeEnum */
-export const PLUGIN_TARGET_TYPE = {
-  SKILL: 10,
-  MCP: 20,
-} as const
-
-/** 对齐后端 PluginInstallWorkspaceScopeEnum：USER=全部工作空间，ORG=指定工作空间 */
-export const PLUGIN_INSTALL_WORKSPACE_SCOPE = {
-  USER: 10,
-  ORG: 20,
-} as const
-
-/** 对齐后端 PluginInstallStatusEnum */
-export const PLUGIN_INSTALL_STATUS = {
-  PENDING: 10,
-  ACTIVATED: 20,
-  DISABLED: 30,
-} as const
+export {
+  CHAT_CALL_SCENE,
+  CHAT_CALL_TYPE,
+  MESSAGE_TYPE_VALUE,
+  USER_CHAT_CALL_PARTICIPANT_STATUS,
+  USER_CHAT_CALL_STATUS,
+  USER_CHAT_CONVERSATION_STATUS,
+  USER_CHAT_MESSAGE_TYPE,
+  USER_CHAT_PARTICIPANT_TYPE,
+  USER_CHAT_ROOM_TYPE,
+} from '@loncra/client/message'
 
 /** Agent 点名：TRIGGER 开弹层；MCP/SKILL 写入 instruction 槽 prefix */
 export const AGENT_INSTRUCTION_PREFIX = {
@@ -169,180 +51,6 @@ export const AGENT_INSTRUCTION_PREFIX = {
   MCP: '/mcp',
   SKILL: '/skill',
 } as const
-
-export const AGENT_CHAT_STATUS = {
-  READY:10,
-  RUNNING:20,
-  REQUEST_STOP:25,
-  STOPPED:30,
-  COMPLETED:35,
-  FAILED:40
-} as const
-
-/** 助手 content 块 status */
-export const AGENT_BLOCK_STATUS = {
-  READY:'ready',
-  PENDING:'pending',
-  RUNNING: 'running',
-  DONE: 'done',
-  FAILED: 'failed',
-} as const
-
-export const MODEL_TYPE = {
-  CHAT:10,
-  IMAGE:20,
-  VIDEO:30,
-  VOICE:40,
-  MUSIC:50,
-} as const
-
-/** 对齐后端 GenderEnum */
-export const GENDER = {
-  MALE: 10,
-  FEMALE: 20,
-  UNKNOWN: 30,
-} as const
-
-/** 对齐后端 ResourceCategoryEnum */
-export const RESOURCE_CATEGORY = {
-  PLUGIN: 10,
-  CUSTOMIZE: 20,
-} as const
-
-export const AGENT_TOOL_BLOCK_STATUS = {
-  PENDING:"pending",
-  ASKING:"asking",
-  ALLOWED:"allowed",
-  SUBMITTED:"submitted",
-  FINISHED:"finished",
-} as const
-
-/** 对齐后端 UserChatCallTypeEnum */
-export const CHAT_CALL_TYPE = {
-  VIDEO: 10,
-  VOICE: 20,
-} as const
-
-/** 对齐后端 UserChatCallSceneEnum：决定布局与采集档位（与 type 视频/语音正交） */
-export const CHAT_CALL_SCENE = {
-  PRIVATE: 10,
-  GROUP: 20,
-  MEETING: 30
-} as const
-
-/** 对齐后端 UserChatConversationStatusEnum */
-export const USER_CHAT_CONVERSATION_STATUS = {
-  ENABLED: 10,
-  EXIST: 20,
-  REMOVE: 25,
-  DISBAND: 30,
-} as const
-
-/** 对齐后端 UserChatRoomTypeEnum */
-export const USER_CHAT_ROOM_TYPE = {
-  GROUP_CHAT: 10,
-  PRIVATE_CHAT: 20,
-} as const
-
-/** 对齐后端 UserChatParticipantTypeEnum */
-export const USER_CHAT_PARTICIPANT_TYPE = {
-  OWNER: 10,
-  CO_OWNER: 20,
-  MEMBER: 30,
-  CALLER: 31,
-  CALLEE: 32,
-} as const
-
-/** 对齐后端 UserChatMessageTypeEnum */
-export const USER_CHAT_MESSAGE_TYPE = {
-  USER: 10,
-  SYSTEM: 20,
-  CALL: 30,
-} as const
-
-/** 对齐后端 UserChatCallStatusEnum */
-export const USER_CHAT_CALL_STATUS = {
-  CONNECTING: 10,
-  ACTIVE: 20,
-  COMPLETED: 30,
-} as const
-
-/** 对齐后端 UserChatCallParticipantStatusEnum */
-export const USER_CHAT_CALL_PARTICIPANT_STATUS = {
-  INITIATING: 10,
-  RINGING: 20,
-  CONNECTING: 30,
-  ACTIVE: 40,
-  COMPLETED: 50,
-  COMPLETED_BY_CALLER: 51,
-  COMPLETED_BY_CALLEE: 52,
-  COMPLETED_BY_GROUP_LEAVE: 53,
-  REJECTED: 60,
-  CANCELED: 61,
-  NO_ANSWER: 62,
-  DIS_CONNECTION: 63,
-} as const
-
-/** 对齐后端 MessageTypeEnum */
-export const MESSAGE_TYPE_VALUE = {
-  NOTICE: 10,
-  WARNING: 20,
-  SYSTEM: 30,
-  CAPTCHA: 40,
-  PROMOTION: 50,
-  IM: 60,
-  UNKNOWN: 99,
-} as const
-
-
-export const AUDIT_TYPE_VALUE = {
-  MANUAL: 10,
-  AUTOMATIC: 20
-} as const
-
-export const AUDIT_STATUS_VALUE = {
-    /**
-     * 待审核
-     */
-    AUDITABLE:10,
-
-    /**
-     * 审核通过
-     */
-    AGREED:20,
-
-    /**
-     * 审核不通过
-     */
-    DISAGREE:30,
-
-    /**
-     * 已拒绝
-     */
-    REJECTED:40,
-
-    /**
-     * 未知
-     */
-    UNKNOWN:99,
-} as const
-
-export const USER_STATUS_TYPE = {
-  /**
-   * 启用
-   */
-  ENABLED:1,
-
-  /**
-   * 禁用
-   */
-  DISABLED:0,
-
-  /**
-   * 锁定
-   */
-  LOCK:99
-}
 
 export const IMAGE_EXT = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico'])
 export const VIDEO_EXT = new Set(['mp4', 'webm', 'ogg', 'mov', 'm4v'])

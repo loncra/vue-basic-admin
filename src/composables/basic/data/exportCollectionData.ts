@@ -5,7 +5,7 @@ import type {
   PageRequest,
   RestResult,
   ScrollPageResult
-} from '@/types/apis'
+} from '@loncra/client/commons'
 import type {CollectionService} from '@/types/composables/crud/collection.ts'
 
 export async function exportCollectionData<

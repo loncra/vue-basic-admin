@@ -2,6 +2,7 @@ import {fileURLToPath, URL} from 'node:url'
 
 import {defineConfig, loadEnv} from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 
 import tailwindcss from '@tailwindcss/vite'
 
@@ -19,12 +20,15 @@ export default defineConfig(({ mode }) => {
     clearScreen: false,
     envPrefix: ['VITE_', 'TAURI_'],
     plugins: [
-      vue(),tailwindcss(), Components({ resolvers: [AntdvNextResolver(), AntdvNextXResolver()] })
+      vue(), vueJsx(), tailwindcss(), Components({ resolvers: [AntdvNextResolver(), AntdvNextXResolver()] })
     ],
     server: {
       host: '0.0.0.0',
       port: 5173,
       strictPort: true,
+      fs: {
+        allow: [fileURLToPath(new URL('..', import.meta.url))],
+      },
       proxy: {
         // 配置代理规则
         '/api': {
@@ -43,7 +47,11 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
       },
-      dedupe: ['dayjs'],
+      dedupe: ['dayjs', 'vue', 'antdv-next'],
+      preserveSymlinks: true,
+    },
+    optimizeDeps: {
+      exclude: ['@loncra/client', '@loncra/antdv'],
     },
   }
 

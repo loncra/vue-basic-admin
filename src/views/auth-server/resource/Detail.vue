@@ -2,8 +2,8 @@
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import {ResourceService} from "@/apis";
-import type {ResourceEntity} from "@/types/apis";
+import type {ResourceEntity} from "@loncra/client/auth";
+import {ResourceService} from "@loncra/client/auth";
 import {
   AUTH_SERVER_RESOURCE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,

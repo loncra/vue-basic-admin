@@ -13,14 +13,12 @@ import {mergeDefinitions} from "@/composables/basic/action";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
-import {SiteMessageService} from "@/apis/message-server/siteMessageService.js";
-import type {SiteMessageEntity} from "@/types/apis/message-server/siteDomain.ts";
-import type {
-  EnumBucketsResponseBody,
-  FilterRequest,
-  NameValueEnumMetadata,
-  RestResult
-} from "@/types/apis";
+import type {SiteMessageEntity} from "@loncra/client/message";
+import {SiteMessageService} from "@loncra/client/message";
+
+import type {FilterRequest, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
+
 import {
   EXECUTE_STATUS_TYPE,
   MESSAGE_SERVER_SITE_AUTHORITY,
@@ -135,8 +133,8 @@ async function mounted() {
   }
 }
 
-function getChannelsName(channels:NameValueEnumMetadata<number>[] = []) {
-  return channels.map((v:NameValueEnumMetadata<number>) => getEnumName(v)).join(',')
+function getChannelsName(channels: (NameValueEnumMetadata<number> | number)[] = []) {
+  return channels.map((v) => getEnumName(v)).join(',')
 }
 
 onMounted(mounted)

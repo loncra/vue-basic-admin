@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from "vue";
+import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {
   DataDictionaryEntity,
   DataDictionarySavePayload,
   DictionaryTypeEntity,
-  EnumBucketsResponseBody,
-  NameValueEnumMetadata,
-  RestResult
-} from "@/types/apis";
+  EnumBucketsResponseBody
+} from "@loncra/client/resource";
+import {DataDictionaryService, DictionaryTypeService} from "@loncra/client/resource";
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
@@ -19,8 +19,6 @@ import {
 } from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
-import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
-import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
 
 defineOptions({
   name: 'ResourceServerDataDictionaryForm',

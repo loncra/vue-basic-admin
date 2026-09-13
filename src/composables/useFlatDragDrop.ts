@@ -1,6 +1,6 @@
 import {ref} from 'vue'
 import {SYSTEM_CONSTANT} from '@/constants'
-import type {TreeSortMetadata} from '@/types/apis'
+import type {TreeSortMetadata} from '@loncra/client/commons'
 import type {
   UseDragReturn,
   UseFlatDragDropOptions,

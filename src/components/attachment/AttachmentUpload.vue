@@ -3,7 +3,7 @@
 import {computed, nextTick, ref, toRef, useSlots, watch} from "vue";
 import {useMergeSemantic, useToArr, useToProps} from 'antdv-next/dist/_util/hooks/useMergeSemantic'
 import {useFormItemContext} from "antdv-next/dist/form/context";
-import type {ObjectWriteResult} from "@/types/apis";
+import type {ObjectWriteResult} from "@loncra/client/resource";
 import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants";
 import LAttachmentDraggerUpload from "@/components/attachment/internal/AttachmentDraggerUpload.vue";
 import type {

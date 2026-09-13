@@ -1,5 +1,5 @@
 import type {Ref} from 'vue'
-import type {BasicCrudService, BasicIdMetadata, RestResult} from '@/types/apis'
+import type {BasicCrudService, BasicIdMetadata, RestResult} from '@loncra/client/commons'
 import type {ActionTranslateFn} from '@/composables/basic/action/defaultToolbarActions.ts'
 
 export interface ConfirmModalLike {

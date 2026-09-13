@@ -1,4 +1,5 @@
-import type {ObjectWriteResult, UserChatMessageResponseBody} from '@/types/apis'
+import type {UserChatMessageResponseBody} from '@/types/apis'
+import type {ObjectWriteResult} from '@loncra/client/resource'
 
 /**
  * 本机草稿入库形状（可 JSON 克隆）。

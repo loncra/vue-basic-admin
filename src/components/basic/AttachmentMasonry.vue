@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {AttachmentService} from "@/apis";
+import type {ObjectItemInfo} from "@loncra/client/resource";
+import {AttachmentService} from "@loncra/client/resource";
 import type {CheckboxChangeEvent} from "@v-c/checkbox";
 import {byteFormat, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
-import LBasicImage from "@/components/basic/BasicImage.vue";
-import type {ObjectItemInfo} from "@/types/apis";
+import {BasicImage as LBasicImage} from '@loncra/antdv'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 

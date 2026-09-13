@@ -16,9 +16,11 @@ import {
   onMounted
 } from "vue";
 import type {SearchableColumnType} from "@/types/composables";
-import type {EnumBucketsResponseBody, RestResult} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {ResourceServerService} from "@/apis";
-import {BatchMessageService} from "@/apis/message-server/batchMessageService.js";
+import {BatchMessageService} from "@loncra/client/message";
+
 import {
   EXECUTE_STATUS_TYPE,
   MESSAGE_SERVER_BATCH_AUTHORITY,

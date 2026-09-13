@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
-import {AttachmentService, AuthServerService} from "@/apis";
+import {AuthServerService} from "@/apis";
+import {AttachmentService} from "@loncra/client/resource";
 import {
   type ComponentInternalInstance,
   computed,

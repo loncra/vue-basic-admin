@@ -1,6 +1,6 @@
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
-import {AgentService} from '@/apis/ai-server/agentService.ts'
-import type {RestResult} from '@/types/apis'
+import {AgentService} from '@/apis'
+import type {RestResult} from '@loncra/client/commons'
 import {createIcon, findFirstTreeNode, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {AGENT_CHAT_STATUS, AGENT_CHAT_STATUS_STYLE, AGENT_CONVERSATION_TYPE} from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'

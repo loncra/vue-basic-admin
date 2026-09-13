@@ -1,15 +1,12 @@
 import type {
-  IdValueMetadata,
-  PlatformUser,
-  RestResult,
-  UserChatCallEntity,
-  UserChatCallParticipantEntity,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
   UserChatMessageResponseBody
 } from '@/types/apis'
+import type {IdValueMetadata, RestResult} from '@loncra/client/commons'
+import type {PlatformUser} from '@loncra/client/auth'
+import type {UserChatCallEntity, UserChatCallParticipantEntity} from '@loncra/client/message'
 import {SOCKET_EVENT_TYPE} from "@/constants";
-
 
 /** 仅业务推送事件；传输层事件由 store 内部 bindInternalListeners 处理 */
 export type SocketBusinessEventPayloadMap = {

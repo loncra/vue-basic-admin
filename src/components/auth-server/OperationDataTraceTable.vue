@@ -2,19 +2,17 @@
 
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue'
 import {DatePicker, Input, InputNumber, Select} from 'antdv-next';
-import {OperationDataTraceAuditEventService, ResourceServerService} from "@/apis";
+import {ResourceServerService} from "@/apis";
+import type {AuditEventEntity} from "@loncra/client/auth";
+import {OperationDataTraceAuditEventService} from "@loncra/client/auth";
 import {
   applyColumnOptions,
   dateTimeFormat,
   postTimestampFormat,
   requireNonNullOrUndefined
 } from "@/utils";
-import type {
-  AuditEventEntity,
-  EnumBucketsResponseBody,
-  FilterRequest,
-  RestResult
-} from "@/types/apis";
+import type {FilterRequest, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";
@@ -168,7 +166,7 @@ onMounted(mounted)
         {{ record.data?.operationTrace?.target }}
       </template>
       <template v-if="column.dataIndex === 'auditType'">
-        {{ record.data.metadata.name }}
+        {{ record.data?.metadata?.name }}
       </template>
       <template v-if="column.dataIndex === 'traceId'">
         {{ record.data?.operationTrace?.id }}

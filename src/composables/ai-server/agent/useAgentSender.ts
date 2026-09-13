@@ -7,7 +7,9 @@ import {
   ref,
   watch
 } from "vue";
-import type {IdValueMetadata, ModelSettingEntity, RestResult} from "@/types/apis";
+import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
+import type {ModelSettingEntity} from "@loncra/client/ai";
+import {ModelSettingService} from "@loncra/client/ai";
 import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 import type {
   AgentConversationItem,
@@ -18,7 +20,7 @@ import type {
   InstructionMeasure,
 } from "@/types/composables";
 import {ResourceServerService} from "@/apis";
-import {ModelSettingService} from "@/apis/ai-server/modelSettingService.ts";
+
 import {
   AGENT_CHAT_TYPE_STYLE,
   AGENT_CONVERSATION_TYPE,

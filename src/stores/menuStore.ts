@@ -1,12 +1,9 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants'
-import type {
-  ResourceEntity,
-  ResourceMetadata,
-  RestResult,
-  RouteResourceMetadata
-} from '@/types/apis'
+import type {RouteResourceMetadata} from '@/types/apis'
+import type {RestResult} from '@loncra/client/commons'
+import type {ResourceEntity, ResourceMetadata} from '@loncra/client/auth'
 import {AuthServerService} from '@/apis'
 import {
   type RouteLocationNormalized,

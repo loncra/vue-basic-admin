@@ -1,4 +1,4 @@
-import type {BasicCrudService, BasicIdMetadata} from '@/types/apis'
+import type {BasicCrudService, BasicIdMetadata} from '@loncra/client/commons'
 import type {ActionDefinition} from '@/types/composables'
 import type {AuthorityProps} from '@/types/composables/crud/collection.ts'
 import {createIcon} from '@/utils'

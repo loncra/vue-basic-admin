@@ -2,11 +2,12 @@
 
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {type ComponentInternalInstance, getCurrentInstance, useSlots} from "vue";
-import type {ObjectWriteResult, RestResult} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
+import type {ObjectWriteResult} from "@loncra/client/resource";
+import {AttachmentService} from "@loncra/client/resource";
 import useApp from "antdv-next/dist/app/useApp";
 import {requireNonNullOrUndefined} from "@/utils";
-import {AttachmentService} from "@/apis";
-import LBasicImage from "@/components/basic/BasicImage.vue";
+import {BasicImage as LBasicImage} from '@loncra/antdv'
 import type {AttachmentPreviewFileProps} from "@/types/composables/attachmentUpload.ts";
 
 defineOptions({

@@ -1,9 +1,6 @@
-import type {
-  AgentConversationEntity,
-  NameValueEnumMetadata,
-  ObjectWriteResult,
-  PageResult
-} from '@/types/apis'
+import type {NameValueEnumMetadata, PageResult} from '@loncra/client/commons'
+import type {ObjectWriteResult} from '@loncra/client/resource'
+import type {AgentConversationEntity} from '@loncra/client/ai'
 import type {
   ActiveChatSession,
   ChatBubbleItem,

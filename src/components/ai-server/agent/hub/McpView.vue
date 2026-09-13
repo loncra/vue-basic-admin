@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import {AiMcpPackageService, ResourceServerService} from '@/apis'
+import {ResourceServerService} from '@/apis'
+import type {UserPluginInstallResult} from '@loncra/client/ai'
+import {AiMcpPackageService} from '@loncra/client/ai'
 import {onMounted, ref} from 'vue'
-import type {
-  DataDictionaryMetadata,
-  McpPackageEntity,
-  PageRequest,
-  RestResult,
-  TotalPage,
-  UserPluginInstallResult,
-} from '@/types/apis'
+import type {McpPackageEntity} from '@/types/apis'
+import type {PageRequest, RestResult, TotalPage} from '@loncra/client/commons'
+import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
   DATA_DICTIONARY_ALL_CODE,
   DEFAULT_PAGE_RESULT_VALUE,

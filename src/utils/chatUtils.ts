@@ -1,17 +1,16 @@
 import type {
-  FileObject,
-  IdValueMetadata,
-  ObjectWriteResult,
   ParticipantMetadataMessageResponseBody,
-  PlatformUser,
   UserChatConversationResponseBody,
-  UserChatMessageEntity,
-  UserMetadata
+  UserChatMessageEntity
 } from "@/types/apis";
+import type {IdValueMetadata} from "@loncra/client/commons";
+import type {PlatformUser, UserMetadata} from "@loncra/client/auth";
+import type {FileObject, ObjectWriteResult} from "@loncra/client/resource";
+import {AttachmentService} from "@loncra/client/resource";
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 import {type ComponentInternalInstance, h, type VNode} from "vue";
 import {Avatar, AvatarGroup, Tag} from "antdv-next";
-import {AttachmentService, AuthServerService} from "@/apis";
+import {AuthServerService} from "@/apis";
 import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import type {
   BaseChatBubble,

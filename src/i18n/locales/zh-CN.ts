@@ -1,4 +1,5 @@
 import zhCN from 'antdv-next/locale/zh_CN'
+import loncraZhCN from '@loncra/antdv/locale/zh_CN'
 import type {LanguagePack} from '@/i18n'
 import 'dayjs/locale/zh-cn'
 
@@ -7,7 +8,7 @@ const locale: LanguagePack = {
   fallbackLocale: true,
   name: '简体中文',
   dayjs: 'zh-CN',
-  antDesign: zhCN,
+  antDesign: {...zhCN, ...loncraZhCN},
   common: {
     id: '主键',
     setting:'设置',

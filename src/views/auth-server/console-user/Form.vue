@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {
-  ConsoleUserEntity,
-  ConsoleUserSavePayload
-} from "@/types/apis/auth-server/consoleUserDomain";
-import type {NameValueEnumMetadata, RestResult, RoleEntity} from "@/types/apis";
+import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import type {ConsoleUserEntity, ConsoleUserSavePayload, RoleEntity} from "@loncra/client/auth";
+import {ConsoleUserService} from "@loncra/client/auth";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
+
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   AUTH_SERVER_CONSOLE_USER_ROUTE,
@@ -17,8 +17,8 @@ import {
   VALID_REGX
 } from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
-import {ConsoleUserService, ResourceServerService} from "@/apis";
-import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
+import {ResourceServerService} from "@/apis";
+
 import LRoleTable from "@/components/auth-server/RoleTable.vue";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import type {TableProps} from "antdv-next";

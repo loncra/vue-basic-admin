@@ -12,16 +12,16 @@ import {
 } from 'vue'
 import {App, Input, type MenuProps, Select} from 'antdv-next'
 import type {
-  DataDictionaryMetadata,
-  EnumBucketsResponseBody,
   FilterRequest,
-  ModelSettingEntity,
   NameValueEnumMetadata,
   RestResult,
-  TreeSortMetadata,
-} from '@/types/apis'
-import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
+  TreeSortMetadata
+} from '@loncra/client/commons'
+import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
+import type {ModelSettingEntity} from '@loncra/client/ai'
+import {ModelSettingService} from '@loncra/client/ai'
 import {ResourceServerService} from '@/apis'
+
 import {getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {

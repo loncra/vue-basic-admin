@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, watch} from 'vue'
-import type {ObjectItemInfo} from '@/types/apis'
+import type {ObjectItemInfo} from '@loncra/client/resource'
 import {useFilePane} from '@/composables/attachment/useFilePane.ts'
 import ImagePane from './panes/ImagePane.vue'
 import VideoPane from './panes/VideoPane.vue'

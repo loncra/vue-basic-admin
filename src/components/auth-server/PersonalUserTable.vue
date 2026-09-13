@@ -1,10 +1,12 @@
 <script setup lang="ts">
 
-import {PersonalUserService} from '@/apis/auth-server/personalUserService.ts'
+import {ResourceServerService} from '@/apis'
+import {PersonalUserService} from '@loncra/client/auth'
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
-import {ResourceServerService} from '@/apis'
-import type {EnumBucketsResponseBody, RestResult} from '@/types/apis'
+
+import type {RestResult} from '@loncra/client/commons'
+import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {applyColumnOptions, dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import type {SearchableColumnType} from '@/types/composables'
 import LCrudTable from '@/components/basic/crud/CrudTable.vue'

@@ -2,11 +2,11 @@
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import {EnterpriseRoleService} from "@/apis/auth-server/enterpriseRoleService.ts";
+import type {EnterpriseRoleEntity, ResourceEntity} from "@loncra/client/auth";
+import {EnterpriseRoleService, ResourceService} from "@loncra/client/auth";
 import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
-import type {EnterpriseRoleEntity, ResourceEntity, RestResult} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import {ResourceService} from "@/apis";
 
 defineOptions({
   name: 'AuthServerEnterpriseRoleDetail'

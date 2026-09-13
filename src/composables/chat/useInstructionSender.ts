@@ -1,4 +1,4 @@
-import type {IdValueMetadata} from "@/types/apis";
+import type {IdValueMetadata} from "@loncra/client/commons";
 import {type ComponentInternalInstance, getCurrentInstance, nextTick, onUnmounted, ref} from "vue";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createInstructionSlot, requireNonNullOrUndefined} from "@/utils";

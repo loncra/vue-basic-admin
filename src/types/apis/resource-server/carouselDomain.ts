@@ -1,63 +1,15 @@
-import type {IdValueMetadata, NameValueEnumMetadata, VersionEntityMetadata} from "@/types/apis";
-import type {Dayjs} from "dayjs";
-import type {AttachmentFileItem} from "@/types/composables/attachmentUpload.ts";
+import type {Dayjs} from 'dayjs'
+import type {
+  CarouselEntity as ClientCarouselEntity,
+  CarouselSavePayload as ClientCarouselSavePayload,
+} from '@loncra/client/resource'
 
-/**
- * 字典类型保存请求体
- *
- * maurice.chen
- */
-export interface CarouselSavePayload extends VersionEntityMetadata {
-
-  /**
-   * 名称
-   */
-  name: string;
-
-  /**
-   * 类型
-   */
-  type: NameValueEnumMetadata<number> | number;
-
-  /**
-   * 链接
-   */
-  link: IdValueMetadata<string, string>;
-
-  /**
-   * 顺序值
-   */
-  sort?: number;
-
-  /**
-   * 过期时间
-   */
-  expirationTime?: number | Dayjs;
-
-  /**
-   * 展示时间
-   */
-  showtime?: number | Dayjs;
-
-  /**
-   * 封面图片
-   */
-  cover?: AttachmentFileItem;
-
-  /**
-   * 备注
-   */
-  remark: string;
+export interface CarouselSavePayload
+  extends Omit<ClientCarouselSavePayload, 'expirationTime' | 'showtime'> {
+  expirationTime?: number | Dayjs
+  showtime?: number | Dayjs
 }
 
-/**
- * 字典类型数据类型
- * @author maurice.chen
- */
-export interface CarouselEntity extends CarouselSavePayload {
-
-  /**
-   * 状态
-   */
-  status: NameValueEnumMetadata<number> | number;
-}
+export interface CarouselEntity
+  extends Omit<ClientCarouselEntity, 'expirationTime' | 'showtime'>,
+    CarouselSavePayload {}

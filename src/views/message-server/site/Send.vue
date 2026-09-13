@@ -2,17 +2,19 @@
 import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {NameValueEnumMetadata, ObjectWriteResult} from "@/types/apis";
+import type {NameValueEnumMetadata} from "@loncra/client/commons";
+import type {ObjectWriteResult} from "@loncra/client/resource";
+import type {SiteMessageSendPayload} from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
-import type {SiteMessageSendPayload} from "@/types/apis/message-server/siteDomain.ts";
-import LTipTap from "@/components/tiptap/TipTap.vue";
+
+import {Editor as LEditor} from '@loncra/antdv'
 
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {MESSAGE_TYPE_VALUE, SITE_PUSHABLE} from "@/constants";
+import {MESSAGE_TYPE_VALUE, YES_OR_NO_TYPE} from "@/constants";
 import {loadMessageSendEnums} from "@/composables/message-server/useMessageSendFlow.ts";
 
 defineOptions({
@@ -43,7 +45,7 @@ const options = ref<{
     type: MESSAGE_TYPE_VALUE.NOTICE,
     content:"",
     title: "",
-    pushable: SITE_PUSHABLE.YES,
+    pushable: YES_OR_NO_TYPE.YES,
     channels:[],
     attachmentList: [],
     remark:"",
@@ -123,14 +125,14 @@ onMounted(mounted);
               </a-form-item>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-              <a-form-item :label="globalProperties.$t('messageServer.site.channel')" name="channels" :rules="options.form.pushable === SITE_PUSHABLE.YES ? [{required: true, trigger: 'change'}] : undefined">
+              <a-form-item :label="globalProperties.$t('messageServer.site.channel')" name="channels" :rules="options.form.pushable === YES_OR_NO_TYPE.YES ? [{required: true, trigger: 'change'}] : undefined">
                 <a-space-compact block>
-                  <a-select mode="multiple" :disabled="options.form.pushable !== SITE_PUSHABLE.YES" :options="options.channelOptions" :field-names="{label:'name'}" v-model:value="options.form.channels" />
+                  <a-select mode="multiple" :disabled="options.form.pushable !== YES_OR_NO_TYPE.YES" :options="options.channelOptions" :field-names="{label:'name'}" v-model:value="options.form.channels" />
                   <a-space-addon>
                     <a-switch
                       v-model:value="options.form.pushable"
-                      :un-checked-value="SITE_PUSHABLE.NO"
-                      :checked-value="SITE_PUSHABLE.YES"
+                      :un-checked-value="YES_OR_NO_TYPE.NO"
+                      :checked-value="YES_OR_NO_TYPE.YES"
                       :checked-children="globalProperties.$t('common.enabled')"
                       :un-checked-children="globalProperties.$t('common.disabled')"
                     />
@@ -155,12 +157,7 @@ onMounted(mounted);
             <a-input v-model:value="options.form.title" />
           </a-form-item>
           <a-form-item :label="globalProperties.$t('common.content')" name="content" :rules="[{required: true, trigger: 'change'}]">
-            <l-tip-tap
-              v-model:value="options.form.content"
-              model="html"
-              class="min-h-100 max-h-120"
-              :toolbar="{ items: ['undo', 'redo', 'divider', 'bold', 'italic', 'underline', 'blockquote', 'heading', 'divider', 'list', 'align', 'divider', 'link', 'picture'] }"
-            />
+            <l-editor v-model:value="options.form.content" :height="400" />
           </a-form-item>
           <a-form-item :label="globalProperties.$t('attachment.text')" name="attachmentList">
             <l-attachment-upload

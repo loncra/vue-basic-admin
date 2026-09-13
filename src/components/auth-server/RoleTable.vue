@@ -10,15 +10,12 @@ import {
 import type {TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
 import {ResourceServerService} from "@/apis";
-import type {
-  EnumBucketsResponseBody,
-  FilterRequest,
-  NameValueEnumMetadata,
-  RestResult,
-  RoleEntity
-} from "@/types/apis";
+import type {RoleEntity} from "@loncra/client/auth";
+import {RoleService} from "@loncra/client/auth";
+import type {FilterRequest, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
-import {RoleService} from "@/apis/auth-server/roleService.ts";
+
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";

@@ -1,16 +1,18 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
-import {AiUserPluginInstallService, AuthServerService, EnterpriseService} from '@/apis'
-import {
-  type AuthCredentials,
-  type AuthenticationInfo,
-  type AuthenticationType,
-  type ObjectWriteResult,
-  type PersonalEnterprise,
-  type PrepareData,
-  type RestResult,
-  type UserPluginInstallResult,
-} from '@/types/apis'
+import {AuthServerService} from '@/apis'
+import type {
+  AuthCredentials,
+  AuthenticationInfo,
+  AuthenticationType,
+  PersonalEnterprise,
+  PrepareData
+} from '@loncra/client/auth'
+import {EnterpriseService} from '@loncra/client/auth'
+import type {UserPluginInstallResult} from '@loncra/client/ai'
+import {AiUserPluginInstallService} from '@loncra/client/ai'
+import type {RestResult} from '@loncra/client/commons'
+import type {ObjectWriteResult} from '@loncra/client/resource'
 import {isBusinessSuccess} from '@/requests'
 import {AUTHENTICATION_TYPE, STORE} from '@/constants'
 import {getEnumValue} from '@/utils'

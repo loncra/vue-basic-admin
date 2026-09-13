@@ -1,5 +1,5 @@
 import type {DropPosition, Predicate, TreeLike, TreeNodeContext} from '@/types/composables'
-import type {TreeSortMetadata} from '@/types/apis'
+import type {TreeSortMetadata} from '@loncra/client/commons'
 
 /**
  * 检查节点是否有子节点

@@ -32,7 +32,7 @@ import {
   requireNonNullOrUndefined
 } from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
-import type {ObjectWriteResult} from '@/types/apis'
+import type {ObjectWriteResult} from '@loncra/client/resource'
 import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
 import {
   uploadFile as uploadAttachmentFile

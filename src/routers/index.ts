@@ -6,7 +6,7 @@ import type {
 } from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {type PrepareData, type ResourceEntity,} from "@/types/apis";
+import type {PrepareData, ResourceEntity} from "@loncra/client/auth";
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
 import {AUTHENTICATION_MEMBER_TYPE, AUTHENTICATION_TYPE, RESOURCE_TYPE} from "@/constants";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";

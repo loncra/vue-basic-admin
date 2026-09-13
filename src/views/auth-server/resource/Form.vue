@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {
-  NameValueEnumMetadata,
-  ResourceEntity,
-  ResourceSavePayload,
-  RestResult
-} from "@/types/apis";
+import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import type {ResourceEntity, ResourceSavePayload} from "@loncra/client/auth";
+import {ResourceService} from "@loncra/client/auth";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import type {IconfontJson} from "@/types/composables/common";
 import {requireNonNullOrUndefined} from "@/utils";
 import {
@@ -16,11 +14,11 @@ import {
   SYSTEM_MODULE_NAME
 } from "@/constants";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
-import {ResourceServerService, ResourceService} from "@/apis";
-import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.js";
+import {ResourceServerService} from "@/apis";
+
 import {loadIcon} from "@/utils/resourceUtils";
 import {getEnumValue} from "@/utils/commonUtils";
-import LIconSelect from "@/components/basic/IconSelect.vue";
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 
 defineOptions({
   name: 'AuthServerResourceForm'

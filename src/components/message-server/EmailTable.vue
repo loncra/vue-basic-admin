@@ -20,9 +20,11 @@ import {mergeDefinitions} from "@/composables/basic/action";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
-import type {EnumBucketsResponseBody, FilterRequest, RestResult} from "@/types/apis";
-import {EmailMessageService} from "@/apis/message-server/emailMessageService.ts";
-import type {EmailMessageEntity} from "@/types/apis/message-server/emailDomain.ts";
+import type {EmailMessageEntity} from "@loncra/client/message";
+import {EmailMessageService} from "@loncra/client/message";
+import type {FilterRequest, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
+
 import {
   EXECUTE_STATUS_TYPE,
   MESSAGE_SERVER_EMAIL_AUTHORITY,

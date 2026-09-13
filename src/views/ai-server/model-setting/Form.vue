@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, computed, getCurrentInstance, inject, ref} from 'vue'
+import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
 import type {
-  DataDictionaryMetadata,
-  EnumBucketsResponseBody,
   ModelGenerateOptions,
   ModelSettingEntity,
   ModelSettingManufacturerMetadata,
-  ModelSettingSavePayload,
-  NameValueEnumMetadata,
-  RestResult,
-} from '@/types/apis'
+  ModelSettingSavePayload
+} from '@loncra/client/ai'
+import {ModelSettingService} from '@loncra/client/ai'
 import {booleanToYesOrNo, getEnumValue, requireNonNullOrUndefined, yesOrNoToBoolean} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
-import {ModelSettingService} from '@/apis/ai-server/modelSettingService.ts'
+
 import {
   AI_SERVER_MODEL_SETTING_ROUTE,
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,

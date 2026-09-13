@@ -10,7 +10,13 @@ import {
   onMounted,
   ref
 } from "vue";
-import {DictionaryTypeService} from "@/apis/resource-server/dictionaryTypeService.ts";
+import {ResourceServerService} from "@/apis";
+import type {
+  DataDictionaryEntity,
+  DictionaryTypeEntity,
+  EnumBucketsResponseBody
+} from "@loncra/client/resource";
+import {DataDictionaryService, DictionaryTypeService} from "@loncra/client/resource";
 import {
   applyColumnOptions,
   findAllTreeNodes,
@@ -19,16 +25,15 @@ import {
   unmergeTree
 } from "@/utils";
 import {App, Input, Select, type TableProps} from "antdv-next";
-import {DataDictionaryService} from "@/apis/resource-server/dataDictionaryService.ts";
-import type {DataDictionary, DictionaryTypeProps, RestResult, TreeSortMetadata} from "@/types/apis";
-import type {EnumBucketsResponseBody} from "@/types/apis/resource-server/resourceDomain.ts";
-import {ResourceServerService} from "@/apis";
-import type {DictionaryTypeEntity} from "@/types/apis/resource-server/dictionaryTypeDomain.ts";
+
+import type {DataDictionary, DictionaryTypeProps} from "@/types/apis";
+import type {RestResult, TreeSortMetadata} from "@loncra/client/commons";
+
 import {getEnumName} from "@/utils/commonUtils.ts";
 import {createIcon} from "@/utils/resourceUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
-import type {DataDictionaryEntity} from "@/types/apis/resource-server/dataDictionaryDomain.ts";
+
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {
   OPERATION_DATA_TRACE_TABLE,

@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import LForm from '@/components/Form.vue'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
-import {
-  type AuthCredentials,
-  type AuthenticationType,
-  type AuthFormProp,
-  BusinessError,
-  type CaptchaGenerationResult,
-  type CaptchaToken,
-  type LoginType,
-  type RestResult
-} from '@/types/apis'
+import type {AuthFormProp} from '@/types/apis'
+import {BusinessError, type RestResult} from '@loncra/client/commons'
+import type {AuthCredentials, AuthenticationType, LoginType} from '@loncra/client/auth'
+import type {CaptchaGenerationResult, CaptchaToken} from '@loncra/client/resource'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
 import {AUTHENTICATION_TYPE, CAPTCHA_TOKEN_TYPE, LOGIN_TYPE, VALID_REGX} from '@/constants'

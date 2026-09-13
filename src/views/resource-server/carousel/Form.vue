@@ -1,14 +1,10 @@
 <script setup lang="ts">
 
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
-import type {
-  CarouselEntity,
-  CarouselSavePayload,
-  EnumBucketsResponseBody,
-  NameValueEnumMetadata,
-  ObjectWriteResult,
-  RestResult
-} from "@/types/apis";
+import type {CarouselEntity, CarouselSavePayload} from "@/types/apis";
+import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody, ObjectWriteResult} from "@loncra/client/resource";
+import {CarouselService} from "@loncra/client/resource";
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   CAROUSEL_TYPE,
@@ -19,7 +15,7 @@ import {
 } from "@/constants";
 import {SYSTEM_MODULE_NAME} from "@/constants/systemConstant";
 import {ResourceServerService} from "@/apis";
-import {CarouselService} from "@/apis/resource-server/carouselService.ts";
+
 import {disableDate, disableTime} from "@/utils/dateUtils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import type {Dayjs} from "dayjs";
@@ -137,23 +133,23 @@ async function preSubmit() {
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item :label="globalProperties.$t('resourceServer.carousel.showtime')" name="showtime">
-            <a-date-picker 
-              :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT" 
-              show-time 
-              class="w-full" 
-              v-model:value="options.entity.showtime" 
+            <a-date-picker
+              :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT"
+              show-time
+              class="w-full"
+              v-model:value="options.entity.showtime"
             />
           </a-form-item>
         </a-col>
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item :label="globalProperties.$t('common.expiresTime')" name="expirationTime">
-            <a-date-picker 
-              :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT" 
-              :disabled-date="(value:Dayjs) => disableDate(value, options.entity.showtime as Dayjs)" 
-              :disabled-time="(current:Dayjs | null) => disableTime(current, options.entity.showtime as Dayjs)" 
-              show-time class="w-full" 
-              v-model:value="options.entity.expirationTime" 
+            <a-date-picker
+              :value-format="DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT"
+              :disabled-date="(value:Dayjs) => disableDate(value, options.entity.showtime as Dayjs)"
+              :disabled-time="(current:Dayjs | null) => disableTime(current, options.entity.showtime as Dayjs)"
+              show-time class="w-full"
+              v-model:value="options.entity.expirationTime"
             />
           </a-form-item>
         </a-col>

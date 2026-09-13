@@ -1,8 +1,9 @@
 import {
   createIcon,
-  filterTreeDeep, findAllTreeNodes,
+  filterTreeDeep,
   findFirstTreeNode,
-  requireNonNullOrUndefined, unmergeTree,
+  requireNonNullOrUndefined,
+  unmergeTree,
   validateFileOrFolderName
 } from '@/utils'
 import {
@@ -15,11 +16,13 @@ import {
   watch
 } from 'vue'
 import type {FileEditorProps} from "@/types/composables/attachmentUpload.ts";
-import type {EditObjectItemInfo, ObjectItemInfo, ObjectWriteResult, RestResult} from "@/types/apis";
+import type {EditObjectItemInfo} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
+import type {ObjectItemInfo, ObjectWriteResult} from "@loncra/client/resource";
+import {AttachmentService} from "@loncra/client/resource";
 import type {MenuItemType, UploadChangeParam} from "antdv-next";
 import type {MenuInfo} from "@v-c/menu";
 import useApp from "antdv-next/dist/app/useApp";
-import {AttachmentService} from "@/apis";
 import {isBusinessSuccess} from "@/requests";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {uploadFile} from "@/composables";

@@ -2,7 +2,7 @@ import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestCon
 import router, {saveRequestPathThenToAuth} from '@/routers'
 import {message} from 'antdv-next'
 import {AUTH_SERVER_AUTHENTICATION_TYPE_PARAM, HTTP} from '@/constants'
-import {BusinessError, type RestResult} from '@/types/apis'
+import {BusinessError, type RestResult} from '@loncra/client/commons'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import i18n from '@/i18n'
 

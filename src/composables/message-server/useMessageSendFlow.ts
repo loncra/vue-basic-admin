@@ -1,9 +1,6 @@
-import type {
-  BatchResponse,
-  EnumBucketsResponseBody,
-  NameValueEnumMetadata,
-  RestResult
-} from '@/types/apis'
+import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import type {EnumBucketsResponseBody} from '@loncra/client/resource'
+import type {BatchResponse} from '@loncra/client/message'
 import {ResourceServerService} from '@/apis'
 import type {Router} from 'vue-router'
 import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";

@@ -1,5 +1,6 @@
 import {getEnumValue} from "@/utils/commonUtils.ts";
-import type {NameValueEnumMetadata, UserChatCallEntity, UserChatRoomEntity} from "@/types/apis";
+import type {NameValueEnumMetadata} from "@loncra/client/commons";
+import type {UserChatCallEntity, UserChatRoomEntity} from "@loncra/client/message";
 import {createIcon} from "@/utils/resourceUtils.ts";
 import {
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
@@ -62,7 +63,6 @@ export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
     return VIDEO_CHAT_CONSTRAINTS.GROUP;
   }
 }
-
 
 export function getMediaStreamConstraintsByRoom(room:UserChatRoomEntity) {
   if (getEnumValue(room.type) === USER_CHAT_ROOM_TYPE.PRIVATE_CHAT) {

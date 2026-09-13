@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
-import {AttachmentService} from "@/apis/resource-server/attachmentService.ts";
+import type {ObjectItemInfo} from "@loncra/client/resource";
+import {AttachmentService, FileManagerService} from "@loncra/client/resource";
 import {byteFormat, createIcon, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {
   type ComponentInternalInstance,
@@ -10,10 +11,10 @@ import {
   onMounted,
   ref
 } from "vue";
-import type {FilterRequest, ObjectItemInfo, RestResult} from "@/types/apis";
+import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
-import {FileManagerService} from "@/apis/resource-server/fileManagerService.ts";
+
 import {Input} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
 

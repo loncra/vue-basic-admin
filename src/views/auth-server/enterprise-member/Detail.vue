@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import {EnterpriseMemberService} from '@/apis/auth-server/enterpriseMemberService.ts'
+import type {
+  EnterpriseMemberEntity,
+  EnterpriseRoleEntity,
+  ResourceEntity
+} from '@loncra/client/auth'
+import {EnterpriseMemberService, ResourceService} from '@loncra/client/auth'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from 'vue'
-import type {EnterpriseMemberEntity} from '@/types/apis/auth-server/enterpriseMemberDomain'
 import {
   APP_RELOAD_PROVIDE_KEY,
   AUDIT_STATUS_VALUE,
@@ -13,14 +17,13 @@ import {
   OPERATION_DATA_TRACE_TABLE,
   YES_OR_NO_TYPE,
 } from '@/constants'
-import type {EnterpriseRoleEntity, ResourceEntity} from '@/types/apis'
+
 import type {TableProps} from 'antdv-next'
 
 import LEnterpriseRoleTable from '@/components/auth-server/EnterpriseRoleTable.vue'
 import LResourceTable from '@/components/auth-server/ResourceTable.vue'
 import useApp from 'antdv-next/dist/app/useApp'
 
-import {ResourceService} from '@/apis/auth-server/resourceService'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({

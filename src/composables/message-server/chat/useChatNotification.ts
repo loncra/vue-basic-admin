@@ -2,17 +2,13 @@ import {provideChatCallExpose, useSocketSubscriptions} from "@/composables";
 import type {UseChatNotificationParam} from "@/types/composables";
 import {MESSAGE_GROUP, SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from "@/constants";
 import {parseSocketRestPayload} from "@/types/socket.ts";
-import type {
-  IdValueMetadata,
-  PlatformUser,
-  RestResult,
-  UserChatCallResponseBody,
-  UserChatConversationEntity,
-  UserChatConversationResponseBody,
-  UserChatMessageResponseBody
-} from "@/types/apis";
+import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
+import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
+import type {PlatformUser} from "@loncra/client/auth";
+import type {UserChatCallResponseBody, UserChatConversationEntity} from "@loncra/client/message";
+import {ChatMessageService} from "@loncra/client/message";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
+import {AuthServerService} from "@/apis";
 import {
   createAvatarNode,
   createIcon,
@@ -22,7 +18,7 @@ import {
   getMessageContent,
   requireNonNullOrUndefined
 } from "@/utils";
-import {AuthServerService} from "@/apis";
+
 import {type ComponentInternalInstance, getCurrentInstance, h} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";

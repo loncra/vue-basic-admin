@@ -1,6 +1,8 @@
 <script setup lang="ts">
 
-import {EnterpriseMemberService} from '@/apis/auth-server/enterpriseMemberService.ts'
+import {AuthServerService, ResourceServerService} from "@/apis";
+import type {EnterpriseMemberEntity} from "@loncra/client/auth";
+import {EnterpriseMemberService} from "@loncra/client/auth";
 import {
   type ComponentInternalInstance,
   computed,
@@ -10,15 +12,10 @@ import {
   ref
 } from 'vue'
 import {DateRangePicker, Select, type TableProps} from 'antdv-next'
-import {AuthServerService, ResourceServerService} from "@/apis";
-import type {
-  EnterpriseInvitationSavePayload,
-  EnterpriseMemberEntity,
-  EnumBucketsResponseBody,
-  FilterRequest,
-  NameValueEnumMetadata,
-  RestResult
-} from "@/types/apis";
+
+import type {EnterpriseInvitationSavePayload} from "@/types/apis";
+import type {FilterRequest, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {
   applyColumnOptions,
   createIcon,

@@ -3,10 +3,10 @@ import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 
-import {AuditEventService} from "@/apis/auth-server/auditEventService.ts";
+import type {AuditEventEntity} from "@loncra/client/auth";
+import {AuditEventService} from "@loncra/client/auth";
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
-import type {AuditEventEntity} from "@/types/apis/auth-server/auditDomain";
-import type {RestResult} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
 
 defineOptions({
   name: 'AuthServerAuditEventDetail',

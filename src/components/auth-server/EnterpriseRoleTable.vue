@@ -9,13 +9,11 @@ import {
 } from 'vue'
 import type {TableProps} from 'antdv-next';
 import {Input, Select} from 'antdv-next'
-import {EnterpriseRoleService, ResourceServerService} from "@/apis";
-import type {
-  EnterpriseRoleEntity,
-  EnumBucketsResponseBody,
-  FilterRequest,
-  RestResult
-} from "@/types/apis";
+import {ResourceServerService} from "@/apis";
+import type {EnterpriseRoleEntity} from "@loncra/client/auth";
+import {EnterpriseRoleService} from "@loncra/client/auth";
+import type {FilterRequest, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
@@ -49,7 +47,7 @@ const props = withDefaults(defineProps<{
 const service = new EnterpriseRoleService()
 
 const actionButtons = ref<ActionDefinition<EnterpriseRoleEntity>[]>([])
-  
+
 const dataSource = defineModel<EnterpriseRoleEntity[]>("dataSource", {default: () => []})
 
 const columns = computed<SearchableColumnType[]>(() => [

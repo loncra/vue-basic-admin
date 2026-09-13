@@ -1,6 +1,6 @@
 import type {Ref} from 'vue'
 import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
-import type {IdValueMetadata} from '@/types/apis'
+import type {IdValueMetadata} from '@loncra/client/commons'
 
 export interface InstructionMeasure {
   location: number

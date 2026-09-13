@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import {AiSkillPackageService} from '@/apis'
-import type {RestResult, SkillReleaseEntity} from '@/types/apis'
+import type {SkillReleaseEntity} from '@loncra/client/ai'
+import {AiSkillPackageService} from '@loncra/client/ai'
+import type {RestResult} from '@loncra/client/commons'
 import {requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref, watch} from 'vue'
 

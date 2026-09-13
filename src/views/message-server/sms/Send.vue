@@ -2,18 +2,12 @@
 import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {
-  EnumBucketsResponseBody,
-  IdNameValueMetadata,
-  NameValueEnumMetadata,
-  RestResult,
-  SmsMessageSendPayload,
-  SmsSignEntity,
-  SmsTemplateEntity
-} from "@/types/apis";
-import {SmsSignService} from "@/apis/message-server/sms/signService.ts";
-import {SmsTemplateService} from "@/apis/message-server/sms/templateService.ts";
+import type {IdNameValueMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
+import type {SmsMessageSendPayload, SmsSignEntity, SmsTemplateEntity} from "@loncra/client/message";
+import {SmsMessageService, SmsSignService, SmsTemplateService} from "@loncra/client/message";
 import {AuthServerService, ResourceServerService} from "@/apis";
+
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {
   MESSAGE_SERVER_SMS_ROUTE,
@@ -25,7 +19,7 @@ import {
 import type {SearchableColumnType} from "@/types/composables";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {SmsMessageService} from "@/apis/message-server";
+
 import useApp from "antdv-next/dist/app/useApp";
 import {navigateAfterMessageSend} from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";

@@ -1,11 +1,11 @@
+import type {UserChatMessageResponseBody} from '@/types/apis'
 import type {
   IdValueMetadata,
   NameValueEnumMetadata,
-  ObjectWriteResult,
   PageResult,
-  UserChatMessageResponseBody,
-  VersionEntityMetadata,
-} from '@/types/apis'
+  VersionEntityMetadata
+} from '@loncra/client/commons'
+import type {ObjectWriteResult} from '@loncra/client/resource'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import type {

@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {
-  EnumBucketsResponseBody,
-  NameValueEnumMetadata,
-  ResourceEntity,
-  RestResult,
-  RoleEntity,
-  RoleSavePayload
-} from "@/types/apis";
+import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import type {ResourceEntity, RoleEntity, RoleSavePayload} from "@loncra/client/auth";
+import {RoleService} from "@loncra/client/auth";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {findAllTreeNodes, findFirstTreeNode, requireNonNullOrUndefined, unmergeTree} from "@/utils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import {RoleService} from "@/apis/auth-server/roleService.ts";
+
 import {getEnumValue, isNameValueEnumMetadata} from "@/utils/commonUtils.ts";
 import type {TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'

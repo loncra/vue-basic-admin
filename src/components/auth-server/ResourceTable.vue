@@ -8,14 +8,16 @@ import {
   ref
 } from 'vue'
 import {App, Input, Select, type TableProps} from 'antdv-next';
-import {ResourceServerService, ResourceService} from "@/apis";
+import {ResourceServerService} from "@/apis";
+import type {ResourceEntity} from '@loncra/client/auth';
+import {ResourceService} from "@loncra/client/auth";
 import type {
-  EnumBucketsResponseBody,
+  FilterRequest,
   NameValueEnumMetadata,
-  ResourceEntity,
   RestResult,
   TreeSortMetadata
-} from "@/types/apis";
+} from '@loncra/client/commons';
+import type {EnumBucketsResponseBody} from '@loncra/client/resource';
 import {
   applyColumnOptions,
   createIcon,
@@ -25,7 +27,7 @@ import {
   requireNonNullOrUndefined,
   unmergeTree
 } from "@/utils";
-import type {FilterRequest} from '@/types/apis/common';
+
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";

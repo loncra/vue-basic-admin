@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
+import type {McpPackageEntity} from '@/types/apis'
+import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
 import type {
-  DataDictionaryMetadata,
-  EnumBucketsResponseBody,
-  McpPackageEntity,
   McpPackageSavePayload,
-  NameValueEnumMetadata,
-  RestResult,
   SseMcpClientTransportMetadata,
   StdioMcpClientTransportMetadata,
-  StreamableHttpMcpClientTransportMetadata,
-} from '@/types/apis'
+  StreamableHttpMcpClientTransportMetadata
+} from '@loncra/client/ai'
+import {AiMcpPackageService} from '@loncra/client/ai'
 import {loadIcon, requireNonNullOrUndefined} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
-import {AiMcpPackageService} from '@/apis/ai-server/aiMcpPackageService.ts'
+
 import {
   ICON_SELECT_MODE,
   MCP_CLIENT_HTTP_TYPE_VALUE,
@@ -30,8 +29,7 @@ import {
 } from '@/constants'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LMcpClarifyPolicyTable from "@/components/ai-server/mcp/McpClarifyPolicyTable.vue";
-import LKeyValueTable from "@/components/basic/KeyValueTable.vue";
-import LIconSelect from "@/components/basic/IconSelect.vue";
+import {IconSelect as LIconSelect, KeyValueTable as LKeyValueTable} from '@loncra/antdv'
 import type {IconfontJson} from "@/types/composables";
 
 defineOptions({

@@ -5,7 +5,7 @@ import type {
   SlotConfigType
 } from "@antdv-next/x/dist/sender/interface";
 import type {InstructionMeasure} from "@/types/composables";
-import type {IdValueMetadata} from "@/types/apis";
+import type {IdValueMetadata} from "@loncra/client/commons";
 import {useInstructionSender} from "@/composables/chat/useInstructionSender.ts";
 import {ref, toRef, unref} from "vue";
 

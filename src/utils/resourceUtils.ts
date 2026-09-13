@@ -1,7 +1,7 @@
 // 导入 Ant Design Vue Next 组件和图标（antdv-next 无 List 组件，Chat.vue 中已用 div 替代）
 import {h, resolveComponent} from 'vue'
 import type {IconfontJson} from '@/types/composables'
-import type {DataDictionaryMetadata} from "@/types/apis";
+import type {DataDictionaryMetadata} from "@loncra/client/resource";
 import {DATA_DICTIONARY_ALL_CODE, DATA_DICTIONARY_ALL_VALUE, VALUE_TYPE} from "@/constants";
 
 import i18n from '@/i18n'
@@ -101,7 +101,6 @@ export async function loadIcon(href: string): Promise<IconfontJson> {
   const response = await fetch(href)
   return (await response.json()) as IconfontJson
 }
-
 
 export function addAllDataDictionary(sources:DataDictionaryMetadata[]){
 

@@ -1,10 +1,8 @@
 import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref} from 'vue'
-import type {
-  PageResult,
-  RestResult,
-  UserChatMessageResponseBody,
-  UserChatParticipantEntity,
-} from '@/types/apis'
+import type {UserChatMessageResponseBody} from '@/types/apis'
+import type {PageResult, RestResult} from '@loncra/client/commons'
+import type {UserChatParticipantEntity} from '@loncra/client/message'
+import {ChatMessageService} from '@loncra/client/message'
 import type {
   ChatBubbleItem,
   ChatViewController,
@@ -12,7 +10,6 @@ import type {
   UserChatConversationActiveProps,
 } from '@/types/composables'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
-import {ChatMessageService} from '@/apis/message-server/chatMessageService.ts'
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE, USER_CHAT_MESSAGE_TYPE} from '@/constants'

@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import {nextTick, ref} from 'vue'
+import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
 import type {
-  DataDictionaryMetadata,
-  EnumBucketsResponseBody,
   GitSkillSourceMetadata,
   ManualSkillSourceMetadata,
-  NameValueEnumMetadata,
-  RestResult,
   SkillPackageEntity,
   SkillPackageSavePayload,
-  SkillSourceMetadata,
-} from '@/types/apis'
+  SkillSourceMetadata
+} from '@loncra/client/ai'
+import {AiSkillPackageService} from '@loncra/client/ai'
 import {getEnumValue, loadIcon} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
-import {AiSkillPackageService} from '@/apis/ai-server/aiSkillPackageService.ts'
+
 import {
   ATTACHMENT_UPLOAD_MODE,
   ICON_SELECT_MODE,
@@ -28,7 +27,7 @@ import {
   SYSTEM_MODULE_NAME,
   TIME_UNIT_TYPE,
 } from '@/constants'
-import LIconSelect from '@/components/basic/IconSelect.vue'
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {IconfontJson} from '@/types/composables'
 import LFileEditor from "@/components/attachment/FileEditor.vue";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";

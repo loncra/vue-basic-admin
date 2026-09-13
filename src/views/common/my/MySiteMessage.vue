@@ -10,14 +10,10 @@ import {
   ref,
   type VNode
 } from "vue";
-import {MessageServerService, SiteMessageService} from "@/apis/message-server";
-import type {
-  IdNameMetadata,
-  MySiteMessageProps,
-  RestResult,
-  SiteMessageEntity,
-  TotalPage
-} from "@/types/apis";
+import type {SiteMessageEntity} from "@loncra/client/message";
+import {MessageServerService, SiteMessageService} from "@loncra/client/message";
+import type {MySiteMessageProps} from "@/types/apis";
+import type {IdNameMetadata, RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.js";
 import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";

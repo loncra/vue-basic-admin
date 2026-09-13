@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import {AiUserPluginInstallService, ResourceServerService} from '@/apis'
+import {ResourceServerService} from '@/apis'
+import type {SkillPackageEntity, UserPluginInstallResult} from '@loncra/client/ai'
+import {AiUserPluginInstallService} from '@loncra/client/ai'
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
 import LAgentHubSkillReleaseChangeLog
   from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
@@ -9,14 +11,8 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
 } from '@/constants'
-import type {
-  IdValueMetadata,
-  McpPackageEntity,
-  RestResult,
-  SkillPackageEntity,
-  TotalPage,
-  UserPluginInstallResult,
-} from '@/types/apis'
+import type {McpPackageEntity} from '@/types/apis'
+import type {IdValueMetadata, RestResult, TotalPage} from '@loncra/client/commons'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 

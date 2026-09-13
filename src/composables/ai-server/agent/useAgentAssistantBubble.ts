@@ -20,7 +20,7 @@ import {
 } from "@/constants";
 import {computed, reactive} from "vue";
 import type {ThoughtChainItemType} from "@antdv-next/x";
-import type {RestResult} from "@/types/apis";
+import type {RestResult} from "@loncra/client/commons";
 import {AgentService} from "@/apis";
 import {useAgentChatContext} from "@/composables";
 

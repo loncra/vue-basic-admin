@@ -2,9 +2,7 @@ export const APP_RELOAD_PROVIDE_KEY = 'reload'
 export const LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY = "closeContentTab"
 export const LAYOUT_PANE_TITLE_PROVIDE_KEY = "paneTitle"
 
-export const SYSTEM_CONSTANT = {
-  ID_NAME: 'id'
-} as const
+export {OPERATION_DATA_TRACE_TABLE, SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 /**
  * 系统所有 store 的 id
@@ -117,48 +115,9 @@ export const CHAT_BUBBLE_TYPE = {
   DIVIDER:"divider"
 } as const
 
-export const SYSTEM_MODULE_NAME = {
-  RESOURCE_SERVER:'resource-server',
-  AI_SERVER:'ai-server',
-  AUTH_SERVER:'auth-server',
-  MESSAGE_SERVER:'message-server'
-} as const
-
-export const ICON_SELECT_MODE = {
-  VIEW:'view',
-  AVATAR:'avatar',
-  INPUT:'input'
-}
-
-export const ICON_SELECT_AVATAR_MODE_VALUE = {
-  ICON:'icon://',
-  AVATAR:'avatar://',
-  INPUT:'text://'
-}
-
-export const AVATAR_SCHEMES = [
-  ICON_SELECT_AVATAR_MODE_VALUE.ICON,
-  ICON_SELECT_AVATAR_MODE_VALUE.AVATAR,
-  ICON_SELECT_AVATAR_MODE_VALUE.INPUT,
-] as const
-
-export const OPERATION_DATA_TRACE_TABLE = {
-  DICTIONARY_TYPE: 'tb_dictionary_type',
-  DATA_DICTIONARY: 'tb_data_dictionary',
-  CAROUSEL: 'tb_carousel',
-  SMS_MESSAGE: 'tb_sms_message',
-  SITE_MESSAGE: 'tb_site_message',
-  EMAIL_MESSAGE: 'tb_email_message',
-  ROLE: 'tb_role',
-  ENTERPRISE_ROLE: 'tb_enterprise_role',
-  RESOURCE: 'tb_resource',
-  CONSOLE_USER: 'tb_console_user',
-  ENTERPRISE_MEMBER: 'tb_enterprise_member',
-  AI_MODEL_SETTING: 'tb_ai_model_setting',
-  AI_MCP_PACKAGE: 'tb_ai_mcp_package',
-  AI_SKILL_PACKAGE: 'tb_ai_skill_package',
-  ENTERPRISE: 'tb_enterprise',
-  PERSONAL_USER: 'tb_personal_user',
-  ENTERPRISE_INVITATION: 'tb_enterprise_invitation',
-} as const
+export {
+  AVATAR_SCHEMES,
+  ICON_SELECT_AVATAR_MODE_VALUE,
+  ICON_SELECT_MODE,
+} from '@loncra/antdv'
 

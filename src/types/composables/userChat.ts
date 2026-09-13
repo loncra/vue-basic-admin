@@ -2,15 +2,16 @@ import type {CSSProperties, MaybeRef, Raw, Ref, VNode} from 'vue'
 import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {
   ContactItem,
-  RestResult,
-  TimeProperties,
+  UserChatConversationResponseBody,
+  UserChatMessageResponseBody
+} from '@/types/apis'
+import type {RestResult, TimeProperties} from '@loncra/client/commons'
+import type {
   UserChatCallEntity,
   UserChatCallParticipantEntity,
   UserChatCallResponseBody,
-  UserChatConversationResponseBody,
-  UserChatMessageResponseBody,
-  UserChatParticipantEntity,
-} from '@/types/apis'
+  UserChatParticipantEntity
+} from '@loncra/client/message'
 import type {LocalAudioTrack, LocalVideoTrack, Room} from 'livekit-client'
 import type {ChatConversationsApi} from '@/composables/message-server/chat/useChatConversations.ts'
 import type {ChatMessageLoaderApi} from '@/composables/message-server/chat/useChatMessageLoader.ts'

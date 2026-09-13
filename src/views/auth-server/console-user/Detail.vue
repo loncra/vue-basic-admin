@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {ConsoleUserService} from "@/apis";
+import type {ConsoleUserEntity} from "@loncra/client/auth";
+import {ConsoleUserService} from "@loncra/client/auth";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {ConsoleUserEntity} from "@/types/apis/auth-server/consoleUserDomain";
 import {AUTH_SERVER_CONSOLE_USER_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
 
 defineOptions({
@@ -102,7 +102,7 @@ const entity = ref<ConsoleUserEntity>({
       <a-descriptions-item :label="globalProperties.$t('common.remark')">
         {{ entity.remark || '' }}
       </a-descriptions-item>
-      
+
     </l-basic-detail>
   </div>
 </template>

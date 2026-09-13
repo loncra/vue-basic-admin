@@ -1,5 +1,5 @@
 import type {ComputedRef, InjectionKey, VNode} from 'vue'
-import type {FilterRequest, PageRequest} from '@/types/apis'
+import type {FilterRequest, PageRequest} from '@loncra/client/commons'
 
 export type ActionScope = 'toolbar' | 'item'
 

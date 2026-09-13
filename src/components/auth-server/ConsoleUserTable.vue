@@ -1,10 +1,13 @@
 <script setup lang="ts">
 
-import {ConsoleUserService} from '@/apis/auth-server/consoleUserService.ts'
+import {AuthServerService, ResourceServerService} from "@/apis";
+import type {ConsoleUserEntity} from "@loncra/client/auth";
+import {ConsoleUserService} from "@loncra/client/auth";
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
-import {AuthServerService, ResourceServerService} from "@/apis";
-import type {ConsoleUserEntity, EnumBucketsResponseBody, RestResult} from "@/types/apis";
+
+import type {RestResult} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {
   applyColumnOptions,
   createIcon,

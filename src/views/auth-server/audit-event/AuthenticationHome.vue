@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {AuthenticationAuditEventService} from '@/apis';
+import type {AuditEventEntity} from '@loncra/client/auth';
+import {AuthenticationAuditEventService} from '@loncra/client/auth';
 import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/utils';
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, ref} from 'vue';
 import {DatePicker, Input} from 'antdv-next';
-import type {AuditEventEntity} from '@/types/apis/auth-server/auditDomain';
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
 import type {SearchableColumnType} from "@/types/composables";

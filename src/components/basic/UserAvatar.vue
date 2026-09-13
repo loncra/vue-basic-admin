@@ -1,7 +1,8 @@
 <script setup lang="ts">
 
-import {AttachmentService, AuthServerService} from "@/apis";
-import type {PlatformUser, UserMetadata} from "@/types/apis";
+import {AuthServerService} from "@/apis";
+import {AttachmentService} from "@loncra/client/resource";
+import type {PlatformUser, UserMetadata} from "@loncra/client/auth";
 import {useSlots} from "vue";
 
 defineOptions({

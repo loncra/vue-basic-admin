@@ -5,14 +5,14 @@ import type {ChatContentBlock, InstructionMeasure} from "@/types/composables";
 import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
-  IdValueMetadata,
-  RestResult,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
-  UserChatMessageResponseBody,
-  UserChatParticipantEntity
+  UserChatMessageResponseBody
 } from "@/types/apis";
-import {ChatMessageService} from "@/apis/message-server/chatMessageService.ts";
+import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
+import type {UserChatParticipantEntity} from "@loncra/client/message";
+import {ChatMessageService} from "@loncra/client/message";
+import {AuthServerService} from "@/apis";
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {useChatContext, useImDraftPersist} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
@@ -26,7 +26,7 @@ import {
 } from "@/constants";
 import LChatBubbleList from "@/components/message-server/chat/ChatBubbleList.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
-import {AuthServerService} from "@/apis";
+
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import LChatCallButton from "@/components/message-server/chat/ChatCallButton.vue";

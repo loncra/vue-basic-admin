@@ -9,16 +9,13 @@ import {
   ref
 } from 'vue'
 import {Input, Select} from 'antdv-next'
-import type {
-  DataDictionaryMetadata,
-  EnumBucketsResponseBody,
-  FilterRequest,
-  McpPackageEntity,
-  McpPackageSavePayload,
-  RestResult,
-} from '@/types/apis'
-import {AiMcpPackageService} from '@/apis/ai-server/aiMcpPackageService.ts'
+import type {McpPackageEntity} from '@/types/apis'
+import type {FilterRequest, RestResult} from '@loncra/client/commons'
+import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
+import type {McpPackageSavePayload} from '@loncra/client/ai'
+import {AiMcpPackageService} from '@loncra/client/ai'
 import {ResourceServerService} from '@/apis'
+
 import {
   applyColumnOptions,
   createIcon,
@@ -37,7 +34,7 @@ import {
 } from '@/constants'
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
 import useApp from "antdv-next/dist/app/useApp";
-import LIconSelect from "@/components/basic/IconSelect.vue";
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 
 defineOptions({
   name: 'AiServerMcpPackageHome',

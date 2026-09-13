@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import {PersonalUserService} from '@/apis'
+import type {PersonalUserEntity} from '@loncra/client/auth'
+import {PersonalUserService} from '@loncra/client/auth'
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import type {PersonalUserEntity} from '@/types/apis/auth-server/personalUserDomain'
 import {
   AUTH_SERVER_PERSONAL_USER_ROUTE,
   GENDER,

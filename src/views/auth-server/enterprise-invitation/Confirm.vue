@@ -2,10 +2,12 @@
 
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {AuthServerService, EnterpriseService} from "@/apis";
-import type {EnterpriseInvitationDetail, RestResult} from "@/types/apis";
+import {AuthServerService} from "@/apis";
+import type {EnterpriseInvitationDetail} from "@loncra/client/auth";
+import {EnterpriseService} from "@loncra/client/auth";
+import type {RestResult} from "@loncra/client/commons";
 import {AUDIT_STATUS_VALUE, ICON_SELECT_AVATAR_MODE_VALUE, USER_STATUS_TYPE} from "@/constants";
-import LIconSelect from "@/components/basic/IconSelect.vue";
+import {IconSelect as LIconSelect} from '@loncra/antdv'
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 

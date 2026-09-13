@@ -3,8 +3,8 @@
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
-import {SmsMessageService} from "@/apis/message-server";
-import type {SmsMessageEntity} from "@/types/apis";
+import type {SmsMessageEntity} from "@loncra/client/message";
+import {SmsMessageService} from "@loncra/client/message";
 import {
   MESSAGE_SERVER_SMS_ROUTE,
   MESSAGE_TYPE_VALUE,
