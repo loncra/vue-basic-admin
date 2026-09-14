@@ -13,7 +13,8 @@ import {
 } from '@/constants'
 import {inject, provide, ref, type Ref} from 'vue'
 import {useAgentMessageLoader, useAgentStream} from '@/composables'
-import {filterTreeDeep, findFirstTreeNode, getEnumValue, unmergeTree} from '@/utils'
+import {getEnumValue} from '@/utils'
+import {filterTreeDeep, findFirstTreeNode, unmergeTree} from '@loncra/client/commons'
 import type {AgentMessageEntity} from "@/types/apis";
 import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
 

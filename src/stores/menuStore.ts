@@ -11,7 +11,8 @@ import {
   type Router,
   type RouteRecordNormalized
 } from "vue-router";
-import {filterTreeDeep, requireNonNullOrUndefined, unmergeTree} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
+import {filterTreeDeep, unmergeTree} from '@loncra/client/commons'
 import {getRouteTitle} from '@/routers'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 

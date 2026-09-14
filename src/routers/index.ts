@@ -12,7 +12,7 @@ import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/co
 import {AUTHENTICATION_MEMBER_TYPE} from '@/constants';
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
-import {unmergeTree} from '@/utils'
+import {unmergeTree} from '@loncra/client/commons'
 
 import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'

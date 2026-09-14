@@ -17,13 +17,8 @@ import type {
   EnumBucketsResponseBody
 } from "@loncra/client/resource";
 import {DataDictionaryService, DictionaryTypeService} from "@loncra/client/resource";
-import {
-  applyColumnOptions,
-  findAllTreeNodes,
-  findFirstTreeNode,
-  requireNonNullOrUndefined,
-  unmergeTree
-} from "@/utils";
+import {applyColumnOptions, requireNonNullOrUndefined} from "@/utils";
+import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
 import {App, Input, Select, type TableProps} from "antdv-next";
 
 import type {DataDictionary, DictionaryTypeProps} from "@/types/apis";

@@ -6,9 +6,6 @@
 // 日期时间工具
 export * from './dateUtils'
 
-// 树形数据工具
-export * from './treeUtils'
-
 // 文件工具
 export * from './fileUtils'
 

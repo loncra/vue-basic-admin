@@ -19,7 +19,7 @@ import {
   isTreeDescendant,
   moveTreeNode,
   type TreePlacement,
-} from '@/utils'
+} from '@loncra/client/commons'
 
 const DRAG_ROW_CLASS = {
   invalid: 'drag-row-invalid',

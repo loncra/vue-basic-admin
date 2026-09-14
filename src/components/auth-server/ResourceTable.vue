@@ -21,12 +21,10 @@ import type {EnumBucketsResponseBody} from '@loncra/client/resource';
 import {
   applyColumnOptions,
   createIcon,
-  findAllTreeNodes,
-  findFirstTreeNode,
   getEnumName,
-  requireNonNullOrUndefined,
-  unmergeTree
+  requireNonNullOrUndefined
 } from "@/utils";
+import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";

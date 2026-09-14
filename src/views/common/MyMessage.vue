@@ -11,7 +11,8 @@ import {
 } from "vue";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {findFirstTreeNode, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
+import {findFirstTreeNode} from "@loncra/client/commons";
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from '@/constants';
 
 defineOptions({

@@ -11,7 +11,7 @@ import {
   buildFlatPlacementMap,
   buildTreeSortMetadata,
   diffTreePlacementIds,
-} from '@/utils/treeUtils'
+} from '@loncra/client/commons'
 
 const DRAG_DROP_CLASS = {
   vertical: {
