@@ -1,11 +1,12 @@
 <script setup lang="ts">
 
-import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
+import {InstructionSender as LInstructionSender} from '@loncra/antdv'
 import {useAgentSender} from "@/composables";
 import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";
 import type {IdValueMetadata} from "@loncra/client/commons";
 import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
+import {getSendInstructionIcon} from '@/utils'
 
 defineOptions({
   name: 'LAgentSender',
@@ -58,6 +59,11 @@ function onSlashMenuClick(
   }
 }
 
+function getInstructionIcon(prefix: string) {
+  const icon = getSendInstructionIcon(prefix, false)
+  return typeof icon === 'string' ? icon : undefined
+}
+
 defineExpose({
   clear:() => senderRef?.value?.clear(),
   getSlotConfigValue:() => senderRef?.value?.getSlotConfigValue(),
@@ -71,6 +77,7 @@ defineExpose({
     :placeholder="$t('agent.view.placeholder')"
     :instruction-map="instructionMap"
     :filter-instruction="filterInstruction"
+    :get-instruction-icon="getInstructionIcon"
     v-bind="$attrs"
     @submit="handleSubmit"
     @cancel="handleCancel"

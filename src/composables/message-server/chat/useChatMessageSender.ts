@@ -33,7 +33,7 @@ import {
 } from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import type {ObjectWriteResult} from '@loncra/client/resource'
-import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
+import {isInstructionSlot} from '@loncra/antdv'
 import {
   uploadFile as uploadAttachmentFile
 } from '@/composables/attachment/useAttachmentUploadExecutor.ts'

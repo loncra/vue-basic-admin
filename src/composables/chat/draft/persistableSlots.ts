@@ -3,7 +3,7 @@ import type {UploadFile} from 'antdv-next/dist/upload/interface'
 import type {ObjectWriteResult} from '@loncra/client/resource'
 import type {InstructionBlock} from '@/types/composables'
 import type {PersistableSlot, PersistableUploadFile} from '@/types/composables/chat/draft.ts'
-import {isInstructionSlot} from '@/composables/chat/useInstructionSender.ts'
+import {isInstructionSlot} from '@loncra/antdv'
 import {markRaw} from 'vue'
 import {convertUploadFiles, isObjectWriteResult, isUploadFile} from '@/utils'
 

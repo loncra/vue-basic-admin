@@ -5,9 +5,14 @@ import type {UserChatMessageResponseBody} from "@/types/apis";
 import type {IdValueMetadata} from "@loncra/client/commons";
 import {useChatMessageSender} from "@/composables/message-server/chat";
 import {ref, toRef} from "vue";
-import {EmojiButton as LEmojiButton} from '@loncra/antdv'
+import {
+  EmojiButton as LEmojiButton,
+  InstructionSender as LInstructionSender,
+  type InstructionSenderExpose,
+  type InstructionSenderHandle
+} from '@loncra/antdv'
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
-import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
+import {getSendInstructionIcon} from '@/utils'
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -52,7 +57,20 @@ const emit = defineEmits<{
   change: [value: string, event?: Event, slotConfigType?: SlotConfigType[]]
 }>()
 
-const instructionSenderRef = ref<InstanceType<typeof LInstructionSender>>()
+const instructionSenderRef = ref<InstructionSenderExpose>()
+
+function getInstructionIcon(prefix: string) {
+  const icon = getSendInstructionIcon(prefix, false)
+  return typeof icon === 'string' ? icon : undefined
+}
+
+function onInsertInstruction(
+  sender: InstructionSenderHandle,
+  block: object,
+  measure: InstructionMeasure,
+) {
+  props.senderInsertInstruction(sender as SenderRef, block as SlotConfigType, measure)
+}
 
 const {
   isSending,
@@ -68,7 +86,7 @@ const {
   sending: toRef(props, 'sending'),
   getUploadOptions: () => props.uploadOptions,
   onSubmit: (content) => emit('submit', content),
-  getSender: () => instructionSenderRef.value?.getSender(),
+  getSender: () => instructionSenderRef.value?.getSender() as SenderRef | undefined,
 })
 
 defineExpose({
@@ -89,7 +107,8 @@ defineExpose({
     :instruction-context-visible-margin="props.instructionContextVisibleMargin"
     :instruction-map="props.instructionMap"
     :filter-instruction="props.filterInstruction"
-    :sender-insert-instruction="props.senderInsertInstruction"
+    :sender-insert-instruction="onInsertInstruction"
+    :get-instruction-icon="getInstructionIcon"
     @paste-file="onPasteFiles"
     @submit="handleSubmit"
     @change="(value, event, slotConfig) => emit('change', value, event, slotConfig)"

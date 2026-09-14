@@ -17,7 +17,7 @@ import {
   AI_SERVER_PLUGIN_TARGET_TYPE,
   ModelSettingService
 } from "@loncra/client/ai";
-import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
+import {type InstructionSenderExpose, isInstructionSlot,} from '@loncra/antdv'
 import type {
   AgentConversationItem,
   AgentSenderFormProps,
@@ -31,7 +31,6 @@ import {ResourceServerService} from "@/apis";
 import {AGENT_CHAT_TYPE_STYLE, AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createIcon, createInstructionSlot, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
 import {type MenuItemType, Space} from "antdv-next";
 import {getConversationRuns, useAgentChatContext} from "@/composables";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -118,7 +117,7 @@ export function useAgentSender(
   const principalStore = usePrincipalStore()
   const {conversationActive, conversations} = useAgentChatContext()
 
-  const senderRef = ref<InstanceType<typeof LInstructionSender>>()
+  const senderRef = ref<InstructionSenderExpose>()
 
   const state = ref<{
     typeOptions:MenuItemType[],
