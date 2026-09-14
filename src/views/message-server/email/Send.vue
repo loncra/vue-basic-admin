@@ -7,12 +7,10 @@ import type {ObjectWriteResult} from "@loncra/client/resource";
 import type {EmailMessageSendPayload} from "@loncra/client/message";
 import {EmailMessageService, MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
-import {UserSelect as LUserSelect} from '@loncra/pro';
+import {AttachmentUpload as LAttachmentUpload, UserSelect as LUserSelect} from '@loncra/antdv-pro';
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 import {Editor as LEditor} from '@loncra/antdv'
-
-import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 
 import {MESSAGE_SERVER_EMAIL_ROUTE, YES_OR_NO_TYPE} from '@/constants';
 import {

@@ -17,26 +17,23 @@ import type {
   UseChatMessageSenderParams,
 } from '@/types/composables'
 import {XProvider as AxConfigProvider} from '@antdv-next/x'
-import LAttachmentUpload from '@/components/attachment/AttachmentUpload.vue'
 import type {
   AttachmentUploadExecutorOptions,
   AttachmentUploadExpose,
   AttachmentValue,
-} from '@/types/composables/attachmentUpload.ts'
-import type {UploadFile} from 'antdv-next/dist/upload/interface'
+} from '@loncra/antdv-pro'
 import {
+  AttachmentUpload as LAttachmentUpload,
   convertUploadFiles,
-  createInstructionSlot,
   isObjectWriteResult,
   isUploadFile,
-  requireNonNullOrUndefined
-} from '@/utils'
+  uploadFile as uploadAttachmentFile,
+} from '@loncra/antdv-pro'
+import type {UploadFile} from 'antdv-next/dist/upload/interface'
+import {createInstructionSlot, requireNonNullOrUndefined} from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import type {ObjectWriteResult} from '@loncra/client/resource'
 import {isInstructionSlot} from '@loncra/antdv'
-import {
-  uploadFile as uploadAttachmentFile
-} from '@/composables/attachment/useAttachmentUploadExecutor.ts'
 
 /**
  * 发送器逻辑：files 词槽创建/渲染/上传、粘贴文件、提交组装（附件 + 引用）、
@@ -194,7 +191,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
             bucket: 'temp',
             disabled: isSending.value,
             uploadOptions: getUploadOptions(),
-            ref: (inst) => bindUploadRef(slotKey, inst),
+            ref: (inst: unknown) => bindUploadRef(slotKey, inst),
             value: files,
             multiple: true,
             maxCount: files.length,

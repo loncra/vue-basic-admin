@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {ChatContentBlock} from '@/types/composables'
-import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import {AttachmentUpload as LAttachmentUpload} from '@loncra/antdv-pro'
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
 import {useSlots} from "vue";

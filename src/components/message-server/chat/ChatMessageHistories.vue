@@ -2,7 +2,10 @@
 
 import {type ComponentInternalInstance, getCurrentInstance, toRef} from "vue";
 import type {UserChatMessageResponseBody} from "@/types/apis";
-import {AttachmentMasonry as LAttachmentMasonry, UserAvatar as LUserAvatar} from '@loncra/pro';
+import {
+  AttachmentMasonry as LAttachmentMasonry,
+  UserAvatar as LUserAvatar
+} from '@loncra/antdv-pro';
 import {AuthServerService} from "@/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import LChatMessageBubbleContent

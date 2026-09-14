@@ -19,7 +19,6 @@ import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 
 import {
-  ATTACHMENT_UPLOAD_MODE,
   ICON_SELECT_MODE,
   OPERATION_DATA_TRACE_TABLE,
   SKILL_GROUP_CODE_PREFIX,
@@ -31,9 +30,12 @@ import {
 } from '@/constants'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {IconfontJson} from '@/types/composables'
-import LFileEditor from "@/components/attachment/FileEditor.vue";
-import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import type {AttachmentUploadExpose} from "@/types/composables/attachmentUpload.ts";
+import type {AttachmentUploadExpose} from '@loncra/antdv-pro'
+import {
+  ATTACHMENT_UPLOAD_MODE,
+  AttachmentUpload as LAttachmentUpload,
+  FileEditor as LFileEditor,
+} from '@loncra/antdv-pro'
 
 defineOptions({
   name: 'AiServerSkillPackageAddForm',

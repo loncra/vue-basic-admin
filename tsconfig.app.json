@@ -18,16 +18,18 @@
       "@loncra/antdv": ["../packages/antdv/src/index.ts"],
       "@loncra/antdv/locale/zh_CN": ["../packages/antdv/src/locale/zh_CN.ts"],
       "@loncra/antdv/locale/en_US": ["../packages/antdv/src/locale/en_US.ts"],
-      "@loncra/pro": ["../packages/pro/src/index.ts"],
-      "@loncra/pro/locale/zh_CN": ["../packages/pro/src/locale/zh_CN.ts"],
-      "@loncra/pro/locale/en_US": ["../packages/pro/src/locale/en_US.ts"],
+      "@loncra/antdv-pro": ["../packages/antdv-pro/src/index.ts"],
+      "@loncra/antdv-pro/locale/zh_CN": ["../packages/antdv-pro/src/locale/zh_CN.ts"],
+      "@loncra/antdv-pro/locale/en_US": ["../packages/antdv-pro/src/locale/en_US.ts"],
       "@loncra/client": ["../packages/client/src/index.ts"],
       "@loncra/client/commons": ["../packages/client/src/commons/index.ts"],
       "@loncra/client/auth": ["../packages/client/src/auth/index.ts"],
       "@loncra/client/resource": ["../packages/client/src/resource/index.ts"],
       "@loncra/client/message": ["../packages/client/src/message/index.ts"],
       "@loncra/client/ai": ["../packages/client/src/ai/index.ts"],
-      "@loncra/client/adapters/axios": ["../packages/client/src/adapters/axios.ts"]
+      "@loncra/client/adapters/axios": ["../packages/client/src/adapters/axios.ts"],
+      "p-limit": ["./node_modules/p-limit"],
+      "@codemirror/*": ["./node_modules/@codemirror/*"]
     },
 
     // `vue-tsc --build` produces a .tsbuildinfo file for incremental type-checking.

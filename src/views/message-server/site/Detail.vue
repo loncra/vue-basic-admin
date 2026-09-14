@@ -5,7 +5,7 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {SiteMessageEntity} from "@loncra/client/message";
 import {MESSAGE_SERVER_MESSAGE_TYPE_VALUE, SiteMessageService} from "@loncra/client/message";
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import {AttachmentUpload as LAttachmentUpload} from '@loncra/antdv-pro'
 import {MESSAGE_SERVER_SITE_ROUTE, OPERATION_DATA_TRACE_TABLE, YES_OR_NO_TYPE} from '@/constants';
 
 defineOptions({

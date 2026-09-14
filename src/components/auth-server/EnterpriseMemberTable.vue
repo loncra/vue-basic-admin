@@ -39,7 +39,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants';
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import LForm from "@/components/Form.vue";
 import {isBusinessSuccess} from "@/requests";
 import useApp from "antdv-next/dist/app/useApp";

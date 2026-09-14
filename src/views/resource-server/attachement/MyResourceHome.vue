@@ -10,7 +10,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 
 import LActionButton from "@/components/basic/crud/ActionButton.vue";
-import {AttachmentMasonry as LAttachmentMasonry} from '@loncra/pro';
+import {AttachmentMasonry as LAttachmentMasonry} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'CommonUserExport',

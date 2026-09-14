@@ -5,7 +5,7 @@ import type {InstructionBlock} from '@/types/composables'
 import type {PersistableSlot, PersistableUploadFile} from '@/types/composables/chat/draft.ts'
 import {isInstructionSlot} from '@loncra/antdv'
 import {markRaw} from 'vue'
-import {convertUploadFiles, isObjectWriteResult, isUploadFile} from '@/utils'
+import {convertUploadFiles, isObjectWriteResult, isUploadFile} from '@loncra/antdv-pro'
 
 export type RestoreDraftSlotFactories = {
   /** IM 必须注入现有 createFilesSlot，否则芯片没有 customRender，点发送无法 upload。Agent 无附件槽可省略。 */

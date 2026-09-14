@@ -18,7 +18,7 @@ import {ResourceServerService} from "@/apis";
 import {disableDate, disableTime} from "@/utils/dateUtils";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import type {Dayjs} from "dayjs";
-import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
+import {AttachmentUpload as LAttachmentUpload} from '@loncra/antdv-pro'
 
 defineOptions({
   name: 'ResourceServerCarouseForm',

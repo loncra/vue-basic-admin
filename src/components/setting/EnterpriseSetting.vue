@@ -20,7 +20,7 @@ import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {IconfontJson} from "@/types/composables";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({

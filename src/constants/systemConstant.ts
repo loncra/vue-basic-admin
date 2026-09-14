@@ -82,17 +82,6 @@ export const DATE_TIME_FORMAT = {
   POST_TIME_FORMAT: import.meta.env.VITE_APP_POST_TIME_FORMAT
 } as const
 
-export const ATTACHMENT_UPLOAD_MODE = {
-  PICTURE_CARD:'picture-card',
-  DRAGGER:'dragger',
-  CUSTOMIZE:'customize'
-} as const
-
-export const ATTACHMENT_PREVIEW_MODE = {
-  LIST:'list',
-  PICTURE_CARD:'picture-card'
-} as const
-
 export const DEFAULT_PAGE_RESULT_VALUE = {
   elements: [],
   first: true,

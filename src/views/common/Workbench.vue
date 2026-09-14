@@ -8,7 +8,7 @@ import type {AuditEventEntity} from "@loncra/client/auth";
 import {OperationDataTraceAuditEventService} from "@loncra/client/auth";
 import type {RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
 
 defineOptions({

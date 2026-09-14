@@ -16,7 +16,7 @@ import type {PlatformUser} from "@loncra/client/auth";
 import type {CaptchaToken} from "@loncra/client/resource";
 import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import useApp from "antdv-next/dist/app/useApp";
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'ForgotPasswordHome',

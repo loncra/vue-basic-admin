@@ -28,9 +28,9 @@ import {
   dateTimeFormat,
   getEnumName,
   getEnumValue,
-  isObjectWriteResult,
   requireNonNullOrUndefined
 } from "@/utils";
+import {isObjectWriteResult} from '@loncra/antdv-pro'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";

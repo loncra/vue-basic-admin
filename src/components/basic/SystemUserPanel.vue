@@ -12,7 +12,7 @@ import {
   ref,
   watch
 } from "vue";
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'LSystemUserPanel',

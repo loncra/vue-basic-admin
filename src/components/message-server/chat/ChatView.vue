@@ -24,7 +24,7 @@ import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, CHAT_EVERYONE_ID, SOCKET_EVENT_TYPE} from '@/constants';
 import LChatBubbleList from "@/components/message-server/chat/ChatBubbleList.vue";
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";

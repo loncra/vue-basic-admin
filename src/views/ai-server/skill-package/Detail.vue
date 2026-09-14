@@ -19,7 +19,7 @@ import {
 } from '@/constants'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
-import LFileEditor from '@/components/attachment/FileEditor.vue'
+import {FileEditor as LFileEditor} from '@loncra/antdv-pro'
 
 defineOptions({
   name: 'AiServerSkillPackageDetail',

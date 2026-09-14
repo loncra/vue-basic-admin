@@ -70,19 +70,22 @@ export default defineConfig(({ mode }) => {
         // 与 tsconfig 对齐：从源码解析工作区包。走 node_modules 时 Vite 不监听，浏览器会一直用带 ?v= 的旧模块。
         '@loncra/antdv': fileURLToPath(new URL('../packages/antdv/src', import.meta.url)),
         '@loncra/client': fileURLToPath(new URL('../packages/client/src', import.meta.url)),
-        '@loncra/pro': fileURLToPath(new URL('../packages/pro/src', import.meta.url)),
+        '@loncra/antdv-pro': fileURLToPath(new URL('../packages/antdv-pro/src', import.meta.url)),
         '@': fileURLToPath(new URL('./src', import.meta.url)),
+        // 源码别名后 peer 不再沿管理端 node_modules 往上找，显式指回本应用。
+        'p-limit': fileURLToPath(new URL('./node_modules/p-limit', import.meta.url)),
       },
-      dedupe: ['dayjs', 'vue', 'antdv-next'],
+      dedupe: ['dayjs', 'vue', 'antdv-next', 'p-limit'],
       preserveSymlinks: true,
     },
     optimizeDeps: {
-      exclude: ['@loncra/client', '@loncra/antdv', '@loncra/pro'],
+      exclude: ['@loncra/client', '@loncra/antdv', '@loncra/antdv-pro'],
       include: [
         'antdv-next-tiptap',
         'lowlight',
         'highlight.js',
         'highlight.js/lib/core',
+        'p-limit',
       ],
     },
   }

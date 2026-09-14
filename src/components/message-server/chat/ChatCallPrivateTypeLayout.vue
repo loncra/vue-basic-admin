@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {getEnumName, getEnumValue} from "@/utils";
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrivateChatCallLayout} from "@/composables";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {onMounted} from "vue";

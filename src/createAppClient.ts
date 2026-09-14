@@ -19,4 +19,5 @@ createClient({
     window.open(url)
   },
   formValueConvert: (_key, value) => convertFormUrlencoded(value),
+  uploadBlockSize: Number(import.meta.env.VITE_APP_UPLOAD_BLOCK_SIZE),
 })

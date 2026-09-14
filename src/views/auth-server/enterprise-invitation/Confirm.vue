@@ -12,7 +12,7 @@ import {
 import type {RestResult} from "@loncra/client/commons";
 import {ICON_SELECT_AVATAR_MODE_VALUE} from '@/constants';
 import {IconSelect as LIconSelect} from '@loncra/antdv'
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({

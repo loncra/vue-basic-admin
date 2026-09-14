@@ -18,7 +18,7 @@ import type {TableProps} from "antdv-next";
 import {SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'LChatMessageReadTable',

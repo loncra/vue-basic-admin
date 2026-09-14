@@ -14,7 +14,7 @@ import {
 } from '@/constants';
 import {AuthServerService} from "@/apis";
 import LChatMessageHistories from "@/components/message-server/chat/ChatMessageHistories.vue";
-import {UserAvatar as LUserAvatar} from '@loncra/pro';
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {useChatRoomSettings} from "@/composables/message-server/chat";
 import {
   MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS,
