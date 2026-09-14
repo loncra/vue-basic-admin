@@ -11,7 +11,7 @@ import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants'
 
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {UserAvatar as LUserAvatar} from '@loncra/pro';
 
 defineOptions({
   name: 'AuthServerEnterpriseInvitationDetail',

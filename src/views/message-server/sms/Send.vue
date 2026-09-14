@@ -21,7 +21,7 @@ import {
   YES_OR_NO_TYPE
 } from '@/constants';
 import type {SearchableColumnType} from "@/types/composables";
-import LUserSelect from "@/components/basic/UserSelect.vue";
+import {UserSelect as LUserSelect} from '@loncra/pro';
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 
 import useApp from "antdv-next/dist/app/useApp";

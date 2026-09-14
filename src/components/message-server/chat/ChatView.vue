@@ -1,7 +1,8 @@
 <script setup lang="ts">
 
 import LChatMessageSender from "@/components/message-server/chat/ChatMessageSender.vue";
-import type {ChatContentBlock, InstructionMeasure} from "@/types/composables";
+import type {ChatContentBlock} from "@/types/composables";
+import type {InstructionMeasure} from '@loncra/antdv'
 import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
@@ -23,7 +24,7 @@ import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, CHAT_EVERYONE_ID, SOCKET_EVENT_TYPE} from '@/constants';
 import LChatBubbleList from "@/components/message-server/chat/ChatBubbleList.vue";
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {UserAvatar as LUserAvatar} from '@loncra/pro';
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";

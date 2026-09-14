@@ -8,7 +8,7 @@ import type {SiteMessageSendPayload} from "@loncra/client/message";
 import {MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from '@loncra/client/message'
 import {AuthServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import LUserSelect from "@/components/basic/UserSelect.vue";
+import {UserSelect as LUserSelect} from '@loncra/pro';
 import {requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 

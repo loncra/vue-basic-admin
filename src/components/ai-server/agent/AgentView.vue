@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
-import LUserAvatar from '@/components/basic/UserAvatar.vue'
+import {UserAvatar as LUserAvatar} from '@loncra/pro'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import LAgentUserMessageBubbleContent
   from '@/components/ai-server/agent/AgentUserMessageBubbleContent.vue'

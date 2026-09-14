@@ -6,7 +6,7 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {MenuInfo} from '@v-c/menu'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {UserAvatar as LUserAvatar} from '@loncra/pro';
 import {getAuthRouterParam} from "@/routers";
 import {AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 

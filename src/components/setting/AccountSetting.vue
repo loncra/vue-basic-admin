@@ -17,7 +17,7 @@ import {AvatarServerService} from "@loncra/client/auth";
 import {BasicImage as LBasicImage} from '@loncra/antdv'
 import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {UserAvatar as LUserAvatar} from '@loncra/pro';
 
 defineOptions({
   name: 'LAccountSetting',

@@ -28,7 +28,7 @@ import {createIcon} from "@/utils/resourceUtils.ts";
 import {XProvider as AxConfigProvider} from "@antdv-next/x";
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {UserAvatar as LUserAvatar} from '@loncra/pro';
 import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
 
 const instructionIconMap:Record<string, string> = {

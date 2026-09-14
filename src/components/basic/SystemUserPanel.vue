@@ -12,7 +12,7 @@ import {
   ref,
   watch
 } from "vue";
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {UserAvatar as LUserAvatar} from '@loncra/pro';
 
 defineOptions({
   name: 'LSystemUserPanel',

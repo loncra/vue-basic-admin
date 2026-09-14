@@ -7,7 +7,7 @@ import type {ObjectWriteResult} from "@loncra/client/resource";
 import type {EmailMessageSendPayload} from "@loncra/client/message";
 import {EmailMessageService, MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
-import LUserSelect from "@/components/basic/UserSelect.vue";
+import {UserSelect as LUserSelect} from '@loncra/pro';
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 import {Editor as LEditor} from '@loncra/antdv'

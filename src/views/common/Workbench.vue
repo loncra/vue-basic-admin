@@ -8,7 +8,7 @@ import type {AuditEventEntity} from "@loncra/client/auth";
 import {OperationDataTraceAuditEventService} from "@loncra/client/auth";
 import type {RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {UserAvatar as LUserAvatar} from '@loncra/pro';
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
 
 defineOptions({

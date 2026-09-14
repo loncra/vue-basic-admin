@@ -70,13 +70,14 @@ export default defineConfig(({ mode }) => {
         // 与 tsconfig 对齐：从源码解析工作区包。走 node_modules 时 Vite 不监听，浏览器会一直用带 ?v= 的旧模块。
         '@loncra/antdv': fileURLToPath(new URL('../packages/antdv/src', import.meta.url)),
         '@loncra/client': fileURLToPath(new URL('../packages/client/src', import.meta.url)),
+        '@loncra/pro': fileURLToPath(new URL('../packages/pro/src', import.meta.url)),
         '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
       dedupe: ['dayjs', 'vue', 'antdv-next'],
       preserveSymlinks: true,
     },
     optimizeDeps: {
-      exclude: ['@loncra/client', '@loncra/antdv'],
+      exclude: ['@loncra/client', '@loncra/antdv', '@loncra/pro'],
       include: [
         'antdv-next-tiptap',
         'lowlight',

@@ -17,14 +17,17 @@ import {
   AI_SERVER_PLUGIN_TARGET_TYPE,
   ModelSettingService
 } from "@loncra/client/ai";
-import {type InstructionSenderExpose, isInstructionSlot,} from '@loncra/antdv'
+import {
+  type InstructionMeasure,
+  type InstructionSenderExpose,
+  isInstructionSlot,
+} from '@loncra/antdv'
 import type {
   AgentConversationItem,
   AgentSenderFormProps,
   AgentSenderProps,
   ChatContentBlock,
   InstructionBlock,
-  InstructionMeasure,
 } from "@/types/composables";
 import {ResourceServerService} from "@/apis";
 

@@ -38,7 +38,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {UserAvatar as LUserAvatar} from '@loncra/pro';
 import {QrCodeModal as LQrCodeModal} from '@loncra/antdv'
 import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
 import LEnterpriseInvitationModal, {

@@ -2,12 +2,11 @@
 
 import {type ComponentInternalInstance, getCurrentInstance, toRef} from "vue";
 import type {UserChatMessageResponseBody} from "@/types/apis";
-import LUserAvatar from "@/components/basic/UserAvatar.vue";
+import {AttachmentMasonry as LAttachmentMasonry, UserAvatar as LUserAvatar} from '@loncra/pro';
 import {AuthServerService} from "@/apis";
 import {requireNonNullOrUndefined} from "@/utils";
 import LChatMessageBubbleContent
   from "@/components/message-server/chat/ChatMessageBubbleContent.vue";
-import LAttachmentMasonry from "@/components/basic/AttachmentMasonry.vue";
 import {useChatHistories} from "@/composables/message-server/chat";
 
 defineOptions({
