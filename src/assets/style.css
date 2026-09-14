@@ -72,9 +72,6 @@
   .bg-flash {
     @apply animate-bg-flash rounded-[inherit];
   }
-  .ant-app {
-    @apply bg-layout min-h-screen;
-  }
 
   .fade-transform-enter-from,
   .fade-transform-leave-to {

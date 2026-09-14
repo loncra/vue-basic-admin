@@ -1,4 +1,4 @@
-import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from "@/constants";
+import {ATTACHMENT_PREVIEW_MODE, ATTACHMENT_UPLOAD_MODE} from '@/constants';
 import type {CSSProperties} from 'vue'
 import type {ObjectItemInfo, ObjectWriteResult} from "@loncra/client/resource";
 import type {UploadFile} from "antdv-next/dist/upload/interface";

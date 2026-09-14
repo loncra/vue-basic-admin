@@ -1,5 +1,5 @@
 import {
-  CAPTCHA_TOKEN_TYPE,
+  RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE,
   ResourceServerService as ResourceServerClient,
 } from '@loncra/client/resource'
 import type {CaptchaToken, CaptchaTokenType, RestResult} from '@loncra/client/commons'
@@ -93,10 +93,10 @@ export class ResourceServerService extends ResourceServerClient {
   }
 
   static sendEmailCaptcha(email: string, messageType: string) {
-    return ResourceServerService.sendCaptcha(CAPTCHA_TOKEN_TYPE.EMAIL, {email, messageType})
+    return ResourceServerService.sendCaptcha(RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL, {email, messageType})
   }
 
   static sendPhoneNumberCaptcha(phoneNumber: string, messageType: string) {
-    return ResourceServerService.sendCaptcha(CAPTCHA_TOKEN_TYPE.SMS, {phoneNumber, messageType})
+    return ResourceServerService.sendCaptcha(RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS, {phoneNumber, messageType})
   }
 }

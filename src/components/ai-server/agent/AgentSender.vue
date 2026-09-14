@@ -5,7 +5,7 @@ import {useAgentSender} from "@/composables";
 import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";
 import type {IdValueMetadata} from "@loncra/client/commons";
-import {AGENT_INSTRUCTION_PREFIX} from "@/constants";
+import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
 
 defineOptions({
   name: 'LAgentSender',

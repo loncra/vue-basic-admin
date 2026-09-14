@@ -31,7 +31,7 @@ import {
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
   SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
+  SYSTEM_MODULE_NAME
 } from '@/constants'
 import type {SearchableColumnType} from "@/types/composables";
 

@@ -2,7 +2,7 @@
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import {getEnumValue} from "@/utils";
 import type {TableProps} from "antdv-next";
-import {RESOURCE_CATEGORY} from "@/constants";
+import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth';
 
 defineOptions({
   name: 'AuthServerResourceHome'
@@ -10,7 +10,7 @@ defineOptions({
 
 const getCheckboxProps: NonNullable<TableProps["rowSelection"]>["getCheckboxProps"] = (record) => {
   return {
-    disabled: getEnumValue(record.category) === RESOURCE_CATEGORY.PLUGIN,
+    disabled: getEnumValue(record.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN,
   }
 }
 

@@ -8,7 +8,7 @@ import {
   OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
   VALUE_TYPE
-} from "@/constants";
+} from '@/constants';
 
 defineOptions({
   name: 'ResourceServerDataDictionaryDetail',

@@ -1,9 +1,7 @@
+import './createAppClient'
+
 import {createApp, createVNode} from 'vue'
 import {createPinia} from 'pinia'
-import {createClient} from '@loncra/client'
-import {createAxiosHttpClient} from '@loncra/client/adapters/axios'
-import axios from '@/requests'
-import {convertFormUrlencoded} from '@/utils'
 import App from '@/App.vue'
 import router from '@/routers'
 
@@ -16,18 +14,7 @@ import {message, Modal, notification} from 'antdv-next'
 // 导入全局样式
 import '@/assets/style.css'
 
-createClient({
-  http: createAxiosHttpClient(axios),
-  runtimeMode: import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? 'MICROSERVICE' : 'MONOLITH',
-  getAccessToken: () =>
-    localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME),
-  resourcePath: import.meta.env.VITE_APP_RESOURCE_PATH,
-  authenticationTypeHeaderName: import.meta.env.VITE_APP_HEADER_AUTHENTICATION_TYPE_NAME,
-  openUrl: (url) => {
-    window.open(url)
-  },
-  formValueConvert: (_key, value) => convertFormUrlencoded(value),
-})
+import '@/requests'
 
 dayjs.extend(relativeTime)
 

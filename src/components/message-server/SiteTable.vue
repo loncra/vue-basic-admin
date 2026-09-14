@@ -26,7 +26,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   YES_OR_NO_TYPE
-} from "@/constants";
+} from '@/constants';
 
 defineOptions({
   name: 'LSiteTable',

@@ -10,7 +10,7 @@ import type {
 } from "@loncra/client/ai";
 import {AiMcpPackageService} from "@loncra/client/ai";
 import {TooltipValidationFormItem as LTooltipValidationFormItem} from "@loncra/antdv";
-import {YES_OR_NO_TYPE} from "@/constants";
+import {YES_OR_NO_TYPE} from '@/constants';
 import type {ColumnType} from "antdv-next/dist/table/interface";
 
 defineOptions({

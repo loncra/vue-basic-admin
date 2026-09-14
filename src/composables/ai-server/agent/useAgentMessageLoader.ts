@@ -1,3 +1,4 @@
+import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
 import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref,} from 'vue'
 import type {
   ActiveAgentConversationItem,
@@ -5,7 +6,7 @@ import type {
   ChatBubbleItem
 } from '@/types/composables'
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {AGENT_CONVERSATION_TYPE, CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {AgentService} from '@/apis'
 import type {AgentMessageEntity} from '@/types/apis'
 import type {PageResult, RestResult} from '@loncra/client/commons'
@@ -195,7 +196,7 @@ export function useAgentMessageLoader(
   ): Promise<void> {
     if (
       !conversation.value ||
-      getEnumValue(conversation.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION
+      getEnumValue(conversation.value.type) !== AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION
     ) {
       return
     }

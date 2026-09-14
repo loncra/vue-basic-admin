@@ -9,7 +9,11 @@ import type {
   SkillPackageSavePayload,
   SkillSourceMetadata
 } from '@loncra/client/ai'
-import {AiSkillPackageService} from '@loncra/client/ai'
+import {
+  AI_SERVER_SKILL_SOURCE_TYPE,
+  AI_SERVER_SKILL_UPDATE_POLICY,
+  AiSkillPackageService
+} from '@loncra/client/ai'
 import {getEnumValue, loadIcon} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
@@ -20,12 +24,10 @@ import {
   OPERATION_DATA_TRACE_TABLE,
   SKILL_GROUP_CODE_PREFIX,
   SKILL_PACKAGE_ROUTE,
-  SKILL_SOURCE_TYPE,
-  SKILL_UPDATE_POLICY,
   SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
-  TIME_UNIT_TYPE,
+  TIME_UNIT_TYPE
 } from '@/constants'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {IconfontJson} from '@/types/composables'
@@ -56,7 +58,7 @@ function createEmptyEntity(): SkillPackageEntity {
     defaultUpdatePolicy: undefined as unknown as number,
     sourceType: undefined as unknown as number,
     metadata:{
-      source:{type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
+      source:{type:AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
     }
   }
 }
@@ -132,7 +134,7 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
 async function postSubmit(result:RestResult<number>) {
   options.value.entity.id = result.data
   await nextTick()
-  if (getEnumValue(options.value.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL) {
+  if (getEnumValue(options.value.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL) {
     try {
       options.value.spinning = true
       await attachmentUpload?.value?.upload()
@@ -144,7 +146,7 @@ async function postSubmit(result:RestResult<number>) {
 }
 
 function onDefaultUpdatePolicyChange(value:number) {
-  if (value !== SKILL_UPDATE_POLICY.AUTOMATIC) {
+  if (value !== AI_SERVER_SKILL_UPDATE_POLICY.AUTOMATIC) {
     return
   }
   if (!options.value.entity.metadata.updatePolicyTime) {
@@ -156,11 +158,11 @@ function onSourceTypeChange(value:number) {
   options.value.entity.metadata = {
     source: {type:value} as SkillSourceMetadata
   }
-  if (value === SKILL_SOURCE_TYPE.MANUAL) {
-    options.value.entity.defaultUpdatePolicy = SKILL_UPDATE_POLICY.MANUAL
-    options.value.entity.metadata.source = {type:SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
+  if (value === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL) {
+    options.value.entity.defaultUpdatePolicy = AI_SERVER_SKILL_UPDATE_POLICY.MANUAL
+    options.value.entity.metadata.source = {type:AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
   } else {
-    options.value.entity.metadata.source = {type:SKILL_SOURCE_TYPE.GIT, url:''} as GitSkillSourceMetadata
+    options.value.entity.metadata.source = {type:AI_SERVER_SKILL_SOURCE_TYPE.GIT, url:''} as GitSkillSourceMetadata
   }
 }
 
@@ -266,13 +268,13 @@ function onSourceTypeChange(value:number) {
             <a-space-compact block>
               <a-select
                 class="w-full"
-                :disabled="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL"
+                :disabled="getEnumValue(options.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL"
                 v-model:value="options.entity.defaultUpdatePolicy"
                 :options="options.updatePolicyOptions"
                 @change="onDefaultUpdatePolicyChange"
                 :field-names="{label: 'name'}"
               />
-              <template v-if="options.entity.metadata.updatePolicyTime && getEnumValue(options.entity.defaultUpdatePolicy) === SKILL_UPDATE_POLICY.AUTOMATIC">
+              <template v-if="options.entity.metadata.updatePolicyTime && getEnumValue(options.entity.defaultUpdatePolicy) === AI_SERVER_SKILL_UPDATE_POLICY.AUTOMATIC">
                 <a-space-addon>
                   {{$t('aiServer.skillPackage.automaticUpdateInterval')}}
                 </a-space-addon>
@@ -304,7 +306,7 @@ function onSourceTypeChange(value:number) {
         </a-col>
       </template>
       <a-form-item
-        v-if="getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.GIT"
+        v-if="getEnumValue(options.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.GIT"
         :name="['metadata', 'source', 'url']"
         :label="$t('aiServer.skillPackage.git.url')"
         :rules="[{required: true}]"
@@ -352,7 +354,7 @@ function onSourceTypeChange(value:number) {
         />
       </a-form-item>
       <a-form-item
-        v-if="options.entity.id !== undefined || getEnumValue(options.entity.sourceType) === SKILL_SOURCE_TYPE.MANUAL"
+        v-if="options.entity.id !== undefined || getEnumValue(options.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL"
         name="files"
         :label="$t('aiServer.skillPackage.files')"
       >

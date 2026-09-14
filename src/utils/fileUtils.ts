@@ -11,7 +11,7 @@ import {
   FILE_OR_FOLDER_NAME_MAX_LENGTH,
   RESERVED_FILE_OR_FOLDER_NAME,
   VALID_REGX
-} from "@/constants";
+} from '@/constants';
 
 /**
  * 格式化字节大小为可读的字符串

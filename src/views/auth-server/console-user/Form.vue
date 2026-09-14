@@ -2,20 +2,22 @@
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {ConsoleUserEntity, ConsoleUserSavePayload, RoleEntity} from "@loncra/client/auth";
-import {ConsoleUserService} from "@loncra/client/auth";
+import {
+  AUTH_SERVER_AUTHENTICATION_TYPE,
+  AUTH_SERVER_GENDER,
+  ConsoleUserService
+} from "@loncra/client/auth";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   AUTH_SERVER_CONSOLE_USER_ROUTE,
-  AUTHENTICATION_TYPE,
-  GENDER,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   VALID_REGX
-} from "@/constants";
+} from '@/constants';
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 
@@ -42,7 +44,7 @@ const options = ref<{
   spinning: false,
   entity: {
     realName: "",
-    gender: GENDER.UNKNOWN,
+    gender: AUTH_SERVER_GENDER.UNKNOWN,
     phoneNumber: "",
     remark: "",
     email: "",
@@ -151,7 +153,7 @@ function resetFields() {
         </a-space>
       </a-divider>
 
-      <l-role-table preview hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTHENTICATION_TYPE.CONSOLE}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
+      <l-role-table preview hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>
@@ -165,7 +167,7 @@ function resetFields() {
         preview
         hide-title
         root-class="mb-md"
-        :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTHENTICATION_TYPE.CONSOLE}"
+        :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE}"
         :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds}"
       />
 

@@ -14,7 +14,11 @@ import type {
   UserChatCallParticipantEntity,
   UserChatCallResponseBody
 } from "@loncra/client/message";
-import {ChatCallService} from "@loncra/client/message";
+import {
+  ChatCallService,
+  MESSAGE_SERVER_MESSAGE_GROUP,
+  MESSAGE_SERVER_USER_CHAT_CALL_STATUS
+} from "@loncra/client/message";
 import {
   createIcon,
   exitDocumentFullscreenIfNeeded,
@@ -25,10 +29,8 @@ import {useSocketSubscriptions} from "@/composables";
 import {
   CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY,
   CHAT_CALL_UI_MODE,
-  MESSAGE_GROUP,
-  SOCKET_EVENT_TYPE,
-  USER_CHAT_CALL_STATUS
-} from "@/constants";
+  SOCKET_EVENT_TYPE
+} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {isBusinessSuccess} from "@/requests";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
@@ -111,7 +113,7 @@ export function provideChatCallExpose(config:UseChatCallModalParams) {
     const modal = context.value.modal as ChatCallModalInnerProps
     try {
       modal.loading = true
-      if (context.value.userChatCall && getEnumValue(context.value.userChatCall.status) !== USER_CHAT_CALL_STATUS.COMPLETED) {
+      if (context.value.userChatCall && getEnumValue(context.value.userChatCall.status) !== MESSAGE_SERVER_USER_CHAT_CALL_STATUS.COMPLETED) {
         await ChatCallService.completed(Number(context.value.userChatCall.id))
       }
 
@@ -128,7 +130,7 @@ export function provideChatCallExpose(config:UseChatCallModalParams) {
     if (!result.data) {
       return ;
     }
-    const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(result.data.id)
+    const key = MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(result.data.id)
     destroy(key)
     const modal = context.value.modal as ChatCallModalInnerProps
     if (modal.open) {
@@ -255,7 +257,7 @@ export function provideChatCallExpose(config:UseChatCallModalParams) {
     onRejected: (key: string, id: number, loading: Ref<boolean>) => void
   ) {
     const loading = ref<boolean>(false)
-    const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(userChatCallId)
+    const key = MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(userChatCallId)
     return h(
       Space,
       {},

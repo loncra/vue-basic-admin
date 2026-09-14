@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, watch} from 'vue'
-import {closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap} from '@codemirror/autocomplete'
+import {
+  autocompletion,
+  closeBrackets,
+  closeBracketsKeymap,
+  completionKeymap
+} from '@codemirror/autocomplete'
 import {defaultKeymap, history, historyKeymap} from '@codemirror/commands'
 import {
   bracketMatching,

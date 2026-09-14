@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {useAgentConversation} from '@/composables/ai-server/agent/useAgentConversation.ts'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {AGENT_CONVERSATION_TYPE} from "@/constants";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
+import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
 
 defineOptions({
   name: 'LAgentConversation',
@@ -78,17 +78,17 @@ const emits = defineEmits<{
           <template #iconRender="item">
             <template v-if="!item.editing">
               <icon-font
-                v-if="getEnumValue(item.type) === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE"
+                v-if="getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE"
                 type="loncra-folder-cog"
                 class="text-primary"
               />
               <icon-font
-                v-else-if="getEnumValue(item.type) === AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE"
+                v-else-if="getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE"
                 type="loncra-folder-closed"
                 class="text-success"
               />
               <icon-font
-                v-else-if="getEnumValue(item.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION"
+                v-else-if="getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION"
                 :type="getAgentChatStatusStyle(item.status).icon"
                 :class="getAgentChatStatusStyle(item.status).textClass"
                 :spin="getAgentChatStatusStyle(item.status).spin"
@@ -143,7 +143,7 @@ const emits = defineEmits<{
               </a-typography-text>
               <span class="relative inline-flex shrink-0 items-center justify-end">
                 <a-typography-text
-                  v-if="getEnumValue(item.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION"
+                  v-if="getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION"
                   type="secondary"
                   class="whitespace-nowrap text-sm transition-opacity duration-300 opacity-100 group-hover:absolute group-hover:opacity-0 group-hover:pointer-events-none"
                 >

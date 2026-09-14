@@ -5,11 +5,11 @@ import LAgentConversation from "@/components/ai-server/agent/AgentConversation.v
 import LAgentView from "@/components/ai-server/agent/AgentView.vue";
 import {provideAgentChatContext} from "@/composables";
 import {getEnumValue} from "@/utils";
-import {AGENT_CONVERSATION_TYPE} from "@/constants";
 import type {ActiveAgentConversationItem} from "@/types/composables";
 import {onMounted, ref} from "vue";
 import LAgentHubView from "@/components/ai-server/agent/AgentHubView.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
 
 defineOptions({
   name: 'CommonAiAgent',
@@ -43,7 +43,7 @@ onMounted(() => {
         body:'flex flex-1 min-h-120 p-0! overflow-hidden'
       }"
     >
-      <template #extra v-if="conversationActive && getEnumValue(conversationActive.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION">
+      <template #extra v-if="conversationActive && getEnumValue(conversationActive.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION">
         {{conversationActive?.name}}
       </template>
       <div class="min-h-0 size-full overflow-hidden">

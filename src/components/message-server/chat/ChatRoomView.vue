@@ -9,16 +9,18 @@ import {getEnumName, getEnumValue} from "@/utils";
 import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
 import {
   CHAAT_ROOM_VIEW_MODAL_TYPE,
-  USER_CHAT_CONVERSATION_STATUS,
   USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE,
-  USER_CHAT_PARTICIPANT_TYPE,
-  USER_CHAT_ROOM_TYPE,
   YES_OR_NO_TYPE
-} from "@/constants";
+} from '@/constants';
 import {AuthServerService} from "@/apis";
 import LChatMessageHistories from "@/components/message-server/chat/ChatMessageHistories.vue";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {useChatRoomSettings} from "@/composables/message-server/chat";
+import {
+  MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS,
+  MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE,
+  MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
+} from '@loncra/client/message'
 
 defineOptions({
   name: 'LChatRoomView',
@@ -74,8 +76,8 @@ const {
 <template>
   <a-flex vertical class="h-full min-h-0">
     <a-spin :spinning="loading" class="size-full-spin min-h-0">
-      <template v-if="getEnumValue(conversation?.status) === USER_CHAT_CONVERSATION_STATUS.ENABLED">
-        <a-flex class="shrink-0 mb-sm" v-if="getEnumValue(conversation?.room?.type) === USER_CHAT_ROOM_TYPE.GROUP_CHAT">
+      <template v-if="getEnumValue(conversation?.status) === MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED">
+        <a-flex class="shrink-0 mb-sm" v-if="getEnumValue(conversation?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT">
           <a-input-search  />
         </a-flex>
         <a-flex flex="1" class="h-full min-h-0 overflow-y-auto" wrap="wrap" gap="small" justify="flex-start" align="flex-start">
@@ -88,7 +90,7 @@ const {
             :key="c.id"
           >
 
-            <a-badge-ribbon :color="getEnumValue(c.type) === USER_CHAT_PARTICIPANT_TYPE.OWNER ? 'gold' : 'yellow'" class="text-xs top-0 opacity-80" v-if="USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE.includes(getEnumValue(c.type))" :text="getEnumName(c.type)">
+            <a-badge-ribbon :color="getEnumValue(c.type) === MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.OWNER ? 'gold' : 'yellow'" class="text-xs top-0 opacity-80" v-if="USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE.includes(getEnumValue(c.type))" :text="getEnumName(c.type)">
               <l-user-avatar :user="c.metadata.details" size="large" shape="square" />
             </a-badge-ribbon>
             <span v-else>
@@ -137,7 +139,7 @@ const {
         <template v-if="conversation && conversation.room">
 
           <a-flex vertical gap="middle">
-            <a-flex justify="space-between" align="center" v-if="getEnumValue(conversation.room.type) === USER_CHAT_ROOM_TYPE.GROUP_CHAT" >
+            <a-flex justify="space-between" align="center" v-if="getEnumValue(conversation.room.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT" >
               <a-typography-text>
                 {{ globalProperties.$t('common.name') }}
               </a-typography-text>
@@ -146,7 +148,7 @@ const {
                   {{ conversation.name }}
                 </a-typography-text>
                 <a-button
-                  v-if="participants.some(s => s.principal === principalStore.state.name && USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE.includes(getEnumValue(s.type))) && getEnumValue(conversation.status) === USER_CHAT_CONVERSATION_STATUS.ENABLED"
+                  v-if="participants.some(s => s.principal === principalStore.state.name && USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE.includes(getEnumValue(s.type))) && getEnumValue(conversation.status) === MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED"
                   size="small"
                   type="text"
                   @click="options.editName = true"
@@ -166,7 +168,7 @@ const {
                 </a-button>
               </a-space-compact>
             </a-flex>
-            <template v-if="getEnumValue(conversation?.status) === USER_CHAT_CONVERSATION_STATUS.ENABLED">
+            <template v-if="getEnumValue(conversation?.status) === MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED">
               <a-flex justify="space-between" align="center" >
                 <a-typography-text>
                   {{ globalProperties.$t('chat.pinned.action') }}
@@ -192,11 +194,11 @@ const {
                 />
               </a-flex>
             </template>
-            <template v-if="getEnumValue(conversation.room.type) === USER_CHAT_ROOM_TYPE.GROUP_CHAT">
+            <template v-if="getEnumValue(conversation.room.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT">
               <a-button
                 block
                 @click="onMemberSetting"
-                v-if="participants.some(s => s.principal === principalStore.state.name && USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE.includes(getEnumValue(s.type))) && getEnumValue(conversation.status) === USER_CHAT_CONVERSATION_STATUS.ENABLED">
+                v-if="participants.some(s => s.principal === principalStore.state.name && USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE.includes(getEnumValue(s.type))) && getEnumValue(conversation.status) === MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED">
                 <template #icon>
                   <icon-font type="loncra-user-cog"/>
                 </template>
@@ -207,10 +209,10 @@ const {
               <a-space-compact block>
                 <a-button block danger @click="onExist">
                   <template #icon>
-                    <icon-font :type="getEnumValue(conversation.status) === USER_CHAT_CONVERSATION_STATUS.ENABLED ? 'loncra-log-out' : 'loncra-archive-x'"/>
+                    <icon-font :type="getEnumValue(conversation.status) === MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED ? 'loncra-log-out' : 'loncra-archive-x'"/>
                   </template>
                   <span>
-                    {{getEnumValue(conversation.status) === USER_CHAT_CONVERSATION_STATUS.ENABLED ? globalProperties.$t('chat.roomView.exitRoom.action') : globalProperties.$t('chat.conversation.delete')}}
+                    {{getEnumValue(conversation.status) === MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED ? globalProperties.$t('chat.roomView.exitRoom.action') : globalProperties.$t('chat.conversation.delete')}}
                   </span>
                 </a-button>
                 <a-button
@@ -218,7 +220,7 @@ const {
                   block
                   danger
                   @click="onDisbandRoom"
-                  v-if="participants.some(c => getEnumValue(c.type) === USER_CHAT_PARTICIPANT_TYPE.OWNER && principalStore.isCurrentPrincipal(c.principal)) && getEnumValue(conversation.status) === USER_CHAT_CONVERSATION_STATUS.ENABLED"
+                  v-if="participants.some(c => getEnumValue(c.type) === MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.OWNER && principalStore.isCurrentPrincipal(c.principal)) && getEnumValue(conversation.status) === MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED"
                 >
                   <template #icon>
                     <icon-font type="loncra-message-square-x"/>
@@ -280,10 +282,10 @@ const {
       >
         <a-space>
           <a-space-compact v-if="modalOptions.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING">
-            <a-button @click="onUpdateParticipantType(USER_CHAT_PARTICIPANT_TYPE.MEMBER)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === USER_CHAT_PARTICIPANT_TYPE.CO_OWNER).length <= 0">
+            <a-button @click="onUpdateParticipantType(MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.MEMBER)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.CO_OWNER).length <= 0">
               {{ globalProperties.$t('chat.roomView.modal.changeMember') }}
             </a-button>
-            <a-button @click="onUpdateParticipantType(USER_CHAT_PARTICIPANT_TYPE.CO_OWNER)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === USER_CHAT_PARTICIPANT_TYPE.MEMBER).length <= 0">
+            <a-button @click="onUpdateParticipantType(MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.CO_OWNER)" :loading="modalOptions.confirmLoading" :disabled="options.selectedUser.filter(s => getEnumValue(s.participantType) === MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.MEMBER).length <= 0">
               {{ globalProperties.$t('chat.roomView.modal.changeCoOwner') }}
             </a-button>
             <a-popconfirm

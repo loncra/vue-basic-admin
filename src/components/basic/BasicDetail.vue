@@ -5,7 +5,7 @@ import {
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
   LAYOUT_PANE_TITLE_PROVIDE_KEY,
   SYSTEM_CONSTANT
-} from "@/constants";
+} from '@/constants';
 import type {BasicIdMetadata, DetailSearchService, RestResult} from "@loncra/client/commons";
 import {
   type ComponentInternalInstance,

@@ -1,6 +1,6 @@
 import type {ObjectItemInfo} from '@loncra/client/resource'
 import type {FilePaneContext, ResolvedFilePaneKind} from "@/types/composables";
-import {AUDIO_EXT, IMAGE_EXT, TEXT_MAX_BYTES, VIDEO_EXT} from "@/constants";
+import {AUDIO_EXT, IMAGE_EXT, TEXT_MAX_BYTES, VIDEO_EXT} from '@/constants';
 import type {LanguageSupport} from "@codemirror/language";
 
 function extOf(name: string): string {

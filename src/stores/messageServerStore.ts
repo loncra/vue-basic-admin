@@ -1,16 +1,16 @@
 import {defineStore} from "pinia";
-import {MESSAGE_GROUP, STORE, YES_OR_NO_TYPE} from "@/constants";
+import {STORE, YES_OR_NO_TYPE} from '@/constants';
 import {computed, ref} from "vue";
 import type {MyMessageState} from "@/types/apis";
 import type {IdNameMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {MessageGroup, UserChatUnreadItem} from "@loncra/client/message";
-import {MessageServerService} from "@loncra/client/message";
+import {MESSAGE_SERVER_MESSAGE_GROUP, MessageServerService} from "@loncra/client/message";
 import {getEnumValue} from "@/utils";
 
 const RESET: MyMessageState = {
   record: {
-    [MESSAGE_GROUP.SITE]: {},
-    [MESSAGE_GROUP.USER_CHAT]: {},
+    [MESSAGE_SERVER_MESSAGE_GROUP.SITE]: {},
+    [MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT]: {},
   },
   siteTypes:[]
 }
@@ -37,7 +37,7 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
     }
     try {
       state.value.record = await fetchUnreadQuantity()
-      const siteTypes:RestResult<IdNameMetadata[]> = await MessageServerService.types(MESSAGE_GROUP.SITE)
+      const siteTypes:RestResult<IdNameMetadata[]> = await MessageServerService.types(MESSAGE_SERVER_MESSAGE_GROUP.SITE)
       if(siteTypes.data) {
         state.value.siteTypes = siteTypes.data
       }
@@ -54,7 +54,7 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
   async function fetchUnreadQuantity(): Promise<Partial<Record<MessageGroup, Record<number, unknown>>> | undefined> {
 
     const result:RestResult<Record<MessageGroup, Record<number,number>>> = await MessageServerService.unreadQuantity()
-    state.value.record = result?.data || {[MESSAGE_GROUP.SITE]:{}, [MESSAGE_GROUP.USER_CHAT]: {}};
+    state.value.record = result?.data || {[MESSAGE_SERVER_MESSAGE_GROUP.SITE]:{}, [MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT]: {}};
     return state.value.record
   }
 
@@ -77,9 +77,9 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
   }
 
   function getCount(group:MessageGroup, record:Record<number, unknown>, key:string):number {
-    if (group === MESSAGE_GROUP.SITE) {
+    if (group === MESSAGE_SERVER_MESSAGE_GROUP.SITE) {
       return Number(record?.[Number(key)]) || 0
-    } else if (group === MESSAGE_GROUP.USER_CHAT) {
+    } else if (group === MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT) {
       const item = (record?.[Number(key)] as UserChatUnreadItem)
       if (getEnumValue(item.muted) === YES_OR_NO_TYPE.YES) {
         return 0
@@ -91,7 +91,7 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
   }
 
   function setUserChatMessageMutedValue(id:number, muted:NameValueEnumMetadata<number> | number) {
-    const record = state.value.record?.[MESSAGE_GROUP.USER_CHAT] as
+    const record = state.value.record?.[MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT] as
       | Record<number, UserChatUnreadItem>
       | undefined
     if (!record) {
@@ -105,7 +105,7 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
   }
 
   function getUserChatUnreadQuantity(id:number) {
-    const record = state.value.record?.[MESSAGE_GROUP.USER_CHAT] as
+    const record = state.value.record?.[MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT] as
       | Record<number, UserChatUnreadItem>
       | undefined
     if (!record) {
@@ -125,11 +125,11 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
   const getUnreadQuantityByType = computed(() => (type:string) => {
     if (type === 'my_site_message') {
       const types = (state.value?.siteTypes || []).map(v => String(v.id))
-      return countUnreadQuantity(MESSAGE_GROUP.SITE, ...types)
+      return countUnreadQuantity(MESSAGE_SERVER_MESSAGE_GROUP.SITE, ...types)
     } else if (type === 'my_chat_message') {
-      return countUnreadQuantity(MESSAGE_GROUP.USER_CHAT)
+      return countUnreadQuantity(MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT)
     } else if (type === 'my_message') {
-      return countUnreadQuantity(MESSAGE_GROUP.SITE) + countUnreadQuantity(MESSAGE_GROUP.USER_CHAT)
+      return countUnreadQuantity(MESSAGE_SERVER_MESSAGE_GROUP.SITE) + countUnreadQuantity(MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT)
     }
     return 0;
   })

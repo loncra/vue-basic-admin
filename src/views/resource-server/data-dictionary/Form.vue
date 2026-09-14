@@ -16,7 +16,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   VALUE_TYPE
-} from "@/constants";
+} from '@/constants';
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 

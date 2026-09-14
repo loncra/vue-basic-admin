@@ -23,8 +23,8 @@ import LChatView from "@/components/message-server/chat/ChatView.vue";
 import type {ChatViewController, ServerConversationItem} from "@/types/composables";
 import LChatRoomView from "@/components/message-server/chat/ChatRoomView.vue";
 import {provideUserChatContext} from "@/composables/message-server/chat";
-import {MESSAGE_GROUP} from "@/constants";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
+import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
 
 defineOptions({
   name: 'MyChatMessageHome',
@@ -98,7 +98,7 @@ function onHistoryClick(data: UserChatMessageResponseBody) {
 }
 
 async function mounted() {
-  const keys:unknown | null = getNotificationKey(MESSAGE_GROUP.USER_CHAT)
+  const keys:unknown | null = getNotificationKey(MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT)
   if (keys) {
     const messageNotificationKeys = keys as Set<string>
     messageNotificationKeys.forEach(destroy)

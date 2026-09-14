@@ -10,7 +10,7 @@ import type {
   TreeSortMetadata
 } from "@loncra/client/commons";
 import type {ColumnType} from "antdv-next/dist/table/interface";
-import {SYSTEM_CONSTANT} from "@/constants";
+import {SYSTEM_CONSTANT} from '@/constants';
 
 export type {AuthorityProps} from './collection.ts'
 

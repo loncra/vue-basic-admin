@@ -12,7 +12,7 @@ import {
 } from "vue";
 import type {VideoThumbnailResult} from "@/types/composables";
 import type {AttachmentPreviewProps} from "@/types/composables/attachmentUpload.ts";
-import {ATTACHMENT_PREVIEW_MODE} from "@/constants";
+import {ATTACHMENT_PREVIEW_MODE} from '@/constants';
 import LAttachmentFilePreview from "@/components/attachment/internal/AttachmentFilePreview.vue";
 import type {RestResult} from "@loncra/client/commons";
 import type {ObjectWriteResult} from "@loncra/client/resource";

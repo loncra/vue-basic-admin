@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {RESOURCE_TYPE} from "@/constants";
 import type {ResourceEntity} from "@loncra/client/auth";
+import {AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -70,9 +70,9 @@ const collapsedAndSelectedMenu = (route: RouteLocationNormalizedLoaded) => {
     return
   }
 
-  menuOptions.value.selectedKeys = unmergeData.filter(m => [RESOURCE_TYPE.MENU, RESOURCE_TYPE.TOOL].includes(getEnumValue(m.type) as 'menu' | 'tool')).map(m => m.id).map(String)
+  menuOptions.value.selectedKeys = unmergeData.filter(m => [AUTH_SERVER_RESOURCE_TYPE.MENU, AUTH_SERVER_RESOURCE_TYPE.TOOL].includes(getEnumValue(m.type) as 'menu' | 'tool')).map(m => m.id).map(String)
 
-  const openKeys = unmergeData.filter(m => [RESOURCE_TYPE.ROOT, RESOURCE_TYPE.DIRECTORY].includes(getEnumValue(m.type) as 'root' | 'directory')).map(m => m.id).map(String)
+  const openKeys = unmergeData.filter(m => [AUTH_SERVER_RESOURCE_TYPE.ROOT, AUTH_SERVER_RESOURCE_TYPE.DIRECTORY].includes(getEnumValue(m.type) as 'root' | 'directory')).map(m => m.id).map(String)
   menuOptions.value.openKeys = [...new Set([...menuOptions.value.openKeys, ...openKeys])]
 }
 

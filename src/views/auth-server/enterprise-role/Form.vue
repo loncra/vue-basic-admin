@@ -18,7 +18,7 @@ import {
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
-} from "@/constants";
+} from '@/constants';
 
 defineOptions({
   name: 'AuthServerEnterpriseRoleForm'

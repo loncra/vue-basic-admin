@@ -2,7 +2,6 @@ import type {VideoMetrics} from "@/types/composables";
 
 export {
   CHAT_EVERYONE_ID,
-  MESSAGE_GROUP,
   MESSAGE_SERVER_BATCH_AUTHORITY,
   MESSAGE_SERVER_EMAIL_AUTHORITY,
   MESSAGE_SERVER_SITE_AUTHORITY,
@@ -18,7 +17,6 @@ export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
 export const USER_CHAT_CONTEXT_PROVIDE_KEY = "userChatContext"
 export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModalExpose"
 export const CHAT_CALL_MEDIA_PROVIDE_KEY = "chatCallMedia"
-
 
 export const CHAAT_ROOM_VIEW_MODAL_TYPE = {
   ADD_PARTICIPANT: 'addParticipant',

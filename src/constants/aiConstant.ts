@@ -1,5 +1,5 @@
 import type {AgentChatStatus, AgentSseMessageContent} from "@/types/composables";
-import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE,} from "@/constants/variableConstant.ts";
+import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
 
 export {
   AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE,
@@ -17,8 +17,6 @@ export {
   MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
   SKILL_GROUP_CODE_PREFIX,
   SKILL_PACKAGE_AUTHORITY,
-  SKILL_SOURCE_TYPE,
-  SKILL_UPDATE_POLICY,
   STREAM_APPEND_TYPES,
   STREAM_RUNNING_STATUS_VALUE,
   UPDATE_CONVERSATION_TYPES,
@@ -28,35 +26,35 @@ export type {ModelGenerateOptionKey} from '@loncra/client/ai'
 
 export const AGENT_CHAT_CONTEXT_PROVIDE_KEY = "agentChatContextProvide"
 
-export const TOKEN_USAGE_TYPE: Readonly<AgentSseMessageContent['type']> = AGENT_CONTENT_TYPE.TOKEN_USAGE
+export const TOKEN_USAGE_TYPE: Readonly<AgentSseMessageContent['type']> = AI_SERVER_AGENT_CONTENT_TYPE.TOKEN_USAGE
 
 export const AGENT_CHAT_STATUS_STYLE = {
-  [AGENT_CHAT_STATUS.READY]: {
+  [AI_SERVER_AGENT_CHAT_STATUS.READY]: {
     icon: 'loncra-fish',
     textClass: 'text-text-secondary',
     spin: false,
   },
-  [AGENT_CHAT_STATUS.RUNNING]: {
+  [AI_SERVER_AGENT_CHAT_STATUS.RUNNING]: {
     icon: 'loncra-loader-pinwheel',
     textClass: 'text-primary',
     spin: true,
   },
-  [AGENT_CHAT_STATUS.STOPPED]: {
+  [AI_SERVER_AGENT_CHAT_STATUS.STOPPED]: {
     icon: 'loncra-circle-stop',
     textClass: 'text-warning',
     spin: false,
   },
-  [AGENT_CHAT_STATUS.REQUEST_STOP]: {
+  [AI_SERVER_AGENT_CHAT_STATUS.REQUEST_STOP]: {
     icon: 'loncra-badge-question-mark',
     textClass: 'text-warning',
     spin: false,
   },
-  [AGENT_CHAT_STATUS.COMPLETED]: {
+  [AI_SERVER_AGENT_CHAT_STATUS.COMPLETED]: {
     icon: 'loncra-badge-check',
     textClass: 'text-success',
     spin: false,
   },
-  [AGENT_CHAT_STATUS.FAILED]: {
+  [AI_SERVER_AGENT_CHAT_STATUS.FAILED]: {
     icon: 'loncra-octagon-x',
     textClass: 'text-error',
     spin: false,

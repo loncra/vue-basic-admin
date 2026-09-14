@@ -2,7 +2,12 @@
 
 import {AuthServerService, ResourceServerService} from '@/apis'
 import type {EnterpriseInvitationEntity} from '@loncra/client/auth'
-import {EnterpriseInvitationService} from '@loncra/client/auth'
+import {
+  AUTH_SERVER_AUDIT_STATUS_VALUE,
+  AUTH_SERVER_AUDIT_TYPE_VALUE,
+  AUTH_SERVER_AUTHENTICATION_TYPE,
+  EnterpriseInvitationService
+} from '@loncra/client/auth'
 import {
   type ComponentInternalInstance,
   computed,
@@ -27,14 +32,11 @@ import {
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
 import LCrudTable from '@/components/basic/crud/CrudTable.vue'
 import {
-  AUDIT_STATUS_VALUE,
-  AUDIT_TYPE_VALUE,
   AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
   AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
-  AUTHENTICATION_TYPE,
   SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
+  SYSTEM_MODULE_NAME
 } from '@/constants'
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {QrCodeModal as LQrCodeModal} from '@loncra/antdv'
@@ -137,7 +139,7 @@ const crudTable = ref()
 
 function openShard(entity: EnterpriseInvitationEntity) {
   options.value.share.open = true;
-  options.value.share.url = import.meta.env.VITE_APP_SITE_URL + import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/' + entity.id + "?" + AUTH_SERVER_AUTHENTICATION_TYPE_PARAM + '=' + AUTHENTICATION_TYPE.PERSONAL;
+  options.value.share.url = import.meta.env.VITE_APP_SITE_URL + import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/' + entity.id + "?" + AUTH_SERVER_AUTHENTICATION_TYPE_PARAM + '=' + AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL;
 }
 
 const itemActionDefinitions = function (): ActionDefinition<EnterpriseInvitationEntity>[] {
@@ -195,7 +197,7 @@ onMounted(mounted)
       :service="service"
       :columns="columns"
       :row-actions="itemActionDefinitions()"
-      :expandable="{ rowExpandable: (record:EnterpriseInvitationEntity) => getEnumValue(record.auditType) === AUDIT_TYPE_VALUE.MANUAL }"
+      :expandable="{ rowExpandable: (record:EnterpriseInvitationEntity) => getEnumValue(record.auditType) === AUTH_SERVER_AUDIT_TYPE_VALUE.MANUAL }"
       :authority="{
         detail: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
         delete: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.DELETE,
@@ -232,7 +234,7 @@ onMounted(mounted)
         </template>
       </template>
       <template #expandedRowRender="{ record }">
-        <l-enterprise-member-table audit :query="{'filter_[invitation_id_eq]':record.id,'filter_[audit_status_eq]':AUDIT_STATUS_VALUE.AUDITABLE}">
+        <l-enterprise-member-table audit :query="{'filter_[invitation_id_eq]':record.id,'filter_[audit_status_eq]':AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE}">
           <template #title>
             <a-space>
               <icon-font type="loncra-user-check" />

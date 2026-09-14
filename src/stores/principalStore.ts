@@ -8,13 +8,13 @@ import type {
   PersonalEnterprise,
   PrepareData
 } from '@loncra/client/auth'
-import {EnterpriseService} from '@loncra/client/auth'
+import {AUTH_SERVER_AUTHENTICATION_TYPE, EnterpriseService} from '@loncra/client/auth'
 import type {UserPluginInstallResult} from '@loncra/client/ai'
 import {AiUserPluginInstallService} from '@loncra/client/ai'
 import type {RestResult} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
 import {isBusinessSuccess} from '@/requests'
-import {AUTHENTICATION_TYPE, STORE} from '@/constants'
+import {STORE} from '@/constants'
 import {getEnumValue} from '@/utils'
 import {clearPrincipal} from '@/composables/chat/draft'
 
@@ -49,7 +49,7 @@ const RESET: AuthenticationInfo = {
   },
   name: '',
   shortName: '',
-  type: AUTHENTICATION_TYPE.CONSOLE,
+  type: AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE,
   rememberMe: false,
   grantedAuthorities: [],
   enterpriseDataSource:[]
@@ -107,7 +107,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    */
   async function login(
     credentials: AuthCredentials,
-    authenticationType: AuthenticationType = AUTHENTICATION_TYPE.CONSOLE,
+    authenticationType: AuthenticationType = AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE,
   ): Promise<AuthenticationInfo> {
     const result:RestResult<AuthenticationInfo> = await AuthServerService.login(credentials, authenticationType)
 
@@ -175,7 +175,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     }
     localStorage.setItem(deviceIdName, deviceIdentified)
 
-    if (data.type !== AUTHENTICATION_TYPE.CONSOLE && result.data.authenticated) {
+    if (data.type !== AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE && result.data.authenticated) {
       const enterpriseDataSource:RestResult<PersonalEnterprise[]> = await enterpriseService.my()
       data.enterpriseDataSource = enterpriseDataSource.data || []
     }

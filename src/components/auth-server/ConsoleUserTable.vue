@@ -2,7 +2,7 @@
 
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {ConsoleUserEntity} from "@loncra/client/auth";
-import {ConsoleUserService} from "@loncra/client/auth";
+import {AUTH_SERVER_AUTHENTICATION_TYPE, ConsoleUserService} from "@loncra/client/auth";
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
 
@@ -21,10 +21,9 @@ import {
   AUTH_SERVER_CONSOLE_USER_AUTHORITY,
   AUTH_SERVER_CONSOLE_USER_ROUTE,
   AUTH_SERVER_SYSTEM_USER_AUTHORITY,
-  AUTHENTICATION_TYPE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
-} from "@/constants";
+} from '@/constants';
 import {isBusinessSuccess} from "@/requests";
 import useApp from "antdv-next/dist/app/useApp";
 
@@ -162,7 +161,7 @@ function rowActions(): ActionDefinition<ConsoleUserEntity>[] {
           content: globalProperties.$t('auth.adminResetPassword.confirmSingle'),
           onOk: async () => {
             const result = await AuthServerService.adminResetPassword(
-              AUTHENTICATION_TYPE.CONSOLE,
+              AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE,
               String(ctx.record!.id),
             )
             if (isBusinessSuccess(result)) {

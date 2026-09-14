@@ -11,7 +11,11 @@ import {
   type VNode
 } from "vue";
 import type {SiteMessageEntity} from "@loncra/client/message";
-import {MessageServerService, SiteMessageService} from "@loncra/client/message";
+import {
+  MESSAGE_SERVER_MESSAGE_GROUP,
+  MessageServerService,
+  SiteMessageService
+} from "@loncra/client/message";
 import type {MySiteMessageProps} from "@/types/apis";
 import type {IdNameMetadata, RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.js";
@@ -19,7 +23,7 @@ import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} fro
 import useApp from "antdv-next/dist/app/useApp";
 import LActionButton from "@/components/basic/crud/ActionButton.vue";
 import type {ResolvedAction} from "@/types/composables";
-import {MESSAGE_GROUP, MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from "@/constants";
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from '@/constants';
 
 defineOptions({
   name: 'MySiteMessageHome',
@@ -274,7 +278,7 @@ onMounted(mounted)
           <span>
             {{item.label}}
           </span>
-          <a-badge :count="messageServerStore.getUnreadQuantity(MESSAGE_GROUP.SITE, item.key)" size="small">
+          <a-badge :count="messageServerStore.getUnreadQuantity(MESSAGE_SERVER_MESSAGE_GROUP.SITE, item.key)" size="small">
           </a-badge>
         </a-space>
       </template>

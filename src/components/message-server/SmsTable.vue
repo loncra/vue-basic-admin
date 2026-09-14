@@ -33,7 +33,7 @@ import {
   MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
-} from "@/constants";
+} from '@/constants';
 
 defineOptions({
   name: 'LSmsTable',

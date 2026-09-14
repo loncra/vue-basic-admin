@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {AGENT_CONTENT_TYPE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
+import {CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import LAgentUserMessageBubbleContent
@@ -12,6 +12,7 @@ import {createAgentBubbleListRole, useAgentView} from '@/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
 import {getEnumName, getEnumValue} from "@/utils";
 import type {AgentSseMessageContent} from "@/types/composables";
+import {AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
 
 defineOptions({
   name: 'LAgentView',
@@ -101,7 +102,7 @@ defineExpose({
             <a-space v-if="!STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((item.data as AgentMessageEntity).status))">
               <a-button
                 variant="outlined"
-                v-if="item.content.some((c:AgentSseMessageContent) => c.type === AGENT_CONTENT_TYPE.ANSWER)"
+                v-if="item.content.some((c:AgentSseMessageContent) => c.type === AI_SERVER_AGENT_CONTENT_TYPE.ANSWER)"
                 size="small"
                 :color="(item.data as StreamAgentMessageEntity).copy ? 'cyan' : 'default'"
                 @click="copyText(item.data as StreamAgentMessageEntity)"

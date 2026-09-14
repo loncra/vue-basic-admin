@@ -1,11 +1,11 @@
 import type {Ref} from 'vue'
 import type {UserChatMessageEntity, UserChatMessageResponseBody} from '@/types/apis'
 import type {ChatBubbleItem, UserChatConversationActiveProps} from '@/types/composables'
-import {ChatMessageService} from '@loncra/client/message'
+import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 import {getEnumValue} from '@/utils'
-import {USER_CHAT_MESSAGE_TYPE, YES_OR_NO_TYPE} from "@/constants";
+import {YES_OR_NO_TYPE} from '@/constants';
 
 /**
  * 可见消息已读上报队列。
@@ -23,7 +23,7 @@ export function useChatReadMarker(conversation: Ref<UserChatConversationActivePr
   function isReadableMessage(
     message: UserChatMessageResponseBody | UserChatMessageEntity | undefined,
   ): boolean {
-    if (!message || getEnumValue(message.type) === USER_CHAT_MESSAGE_TYPE.SYSTEM) {
+    if (!message || getEnumValue(message.type) === MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.SYSTEM) {
       return false
     }
     const readable = (message as UserChatMessageResponseBody).readable

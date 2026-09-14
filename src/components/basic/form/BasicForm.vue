@@ -19,7 +19,7 @@ import {
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
   LAYOUT_PANE_TITLE_PROVIDE_KEY,
   SYSTEM_CONSTANT
-} from "@/constants";
+} from '@/constants';
 import type {BasicCrudService, BasicIdMetadata, RestResult} from "@loncra/client/commons";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";

@@ -7,7 +7,7 @@ import type {RestResult, TotalPage} from '@loncra/client/commons'
 import {requireNonNullOrUndefined} from '@/utils'
 import useApp from 'antdv-next/dist/app/useApp'
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from 'vue'
-import {ICON_SELECT_AVATAR_MODE_VALUE} from "@/constants";
+import {ICON_SELECT_AVATAR_MODE_VALUE} from '@/constants';
 
 defineOptions({
   name: 'LAgentHubPluginInfoCard',

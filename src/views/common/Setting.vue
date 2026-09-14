@@ -6,7 +6,7 @@ import LConfigProviderSetting from "@/components/setting/ConfigProviderSetting.v
 import LAccountSetting from "@/components/setting/AccountSetting.vue";
 import LEnterpriseSetting from "@/components/setting/EnterpriseSetting.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {AUTHENTICATION_TYPE} from "@/constants";
+import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
 
 defineOptions({
   name: 'CommonSetting'
@@ -32,7 +32,7 @@ const tabList = computed(()=> {
     },
   ]
 
-  if (principalStore.state.type !== AUTHENTICATION_TYPE.CONSOLE) {
+  if (principalStore.state.type !== AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE) {
     result.push({
       key: 'enterpriseSetting',
       tab: globalProperties.$t('systemSetting.tab.enterpriseSetting'),

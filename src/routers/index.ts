@@ -7,8 +7,9 @@ import type {
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {PrepareData, ResourceEntity} from "@loncra/client/auth";
+import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
-import {AUTHENTICATION_MEMBER_TYPE, AUTHENTICATION_TYPE, RESOURCE_TYPE} from "@/constants";
+import {AUTHENTICATION_MEMBER_TYPE} from '@/constants';
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@/utils'
@@ -315,12 +316,12 @@ const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
 
   const menuPrincipalStore = useMenuPrincipalStore()
   const menus = await menuPrincipalStore.getPrincipalResources([
-    RESOURCE_TYPE.ROOT,
-    RESOURCE_TYPE.DIRECTORY,
-    RESOURCE_TYPE.MENU,
-    RESOURCE_TYPE.TOOL,
-    RESOURCE_TYPE.PROFILE,
-    RESOURCE_TYPE.NAVIGATION_DATA
+    AUTH_SERVER_RESOURCE_TYPE.ROOT,
+    AUTH_SERVER_RESOURCE_TYPE.DIRECTORY,
+    AUTH_SERVER_RESOURCE_TYPE.MENU,
+    AUTH_SERVER_RESOURCE_TYPE.TOOL,
+    AUTH_SERVER_RESOURCE_TYPE.PROFILE,
+    AUTH_SERVER_RESOURCE_TYPE.NAVIGATION_DATA
   ])
   const unmergeMenus = unmergeTree<ResourceEntity>(menus);
   const menuRoutes = [...childrenRoutes, ...importRoutes]
@@ -351,7 +352,7 @@ const reloadRoute = async (): Promise<RouteRecordRaw[]> => {
 
 export const saveRequestPathThenToAuth = (
   href:string,
-  authenticationType:string = AUTHENTICATION_TYPE.CONSOLE
+  authenticationType:string = AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE
 )=> {
 
   sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME, href)
@@ -359,10 +360,10 @@ export const saveRequestPathThenToAuth = (
 }
 
 export const getAuthRouterParam =  (
-  authenticationType:string = AUTHENTICATION_TYPE.CONSOLE
+  authenticationType:string = AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE
 )=> {
   if (AUTHENTICATION_MEMBER_TYPE.includes(authenticationType)) {
-    authenticationType = AUTHENTICATION_TYPE.PERSONAL
+    authenticationType = AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL
   }
   return {
     name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,

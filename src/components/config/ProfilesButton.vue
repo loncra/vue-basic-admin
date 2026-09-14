@@ -3,12 +3,12 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import type {MenuItemType} from 'antdv-next'
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import {RESOURCE_TYPE} from "@/constants";
 import type {MenuInfo} from '@v-c/menu'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {getAuthRouterParam} from "@/routers";
+import {AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 
 const menuPrincipalStore = useMenuPrincipalStore()
 
@@ -49,7 +49,7 @@ function onOperateClickItem(e: MenuInfo) {
 function mounted() {
   const data = menuPrincipalStore.state
     .menu
-    .filter(r => getEnumValue(r.type) === RESOURCE_TYPE.PROFILE)
+    .filter(r => getEnumValue(r.type) === AUTH_SERVER_RESOURCE_TYPE.PROFILE)
     .map(r => ({key: String(r.id), label: r.name, icon: createIcon(r.icon || 'loncra-file'), page: r.page}));
   operateItems.value.unshift(...data)
 }

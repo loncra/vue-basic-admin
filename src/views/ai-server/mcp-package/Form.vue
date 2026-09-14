@@ -9,7 +9,7 @@ import type {
   StdioMcpClientTransportMetadata,
   StreamableHttpMcpClientTransportMetadata
 } from '@loncra/client/ai'
-import {AiMcpPackageService} from '@loncra/client/ai'
+import {AI_SERVER_MCP_CLIENT_TYPE, AiMcpPackageService} from '@loncra/client/ai'
 import {loadIcon, requireNonNullOrUndefined} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
@@ -17,7 +17,6 @@ import {ResourceServerService} from '@/apis'
 import {
   ICON_SELECT_MODE,
   MCP_CLIENT_HTTP_TYPE_VALUE,
-  MCP_CLIENT_TYPE,
   MCP_GROUP_CODE_PREFIX,
   MCP_PACKAGE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
@@ -25,7 +24,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   TIME_UNIT_TYPE,
-  YES_OR_NO_TYPE,
+  YES_OR_NO_TYPE
 } from '@/constants'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LMcpClarifyPolicyTable from "@/components/ai-server/mcp/McpClarifyPolicyTable.vue";
@@ -66,7 +65,7 @@ function createEmptyEntity(): McpPackageEntity {
     },
     metadata: {
       client: {
-        type: MCP_CLIENT_TYPE.STREAMABLE_HTTP,
+        type: AI_SERVER_MCP_CLIENT_TYPE.STREAMABLE_HTTP,
         baseUrl: '',
         endpoint: '/mcp',
         timeout: {
@@ -127,7 +126,7 @@ async function preSubmit() {
     const http = client as SseMcpClientTransportMetadata
     http.headers = Object.fromEntries((options.value.entity.headerDataSource ?? []).map(row => [row.key, row.value as string[]]))
     http.queryParams = Object.fromEntries((options.value.entity.queryParamDataSource ?? []).map(row => [row.key, row.value as string[]]))
-  } else if (client.type === MCP_CLIENT_TYPE.STDIO) {
+  } else if (client.type === AI_SERVER_MCP_CLIENT_TYPE.STDIO) {
     const stdio = client as StdioMcpClientTransportMetadata
     stdio.env = Object.fromEntries((options.value.entity.envDataSource ?? []).map(row => [row.key, String(row.value)]))
   }
@@ -149,7 +148,7 @@ function postGetEntity(entity: McpPackageEntity) {
       value: value as string[],
       editing: false,
     }))
-  } else if (client.type === MCP_CLIENT_TYPE.STDIO) {
+  } else if (client.type === AI_SERVER_MCP_CLIENT_TYPE.STDIO) {
     const stdio = client as StdioMcpClientTransportMetadata
     entity.envDataSource = Object.entries(stdio.env || {}).map(([key, value]) => ({
       id: crypto.randomUUID(),
@@ -425,7 +424,7 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
               </a-space-compact>
             </a-form-item>
           </a-col>
-          <template v-if="options.entity.metadata.client.type === MCP_CLIENT_TYPE.STREAMABLE_HTTP">
+          <template v-if="options.entity.metadata.client.type === AI_SERVER_MCP_CLIENT_TYPE.STREAMABLE_HTTP">
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
               <a-form-item
                 :name="['metadata', 'client', 'openConnectionOnStartup']"

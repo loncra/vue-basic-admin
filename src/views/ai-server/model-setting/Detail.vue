@@ -2,7 +2,7 @@
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import {ResourceServerService} from '@/apis'
 import type {ModelGenerateOptions, ModelSettingEntity} from '@loncra/client/ai'
-import {ModelSettingService} from '@loncra/client/ai'
+import {AI_SERVER_MODEL_TYPE, ModelSettingService} from '@loncra/client/ai'
 
 import {booleanToYesOrNo, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
@@ -14,12 +14,11 @@ import {
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
   MODEL_GENERATE_OPTION_KEYS,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  MODEL_TYPE,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   VALUE_TYPE,
-  YES_OR_NO_TYPE,
+  YES_OR_NO_TYPE
 } from '@/constants'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
@@ -41,7 +40,7 @@ const entity = ref<ModelSettingEntity>({
   name: '',
   model: '',
   icon: null,
-  type: MODEL_TYPE.CHAT,
+  type: AI_SERVER_MODEL_TYPE.CHAT,
   enabled: YES_OR_NO_TYPE.YES,
   remark: '',
   description: '',

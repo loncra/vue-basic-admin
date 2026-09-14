@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {CHAT_BUBBLE_TYPE, USER_CHAT_ROOM_TYPE} from '@/constants'
+import {CHAT_BUBBLE_TYPE} from '@/constants'
 import {AuthServerService} from '@/apis'
 import LUserAvatar from '@/components/basic/UserAvatar.vue'
 import LChatMessageReadTable from '@/components/message-server/chat/ChatMessageReadTable.vue'
@@ -87,7 +88,7 @@ defineExpose({
       <a-flex class="h-full" justify="end" align="end">
         <a-tooltip
           v-if="
-            getEnumValue(conversation.item?.data?.room?.type) === USER_CHAT_ROOM_TYPE.PRIVATE_CHAT &&
+            getEnumValue(conversation.item?.data?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.PRIVATE_CHAT &&
             item.role === CHAT_BUBBLE_TYPE.USER
           "
           :title="
@@ -105,7 +106,7 @@ defineExpose({
         </a-tooltip>
         <a-popover
           v-else-if="
-            getEnumValue(conversation.item?.data?.room?.type) === USER_CHAT_ROOM_TYPE.GROUP_CHAT && item.data
+            getEnumValue(conversation.item?.data?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT && item.data
           "
           :placement="item.role === CHAT_BUBBLE_TYPE.USER ? 'left' : 'right'"
           trigger="click"
@@ -154,12 +155,12 @@ defineExpose({
     </template>
     <template #header="{ item }">
       <a-typography-text v-if="item.role === CHAT_BUBBLE_TYPE.AI">
-        <template v-if="getEnumValue(conversation.item?.data?.room?.type) === USER_CHAT_ROOM_TYPE.GROUP_CHAT">
+        <template v-if="getEnumValue(conversation.item?.data?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT">
           {{
             AuthServerService.getPrincipalNameByUserDetails(item.data.participant.metadata.details)
           }}
         </template>
-        <template v-if="getEnumValue(conversation.item?.data?.room?.type) === USER_CHAT_ROOM_TYPE.PRIVATE_CHAT">
+        <template v-if="getEnumValue(conversation.item?.data?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.PRIVATE_CHAT">
           {{ conversation.item?.label || globalProperties.$t('common.unname') }}
         </template>
       </a-typography-text>

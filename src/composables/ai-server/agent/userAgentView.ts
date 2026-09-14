@@ -23,16 +23,11 @@ import {
   useAgentChatContext,
   useAgentDraftPersist,
 } from '@/composables'
-import {
-  AGENT_CHAT_STATUS,
-  AGENT_CHAT_TYPE_STYLE,
-  AGENT_CONTENT_TYPE,
-  CHAT_BUBBLE_TYPE,
-  STREAM_RUNNING_STATUS_VALUE
-} from '@/constants'
+import {AGENT_CHAT_TYPE_STYLE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
 import {addBubbleListMessage, createIcon, getEnumName, getEnumValue} from '@/utils'
 import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
 
 /** Agent 气泡 role：ai 项按状态动态挂 loading */
 export function createAgentBubbleListRole() {
@@ -116,7 +111,7 @@ export function useAgentView() {
           type: result.data.conversation.lastChatType!,
           id: result.data.userMessageId,
           content: value.content,
-          status: AGENT_CHAT_STATUS.READY,
+          status: AI_SERVER_AGENT_CHAT_STATUS.READY,
           role: CHAT_BUBBLE_TYPE.USER,
           agentConversationId: conversationId
         }
@@ -125,7 +120,7 @@ export function useAgentView() {
           content: [],
           model: result.data.conversation.lastModel!,
           type: result.data.conversation.lastChatType!,
-          status: AGENT_CHAT_STATUS.READY,
+          status: AI_SERVER_AGENT_CHAT_STATUS.READY,
           role: CHAT_BUBBLE_TYPE.AI,
           agentConversationId: conversationId,
           parentId: result.data.userMessageId,
@@ -184,7 +179,7 @@ export function useAgentView() {
   async function copyText(item:StreamAgentMessageEntity) {
     try {
       const text = item.content
-        .filter(s => getEnumValue(s.type) === AGENT_CONTENT_TYPE.ANSWER)
+        .filter(s => getEnumValue(s.type) === AI_SERVER_AGENT_CONTENT_TYPE.ANSWER)
         .map(s => (s as BlockDeltaContentMetadata).value)
         .at(-1)
       await navigator.clipboard.writeText(text || "");

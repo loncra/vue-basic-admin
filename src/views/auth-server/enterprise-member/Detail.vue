@@ -5,17 +5,20 @@ import type {
   EnterpriseRoleEntity,
   ResourceEntity
 } from '@loncra/client/auth'
-import {EnterpriseMemberService, ResourceService} from '@loncra/client/auth'
+import {
+  AUTH_SERVER_AUDIT_STATUS_VALUE,
+  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
+  EnterpriseMemberService,
+  ResourceService
+} from '@loncra/client/auth'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from 'vue'
 import {
   APP_RELOAD_PROVIDE_KEY,
-  AUDIT_STATUS_VALUE,
   AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
-  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
-  YES_OR_NO_TYPE,
+  YES_OR_NO_TYPE
 } from '@/constants'
 
 import type {TableProps} from 'antdv-next'
@@ -52,7 +55,7 @@ const entity = ref<EnterpriseMemberEntity>({
   principal: '',
   username: '',
   role: AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.MEMBER,
-  auditStatus: AUDIT_STATUS_VALUE.AUDITABLE,
+  auditStatus: AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE,
   status: {
     value: 99,
     name: '',

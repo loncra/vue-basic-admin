@@ -19,7 +19,7 @@ import {
   CHAAT_ROOM_VIEW_MODAL_TYPE,
   CHAT_CALL_PRIVATE_ROLE_TYPE,
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
-  CHAT_CALL_UI_MODE,
+  CHAT_CALL_UI_MODE
 } from '@/constants'
 import type {
   ActiveChatSession,

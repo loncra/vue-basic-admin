@@ -20,11 +20,9 @@ import {
   CHAT_CALL_MINI_SIZE,
   CHAT_CALL_PRIVATE_ROLE_TYPE,
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
-  CHAT_CALL_TYPE,
   CHAT_CALL_UI_MODE,
-  PRIVATE_VIDEO_LAYOUT_METRICS,
-  USER_CHAT_CALL_PARTICIPANT_STATUS,
-} from "@/constants";
+  PRIVATE_VIDEO_LAYOUT_METRICS
+} from '@/constants';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AuthServerService} from "@/apis";
 import type {
@@ -33,6 +31,10 @@ import type {
   PrivateLayoutOptions,
   TargetParticipant,
 } from "@/types/composables";
+import {
+  MESSAGE_SERVER_CHAT_CALL_TYPE,
+  MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS
+} from '@loncra/client/message'
 
 const miniWindowClass =
   'absolute opacity-80 top-0 left-0 rounded-lg border border-border-secondary m-xs shadow-card bg-container cursor-pointer z-10'
@@ -234,7 +236,7 @@ export function usePrivateChatCallLayout() {
     }
 
     const callEntity = chatCallExpose.context.userChatCall
-    const key = getEnumValue(callEntity.type) === CHAT_CALL_TYPE.VIDEO
+    const key = getEnumValue(callEntity.type) === MESSAGE_SERVER_CHAT_CALL_TYPE.VIDEO
       ? 'chat.call.video.title'
       : 'chat.call.voice.title'
 
@@ -262,7 +264,7 @@ export function usePrivateChatCallLayout() {
   })
 
   const remoteVideoConnected = computed(() =>
-    targetParticipant.value ? getEnumValue(targetParticipant.value.status) === USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE : false,
+    targetParticipant.value ? getEnumValue(targetParticipant.value.status) === MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE : false,
   )
 
   const localParticipantDetails = computed(() => principalStore.state.details?.metadata)

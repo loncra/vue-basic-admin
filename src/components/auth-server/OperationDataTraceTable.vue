@@ -15,7 +15,7 @@ import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import type {SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import {AUTH_SERVER_AUDIT_EVENT_ROUTE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";
+import {AUTH_SERVER_AUDIT_EVENT_ROUTE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants';
 
 defineOptions({
   name: 'LOperationDataTraceTable',

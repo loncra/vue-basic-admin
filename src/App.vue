@@ -15,7 +15,11 @@ const configProviderStore = useConfigProviderStore()
       :component-size="configProviderStore.state.componentSize"
       :theme="{ algorithm: configProviderStore.getAlgorithm(), token: configProviderStore.state.token }"
     >
-      <a-app :message="configProviderStore.state.messageConfig" :notification="configProviderStore.state.notificationConfig">
+      <a-app
+        class="min-h-screen bg-layout"
+        :message="configProviderStore.state.messageConfig"
+        :notification="configProviderStore.state.notificationConfig"
+      >
         <router-view v-slot="{ Component }">
           <transition name="fade-transform" mode="out-in">
             <component :is="Component"/>

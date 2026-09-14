@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import type {PersonalUserEntity} from '@loncra/client/auth'
-import {PersonalUserService} from '@loncra/client/auth'
+import {AUTH_SERVER_GENDER, PersonalUserService} from '@loncra/client/auth'
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {
   AUTH_SERVER_PERSONAL_USER_ROUTE,
-  GENDER,
   OPERATION_DATA_TRACE_TABLE,
-  YES_OR_NO_TYPE,
+  YES_OR_NO_TYPE
 } from '@/constants'
 
 defineOptions({
@@ -28,7 +27,7 @@ const entity = ref<PersonalUserEntity>({
   nickname: '',
   emailVerified: YES_OR_NO_TYPE.NO,
   phoneNumberVerified: YES_OR_NO_TYPE.NO,
-  gender: GENDER.UNKNOWN,
+  gender: AUTH_SERVER_GENDER.UNKNOWN,
   lastAuthenticationTime: 0,
   phoneNumber: '',
   status: {

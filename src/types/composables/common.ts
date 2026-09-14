@@ -24,7 +24,6 @@ export type TreeLike<T> = T & {
   children?: TreeLike<T>[]
 }
 
-
 /**
  * 树形节点条件判断函数类型
  * 用于判断树节点是否满足特定条件

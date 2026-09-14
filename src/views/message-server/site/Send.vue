@@ -5,6 +5,7 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import type {NameValueEnumMetadata} from "@loncra/client/commons";
 import type {ObjectWriteResult} from "@loncra/client/resource";
 import type {SiteMessageSendPayload} from "@loncra/client/message";
+import {MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from '@loncra/client/message'
 import {AuthServerService} from "@/apis";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LUserSelect from "@/components/basic/UserSelect.vue";
@@ -14,7 +15,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import {Editor as LEditor} from '@loncra/antdv'
 
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
-import {MESSAGE_TYPE_VALUE, YES_OR_NO_TYPE} from "@/constants";
+import {YES_OR_NO_TYPE} from '@/constants';
 import {loadMessageSendEnums} from "@/composables/message-server/useMessageSendFlow.ts";
 
 defineOptions({
@@ -42,7 +43,7 @@ const options = ref<{
   loading: false,
   form: {
     toUsers: [],
-    type: MESSAGE_TYPE_VALUE.NOTICE,
+    type: MESSAGE_SERVER_MESSAGE_TYPE_VALUE.NOTICE,
     content:"",
     title: "",
     pushable: YES_OR_NO_TYPE.YES,
@@ -157,7 +158,7 @@ onMounted(mounted);
             <a-input v-model:value="options.form.title" />
           </a-form-item>
           <a-form-item :label="globalProperties.$t('common.content')" name="content" :rules="[{required: true, trigger: 'change'}]">
-            <l-editor v-model:value="options.form.content" :height="400" />
+            <l-editor v-model:value="options.form.content" />
           </a-form-item>
           <a-form-item :label="globalProperties.$t('attachment.text')" name="attachmentList">
             <l-attachment-upload

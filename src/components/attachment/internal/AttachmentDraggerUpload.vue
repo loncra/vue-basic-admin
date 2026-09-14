@@ -7,7 +7,7 @@ import type {
   AttachmentDraggerUploadProps,
   AttachmentFileItem,
 } from "@/types/composables/attachmentUpload.ts";
-import {ATTACHMENT_PREVIEW_MODE} from "@/constants";
+import {ATTACHMENT_PREVIEW_MODE} from '@/constants';
 import {useAttachmentUploadFiles} from "@/composables/attachment/useAttachmentUploadFiles.js";
 import type {UploadChangeParam} from "antdv-next";
 import type {UploadFile} from "antdv-next/dist/upload/interface";

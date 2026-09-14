@@ -1,13 +1,14 @@
 import type {NameValueEnumMetadata, PageResult} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
 import type {AgentConversationEntity} from '@loncra/client/ai'
+import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
 import type {
   ActiveChatSession,
   ChatBubbleItem,
   ChatContentBlock,
 } from '@/types/composables/chat.ts'
 import type {Ref} from 'vue'
-import {AGENT_CHAT_STATUS, AGENT_CONTENT_TYPE} from '@/constants'
+
 import type {AgentMessageLoaderApi} from '@/composables/ai-server/agent/useAgentMessageLoader.ts'
 import type {ThoughtChainItemType} from "@antdv-next/x";
 
@@ -43,7 +44,7 @@ export interface AgentChatContext {
   stream: AgentStreamApi
 }
 
-export type AgentChatStatus = (typeof AGENT_CHAT_STATUS)[keyof typeof AGENT_CHAT_STATUS]
+export type AgentChatStatus = (typeof AI_SERVER_AGENT_CHAT_STATUS)[keyof typeof AI_SERVER_AGENT_CHAT_STATUS]
 
 export interface ProvideAgentChatContextOptions {
   view: Ref<AgentViewController | undefined>
@@ -116,16 +117,16 @@ export interface AgentSseMessageContent {
   sseEventId: string
   assistantMessageId:number
   id: string
-  type: typeof AGENT_CONTENT_TYPE.THINK
-    | typeof AGENT_CONTENT_TYPE.ANSWER
-    | typeof AGENT_CONTENT_TYPE.ERROR
-    | typeof AGENT_CONTENT_TYPE.TOOL
-    | typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
-    | typeof AGENT_CONTENT_TYPE.TOKEN_USAGE
-    | typeof AGENT_CONTENT_TYPE.STREAM_END
-    | typeof AGENT_CONTENT_TYPE.STREAM_STOP
-    | typeof AGENT_CONTENT_TYPE.STREAM_START
-    | typeof AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
+  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.THINK
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.ANSWER
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.ERROR
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.TOOL
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.TOKEN_USAGE
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.STREAM_END
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.STREAM_STOP
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.STREAM_START
+    | typeof AI_SERVER_AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
 }
 
 export interface BlockRunningContentMetadata extends AgentSseMessageContent{
@@ -150,27 +151,27 @@ export interface AgentToolCallBlock extends BlockDeltaContentMetadata {
   hitlStatus:string,
   userConfirmed?:boolean,
   groupId:string
-  type: typeof AGENT_CONTENT_TYPE.TOOL
+  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.TOOL
 }
 
 export interface AgentThinkBlock extends BlockDeltaContentMetadata {
-  type: typeof AGENT_CONTENT_TYPE.THINK,
+  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.THINK,
   expanded?:boolean
 }
 
 export interface AgentAnswerBlock extends BlockDeltaContentMetadata {
-  type: typeof AGENT_CONTENT_TYPE.ANSWER
+  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.ANSWER
 }
 
 export interface AgentErrorBlock extends CustomizeContentMetadata {
-  type: typeof AGENT_CONTENT_TYPE.ERROR
+  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.ERROR
   metadata:{
     message:string
   }
 }
 
 export interface GenerateConversationName extends CustomizeContentMetadata {
-  type: typeof AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
+  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME
   metadata:{
     name:string
   }
@@ -178,7 +179,7 @@ export interface GenerateConversationName extends CustomizeContentMetadata {
 
 export interface AgentStatusChangeSse extends AgentSseMessageContent {
   status:NameValueEnumMetadata<number> | number
-  type: typeof AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
+  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE
 }
 
 export interface AgentTokenUsageContent extends AgentSseMessageContent {
@@ -186,7 +187,7 @@ export interface AgentTokenUsageContent extends AgentSseMessageContent {
   outputTokens:number
   cachedTokens:number
   usageType:NameValueEnumMetadata<string> | string
-  type: typeof AGENT_CONTENT_TYPE.TOKEN_USAGE
+  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.TOKEN_USAGE
 }
 
 export interface BlockGroup {

@@ -8,7 +8,7 @@ import type {
   ModelSettingManufacturerMetadata,
   ModelSettingSavePayload
 } from '@loncra/client/ai'
-import {ModelSettingService} from '@loncra/client/ai'
+import {AI_SERVER_MODEL_TYPE, ModelSettingService} from '@loncra/client/ai'
 import {booleanToYesOrNo, getEnumValue, requireNonNullOrUndefined, yesOrNoToBoolean} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
@@ -22,13 +22,12 @@ import {
   MODEL_GENERATE_OPTION_NUMBER_KEYS,
   MODEL_GENERATE_OPTION_STRING_KEYS,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  MODEL_TYPE,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   VALUE_TYPE,
-  YES_OR_NO_TYPE,
+  YES_OR_NO_TYPE
 } from '@/constants'
 
 defineOptions({
@@ -108,7 +107,7 @@ const options = ref<{
     name: '',
     model: '',
     icon: null,
-    type: MODEL_TYPE.CHAT,
+    type: AI_SERVER_MODEL_TYPE.CHAT,
     enabled: YES_OR_NO_TYPE.YES,
     remark: '',
     description: '',

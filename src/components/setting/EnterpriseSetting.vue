@@ -2,17 +2,19 @@
 
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {
-  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
-  AUTHENTICATION_TYPE,
   ICON_SELECT_AVATAR_MODE_VALUE,
   ICON_SELECT_MODE,
-  OPERATION_DATA_TRACE_TABLE,
-} from "@/constants";
+  OPERATION_DATA_TRACE_TABLE
+} from '@/constants';
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 import type {EnterprisePayload, PersonalEnterprise} from "@loncra/client/auth";
-import {EnterpriseService} from "@loncra/client/auth";
+import {
+  AUTH_SERVER_AUTHENTICATION_TYPE,
+  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
+  EnterpriseService
+} from "@loncra/client/auth";
 import type {RestResult} from "@loncra/client/commons";
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {IconfontJson} from "@/types/composables";
@@ -111,7 +113,7 @@ async function doLeave(id:number) {
       <a-typography-text strong>
         {{ $t('systemSetting.enterprise.title') }}
       </a-typography-text>
-      <a-button v-if="principalStore.state.type === AUTHENTICATION_TYPE.PERSONAL" size="small" @click="options.modal.open = true">
+      <a-button v-if="principalStore.state.type === AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL" size="small" @click="options.modal.open = true">
         <template #icon>
           <icon-font class="icon" type="loncra-building" />
         </template>
@@ -209,7 +211,7 @@ async function doLeave(id:number) {
               </template>
               {{$t('auth.personalAccount')}}
             </a-tag>
-            <a-tag color="success" v-if="principalStore.state.type === AUTHENTICATION_TYPE.PERSONAL">
+            <a-tag color="success" v-if="principalStore.state.type === AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL">
               <template #icon>
                 <icon-font type="loncra-user-round-check"/>
               </template>
@@ -219,7 +221,7 @@ async function doLeave(id:number) {
 
           <a-space class="shrink-0">
             <a-button
-              v-if="principalStore.state.type !== AUTHENTICATION_TYPE.PERSONAL"
+              v-if="principalStore.state.type !== AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL"
               size="small"
               @click.stop="principalStore.switchWorkspace(undefined)"
             >

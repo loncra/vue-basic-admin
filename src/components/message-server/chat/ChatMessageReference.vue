@@ -5,7 +5,7 @@ import {AuthServerService} from "@/apis";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
-import {USER_CHAT_PARTICIPANT_TYPE} from "@/constants";
+import {MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE} from '@loncra/client/message'
 
 defineOptions({
   name: 'LChatMessageReference',
@@ -32,11 +32,11 @@ const emit = defineEmits<{
     @click="emit('click', props.message)"
     class="cursor-pointer inline-flex max-w-80 items-center"
     v-bind="$attrs"
-    :color="getEnumValue(props.message.participant.type) !== USER_CHAT_PARTICIPANT_TYPE.MEMBER ? 'gold' : undefined"
+    :color="getEnumValue(props.message.participant.type) !== MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.MEMBER ? 'gold' : undefined"
   >
     <a-flex class="min-w-0 max-w-full flex-1 items-center overflow-hidden" :gap="0">
       <a-typography-text class="shrink-0">
-        <template v-if="getEnumValue(props.message.participant.type) !== USER_CHAT_PARTICIPANT_TYPE.MEMBER">
+        <template v-if="getEnumValue(props.message.participant.type) !== MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.MEMBER">
           [{{getEnumName(props.message.participant.type)}}]
         </template>
         <template v-if="principalStore.isCurrentPrincipal(props.message.principal)">

@@ -12,10 +12,10 @@ import type {UserChatMessageResponseBody} from '@/types/apis'
 import type {FilterRequest, PageResult, RestResult, TotalPage} from '@loncra/client/commons'
 import type {ObjectItemInfo} from '@loncra/client/resource'
 import {AttachmentService} from '@loncra/client/resource'
-import {ChatMessageService} from '@loncra/client/message'
+import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 
 import {createIcon, dateFormat, requireNonNullOrUndefined} from '@/utils'
-import {DEFAULT_PAGE_RESULT_VALUE, USER_CHAT_MESSAGE_TYPE} from '@/constants'
+import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {Dayjs} from 'dayjs'
 
 /**
@@ -131,7 +131,7 @@ export function useChatHistories(roomId: Ref<number>) {
       number: number,
       withoutReadableAnchor: true,
       totalPage: true,
-      'filter_[type_eq]': USER_CHAT_MESSAGE_TYPE.USER,
+      'filter_[type_eq]': MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.USER,
     }
     loading.value = true
     try {

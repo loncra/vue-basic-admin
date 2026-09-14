@@ -7,12 +7,12 @@ import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
   AUTHENTICATION_MEMBER_TYPE,
-  AUTHENTICATION_TYPE,
   ICON_SELECT_AVATAR_MODE_VALUE
-} from "@/constants";
+} from '@/constants';
 import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {PersonalEnterprise} from "@loncra/client/auth";
+import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
 
 defineOptions({
   name: 'LLogo',
@@ -38,7 +38,7 @@ const switchItems = computed(()=>{
   result.push({
     type:'group',
     label:globalProperties.$t('systemSetting.enterprise.title'),
-    key:AUTHENTICATION_TYPE.ENTERPRISE,
+    key:AUTH_SERVER_AUTHENTICATION_TYPE.ENTERPRISE,
     icon:createIcon('loncra-building', 'align'),
     children:principalStore
       .state
@@ -46,15 +46,15 @@ const switchItems = computed(()=>{
       .map(item => ({
         data:item,
         label:item.name,
-        key:getMenuItemKey(AUTHENTICATION_TYPE.ENTERPRISE, item.tenantId ?? ''),
-        menuType:AUTHENTICATION_TYPE.ENTERPRISE
+        key:getMenuItemKey(AUTH_SERVER_AUTHENTICATION_TYPE.ENTERPRISE, item.tenantId ?? ''),
+        menuType:AUTH_SERVER_AUTHENTICATION_TYPE.ENTERPRISE
       }))
   },{
     type: 'divider',
   },{
     label:principalStore.getName(),
-    key:getMenuItemKey(AUTHENTICATION_TYPE.PERSONAL,principalStore.state.details.metadata.tenantId),
-    menuType:AUTHENTICATION_TYPE.PERSONAL,
+    key:getMenuItemKey(AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL,principalStore.state.details.metadata.tenantId),
+    menuType:AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL,
   })
   return result
 })
@@ -65,7 +65,7 @@ function getMenuItemKey(type:string, tenantId:string) {
 
 function getWorkspaceId(key:string) : number | undefined {
   const [type, tenantId] = key.split(":")
-  if (!tenantId || type === AUTHENTICATION_TYPE.PERSONAL) {
+  if (!tenantId || type === AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL) {
     return undefined
   }
   return principalStore.state.enterpriseDataSource.find(item => item.tenantId === tenantId)?.id
@@ -119,7 +119,7 @@ async function onSwitch(item: { key:string }) {
           <a-flex
             gap="small"
             align="center"
-            v-if="item.menuType === AUTHENTICATION_TYPE.ENTERPRISE"
+            v-if="item.menuType === AUTH_SERVER_AUTHENTICATION_TYPE.ENTERPRISE"
           >
             <a-tag :color="AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR[Number(getEnumValue(item.data.role))] || 'purple'" variant="outlined">
               <template #icon>

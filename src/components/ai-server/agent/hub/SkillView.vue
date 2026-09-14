@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import {ResourceServerService} from '@/apis'
 import type {SkillPackageEntity, UserPluginInstallResult} from '@loncra/client/ai'
-import {AiSkillPackageService, AiUserPluginInstallService} from '@loncra/client/ai'
+import {
+  AI_SERVER_PLUGIN_TARGET_TYPE,
+  AiSkillPackageService,
+  AiUserPluginInstallService
+} from '@loncra/client/ai'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import type {PageRequest, RestResult, TotalPage} from '@loncra/client/commons'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
   DATA_DICTIONARY_ALL_CODE,
   DEFAULT_PAGE_RESULT_VALUE,
-  PLUGIN_TARGET_TYPE,
-  SKILL_GROUP_CODE_PREFIX,
+  SKILL_GROUP_CODE_PREFIX
 } from '@/constants'
 import {addAllDataDictionary, requireNonNullOrUndefined} from '@/utils'
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
@@ -130,7 +133,7 @@ onMounted(mounted)
           <l-agent-hub-plugin-info-card
             :data-source="dataSource"
             :installs="props.installs"
-            :target-type="PLUGIN_TARGET_TYPE.SKILL"
+            :target-type="AI_SERVER_PLUGIN_TARGET_TYPE.SKILL"
             @change-page="onChangePage"
             @installed="emits('installed', $event)"
             @uninstalled="emits('uninstalled', $event)"

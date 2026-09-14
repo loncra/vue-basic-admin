@@ -15,7 +15,7 @@ import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 import type {TableProps} from "antdv-next";
-import {SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from "@/constants";
+import {SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";

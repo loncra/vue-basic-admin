@@ -12,7 +12,7 @@ import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {DefaultOptionType} from '@v-c/select'
 import {requireNonNullOrUndefined} from "@/utils";
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from "@/constants";
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants';
 
 defineOptions({
   name: 'LUserSelect',

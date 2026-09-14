@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {AgentToolCallBlock, ChatBubbleItem,} from '@/types/composables'
-import {AGENT_TOOL_BLOCK_STATUS, STREAM_RUNNING_STATUS_VALUE} from "@/constants"
+import {STREAM_RUNNING_STATUS_VALUE} from '@/constants'
 import {Markdown as LMarkdown, MarkdownCodeRenderer as LMarkdownCodeRenderer} from '@loncra/antdv'
 
 import {RightOutlined,} from '@antdv-next/icons'
@@ -14,6 +14,7 @@ import {
 } from "@/composables";
 import type {AgentMessageEntity} from "@/types/apis";
 import {getEnumName, getEnumValue} from "@/utils";
+import {AI_SERVER_AGENT_TOOL_BLOCK_STATUS} from '@loncra/client/ai'
 
 defineOptions({
   name: 'LAgentAssistantBubbleContent',
@@ -163,7 +164,7 @@ const {
                 </div>
               </template>
               <template #footer="{ item }">
-                <a-space v-if="item.data.hitlStatus === AGENT_TOOL_BLOCK_STATUS.PENDING && item.data.userConfirmed === undefined">
+                <a-space v-if="item.data.hitlStatus === AI_SERVER_AGENT_TOOL_BLOCK_STATUS.PENDING && item.data.userConfirmed === undefined">
                   <a-button size="small" type="primary" @click="clickToolConfirmed(item.data as AgentToolCallBlock, true)">
                     <template #icon>
                       <icon-font type="loncra-clipboard-check" />

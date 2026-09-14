@@ -9,7 +9,7 @@ import {getEnumValue} from "@/utils";
 import type {RoleEntity} from '@loncra/client/auth';
 
 import type {ActionDefinition} from '@/types/composables';
-import {YES_OR_NO_TYPE} from "@/constants";
+import {YES_OR_NO_TYPE} from '@/constants';
 
 defineOptions({
   name: 'AuthServerRoleHome'

@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TPage extends ScrollPageResult<TEntity>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
 
 import type {BasicIdMetadata, ScrollPageResult, TreeSortMetadata} from "@loncra/client/commons";
-import {SYSTEM_CONSTANT} from "@/constants";
+import {SYSTEM_CONSTANT} from '@/constants';
 import {App} from "antdv-next";
 import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref, useSlots,} from "vue";

@@ -2,7 +2,7 @@
 import {useMenuPrincipalStore} from '@/stores/menuStore.ts'
 import LProfileButton from '@/components/config/ProfilesButton.vue'
 import LMenu from '@/components/layout/Menu.vue'
-import {RESOURCE_TYPE} from "@/constants";
+import {AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 
 defineOptions({
   name: 'LLayoutHeader',
@@ -37,7 +37,7 @@ const menuPrincipalStore = useMenuPrincipalStore()
       <a-space align="center">
         <l-menu
           :badges="['my_message']"
-          :menu-types="[RESOURCE_TYPE.TOOL]"
+          :menu-types="[AUTH_SERVER_RESOURCE_TYPE.TOOL]"
           :hide-label="true"
           icon-class="align"
           mode="horizontal"

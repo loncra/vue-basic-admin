@@ -20,7 +20,7 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import {mergeDefinitions} from "@/composables/basic/action";
-import {AUTH_SERVER_ROLE_AUTHORITY, AUTH_SERVER_ROLE_ROUTE, SYSTEM_MODULE_NAME} from "@/constants";
+import {AUTH_SERVER_ROLE_AUTHORITY, AUTH_SERVER_ROLE_ROUTE, SYSTEM_MODULE_NAME} from '@/constants';
 
 defineOptions({
   name: 'LRoleTable',

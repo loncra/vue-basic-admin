@@ -2,8 +2,8 @@
 import {useConfigProviderStore} from '@/stores/configProviderStore.js'
 import LLogo from '@/components/Logo.vue'
 import LMenu from '@/components/layout/Menu.vue'
-import {RESOURCE_TYPE} from "@/constants";
 import {ref} from "vue";
+import {AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 
 defineOptions({
   name: 'LLayoutSider',
@@ -34,7 +34,7 @@ defineExpose({
         </a-flex>
       </a-layout-header>
       <div class="h-full overflow-auto bg-container">
-        <l-menu :menu-types="[RESOURCE_TYPE.MENU, RESOURCE_TYPE.ROOT, RESOURCE_TYPE.DIRECTORY]" mode="inline"/>
+        <l-menu :menu-types="[AUTH_SERVER_RESOURCE_TYPE.MENU, AUTH_SERVER_RESOURCE_TYPE.ROOT, AUTH_SERVER_RESOURCE_TYPE.DIRECTORY]" mode="inline"/>
       </div>
     </a-flex>
   </a-layout-sider>

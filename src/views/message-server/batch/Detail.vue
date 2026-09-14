@@ -3,13 +3,17 @@ import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {BatchMessageEntity} from "@loncra/client/message";
-import {BatchMessageService, SiteMessageService} from "@loncra/client/message";
+import {
+  BatchMessageService,
+  MESSAGE_SERVER_MESSAGE_TYPE_VALUE,
+  SiteMessageService
+} from "@loncra/client/message";
 import type {RestResult} from "@loncra/client/commons";
 import LSmsTable from "@/components/message-server/SmsTable.vue";
 import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
 
-import {MESSAGE_SERVER_BATCH_ROUTE, MESSAGE_TYPE_VALUE} from "@/constants";
+import {MESSAGE_SERVER_BATCH_ROUTE} from '@/constants';
 
 defineOptions({
   name: 'MessageServerBatchDetail'
@@ -28,7 +32,7 @@ const entity = ref<BatchMessageEntity>({
   failNumber: 0,
   id: 0,
   successNumber: 0,
-  type: MESSAGE_TYPE_VALUE.NOTICE,
+  type: MESSAGE_SERVER_MESSAGE_TYPE_VALUE.NOTICE,
   version: 0
 })
 

@@ -5,12 +5,8 @@ import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import LAttachmentUpload from "@/components/attachment/AttachmentUpload.vue";
 import type {EmailMessageEntity} from "@loncra/client/message";
-import {EmailMessageService} from "@loncra/client/message";
-import {
-  MESSAGE_SERVER_EMAIL_ROUTE,
-  MESSAGE_TYPE_VALUE,
-  OPERATION_DATA_TRACE_TABLE
-} from "@/constants";
+import {EmailMessageService, MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from "@loncra/client/message";
+import {MESSAGE_SERVER_EMAIL_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
 
 defineOptions({
   name: 'MessageServerEmailDetail',
@@ -30,7 +26,7 @@ const entity = ref<EmailMessageEntity>({
   fromEmail:"",
   title: "",
   toEmail: "",
-  type: MESSAGE_TYPE_VALUE.NOTICE,
+  type: MESSAGE_SERVER_MESSAGE_TYPE_VALUE.NOTICE,
   version: 0
 })
 

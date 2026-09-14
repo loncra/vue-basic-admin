@@ -7,15 +7,15 @@ import type {
 } from '@/types/composables'
 import {
   AGENT_CHAT_CONTEXT_PROVIDE_KEY,
-  AGENT_CONVERSATION_TYPE,
   CHAT_BUBBLE_TYPE,
   DEFAULT_PAGE_RESULT_VALUE,
-  STREAM_RUNNING_STATUS_VALUE,
+  STREAM_RUNNING_STATUS_VALUE
 } from '@/constants'
 import {inject, provide, ref, type Ref} from 'vue'
 import {useAgentMessageLoader, useAgentStream} from '@/composables'
 import {filterTreeDeep, findFirstTreeNode, getEnumValue, unmergeTree} from '@/utils'
 import type {AgentMessageEntity} from "@/types/apis";
+import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
 
 export function ensureConversationDraft(item: AgentConversationItem): void {
   if (!item.draft) {
@@ -115,7 +115,7 @@ export function provideAgentChatContext(options: ProvideAgentChatContextOptions)
     }
 
     if (
-      getEnumValue(conversationActive.value.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION
+      getEnumValue(conversationActive.value.type) !== AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION
     ) {
       updateMenuOptions(conversationActive.value)
       return conversationActive.value

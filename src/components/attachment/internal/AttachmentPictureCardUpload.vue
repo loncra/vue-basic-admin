@@ -5,7 +5,7 @@ import type {
   AttachmentPictureCardUploadProps,
 } from "@/types/composables/attachmentUpload.ts";
 import LAttachmentPreview from "@/components/attachment/AttachmentPreview.vue";
-import {ATTACHMENT_PREVIEW_MODE} from "@/constants";
+import {ATTACHMENT_PREVIEW_MODE} from '@/constants';
 import {useAttachmentUploadFiles} from "@/composables/attachment/useAttachmentUploadFiles.js";
 import {computed, useSlots} from "vue";
 import type {UploadChangeParam} from "antdv-next";

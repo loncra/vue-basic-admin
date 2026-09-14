@@ -31,7 +31,7 @@ import {
   MESSAGE_SERVER_EMAIL_ROUTE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
-} from "@/constants";
+} from '@/constants';
 
 defineOptions({
   name: 'LEmailTable',

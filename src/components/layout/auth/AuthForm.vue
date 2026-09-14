@@ -4,10 +4,12 @@ import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted,
 import type {AuthFormProp} from '@/types/apis'
 import {BusinessError, type RestResult} from '@loncra/client/commons'
 import type {AuthCredentials, AuthenticationType, LoginType} from '@loncra/client/auth'
+import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTH_SERVER_LOGIN_TYPE} from '@loncra/client/auth'
 import type {CaptchaGenerationResult, CaptchaToken} from '@loncra/client/resource'
+import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
-import {AUTHENTICATION_TYPE, CAPTCHA_TOKEN_TYPE, LOGIN_TYPE, VALID_REGX} from '@/constants'
+import {VALID_REGX} from '@/constants'
 import {createIcon, requireNonNullOrUndefined, validatePassword} from '@/utils'
 import {ResourceServerService} from "@/apis";
 import type {TianaiCaptchaInstance} from "../../../../env";
@@ -30,25 +32,25 @@ const props = withDefaults(defineProps<AuthFormProp>(), {
 
 const {message} = useApp()
 
-const authenticationType = computed<AuthenticationType>(() => String(globalProperties.$route.params.authenticationType || AUTHENTICATION_TYPE.CONSOLE).toUpperCase() as AuthenticationType)
+const authenticationType = computed<AuthenticationType>(() => String(globalProperties.$route.params.authenticationType || AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE).toUpperCase() as AuthenticationType)
 
 const segmentedData = computed(() => {
   const result = [{
     label:globalProperties.$t('auth.accountLogin'),
-    value: String(LOGIN_TYPE.USERNAME_PASSWORD),
+    value: String(AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD),
     icon: createIcon('loncra-user', 'align'),
   }]
   if (props.enablePhoneAuth) {
     result.push({
       label:globalProperties.$t('auth.phoneLogin'),
-      value: String(LOGIN_TYPE.PHONE_CAPTCHA),
+      value: String(AUTH_SERVER_LOGIN_TYPE.PHONE_CAPTCHA),
       icon: createIcon('loncra-tablet-smartphone', 'align'),
     })
   }
   if (props.enableQrCodeAuth) {
     result.push({
       label:globalProperties.$t('auth.qrCodeLogin'),
-      value: String(LOGIN_TYPE.QR_CODE),
+      value: String(AUTH_SERVER_LOGIN_TYPE.QR_CODE),
       icon: createIcon('loncra-qr-code', 'align'),
     })
   }
@@ -56,8 +58,8 @@ const segmentedData = computed(() => {
 })
 
 const registerSubTitleMap = computed<Record<string, string>>(() => ({
-  [LOGIN_TYPE.PHONE_CAPTCHA]:globalProperties.$t('auth.register.phoneSubtitle'),
-  [LOGIN_TYPE.USERNAME_PASSWORD]:globalProperties.$t('auth.register.accountSubtitle')
+  [AUTH_SERVER_LOGIN_TYPE.PHONE_CAPTCHA]:globalProperties.$t('auth.register.phoneSubtitle'),
+  [AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD]:globalProperties.$t('auth.register.accountSubtitle')
 }))
 
 const description = computed(() => ({
@@ -65,7 +67,7 @@ const description = computed(() => ({
   subTitle:register.value ? registerSubTitleMap.value[segmentedKey.value] || '' : globalProperties.$t('auth.welcome.subTitle')
 }))
 
-const segmentedKey = ref<string>(LOGIN_TYPE.USERNAME_PASSWORD)
+const segmentedKey = ref<string>(AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD)
 
 const formRef = ref()
 const loading = ref(false)
@@ -88,7 +90,7 @@ const sendPhoneNumberCaptchaRef = ref<{
 const authForm = ref<AuthCredentials>({
   username: '',
   password: '',
-  loginType: LOGIN_TYPE.USERNAME_PASSWORD,
+  loginType: AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD,
 })
 
 function onAuth() {
@@ -103,7 +105,7 @@ async function onValidateThen() {
     accountLoginCaptchaRef.value.instance.show()
   } else if (register.value) {
     loading.value = true
-    const result:RestResult<CaptchaToken> = await ResourceServerService.generateCaptchaToken(CAPTCHA_TOKEN_TYPE.TIANAI)
+    const result:RestResult<CaptchaToken> = await ResourceServerService.generateCaptchaToken(RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.TIANAI)
     if (!result.data) {
       message.error(globalProperties.$t('error.global'))
       return
@@ -129,8 +131,8 @@ async function onValidateThen() {
 
 const doAuth = async (): Promise<void> => {
   loading.value = true
-  if (register.value && authForm.value.loginType === LOGIN_TYPE.USERNAME_PASSWORD) {
-    authForm.value.loginType = LOGIN_TYPE.USERNAME_PASSWORD_REGISTER
+  if (register.value && authForm.value.loginType === AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD) {
+    authForm.value.loginType = AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD_REGISTER
   }
   try {
     const data = await principalStore.login(authForm.value, authenticationType.value)
@@ -218,7 +220,7 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
       <a-segmented block :options="segmentedData" v-model:value="segmentedKey" @change="(value:LoginType) => authForm.loginType = value" />
 
       <l-form id="authForm" ref="formRef" @finish="onAuth" :model="authForm">
-        <div class="mb-lg" v-if="segmentedKey === LOGIN_TYPE.USERNAME_PASSWORD">
+        <div class="mb-lg" v-if="segmentedKey === AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD">
           <a-form-item name="username" :label="$t('auth.account')" :rules="[{required: true}]">
             <a-input autocomplete="current-username" v-model:value="authForm.username"/>
           </a-form-item>
@@ -236,7 +238,7 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
             <a-input-password v-model:value="authForm.confirmPassword" autocomplete="confirm-password"/>
           </a-form-item>
         </div>
-        <template v-else-if="segmentedKey === LOGIN_TYPE.PHONE_CAPTCHA">
+        <template v-else-if="segmentedKey === AUTH_SERVER_LOGIN_TYPE.PHONE_CAPTCHA">
           <a-form-item name="username" :label="$t('common.phoneNumber')" :rules="[{required: true}]">
             <a-space-compact block>
               <a-input autocomplete="current-username" @keydown.enter.prevent="sendPhoneNumberCaptcha()" v-model:value="authForm.username"/>
@@ -284,7 +286,7 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
       </l-form>
 
       <a-divider class="m-0"/>
-      <template v-if="authenticationType === AUTHENTICATION_TYPE.PERSONAL">
+      <template v-if="authenticationType === AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL">
         <a-flex justify="space-between" align="center" v-if="!register" >
           <a-typography class="text-center" >
             {{ globalProperties.$t('auth.noAccount') }}
@@ -304,7 +306,7 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
           {{ globalProperties.$t('auth.reLogin') }}
         </a-button>
       </template>
-      <div v-else-if="authenticationType === AUTHENTICATION_TYPE.CONSOLE" class="text-center">
+      <div v-else-if="authenticationType === AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE" class="text-center">
         <a-typography-link href="/forgot/password">{{ globalProperties.$t('auth.forgotPassword') }}</a-typography-link>
       </div>
     </a-flex>

@@ -2,12 +2,10 @@ import {onUnmounted, type Ref} from 'vue'
 import type {SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
 import {
-  AGENT_BLOCK_STATUS,
-  AGENT_CONTENT_TYPE,
   CHAT_BUBBLE_TYPE,
   STREAM_APPEND_TYPES,
   TOKEN_USAGE_TYPE,
-  UPDATE_CONVERSATION_TYPES,
+  UPDATE_CONVERSATION_TYPES
 } from '@/constants'
 import type {
   ActiveAgentConversationItem,
@@ -24,6 +22,7 @@ import type {
 import type {AgentMessageEntity, StreamAgentMessageEntity} from '@/types/apis'
 import {findFirstTreeNode, getEnumValue} from '@/utils'
 import {getConversationRuns} from "@/composables";
+import {AI_SERVER_AGENT_BLOCK_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
 
 /**
  * 订阅助手 SSE
@@ -77,7 +76,7 @@ export function useAgentStream(
       bubble.content = []
     }
 
-    const ALL_CONTENT_TYPES = Object.values(AGENT_CONTENT_TYPE) as string[]
+    const ALL_CONTENT_TYPES = Object.values(AI_SERVER_AGENT_CONTENT_TYPE) as string[]
     if (!ALL_CONTENT_TYPES.includes(sseData.type)) {
       return
     }
@@ -86,7 +85,7 @@ export function useAgentStream(
       const content = bubble.content as AgentSseMessageContent[]
       if (!content.some(s => s.id === sseData.id && sseData.type === s.type)) {
         content.push(sseData)
-        if (getEnumValue(sseData.type) === AGENT_CONTENT_TYPE.THINK) {
+        if (getEnumValue(sseData.type) === AI_SERVER_AGENT_CONTENT_TYPE.THINK) {
           (sseData as AgentThinkBlock).expanded = true
         }
       } else {
@@ -131,7 +130,7 @@ export function useAgentStream(
       return
     }
     const item = findFirstTreeNode(s => s.id === active.id, conversations.value);
-    if (sse.type === AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE) {
+    if (sse.type === AI_SERVER_AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE) {
       const status = getEnumValue((sse as AgentStatusChangeSse).status)
       active.status = status
       if (item) {
@@ -145,7 +144,7 @@ export function useAgentStream(
       }
       const message = element.data as AgentMessageEntity
       message.status = active.status
-    } else if (sse.type === AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME) {
+    } else if (sse.type === AI_SERVER_AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME) {
       const name = getEnumValue((sse as GenerateConversationName).metadata.name)
       active.name = name
       if (item) {
@@ -171,10 +170,10 @@ export function useAgentStream(
     if (chunk.endTime) {
       text.endTime = chunk.endTime
     }
-    if (getEnumValue(text.status) !== AGENT_BLOCK_STATUS.RUNNING && text.type === AGENT_CONTENT_TYPE.THINK) {
+    if (getEnumValue(text.status) !== AI_SERVER_AGENT_BLOCK_STATUS.RUNNING && text.type === AI_SERVER_AGENT_CONTENT_TYPE.THINK) {
       (text as AgentThinkBlock).expanded = false
     }
-    if (chunk.type === AGENT_CONTENT_TYPE.TOOL) {
+    if (chunk.type === AI_SERVER_AGENT_CONTENT_TYPE.TOOL) {
       const findToolCall = find as AgentToolCallBlock
       const chunkToolCall = chunk as AgentToolCallBlock
       if (chunkToolCall.outputText) {

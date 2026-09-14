@@ -1,19 +1,21 @@
 import {getEnumValue} from "@/utils/commonUtils.ts";
 import type {NameValueEnumMetadata} from "@loncra/client/commons";
 import type {UserChatCallEntity, UserChatRoomEntity} from "@loncra/client/message";
+import {
+  MESSAGE_SERVER_CHAT_CALL_SCENE,
+  MESSAGE_SERVER_CHAT_CALL_TYPE,
+  MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS,
+  MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
+} from '@loncra/client/message'
 import {createIcon} from "@/utils/resourceUtils.ts";
 import {
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
-  CHAT_CALL_SCENE,
-  CHAT_CALL_TYPE,
   PIP_MAX_WIDTH_PX,
   PIP_WIDTH_RATIO,
   USER_CHAT_CALL_PARTICIPANT_ERROR_STATUS_VALUE,
   USER_CHAT_CALL_PARTICIPANT_PROCESSING_STATUS_VALUE,
-  USER_CHAT_CALL_PARTICIPANT_STATUS,
-  USER_CHAT_ROOM_TYPE,
   VIDEO_CHAT_CONSTRAINTS
-} from "@/constants";
+} from '@/constants';
 import type {
   CallLayoutSpec,
   CallPanelStyle,
@@ -28,9 +30,9 @@ export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> |
     return "error"
   } else if (USER_CHAT_CALL_PARTICIPANT_PROCESSING_STATUS_VALUE.includes(value)) {
     return "processing"
-  } else if (value === USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE) {
+  } else if (value === MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE) {
     return "success"
-  } else if (value === USER_CHAT_CALL_PARTICIPANT_STATUS.NO_ANSWER) {
+  } else if (value === MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS.NO_ANSWER) {
     return "default"
   } else {
     return "warning"
@@ -39,7 +41,7 @@ export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> |
 
 export function getCallIcon(type:NameValueEnumMetadata<number> | number, vnode?:Record<string, unknown>) {
   let result: string;
-  if (getEnumValue(type) === CHAT_CALL_TYPE.VIDEO) {
+  if (getEnumValue(type) === MESSAGE_SERVER_CHAT_CALL_TYPE.VIDEO) {
     result = "loncra-video"
   } else {
     result = "loncra-mic"
@@ -57,7 +59,7 @@ export function getCallIcon(type:NameValueEnumMetadata<number> | number, vnode?:
  * @returns
  */
 export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
-  if (getEnumValue(callEntity.scene) === CHAT_CALL_SCENE.PRIVATE) {
+  if (getEnumValue(callEntity.scene) === MESSAGE_SERVER_CHAT_CALL_SCENE.PRIVATE) {
     return VIDEO_CHAT_CONSTRAINTS.PREVATE;
   } else {
     return VIDEO_CHAT_CONSTRAINTS.GROUP;
@@ -65,7 +67,7 @@ export function getMediaStreamConstraintsByCall(callEntity:UserChatCallEntity) {
 }
 
 export function getMediaStreamConstraintsByRoom(room:UserChatRoomEntity) {
-  if (getEnumValue(room.type) === USER_CHAT_ROOM_TYPE.PRIVATE_CHAT) {
+  if (getEnumValue(room.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.PRIVATE_CHAT) {
     return VIDEO_CHAT_CONSTRAINTS.PREVATE;
   } else {
     return VIDEO_CHAT_CONSTRAINTS.GROUP;

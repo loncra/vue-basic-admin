@@ -2,12 +2,13 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import {AgentService} from '@/apis'
 import type {RestResult} from '@loncra/client/commons'
 import {createIcon, findFirstTreeNode, getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {AGENT_CHAT_STATUS, AGENT_CHAT_STATUS_STYLE, AGENT_CONVERSATION_TYPE} from '@/constants'
+import {AGENT_CHAT_STATUS_STYLE} from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
 import type {AgentChatStatus, AgentConversationItem} from "@/types/composables";
 import type {MenuInfo} from "@v-c/menu";
 import {type MenuItemType, type MenuProps} from "antdv-next";
 import {ensureConversationDraftTree, useAgentChatContext} from "@/composables";
+import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
 
 export function useAgentConversation(params:{
   onActivateConversation:(conversation:AgentConversationItem) => void
@@ -31,7 +32,7 @@ export function useAgentConversation(params:{
       items: [] as MenuItemType[],
       onClick: (menuItem: MenuInfo) => onOperationMenuClick(menuItem, conversation),
     }
-    if (getEnumValue(conversation.type) !== AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE) {
+    if (getEnumValue(conversation.type) !== AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE) {
       menu.items.push(
         {
           label: globalProperties.$t('common.rename'),
@@ -48,7 +49,7 @@ export function useAgentConversation(params:{
           icon: () => createIcon('loncra-archive-x'),
         },)
     }
-    if (getEnumValue(conversation.type) !== AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
+    if (getEnumValue(conversation.type) !== AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
       menu.items.unshift({
         label: globalProperties.$t('agent.creation'),
         key: 'creation',
@@ -106,7 +107,7 @@ export function useAgentConversation(params:{
       let activate;
       if (!switchItemId) {
         activate = conversations.value
-          .find(c => getEnumValue(c.type) === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE)
+          .find(c => getEnumValue(c.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE)
       } else {
         activate = conversations.value
           .find(c => c.id === switchItemId)
@@ -132,7 +133,7 @@ export function useAgentConversation(params:{
         key: String(crypto.randomUUID()),
         name: '',
         editing: true,
-        type:AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE,
+        type:AI_SERVER_AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE,
         draft: [],
       },
       ...conversations.value,
@@ -172,7 +173,7 @@ export function useAgentConversation(params:{
 
   function getAgentChatStatusStyle(status: unknown) {
     const value = Number(getEnumValue(status as number)) as AgentChatStatus
-    return AGENT_CHAT_STATUS_STYLE[value] ?? AGENT_CHAT_STATUS_STYLE[AGENT_CHAT_STATUS.READY]
+    return AGENT_CHAT_STATUS_STYLE[value] ?? AGENT_CHAT_STATUS_STYLE[AI_SERVER_AGENT_CHAT_STATUS.READY]
   }
 
   async function onConversationMenuClick(m:MenuInfo) {

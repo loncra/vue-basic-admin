@@ -11,18 +11,17 @@ import type {
   ThoughtChainItemDataType
 } from "@/types/composables";
 import {getEnumValue} from "@/utils";
-import {
-  AGENT_BLOCK_STATUS,
-  AGENT_CONTENT_TYPE,
-  AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE,
-  AGENT_TOOL_BLOCK_STATUS,
-  BLOCK_RUNNING_STATUS_VALUE
-} from "@/constants";
+import {AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE, BLOCK_RUNNING_STATUS_VALUE} from '@/constants';
 import {computed, reactive} from "vue";
 import type {ThoughtChainItemType} from "@antdv-next/x";
 import type {RestResult} from "@loncra/client/commons";
 import {AgentService} from "@/apis";
 import {useAgentChatContext} from "@/composables";
+import {
+  AI_SERVER_AGENT_BLOCK_STATUS,
+  AI_SERVER_AGENT_CONTENT_TYPE,
+  AI_SERVER_AGENT_TOOL_BLOCK_STATUS
+} from '@loncra/client/ai'
 
 /** 是否正在运行（THINK / ANSWER / TOOL 共用） */
 export function isBlockRunning(block: BlockRunningContentMetadata): boolean {
@@ -58,7 +57,7 @@ export function getTavilyExtractResult(json:string){
 export function findToolConfirmedItem(tools:AgentToolCallBlock[]) {
   return tools
     .filter(s => AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE.includes(s.hitlStatus))
-    .filter(s => getEnumValue(s.status) === AGENT_BLOCK_STATUS.PENDING)
+    .filter(s => getEnumValue(s.status) === AI_SERVER_AGENT_BLOCK_STATUS.PENDING)
     .filter(s => s.userConfirmed === undefined) || []
 }
 
@@ -69,13 +68,13 @@ export function hasToolConfirmed(tools:AgentToolCallBlock[]) {
 /** TOOL 状态 → ThoughtChainItemType.status */
 export function getToolChainStatus(block: AgentToolCallBlock): ThoughtChainItemType['status'] {
   const status = getEnumValue(block.status)
-  if (status === AGENT_BLOCK_STATUS.RUNNING) {
+  if (status === AI_SERVER_AGENT_BLOCK_STATUS.RUNNING) {
     return 'loading'
-  } else if (block.resultState === 'error' || status === AGENT_BLOCK_STATUS.FAILED) {
+  } else if (block.resultState === 'error' || status === AI_SERVER_AGENT_BLOCK_STATUS.FAILED) {
     return 'error'
   } else if (block.resultState === 'success') {
     return 'success'
-  } else if (block.userConfirmed === false && getEnumValue(block.status) === AGENT_BLOCK_STATUS.DONE) {
+  } else if (block.userConfirmed === false && getEnumValue(block.status) === AI_SERVER_AGENT_BLOCK_STATUS.DONE) {
     return 'abort'
   }
   return undefined
@@ -104,14 +103,14 @@ export function useAgentAssistantBubble(
     for (const block of item.content as AgentSseMessageContent[]) {
       const type = getEnumValue(block.type)
 
-      if (type === AGENT_CONTENT_TYPE.THINK) {
+      if (type === AI_SERVER_AGENT_CONTENT_TYPE.THINK) {
         ensureGroup(block.id).thinkBlock = block as AgentThinkBlock
-      } else if (type === AGENT_CONTENT_TYPE.ANSWER) {
+      } else if (type === AI_SERVER_AGENT_CONTENT_TYPE.ANSWER) {
         ensureGroup(block.id).answerBlock = block as AgentAnswerBlock
-      } else if (type === AGENT_CONTENT_TYPE.TOOL) {
+      } else if (type === AI_SERVER_AGENT_CONTENT_TYPE.TOOL) {
         const toolBlock = block as AgentToolCallBlock
         ensureGroup(toolBlock.groupId || toolBlock.id).toolBlocks.push(toolBlock)
-      } else if (type === AGENT_CONTENT_TYPE.ERROR) {
+      } else if (type === AI_SERVER_AGENT_CONTENT_TYPE.ERROR) {
         ensureGroup(block.id).errorBlock = block as AgentErrorBlock
       }
     }
@@ -144,7 +143,7 @@ export function useAgentAssistantBubble(
 
   /** TOOL → ThoughtChain item */
   function toThoughtChainItem(block: AgentToolCallBlock): ThoughtChainItemDataType {
-    const running = getEnumValue(block.status) === AGENT_BLOCK_STATUS.RUNNING
+    const running = getEnumValue(block.status) === AI_SERVER_AGENT_BLOCK_STATUS.RUNNING
     return {
       key: block.id,
       title: block.name,
@@ -177,13 +176,13 @@ export function useAgentAssistantBubble(
     findTool.userConfirmed = confirmed
 
     const tools = contents
-      .filter(s => s.type === AGENT_CONTENT_TYPE.TOOL)
+      .filter(s => s.type === AI_SERVER_AGENT_CONTENT_TYPE.TOOL)
       .map(s => s as AgentToolCallBlock)
     if (!hasToolConfirmed(tools)) {
 
       const toolBlocks = contents
-        .filter(s => s.type === AGENT_CONTENT_TYPE.TOOL)
-        .filter(s => getEnumValue((s as AgentToolCallBlock).status) === AGENT_BLOCK_STATUS.PENDING)
+        .filter(s => s.type === AI_SERVER_AGENT_CONTENT_TYPE.TOOL)
+        .filter(s => getEnumValue((s as AgentToolCallBlock).status) === AI_SERVER_AGENT_BLOCK_STATUS.PENDING)
         .filter(s => (s as AgentToolCallBlock).userConfirmed !== undefined)
       const confirmResults = toolBlocks.map(s => ({
           toolCallId: (s as AgentToolCallBlock).id,
@@ -192,7 +191,7 @@ export function useAgentAssistantBubble(
       const result:RestResult<AgentChatBasicResponseBody> = await AgentService.resume({assistantMessageId:Number(item.key), confirmResults})
       if (result.data) {
         stream.connect(Number(item.key), false)
-        toolBlocks.forEach(s => (s as AgentToolCallBlock).hitlStatus = AGENT_TOOL_BLOCK_STATUS.FINISHED)
+        toolBlocks.forEach(s => (s as AgentToolCallBlock).hitlStatus = AI_SERVER_AGENT_TOOL_BLOCK_STATUS.FINISHED)
       }
     }
   }

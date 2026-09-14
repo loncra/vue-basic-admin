@@ -2,7 +2,12 @@
 
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {EnterpriseMemberEntity} from "@loncra/client/auth";
-import {EnterpriseMemberService} from "@loncra/client/auth";
+import {
+  AUTH_SERVER_AUDIT_STATUS_VALUE,
+  AUTH_SERVER_AUTHENTICATION_TYPE,
+  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
+  EnterpriseMemberService
+} from "@loncra/client/auth";
 import {
   type ComponentInternalInstance,
   computed,
@@ -27,16 +32,13 @@ import {
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import {
-  AUDIT_STATUS_VALUE,
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
-  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE,
   AUTH_SERVER_SYSTEM_USER_AUTHORITY,
-  AUTHENTICATION_TYPE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
-} from "@/constants";
+} from '@/constants';
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import LForm from "@/components/Form.vue";
 import {isBusinessSuccess} from "@/requests";
@@ -217,7 +219,7 @@ function rowActions(): ActionDefinition<EnterpriseMemberEntity>[] {
     result.push({
       id: 'audit',
         permission: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.AUDIT,
-        enabled: (ctx) => getEnumValue(ctx.record!.auditStatus ?? 0) === AUDIT_STATUS_VALUE.AUDITABLE,
+        enabled: (ctx) => getEnumValue(ctx.record!.auditStatus ?? 0) === AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE,
         label: () => globalProperties.$t('common.audit.text'),
         icon: () => createIcon('loncra-vote'),
         run: (ctx) => auditItems([ctx.record!]),
@@ -239,7 +241,7 @@ function rowActions(): ActionDefinition<EnterpriseMemberEntity>[] {
           content: globalProperties.$t('auth.adminResetPassword.confirmSingle'),
           onOk: async () => {
             const result = await AuthServerService.adminResetPassword(
-              AUTHENTICATION_TYPE.ENTERPRISE,
+              AUTH_SERVER_AUTHENTICATION_TYPE.ENTERPRISE,
               String(ctx.record!.id),
             )
             if (isBusinessSuccess(result)) {
@@ -261,7 +263,7 @@ function rowActions(): ActionDefinition<EnterpriseMemberEntity>[] {
 
 function getAuditSelectedEntities(selectedItems: EnterpriseMemberEntity[]) {
     return selectedItems
-      .filter(item => getEnumValue(item.auditStatus) === AUDIT_STATUS_VALUE.AUDITABLE)
+      .filter(item => getEnumValue(item.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE)
 }
 
 function auditItems(items: EnterpriseMemberEntity[]) {
@@ -406,13 +408,13 @@ onMounted(mounted)
                 <a-textarea v-model:value="auditModal.remark" :auto-size="{ minRows: 5, maxRows: 10 }"/>
               </a-form-item>
               <a-flex align="center" justify="flex-end" gap="middle">
-                <a-button type="primary" :loading="auditModal.loading" @click="onAudit(AUDIT_STATUS_VALUE.AGREED)">
+                <a-button type="primary" :loading="auditModal.loading" @click="onAudit(AUTH_SERVER_AUDIT_STATUS_VALUE.AGREED)">
                   <template #icon>
                     <icon-font type="loncra-clipboard-check"/>
                   </template>
                   {{ globalProperties.$t('common.audit.agree') }}
                 </a-button>
-                <a-button type="primary" danger :loading="auditModal.loading" @click="onAudit(AUDIT_STATUS_VALUE.DISAGREE)">
+                <a-button type="primary" danger :loading="auditModal.loading" @click="onAudit(AUTH_SERVER_AUDIT_STATUS_VALUE.DISAGREE)">
                   <template #icon>
                     <icon-font type="loncra-clipboard-x"/>
                   </template>

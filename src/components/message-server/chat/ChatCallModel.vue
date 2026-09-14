@@ -2,18 +2,16 @@
 
 import {type Component, computed, onMounted, onUnmounted, ref} from "vue";
 import {getEnumName, getEnumValue} from "@/utils";
-import {
-  CHAT_CALL_MINI_SIZE,
-  CHAT_CALL_SCENE,
-  CHAT_CALL_UI_MODE,
-  DATE_TIME_FORMAT,
-  USER_CHAT_CALL_STATUS
-} from "@/constants";
+import {CHAT_CALL_MINI_SIZE, CHAT_CALL_UI_MODE, DATE_TIME_FORMAT} from '@/constants';
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
 import {provideChatCallMedia, useChatCallModalExpose,} from "@/composables";
 import type {ChatCallModalInnerProps} from "@/types/composables";
 import LChatCallPrivateTypeLayout
   from "@/components/message-server/chat/ChatCallPrivateTypeLayout.vue";
+import {
+  MESSAGE_SERVER_CHAT_CALL_SCENE,
+  MESSAGE_SERVER_USER_CHAT_CALL_STATUS
+} from '@loncra/client/message'
 
 defineOptions({
   name: 'LChatCallModel',
@@ -26,7 +24,7 @@ const callViewportRef = ref<HTMLDivElement>()
 
 /** scene → 画面布局组件（会议/直播在此注册） */
 const CALL_LAYOUT_BY_SCENE: Record<number, Component> = {
-  [CHAT_CALL_SCENE.PRIVATE]: LChatCallPrivateTypeLayout,
+  [MESSAGE_SERVER_CHAT_CALL_SCENE.PRIVATE]: LChatCallPrivateTypeLayout,
 }
 
 const modal = computed(() => chatCallModelContext.context.modal as ChatCallModalInnerProps)
@@ -34,7 +32,7 @@ const isNativeFullscreen = computed(() => modal.value.fullscreen ?? false)
 const isCallMinimized = computed(() => modal.value.uiMode === CHAT_CALL_UI_MODE.MINIMIZED)
 const isCallExpanded = computed(() => !isCallMinimized.value)
 const showMediaToolbar = computed(() =>
-  isCallExpanded.value && getEnumValue(chatCallModelContext.context.userChatCall?.status) !== USER_CHAT_CALL_STATUS.COMPLETED,
+  isCallExpanded.value && getEnumValue(chatCallModelContext.context.userChatCall?.status) !== MESSAGE_SERVER_USER_CHAT_CALL_STATUS.COMPLETED,
 )
 
 const callLayout = computed(() => {
@@ -131,7 +129,7 @@ onUnmounted(() => {
             <a-statistic-timer
               :value="chatCallModelContext.context.userChatCall.startTime"
               :format="DATE_TIME_FORMAT.POST_TIME_FORMAT"
-              v-if="getEnumValue(chatCallModelContext.context.userChatCall.status) === USER_CHAT_CALL_STATUS.ACTIVE"
+              v-if="getEnumValue(chatCallModelContext.context.userChatCall.status) === MESSAGE_SERVER_USER_CHAT_CALL_STATUS.ACTIVE"
               :classes="{root:'inline-block',content:'text-DEFAULT'}"
               type="countup"
             />

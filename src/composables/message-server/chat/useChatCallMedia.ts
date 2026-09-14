@@ -3,16 +3,18 @@ import {inject, markRaw, nextTick, provide, ref, watch,} from "vue";
 import {getEnumValue, getMediaStreamConstraintsByCall} from "@/utils";
 import type {RestResult} from "@loncra/client/commons";
 import type {UserChatCallParticipantEntity} from "@loncra/client/message";
-import {ChatCallService} from "@loncra/client/message";
+import {
+  ChatCallService,
+  MESSAGE_SERVER_CHAT_CALL_TYPE,
+  MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS,
+  MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE
+} from "@loncra/client/message";
 import {readVideoMetrics, readVideoMetricsFromElement,} from "@/utils/chatCallUtils.ts";
 import {
   CHAT_CALL_MEDIA_PROVIDE_KEY,
   CHAT_CALL_PRIVATE_ROLE_TYPE,
-  CHAT_CALL_TYPE,
-  SOCKET_EVENT_TYPE,
-  USER_CHAT_CALL_PARTICIPANT_STATUS,
-  USER_CHAT_PARTICIPANT_TYPE,
-} from "@/constants";
+  SOCKET_EVENT_TYPE
+} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {Participant, Room} from "livekit-client";
 import {
@@ -118,7 +120,7 @@ export function provideChatCallMedia(): ChatCallMediaExpose {
       return
     }
 
-    const isVideoCall = getEnumValue(call.type) === CHAT_CALL_TYPE.VIDEO
+    const isVideoCall = getEnumValue(call.type) === MESSAGE_SERVER_CHAT_CALL_TYPE.VIDEO
     mediaOptions.value.cameraEnabled = isVideoCall
 
     const constraints = getMediaStreamConstraintsByCall(call)
@@ -226,7 +228,7 @@ export function provideChatCallMedia(): ChatCallMediaExpose {
     }
     const participant = result.data
     chatCallExpose.updateParticipant(participant)
-    if (getEnumValue(participant.status) !== USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE) {
+    if (getEnumValue(participant.status) !== MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE) {
       return
     }
 
@@ -236,14 +238,14 @@ export function provideChatCallMedia(): ChatCallMediaExpose {
       await room.connect(String(participant.metadata.liveKit.id), participant.metadata.liveKit.value)
       bindRemoteMediaEvents(room)
     } else {
-      const caller = userCall.participants.find(s => getEnumValue(s.type) === USER_CHAT_PARTICIPANT_TYPE.CALLER)
-      if (caller && getEnumValue(caller.status) === USER_CHAT_CALL_PARTICIPANT_STATUS.INITIATING) {
+      const caller = userCall.participants.find(s => getEnumValue(s.type) === MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE.CALLER)
+      if (caller && getEnumValue(caller.status) === MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS.INITIATING) {
         await ChatCallService.accept(Number(chatCallExpose.context.userChatCall.id))
         return
       }
     }
 
-    if ((userCall.participants || []).every(s => getEnumValue(s.status) === USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE)) {
+    if ((userCall.participants || []).every(s => getEnumValue(s.status) === MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS.ACTIVE)) {
       await nextTick()
       room.on(RoomEvent.TrackSubscribed, (track, _publication, trackParticipant) => {
         if (trackParticipant.isLocal) {

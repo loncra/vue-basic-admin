@@ -23,7 +23,7 @@ import {
   AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
   SYSTEM_MODULE_NAME
-} from "@/constants";
+} from '@/constants';
 
 defineOptions({
   name: 'LEnterpriseRoleTable',

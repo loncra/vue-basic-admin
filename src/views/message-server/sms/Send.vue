@@ -5,17 +5,21 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import type {IdNameValueMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import type {SmsMessageSendPayload, SmsSignEntity, SmsTemplateEntity} from "@loncra/client/message";
-import {SmsMessageService, SmsSignService, SmsTemplateService} from "@loncra/client/message";
+import {
+  MESSAGE_SERVER_MESSAGE_TYPE_VALUE,
+  SmsMessageService,
+  SmsSignService,
+  SmsTemplateService
+} from "@loncra/client/message";
 import {AuthServerService, ResourceServerService} from "@/apis";
 
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {
   MESSAGE_SERVER_SMS_ROUTE,
-  MESSAGE_TYPE_VALUE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   YES_OR_NO_TYPE
-} from "@/constants";
+} from '@/constants';
 import type {SearchableColumnType} from "@/types/composables";
 import LUserSelect from "@/components/basic/UserSelect.vue";
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
@@ -54,7 +58,7 @@ const options = ref<{
     phoneNumbers: [],
     channel: "alibabaCloud",
     content: '',
-    type: MESSAGE_TYPE_VALUE.NOTICE,
+    type: MESSAGE_SERVER_MESSAGE_TYPE_VALUE.NOTICE,
     remark: '',
     metadata: {
       signCode: '',

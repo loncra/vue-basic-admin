@@ -2,15 +2,14 @@
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import {AuthServerService} from "@/apis";
 import type {EnterpriseInvitationEntity, EnterpriseMemberEntity} from "@loncra/client/auth";
-import {EnterpriseInvitationService} from "@loncra/client/auth";
+import {
+  AUTH_SERVER_AUDIT_TYPE_VALUE,
+  AUTH_SERVER_ENTERPRISE_INVITATION_STATUS,
+  EnterpriseInvitationService
+} from "@loncra/client/auth";
 import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import {
-  AUDIT_TYPE_VALUE,
-  AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
-  AUTH_SERVER_ENTERPRISE_INVITATION_STATUS,
-  OPERATION_DATA_TRACE_TABLE,
-} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants'
 
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
@@ -30,7 +29,7 @@ const entity = ref<EnterpriseInvitationEntity>({
   status: AUTH_SERVER_ENTERPRISE_INVITATION_STATUS.EXECUTION,
   expirationTime: 0,
   roles: [],
-  auditType:AUDIT_TYPE_VALUE.AUTOMATIC,
+  auditType:AUTH_SERVER_AUDIT_TYPE_VALUE.AUTOMATIC,
   member: null as unknown as EnterpriseMemberEntity,
   principal: "",
   roleIds: []

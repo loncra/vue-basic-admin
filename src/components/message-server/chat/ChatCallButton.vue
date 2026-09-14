@@ -4,9 +4,8 @@ import useApp from "antdv-next/dist/app/useApp";
 import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {ChatCallType, UserChatParticipantEntity} from "@loncra/client/message";
-import {ChatCallService} from "@loncra/client/message";
+import {ChatCallService, MESSAGE_SERVER_CHAT_CALL_TYPE} from "@loncra/client/message";
 import type {MenuItemType} from "antdv-next";
-import {CHAT_CALL_TYPE} from "@/constants";
 import {createIcon, requireNonNullOrUndefined} from "@/utils";
 import type {ServerConversationItem} from "@/types/composables";
 import {useChatCallModalExpose} from "@/composables";
@@ -16,8 +15,8 @@ defineOptions({
 })
 
 const CALL_TITLE_I18N: Record<ChatCallType, string> = {
-  [CHAT_CALL_TYPE.VIDEO]: 'chat.call.video.title',
-  [CHAT_CALL_TYPE.VOICE]: 'chat.call.voice.title',
+  [MESSAGE_SERVER_CHAT_CALL_TYPE.VIDEO]: 'chat.call.video.title',
+  [MESSAGE_SERVER_CHAT_CALL_TYPE.VOICE]: 'chat.call.voice.title',
 }
 
 const globalProperties =
@@ -38,12 +37,12 @@ const chatCallModalExpose = useChatCallModalExpose()
 const items = computed<MenuItemType[]>(() =>  [
   {
     label: globalProperties.$t('chat.call.video.action'),
-    key: CHAT_CALL_TYPE.VIDEO,
+    key: MESSAGE_SERVER_CHAT_CALL_TYPE.VIDEO,
     icon:() => createIcon('loncra-video')
   },
   {
     label: globalProperties.$t('chat.call.voice.action'),
-    key: CHAT_CALL_TYPE.VOICE,
+    key: MESSAGE_SERVER_CHAT_CALL_TYPE.VOICE,
     icon:() => createIcon('loncra-mic')
   },
 ])
@@ -79,7 +78,7 @@ async function startCall(type: ChatCallType) {
 
 function onMenuClick(e: { key: string | number}) {
   const type = Number(e.key)
-  if (type === CHAT_CALL_TYPE.VIDEO || type === CHAT_CALL_TYPE.VOICE) {
+  if (type === MESSAGE_SERVER_CHAT_CALL_TYPE.VIDEO || type === MESSAGE_SERVER_CHAT_CALL_TYPE.VOICE) {
     void startCall(type)
   }
 }

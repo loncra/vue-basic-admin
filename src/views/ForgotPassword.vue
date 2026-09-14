@@ -4,7 +4,7 @@ import LLogo from "@/components/Logo.vue";
 import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {createIcon, requireNonNullOrUndefined, validatePassword} from "@/utils";
-import {CAPTCHA_TOKEN_TYPE, VALID_REGX} from "@/constants";
+import {VALID_REGX} from '@/constants';
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {
   IdNameValueMetadata,
@@ -14,6 +14,7 @@ import type {
 } from "@loncra/client/commons";
 import type {PlatformUser} from "@loncra/client/auth";
 import type {CaptchaToken} from "@loncra/client/resource";
+import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import useApp from "antdv-next/dist/app/useApp";
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 
@@ -29,12 +30,12 @@ const {message} = useApp()
 
 const segmentedData = computed(() => [{
   label: globalProperties.$t('common.email'),
-  value: CAPTCHA_TOKEN_TYPE.EMAIL,
+  value: RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL,
   icon: createIcon('loncra-email', 'align'),
   rules: [{required: true, trigger: 'change', type: 'email'}]
 }, {
   label: globalProperties.$t('common.phoneNumber'),
-  value: CAPTCHA_TOKEN_TYPE.SMS,
+  value: RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS,
   icon: createIcon('loncra-tablet-smartphone', 'align'),
   rules: [{required: true, trigger: 'change'}, {
     type: 'string',
@@ -68,7 +69,7 @@ const resetPasswordForm = ref<{
   confirmPassword: "",
   newPassword: "",
   metadata: {
-    id: CAPTCHA_TOKEN_TYPE.EMAIL,
+    id: RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL,
     value: ""
   }
 })
@@ -89,9 +90,9 @@ async function sendCaptcha() {
       const param: PageRequest = {
         number: 1
       }
-      if (resetPasswordForm.value.metadata.id === CAPTCHA_TOKEN_TYPE.EMAIL) {
+      if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL) {
         param['filter_[email_eq]'] = resetPasswordForm.value.metadata.value
-      } else if (resetPasswordForm.value.metadata.id === CAPTCHA_TOKEN_TYPE.SMS) {
+      } else if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS) {
         param['filter_[phone_number_eq]'] = resetPasswordForm.value.metadata.value
       } else {
         return
@@ -129,14 +130,14 @@ async function doSendCaptcha() {
   }
   loading.value = true
   try {
-    if (resetPasswordForm.value.metadata.id === CAPTCHA_TOKEN_TYPE.EMAIL) {
+    if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL) {
       const result = await ResourceServerService.sendEmailCaptcha(
         resetPasswordForm.value.metadata.value,
         'system.email.captcha.forgot-password'
       )
       generateCaptcha.value.result = result.generateResult
       generateCaptcha.value.captchaToken = result.token as CaptchaToken
-    } else if (resetPasswordForm.value.metadata.id === CAPTCHA_TOKEN_TYPE.SMS) {
+    } else if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS) {
       const result = await ResourceServerService.sendPhoneNumberCaptcha(
         resetPasswordForm.value.metadata.value,
         'system.sms.captcha.forgot-password'
@@ -168,9 +169,9 @@ async function submitRestPassword() {
         captchaParamName: string
       }).captchaParamName]: resetPasswordForm.value.captchaValue
     }
-    if (resetPasswordForm.value.metadata.id === CAPTCHA_TOKEN_TYPE.SMS) {
+    if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS) {
       postAppend.phoneNumber = resetPasswordForm.value.metadata.value
-    } else if (resetPasswordForm.value.metadata.id === CAPTCHA_TOKEN_TYPE.EMAIL) {
+    } else if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL) {
       postAppend.email = resetPasswordForm.value.metadata.value
     }
     const append = ResourceServerService.createGenerateTokenParam(generateCaptcha.value.captchaToken, postAppend)

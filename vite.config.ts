@@ -1,6 +1,6 @@
 import {fileURLToPath, URL} from 'node:url'
 
-import {defineConfig, loadEnv} from 'vite'
+import {defineConfig, loadEnv, type Plugin} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 
@@ -11,6 +11,27 @@ import {AntdvNextResolver} from '@antdv-next/auto-import-resolver'
 import Components from 'unplugin-vue-components/vite'
 import {AntdvNextXResolver} from "@antdv-next/auto-import-resolver-x";
 
+/**
+ * highlight.js 的 es/core.js 会 `import default from '../lib/core.js'`，
+ * 而 lib/core.js 是 CJS（module.exports），Vite 直出时没有 named default，整页白屏。
+ */
+function highlightJsCoreEsmInterop(): Plugin {
+  return {
+    name: 'highlight-js-core-esm-interop',
+    enforce: 'pre',
+    transform(code, id) {
+      const file = id.split('?')[0].replace(/\\/g, '/')
+      if (!file.endsWith('/highlight.js/lib/core.js') || code.includes('export default')) {
+        return null
+      }
+      return {
+        code: `${code}\nexport default highlight;\n`,
+        map: null,
+      }
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   // 加载环境变量
@@ -20,6 +41,7 @@ export default defineConfig(({ mode }) => {
     clearScreen: false,
     envPrefix: ['VITE_', 'TAURI_'],
     plugins: [
+      highlightJsCoreEsmInterop(),
       vue(), vueJsx(), tailwindcss(), Components({ resolvers: [AntdvNextResolver(), AntdvNextXResolver()] })
     ],
     server: {
@@ -52,6 +74,12 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       exclude: ['@loncra/client', '@loncra/antdv'],
+      include: [
+        'antdv-next-tiptap',
+        'lowlight',
+        'highlight.js',
+        'highlight.js/lib/core',
+      ],
     },
   }
 

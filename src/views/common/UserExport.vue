@@ -13,7 +13,7 @@ import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from 
 import LCrudTable from "@/components/basic/crud/CrudTable.vue";
 import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
 
-import {EXECUTE_STATUS_TYPE} from "@/constants";
+import {EXECUTE_STATUS_TYPE} from '@/constants';
 
 defineOptions({
   name: 'CommonUserExport',

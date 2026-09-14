@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type {UserPluginInstallResult} from '@loncra/client/ai'
-import {AiUserPluginInstallService} from '@loncra/client/ai'
+import {
+  AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE,
+  AiUserPluginInstallService
+} from '@loncra/client/ai'
 import {useAgentChatContext} from '@/composables'
-import {AGENT_WORKSPACE_TYPE_VALUE, PLUGIN_INSTALL_WORKSPACE_SCOPE} from '@/constants'
+import {AGENT_WORKSPACE_TYPE_VALUE} from '@/constants'
 import type {RestResult} from '@loncra/client/commons'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import useApp from 'antdv-next/dist/app/useApp'
@@ -41,7 +44,7 @@ const formRef = ref()
 const spinning = ref(false)
 
 const form = reactive({
-  workspaceScope: PLUGIN_INSTALL_WORKSPACE_SCOPE.USER as number,
+  workspaceScope: AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE.USER as number,
   agentConversationIds: [] as number[],
 })
 
@@ -59,11 +62,11 @@ const workspaceOptions = computed(() =>
 
 const workspaceScopeOptions = computed(() => [
   {
-    value: PLUGIN_INSTALL_WORKSPACE_SCOPE.USER,
+    value: AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE.USER,
     label: globalProperties.$t('agent.hub.workspaceScope.all'),
   },
   {
-    value: PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG,
+    value: AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG,
     label: globalProperties.$t('agent.hub.workspaceScope.specific'),
   },
 ])
@@ -74,7 +77,7 @@ watch(
     if (!open) {
       return
     }
-    form.workspaceScope = PLUGIN_INSTALL_WORKSPACE_SCOPE.USER
+    form.workspaceScope = AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE.USER
     form.agentConversationIds = []
   },
 )
@@ -84,7 +87,7 @@ function close() {
 }
 
 async function validateWorkspaces() {
-  if (form.workspaceScope !== PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG) {
+  if (form.workspaceScope !== AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG) {
     return Promise.resolve()
   }
   if (form.agentConversationIds.length > 0) {
@@ -105,7 +108,7 @@ async function onOk() {
       packageId: props.packageId,
       workspaceScope: form.workspaceScope,
       agentConversationIds:
-        form.workspaceScope === PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG
+        form.workspaceScope === AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG
           ? form.agentConversationIds
           : undefined,
     })
@@ -140,7 +143,7 @@ async function onOk() {
         <a-radio-group v-model:value="form.workspaceScope" :options="workspaceScopeOptions" />
       </a-form-item>
       <a-form-item
-        v-if="form.workspaceScope === PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG"
+        v-if="form.workspaceScope === AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG"
         name="agentConversationIds"
         :label="globalProperties.$t('agent.workspace.title')"
         :rules="[{validator: validateWorkspaces, trigger: 'change'}]"

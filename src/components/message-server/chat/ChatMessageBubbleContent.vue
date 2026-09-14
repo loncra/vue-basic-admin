@@ -9,7 +9,10 @@ import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useChatCallModalExpose} from "@/composables";
 import LSenderSoldBubbleContent from "@/components/basic/chat/SenderSlotBubbleContent.vue";
-import {CHAT_CALL_SCENE, USER_CHAT_CALL_PARTICIPANT_STATUS} from "@/constants";
+import {
+  MESSAGE_SERVER_CHAT_CALL_SCENE,
+  MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS
+} from '@loncra/client/message'
 
 defineOptions({
   name: 'LChatMessageBubbleContent',
@@ -56,7 +59,7 @@ const emit = defineEmits<{
           <span>{{ getEnumName(block.status) }}</span>
         </a-space>
         <component
-          v-if="getEnumValue(block.status) === USER_CHAT_CALL_PARTICIPANT_STATUS.INITIATING && block.caller !== principalStore.state.name && getEnumValue(block.scene) === CHAT_CALL_SCENE.PRIVATE"
+          v-if="getEnumValue(block.status) === MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS.INITIATING && block.caller !== principalStore.state.name && getEnumValue(block.scene) === MESSAGE_SERVER_CHAT_CALL_SCENE.PRIVATE"
           :is="chatCallModalExpose.createChatCallAction(block.userChatCallId, chatCallModalExpose.acceptCallByChatCallId, chatCallModalExpose.rejectedCallByChatCallId)"
         >
         </component>

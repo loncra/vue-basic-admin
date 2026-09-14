@@ -1,6 +1,6 @@
 import useApp from "antdv-next/dist/app/useApp";
 import type {MessageGroup} from "@loncra/client/message";
-import {MESSAGE_GROUP} from "@/constants";
+import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
 import {h, nextTick} from "vue";
 import {Typography} from "antdv-next";
 import type {ArgsProps} from "antdv-next/dist/notification";
@@ -38,7 +38,7 @@ export function useAppNotification() {
     )
   }
 
-  async function info( props:ArgsProps, type:MessageGroup = MESSAGE_GROUP.DEFAULT,key:string = crypto.randomUUID()) {
+  async function info( props:ArgsProps, type:MessageGroup = MESSAGE_SERVER_MESSAGE_GROUP.DEFAULT,key:string = crypto.randomUUID()) {
     await addNotificationKey(type, key)
     notification.info({
       ...{

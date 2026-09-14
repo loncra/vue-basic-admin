@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ResourceServerService} from '@/apis'
 import type {UserPluginInstallResult} from '@loncra/client/ai'
-import {AiMcpPackageService} from '@loncra/client/ai'
+import {AI_SERVER_PLUGIN_TARGET_TYPE, AiMcpPackageService} from '@loncra/client/ai'
 import {onMounted, ref} from 'vue'
 import type {McpPackageEntity} from '@/types/apis'
 import type {PageRequest, RestResult, TotalPage} from '@loncra/client/commons'
@@ -9,8 +9,7 @@ import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
   DATA_DICTIONARY_ALL_CODE,
   DEFAULT_PAGE_RESULT_VALUE,
-  MCP_GROUP_CODE_PREFIX,
-  PLUGIN_TARGET_TYPE,
+  MCP_GROUP_CODE_PREFIX
 } from '@/constants'
 import {addAllDataDictionary} from '@/utils'
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
@@ -122,7 +121,7 @@ onMounted(mounted)
           <l-agent-hub-plugin-info-card
             :data-source="dataSource"
             :installs="props.installs"
-            :target-type="PLUGIN_TARGET_TYPE.MCP"
+            :target-type="AI_SERVER_PLUGIN_TARGET_TYPE.MCP"
             @change-page="onChangePage"
             @installed="emits('installed', $event)"
             @uninstalled="emits('uninstalled', $event)"

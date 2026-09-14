@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
-import {AUDIT_STATUS_VALUE} from "@/constants";
+import {AUTH_SERVER_AUDIT_STATUS_VALUE} from '@loncra/client/auth'
 
 defineOptions({
   name: 'AuthServerEnterpriseMemberHome'
@@ -10,6 +10,6 @@ defineOptions({
 
 <template>
   <div>
-    <l-enterprise-member-table :query="{'filter_[audit_status_eq]':AUDIT_STATUS_VALUE.AGREED}"/>
+    <l-enterprise-member-table :query="{'filter_[audit_status_eq]':AUTH_SERVER_AUDIT_STATUS_VALUE.AGREED}"/>
   </div>
 </template>

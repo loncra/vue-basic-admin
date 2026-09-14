@@ -30,7 +30,7 @@ import {
   MCP_PACKAGE_AUTHORITY,
   MCP_PACKAGE_ROUTE,
   SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
+  SYSTEM_MODULE_NAME
 } from '@/constants'
 import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
 import useApp from "antdv-next/dist/app/useApp";

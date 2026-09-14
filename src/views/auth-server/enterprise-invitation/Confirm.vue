@@ -4,9 +4,13 @@ import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import type {EnterpriseInvitationDetail} from "@loncra/client/auth";
-import {EnterpriseService} from "@loncra/client/auth";
+import {
+  AUTH_SERVER_AUDIT_STATUS_VALUE,
+  AUTH_SERVER_USER_STATUS_TYPE,
+  EnterpriseService
+} from "@loncra/client/auth";
 import type {RestResult} from "@loncra/client/commons";
-import {AUDIT_STATUS_VALUE, ICON_SELECT_AVATAR_MODE_VALUE, USER_STATUS_TYPE} from "@/constants";
+import {ICON_SELECT_AVATAR_MODE_VALUE} from '@/constants';
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import LUserAvatar from "@/components/basic/UserAvatar.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -88,7 +92,7 @@ function getInviteeAttr() {
   }
   const base = 'authServer.enterpriseInvitation.confirmResult'
   const invitee = options.value.detail.invitee
-  if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.AGREED) {
+  if (getEnumValue(invitee.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.AGREED) {
     return {
       status:"success",
       title: globalProperties.$t(`${base}.joined.title`),
@@ -96,19 +100,19 @@ function getInviteeAttr() {
         role: getEnumName(invitee.role) + (invitee?.roles || []).map(role => role.name).join(','),
       }),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.AUDITABLE) {
+  } else if (getEnumValue(invitee.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE) {
     return {
       status:"info",
       title: globalProperties.$t(`${base}.auditable.title`),
       subTitle: globalProperties.$t(`${base}.auditable.subTitle`),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.REJECTED) {
+  } else if (getEnumValue(invitee.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.REJECTED) {
     return {
       status:"warning",
       title: globalProperties.$t(`${base}.rejected.title`),
       subTitle: globalProperties.$t(`${base}.rejected.subTitle`),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.DISAGREE) {
+  } else if (getEnumValue(invitee.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.DISAGREE) {
     return {
       status:"error",
       title: globalProperties.$t(`${base}.disagree.title`),
@@ -188,7 +192,7 @@ onMounted(mounted)
             <a-result
               v-bind="getInviteeAttr()"
             >
-              <template #extra v-if="getEnumValue(options.detail.invitee.status) === USER_STATUS_TYPE.ENABLED && options.detail.enterprise.id !== principalStore.state.details.metadata.enterpriseId">
+              <template #extra v-if="getEnumValue(options.detail.invitee.status) === AUTH_SERVER_USER_STATUS_TYPE.ENABLED && options.detail.enterprise.id !== principalStore.state.details.metadata.enterpriseId">
                 <a-button type="primary" @click="principalStore.switchWorkspace(options.detail.enterprise.id)">
                   {{ $t('authServer.enterpriseInvitation.enterWorkspace') }}
                 </a-button>

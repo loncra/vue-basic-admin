@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import {ResourceServerService} from '@/apis'
 import type {SkillPackageEntity, UserPluginInstallResult} from '@loncra/client/ai'
-import {AiUserPluginInstallService} from '@loncra/client/ai'
+import {AI_SERVER_PLUGIN_TARGET_TYPE, AiUserPluginInstallService} from '@loncra/client/ai'
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
 import LAgentHubSkillReleaseChangeLog
   from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
-import {
-  DEFAULT_PAGE_RESULT_VALUE,
-  PLUGIN_TARGET_TYPE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {DEFAULT_PAGE_RESULT_VALUE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants'
 import type {McpPackageEntity} from '@/types/apis'
 import type {IdValueMetadata, RestResult, TotalPage} from '@loncra/client/commons'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
@@ -49,10 +44,10 @@ const activeType = computed(() => {
   return Number(activeKey.value)
 })
 
-const mcpDataSource = computed(() => toPage(packagesOf(PLUGIN_TARGET_TYPE.MCP) as McpPackageEntity[]))
+const mcpDataSource = computed(() => toPage(packagesOf(AI_SERVER_PLUGIN_TARGET_TYPE.MCP) as McpPackageEntity[]))
 
 const skillDataSource = computed(() =>
-  toPage(packagesOf(PLUGIN_TARGET_TYPE.SKILL) as SkillPackageEntity[]),
+  toPage(packagesOf(AI_SERVER_PLUGIN_TARGET_TYPE.SKILL) as SkillPackageEntity[]),
 )
 
 function packagesOf(targetType: number) {
@@ -76,10 +71,10 @@ function toPage<T>(elements: T[]): TotalPage<T> {
 }
 
 function tabIcon(id?: number) {
-  if (id === PLUGIN_TARGET_TYPE.SKILL) {
+  if (id === AI_SERVER_PLUGIN_TARGET_TYPE.SKILL) {
     return 'loncra-sparkles'
   }
-  if (id === PLUGIN_TARGET_TYPE.MCP) {
+  if (id === AI_SERVER_PLUGIN_TARGET_TYPE.MCP) {
     return 'loncra-plug-zap'
   }
   return 'loncra-package'
@@ -154,10 +149,10 @@ onMounted(mounted)
       </template>
       <template #contentRender>
         <l-agent-hub-plugin-info-card
-          v-if="activeType === PLUGIN_TARGET_TYPE.MCP"
+          v-if="activeType === AI_SERVER_PLUGIN_TARGET_TYPE.MCP"
           :data-source="mcpDataSource"
           :installs="props.installs"
-          :target-type="PLUGIN_TARGET_TYPE.MCP"
+          :target-type="AI_SERVER_PLUGIN_TARGET_TYPE.MCP"
           @change-page="onChangePage"
           @installed="emits('installed', $event)"
           @uninstalled="emits('uninstalled', $event)"
@@ -167,17 +162,17 @@ onMounted(mounted)
           </template>
           <template #after="{ record }">
             <a-space wrap>
-              <a-tag v-for="workspace of workspaceTags(record, PLUGIN_TARGET_TYPE.MCP)" :key="workspace.id">
+              <a-tag v-for="workspace of workspaceTags(record, AI_SERVER_PLUGIN_TARGET_TYPE.MCP)" :key="workspace.id">
                 {{ workspace.name }}
               </a-tag>
             </a-space>
           </template>
         </l-agent-hub-plugin-info-card>
         <l-agent-hub-plugin-info-card
-          v-else-if="activeType === PLUGIN_TARGET_TYPE.SKILL"
+          v-else-if="activeType === AI_SERVER_PLUGIN_TARGET_TYPE.SKILL"
           :data-source="skillDataSource"
           :installs="props.installs"
-          :target-type="PLUGIN_TARGET_TYPE.SKILL"
+          :target-type="AI_SERVER_PLUGIN_TARGET_TYPE.SKILL"
           @change-page="onChangePage"
           @installed="emits('installed', $event)"
           @uninstalled="emits('uninstalled', $event)"
@@ -190,7 +185,7 @@ onMounted(mounted)
           <template #after="{ record }">
             <a-flex vertical gap="small" class="w-full">
               <a-space wrap>
-                <a-tag v-for="workspace of workspaceTags(record, PLUGIN_TARGET_TYPE.SKILL)" :key="workspace.id">
+                <a-tag v-for="workspace of workspaceTags(record, AI_SERVER_PLUGIN_TARGET_TYPE.SKILL)" :key="workspace.id">
                   {{ workspace.name }}
                 </a-tag>
               </a-space>

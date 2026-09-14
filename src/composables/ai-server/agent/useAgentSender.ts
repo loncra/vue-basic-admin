@@ -9,7 +9,14 @@ import {
 } from "vue";
 import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
 import type {ModelSettingEntity} from "@loncra/client/ai";
-import {ModelSettingService} from "@loncra/client/ai";
+import {
+  AI_SERVER_AGENT_CONVERSATION_TYPE,
+  AI_SERVER_MODEL_TYPE,
+  AI_SERVER_PLUGIN_INSTALL_STATUS,
+  AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE,
+  AI_SERVER_PLUGIN_TARGET_TYPE,
+  ModelSettingService
+} from "@loncra/client/ai";
 import LInstructionSender from "@/components/basic/chat/InstructionSender.vue";
 import type {
   AgentConversationItem,
@@ -21,15 +28,7 @@ import type {
 } from "@/types/composables";
 import {ResourceServerService} from "@/apis";
 
-import {
-  AGENT_CHAT_TYPE_STYLE,
-  AGENT_CONVERSATION_TYPE,
-  AGENT_INSTRUCTION_PREFIX,
-  MODEL_TYPE,
-  PLUGIN_INSTALL_STATUS,
-  PLUGIN_INSTALL_WORKSPACE_SCOPE,
-  PLUGIN_TARGET_TYPE,
-} from "@/constants";
+import {AGENT_CHAT_TYPE_STYLE, AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {createIcon, createInstructionSlot, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {isInstructionSlot} from "@/composables/chat/useInstructionSender.ts";
@@ -152,7 +151,7 @@ export function useAgentSender(
         label: t.value,
         icon:() => createIcon(getTypeStyle(Number(t.id)).icon)})
       );
-      const model:RestResult<ModelSettingEntity[]> = await modelSettingService.findEnabled({'filter_[type_eq]':MODEL_TYPE.CHAT})
+      const model:RestResult<ModelSettingEntity[]> = await modelSettingService.findEnabled({'filter_[type_eq]':AI_SERVER_MODEL_TYPE.CHAT})
       models.value = model.data || [];
       state.value.modelOptions = toModelMenuItems(models.value);
       if (models.value.length > 0) {
@@ -223,7 +222,7 @@ export function useAgentSender(
       return
     }
     let workspaces:AgentConversationItem | undefined
-    if (getEnumValue(conversationActive.value.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
+    if (getEnumValue(conversationActive.value.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
       workspaces = conversations.value.find(s => s.id === conversationActive.value?.parentId)
     } else {
       workspaces = conversationActive.value as AgentConversationItem
@@ -234,9 +233,9 @@ export function useAgentSender(
 
     return {
       variant: "outlined",
-      color: getEnumValue(workspaces.type) === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'blue' : 'green',
+      color: getEnumValue(workspaces.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'blue' : 'green',
       label: workspaces.name,
-      icon:() => createIcon(workspaces.type === AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'loncra-folder-cog' : 'loncra-folder-closed'),
+      icon:() => createIcon(workspaces.type === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'loncra-folder-cog' : 'loncra-folder-closed'),
     }
   })
 
@@ -244,7 +243,7 @@ export function useAgentSender(
     if (!conversationActive.value) {
       return undefined
     }
-    if (getEnumValue(conversationActive.value.type) === AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
+    if (getEnumValue(conversationActive.value.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
       return conversationActive.value.parentId
     }
     return conversationActive.value.id
@@ -254,14 +253,14 @@ export function useAgentSender(
     const workspaceId = currentWorkspaceId()
     const items: IdValueMetadata<string, string>[] = []
     for (const item of principalStore.pluginInstalls) {
-      if (getEnumValue(item.status) !== PLUGIN_INSTALL_STATUS.ACTIVATED) {
+      if (getEnumValue(item.status) !== AI_SERVER_PLUGIN_INSTALL_STATUS.ACTIVATED) {
         continue
       }
       if (!item.pluginPackage || item.packageId == null) {
         continue
       }
       const scope = getEnumValue(item.workspaceScope)
-      if (scope === PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG) {
+      if (scope === AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE.ORG) {
         if (workspaceId == null) {
           continue
         }
@@ -270,8 +269,8 @@ export function useAgentSender(
         }
       }
       const targetType = getEnumValue(item.targetType)
-      const isMcp = targetType === PLUGIN_TARGET_TYPE.MCP
-      const isSkill = targetType === PLUGIN_TARGET_TYPE.SKILL
+      const isMcp = targetType === AI_SERVER_PLUGIN_TARGET_TYPE.MCP
+      const isSkill = targetType === AI_SERVER_PLUGIN_TARGET_TYPE.SKILL
       if (!isMcp && !isSkill) {
         continue
       }

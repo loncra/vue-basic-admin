@@ -4,17 +4,16 @@ import type {
   SseMcpClientTransportMetadata,
   StdioMcpClientTransportMetadata
 } from '@loncra/client/ai'
-import {AiMcpPackageService} from '@loncra/client/ai'
+import {AI_SERVER_MCP_CLIENT_TYPE, AiMcpPackageService} from '@loncra/client/ai'
 import {getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {McpPackageEntity} from '@/types/apis'
 import {
   MCP_CLIENT_HTTP_TYPE_VALUE,
-  MCP_CLIENT_TYPE,
   MCP_PACKAGE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
   TIME_UNIT_TYPE,
-  YES_OR_NO_TYPE,
+  YES_OR_NO_TYPE
 } from '@/constants'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
@@ -50,7 +49,7 @@ const entity = ref<McpPackageEntity>({
   },
   metadata: {
     client:{
-      type: MCP_CLIENT_TYPE.STREAMABLE_HTTP,
+      type: AI_SERVER_MCP_CLIENT_TYPE.STREAMABLE_HTTP,
     },
     clarifyPolicies: [],
   }
@@ -74,7 +73,7 @@ function postGetEntity(entity: McpPackageEntity) {
       value: value as string[],
       editing: false,
     }))
-  } else if (client.type === MCP_CLIENT_TYPE.STDIO) {
+  } else if (client.type === AI_SERVER_MCP_CLIENT_TYPE.STDIO) {
     const stdio = client as StdioMcpClientTransportMetadata
     entity.envDataSource = Object.entries(stdio.env || {}).map(([key, value]) => ({
       id: crypto.randomUUID(),

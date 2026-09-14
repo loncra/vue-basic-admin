@@ -5,15 +5,17 @@ import type {
   ManualSkillSourceMetadata,
   SkillPackageEntity
 } from '@loncra/client/ai'
-import {AiSkillPackageService} from '@loncra/client/ai'
+import {
+  AI_SERVER_SKILL_SOURCE_TYPE,
+  AI_SERVER_SKILL_UPDATE_POLICY,
+  AiSkillPackageService
+} from '@loncra/client/ai'
 import {getEnumName, getEnumValue, getExecuteBadgeStatus, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {
   ICON_SELECT_AVATAR_MODE_VALUE,
   OPERATION_DATA_TRACE_TABLE,
-  SKILL_PACKAGE_ROUTE,
-  SKILL_SOURCE_TYPE,
-  SKILL_UPDATE_POLICY,
+  SKILL_PACKAGE_ROUTE
 } from '@/constants'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
@@ -44,7 +46,7 @@ const entity = ref<SkillPackageEntity>({
   defaultUpdatePolicy: 0,
   sourceType: 0,
   metadata: {
-    source: {type: SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata,
+    source: {type: AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata,
   },
 })
 
@@ -52,10 +54,10 @@ const configProviderStore = useConfigProviderStore()
 
 function postGetEntity(record: SkillPackageEntity) {
   if (!record.metadata) {
-    record.metadata = {source: {type: SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata}
+    record.metadata = {source: {type: AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata}
   }
   if (!record.metadata.source) {
-    record.metadata.source = {type: SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
+    record.metadata.source = {type: AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
   }
   return record
 }
@@ -104,7 +106,7 @@ function postGetEntity(record: SkillPackageEntity) {
         {{ getEnumName(entity.defaultUpdatePolicy) }}
         <template
           v-if="
-            getEnumValue(entity.defaultUpdatePolicy) === SKILL_UPDATE_POLICY.AUTOMATIC &&
+            getEnumValue(entity.defaultUpdatePolicy) === AI_SERVER_SKILL_UPDATE_POLICY.AUTOMATIC &&
             entity.metadata.updatePolicyTime
           "
         >
@@ -135,7 +137,7 @@ function postGetEntity(record: SkillPackageEntity) {
       </a-descriptions-item>
 
       <template #afterDescriptions>
-        <template v-if="getEnumValue(entity.sourceType) === SKILL_SOURCE_TYPE.GIT">
+        <template v-if="getEnumValue(entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.GIT">
           <a-divider orientation="left" plain>
             <a-space>
               <icon-font class="icon" type="loncra-git-branch" />

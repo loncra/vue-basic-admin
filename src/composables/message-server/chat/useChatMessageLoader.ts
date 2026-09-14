@@ -2,7 +2,7 @@ import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref} 
 import type {UserChatMessageResponseBody} from '@/types/apis'
 import type {PageResult, RestResult} from '@loncra/client/commons'
 import type {UserChatParticipantEntity} from '@loncra/client/message'
-import {ChatMessageService} from '@loncra/client/message'
+import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 import type {
   ChatBubbleItem,
   ChatViewController,
@@ -12,7 +12,7 @@ import type {
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE, USER_CHAT_MESSAGE_TYPE} from '@/constants'
+import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 
 /**
  * 活跃会话的消息分页、锚点跳转与会话切换。
@@ -35,7 +35,7 @@ export function useChatMessageLoader(
       (d.participant?.metadata?.details as {systemName: string})?.systemName
         ? CHAT_BUBBLE_TYPE.USER
         : CHAT_BUBBLE_TYPE.AI
-    if (getEnumValue(d.type) === USER_CHAT_MESSAGE_TYPE.SYSTEM) {
+    if (getEnumValue(d.type) === MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.SYSTEM) {
       role = CHAT_BUBBLE_TYPE.SYSTEM
     }
     return role

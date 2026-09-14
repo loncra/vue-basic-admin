@@ -6,7 +6,10 @@ import type {
 } from '@/types/apis'
 import type {RestResult} from '@loncra/client/commons'
 import type {UserChatParticipantEntity} from '@loncra/client/message'
-import {ChatMessageService} from '@loncra/client/message'
+import {
+  ChatMessageService,
+  MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS
+} from '@loncra/client/message'
 import type {ChatRoomSettingsCallbacks, ChatRoomViewModalOpenType} from '@/types/composables'
 import {AuthServerService} from '@/apis'
 
@@ -15,11 +18,7 @@ import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import useApp from 'antdv-next/dist/app/useApp'
 import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
-import {
-  CHAAT_ROOM_VIEW_MODAL_TYPE,
-  SOCKET_EVENT_TYPE,
-  USER_CHAT_CONVERSATION_STATUS
-} from '@/constants'
+import {CHAAT_ROOM_VIEW_MODAL_TYPE, SOCKET_EVENT_TYPE} from '@/constants'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 import {useChatContext} from "@/composables";
 
@@ -100,7 +99,7 @@ export function useChatRoomSettings(
   }
 
   async function loadParticipant(): Promise<void> {
-    if (!conversation.value || getEnumValue(conversation.value?.status) !== USER_CHAT_CONVERSATION_STATUS.ENABLED) {
+    if (!conversation.value || getEnumValue(conversation.value?.status) !== MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED) {
       return
     }
     try {
@@ -284,7 +283,7 @@ export function useChatRoomSettings(
     if (!conversation.value) {
       return
     }
-    if (getEnumValue(conversation.value.status) === USER_CHAT_CONVERSATION_STATUS.ENABLED) {
+    if (getEnumValue(conversation.value.status) === MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED) {
       modal.confirm({
         title: globalProperties.$t('chat.roomView.exitRoom.title'),
         content: globalProperties.$t('chat.roomView.exitRoom.content', {

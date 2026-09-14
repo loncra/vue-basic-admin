@@ -37,7 +37,7 @@ import {
   SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
-} from "@/constants";
+} from '@/constants';
 import type {RowSelectMethod} from "antdv-next/dist/table/interface";
 
 defineOptions({

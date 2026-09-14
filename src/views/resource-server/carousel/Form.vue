@@ -4,16 +4,15 @@ import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from 
 import type {CarouselEntity, CarouselSavePayload} from "@/types/apis";
 import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody, ObjectWriteResult} from "@loncra/client/resource";
-import {CarouselService} from "@loncra/client/resource";
+import {CarouselService, RESOURCE_SERVER_CAROUSEL_TYPE} from "@loncra/client/resource";
 import {requireNonNullOrUndefined} from "@/utils";
 import {
-  CAROUSEL_TYPE,
   DATE_TIME_FORMAT,
   OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_CAROUSEL_ROUTE,
-  SYSTEM_ENUM_TYPE
-} from "@/constants";
-import {SYSTEM_MODULE_NAME} from "@/constants/systemConstant";
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from '@/constants';
 import {ResourceServerService} from "@/apis";
 
 import {disableDate, disableTime} from "@/utils/dateUtils";
@@ -41,7 +40,7 @@ const options = ref<{
   spinning: false,
   entity: {
     name: "",
-    type: CAROUSEL_TYPE.PC,
+    type: RESOURCE_SERVER_CAROUSEL_TYPE.PC,
     link: {
       id: "http://",
       value: ""

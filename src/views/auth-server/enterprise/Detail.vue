@@ -9,7 +9,7 @@ import {
   AUTH_SERVER_ENTERPRISE_ROUTE,
   ICON_SELECT_AVATAR_MODE_VALUE,
   OPERATION_DATA_TRACE_TABLE,
-  YES_OR_NO_TYPE,
+  YES_OR_NO_TYPE
 } from '@/constants'
 
 defineOptions({

@@ -3,12 +3,8 @@ import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {ResourceEntity} from "@loncra/client/auth";
-import {ResourceService} from "@loncra/client/auth";
-import {
-  AUTH_SERVER_RESOURCE_ROUTE,
-  OPERATION_DATA_TRACE_TABLE,
-  RESOURCE_CATEGORY
-} from "@/constants";
+import {AUTH_SERVER_RESOURCE_CATEGORY, ResourceService} from "@loncra/client/auth";
+import {AUTH_SERVER_RESOURCE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
 
 defineOptions({
   name: 'AuthServerResourceDetail'
@@ -22,7 +18,7 @@ const service = new ResourceService()
 const entity = ref<ResourceEntity>({
   applicationName: "",
   authority: "",
-  category: RESOURCE_CATEGORY.CUSTOMIZE,
+  category: AUTH_SERVER_RESOURCE_CATEGORY.CUSTOMIZE,
   enabled: 0,
   icon: "",
   code: "",

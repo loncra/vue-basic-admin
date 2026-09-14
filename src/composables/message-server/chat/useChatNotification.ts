@@ -1,12 +1,12 @@
 import {provideChatCallExpose, useSocketSubscriptions} from "@/composables";
 import type {UseChatNotificationParam} from "@/types/composables";
-import {MESSAGE_GROUP, SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from "@/constants";
+import {SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
 import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
 import type {PlatformUser} from "@loncra/client/auth";
 import type {UserChatCallResponseBody, UserChatConversationEntity} from "@loncra/client/message";
-import {ChatMessageService} from "@loncra/client/message";
+import {ChatMessageService, MESSAGE_SERVER_MESSAGE_GROUP} from "@loncra/client/message";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {AuthServerService} from "@/apis";
 import {
@@ -58,7 +58,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
     }
 
     const body: UserChatConversationResponseBody = conversationResult.data as UserChatConversationResponseBody;
-    let notificationKey = MESSAGE_GROUP.USER_CHAT + "_" + body.id;
+    let notificationKey = MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT + "_" + body.id;
     let description: string = getMessageContent(result.data, body)
     let duration = configProviderStore.state.notificationConfig.duration;
     let messageId = undefined
@@ -68,7 +68,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
       const message = result.data
 
       destroy(notificationKey)
-      notificationKey = MESSAGE_GROUP.USER_CHAT + "_" + SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION + "_" + message.id;
+      notificationKey = MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT + "_" + SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION + "_" + message.id;
 
       duration = false
       messageId = message.id
@@ -96,7 +96,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
           query: {conversationId: body.id, messageId}
         })
       },
-      MESSAGE_GROUP.USER_CHAT,
+      MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT,
       notificationKey
     )
 
@@ -133,7 +133,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
         type: getEnumName(callEntity.type)
       }
     )
-    const key = MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(callEntity.id)
+    const key = MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(callEntity.id)
     await info({
         title: createExtraIconTitle(getEnumName(callEntity.type), String(getCallIcon(callEntity.type))),
         duration: false,
@@ -146,7 +146,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
           (key, id, loading) => chatCallExport.rejectedCall(key, callEntity, loading)
         )
       },
-      MESSAGE_GROUP.USER_CHAT_CALL,
+      MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT_CALL,
       key
     )
 

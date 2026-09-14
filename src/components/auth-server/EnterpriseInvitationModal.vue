@@ -1,5 +1,5 @@
 <script lang="ts">
-import {AUDIT_TYPE_VALUE} from "@/constants"
+
 import type {EnterpriseInvitationSavePayload} from "@/types/apis";
 import type {NameValueEnumMetadata} from "@loncra/client/commons";
 
@@ -7,7 +7,7 @@ export function createEmptyForm(): EnterpriseInvitationSavePayload {
   return {
     id: null as unknown as number,
     expirationTime: null as unknown as number,
-    auditType: AUDIT_TYPE_VALUE.AUTOMATIC,
+    auditType: AUTH_SERVER_AUDIT_TYPE_VALUE.AUTOMATIC,
     roleIds: [],
   }
 }
@@ -15,14 +15,11 @@ export function createEmptyForm(): EnterpriseInvitationSavePayload {
 
 <script setup lang="ts">
 
-import {
-  DATE_TIME_FORMAT,
-  OPERATION_DATA_TRACE_TABLE
-} from "@/constants";
+import { DATE_TIME_FORMAT, OPERATION_DATA_TRACE_TABLE } from '@/constants';
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
 
-import {EnterpriseInvitationService} from "@loncra/client/auth";
+import {EnterpriseInvitationService, AUTH_SERVER_AUDIT_TYPE_VALUE} from "@loncra/client/auth";
 import type {TableProps} from "antdv-next";
 
 defineOptions({

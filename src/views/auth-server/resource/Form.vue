@@ -2,17 +2,16 @@
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {ResourceEntity, ResourceSavePayload} from "@loncra/client/auth";
-import {ResourceService} from "@loncra/client/auth";
+import {AUTH_SERVER_RESOURCE_CATEGORY, ResourceService} from "@loncra/client/auth";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import type {IconfontJson} from "@/types/composables/common";
 import {requireNonNullOrUndefined} from "@/utils";
 import {
   AUTH_SERVER_RESOURCE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
-  RESOURCE_CATEGORY,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
-} from "@/constants";
+} from '@/constants';
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 
@@ -54,7 +53,7 @@ const options = ref<{
     page: "",
     id: null as unknown as number,
     version: null as unknown as string,
-    category: RESOURCE_CATEGORY.CUSTOMIZE
+    category: AUTH_SERVER_RESOURCE_CATEGORY.CUSTOMIZE
   },
   typeOptions:[],
   enabledOptions:[],
@@ -109,30 +108,30 @@ function setPageTitle(title:string, entity: ResourceEntity | ResourceSavePayload
     >
       <template #rowLayout>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="getEnumValue(options.entity.category) === RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true}]">
+          <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true}]">
             <a-input v-model:value="options.entity.name" />
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="authority" :label="globalProperties.$t('authServer.authority')" :rules="getEnumValue(options.entity.category) === RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true}]">
-            <a-input v-model:value="options.entity.authority" :disabled="options.entity.id && getEnumValue(options.entity.category) === RESOURCE_CATEGORY.PLUGIN" />
+          <a-form-item name="authority" :label="globalProperties.$t('authServer.authority')" :rules="getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true}]">
+            <a-input v-model:value="options.entity.authority" :disabled="options.entity.id && getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN" />
           </a-form-item>
         </a-col>
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="sources" :label="globalProperties.$t('authServer.source')" :rules="getEnumValue(options.entity.category) === RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true, trigger: 'change', type: 'array'}]">
-            <a-select mode="multiple" :disabled="options.entity.id && getEnumValue(options.entity.category) === RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.sources" :options="options.sourceOptions" :field-names="{label:'name'}" />
+          <a-form-item name="sources" :label="globalProperties.$t('authServer.source')" :rules="getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true, trigger: 'change', type: 'array'}]">
+            <a-select mode="multiple" :disabled="options.entity.id && getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.sources" :options="options.sourceOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>
 
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="type" :label="globalProperties.$t('common.type')">
-            <a-select :disabled="options.entity.id && getEnumValue(options.entity.category) === RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.type" :options="options.typeOptions" :field-names="{label:'name'}" />
+            <a-select :disabled="options.entity.id && getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.type" :options="options.typeOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
           <a-form-item name="enabled" :label="globalProperties.$t('common.enabled')">
-            <a-select :disabled="options.entity.id && getEnumValue(options.entity.category) === RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.enabled" :options="options.enabledOptions" :field-names="{label:'name'}" />
+            <a-select :disabled="options.entity.id && getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.enabled" :options="options.enabledOptions" :field-names="{label:'name'}" />
           </a-form-item>
         </a-col>
 
