@@ -7,6 +7,8 @@ export {
 export const DATA_DICTIONARY_ALL_VALUE = "*"
 export const DATA_DICTIONARY_ALL_CODE = "system.all"
 
+export const RESOURCE_SERVER_USER_EXPORT_ROUTE = "'user_export'"
+
 export const RESOURCE_SERVER_DATA_DICTIONARY_ROUTE = {
   HOME: 'resource_server_dictionary',
   ADD_CHILD: 'resource_server_data_dictionary_add_child',

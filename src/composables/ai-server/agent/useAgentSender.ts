@@ -41,8 +41,6 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import type {MenuInfo} from "@v-c/menu";
 
-const modelSettingService = new ModelSettingService()
-
 function toModelMenuItems(models: ModelSettingEntity[]): MenuItemType[] {
   const groups = new Map<string, {
     label: string,
@@ -120,6 +118,8 @@ export function useAgentSender(
   const configProviderStore = useConfigProviderStore()
   const principalStore = usePrincipalStore()
   const {conversationActive, conversations} = useAgentChatContext()
+  // 实例化必须在 setup 内：模块顶层 new Service() 会早于 LClientProvider 完成配置
+  const modelSettingService = new ModelSettingService()
 
   const senderRef = ref<InstructionSenderExpose>()
 

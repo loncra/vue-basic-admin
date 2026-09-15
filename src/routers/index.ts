@@ -6,10 +6,10 @@ import type {
 } from 'vue-router'
 import {createRouter, createWebHistory} from 'vue-router'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import type {PrepareData, ResourceEntity} from "@loncra/client/auth";
+import type {ResourceEntity} from "@loncra/client/auth";
 import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
-import {AUTHENTICATION_MEMBER_TYPE} from '@/constants';
+import {AUTHENTICATION_MEMBER_TYPE, RESOURCE_SERVER_USER_EXPORT_ROUTE} from '@/constants';
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@loncra/client/commons'
@@ -32,6 +32,7 @@ import Agent from "@/views/common/AiAgent.vue";
 
 import i18n from '@/i18n'
 import {useSocketStore} from "@/stores/socketStore.ts";
+import {useBootStore} from "@/stores/bootstrapStore.ts";
 
 /**
  * 首页的子路由配置
@@ -73,7 +74,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/commons/user/export',
-    name: "user_export",
+    name: RESOURCE_SERVER_USER_EXPORT_ROUTE,
     component: UserExport,
     meta: {
       applicationName: 'commons',
@@ -242,10 +243,10 @@ export function getRouteTitle(name: RouteRecordName): string {
 }
 
 /**
- * 清除所有路由并重新添加基础路由
- * 用于重置路由状态
+ * 清除所有动态路由并重新添加基础路由
+ * 用于登录 / 登出 / 切换企业后重建路由表
  */
-const clearRoute = (): void => {
+export const clearDynamicRoutes = (): void => {
   initialState.value = false
   router.clearRoutes()
   routes.forEach((r) => router.addRoute(r))
@@ -259,8 +260,12 @@ const loadServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[
     if (key.includes('.i18n.ts') || key.includes('/routers/i18n/')) {
       continue
     }
-    // 检查模块是否属于指定的插件服务
-    if (serviceName.length > 0 && !serviceName.some(path => key.includes(path))) {
+    // 目录的 index.ts 只是聚合导出，不是路由定义
+    if (key.endsWith('/index.ts')) {
+      continue
+    }
+    // 未指定服务 ⇒ 只保留核心路由（不再全量加载）
+    if (!serviceName.some(path => key.includes(path))) {
       continue
     }
 
@@ -311,9 +316,22 @@ const applyRouteMetaToMenu = (
   }
 }
 
-const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
+/**
+ * 按后端已启动的服务装配动态路由。
+ * 服务未启动 ⇒ 对应目录下的路由模块不注册，访问时走 404。
+ */
+export const registerServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
   const importRoutes: RouteRecordRaw[] = await loadServiceRoutes(serviceName)
+  importRoutes.forEach((route) => router.addRoute(import.meta.env.VITE_APP_HOME_PAGE_NAME, route))
+  initialState.value = true
+  return importRoutes
+}
 
+/**
+ * 拉取当前用户的菜单资源并合并进路由 meta（标题 / 图标 / 所属应用）。
+ * 仅应在已认证时调用，避免未登录时 401 与启动流程抢方向盘。
+ */
+export const applyMenusToRoutes = async (importRoutes: RouteRecordRaw[]): Promise<void> => {
   const menuPrincipalStore = useMenuPrincipalStore()
   const menus = await menuPrincipalStore.getPrincipalResources([
     AUTH_SERVER_RESOURCE_TYPE.ROOT,
@@ -324,31 +342,9 @@ const loadRouter = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
     AUTH_SERVER_RESOURCE_TYPE.NAVIGATION_DATA
   ])
   const unmergeMenus = unmergeTree<ResourceEntity>(menus);
-  const menuRoutes = [...childrenRoutes, ...importRoutes]
-  for (const route of menuRoutes) {
+  for (const route of [...childrenRoutes, ...importRoutes]) {
     applyRouteMetaToMenu(route, unmergeMenus)
   }
-
-  importRoutes.forEach((route) => router.addRoute(import.meta.env.VITE_APP_HOME_PAGE_NAME, route))
-  return importRoutes
-}
-
-const reloadRoute = async (): Promise<RouteRecordRaw[]> => {
-  if (initialState.value) {
-    clearRoute()
-  }
-
-  const principalStore = usePrincipalStore()
-  const prepare: PrepareData = await principalStore.prepare()
-
-  const serviceName:string[] = [];
-  if (prepare.pluginServices && prepare.pluginServices.length > 0) {
-    serviceName.push(...prepare.pluginServices);
-  }
-
-  const result:RouteRecordRaw[] = await loadRouter(serviceName)
-  initialState.value = true
-  return result
 }
 
 export const saveRequestPathThenToAuth = (
@@ -383,18 +379,15 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   if (to.name === import.meta.env.VITE_APP_AUTH_PAGE_NAME) {
     socketStore.disconnect()
     await principalStore.logout()
-    clearRoute()
+    clearDynamicRoutes()
     menuPrincipalStore.reset()
     return // 继续导航
   } else if (routes.some(route => route.name === to.name)) {
     return
   }
-  // 仅在初始状态时尝试加载动态路由
-  if (!initialState.value) {
-    await reloadRoute()
-    menuPrincipalStore.refreshQuickAccess()
-    return {...to, replace: true}
-  }
+
+  // 首次导航发生在路由装配之前，等启动管线结束再判鉴权，否则会误判为未登录而闪登录页
+  await useBootStore().waitReady()
 
   const requiresAuth = (to.meta.requiresAuth || false) && !principalStore.isAuthenticated
   const requiresFullyAuth =

@@ -10,6 +10,7 @@ import type {CaptchaGenerationResult, CaptchaToken} from '@loncra/client/resourc
 import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
+import {useBootStore} from '@/stores/bootstrapStore.ts'
 import {VALID_REGX} from '@/constants'
 import {requireNonNullOrUndefined, validatePassword} from '@/utils'
 import {ResourceServerService} from "@/apis";
@@ -25,6 +26,7 @@ const globalProperties =
     .globalProperties
 const principalStore = usePrincipalStore()
 const socketStore = useSocketStore()
+const bootStore = useBootStore()
 
 const props = withDefaults(defineProps<AuthFormProp>(), {
   enablePhoneAuth: true,
@@ -142,6 +144,8 @@ const doAuth = async (): Promise<void> => {
       return
     }
     socketStore.ensureConnected()
+    // 登录后按当前用户重建路由表并加载菜单，再跳转，避免跳过去时功能路由还没装配
+    await bootStore.rebuild()
     globalProperties.$router.push('/')
     accountLoginCaptchaRef.value.captchaToken = undefined
     accountLoginCaptchaRef.value.instance = undefined

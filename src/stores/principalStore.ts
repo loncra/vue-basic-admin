@@ -58,7 +58,8 @@ const RESET: AuthenticationInfo = {
 export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   const state: Ref<AuthenticationInfo> = ref(RESET)
   const pluginInstalls = ref<UserPluginInstallResult[]>([])
-  const enterpriseService = new EnterpriseService()
+  /** 后端已启动的服务名；路由按此装配 */
+  const pluginServices = ref<string[]>([])
 
   /**
    * 检查是否有指定权限
@@ -144,6 +145,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   async function switchWorkspace(enterpriseId:number | undefined) {
     try {
       state.value.switchingWorkspace = true
+      const enterpriseService = new EnterpriseService()
       const result = await enterpriseService.switch(enterpriseId);
       if (result.data) {
         const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
@@ -166,6 +168,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     }
 
     const data = result.data
+    pluginServices.value = data.pluginServices ?? []
 
     // 保存设备标识
     const deviceIdName = import.meta.env.VITE_APP_LOCAL_STORAGE_DEVICE_IDENTIFIED_NAME
@@ -176,6 +179,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     localStorage.setItem(deviceIdName, deviceIdentified)
 
     if (data.type !== AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE && result.data.authenticated) {
+      const enterpriseService = new EnterpriseService()
       const enterpriseDataSource:RestResult<PersonalEnterprise[]> = await enterpriseService.my()
       data.enterpriseDataSource = enterpriseDataSource.data || []
     }
@@ -211,6 +215,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     const principal = state.value.name
     state.value = {...RESET}
     pluginInstalls.value = []
+    pluginServices.value = []
     if (!principal) {
       return
     }
@@ -260,6 +265,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     // 状态
     state,
     pluginInstalls,
+    pluginServices,
     loadPluginInstalls,
     upsertPluginInstall,
     removePluginInstall,
