@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {useBootStore} from '@/stores/bootstrapStore.ts'
+import {useBootstrapStore} from '@/stores/bootstrapStore.ts'
 import type {BootStep} from '@/stores/bootstrapStore.ts'
 
 defineOptions({
@@ -16,7 +16,7 @@ const stepText: Record<BootStep, string> = {
   error: '初始化失败',
 }
 
-const bootStore = useBootStore()
+const bootStore = useBootstrapStore()
 
 const text = computed(() => stepText[bootStore.step])
 </script>

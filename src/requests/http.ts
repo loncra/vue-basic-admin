@@ -4,7 +4,7 @@ import {message} from 'antdv-next'
 import {AUTH_SERVER_AUTHENTICATION_TYPE_PARAM, HTTP} from '@/constants'
 import {BusinessError, type RestResult} from '@loncra/client/commons'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {useBootStore} from "@/stores/bootstrapStore.ts";
+import {useBootstrapStore} from "@/stores/bootstrapStore.ts";
 import i18n from '@/i18n'
 
 /** 不弹出错误提示的 HTTP 状态码 */
@@ -160,7 +160,7 @@ async function responseError<T = unknown>(
     const principalStore = usePrincipalStore()
     message.error(i18n.global.t('error.http.loginExpired'))
     // 启动管线执行期间不抢跳：路由表还没装配，跳转会与启动流程打架
-    if (!useBootStore().running) {
+    if (!useBootstrapStore().running) {
       const params = new URLSearchParams(location.search)
       const authenticationType = String(params.get(AUTH_SERVER_AUTHENTICATION_TYPE_PARAM) || principalStore.state.type);
       const pushValue = saveRequestPathThenToAuth(location.pathname, authenticationType)

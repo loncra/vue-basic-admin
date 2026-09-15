@@ -19,7 +19,7 @@ export type BootStep = 'idle' | 'prepare' | 'routes' | 'menus' | 'ready' | 'erro
  * 由 App.vue 的 onMounted 触发；路由守卫通过 waitReady() 等它结束，
  * 401 拦截器通过 running 判断启动期不抢跳登录。
  */
-export const useBootStore = defineStore(STORE.BOOTSTRAP_ID, () => {
+export const useBootstrapStore = defineStore(STORE.BOOTSTRAP_ID, () => {
   const step = ref<BootStep>('idle')
   const error = ref<string | null>(null)
   /** 路由与菜单是否装配完成 */

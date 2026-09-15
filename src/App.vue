@@ -9,7 +9,7 @@ import {
 } from '@loncra/antdv-pro'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
-import {useBootStore} from '@/stores/bootstrapStore.ts'
+import {useBootstrapStore} from '@/stores/bootstrapStore.ts'
 import BootLoading from '@/views/Bootstrap.vue'
 import {convertFormUrlencoded} from '@/utils/commonUtils'
 import {useRouter} from 'vue-router'
@@ -22,7 +22,7 @@ defineOptions({
 const configProviderStore = useConfigProviderStore()
 const principalStore = usePrincipalStore()
 const menuPrincipalStore = useMenuPrincipalStore()
-const bootStore = useBootStore()
+const bootStore = useBootstrapStore()
 const router = useRouter()
 
 // 地址栏回车时的原始地址：首次导航发生在路由装配之前，装配完成后要补跳一次

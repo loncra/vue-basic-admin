@@ -32,7 +32,7 @@ import Agent from "@/views/common/AiAgent.vue";
 
 import i18n from '@/i18n'
 import {useSocketStore} from "@/stores/socketStore.ts";
-import {useBootStore} from "@/stores/bootstrapStore.ts";
+import {useBootstrapStore} from "@/stores/bootstrapStore.ts";
 
 /**
  * 首页的子路由配置
@@ -387,7 +387,7 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   }
 
   // 首次导航发生在路由装配之前，等启动管线结束再判鉴权，否则会误判为未登录而闪登录页
-  await useBootStore().waitReady()
+  await useBootstrapStore().waitReady()
 
   const requiresAuth = (to.meta.requiresAuth || false) && !principalStore.isAuthenticated
   const requiresFullyAuth =
