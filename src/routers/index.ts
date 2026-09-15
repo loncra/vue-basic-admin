@@ -342,12 +342,13 @@ const reloadRoute = async (): Promise<RouteRecordRaw[]> => {
   const prepare: PrepareData = await principalStore.prepare()
 
   const serviceName:string[] = [];
-  if (prepare.pluginServices && prepare.pluginServices.length <= 0) {
+  if (prepare.pluginServices && prepare.pluginServices.length > 0) {
     serviceName.push(...prepare.pluginServices);
   }
-  initialState.value = true
 
-  return await loadRouter(serviceName)
+  const result:RouteRecordRaw[] = await loadRouter(serviceName)
+  initialState.value = true
+  return result
 }
 
 export const saveRequestPathThenToAuth = (
