@@ -11,11 +11,9 @@ import {convertFormUrlencoded} from '@/utils/commonUtils'
 createClient({
   http: createAxiosHttpClient(axios),
   runtimeMode: import.meta.env.RUNTIME_MODE === 'MICROSERVICE' ? 'MICROSERVICE' : 'MONOLITH',
-  getAccessToken: () =>
-    localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME),
+  getAccessToken: () => localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME),
   resourcePath: import.meta.env.VITE_APP_RESOURCE_PATH,
-  authenticationTypeHeaderName: import.meta.env.VITE_APP_HEADER_AUTHENTICATION_TYPE_NAME,
-  openUrl: (url) => {
+  openAttachmentUrl: (url) => {
     window.open(url)
   },
   formValueConvert: (_key, value) => convertFormUrlencoded(value),

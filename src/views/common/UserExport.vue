@@ -18,7 +18,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const columns = computed<SearchableColumnType[]>(() => [{
+const columns = computed<SearchableColumnType<ExportDataMetadata>[]>(() => [{
   title: globalProperties.$t('common.creationTime'),
   dataIndex: "creationTime",
   ellipsis: true,
