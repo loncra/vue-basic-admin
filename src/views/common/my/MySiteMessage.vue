@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import {
   type ComponentInternalInstance,
   computed,
@@ -19,10 +20,10 @@ import {
 import type {MySiteMessageProps} from "@/types/apis";
 import type {IdNameMetadata, RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.js";
-import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
-import LActionButton from "@/components/basic/crud/ActionButton.vue";
-import type {ResolvedAction} from "@/types/composables";
+import {ActionButton as LActionButton} from '@loncra/antdv-pro';
+import type {ResolvedAction} from '@loncra/antdv-pro';
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from '@/constants';
 
 defineOptions({
@@ -62,7 +63,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'deleteRead',
       label: globalProperties.$t('messageServer.site.deleteRead'),
-      icon: createIcon('loncra-archive-x', 'align'),
+      icon: renderIconFont('loncra-archive-x', 'align'),
       danger:true,
       disabled: false,
       run:onDeleteRead
@@ -70,7 +71,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'readAll',
       label: globalProperties.$t('messageServer.site.readAll'),
-      icon: createIcon('loncra-user-check', 'align'),
+      icon: renderIconFont('loncra-user-check', 'align'),
       disabled: false,
       run:onReadAll
     },

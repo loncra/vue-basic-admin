@@ -8,9 +8,11 @@ import type {BasicAuthorityProps} from "@/types/composables";
 import {SYSTEM_CONSTANT} from '@/constants';
 import {isResultSuccess} from "@/requests";
 import {App, Button} from "antdv-next";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
+import {renderIconFont} from '@loncra/antdv'
+
 
 defineOptions({
   name: 'LModalForm',
@@ -105,7 +107,7 @@ const footer = () => {
       type: 'primary',
       onClick: onFinish,
     }, {
-      icon: () => createIcon('loncra-save','align'),
+      icon: () => renderIconFont('loncra-save','align'),
       default: () => h('span', null, globalProperties.$t('common.save')),
     }),
     h(Button, {
@@ -115,7 +117,7 @@ const footer = () => {
         emit('resetFields')
       },
     }, {
-      icon: () => createIcon('loncra-history','align'),
+      icon: () => renderIconFont('loncra-history','align'),
       default: () => h('span', null, globalProperties.$t('common.reset')),
     }),
   ]

@@ -21,6 +21,7 @@ import {
   type InstructionMeasure,
   type InstructionSenderExpose,
   isInstructionSlot,
+  renderIconFont
 } from '@loncra/antdv'
 import type {
   AgentConversationItem,
@@ -33,7 +34,7 @@ import {ResourceServerService} from "@/apis";
 
 import {AGENT_CHAT_TYPE_STYLE, AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import {createIcon, createInstructionSlot, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {createInstructionSlot, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {type MenuItemType, Space} from "antdv-next";
 import {getConversationRuns, useAgentChatContext} from "@/composables";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -59,14 +60,14 @@ function toModelMenuItems(models: ModelSettingEntity[]): MenuItemType[] {
     group.children.push({
       key: String(item.id),
       label: item.name,
-      icon: () => createIcon(item.icon || 'loncra-sticker'),
+      icon: () => renderIconFont(item.icon || 'loncra-sticker'),
     })
   }
   return Array.from(groups.entries()).map(([code, group]) => ({
     type: 'group' as const,
     key: code,
     label: h(Space, {}, () => [
-      createIcon(String(group?.metadata?.icon || 'loncra-building'), 'align'),
+      renderIconFont(String(group?.metadata?.icon || 'loncra-building'), 'align'),
       h('span', {}, group.label),
     ]),
     children: group.children,
@@ -96,14 +97,14 @@ export function toCatalogMenuItems(items: IdValueMetadata<string, string>[]): Me
     bucket.children.push({
       key: group + ':' + item.id,
       label: item.value,
-      icon: () => createIcon(String(item.metadata?.icon || bucket.icon)),
+      icon: () => renderIconFont(String(item.metadata?.icon || bucket.icon)),
     })
   }
   return Array.from(groups.entries()).map(([key, group]) => ({
     type: 'group' as const,
     key,
     label: h(Space, {}, () => [
-      createIcon(group.icon, 'align'),
+      renderIconFont(group.icon, 'align'),
       h('span', {}, group.label),
     ]),
     children: group.children,
@@ -151,7 +152,7 @@ export function useAgentSender(
       state.value.typeOptions = types.value.map(t => ({
         key:String(t.id),
         label: t.value,
-        icon:() => createIcon(getTypeStyle(Number(t.id)).icon)})
+        icon:() => renderIconFont(getTypeStyle(Number(t.id)).icon)})
       );
       const model:RestResult<ModelSettingEntity[]> = await modelSettingService.findEnabled({'filter_[type_eq]':AI_SERVER_MODEL_TYPE.CHAT})
       models.value = model.data || [];
@@ -237,7 +238,7 @@ export function useAgentSender(
       variant: "outlined",
       color: getEnumValue(workspaces.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'blue' : 'green',
       label: workspaces.name,
-      icon:() => createIcon(workspaces.type === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'loncra-folder-cog' : 'loncra-folder-closed'),
+      icon:() => renderIconFont(workspaces.type === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE ? 'loncra-folder-cog' : 'loncra-folder-closed'),
     }
   })
 

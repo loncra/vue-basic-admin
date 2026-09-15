@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import {
   type ComponentInternalInstance,
   computed,
@@ -14,12 +15,12 @@ import type {RoleEntity} from "@loncra/client/auth";
 import {RoleService} from "@loncra/client/auth";
 import type {FilterRequest, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import {applyColumnOptions, createIcon, getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {applyColumnOptions, getEnumName, requireNonNullOrUndefined} from "@/utils";
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
-import {mergeDefinitions} from "@/composables/basic/action";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import {mergeDefinitions} from '@loncra/antdv-pro';
 import {AUTH_SERVER_ROLE_AUTHORITY, AUTH_SERVER_ROLE_ROUTE, SYSTEM_MODULE_NAME} from '@/constants';
 
 defineOptions({
@@ -45,7 +46,7 @@ const service = new RoleService()
 
 const actionButtons = ref<ActionDefinition<RoleEntity>[]>([])
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<RoleEntity>[]>(() => [
   {
     title: globalProperties.$t('common.name'),
     dataIndex: 'name',
@@ -144,7 +145,7 @@ async function mounted() {
         id: 'addChild',
         permission: AUTH_SERVER_ROLE_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
-        icon: () => createIcon('loncra-list-tree'),
+        icon: () => renderIconFont('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
             globalProperties.$router.push({name:AUTH_SERVER_ROLE_ROUTE.ADD_CHILD, query:{parentId:String(ctx.record.id)}})
@@ -187,7 +188,7 @@ onMounted(mounted)
       <template v-if="column.dataIndex === 'sources'">
         {{ getSourcesName(record.sources) }}
       </template>
-      <template v-if="yesOrNoFields.includes(column.dataIndex)">
+      <template v-if="yesOrNoFields.includes(column.dataIndex as string)">
         {{ getEnumName(record[column.dataIndex as keyof RoleEntity]) }}
       </template>
     </template>

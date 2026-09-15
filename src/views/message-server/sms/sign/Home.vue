@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import type {SearchableColumnType} from "@/types/composables";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import type {SearchableColumnType} from '@loncra/antdv-pro';
 import {SmsSignService} from "@loncra/client/message";
 import {MESSAGE_SERVER_SMS_SIGN_AUTHORITY} from '@/constants'
 

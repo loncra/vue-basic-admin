@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LCrudTable from '@/components/basic/crud/CrudTable.vue'
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import LForm from '@/components/Form.vue'
 import {
   type ComponentInternalInstance,
@@ -18,11 +18,10 @@ import {ResourceServerService} from '@/apis'
 
 import {
   applyColumnOptions,
-  createIcon,
   getEnumName,
   getEnumValue,
   getExecuteBadgeStatus,
-  requireNonNullOrUndefined,
+  requireNonNullOrUndefined
 } from '@/utils'
 import {
   DATA_RELEASE_STATUS,
@@ -36,9 +35,9 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
-import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 import useApp from 'antdv-next/dist/app/useApp'
-import {IconSelect as LIconSelect} from '@loncra/antdv'
+import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
 import LAgentHubSkillReleaseChangeLog
   from "@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue";
 
@@ -54,7 +53,7 @@ const globalProperties =
 
 const service = new AiSkillPackageService()
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<SkillPackageEntity>[]>(() => [
   {
     title: globalProperties.$t('common.name'),
     dataIndex: 'name',
@@ -234,7 +233,7 @@ const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
         globalProperties.$t('common.release.selected', {
           count: getReleaseSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('loncra-screen-share'),
+      icon: () => renderIconFont('loncra-screen-share'),
       run: (ctx) => release(getReleaseSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
     {
@@ -245,7 +244,7 @@ const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
         globalProperties.$t('common.revoke.selected', {
           count: getRevokeSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('loncra-screen-share-off'),
+      icon: () => renderIconFont('loncra-screen-share-off'),
       run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
     {
@@ -256,7 +255,7 @@ const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
         globalProperties.$t('aiServer.skillPackage.reingest.selected', {
           count: getReingestSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('loncra-folder-sync'),
+      icon: () => renderIconFont('loncra-folder-sync'),
       run: (ctx) => reingest(getReingestSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
   ]
@@ -269,7 +268,7 @@ const itemActionDefinitions = function (): ActionDefinition<SkillPackageSavePayl
       permission: SKILL_PACKAGE_AUTHORITY.SNAPSHOT,
       enabled: (ctx) => getEnumValue(ctx.record!.executeStatus ?? 0) === EXECUTE_STATUS_TYPE.SUCCESS,
       label: () => globalProperties.$t('aiServer.skillPackage.snapshot.text'),
-      icon: () => createIcon('loncra-package'),
+      icon: () => renderIconFont('loncra-package'),
       run: (ctx) => openSnapshot(ctx.record!),
     },
     {
@@ -278,7 +277,7 @@ const itemActionDefinitions = function (): ActionDefinition<SkillPackageSavePayl
       enabled: (ctx) =>
         getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE && Boolean(ctx.record!.latestVersion),
       label: () => globalProperties.$t('common.release.text'),
-      icon: () => createIcon('loncra-screen-share'),
+      icon: () => renderIconFont('loncra-screen-share'),
       run: (ctx) => release([Number(ctx.record!.id)]),
     },
     {
@@ -286,7 +285,7 @@ const itemActionDefinitions = function (): ActionDefinition<SkillPackageSavePayl
       permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.revoke.text'),
-      icon: () => createIcon('loncra-screen-share-off'),
+      icon: () => renderIconFont('loncra-screen-share-off'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
     },
     {
@@ -294,7 +293,7 @@ const itemActionDefinitions = function (): ActionDefinition<SkillPackageSavePayl
       permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
       enabled: (ctx) => EXECUTE_TYPE_RETRY_STATUS.includes(getEnumValue(ctx.record!.executeStatus ?? 0)),
       label: () => globalProperties.$t('aiServer.skillPackage.reingest.text'),
-      icon: () => createIcon('loncra-folder-sync'),
+      icon: () => renderIconFont('loncra-folder-sync'),
       run: (ctx) => reingest([Number(ctx.record!.id)]),
     }
   ]
@@ -499,7 +498,7 @@ onMounted(mounted)
           <a-typography-text>
             {{$t('agent.hub.changelog.text')}}
           </a-typography-text>
-          <l-agent-hub-skill-release-change-log :package-id="record.id" />
+          <l-agent-hub-skill-release-change-log :package-id="Number(record.id)" />
         </a-flex>
       </template>
       <template #bodyCell="{column, record}">

@@ -24,12 +24,13 @@ import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {getEnumName, getEnumValue} from "@/utils/commonUtils.ts";
-import {createIcon} from "@/utils/resourceUtils.ts";
 import {XProvider as AxConfigProvider} from "@antdv-next/x";
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
+import {renderIconFont} from '@loncra/antdv'
+
 
 const instructionIconMap:Record<string, string> = {
   "@":"loncra-at-sign",
@@ -275,7 +276,7 @@ export function getSendInstructionIcon(prefix:string, vnode?:boolean):string | u
   if (!vnode) {
     return string;
   } else {
-    return createIcon(string)
+    return renderIconFont(string)
   }
 }
 
@@ -323,7 +324,7 @@ function instructionCustomRender(
             variant: 'outlined'
           },
           {
-            icon: iconType ? () => createIcon(iconType) : undefined,
+            icon: iconType ? () => renderIconFont(iconType) : undefined,
             default: () => value.value
           }
         ),

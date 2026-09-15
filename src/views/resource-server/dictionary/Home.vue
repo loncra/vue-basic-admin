@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {
@@ -25,11 +26,10 @@ import type {DataDictionary, DictionaryTypeProps} from "@/types/apis";
 import type {RestResult, TreeSortMetadata} from "@loncra/client/commons";
 
 import {getEnumName} from "@/utils/commonUtils.ts";
-import {createIcon} from "@/utils/resourceUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import LModalForm from "@/components/basic/form/ModalForm.vue";
 
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {
   OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY,
@@ -219,7 +219,7 @@ async function mounted() {
         id: 'addChild',
         permission: RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
-        icon: () => createIcon('loncra-list-tree'),
+        icon: () => renderIconFont('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
             dictionaryTypeTableActionItemClick('addChild', ctx.record)

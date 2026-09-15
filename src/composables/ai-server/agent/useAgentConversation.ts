@@ -1,7 +1,7 @@
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {AgentService} from '@/apis'
 import type {RestResult} from '@loncra/client/commons'
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {findFirstTreeNode} from '@loncra/client/commons'
 import {AGENT_CHAT_STATUS_STYLE} from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
@@ -10,6 +10,8 @@ import type {MenuInfo} from "@v-c/menu";
 import {type MenuItemType, type MenuProps} from "antdv-next";
 import {ensureConversationDraftTree, useAgentChatContext} from "@/composables";
 import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
+import {renderIconFont} from '@loncra/antdv'
+
 
 export function useAgentConversation(params:{
   onActivateConversation:(conversation:AgentConversationItem) => void
@@ -38,7 +40,7 @@ export function useAgentConversation(params:{
         {
           label: globalProperties.$t('common.rename'),
           key: 'rename',
-          icon: () => createIcon('loncra-pencil'),
+          icon: () => renderIconFont('loncra-pencil'),
         },
         {
           type: 'divider' as const,
@@ -47,14 +49,14 @@ export function useAgentConversation(params:{
           label: globalProperties.$t('common.delete.text'),
           key: 'delete',
           danger: true,
-          icon: () => createIcon('loncra-archive-x'),
+          icon: () => renderIconFont('loncra-archive-x'),
         },)
     }
     if (getEnumValue(conversation.type) !== AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION) {
       menu.items.unshift({
         label: globalProperties.$t('agent.creation'),
         key: 'creation',
-        icon: () => createIcon('loncra-plus'),
+        icon: () => renderIconFont('loncra-plus'),
       })
     }
     return menu

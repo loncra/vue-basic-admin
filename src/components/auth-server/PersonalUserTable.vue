@@ -1,15 +1,15 @@
 <script setup lang="ts">
 
 import {ResourceServerService} from '@/apis'
-import {PersonalUserService} from '@loncra/client/auth'
+import {type PersonalUserEntity, PersonalUserService} from '@loncra/client/auth'
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
 
 import type {RestResult} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {applyColumnOptions, dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
-import type {SearchableColumnType} from '@/types/composables'
-import LCrudTable from '@/components/basic/crud/CrudTable.vue'
+import type {SearchableColumnType} from '@loncra/antdv-pro'
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {
   AUTH_SERVER_PERSONAL_USER_AUTHORITY,
   AUTH_SERVER_PERSONAL_USER_ROUTE,
@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<{
 
 const service = new PersonalUserService()
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<PersonalUserEntity>[]>(() => [
   {
     title: globalProperties.$t('common.realName'),
     dataIndex: 'nickname',

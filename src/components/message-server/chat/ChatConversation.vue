@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import {AuthServerService} from "@/apis";
 import {AttachmentService} from "@loncra/client/resource";
@@ -16,7 +17,6 @@ import type {UserChatConversationResponseBody} from "@/types/apis";
 import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {
   createAvatarNode,
-  createIcon,
   getDraftContent,
   getEnumValue,
   getMessageContent,
@@ -60,7 +60,7 @@ const DEFAULT_MENU_ITEMS = computed<MenuItemType[]>(() => [
   {
     label: globalProperties.$t("common.delete.text"),
     key: 'delete',
-    icon:() => createIcon('loncra-archive-x', 'text-lg'),
+    icon:() => renderIconFont('loncra-archive-x', 'text-lg'),
     danger: true,
   },
 ])
@@ -71,26 +71,26 @@ function createMenu(item:UserChatConversationResponseBody):MenuItemType[] {
     temp.unshift({
       label: globalProperties.$t("chat.muted.action"),
       key: 'muted',
-      icon:createIcon('loncra-megaphone-off', 'text-lg'),
+      icon:renderIconFont('loncra-megaphone-off', 'text-lg'),
     })
   } else {
     temp.unshift({
       label: globalProperties.$t("chat.muted.cancel"),
       key: 'muted',
-      icon:createIcon('loncra-megaphone', 'text-lg'),
+      icon:renderIconFont('loncra-megaphone', 'text-lg'),
     })
   }
   if (getEnumValue(item.pinned) === YES_OR_NO_TYPE.NO) {
     temp.unshift({
       label: globalProperties.$t("chat.pinned.action"),
       key: 'pinned',
-      icon:createIcon('loncra-heart', 'text-lg'),
+      icon:renderIconFont('loncra-heart', 'text-lg'),
     })
   } else {
     temp.unshift({
       label: globalProperties.$t("chat.pinned.cancel"),
       key: 'pinned',
-      icon:createIcon('loncra-heart-off', 'text-lg'),
+      icon:renderIconFont('loncra-heart-off', 'text-lg'),
     })
   }
   return temp;
@@ -109,7 +109,7 @@ function createMoreButton(activeConversationItem:ServerConversationItem) {
     resolveComponent('AButton'),
     {
       type:'text',
-      icon: () => createIcon(moreButtonActive.value ? 'loncra-panel-right-close' : 'loncra-panel-left-close'),
+      icon: () => renderIconFont(moreButtonActive.value ? 'loncra-panel-right-close' : 'loncra-panel-left-close'),
       size: 'small',
       onClick: () => onMoreClick(activeConversationItem),
     },

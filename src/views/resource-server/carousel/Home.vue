@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import LCrudCardGrid from "@/components/basic/crud/CrudCardGrid.vue";
-import LActionButton from "@/components/basic/crud/ActionButton.vue";
+import {CrudCardGrid as LCrudCardGrid} from '@loncra/antdv-pro';
+import {ActionButton as LActionButton} from '@loncra/antdv-pro';
 import {
   type ComponentInternalInstance,
   computed,
@@ -24,7 +24,6 @@ import {AttachmentService, CarouselService} from "@loncra/client/resource";
 import {ResourceServerService} from "@/apis";
 
 import {
-  createIcon,
   dateTimeFormat,
   getEnumName,
   getEnumValue,
@@ -34,8 +33,8 @@ import {isObjectWriteResult} from '@loncra/antdv-pro'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
-import type {ActionDefinition, GridExposed} from '@/types/composables'
-import {BasicImage as LBasicImage} from '@loncra/antdv'
+import type {ActionDefinition, GridExposed} from '@loncra/antdv-pro'
+import {BasicImage as LBasicImage, renderIconFont} from '@loncra/antdv'
 import {
   DATA_STATUS,
   RESOURCE_SERVER_CAROUSEL_AUTHORITY,
@@ -94,7 +93,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
       id: 'add',
       permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE,
       label: () => globalProperties.$t('common.add', {name: ''}),
-      icon: () => createIcon('loncra-file-plus'),
+      icon: () => renderIconFont('loncra-file-plus'),
       run: () => {
         void globalProperties.$router.push({name: RESOURCE_SERVER_CAROUSEL_ROUTE.ADD, query: {type: tabActiveKey.value}})
       },
@@ -107,7 +106,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
         globalProperties.$t('common.delete.selected', {
           count: getReleaseSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('loncra-archive-x'),
+      icon: () => renderIconFont('loncra-archive-x'),
       run: (ctx) => {
         const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
         if (tab) {
@@ -123,7 +122,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
         globalProperties.$t('common.release.selected', {
           count: getReleaseSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('loncra-screen-share'),
+      icon: () => renderIconFont('loncra-screen-share'),
       run: (ctx) => release(getReleaseSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
     {
@@ -134,7 +133,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
         globalProperties.$t('common.revoke.selected', {
           count: getRevokeSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('loncra-screen-share-off'),
+      icon: () => renderIconFont('loncra-screen-share-off'),
       run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
   ]
@@ -147,7 +146,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
       permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.RELEASE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.release.text'),
-      icon: () => createIcon('loncra-screen-share'),
+      icon: () => renderIconFont('loncra-screen-share'),
       run: (ctx) => release([Number(ctx.record!.id)]),
     },
     {
@@ -155,7 +154,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
       permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.REVOKE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.revoke.text'),
-      icon: () => createIcon('loncra-screen-share-off'),
+      icon: () => renderIconFont('loncra-screen-share-off'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
     },
     {
@@ -163,7 +162,7 @@ const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
       permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.GET,
       enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.edit'),
-      icon: () => createIcon('loncra-file-pen-line'),
+      icon: () => renderIconFont('loncra-file-pen-line'),
       run: (ctx) => {
         void globalProperties.$router.push({
           name: RESOURCE_SERVER_CAROUSEL_ROUTE.EDIT,

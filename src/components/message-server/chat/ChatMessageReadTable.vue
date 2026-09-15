@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import {
   type ComponentInternalInstance,
   computed,
@@ -10,7 +11,7 @@ import {
 import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
 import type {UserChatMessageReadResponseBody} from "@loncra/client/message";
 import {ChatMessageService} from "@loncra/client/message";
-import {createIcon, dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
@@ -45,12 +46,12 @@ const segmented = computed(() =>{
     {
       label: globalProperties.$t('common.read.unreadable', {count:'(' + dataSource.value.filter((item) => getEnumValue(item.readable) === YES_OR_NO_TYPE.NO).length + ')'}),
       value: '0',
-      icon: createIcon('loncra-eye', 'align')
+      icon: renderIconFont('loncra-eye', 'align')
     },
     {
       value: '1',
       label: globalProperties.$t('common.read.readable', {count:'(' + dataSource.value.filter((item) => getEnumValue(item.readable) === YES_OR_NO_TYPE.YES).length + ')'}),
-      icon: createIcon('loncra-eye-off', 'align')
+      icon: renderIconFont('loncra-eye-off', 'align')
     }
   ]
 })

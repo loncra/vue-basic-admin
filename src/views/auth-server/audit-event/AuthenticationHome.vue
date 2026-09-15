@@ -4,9 +4,9 @@ import {AuthenticationAuditEventService} from '@loncra/client/auth';
 import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/utils';
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, ref} from 'vue';
 import {DatePicker, Input} from 'antdv-next';
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
-import type {SearchableColumnType} from "@/types/composables";
+import type {SearchableColumnType} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'AuthServerAuthenticationEventHome'
@@ -18,7 +18,7 @@ const globalProperties =
 
 const service = new AuthenticationAuditEventService()
 
-const columns = ref<SearchableColumnType[]>([
+const columns = ref<SearchableColumnType<AuditEventEntity>[]>([
   {
     title: globalProperties.$t('authServer.lastAuthenticationTime'),
     dataIndex: "creationTime",

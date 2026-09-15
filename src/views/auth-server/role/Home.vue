@@ -8,7 +8,7 @@ import {getEnumValue} from "@/utils";
 
 import type {RoleEntity} from '@loncra/client/auth';
 
-import type {ActionDefinition} from '@/types/composables';
+import type {ActionDefinition} from '@loncra/antdv-pro';
 import {YES_OR_NO_TYPE} from '@/constants';
 
 defineOptions({

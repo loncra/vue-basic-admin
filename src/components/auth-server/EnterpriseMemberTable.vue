@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {EnterpriseMemberEntity} from "@loncra/client/auth";
@@ -23,14 +24,13 @@ import type {FilterRequest, NameValueEnumMetadata, RestResult} from "@loncra/cli
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {
   applyColumnOptions,
-  createIcon,
   dateTimeFormat,
   getEnumName,
   getEnumValue,
   requireNonNullOrUndefined
 } from "@/utils";
-import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
@@ -71,7 +71,7 @@ const props = withDefaults(defineProps<{
 
 const service = new EnterpriseMemberService()
 
-const columns = computed<SearchableColumnType[]>(() => {
+const columns = computed<SearchableColumnType<EnterpriseMemberEntity>[]>(() => {
   const result = [
     {
       title: globalProperties.$t('common.realName'),
@@ -221,7 +221,7 @@ function rowActions(): ActionDefinition<EnterpriseMemberEntity>[] {
         permission: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.AUDIT,
         enabled: (ctx) => getEnumValue(ctx.record!.auditStatus ?? 0) === AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE,
         label: () => globalProperties.$t('common.audit.text'),
-        icon: () => createIcon('loncra-vote'),
+        icon: () => renderIconFont('loncra-vote'),
         run: (ctx) => auditItems([ctx.record!]),
     })
   } else {
@@ -231,7 +231,7 @@ function rowActions(): ActionDefinition<EnterpriseMemberEntity>[] {
       permission: AUTH_SERVER_SYSTEM_USER_AUTHORITY.ADMIN_RESET_PASSWORD,
       visible:(ctx) => principalStore.state.principal.id !== ctx.record?.id,
       label: () => globalProperties.$t('auth.adminResetPassword.text'),
-      icon: () => createIcon('loncra-lock-open'),
+      icon: () => renderIconFont('loncra-lock-open'),
       run: (ctx) => {
         if (ctx.record?.id == null) {
           return
@@ -286,7 +286,7 @@ function bulkActions(): ActionDefinition<EnterpriseMemberEntity>[] {
         label:(ctx) => globalProperties.$t('common.audit.selected', {
           count: getAuditSelectedEntities(ctx.selectedItems).length,
         }),
-        icon: () => createIcon('loncra-vote'),
+        icon: () => renderIconFont('loncra-vote'),
         run: (ctx) => auditItems(getAuditSelectedEntities(ctx.selectedItems)),
       },
     ]
@@ -295,7 +295,7 @@ function bulkActions(): ActionDefinition<EnterpriseMemberEntity>[] {
       id: 'invitation',
       permission: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.AUDIT,
       label: () => globalProperties.$t('authServer.enterpriseInvitation.routePage'),
-      icon: () => createIcon('loncra-share'),
+      icon: () => renderIconFont('loncra-share'),
       run: () => invitation(),
     },]
   }

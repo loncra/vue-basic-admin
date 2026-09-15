@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import {
   type ComponentInternalInstance,
@@ -7,7 +8,7 @@ import {
   getCurrentInstance,
   ref,
 } from "vue";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 defineOptions({
@@ -37,15 +38,15 @@ const value = ref<keyof typeof hubViews>('LAgentHubMcp')
 const options = computed(() => [{
   value: 'LAgentHubMcp',
   label: globalProperties.$t('agent.hub.mcp'),
-  icon:createIcon('loncra-plug-zap', 'align')
+  icon:renderIconFont('loncra-plug-zap', 'align')
 },{
   value: 'LAgentHubSkill',
   label: globalProperties.$t('agent.hub.skill'),
-  icon:createIcon('loncra-sparkles', 'align')
+  icon:renderIconFont('loncra-sparkles', 'align')
 },{
   value: 'LAgentHubMyPlugin',
   label: globalProperties.$t('agent.hub.myPlugin'),
-  icon:createIcon('loncra-package', 'align')
+  icon:renderIconFont('loncra-package', 'align')
 }])
 
 </script>

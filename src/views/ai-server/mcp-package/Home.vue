@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LCrudTable from '@/components/basic/crud/CrudTable.vue'
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {
   type ComponentInternalInstance,
   computed,
@@ -18,7 +18,6 @@ import {ResourceServerService} from '@/apis'
 
 import {
   applyColumnOptions,
-  createIcon,
   getEnumName,
   getEnumValue,
   requireNonNullOrUndefined
@@ -32,9 +31,9 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
-import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 import useApp from "antdv-next/dist/app/useApp";
-import {IconSelect as LIconSelect} from '@loncra/antdv'
+import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
 
 defineOptions({
   name: 'AiServerMcpPackageHome',
@@ -48,7 +47,7 @@ const globalProperties =
 
 const service = new AiMcpPackageService()
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<McpPackageEntity>[]>(() => [
   {
     title: globalProperties.$t('common.name'),
     dataIndex: "name",
@@ -187,7 +186,7 @@ const bulkActions = function(): ActionDefinition<McpPackageSavePayload>[] {
         globalProperties.$t('common.release.selected', {
           count: getReleaseSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('loncra-screen-share'),
+      icon: () => renderIconFont('loncra-screen-share'),
       run: (ctx) => release(getReleaseSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
     {
@@ -198,7 +197,7 @@ const bulkActions = function(): ActionDefinition<McpPackageSavePayload>[] {
         globalProperties.$t('common.revoke.selected', {
           count: getRevokeSelectedEntities(ctx.selectedItems).length,
         }),
-      icon: () => createIcon('loncra-screen-share-off'),
+      icon: () => renderIconFont('loncra-screen-share-off'),
       run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
     },
   ]
@@ -211,7 +210,7 @@ const itemActionDefinitions = function(): ActionDefinition<McpPackageSavePayload
       permission: MCP_PACKAGE_AUTHORITY.RELEASE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.release.text'),
-      icon: () => createIcon('loncra-screen-share'),
+      icon: () => renderIconFont('loncra-screen-share'),
       run: (ctx) => release([Number(ctx.record!.id)]),
     },
     {
@@ -219,7 +218,7 @@ const itemActionDefinitions = function(): ActionDefinition<McpPackageSavePayload
       permission: MCP_PACKAGE_AUTHORITY.REVOKE,
       enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
       label: () => globalProperties.$t('common.revoke.text'),
-      icon: () => createIcon('loncra-screen-share-off'),
+      icon: () => renderIconFont('loncra-screen-share-off'),
       run: (ctx) => revoke([Number(ctx.record!.id)]),
     }
   ]

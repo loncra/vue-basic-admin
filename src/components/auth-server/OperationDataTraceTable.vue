@@ -13,8 +13,8 @@ import {
 } from "@/utils";
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import type {SearchableColumnType} from "@/types/composables";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import type {SearchableColumnType} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants';
 
 defineOptions({
@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<{
 
 const service = new OperationDataTraceAuditEventService()
 
-const columns = ref<SearchableColumnType[]>([
+const columns = ref<SearchableColumnType<AuditEventEntity>[]>([
   {
     title: globalProperties.$t('authServer.auditEvent.type'),
     dataIndex: "auditType",

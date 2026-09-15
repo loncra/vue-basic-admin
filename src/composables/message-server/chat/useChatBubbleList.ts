@@ -12,10 +12,12 @@ import type {MenuItemType} from 'antdv-next'
 import {Space, StatisticTimer} from 'antdv-next'
 import useApp from 'antdv-next/dist/app/useApp'
 import {ChatMessageService} from '@loncra/client/message'
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'
 import {DEFAULT_BUBBLE_LIST_ROLE,} from '@/composables/chat/useBubbleList.ts'
+import {renderIconFont} from '@loncra/antdv'
+
 
 function getBubbleMessageTime(item: ChatBubbleItem): number {
   return item.data?.creationTime ?? 0
@@ -122,7 +124,7 @@ export function useChatBubbleList(
       items.push({
         key: "reference",
         label: globalProperties.$t('chat.view.reference'),
-        icon: createIcon('loncra-text-quote', 'text-lg'),
+        icon: renderIconFont('loncra-text-quote', 'text-lg'),
       })
 
       if (
@@ -147,7 +149,7 @@ export function useChatBubbleList(
         items.push({
           key: "undo",
           label: label,
-          icon: createIcon('loncra-undo', 'text-lg'),
+          icon: renderIconFont('loncra-undo', 'text-lg'),
           danger: true,
           disabled: disabled.value,
         })

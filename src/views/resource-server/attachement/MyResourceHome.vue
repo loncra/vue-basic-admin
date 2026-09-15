@@ -1,15 +1,16 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import type {ObjectItemInfo} from "@loncra/client/resource";
 import {AttachmentService, MyResourceService} from "@loncra/client/resource";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from "vue";
 import type {RestResult} from "@loncra/client/commons";
-import type {ResolvedAction} from "@/types/composables";
+import type {ResolvedAction} from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 
-import LActionButton from "@/components/basic/crud/ActionButton.vue";
+import {ActionButton as LActionButton} from '@loncra/antdv-pro';
 import {AttachmentMasonry as LAttachmentMasonry} from '@loncra/antdv-pro';
 
 defineOptions({
@@ -35,7 +36,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'downloadSelected',
       label: globalProperties.$t('common.download.selected', { count }),
-      icon: createIcon('loncra-download', 'align'),
+      icon: renderIconFont('loncra-download', 'align'),
       disabled,
       run: disabled
         ? undefined
@@ -50,7 +51,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'deleteSelected',
       label: globalProperties.$t('common.delete.selected', { count }),
-      icon: createIcon('loncra-archive-x', 'align'),
+      icon: renderIconFont('loncra-archive-x', 'align'),
       disabled,
       run: disabled ? undefined : () => onDelete(checkValue.value),
     },

@@ -292,44 +292,6 @@
     @apply max-h-none h-full;
   }
 
-  /* ========== 表格拖拽落点 / 预览 ========== */
-  .drag-row-invalid {
-    @apply cursor-not-allowed;
-  }
-
-  .drag-row-before > td {
-    @apply shadow-[inset_0_2px_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
-  }
-
-  .drag-row-after > td {
-    @apply shadow-[inset_0_-2px_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
-  }
-
-  .drag-row-inner > td {
-    @apply bg-[color-mix(in_srgb,var(--ant-color-info-bg,var(--ant-color-info-bg))_35%,transparent)];
-  }
-
-  .drag-card-before {
-    @apply shadow-[inset_0_2px_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
-  }
-
-  .drag-card-after {
-    @apply shadow-[inset_0_-2px_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
-  }
-
-  .drag-card-left {
-    @apply shadow-[inset_2px_0_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
-  }
-
-  .drag-card-right {
-    @apply shadow-[inset_-2px_0_0_0_var(--ant-color-info-bg,var(--ant-color-info-bg))];
-  }
-
-  .drag-ghost {
-    @apply pointer-events-none fixed -left-2499.75 z-9999 rounded p-xs text-sm
-      bg-container text-main shadow-ter border border-dashed;
-  }
-
   .ant-menu-item-selected .ant-badge {
     @apply text-inherit;
   }

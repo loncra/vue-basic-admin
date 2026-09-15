@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import LConfigProviderSetting from "@/components/setting/ConfigProviderSetting.vue";
 import LAccountSetting from "@/components/setting/AccountSetting.vue";
@@ -23,12 +24,12 @@ const tabList = computed(()=> {
     {
       key: 'accountSetting',
       tab: globalProperties.$t('systemSetting.tab.accountSetting'),
-      icon:createIcon('loncra-user-round-cog', 'align')
+      icon:renderIconFont('loncra-user-round-cog', 'align')
     },
     {
       key: 'configProviderSetting',
       tab: globalProperties.$t('systemSetting.tab.configProviderSetting'),
-      icon:createIcon('loncra-sliders-horizontal', 'align')
+      icon:renderIconFont('loncra-sliders-horizontal', 'align')
     },
   ]
 
@@ -36,7 +37,7 @@ const tabList = computed(()=> {
     result.push({
       key: 'enterpriseSetting',
       tab: globalProperties.$t('systemSetting.tab.enterpriseSetting'),
-      icon:createIcon('loncra-building', 'align')
+      icon:renderIconFont('loncra-building', 'align')
     })
   }
 

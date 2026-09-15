@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import useApp from "antdv-next/dist/app/useApp";
 import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
@@ -6,7 +7,7 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {ChatCallType, UserChatParticipantEntity} from "@loncra/client/message";
 import {ChatCallService, MESSAGE_SERVER_CHAT_CALL_TYPE} from "@loncra/client/message";
 import type {MenuItemType} from "antdv-next";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import type {ServerConversationItem} from "@/types/composables";
 import {useChatCallModalExpose} from "@/composables";
 
@@ -38,12 +39,12 @@ const items = computed<MenuItemType[]>(() =>  [
   {
     label: globalProperties.$t('chat.call.video.action'),
     key: MESSAGE_SERVER_CHAT_CALL_TYPE.VIDEO,
-    icon:() => createIcon('loncra-video')
+    icon:() => renderIconFont('loncra-video')
   },
   {
     label: globalProperties.$t('chat.call.voice.action'),
     key: MESSAGE_SERVER_CHAT_CALL_TYPE.VOICE,
-    icon:() => createIcon('loncra-mic')
+    icon:() => renderIconFont('loncra-mic')
   },
 ])
 

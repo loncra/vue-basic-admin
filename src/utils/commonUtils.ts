@@ -6,7 +6,7 @@ import {dayjsFormat} from './dateUtils'
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
 import {EXECUTE_STATUS_TYPE, YES_OR_NO_TYPE} from '@/constants'
-import type {SearchableColumnType} from "@/types/composables";
+import type {DefaultCrudEntity, SearchableColumnType} from '@loncra/antdv-pro';
 
 /**
  * 值转换函数类型
@@ -374,7 +374,7 @@ export function validatePassword(newPassword:string, confirmPassword:string, i18
   }
 }
 
-export function applyColumnOptions(columns:SearchableColumnType[], dataIndex: string, enumOptions: NameValueEnumMetadata<number | string>[]) {
+export function applyColumnOptions<RecordType extends object = DefaultCrudEntity>(columns:SearchableColumnType<RecordType>[], dataIndex: string, enumOptions: NameValueEnumMetadata<number | string>[]) {
   const column = columns.find((item) => item.dataIndex === dataIndex || item.key === dataIndex)
   if (column?.search) {
     column.search.props = column.search.props ?? {}

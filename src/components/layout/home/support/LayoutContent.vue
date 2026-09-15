@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import {type RouteLocationNormalized, type RouteLocationNormalizedLoaded} from 'vue-router'
 import {
@@ -12,7 +13,7 @@ import {
   watch
 } from 'vue'
 import type {MenuItemType} from 'antdv-next'
-import {createIcon, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {
   APP_RELOAD_PROVIDE_KEY,
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
@@ -51,12 +52,12 @@ const operateItems = ref<MenuItemType[]>([
   {
     key: 'close-others',
     label: globalProperties.$t('layoutContent.close.others'),
-    icon: () => createIcon('loncra-copy-x'),
+    icon: () => renderIconFont('loncra-copy-x'),
   },
   {
     key: 'close-right',
     label: globalProperties.$t('layoutContent.close.right'),
-    icon: () => createIcon('loncra-list-x'),
+    icon: () => renderIconFont('loncra-list-x'),
   },
 ])
 
@@ -346,13 +347,13 @@ function onOpenOperateChange(open: boolean) {
     operateItems.value.unshift({
       key: 'unpin',
       label: globalProperties.$t('layoutContent.unpin'),
-      icon: () => createIcon('loncra-pin-off'),
+      icon: () => renderIconFont('loncra-pin-off'),
     })
   } else {
     operateItems.value.unshift({
       key: 'pin',
       label: globalProperties.$t('layoutContent.pin'),
-      icon: () => createIcon('loncra-pin'),
+      icon: () => renderIconFont('loncra-pin'),
     })
   }
 }

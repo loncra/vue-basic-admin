@@ -20,7 +20,7 @@ import {
   SYSTEM_MODULE_NAME,
   YES_OR_NO_TYPE
 } from '@/constants';
-import type {SearchableColumnType} from "@/types/composables";
+import type {SearchableColumnType} from '@loncra/antdv-pro';
 import {UserSelect as LUserSelect} from '@loncra/antdv-pro';
 import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 

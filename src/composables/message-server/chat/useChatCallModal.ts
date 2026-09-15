@@ -20,7 +20,6 @@ import {
   MESSAGE_SERVER_USER_CHAT_CALL_STATUS
 } from "@loncra/client/message";
 import {
-  createIcon,
   exitDocumentFullscreenIfNeeded,
   getEnumValue,
   requireNonNullOrUndefined
@@ -38,6 +37,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {Button, Space} from "antdv-next";
 import {Room} from "livekit-client";
+import {renderIconFont} from '@loncra/antdv'
 import type {
   ChatCallModalContext,
   ChatCallModalInnerProps,
@@ -270,7 +270,7 @@ export function provideChatCallExpose(config:UseChatCallModalParams) {
             onClick: () => destroy(key),
           },
           {
-            icon: () => createIcon('loncra-message-square-off', 'align'),
+            icon: () => renderIconFont('loncra-message-square-off', 'align'),
             default: () => globalProperties.$t('common.ignore')
           },
         ),
@@ -284,7 +284,7 @@ export function provideChatCallExpose(config:UseChatCallModalParams) {
             onClick: () => onAccept(key, userChatCallId, loading),
           },
           {
-            icon: () => createIcon('loncra-message-square-check', 'align'),
+            icon: () => renderIconFont('loncra-message-square-check', 'align'),
             default: () => globalProperties.$t('common.accept')
           },
         ),
@@ -298,7 +298,7 @@ export function provideChatCallExpose(config:UseChatCallModalParams) {
             onClick: () => onRejected(key, userChatCallId, loading),
           },
           {
-            icon: () => createIcon('loncra-message-square-x', 'align'),
+            icon: () => renderIconFont('loncra-message-square-x', 'align'),
             default: () => globalProperties.$t('common.rejected')
           },
         )

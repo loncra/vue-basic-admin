@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import type {ObjectItemInfo} from "@loncra/client/resource";
 import {AttachmentService, FileManagerService} from "@loncra/client/resource";
-import {byteFormat, createIcon, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {byteFormat, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -12,8 +13,8 @@ import {
   ref
 } from "vue";
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 
 import {Input} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
@@ -26,7 +27,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const columns:SearchableColumnType[] = [{
+const columns:SearchableColumnType<ObjectItemInfo>[] = [{
   title: globalProperties.$t('resourceServer.attachment.filename'),
   dataIndex: "filename",
   ellipsis: true,
@@ -85,7 +86,7 @@ const rowActions: ActionDefinition<ObjectItemInfo>[] = [{
   id: 'download',
   permission: true,
   label: () => globalProperties.$t('common.download.text'),
-  icon: () => createIcon('loncra-download'),
+  icon: () => renderIconFont('loncra-download'),
   run: (ctx) => {
     if (!ctx.record) {
       return
@@ -96,7 +97,7 @@ const rowActions: ActionDefinition<ObjectItemInfo>[] = [{
   id: 'delete',
   permission: true,
   label: () => globalProperties.$t('common.delete.text'),
-  icon: () => createIcon('loncra-archive-x'),
+  icon: () => renderIconFont('loncra-archive-x'),
   run: (ctx) => {
     if (!ctx.record) {
       return
@@ -110,14 +111,14 @@ const actions: ActionDefinition<ObjectItemInfo>[] = [{
   permission: true,
   label: (ctx) => globalProperties.$t('common.download.selected',{count: ctx.selectedItems.length}),
   enabled: () => true,
-  icon: () => createIcon('loncra-download'),
+  icon: () => renderIconFont('loncra-download'),
   run: (ctx) => AttachmentService.downloads(ctx.selectedItems.map(k => ({bucketName: segmented.value.value, objectName: k.objectName})))
 },{
   id: 'deleteSelected',
   permission: true,
   label: (ctx) => globalProperties.$t('common.delete.selected',{count: ctx.selectedItems.length}),
   enabled: () => true,
-  icon: () => createIcon('loncra-archive-x'),
+  icon: () => renderIconFont('loncra-archive-x'),
   run: (ctx) => onDelete(ctx.selectedItems)
 }]
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import type {ResourceEntity} from "@loncra/client/auth";
 import {AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 import {
@@ -12,7 +13,7 @@ import {
   watch
 } from "vue";
 import {type RouteLocationNormalizedLoaded} from "vue-router";
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import {filterTreeDeep, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {MenuInfo} from '@v-c/menu'
@@ -89,7 +90,7 @@ function labelRender(item: ResourceEntity) {
 }
 
 function iconRender(item: ResourceEntity) {
-  const icon = createIcon(item.icon || 'loncra-file', props.iconClass || '')
+  const icon = renderIconFont(item.icon || 'loncra-file', props.iconClass || '')
   let trigger = icon
   if (props.badges && props.badges.includes(item.code)) {
     const badge = resolveComponent('ABadge')

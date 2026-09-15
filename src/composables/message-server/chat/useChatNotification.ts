@@ -11,7 +11,6 @@ import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {AuthServerService} from "@/apis";
 import {
   createAvatarNode,
-  createIcon,
   createUserAvatarNode,
   getEnumName,
   getEnumValue,
@@ -25,6 +24,8 @@ import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {Flex} from "antdv-next";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
+import {renderIconFont} from '@loncra/antdv'
+
 
 export function useChatNotification(config: UseChatNotificationParam) {
   const {on} = useSocketSubscriptions()
@@ -111,7 +112,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
       },
       () => [
         h('span', {}, title),
-        createIcon(icon)
+        renderIconFont(icon)
       ]
     )
   }

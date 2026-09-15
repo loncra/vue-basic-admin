@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import type {Color} from "antdv-next";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {createIcon, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import LForm from "@/components/Form.vue";
 import {
@@ -40,28 +41,28 @@ const tabItems = computed(() => [
       key:'colorSetting',
     },
     id: globalProperties.$t('systemSetting.colorSetting.text'),
-    value: createIcon('loncra-paint-bucket', 'align')
+    value: renderIconFont('loncra-paint-bucket', 'align')
   },
   {
     metadata: {
       key:'size',
     },
     id: globalProperties.$t('common.size'),
-    value: createIcon('loncra-pencil-ruler', 'align')
+    value: renderIconFont('loncra-pencil-ruler', 'align')
   },
   {
     metadata: {
       key:'style',
     },
     id: globalProperties.$t('common.style'),
-    value: createIcon('loncra-line-style', 'align')
+    value: renderIconFont('loncra-line-style', 'align')
   },
   {
     metadata: {
       key:'other',
     },
     id: globalProperties.$t('common.other'),
-    value: createIcon('loncra-signpost-big', 'align')
+    value: renderIconFont('loncra-signpost-big', 'align')
   }
 ])
 

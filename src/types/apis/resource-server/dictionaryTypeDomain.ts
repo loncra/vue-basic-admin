@@ -4,10 +4,10 @@ import type {
   DictionaryTypeEntity,
   DictionaryTypeSavePayload
 } from '@loncra/client/resource'
-import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 
 export interface DictionaryTypeProps {
-  columns: SearchableColumnType[]
+  columns: SearchableColumnType<DictionaryTypeEntity>[]
   openKeys: number[]
   parent?: DictionaryTypeEntity
   dataSource: DictionaryTypeEntity[]
@@ -20,5 +20,5 @@ export interface DictionaryTypeProps {
 export interface DataDictionary {
   query: PageRequest
   selectedRows: DataDictionaryEntity[]
-  columns: SearchableColumnType[]
+  columns: SearchableColumnType<DataDictionaryEntity>[]
 }

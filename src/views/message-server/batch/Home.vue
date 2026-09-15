@@ -7,7 +7,7 @@ import {
   getEnumValue,
   requireNonNullOrUndefined
 } from "@/utils";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {
   type ComponentInternalInstance,
   computed,
@@ -15,11 +15,11 @@ import {
   markRaw,
   onMounted
 } from "vue";
-import type {SearchableColumnType} from "@/types/composables";
+import type {SearchableColumnType} from '@loncra/antdv-pro';
 import type {RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {ResourceServerService} from "@/apis";
-import {BatchMessageService} from "@loncra/client/message";
+import {type BatchMessageEntity, BatchMessageService} from "@loncra/client/message";
 
 import {
   EXECUTE_STATUS_TYPE,
@@ -40,7 +40,7 @@ const globalProperties =
 
 const service = new BatchMessageService();
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<BatchMessageEntity>[]>(() => [
   {
     title: globalProperties.$t('common.type'),
     dataIndex: "type",

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 
 import {ResourceServerService} from '@/apis'
-import {EnterpriseService} from '@loncra/client/auth'
+import {type EnterpriseEntity, EnterpriseService} from '@loncra/client/auth'
 import {type ComponentInternalInstance, computed, getCurrentInstance, markRaw, onMounted} from 'vue'
 import {DateRangePicker, Input, Select} from 'antdv-next'
 
 import type {RestResult} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {applyColumnOptions, dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
-import type {SearchableColumnType} from '@/types/composables'
-import LCrudTable from '@/components/basic/crud/CrudTable.vue'
+import type {SearchableColumnType} from '@loncra/antdv-pro'
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {
   AUTH_SERVER_ENTERPRISE_AUTHORITY,
@@ -29,7 +29,7 @@ const globalProperties =
 
 const service = new EnterpriseService()
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<EnterpriseEntity>[]>(() => [
   {
     title: globalProperties.$t('common.name'),
     dataIndex: 'name',

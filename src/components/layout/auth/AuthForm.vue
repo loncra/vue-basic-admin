@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import LForm from '@/components/Form.vue'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {AuthFormProp} from '@/types/apis'
@@ -10,7 +11,7 @@ import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
 import {VALID_REGX} from '@/constants'
-import {createIcon, requireNonNullOrUndefined, validatePassword} from '@/utils'
+import {requireNonNullOrUndefined, validatePassword} from '@/utils'
 import {ResourceServerService} from "@/apis";
 import type {TianaiCaptchaInstance} from "../../../../env";
 import useApp from "antdv-next/dist/app/useApp";
@@ -38,20 +39,20 @@ const segmentedData = computed(() => {
   const result = [{
     label:globalProperties.$t('auth.accountLogin'),
     value: String(AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD),
-    icon: createIcon('loncra-user', 'align'),
+    icon: renderIconFont('loncra-user', 'align'),
   }]
   if (props.enablePhoneAuth) {
     result.push({
       label:globalProperties.$t('auth.phoneLogin'),
       value: String(AUTH_SERVER_LOGIN_TYPE.PHONE_CAPTCHA),
-      icon: createIcon('loncra-tablet-smartphone', 'align'),
+      icon: renderIconFont('loncra-tablet-smartphone', 'align'),
     })
   }
   if (props.enableQrCodeAuth) {
     result.push({
       label:globalProperties.$t('auth.qrCodeLogin'),
       value: String(AUTH_SERVER_LOGIN_TYPE.QR_CODE),
-      icon: createIcon('loncra-qr-code', 'align'),
+      icon: renderIconFont('loncra-qr-code', 'align'),
     })
   }
   return result

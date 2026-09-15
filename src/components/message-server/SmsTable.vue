@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import {
   type ComponentInternalInstance,
   computed,
@@ -9,20 +10,19 @@ import {
 } from 'vue';
 import {
   applyColumnOptions,
-  createIcon,
   dateTimeFormat,
   getEnumName,
   getEnumValue,
   requireNonNullOrUndefined
 } from '@/utils'
-import type {ActionDefinition, SearchableColumnType} from '@/types/composables';
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import type {SmsMessageEntity} from "@loncra/client/message";
 import {SmsMessageService} from "@loncra/client/message";
 import {ResourceServerService} from "@/apis";
-import {mergeDefinitions} from "@/composables/basic/action";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import {mergeDefinitions} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {DateRangePicker, Input, Select} from "antdv-next";
 
 import {
@@ -54,25 +54,25 @@ const actionButtons = ref<ActionDefinition<SmsMessageEntity>[]>([{
   id: "send",
   permission:MESSAGE_SERVER_SMS_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.sms.routePage')}),
-  icon:() => createIcon('loncra-send'),
+  icon:() => renderIconFont('loncra-send'),
   run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_SMS_ROUTE.SEND})
 },{
   id: "template",
   permission:MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY.FIND,
   label:() => globalProperties.$t('messageServer.sms.template.routePage'),
-  icon:() => createIcon('loncra-layout-template'),
+  icon:() => renderIconFont('loncra-layout-template'),
   run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_SMS_ROUTE.TEMPLATE})
 },{
   id: "sign",
   permission:MESSAGE_SERVER_SMS_SIGN_AUTHORITY.FIND,
   label:() => globalProperties.$t('messageServer.sms.sign.routePage'),
-  icon:() => createIcon('loncra-signature'),
+  icon:() => renderIconFont('loncra-signature'),
   run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_SMS_ROUTE.SIGN})
 }])
 
 const service = new SmsMessageService();
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<SmsMessageEntity>[]>(() => [
   {
     title: globalProperties.$t('common.creationTime'),
     dataIndex: "creationTime",

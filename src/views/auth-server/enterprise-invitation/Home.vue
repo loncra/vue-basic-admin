@@ -23,14 +23,13 @@ import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {
   applyColumnOptions,
-  createIcon,
   dateTimeFormat,
   getEnumName,
   getEnumValue,
   requireNonNullOrUndefined
 } from '@/utils'
-import type {ActionDefinition, SearchableColumnType} from '@/types/composables'
-import LCrudTable from '@/components/basic/crud/CrudTable.vue'
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
   AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
@@ -39,7 +38,7 @@ import {
   SYSTEM_MODULE_NAME
 } from '@/constants'
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
-import {QrCodeModal as LQrCodeModal} from '@loncra/antdv'
+import {QrCodeModal as LQrCodeModal, renderIconFont} from '@loncra/antdv'
 import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
 import LEnterpriseInvitationModal, {
   createEmptyForm
@@ -55,7 +54,7 @@ const globalProperties =
 
 const service = new EnterpriseInvitationService()
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<EnterpriseInvitationEntity>[]>(() => [
   {
     title: globalProperties.$t('authServer.enterpriseInvitation.inviterPrincipal'),
     dataIndex: 'member',
@@ -148,7 +147,7 @@ const itemActionDefinitions = function (): ActionDefinition<EnterpriseInvitation
       id: 'share',
       permission:AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
       label: () => globalProperties.$t('common.share'),
-      icon: () => createIcon('loncra-share'),
+      icon: () => renderIconFont('loncra-share'),
       run: (ctx) => openShard(ctx.record!),
     },
   ]

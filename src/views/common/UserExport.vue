@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import type {ExportDataMetadata, FileObject} from "@loncra/client/resource";
 import {AttachmentService, UserExportService} from "@loncra/client/resource";
 import {
   byteFormat,
-  createIcon,
   dateTimeFormat,
   getEnumName,
   requireNonNullOrUndefined
 } from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 
 import {EXECUTE_STATUS_TYPE} from '@/constants';
 
@@ -74,7 +74,7 @@ const rowActions: ActionDefinition<ExportDataMetadata>[] = [{
   id: 'download',
   permission: true,
   label: () => globalProperties.$t('common.download.text'),
-  icon: () => createIcon('loncra-download', 'align'),
+  icon: () => renderIconFont('loncra-download', 'align'),
   run: (ctx) => {
     if (!ctx.record) {
       return
@@ -88,7 +88,7 @@ const actions: ActionDefinition<ExportDataMetadata>[] = [{
   permission: true,
   label: (ctx) => globalProperties.$t('common.download.selected',{count: ctx.selectedItems.length}),
   enabled: (ctx) => ctx.selectedItems.some((item) => item.executeStatus.value === EXECUTE_STATUS_TYPE.SUCCESS),
-  icon: () => createIcon('loncra-download', 'align'),
+  icon: () => renderIconFont('loncra-download', 'align'),
   run: (ctx) => {
     const files: FileObject[] = ctx.selectedItems
       .filter((item) => item.executeStatus.value === EXECUTE_STATUS_TYPE.SUCCESS)

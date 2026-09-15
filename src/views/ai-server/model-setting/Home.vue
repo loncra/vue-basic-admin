@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
-import LCrudTable from '@/components/basic/crud/CrudTable.vue'
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {
   type ComponentInternalInstance,
   computed,
@@ -22,7 +22,7 @@ import type {ModelSettingEntity} from '@loncra/client/ai'
 import {ModelSettingService} from '@loncra/client/ai'
 import {ResourceServerService} from '@/apis'
 
-import {getEnumName, requireNonNullOrUndefined} from '@/utils'
+import {applyColumnOptions, getEnumName, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {
   AI_SERVER_MODEL_SETTING_AUTHORITY,
@@ -33,7 +33,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
-import type {SearchableColumnType} from "@/types/composables";
+import type {SearchableColumnType} from '@loncra/antdv-pro';
 
 const {message} = App.useApp()
 
@@ -54,66 +54,66 @@ const manufacturersLoading = ref(false)
 const selectedManufacturer = ref<DataDictionaryMetadata | null>(null)
 const selectedKeys = ref<string[]>([])
 
+const columns = computed<SearchableColumnType<ModelSettingEntity>[]>(() => [
+  {
+    title: globalProperties.$t('common.name'),
+    dataIndex: 'name',
+    key: 'name',
+    search: {
+      component: markRaw(Input),
+      props: {placeholder: globalProperties.$t('search.placeholder.input')},
+      expression: 'like',
+    },
+  },
+  {
+    title: globalProperties.$t('aiServer.modelSetting.model'),
+    dataIndex: 'model',
+    key: 'model',
+    search: {
+      component: markRaw(Input),
+      props: {placeholder: globalProperties.$t('search.placeholder.input')},
+      expression: 'like',
+    },
+  },
+  {
+    title: globalProperties.$t('common.type'),
+    dataIndex: 'type',
+    key: 'type',
+    search: {
+      component: markRaw(Select),
+      props: {
+        classes: {root: 'w-full'},
+        fieldNames: {label: 'name'},
+        placeholder: globalProperties.$t('search.placeholder.select'),
+      },
+      expression: 'eq',
+    },
+  },
+  {
+    title: globalProperties.$t('common.enabled'),
+    dataIndex: 'enabled',
+    key: 'enabled',
+    search: {
+      component: markRaw(Select),
+      props: {
+        classes: {root: 'w-full'},
+        fieldNames: {label: 'name'},
+        placeholder: globalProperties.$t('search.placeholder.select'),
+      },
+      expression: 'eq',
+    },
+  },
+])
+
 const options = ref<{
   selectedRows: ModelSettingEntity[]
   typeOptions: NameValueEnumMetadata<number>[]
   enabledOptions: NameValueEnumMetadata<number>[]
-  columns: SearchableColumnType[]
   query: FilterRequest
 }>({
   selectedRows: [],
   typeOptions: [],
   enabledOptions: [],
-  columns: [
-    {
-      title: globalProperties.$t('common.name'),
-      dataIndex: 'name',
-      key: 'name',
-      search: {
-        component: markRaw(Input),
-        props: {placeholder: globalProperties.$t('search.placeholder.input')},
-        expression: 'like',
-      },
-    },
-    {
-      title: globalProperties.$t('aiServer.modelSetting.model'),
-      dataIndex: 'model',
-      key: 'model',
-      search: {
-        component: markRaw(Input),
-        props: {placeholder: globalProperties.$t('search.placeholder.input')},
-        expression: 'like',
-      },
-    },
-    {
-      title: globalProperties.$t('common.type'),
-      dataIndex: 'type',
-      key: 'type',
-      search: {
-        component: markRaw(Select),
-        props: {
-          classes: {root: 'w-full'},
-          fieldNames: {label: 'name'},
-          placeholder: globalProperties.$t('search.placeholder.select'),
-        },
-        expression: 'eq',
-      },
-    },
-    {
-      title: globalProperties.$t('common.enabled'),
-      dataIndex: 'enabled',
-      key: 'enabled',
-      search: {
-        component: markRaw(Select),
-        props: {
-          classes: {root: 'w-full'},
-          fieldNames: {label: 'name'},
-          placeholder: globalProperties.$t('search.placeholder.select'),
-        },
-        expression: 'eq',
-      },
-    },
-  ],
   query: {},
 })
 
@@ -205,18 +205,9 @@ async function mounted() {
     options.value.enabledOptions = (enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] ||
       []) as NameValueEnumMetadata<number>[]
 
-    const typeCol = options.value.columns?.find((c) => c && 'dataIndex' in c && c.dataIndex === 'type')
-    if (typeCol && 'search' in typeCol && typeCol.search) {
-      typeCol.search.props = typeCol.search.props ?? {}
-      typeCol.search.props.options = options.value.typeOptions
-    }
-    const enabledCol = options.value.columns?.find(
-      (c) => c && 'dataIndex' in c && c.dataIndex === 'enabled',
-    )
-    if (enabledCol && 'search' in enabledCol && enabledCol.search) {
-      enabledCol.search.props = enabledCol.search.props ?? {}
-      enabledCol.search.props.options = options.value.enabledOptions
-    }
+    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM] || [])
+    applyColumnOptions(columns.value, "enabled", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] || [])
+
   }
 
   await loadManufacturers()
@@ -279,7 +270,7 @@ onMounted(mounted)
             v-model:query="options.query"
             v-model:selected-rows="options.selectedRows"
             :service="modelSettingService"
-            :columns="options.columns"
+            :columns="columns"
             :authority="{
               add: AI_SERVER_MODEL_SETTING_AUTHORITY.SAVE,
               edit: AI_SERVER_MODEL_SETTING_AUTHORITY.SAVE,

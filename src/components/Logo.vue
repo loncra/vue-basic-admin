@@ -9,8 +9,8 @@ import {
   AUTHENTICATION_MEMBER_TYPE,
   ICON_SELECT_AVATAR_MODE_VALUE
 } from '@/constants';
-import {createIcon, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {IconSelect as LIconSelect} from '@loncra/antdv'
+import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
 import type {PersonalEnterprise} from "@loncra/client/auth";
 import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
 
@@ -39,7 +39,7 @@ const switchItems = computed(()=>{
     type:'group',
     label:globalProperties.$t('systemSetting.enterprise.title'),
     key:AUTH_SERVER_AUTHENTICATION_TYPE.ENTERPRISE,
-    icon:createIcon('loncra-building', 'align'),
+    icon:renderIconFont('loncra-building', 'align'),
     children:principalStore
       .state
       .enterpriseDataSource

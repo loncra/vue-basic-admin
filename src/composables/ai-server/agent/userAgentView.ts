@@ -24,10 +24,12 @@ import {
   useAgentDraftPersist,
 } from '@/composables'
 import {AGENT_CHAT_TYPE_STYLE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
-import {addBubbleListMessage, createIcon, getEnumName, getEnumValue} from '@/utils'
+import {addBubbleListMessage, getEnumName, getEnumValue} from '@/utils'
 import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
+import {renderIconFont} from '@loncra/antdv'
+
 
 /** Agent 气泡 role：ai 项按状态动态挂 loading */
 export function createAgentBubbleListRole() {
@@ -245,12 +247,12 @@ export function useAgentView() {
     if (!style) {
       return {
         color:'default',
-        icon:createIcon('loncra-file-exclamation-point', 'align'),
+        icon:renderIconFont('loncra-file-exclamation-point', 'align'),
       }
     } else {
       return {
         color:style.color,
-        icon:createIcon(style.icon, 'align'),
+        icon:renderIconFont(style.icon, 'align'),
       }
     }
   }

@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import LLogo from "@/components/Logo.vue";
 import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
-import {createIcon, requireNonNullOrUndefined, validatePassword} from "@/utils";
+import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 import {VALID_REGX} from '@/constants';
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {
@@ -31,12 +32,12 @@ const {message} = useApp()
 const segmentedData = computed(() => [{
   label: globalProperties.$t('common.email'),
   value: RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL,
-  icon: createIcon('loncra-email', 'align'),
+  icon: renderIconFont('loncra-email', 'align'),
   rules: [{required: true, trigger: 'change', type: 'email'}]
 }, {
   label: globalProperties.$t('common.phoneNumber'),
   value: RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS,
-  icon: createIcon('loncra-tablet-smartphone', 'align'),
+  icon: renderIconFont('loncra-tablet-smartphone', 'align'),
   rules: [{required: true, trigger: 'change'}, {
     type: 'string',
     pattern: VALID_REGX.PHONE_NUMBER,

@@ -14,9 +14,11 @@ import type {ObjectItemInfo} from '@loncra/client/resource'
 import {AttachmentService} from '@loncra/client/resource'
 import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 
-import {createIcon, dateFormat, requireNonNullOrUndefined} from '@/utils'
+import {dateFormat, requireNonNullOrUndefined} from '@/utils'
 import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {Dayjs} from 'dayjs'
+import {renderIconFont} from '@loncra/antdv'
+
 
 /**
  * 历史消息弹窗逻辑：消息分页加载、附件资源加载、按类型/关键词/日期过滤分组、搜索与翻页。
@@ -42,27 +44,27 @@ export function useChatHistories(roomId: Ref<number>) {
     {
       label: globalProperties.$t('chat.history'),
       value: 'message',
-      icon: createIcon('loncra-messages-square', 'align'),
+      icon: renderIconFont('loncra-messages-square', 'align'),
     },
     {
       label: globalProperties.$t('attachment.type.image'),
       value: 'image',
-      icon: createIcon('loncra-file-image', 'align'),
+      icon: renderIconFont('loncra-file-image', 'align'),
     },
     {
       value: 'video',
       label: globalProperties.$t('attachment.type.video'),
-      icon: createIcon('loncra-file-video-camera', 'align'),
+      icon: renderIconFont('loncra-file-video-camera', 'align'),
     },
     {
       value: 'audio',
       label: globalProperties.$t('attachment.type.audio'),
-      icon: createIcon('loncra-file-volume', 'align'),
+      icon: renderIconFont('loncra-file-volume', 'align'),
     },
     {
       value: 'unknown',
       label: globalProperties.$t('attachment.type.unknown'),
-      icon: createIcon('loncra-file-text', 'align'),
+      icon: renderIconFont('loncra-file-text', 'align'),
     },
   ])
 

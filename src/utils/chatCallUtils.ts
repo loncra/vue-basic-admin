@@ -7,7 +7,7 @@ import {
   MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS,
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from '@loncra/client/message'
-import {createIcon} from "@/utils/resourceUtils.ts";
+import {renderIconFont} from '@loncra/antdv'
 import {
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
   PIP_MAX_WIDTH_PX,
@@ -47,7 +47,7 @@ export function getCallIcon(type:NameValueEnumMetadata<number> | number, vnode?:
     result = "loncra-mic"
   }
   if (vnode) {
-    return createIcon(result, String(vnode.classes), Boolean(vnode.spin), Number(vnode.rotate))
+    return renderIconFont(result, String(vnode.classes), Boolean(vnode.spin), Number(vnode.rotate))
   } else {
     return result;
   }

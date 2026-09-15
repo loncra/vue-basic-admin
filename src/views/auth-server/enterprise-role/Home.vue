@@ -4,7 +4,7 @@ import type {TableProps} from "antdv-next";
 
 import {getEnumValue} from "@/utils";
 
-import type {ActionDefinition} from '@/types/composables';
+import type {ActionDefinition} from '@loncra/antdv-pro';
 import {YES_OR_NO_TYPE} from '@/constants';
 import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
 import type {EnterpriseRoleEntity} from "@loncra/client/auth";

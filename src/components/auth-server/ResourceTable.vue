@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import {
   type ComponentInternalInstance,
   computed,
@@ -20,15 +21,14 @@ import type {
 import type {EnumBucketsResponseBody} from '@loncra/client/resource';
 import {
   applyColumnOptions,
-  createIcon,
   getEnumName,
   requireNonNullOrUndefined
 } from "@/utils";
 import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_RESOURCE_AUTHORITY,
   AUTH_SERVER_RESOURCE_ROUTE,
@@ -250,7 +250,7 @@ async function mounted() {
         id: 'addChild',
         permission: AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
         label: () => globalProperties.$t('common.addChild', {name:''}),
-        icon: () => createIcon('loncra-list-tree'),
+        icon: () => renderIconFont('loncra-list-tree'),
         run: (ctx) => {
           if (ctx.record) {
             globalProperties.$router.push({name:AUTH_SERVER_RESOURCE_ROUTE.ADD_CHILD, query:{parentId:String(ctx.record.id)}})

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
-import type {SearchableColumnType} from "@/types/composables";
-import {SmsTemplateService} from "@loncra/client/message";
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import type {SearchableColumnType} from '@loncra/antdv-pro';
+import {type SmsTemplateEntity, SmsTemplateService} from "@loncra/client/message";
 import {MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY} from '@/constants'
 
 defineOptions({
@@ -16,7 +16,7 @@ const globalProperties =
 
 const service = new SmsTemplateService('alibabaCloud')
 
-const columns = computed<SearchableColumnType[]>(() => [{
+const columns = computed<SearchableColumnType<SmsTemplateEntity>[]>(() => [{
   title: globalProperties.$t('common.channel'),
   dataIndex: "channel",
   ellipsis: true,

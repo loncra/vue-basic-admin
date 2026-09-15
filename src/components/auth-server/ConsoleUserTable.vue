@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {ConsoleUserEntity} from "@loncra/client/auth";
@@ -10,13 +11,12 @@ import type {RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {
   applyColumnOptions,
-  createIcon,
   dateTimeFormat,
   getEnumName,
   requireNonNullOrUndefined
 } from "@/utils";
-import type {ActionDefinition, SearchableColumnType} from "@/types/composables";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_CONSOLE_USER_AUTHORITY,
   AUTH_SERVER_CONSOLE_USER_ROUTE,
@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<{
 
 const consoleUserService = new ConsoleUserService()
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<ConsoleUserEntity>[]>(() => [
   {
     title: globalProperties.$t('common.realName'),
     dataIndex: 'realName',
@@ -151,7 +151,7 @@ function rowActions(): ActionDefinition<ConsoleUserEntity>[] {
       danger: true,
       permission: AUTH_SERVER_SYSTEM_USER_AUTHORITY.ADMIN_RESET_PASSWORD,
       label: () => globalProperties.$t('auth.adminResetPassword.text'),
-      icon: () => createIcon('loncra-lock-open'),
+      icon: () => renderIconFont('loncra-lock-open'),
       run: (ctx) => {
         if (ctx.record?.id == null) {
           return

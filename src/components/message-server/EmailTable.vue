@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {renderIconFont} from '@loncra/antdv'
 import {
   type ComponentInternalInstance,
   computed,
@@ -9,15 +10,14 @@ import {
 } from 'vue';
 import {
   applyColumnOptions,
-  createIcon,
   dateTimeFormat,
   getEnumName,
   getEnumValue,
   requireNonNullOrUndefined
 } from '@/utils'
-import type {ActionDefinition, SearchableColumnType} from '@/types/composables';
-import {mergeDefinitions} from "@/composables/basic/action";
-import LCrudTable from "@/components/basic/crud/CrudTable.vue";
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import {mergeDefinitions} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
 import type {EmailMessageEntity} from "@loncra/client/message";
@@ -52,13 +52,13 @@ const actionButtons = ref<ActionDefinition<EmailMessageEntity>[]>([{
   id: "send",
   permission:MESSAGE_SERVER_EMAIL_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.email.routePage')}),
-  icon:() => createIcon('loncra-send'),
+  icon:() => renderIconFont('loncra-send'),
   run:() => void globalProperties.$router.push({name:MESSAGE_SERVER_EMAIL_ROUTE.SEND})
 }])
 
 const service = new EmailMessageService();
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<EmailMessageEntity>[]>(() => [
   {
     title: globalProperties.$t('common.creationTime'),
     dataIndex: "creationTime",
