@@ -3,6 +3,7 @@ import {defineStore} from 'pinia'
 import {STORE} from '@/constants'
 import type {RouteResourceMetadata} from '@/types/apis'
 import type {RestResult} from '@loncra/client/commons'
+import {filterTreeDeep, unmergeTree} from '@loncra/client/commons'
 import type {ResourceEntity, ResourceMetadata} from '@loncra/client/auth'
 import {AuthServerService} from '@/apis'
 import {
@@ -12,7 +13,6 @@ import {
   type RouteRecordNormalized
 } from "vue-router";
 import {requireNonNullOrUndefined} from '@/utils'
-import {filterTreeDeep, unmergeTree} from '@loncra/client/commons'
 import {getRouteTitle} from '@/routers'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 

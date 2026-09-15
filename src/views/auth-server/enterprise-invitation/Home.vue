@@ -29,15 +29,13 @@ import {
   requireNonNullOrUndefined
 } from '@/utils'
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
+import {CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
   AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
-  AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {QrCodeModal as LQrCodeModal, renderIconFont} from '@loncra/antdv'
 import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
 import LEnterpriseInvitationModal, {

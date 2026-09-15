@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
+import type {SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {
   type ComponentInternalInstance,
@@ -33,7 +34,6 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
-import type {SearchableColumnType} from '@loncra/antdv-pro';
 
 const {message} = App.useApp()
 

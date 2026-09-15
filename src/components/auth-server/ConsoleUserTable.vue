@@ -9,12 +9,7 @@ import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
 
 import type {RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import {
-  applyColumnOptions,
-  dateTimeFormat,
-  getEnumName,
-  requireNonNullOrUndefined
-} from "@/utils";
+import {applyColumnOptions, dateTimeFormat, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {

@@ -9,8 +9,7 @@ import {
   requireNonNullOrUndefined
 } from '@/utils'
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
-import {mergeDefinitions} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
 import type {SiteMessageEntity} from "@loncra/client/message";

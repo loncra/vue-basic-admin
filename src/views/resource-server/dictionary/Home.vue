@@ -19,11 +19,11 @@ import type {
 } from "@loncra/client/resource";
 import {DataDictionaryService, DictionaryTypeService} from "@loncra/client/resource";
 import {applyColumnOptions, requireNonNullOrUndefined} from "@/utils";
+import type {RestResult, TreeSortMetadata} from "@loncra/client/commons";
 import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
 import {App, Input, Select, type TableProps} from "antdv-next";
 
 import type {DataDictionary, DictionaryTypeProps} from "@/types/apis";
-import type {RestResult, TreeSortMetadata} from "@loncra/client/commons";
 
 import {getEnumName} from "@/utils/commonUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";

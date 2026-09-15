@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
 import type {ResourceEntity, RoleEntity, RoleSavePayload} from "@loncra/client/auth";
 import {RoleService} from "@loncra/client/auth";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {requireNonNullOrUndefined} from "@/utils";
-import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";

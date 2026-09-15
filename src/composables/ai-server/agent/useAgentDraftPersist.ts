@@ -10,12 +10,7 @@ import {
 import {debounce} from 'lodash-es'
 import type {SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {ActiveAgentConversationItem, ChatContentBlock} from '@/types/composables'
-import {
-  clearDraft,
-  createAgentDraftCodec,
-  getDraft,
-  putDraft,
-} from '@/composables/chat/draft'
+import {clearDraft, createAgentDraftCodec, getDraft, putDraft,} from '@/composables/chat/draft'
 import {createInstructionSlot, requireNonNullOrUndefined} from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'

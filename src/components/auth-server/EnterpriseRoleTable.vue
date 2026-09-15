@@ -17,9 +17,8 @@ import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {applyColumnOptions, getEnumName, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
-import {mergeDefinitions} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,

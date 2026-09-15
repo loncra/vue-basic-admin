@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {
   type ComponentInternalInstance,
@@ -16,12 +17,7 @@ import type {McpPackageSavePayload} from '@loncra/client/ai'
 import {AiMcpPackageService} from '@loncra/client/ai'
 import {ResourceServerService} from '@/apis'
 
-import {
-  applyColumnOptions,
-  getEnumName,
-  getEnumValue,
-  requireNonNullOrUndefined
-} from '@/utils'
+import {applyColumnOptions, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
 import {
   DATA_STATUS,
   ICON_SELECT_AVATAR_MODE_VALUE,
@@ -31,7 +27,6 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 import useApp from "antdv-next/dist/app/useApp";
 import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
 

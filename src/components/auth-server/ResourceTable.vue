@@ -18,17 +18,13 @@ import type {
   RestResult,
   TreeSortMetadata
 } from '@loncra/client/commons';
-import type {EnumBucketsResponseBody} from '@loncra/client/resource';
-import {
-  applyColumnOptions,
-  getEnumName,
-  requireNonNullOrUndefined
-} from "@/utils";
 import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
+import type {EnumBucketsResponseBody} from '@loncra/client/resource';
+import {applyColumnOptions, getEnumName, requireNonNullOrUndefined} from "@/utils";
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_RESOURCE_AUTHORITY,
   AUTH_SERVER_RESOURCE_ROUTE,

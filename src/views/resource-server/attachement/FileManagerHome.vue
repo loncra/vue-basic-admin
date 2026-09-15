@@ -13,8 +13,8 @@ import {
   ref
 } from "vue";
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 
 import {Input} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";

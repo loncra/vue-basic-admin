@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import type {SearchableColumnType} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {type SmsTemplateEntity, SmsTemplateService} from "@loncra/client/message";
 import {MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY} from '@/constants'
 

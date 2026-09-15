@@ -22,8 +22,8 @@ import type {IdNameMetadata, RestResult, TotalPage} from "@loncra/client/commons
 import {useMessageServerStore} from "@/stores/messageServerStore.js";
 import {dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
-import {ActionButton as LActionButton} from '@loncra/antdv-pro';
 import type {ResolvedAction} from '@loncra/antdv-pro';
+import {ActionButton as LActionButton} from '@loncra/antdv-pro';
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from '@/constants';
 
 defineOptions({

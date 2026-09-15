@@ -30,7 +30,7 @@ import {
   requireNonNullOrUndefined
 } from "@/utils";
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import {CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
@@ -39,7 +39,6 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants';
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import LForm from "@/components/Form.vue";
 import {isBusinessSuccess} from "@/requests";
 import useApp from "antdv-next/dist/app/useApp";

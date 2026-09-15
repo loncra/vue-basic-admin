@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import LForm from '@/components/Form.vue'
 import {
@@ -35,7 +36,6 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 import useApp from 'antdv-next/dist/app/useApp'
 import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
 import LAgentHubSkillReleaseChangeLog

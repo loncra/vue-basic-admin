@@ -7,6 +7,7 @@ import {
   getEnumValue,
   requireNonNullOrUndefined
 } from "@/utils";
+import type {SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {
   type ComponentInternalInstance,
@@ -15,7 +16,6 @@ import {
   markRaw,
   onMounted
 } from "vue";
-import type {SearchableColumnType} from '@loncra/antdv-pro';
 import type {RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {ResourceServerService} from "@/apis";
