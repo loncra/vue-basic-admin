@@ -32,13 +32,20 @@ export const useBootstrapStore = defineStore(STORE.BOOTSTRAP_ID, () => {
 
   // 就绪闸门：Promise 不适合放进响应式 state，作为闭包变量持有
   let pending: Promise<boolean> | undefined
+  let readyPromise: Promise<void> | null = null
   let resolveReady: (() => void) | undefined
-  const readyPromise = new Promise<void>((resolve) => {
-    resolveReady = resolve
-  })
 
-  /** 路由守卫调用：首次导航时路由表还没装配，必须等装配完再判鉴权 */
+  /**
+   * 路由守卫调用：路由表装配期间必须等，否则会拿着旧的（空的）匹配结果继续导航。
+   * 可重置：登录 / 登出 / 切企业重建路由表期间同样会拦住导航。
+   */
   function waitReady(): Promise<void> {
+    if (ready.value) {
+      return Promise.resolve()
+    }
+    readyPromise ??= new Promise<void>((resolve) => {
+      resolveReady = resolve
+    })
     return readyPromise
   }
 
@@ -46,6 +53,15 @@ export const useBootstrapStore = defineStore(STORE.BOOTSTRAP_ID, () => {
     ready.value = true
     running.value = false
     resolveReady?.()
+    resolveReady = undefined
+    readyPromise = null
+  }
+
+  /** 重建路由表前调用：把闸门重新关上，重建期间的导航会被拦住 */
+  function closeGate(): void {
+    ready.value = false
+    resolveReady = undefined
+    readyPromise = null
   }
 
   async function execute(): Promise<boolean> {
@@ -103,11 +119,11 @@ export const useBootstrapStore = defineStore(STORE.BOOTSTRAP_ID, () => {
   /** 登录 / 登出 / 切换企业后重建路由表 */
   async function rebuild(): Promise<boolean> {
     pending = undefined
-    ready.value = false
+    closeGate()
     clearDynamicRoutes()
     useMenuPrincipalStore().reset()
     return run()
   }
 
-  return {step, error, ready, running, loading, failed, waitReady, run, retry, rebuild}
+  return {step, error, ready, running, loading, failed, waitReady, closeGate, run, retry, rebuild}
 })

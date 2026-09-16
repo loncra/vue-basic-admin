@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {renderIconFont} from '@loncra/antdv'
 
-import type {ObjectItemInfo} from "@loncra/client/resource";
+import {type ObjectItemInfo, RESOURCE_SERVER_ATTACHMENT_AUTHORITY} from "@loncra/client/resource";
 import {AttachmentService, FileManagerService} from "@loncra/client/resource";
 import {byteFormat, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {
@@ -229,10 +229,10 @@ onMounted(mounted)
       :query="query"
       :row-actions="rowActions"
       v-model:selected-rows="selectedRows"
-      :scroll="{x:'max-content'}"
+      :scroll="{x:'max-content', y:500}"
       :row-selection="{fixed:true, type: 'checkbox'}"
       :authority="{
-        delete:'perms[resource_server_attachment:delete]'
+        delete:RESOURCE_SERVER_ATTACHMENT_AUTHORITY.DELETE
       }"
       :expandable="{
         expandedRowKeys:expandedRowKeys,

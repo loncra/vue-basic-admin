@@ -252,7 +252,10 @@ export const clearDynamicRoutes = (): void => {
   routes.forEach((r) => router.addRoute(r))
 }
 
-const loadServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
+/**
+ * @param serviceName 已启动的服务名；传 undefined 表示不过滤（后端未给出服务清单时降级用）
+ */
+const loadServiceRoutes = async (serviceName?: string[]): Promise<RouteRecordRaw[]> => {
   const promises = []
 
   // 遍历所有路由模块
@@ -264,8 +267,8 @@ const loadServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[
     if (key.endsWith('/index.ts')) {
       continue
     }
-    // 未指定服务 ⇒ 只保留核心路由（不再全量加载）
-    if (!serviceName.some(path => key.includes(path))) {
+    // 忽略大小写匹配，避免后端返回的命名风格与目录名不一致
+    if (serviceName && !serviceName.some(path => key.toLowerCase().includes(path.toLowerCase()))) {
       continue
     }
 
@@ -319,9 +322,20 @@ const applyRouteMetaToMenu = (
 /**
  * 按后端已启动的服务装配动态路由。
  * 服务未启动 ⇒ 对应目录下的路由模块不注册，访问时走 404。
+ *
+ * 后端没给出服务清单（pluginServices 为空）时不能把功能全砍掉，
+ * 降级为注册全部服务路由并告警 —— 否则整个后台只剩核心页。
  */
 export const registerServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
-  const importRoutes: RouteRecordRaw[] = await loadServiceRoutes(serviceName)
+  const services = serviceName.length > 0 ? serviceName : undefined
+  if (import.meta.env.DEV) {
+    if (!services) {
+      console.warn('[bootstrap] 后端返回的 pluginServices 为空，已降级注册全部服务路由')
+    } else {
+      console.debug('[bootstrap] pluginServices =', serviceName)
+    }
+  }
+  const importRoutes: RouteRecordRaw[] = await loadServiceRoutes(services)
   importRoutes.forEach((route) => router.addRoute(import.meta.env.VITE_APP_HOME_PAGE_NAME, route))
   initialState.value = true
   return importRoutes
@@ -386,8 +400,15 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
     return
   }
 
-  // 首次导航发生在路由装配之前，等启动管线结束再判鉴权，否则会误判为未登录而闪登录页
+  // 路由表装配期间（首次启动 / 登录后重建）必须等，否则会误判为未登录而闪登录页
   await useBootstrapStore().waitReady()
+
+  // to 是等待「之前」解析的：若当时路由还没注册，matched 是空的，
+  // 必须返回 location 触发一次重新解析，才能用上新注册的路由（replace 不产生多余历史记录）。
+  // redirectedFrom 判断保证只重解析一次，避免路径真的不存在时无限重定向。
+  if (to.matched.length === 0 && !to.redirectedFrom) {
+    return {...to, replace: true}
+  }
 
   const requiresAuth = (to.meta.requiresAuth || false) && !principalStore.isAuthenticated
   const requiresFullyAuth =
