@@ -44,3 +44,5 @@ components.d.ts
 /pnpm-lock.yaml
 /package-lock.json
 /skills-lock.json
+/dist-tmp/
+/.npmrc
