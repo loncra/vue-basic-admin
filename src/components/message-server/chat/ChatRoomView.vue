@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type {
-  ContactItem,
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from "@/types/apis";
+import type {SystemUserContactItem} from '@loncra/antdv-pro';
 import type {RestResult} from "@loncra/client/commons";
 import {getEnumName, getEnumValue} from "@/utils";
-import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
 import {
   CHAAT_ROOM_VIEW_MODAL_TYPE,
   USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE,
@@ -14,7 +13,7 @@ import {
 } from '@/constants';
 import {AuthServerService} from "@/apis";
 import LChatMessageHistories from "@/components/message-server/chat/ChatMessageHistories.vue";
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {SystemUserPanel as LSystemUserPanel, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {useChatRoomSettings} from "@/composables/message-server/chat";
 import {
   MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS,
@@ -27,13 +26,13 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<{
-  contactDataSource:ContactItem[],
+  contactDataSource:SystemUserContactItem[],
 }>(),{
 
 })
 
 const emit = defineEmits<{
-  addParticipant: [info: ContactItem[], restResult:RestResult<UserChatConversationResponseBody>],
+  addParticipant: [info: SystemUserContactItem[], restResult:RestResult<UserChatConversationResponseBody>],
   deleteConversation:[body:UserChatConversationResponseBody],
   historyClick:[data:UserChatMessageResponseBody]
 }>()

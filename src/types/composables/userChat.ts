@@ -1,10 +1,10 @@
 import type {CSSProperties, MaybeRef, Raw, Ref, VNode} from 'vue'
 import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {
-  ContactItem,
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from '@/types/apis'
+import type {SystemUserContactItem} from '@loncra/antdv-pro'
 import type {RestResult, TimeProperties} from '@loncra/client/commons'
 import type {
   UserChatCallEntity,
@@ -231,7 +231,7 @@ export interface ChatSocketEventsOptions {
 
 export interface ChatRoomSettingsCallbacks {
   onAddParticipant: (
-    info: ContactItem[],
+    info: SystemUserContactItem[],
     result: RestResult<UserChatConversationResponseBody>,
   ) => void
   onDeleteConversation: (body: UserChatConversationResponseBody) => void

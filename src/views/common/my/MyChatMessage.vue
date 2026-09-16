@@ -8,10 +8,10 @@ import {
   ref
 } from "vue";
 import type {
-  ContactItem,
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from "@/types/apis";
+import type {SystemUserContactItem} from "@loncra/antdv-pro";
 import type {IdNameValueMetadata, RestResult} from "@loncra/client/commons";
 import type {PlatformUser} from "@loncra/client/auth";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -51,7 +51,7 @@ const segmented = ref<{
 })
 
 const options = ref<{
-  contactDataSource: ContactItem[]
+  contactDataSource: SystemUserContactItem[]
   loading: boolean
 }>({
   contactDataSource: [],
@@ -84,7 +84,7 @@ function onConversationDelete(body: UserChatConversationResponseBody) {
 }
 
 async function onAddParticipant(
-  _user: ContactItem[],
+  _user: SystemUserContactItem[],
   restResult: RestResult<UserChatConversationResponseBody>,
 ) {
   if (!restResult.data) {
@@ -109,7 +109,7 @@ async function mounted() {
     const contactResult: RestResult<IdNameValueMetadata<PlatformUser[]>[]> =
       await AuthServerService.systemUsers({number: -1}, true, false)
     if (contactResult.data) {
-      const list: ContactItem[] = []
+      const list: SystemUserContactItem[] = []
       for (const r of contactResult.data) {
         r.value.forEach((v) =>
           list.push({

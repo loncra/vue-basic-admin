@@ -768,9 +768,6 @@ const locale: LanguagePack = {
         center:'居中对齐',
         right:'右对齐'
       }
-    },
-    systemUserPanel:{
-      selectedMember:'已选择的成员'
     }
   },
   chat:{

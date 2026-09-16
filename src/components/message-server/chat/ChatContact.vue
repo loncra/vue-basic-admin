@@ -1,16 +1,17 @@
 <script setup lang="ts">
 
-import type {ContactItem, UserChatConversationResponseBody} from "@/types/apis";
+import type {UserChatConversationResponseBody} from "@/types/apis";
 import type {RestResult} from "@loncra/client/commons";
 import type {PlatformUser} from "@loncra/client/auth";
 import {ChatMessageService} from "@loncra/client/message";
-import LSystemUserPanel from "@/components/basic/SystemUserPanel.vue";
+import type {SystemUserContactItem} from '@loncra/antdv-pro';
+import {SystemUserPanel as LSystemUserPanel} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'LChatContact',
 })
 
-const dataSource = defineModel<ContactItem[]>('dataSource', {default:() => []})
+const dataSource = defineModel<SystemUserContactItem[]>('dataSource', {default:() => []})
 const loading = defineModel<boolean>('loading', {default:() => false})
 
 const emit = defineEmits<{

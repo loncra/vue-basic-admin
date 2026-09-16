@@ -1,9 +1,9 @@
 import {type ComponentInternalInstance, computed, getCurrentInstance, type Ref, ref,} from 'vue'
 import type {
-  ContactItem,
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from '@/types/apis'
+import type {SystemUserContactItem} from '@loncra/antdv-pro'
 import type {RestResult} from '@loncra/client/commons'
 import type {UserChatParticipantEntity} from '@loncra/client/message'
 import {
@@ -26,7 +26,7 @@ import {useChatContext} from "@/composables";
  * 房间设置抽屉逻辑：成员加载、改名、置顶/免打扰、增删成员、退出/解散、弹窗与历史入口。
  */
 export function useChatRoomSettings(
-  getContacts: () => ContactItem[],
+  getContacts: () => SystemUserContactItem[],
   callbacks: ChatRoomSettingsCallbacks,
 ) {
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
@@ -47,14 +47,14 @@ export function useChatRoomSettings(
   const options = ref<{
     editName: boolean
     currentConversation?: UserChatConversationResponseBody
-    selectedUser: ContactItem[]
+    selectedUser: SystemUserContactItem[]
   }>({
     editName: false,
     selectedUser: [],
   }) as Ref<{
     editName: boolean
     currentConversation?: UserChatConversationResponseBody
-    selectedUser: ContactItem[]
+    selectedUser: SystemUserContactItem[]
   }>
   const modalOptions = ref<{
     open: boolean
@@ -67,19 +67,19 @@ export function useChatRoomSettings(
     footer: true,
   })
 
-  const systemUserPanelDataSource = computed<ContactItem[]>(() => {
+  const systemUserPanelDataSource = computed<SystemUserContactItem[]>(() => {
     if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT) {
       return getContacts()
     }
     if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING) {
       return conversationActive.value.participants
         .filter((p) => !principalStore.isCurrentPrincipal(p.principal))
-        .map(toContactItem)
+        .map(toSystemUserContactItem)
     }
     return []
   })
 
-  function toContactItem(p: UserChatParticipantEntity): ContactItem {
+  function toSystemUserContactItem(p: UserChatParticipantEntity): SystemUserContactItem {
     return {
       key: String(p.metadata.details.id),
       label: String(AuthServerService.getPrincipalNameByUserDetails(p.metadata.details)),
@@ -110,7 +110,7 @@ export function useChatRoomSettings(
     }
   }
 
-  function onFilterSystemUser(item: ContactItem): boolean {
+  function onFilterSystemUser(item: SystemUserContactItem): boolean {
     if (modalOptions.value.type === CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT) {
       return !conversationActive.value.participants.map((d) => d.metadata.details.id).includes(item.data.id)
     }

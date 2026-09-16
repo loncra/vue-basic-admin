@@ -781,9 +781,6 @@ const locale: LanguagePack = {
         right: 'Align right',
       },
     },
-    systemUserPanel: {
-      selectedMember: 'Selected members',
-    },
   },
   chat: {
     emoji: {
