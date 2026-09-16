@@ -10,6 +10,13 @@ const locale: LanguagePack = {
   name: 'English',
   dayjs: 'en',
   antDesign: {...enUS, ...loncraEnUS, ...loncraAntdvProEnUS},
+  boot: {
+    prepare: 'Connecting services…',
+    routes: 'Loading modules…',
+    menus: 'Loading menus…',
+    ready: 'Almost there…',
+    failed: 'Initialization failed, please check the network or service status'
+  },
   common: {
     id: 'ID',
     setting: 'Settings',
@@ -118,6 +125,7 @@ const locale: LanguagePack = {
     retry: {
       time: 'Retry time',
       count: 'Retry count',
+      action:'Retry'
     },
     channel: 'Channel',
     download: {

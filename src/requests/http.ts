@@ -4,7 +4,7 @@ import {message} from 'antdv-next'
 import {AUTH_SERVER_AUTHENTICATION_TYPE_PARAM, HTTP} from '@/constants'
 import {BusinessError, type RestResult} from '@loncra/client/commons'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {useBootstrapStore} from "@/stores/bootstrapStore.ts";
+import {useBootstrapStore} from "@/stores/bootStore.ts";
 import i18n from '@/i18n'
 
 /** 不弹出错误提示的 HTTP 状态码 */

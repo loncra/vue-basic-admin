@@ -10,7 +10,7 @@ import type {CaptchaGenerationResult, CaptchaToken} from '@loncra/client/resourc
 import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
-import {useBootstrapStore} from '@/stores/bootstrapStore.ts'
+import {useBootstrapStore} from '@/stores/bootStore.ts'
 import {VALID_REGX} from '@/constants'
 import {requireNonNullOrUndefined, validatePassword} from '@/utils'
 import {ResourceServerService} from "@/apis";

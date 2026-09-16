@@ -1,0 +1,118 @@
+/**
+ * 启动骨架（App Shell）样式
+ *
+ * 由 index.html 直接引用（<link href="/boot/boot.css">），早于 Vue 与项目 CSS 生效。
+ * 因此只能写具体色值/变量，不能使用 bg-layout 这类项目里定义的类。
+ *
+ * 明暗不跟随系统，由 <html data-theme="dark|light"> 决定 —— 该属性由 boot.js 在首帧前写入，
+ * 之后由 configProviderStore 维护，保证骨架配色与应用主题始终一致。
+ */
+
+:root {
+  --boot-bg: #ffffff;
+  --boot-track: rgba(0, 0, 0, 0.08);
+  --boot-text: #666666;
+}
+
+html[data-theme='dark'] {
+  --boot-bg: #141414;
+  --boot-track: rgba(255, 255, 255, 0.12);
+  --boot-text: #999999;
+}
+
+/* 兜底：boot.js 因故未执行（没有 data-theme）时才跟随系统 */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --boot-bg: #141414;
+    --boot-track: rgba(255, 255, 255, 0.12);
+    --boot-text: #999999;
+  }
+}
+
+#boot-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: var(--boot-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.boot-spinner {
+  animation: boot-rotate 1s linear infinite;
+}
+
+.boot-spinner-track {
+  stroke: var(--boot-track);
+}
+
+.boot-spinner-head {
+  stroke: #1677ff;
+  stroke-dasharray: 90 150;
+  animation: boot-dash 1.5s ease-in-out infinite;
+}
+
+/* 状态文案：初始为空（i18n 尚未加载），预留高度避免文字出现时抖动 */
+.boot-status {
+  margin: 0;
+  min-height: 1.25rem;
+  font-size: 13px;
+  line-height: 1.25rem;
+  color: var(--boot-text);
+}
+
+.boot-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 320px;
+}
+
+.boot-error[hidden] {
+  display: none;
+}
+
+.boot-error-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  color: #999999;
+}
+
+.boot-retry {
+  padding: 5px 20px;
+  font-size: 14px;
+  color: #ffffff;
+  background: #1677ff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@keyframes boot-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes boot-dash {
+  0% {
+    stroke-dasharray: 1 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90 150;
+    stroke-dashoffset: -124;
+  }
+}

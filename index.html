@@ -1,13 +1,36 @@
 <!DOCTYPE html>
-<html lang="">
+<!-- data-boot-storage-key：应用的配置存储键，供 public/boot/boot.js 读取主题模式。
+     必须写在 index.html 里 —— public/ 下的文件不经过 Vite，无法做 %VITE_*% 替换。 -->
+<html lang="" data-boot-storage-key="%VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME%">
   <head>
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basic Admin</title>
+
+    <!-- 启动骨架样式与脚本：同步加载，保证首帧就有正确的配色与结构 -->
+    <link rel="stylesheet" href="/boot/boot.css">
+    <script src="/boot/boot.js"></script>
   </head>
   <body>
     <div id="app"></div>
+
+    <!-- 启动骨架：必须在 #app 之外。
+         app.mount('#app') 会执行 container.textContent = '' 清空容器，
+         若放里面会在挂载那一刻被销毁 —— 而挂载 ≠ 就绪（取数、装路由、首次导航都还在后面）。 -->
+    <div id="boot-shell">
+      <svg id="boot-spinner" class="boot-spinner" width="48" height="48" viewBox="0 0 50 50" aria-hidden="true">
+        <circle class="boot-spinner-track" cx="25" cy="25" r="20" fill="none" stroke-width="4"/>
+        <circle class="boot-spinner-head" cx="25" cy="25" r="20" fill="none" stroke-width="4"
+                stroke-linecap="round"/>
+      </svg>
+      <p id="boot-status" class="boot-status"></p>
+      <div id="boot-error" class="boot-error" hidden>
+        <p id="boot-error-text" class="boot-error-text"></p>
+        <button id="boot-retry" class="boot-retry" type="button"></button>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

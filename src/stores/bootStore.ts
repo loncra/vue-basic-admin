@@ -1,6 +1,7 @@
 import {computed, ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants'
+import i18n from '@/i18n'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
 import {
@@ -19,7 +20,7 @@ export type BootStep = 'idle' | 'prepare' | 'routes' | 'menus' | 'ready' | 'erro
  * 由 App.vue 的 onMounted 触发；路由守卫通过 waitReady() 等它结束，
  * 401 拦截器通过 running 判断启动期不抢跳登录。
  */
-export const useBootstrapStore = defineStore(STORE.BOOTSTRAP_ID, () => {
+export const useBootstrapStore = defineStore(STORE.BOOT_ID, () => {
   const step = ref<BootStep>('idle')
   const error = ref<string | null>(null)
   /** 路由与菜单是否装配完成 */
@@ -64,27 +65,38 @@ export const useBootstrapStore = defineStore(STORE.BOOTSTRAP_ID, () => {
     readyPromise = null
   }
 
+  /**
+   * 把状态写到 index.html 的启动骨架上。
+   * 骨架早于 Vue 存在（那时 i18n 还没加载，所以文案留空），
+   * 到这里 i18n 已就绪，且 configProviderStore 已把 locale 切成用户保存的语言。
+   */
+  function setStatus(key: string): void {
+    step.value = key as BootStep
+    window.__boot?.setStatus(i18n.global.t(`boot.${key}`) as string)
+  }
+
   async function execute(): Promise<boolean> {
     error.value = null
     running.value = true
+    window.__boot?.reset()
     try {
       const principalStore = usePrincipalStore()
 
-      step.value = 'prepare'
+      setStatus('prepare')
       await principalStore.prepare()
 
-      step.value = 'routes'
+      setStatus('routes')
       const importRoutes = await registerServiceRoutes(principalStore.pluginServices)
 
       if (principalStore.isAuthenticated) {
-        step.value = 'menus'
+        setStatus('menus')
         await applyMenusToRoutes(importRoutes)
       }
 
       const menuPrincipalStore = useMenuPrincipalStore()
       menuPrincipalStore.refreshQuickAccess()
 
-      step.value = 'ready'
+      setStatus('ready')
       markDone()
       return true
     } catch (e) {
@@ -97,6 +109,10 @@ export const useBootstrapStore = defineStore(STORE.BOOTSTRAP_ID, () => {
       }
       error.value = e instanceof Error ? e.message : String(e)
       step.value = 'error'
+      // 骨架保留并展示错误 + 重试（由 App.vue 在首次导航完成后移除）
+      window.__boot?.showError(error.value, i18n.global.t('common.retry.action') as string, () => {
+        void retry()
+      })
       markDone() // 失败也要开门，否则守卫会一直挂起
       return false
     }
@@ -125,5 +141,6 @@ export const useBootstrapStore = defineStore(STORE.BOOTSTRAP_ID, () => {
     return run()
   }
 
-  return {step, error, ready, running, loading, failed, waitReady, closeGate, run, retry, rebuild}
+  // closeGate 仅内部使用（rebuild 时关闸门），不对外暴露
+  return {step, error, ready, running, loading, failed, waitReady, run, retry, rebuild}
 })

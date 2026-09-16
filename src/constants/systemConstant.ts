@@ -13,7 +13,7 @@ export const STORE = {
   MESSAGE_SERVER_ID: 'messageServer',
   SOCKET_ID: 'socket',
   MENU_ID: 'menu',
-  BOOTSTRAP_ID: 'bootstrap',
+  BOOT_ID: 'boot',
 } as const
 
 /**

@@ -10,6 +10,13 @@ const locale: LanguagePack = {
   name: '简体中文',
   dayjs: 'zh-CN',
   antDesign: {...zhCN, ...loncraZhCN, ...loncraAntdvProZhCN},
+  boot: {
+    prepare: '正在连接服务…',
+    routes: '正在加载功能…',
+    menus: '正在加载菜单…',
+    ready: '即将进入…',
+    failed: '初始化失败，请检查网络或服务状态',
+  },
   common: {
     id: '主键',
     setting:'设置',
@@ -117,7 +124,8 @@ const locale: LanguagePack = {
     code:'代码',
     retry:{
       time:'重试时间',
-      count:'重试次数'
+      count:'重试次数',
+      action:'重试'
     },
     channel:'渠道',
     download:{

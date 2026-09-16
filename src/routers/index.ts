@@ -32,7 +32,7 @@ import Agent from "@/views/common/AiAgent.vue";
 
 import i18n from '@/i18n'
 import {useSocketStore} from "@/stores/socketStore.ts";
-import {useBootstrapStore} from "@/stores/bootstrapStore.ts";
+import {useBootstrapStore} from "@/stores/bootStore.ts";
 
 /**
  * 首页的子路由配置

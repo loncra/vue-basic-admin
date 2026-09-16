@@ -265,6 +265,9 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    */
   function setTheme(value: ThemeValue): void {
     state.value.theme = value
+    // 同步到 <html data-theme>：index.html 的启动骨架靠它适配明暗，
+    // 后续若有依赖 CSS 变量/选择器的样式也能直接用（避免各自跟随系统导致不一致）
+    document.documentElement.setAttribute('data-theme', value)
     saveLocalStorage()
   }
 

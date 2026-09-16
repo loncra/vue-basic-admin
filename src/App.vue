@@ -9,8 +9,7 @@ import {
 } from '@loncra/antdv-pro'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
-import {useBootstrapStore} from '@/stores/bootstrapStore.ts'
-import BootLoading from '@/views/Bootstrap.vue'
+import {useBootstrapStore} from '@/stores/bootStore.ts'
 import {convertFormUrlencoded} from '@/utils/commonUtils'
 import {useRouter} from 'vue-router'
 import {RESOURCE_SERVER_USER_EXPORT_ROUTE} from "@/constants";
@@ -31,9 +30,11 @@ const initialHref = location.pathname + location.search + location.hash
 onMounted(async () => {
   const ok = await bootStore.run()
   if (!ok) {
-    return
+    return // 失败时骨架保留，展示错误 + 重试
   }
+  // 先完成首次导航（目标页面已渲染），再移除骨架，避免中间露出空白
   await router.replace(initialHref)
+  window.__boot?.remove()
 })
 
 // ===== 客户端（HTTP / 运行时）配置：在此构建，交给 LClientProvider =====
@@ -100,7 +101,6 @@ function onExported() {
               </transition>
             </router-view>
           </l-crud-config-provider>
-          <boot-loading v-if="!bootStore.ready"/>
         </a-app>
       </ax-provider>
     </l-client-provider>
