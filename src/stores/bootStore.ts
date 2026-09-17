@@ -91,6 +91,7 @@ export const useBootstrapStore = defineStore(STORE.BOOT_ID, () => {
       if (principalStore.isAuthenticated) {
         setStatus('menus')
         await applyMenusToRoutes(importRoutes)
+        setStatus('socketConnected')
         const socketStore = useSocketStore()
         socketStore.ensureConnected()
       }

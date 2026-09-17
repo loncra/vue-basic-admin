@@ -8,8 +8,5 @@ defineOptions({
 </script>
 
 <template>
-  <!-- scroll 跟着旧 RoleTable 的 `:scroll="{x:'max-content'}"`，别省（列多了要能横向滚） -->
-  <div>
-    <crud-home-page :page="rolePage" :scroll="{x: 'max-content'}" />
-  </div>
+  <crud-home-page :page="rolePage" :scroll="{x: 'max-content', y: 350}" />
 </template>

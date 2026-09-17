@@ -14,6 +14,7 @@ const locale: LanguagePack = {
     prepare: '正在连接服务…',
     routes: '正在加载功能…',
     menus: '正在加载菜单…',
+    socketConnected:'正在连接 socket 服务…',
     ready: '即将进入…',
     failed: '初始化失败，请检查网络或服务状态',
   },

@@ -14,6 +14,7 @@ const locale: LanguagePack = {
     prepare: 'Connecting services…',
     routes: 'Loading modules…',
     menus: 'Loading menus…',
+    socketConnected:'Connecting socket server…',
     ready: 'Almost there…',
     failed: 'Initialization failed, please check the network or service status'
   },
