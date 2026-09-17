@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {CrudHomePage} from '@/components/basic/page'
-import {rolePage} from './role.page'
+import {roleHomePage} from './role.home.page'
 
 defineOptions({
   name: 'AuthServerRoleHome',
@@ -8,5 +8,8 @@ defineOptions({
 </script>
 
 <template>
-  <crud-home-page :page="rolePage" :scroll="{x: 'max-content', y: 350}" />
+  <crud-home-page
+    :pagination="false"
+    :page="roleHomePage"
+  />
 </template>

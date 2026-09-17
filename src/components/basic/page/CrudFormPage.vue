@@ -5,7 +5,7 @@ import type {BasicIdMetadata} from '@loncra/client/commons'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import i18n from '@/i18n'
 import {buildFields, PAGE_VARIANT, usePageEnums} from './field'
-import type {CrudPageDefinition, PageContext} from './types'
+import type {CrudFormDefinition, PageContext} from './types'
 
 /**
  * 新增/编辑页渲染器：`page.form.fields` → a-row + a-form-item + 组件。
@@ -23,7 +23,7 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
-    page: CrudPageDefinition<TBody, TEntity, TId>
+    page: CrudFormDefinition<TBody, TEntity, TId>
     contextExtra?: Record<string, unknown>
     /** 宿主形态名：整页 `'page'`，别的宿主自己起名 */
     variant?: string

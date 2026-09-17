@@ -2,8 +2,9 @@
 import {ref, watch} from 'vue'
 import type {ResourceEntity} from '@loncra/client/auth'
 import {CrudDetailPage} from '@/components/basic/page'
-import {RESOURCE_VARIANT, resourcePage} from '@/views/auth-server/resource/resource.page'
-import {rolePage} from './role.page'
+import {RESOURCE_VARIANT} from '@/views/auth-server/resource/resource.page'
+import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
+import {roleDetailPage} from './role.detail.page'
 
 /**
  * 详情页薄壳。
@@ -36,7 +37,7 @@ watch(
 </script>
 
 <template>
-  <crud-detail-page ref="detailPageRef" :page="rolePage" :context-extra="contextExtra">
+  <crud-detail-page ref="detailPageRef" :page="roleDetailPage" :context-extra="contextExtra">
     <template #afterDescriptions="{entity}">
       <a-divider orientation="left" plain>
         <a-space>
@@ -47,7 +48,7 @@ watch(
 
       <crud-home-page
         ref="resourcePickerRef"
-        :page="resourcePage"
+        :page="resourceHomePage"
         :variant="RESOURCE_VARIANT.PICKER"
         :record-actions="false"
         :drag="false"

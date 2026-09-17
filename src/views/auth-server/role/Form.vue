@@ -2,12 +2,9 @@
 import {ref} from 'vue'
 import type {ResourceEntity} from '@loncra/client/auth'
 import {CrudFormPage} from '@/components/basic/page'
-import {
-  RESOURCE_VARIANT,
-  resourcePage,
-  resourceTreeSelection,
-} from '@/views/auth-server/resource/resource.page'
-import {rolePage} from './role.page'
+import {RESOURCE_VARIANT, resourceTreeSelection,} from '@/views/auth-server/resource/resource.page'
+import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
+import {roleFormPage} from './role.form.page'
 
 /**
  * 新增/编辑页薄壳。
@@ -32,7 +29,7 @@ const contextExtra = {resourceTable: resourcePickerRef, resourceQuery}
 </script>
 
 <template>
-  <crud-form-page :page="rolePage" :context-extra="contextExtra" v-slot="{entity}">
+  <crud-form-page :page="roleFormPage" :context-extra="contextExtra" v-slot="{entity}">
     <a-divider class="m-0 mb-md" orientation="left" plain>
       <a-space>
         <icon-font class="icon" type="loncra-key-round" />
@@ -42,7 +39,7 @@ const contextExtra = {resourceTable: resourcePickerRef, resourceQuery}
 
     <crud-home-page
       ref="resourcePickerRef"
-      :page="resourcePage"
+      :page="resourceHomePage"
       :variant="RESOURCE_VARIANT.PICKER"
       :record-actions="false"
       :drag="false"

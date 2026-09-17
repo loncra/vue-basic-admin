@@ -16,7 +16,7 @@ import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import type {BasicIdMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
 import {buildColumns, PAGE_VARIANT, renderCell, usePageEnums} from './field'
-import type {CrudPageDefinition, PageContext, PageListEntry} from './types'
+import type {CrudHomeDefinition, PageContext, PageListEntry} from './types'
 
 /**
  * 列表页渲染器：把 `page.list` 的声明翻成 CrudTable 的 props。
@@ -35,7 +35,7 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
-    page: CrudPageDefinition<TBody, TEntity, TId>
+    page: CrudHomeDefinition<TBody, TEntity, TId>
     /** 宿主形态名：整页 `'page'`，内嵌宿主自己起（如 `'picker'`） */
     variant?: string
   }>(),

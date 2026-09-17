@@ -1,4 +1,4 @@
-export {defineCrudPage} from './define'
+export {defineDetailPage, defineFormPage, defineHomePage} from './define'
 export {default as CrudHomePage} from './CrudHomePage.vue'
 export {default as CrudFormPage} from './CrudFormPage.vue'
 export {default as CrudDetailPage} from './CrudDetailPage.vue'
@@ -6,7 +6,10 @@ export {default as CrudDetailPage} from './CrudDetailPage.vue'
 export {defineFieldComponent, defineFormatter} from './field'
 export type {FieldComponentSpec, ValueFormatter} from './field'
 export type {
-  CrudPageDefinition,
+  CrudDetailDefinition,
+  CrudFormDefinition,
+  CrudHomeDefinition,
+  CrudPageCore,
   PageContext,
   PageDetailDefinition,
   PageDetailEntry,

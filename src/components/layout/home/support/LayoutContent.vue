@@ -61,6 +61,9 @@ const operateItems = ref<MenuItemType[]>([
   },
 ])
 
+/** 每次打开右键菜单要先剔掉这两项（pin/unpin 按当前标签状态再插入）；单独列出，避免在回调里推断大联合类型 */
+const HIDDEN_OPERATE_KEYS: string[] = ['unpin', 'pin']
+
 provide(APP_RELOAD_PROVIDE_KEY, reload)
 provide(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, removePaneByPage)
 provide(LAYOUT_PANE_TITLE_PROVIDE_KEY, setPaneName)
@@ -337,8 +340,10 @@ function onOpenOperateChange(open: boolean) {
   if (!open) {
     return
   }
+  // 显式标注回调参数 + key 列表提到外面：不让 TS 去**推断** MenuItemType（深度递归的大联合），
+  // 否则会触发 "Type instantiation is excessively deep and possibly infinite"（TS2589）。
   operateItems.value = operateItems.value.filter(
-    (v) => v?.key != null && !['unpin', 'pin'].includes(String(v.key)),
+    (item: MenuItemType) => item?.key != null && !HIDDEN_OPERATE_KEYS.includes(String(item.key)),
   )
   if (fixedRouteNames.value.has(activeKey.value)) {
     return

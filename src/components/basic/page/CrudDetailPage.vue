@@ -5,7 +5,7 @@ import type {BasicIdMetadata} from '@loncra/client/commons'
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import i18n from '@/i18n'
 import {buildDetailItems, PAGE_VARIANT} from './field'
-import type {CrudPageDefinition, PageContext} from './types'
+import type {CrudDetailDefinition, PageContext} from './types'
 
 /**
  * 详情页渲染器：`page.detail.fields` → a-descriptions 的 items。
@@ -21,7 +21,7 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
-    page: CrudPageDefinition<TBody, TEntity, TId>
+    page: CrudDetailDefinition<TBody, TEntity, TId>
     contextExtra?: Record<string, unknown>
     /** 宿主形态名：整页 `'page'`，别的宿主自己起名 */
     variant?: string

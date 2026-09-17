@@ -5,7 +5,7 @@ import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import type {ResourceEntity} from '@loncra/client/auth'
 import {ResourceService} from '@loncra/client/auth'
 import {CrudHomePage} from '@/components/basic/page'
-import {resourcePage} from './resource.page'
+import {resourceHomePage} from './resource.home.page'
 
 /**
  * 资源列表页薄壳。
@@ -29,9 +29,8 @@ async function onTreeDrop(
 
 <template>
   <crud-home-page
-    :page="resourcePage"
+    :page="resourceHomePage"
     :pagination="false"
-    :scroll="{x: 'max-content', y: 350}"
     :expand-icon-column-index="3"
     @tree-drop="onTreeDrop"
   />

@@ -2,7 +2,7 @@
 import {ref} from 'vue'
 import type {ResourceEntity} from '@loncra/client/auth'
 import {CrudFormPage} from '@/components/basic/page'
-import {resourcePage} from './resource.page'
+import {resourceFormPage} from './resource.form.page'
 
 /**
  * 新增/编辑页薄壳。
@@ -19,5 +19,5 @@ const contextExtra = {parent}
 </script>
 
 <template>
-  <crud-form-page :page="resourcePage" :context-extra="contextExtra" />
+  <crud-form-page :page="resourceFormPage" :context-extra="contextExtra" />
 </template>

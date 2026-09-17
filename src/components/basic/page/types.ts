@@ -200,7 +200,13 @@ export interface PageDetailDefinition<TEntity> {
   postGetEntity?: (entity: TEntity, ctx: PageContext) => TEntity | Promise<TEntity>
 }
 
-export interface CrudPageDefinition<
+/**
+ * 三种形态**共享的那部分**：服务、主键、i18n 前缀、路由、操作轨迹表、字段字典。
+ *
+ * 放页面的 `xxx.page.ts` 里只写一次，再由 `defineHomePage` / `defineFormPage` / `defineDetailPage`
+ * 合进各自的形态声明 —— 形态文件（`xxx.home.page.ts` …）只写自己那部分，不重复核心。
+ */
+export interface CrudPageCore<
   TBody extends BasicIdMetadata<TId>,
   TEntity extends TBody = TBody,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
@@ -215,7 +221,31 @@ export interface CrudPageDefinition<
   operationDataTraceTarget?: string
   /** 字段字典：labelKey / format / enumId 的唯一事实来源 */
   fields?: PageFieldsDictionary<TEntity>
-  list?: PageListDefinition<TEntity>
-  form?: PageFormDefinition<TBody, TEntity>
-  detail?: PageDetailDefinition<TEntity>
+}
+
+/** `Home.vue` 的声明 = 核心 + 列表（`defineHomePage` 产出） */
+export interface CrudHomeDefinition<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody = TBody,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
+> extends CrudPageCore<TBody, TEntity, TId> {
+  list: PageListDefinition<TEntity>
+}
+
+/** `Form.vue` 的声明 = 核心 + 表单（`defineFormPage` 产出） */
+export interface CrudFormDefinition<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody = TBody,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
+> extends CrudPageCore<TBody, TEntity, TId> {
+  form: PageFormDefinition<TBody, TEntity>
+}
+
+/** `Detail.vue` 的声明 = 核心 + 详情（`defineDetailPage` 产出） */
+export interface CrudDetailDefinition<
+  TBody extends BasicIdMetadata<TId>,
+  TEntity extends TBody = TBody,
+  TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
+> extends CrudPageCore<TBody, TEntity, TId> {
+  detail: PageDetailDefinition<TEntity>
 }
