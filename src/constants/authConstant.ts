@@ -51,14 +51,6 @@ export const AUTH_SERVER_RESOURCE_ROUTE = {
   DETAIL: 'auth_server_resource_detail',
 } as const
 
-export const AUTH_SERVER_ROLE_ROUTE = {
-  HOME: 'auth_server_role',
-  ADD_CHILD: 'auth_server_role_add_child',
-  EDIT: 'auth_server_role_edit',
-  ADD: 'auth_server_role_add',
-  DETAIL: 'auth_server_role_detail',
-} as const
-
 export const AUTH_SERVER_ENTERPRISE_ROLE_ROUTE = {
   HOME: 'auth_server_enterprise_role',
   ADD_CHILD: 'auth_server_enterprise_role_add_child',

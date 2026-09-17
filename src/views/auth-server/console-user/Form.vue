@@ -21,7 +21,8 @@ import {
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
 import {ResourceServerService} from "@/apis";
 
-import LRoleTable from "@/components/auth-server/RoleTable.vue";
+import {CrudHomePage} from "@/components/basic/page";
+import {ROLE_VARIANT, rolePage} from "@/views/auth-server/role/role.page";
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 import type {TableProps} from "antdv-next";
 
@@ -153,7 +154,7 @@ function resetFields() {
         </a-space>
       </a-divider>
 
-      <l-role-table preview hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
+      <crud-home-page :variant="ROLE_VARIANT.PICKER" :record-actions="false" :page="rolePage" hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
 
       <a-divider class="m-0 mb-md" orientation="left" plain>
         <a-space>

@@ -1,5 +1,18 @@
 import type {RouteRecordRaw} from 'vue-router'
-import {AUTH_SERVER_ROLE_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
+import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+
+/**
+ * 角色模块的路由名。
+ * 就近放在路由模块里：与 path/meta/component 同处一地，页面（role.page.ts）从这里引，
+ * 不再经 `constants/` 转发。
+ */
+export const AUTH_SERVER_ROLE_ROUTE = {
+  HOME: 'auth_server_role',
+  ADD_CHILD: 'auth_server_role_add_child',
+  EDIT: 'auth_server_role_edit',
+  ADD: 'auth_server_role_add',
+  DETAIL: 'auth_server_role_detail',
+} as const
 
 /** 角色相关路由 */
 const router: RouteRecordRaw[] = [

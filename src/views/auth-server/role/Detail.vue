@@ -1,47 +1,33 @@
 <script setup lang="ts">
-import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance, ref, watch} from "vue";
-import type {RoleEntity} from "@loncra/client/auth";
-import {RoleService} from "@loncra/client/auth";
-import {AUTH_SERVER_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
-import LResourceTable from "@/components/auth-server/ResourceTable.vue";
+import {ref, watch} from 'vue'
+import type {ResourceEntity} from '@loncra/client/auth'
+import {CrudDetailPage} from '@/components/basic/page'
+import LResourceTable from '@/components/auth-server/ResourceTable.vue'
+import {rolePage} from './role.page'
 
+/**
+ * 详情页薄壳。
+ * 声明（role.page.ts）管基本信息；「独立资源」子树是声明管不到的部分，作为逃生内容留在这里。
+ */
 defineOptions({
-  name: 'AuthServerRoleHome'
+  name: 'AuthServerRoleDetail',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const service = new RoleService()
-const entity = ref<RoleEntity>({
-  resourceIds: [],
-  version: 0,
-  enabled: 0,
-  sources: [],
-  removable: 0,
-  modifiable: 0,
-  name: "",
-  authority: "",
-  children: [],
-  id: 0
+const detailPageRef = ref<{entity?: ResourceEntity & {id?: number}}>()
+const resourceTableRef = ref<InstanceType<typeof LResourceTable>>()
+const resourceQuery = ref<Record<string, unknown>>({
+  'filter_[enabled_eq]': '1',
+  'filter_[sources_jin]': [],
 })
 
-const resourceQuery = ref<Record<string,unknown>>({'filter_[enabled_eq]':'1', 'filter_[sources_jin]':[]})
+/** 声明里的 postGetEntity 通过 contextExtra 拿到这两个 ref */
+const contextExtra = {resourceTable: resourceTableRef, resourceQuery}
 
-const resourceTableRef = ref()
-
-function postGetEntity(entity:RoleEntity) {
-  resourceQuery.value['filter_[sources_jin]'] = entity.sources.map(getEnumValue);
-  return entity
-}
 // 表格已挂载 且 实体已加载 → 刷新，两种就绪顺序都能覆盖
 watch(
-  [resourceTableRef, () => entity.value.id],
+  [resourceTableRef, () => detailPageRef.value?.entity?.id],
   () => {
-    if (resourceTableRef.value && entity.value.id) {
+    if (resourceTableRef.value && detailPageRef.value?.entity?.id) {
       resourceTableRef.value.fetchDataSource()
     }
   },
@@ -50,60 +36,29 @@ watch(
 </script>
 
 <template>
-  <div>
-    <l-basic-detail
-      :post-get-entity="postGetEntity"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ROLE"
-      :redirect="{name:AUTH_SERVER_ROLE_ROUTE.HOME}"
-      :title-text="(title:string, _entity:RoleEntity) => title + ' (' + _entity.name + ')'"
-      :service="service"
-      :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"
-      v-model:entity="entity"
-    >
-      <a-descriptions-item :label="globalProperties.$t('common.id')">
-        {{entity.id}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.name')">
-        {{entity.name}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.authority')">
-        {{entity.authority}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.role.modifiable')">
-        {{getEnumName(entity.modifiable)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.role.removable')">
-        {{getEnumName(entity.removable)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.source')">
-        {{ entity.sources.map(getEnumName).join(',') }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.enabled')">
-        {{ getEnumName(entity.enabled)}}
-      </a-descriptions-item>
+  <crud-detail-page ref="detailPageRef" :page="rolePage" :context-extra="contextExtra">
+    <template #afterDescriptions="{entity}">
+      <a-divider orientation="left" plain>
+        <a-space>
+          <icon-font class="icon" type="loncra-key-round" />
+          {{ $t('authServer.standaloneResource') }}
+        </a-space>
+      </a-divider>
 
-      <a-descriptions-item :label="globalProperties.$t('common.remark')">
-        {{ entity.remark || '' }}
-      </a-descriptions-item>
-      <template #afterDescriptions>
-        <a-divider orientation="left" plain>
-          <a-space>
-            <icon-font class="icon" type="loncra-key-round" />
-            {{ globalProperties.$t('authServer.standaloneResource') }}
-          </a-space>
-        </a-divider>
-
-        <l-resource-table
-          :immediate="false"
-          ref="resourceTableRef"
-          :drag="false"
-          preview
-          hide-title
-          :query="resourceQuery"
-          :row-selection="{fixed:true, type: 'checkbox', selectedRowKeys: entity.resourceIds, getCheckboxProps:() => ({disabled:true})}"
-        />
-      </template>
-    </l-basic-detail>
-
-  </div>
+      <l-resource-table
+        :immediate="false"
+        ref="resourceTableRef"
+        :drag="false"
+        preview
+        hide-title
+        :query="resourceQuery"
+        :row-selection="{
+          fixed: true,
+          type: 'checkbox',
+          selectedRowKeys: entity.resourceIds,
+          getCheckboxProps: () => ({disabled: true}),
+        }"
+      />
+    </template>
+  </crud-detail-page>
 </template>
