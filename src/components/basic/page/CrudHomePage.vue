@@ -12,6 +12,7 @@ import {
   type VNode,
 } from 'vue'
 import {useRouter} from 'vue-router'
+import useApp from 'antdv-next/dist/app/useApp'
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import type {BasicIdMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
@@ -44,6 +45,7 @@ const props = withDefaults(
 
 const attrs = useAttrs()
 const router = useRouter()
+const {message, modal} = useApp()
 const tableRef = ref<InstanceType<typeof LCrudTable>>()
 
 /**
@@ -66,6 +68,8 @@ const context = computed<PageContext>(() => ({
   t: (key: string, named?: Record<string, unknown>) => i18n.global.t(key, named as never),
   extra: {},
   variant: props.variant,
+  modal,
+  message,
 }))
 
 const {buckets} = usePageEnums(props.page.list?.enums)

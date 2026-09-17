@@ -46,6 +46,17 @@ export type PageEnums = Record<string, NameValueEnumMetadata<number | string>[]>
  * 不要出现"内嵌/embedded"这类词，也不要写裸字面量。
  * `extra` 是壳自己放进去的东西（子表 ref、查询条件等），用于声明管不到的那部分。
  */
+/** 壳注入的确认框（来自 `App.useApp()` 的 modal） */
+export interface PageModal {
+  confirm: (options: {title: string; content: string; onOk: () => void | Promise<void>}) => void
+}
+
+/** 壳注入的提示（来自 `App.useApp()` 的 message） */
+export interface PageMessage {
+  success: (content: string, duration?: number) => void
+  error: (content: string) => void
+}
+
 export interface PageContext {
   router: Router
   t: (key: string, named?: Record<string, unknown>) => string
@@ -53,6 +64,9 @@ export interface PageContext {
   variant: string
   /** 表单渲染器持有的实体（`preMounted` 里写初值时会用到） */
   entity?: Ref<Record<string, unknown>>
+  /** 声明里的行操作要做「确认 + 提示」时用（如重置密码），壳从 `App.useApp()` 注入 */
+  modal: PageModal
+  message: PageMessage
 }
 
 /** 字段字典：字段自身的属性，三种形态共用；形态条目里写了就以条目为准 */
@@ -97,7 +111,8 @@ export type PageListEntry<TEntity> = (keyof TEntity & string) | PageListColumn<T
 
 /** 详情项 */
 export interface PageDetailItem<TEntity> {
-  key: keyof TEntity & string
+  /** 实体字段名；支持 `a.b` **嵌套路径**（如 `initialization.randomPassword`） */
+  key: string
   /** 覆盖字典 */
   labelKey?: string
   format?: PageValueFormat
@@ -190,6 +205,11 @@ export interface PageFormDefinition<TBody, TEntity> {
   postMounted?: () => void | Promise<void>
   preSubmit?: () => void | Promise<void>
   postGetEntity?: (entity: TEntity, ctx: PageContext) => TEntity | Promise<TEntity>
+  /**
+   * 表单「重置」之后触发：清掉**不在表单字段里**的残留
+   * （如内嵌选择器写回的 `roleIds` / `resourceIds`）。
+   */
+  onReset?: (ctx: PageContext) => void
 }
 
 export interface PageDetailDefinition<TEntity> {

@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody = TBody, TId = TEntity['id']">
 import {computed, ref, type Ref, useAttrs} from 'vue'
 import {useRouter} from 'vue-router'
+import useApp from 'antdv-next/dist/app/useApp'
 import type {BasicIdMetadata} from '@loncra/client/commons'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import i18n from '@/i18n'
@@ -33,6 +34,7 @@ const props = withDefaults(
 
 const attrs = useAttrs()
 const router = useRouter()
+const {message, modal} = useApp()
 
 // 实体初值来自声明；BasicForm 随后会用服务端数据合并进来
 const entity = ref(props.page.form?.createEntity?.() ?? ({} as TBody)) as unknown as Ref<TBody>
@@ -44,6 +46,8 @@ const context = computed<PageContext>(() => ({
   extra: props.contextExtra,
   variant: props.variant,
   entity: entity as unknown as Ref<Record<string, unknown>>,
+  modal,
+  message,
 }))
 
 // enumId 优先取字段上的覆盖，其次取字段字典里的
@@ -93,6 +97,7 @@ defineExpose({entity})
     v-model:entity="entity"
     v-model:spinning="spinning"
     v-bind="attrs"
+    @resetFields="page.form?.onReset?.(context)"
   >
     <template #rowLayout>
       <a-col

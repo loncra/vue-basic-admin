@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody = TBody, TId = TEntity['id']">
 import {computed, ref, type Ref, useAttrs} from 'vue'
 import {useRouter} from 'vue-router'
+import useApp from 'antdv-next/dist/app/useApp'
 import type {BasicIdMetadata} from '@loncra/client/commons'
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import i18n from '@/i18n'
@@ -34,6 +35,7 @@ const DEFAULT_COLUMN = {xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1}
 
 const attrs = useAttrs()
 const router = useRouter()
+const {message, modal} = useApp()
 
 const entity = ref({} as TEntity) as unknown as Ref<TEntity>
 
@@ -43,6 +45,8 @@ const context = computed<PageContext>(() => ({
   extra: props.contextExtra,
   variant: props.variant,
   entity: entity as never,
+  modal,
+  message,
 }))
 
 const items = computed(() =>

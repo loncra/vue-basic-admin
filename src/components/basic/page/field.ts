@@ -184,6 +184,19 @@ function toDetailItem<TEntity extends object>(entry: PageDetailEntry<TEntity>): 
 }
 
 /**
+ * 详情的取值：支持 `a.b` 嵌套路径（`PageDetailItem.key` 允许写路径，如 `initialization.randomPassword`）。
+ * 字典仍然按**字段名**索引，所以嵌套项自己给 `labelKey`（回退标签会是 `前缀.路径`，没有意义）。
+ */
+export function readEntityValue(entity: unknown, path: string): unknown {
+  return path
+    .split('.')
+    .reduce<unknown>(
+      (acc, key) => (acc == null ? undefined : (acc as Record<string, unknown>)[key]),
+      entity,
+    )
+}
+
+/**
  * 列表列声明 → 表格列。列级 `visible` 在这里按 `ctx.variant` 过滤。
  *
  * 注意：antdv-next 的 Table **没有** `column.customRender`（写了会被静默忽略），
@@ -284,8 +297,9 @@ export function buildDetailItems<TEntity extends object>(
 ): DescriptionsItemType[] {
   return declared.map((entry) => {
     const item = toDetailItem(entry)
-    const spec = fields[item.key]
-    const value = (entity as Record<string, unknown>)[item.key]
+    // 字典按字段名索引：嵌套路径（`a.b`）只用于取值，标签由条目自己给 `labelKey`
+    const spec = fields[item.key as keyof TEntity & string]
+    const value = readEntityValue(entity, item.key)
     // render / formatValue 都返回 unknown（没声明 format 就是原始值），进描述组件前收成节点类型
     const content = (
       item.render

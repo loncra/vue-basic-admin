@@ -186,6 +186,11 @@ function createdAfterSetting(result:RestResult<TId>) {
 
 }
 
+function doReset() {
+  formRef.value?.resetFields?.()
+  emit('resetFields')
+}
+
 function onFinish () {
   formRef.value.validate().then(() => doSubmit())
 }
@@ -311,7 +316,7 @@ watch(
               <span>{{ resolvedSaveButton.text }}</span>
             </a-button>
 
-            <a-button v-if="resolvedResetButton.show" html-type="reset" :disabled="spinning">
+            <a-button v-if="resolvedResetButton.show" html-type="button" :disabled="spinning" @click="doReset">
               <template #icon>
                 <icon-font class="icon" :type="resolvedResetButton.icon" />
               </template>

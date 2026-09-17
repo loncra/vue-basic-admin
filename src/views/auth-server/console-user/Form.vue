@@ -1,187 +1,88 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
-import type {ConsoleUserEntity, ConsoleUserSavePayload, RoleEntity} from "@loncra/client/auth";
-import {
-  AUTH_SERVER_AUTHENTICATION_TYPE,
-  AUTH_SERVER_GENDER,
-  ConsoleUserService
-} from "@loncra/client/auth";
-import type {EnumBucketsResponseBody} from "@loncra/client/resource";
+import type {TableProps} from 'antdv-next'
+import type {ConsoleUserSavePayload, RoleEntity} from '@loncra/client/auth'
+import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
+import {CrudFormPage, CrudHomePage} from '@/components/basic/page'
+import {ROLE_VARIANT} from '@/views/auth-server/role/role.page'
+import {roleHomePage} from '@/views/auth-server/role/role.home.page'
+import {RESOURCE_VARIANT} from '@/views/auth-server/resource/resource.page'
+import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
+import {consoleUserFormPage} from './console-user.form.page'
 
-import {requireNonNullOrUndefined} from "@/utils";
-import {
-  AUTH_SERVER_CONSOLE_USER_ROUTE,
-  OPERATION_DATA_TRACE_TABLE,
-  SYSTEM_CONSTANT,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-  VALID_REGX
-} from '@/constants';
-import LBasicForm from "@/components/basic/form/BasicForm.vue";
-import {ResourceServerService} from "@/apis";
-
-import {CrudHomePage} from "@/components/basic/page";
-import {ROLE_VARIANT} from "@/views/auth-server/role/role.page";
-import {roleHomePage} from "@/views/auth-server/role/role.home.page";
-import {RESOURCE_VARIANT} from "@/views/auth-server/resource/resource.page";
-import {resourceHomePage} from "@/views/auth-server/resource/resource.home.page";
-import type {TableProps} from "antdv-next";
-
+/**
+ * 控制台用户表单的**薄壳**。
+ * 字段、校验、编辑态禁用、标题、重置都在声明（`console-user.form.page.ts`）里；
+ * 这里只留声明管不到的三块：分隔标题、两个内嵌选择器、备注（它们在默认插槽里，位置与旧页面一致）。
+ */
 defineOptions({
-  name: 'AuthServerConsoleUserForm'
+  name: 'AuthServerConsoleUserForm',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+/** 两个选择器的固定查询：只列启用的、且支持控制台登录的 */
+const roleQuery = {
+  'filter_[enabled_eq]': '1',
+  'filter_[sources_jin]': AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE,
+}
+const resourceQuery = {...roleQuery}
 
-const service = new ConsoleUserService()
-
-const options = ref<{
-  entity:ConsoleUserSavePayload
-  genderOptions:NameValueEnumMetadata<number | string>[]
-  statusOptions:NameValueEnumMetadata<number | string>[]
-  spinning:boolean
-}>({
-  spinning: false,
-  entity: {
-    realName: "",
-    gender: AUTH_SERVER_GENDER.UNKNOWN,
-    phoneNumber: "",
-    remark: "",
-    email: "",
-    username: "",
-    status: 1,
-    phoneNumberVerified: 0,
-    emailVerified: 0,
-    systemName: ""
-  },
-  genderOptions:[],
-  statusOptions:[],
-})
-
-async function mounted() {
-  options.value.spinning = true
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.GENDER_ENUM}, {id:SYSTEM_ENUM_TYPE.USER_STATUS_ENUM}]})
-  if (enums.data) {
-    const responseBody: EnumBucketsResponseBody = enums.data
-    const resourceServer = responseBody[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
-
-    options.value.genderOptions = resourceServer[SYSTEM_ENUM_TYPE.GENDER_ENUM] ?? []
-    options.value.statusOptions = resourceServer[SYSTEM_ENUM_TYPE.USER_STATUS_ENUM] ?? []
+/**
+ * 勾了角色，把它带的资源也一并勾上（旧实现的行为，别丢）。
+ * 实体来自表单壳的默认插槽，所以写成工厂：模板里 `roleSelection(entity)`。
+ */
+function roleSelection(entity: ConsoleUserSavePayload) {
+  const onChange: NonNullable<TableProps['rowSelection']>['onChange'] = (_selectedRowKeys, selectedRows) => {
+    const roles = selectedRows as RoleEntity[]
+    entity.roleIds = roles.flatMap((r) => (r.id != null ? [r.id] : []))
+    entity.resourceIds = [
+      ...new Set([...(entity.resourceIds ?? []), ...roles.flatMap((r) => r.resourceIds ?? [])]),
+    ]
   }
-
-  options.value.spinning = false
+  return {type: 'checkbox', selectedRowKeys: entity.roleIds, onChange}
 }
-
-const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = (
-  _selectedRowKeys,
-  selectedRows
-) => {
-  const rows = selectedRows as RoleEntity[]
-  options.value.entity.roleIds = rows.flatMap((r) => (r.id != null ? [r.id] : []))
-  options.value.entity.resourceIds = [
-    ...new Set([
-      ...(options.value.entity.resourceIds ?? []),
-      ...rows.flatMap((r) => r.resourceIds ?? []),
-    ]),
-  ]
-}
-
-function setPageTitle(title:string, entity: ConsoleUserEntity | ConsoleUserSavePayload) {
-  if (entity.id) {
-    return title + ' (' + entity.realName + ')'
-  }
-  return title
-}
-
-function resetFields() {
-  options.value.entity.resourceIds = []
-  options.value.entity.roleIds = []
-}
-
 </script>
 
 <template>
-  <div>
-    <l-basic-form
-      @resetFields="resetFields"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.CONSOLE_USER"
-      :pre-mounted="mounted"
-      :title-text="setPageTitle"
-      :redirect="{name:AUTH_SERVER_CONSOLE_USER_ROUTE.HOME}"
-      :service="service"
-      v-model:entity="options.entity"
-      :spinning="options.spinning"
-    >
-      <template #rowLayout>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="realName" :label="globalProperties.$t('common.realName')" :rules="[{required: true}]">
-            <a-input v-model:value="options.entity.realName" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="username" :label="globalProperties.$t('auth.account')" :rules="[{required: true}]">
-            <a-input v-model:value="options.entity.username" :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined"  />
-          </a-form-item>
-        </a-col>
+  <crud-form-page :page="consoleUserFormPage" v-slot="{entity}">
+    <a-divider class="m-0 mb-md" orientation="left" plain>
+      <a-space>
+        <icon-font class="icon" type="loncra-users-round" />
+        {{ $t('authServer.userRole') }}
+      </a-space>
+    </a-divider>
 
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="email" :label="globalProperties.$t('common.email')" :rules="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] ? undefined : [{type:'email'}]">
-            <a-input v-model:value="options.entity.email" :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="phoneNumber" :label="globalProperties.$t('common.phoneNumber')" :rules="[{type: 'string', pattern:VALID_REGX.PHONE_NUMBER, message: globalProperties.$t('error.valid.phoneNumber')}]">
-            <a-input v-model:value="options.entity.phoneNumber" :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="gender" :label="globalProperties.$t('common.gender')">
-            <a-select v-model:value="options.entity.gender" :options="options.genderOptions" :field-names="{label:'name'}" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="status" :label="globalProperties.$t('common.status')">
-            <a-select v-model:value="options.entity.status" :options="options.statusOptions" :field-names="{label:'name'}" />
-          </a-form-item>
-        </a-col>
-      </template>
+    <crud-home-page
+      :page="roleHomePage"
+      :variant="ROLE_VARIANT.PICKER"
+      :record-actions="false"
+      :query="roleQuery"
+      :row-selection="roleSelection(entity)"
+      hide-title
+      root-class="mb-md"
+    />
 
-      <a-divider class="m-0 mb-md" orientation="left" plain>
-        <a-space>
-          <icon-font class="icon" type="loncra-users-round" />
-          {{ globalProperties.$t('authServer.userRole') }}
-        </a-space>
-      </a-divider>
+    <a-divider class="m-0 mb-md" orientation="left" plain>
+      <a-space>
+        <icon-font class="icon" type="loncra-key-round" />
+        {{ $t('authServer.standaloneResource') }}
+      </a-space>
+    </a-divider>
 
-      <crud-home-page :variant="ROLE_VARIANT.PICKER" :record-actions="false" :page="roleHomePage" hide-title root-class="mb-md" :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE}" :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.roleIds, onChange: roleSelectedChange}"/>
+    <crud-home-page
+      :page="resourceHomePage"
+      :variant="RESOURCE_VARIANT.PICKER"
+      :record-actions="false"
+      :drag="false"
+      :pagination="false"
+      :scroll="{x: 'max-content', y: 350}"
+      :expand-icon-column-index="2"
+      :query="resourceQuery"
+      :row-selection="{type: 'checkbox', selectedRowKeys: entity.resourceIds}"
+      hide-title
+      root-class="mb-md"
+    />
 
-      <a-divider class="m-0 mb-md" orientation="left" plain>
-        <a-space>
-          <icon-font class="icon" type="loncra-key-round" />
-          {{ globalProperties.$t('authServer.standaloneResource') }}
-        </a-space>
-      </a-divider>
-
-      <crud-home-page
-        :page="resourceHomePage"
-        :variant="RESOURCE_VARIANT.PICKER"
-        :record-actions="false"
-        :drag="false"
-        :pagination="false"
-        :scroll="{x: 'max-content', y: 350}"
-        :expand-icon-column-index="2"
-        hide-title
-        root-class="mb-md"
-        :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE}"
-        :row-selection="{type: 'checkbox', selectedRowKeys: options.entity.resourceIds}"
-      />
-
-      <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
-        <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />
-      </a-form-item>
-    </l-basic-form>
-  </div>
+    <a-form-item name="remark" :label="$t('common.remark')">
+      <a-textarea v-model:value="entity.remark" :rows="4" show-count :maxlength="256" />
+    </a-form-item>
+  </crud-form-page>
 </template>

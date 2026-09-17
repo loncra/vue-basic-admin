@@ -79,4 +79,19 @@ export const roleFormPage = defineFormPage<RoleSavePayload, RoleEntity>(roleCore
     applySources(ctx, entity.sources)
     return entity
   },
+  /**
+   * 重置回到初值。
+   *
+   * `sources` 的 `props.onChange` 只在**用户改选**时触发，重置不会进它（受控组件外部改值不 emit change），
+   * 所以重置要在钩子里自己做三件事：清 `sources`、清资源勾选（`resourceIds` 不是表单字段，antd 管不到），
+   * 再让资源表按「没选来源」清空（`applySources` 里那条分支）。
+   */
+  onReset: (ctx) => {
+    const entity = ctx.entity?.value
+    if (entity) {
+      entity.sources = []
+      entity.resourceIds = []
+    }
+    applySources(ctx, [])
+  },
 })

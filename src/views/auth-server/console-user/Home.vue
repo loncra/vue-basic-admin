@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import LConsoleUserTable from "@/components/auth-server/ConsoleUserTable.vue";
+import {CrudHomePage} from '@/components/basic/page'
+import {consoleUserHomePage} from './console-user.home.page'
 
 defineOptions({
-  name: 'AuthServerConsoleUserHome'
+  name: 'AuthServerConsoleUserHome',
 })
 
 </script>
 
 <template>
-  <div>
-    <l-console-user-table />
-  </div>
+  <crud-home-page :page="consoleUserHomePage" :scroll="{x: 'max-content'}" />
 </template>
