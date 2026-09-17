@@ -1,25 +1,38 @@
 <script setup lang="ts">
-import LResourceTable from "@/components/auth-server/ResourceTable.vue";
-import {getEnumValue} from "@/utils";
-import type {TableProps} from "antdv-next";
-import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth';
+import {App} from 'antdv-next'
+import type {TreeSortMetadata} from '@loncra/client/commons'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
+import type {ResourceEntity} from '@loncra/client/auth'
+import {ResourceService} from '@loncra/client/auth'
+import {CrudHomePage} from '@/components/basic/page'
+import {resourcePage} from './resource.page'
 
+/**
+ * 资源列表页薄壳。
+ * 列、搜索、行操作、权限、插件行不可选都在声明（resource.page.ts）里；
+ * 这里只处理「树拖拽排序」这个需要调接口、声明管不到的提交动作。
+ */
 defineOptions({
-  name: 'AuthServerResourceHome'
+  name: 'AuthServerResourceHome',
 })
 
-const getCheckboxProps: NonNullable<TableProps["rowSelection"]>["getCheckboxProps"] = (record) => {
-  return {
-    disabled: getEnumValue(record.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN,
-  }
-}
+const {message} = App.useApp()
+const service = new ResourceService()
 
+async function onTreeDrop(
+  sorts: TreeSortMetadata<ResourceEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[],
+) {
+  const result = await service.sort(sorts)
+  message.success(result.message)
+}
 </script>
 
 <template>
-  <div>
-    <l-resource-table
-      :row-selection="{fixed: true, type: 'checkbox',getCheckboxProps: getCheckboxProps}"
-    />
-  </div>
+  <crud-home-page
+    :page="resourcePage"
+    :pagination="false"
+    :scroll="{x: 'max-content', y: 350}"
+    :expand-icon-column-index="3"
+    @tree-drop="onTreeDrop"
+  />
 </template>

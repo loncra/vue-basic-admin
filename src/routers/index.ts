@@ -419,9 +419,9 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
     return saveRequestPathThenToAuth(to.fullPath, String(to.meta.authenticationType || principalStore.state.type))
   }
 
-  if (principalStore.isAuthenticated) {
+  /*if (principalStore.isAuthenticated) {
     socketStore.ensureConnected()
-  }
+  }*/
 
   menuPrincipalStore.setRouteEnterLoading(to.fullPath, true)
   // 默认继续导航

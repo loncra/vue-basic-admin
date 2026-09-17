@@ -286,7 +286,6 @@ watch(
 
 <template>
   <div>
-
     <l-menu-title-card >
       <l-form id="form" ref="formRef" @finish="onFinish" :model="entity">
         <a-spin :spinning="spinning">

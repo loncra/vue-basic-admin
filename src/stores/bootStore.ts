@@ -4,13 +4,13 @@ import {STORE} from '@/constants'
 import i18n from '@/i18n'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
-import {
+import router, {
   applyMenusToRoutes,
   clearDynamicRoutes,
   getAuthRouterParam,
   registerServiceRoutes,
 } from '@/routers'
-import router from '@/routers'
+import {useSocketStore} from "@/stores/socketStore.ts";
 
 export type BootStep = 'idle' | 'prepare' | 'routes' | 'menus' | 'ready' | 'error'
 
@@ -91,6 +91,8 @@ export const useBootstrapStore = defineStore(STORE.BOOT_ID, () => {
       if (principalStore.isAuthenticated) {
         setStatus('menus')
         await applyMenusToRoutes(importRoutes)
+        const socketStore = useSocketStore()
+        socketStore.ensureConnected()
       }
 
       const menuPrincipalStore = useMenuPrincipalStore()

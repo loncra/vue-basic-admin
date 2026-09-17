@@ -5,6 +5,8 @@ import {
   createVNode,
   Fragment,
   isVNode,
+  ref,
+  type Ref,
   toDisplayString,
   useAttrs,
   type VNode,
@@ -42,6 +44,22 @@ const props = withDefaults(
 
 const attrs = useAttrs()
 const router = useRouter()
+const tableRef = ref<InstanceType<typeof LCrudTable>>()
+
+/**
+ * 宿主拿它按新的查询条件重刷（如 role 表单里的资源选择器跟着 sources 变）；
+ * `clearDataSource` 用于"条件不成立时干脆不查、留空"（同旧 ResourceTable 的语义）。
+ */
+const dataSource = ref([]) as Ref<TEntity[]>
+
+defineExpose({
+  fetchDataSource: () => tableRef.value?.fetchDataSource(),
+  clearDataSource: () => {
+    dataSource.value = []
+  },
+  /** 当前表格数据（宿主做树形选择时需要按树找祖先 / 子节点） */
+  dataSource,
+})
 
 const context = computed<PageContext>(() => ({
   router,
@@ -102,8 +120,12 @@ function go(name?: string, record?: TEntity) {
 
 <template>
   <l-crud-table
+    ref="tableRef"
     :service="page.service"
     :columns="columns"
+    :drag="page.list?.drag"
+    :format-drag-preview="page.list?.formatDragPreview"
+    v-model:data-source="dataSource"
     :authority="page.list?.authority"
     :row-actions="rowActions"
     :row-key="page.rowKey"

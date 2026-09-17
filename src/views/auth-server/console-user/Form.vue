@@ -23,7 +23,7 @@ import {ResourceServerService} from "@/apis";
 
 import {CrudHomePage} from "@/components/basic/page";
 import {ROLE_VARIANT, rolePage} from "@/views/auth-server/role/role.page";
-import LResourceTable from "@/components/auth-server/ResourceTable.vue";
+import {RESOURCE_VARIANT, resourcePage} from "@/views/auth-server/resource/resource.page";
 import type {TableProps} from "antdv-next";
 
 defineOptions({
@@ -163,9 +163,14 @@ function resetFields() {
         </a-space>
       </a-divider>
 
-      <l-resource-table
+      <crud-home-page
+        :page="resourcePage"
+        :variant="RESOURCE_VARIANT.PICKER"
+        :record-actions="false"
         :drag="false"
-        preview
+        :pagination="false"
+        :scroll="{x: 'max-content', y: 350}"
+        :expand-icon-column-index="2"
         hide-title
         root-class="mb-md"
         :query="{'filter_[enabled_eq]':'1', 'filter_[sources_jin]':AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE}"

@@ -2,7 +2,6 @@ import type {Ref} from 'vue'
 import {renderIconFont} from '@loncra/antdv'
 import type {RoleEntity, RoleSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_ROLE_AUTHORITY, RoleService} from '@loncra/client/auth'
-import type {PageContext} from '@/components/basic/page'
 import {defineCrudPage} from '@/components/basic/page'
 import {AUTH_SERVER_ROLE_ROUTE} from '@/routers/auth-server/role'
 import {
@@ -24,8 +23,11 @@ export const ROLE_VARIANT = {PICKER: 'picker'} as const
 /**
  * 把「sources 变化」翻译成资源表的查询条件，并让表重新取数。
  * 上下文里的 ref 由页面壳（role/Form.vue、role/Detail.vue）通过 contextExtra 注入。
+ *
+ * **没选来源时一个字都不查**（清空表格）—— 这是原来 `@change="sourceChange"` 的行为，
+ * 别省掉这个分支，否则「新增角色」一进来就把全部资源列出来。
  */
-function applySources(ctx: PageContext, sources: unknown): void {
+function applySources(ctx: {extra: Record<string, unknown>}, sources: unknown): void {
   const values = (Array.isArray(sources) ? sources : []).map((item) => String(getEnumValue(item as never)))
   const query = ctx.extra.resourceQuery as Ref<Record<string, unknown>> | undefined
   if (query) {
@@ -151,7 +153,11 @@ export const rolePage = defineCrudPage<RoleSavePayload, RoleEntity>({
         key: 'sources',
         component: 'select',
         rules: [{required: true, trigger: 'change', type: 'array'}],
-        props: {mode: 'multiple'},
+        // 选 / 清来源 → 让下面的「独立资源」表按 sources 过滤（原来 @change="sourceChange" 的行为）
+        props: (ctx) => ({
+          mode: 'multiple',
+          onChange: (value: unknown) => applySources(ctx, value),
+        }),
       },
       {key: 'removable', component: 'select'},
       {key: 'modifiable', component: 'select'},

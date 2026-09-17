@@ -107,7 +107,7 @@ defineExpose({entity})
       >
         <a-form-item :name="field.key" :label="field.label" :rules="field.rules">
           <component
-            :is="() => field.render!({entity, t: context.t, variant: context.variant})"
+            :is="() => field.render!({entity, t: context.t, variant: context.variant, extra: context.extra})"
             v-if="field.render"
           />
           <component

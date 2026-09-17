@@ -1,6 +1,6 @@
 import type {Component, Ref} from 'vue'
 import type {FormItemProps, TableProps} from 'antdv-next'
-import type {ActionDefinition, AuthorityProps} from '@loncra/antdv-pro'
+import type {ActionDefinition, AuthorityProps, DragPreviewContent} from '@loncra/antdv-pro'
 import type {
   BasicCrudService,
   BasicIdMetadata,
@@ -111,13 +111,15 @@ export interface PageDetailItem<TEntity> {
 export type PageDetailEntry<TEntity> = (keyof TEntity & string) | PageDetailItem<TEntity>
 
 /**
- * 表单字段 `render` 拿到的东西：**裸实体**（读值用）+ `t` + 宿主形态。
+ * 表单字段 `render` / `props` / `rules` 拿到的东西：**裸实体**（读值用）+ `t` + 宿主形态 + `extra`。
  * 要写初值用页级钩子的 `PageContext`（那里 `entity` 是 `Ref`，因为钩子要写）。
  */
 export interface PageFieldRenderContext<TBody> {
   entity: TBody
   t: PageContext['t']
   variant: string
+  /** 壳通过 `contextExtra` 注入的 ref / 查询条件，与页级钩子的 `PageContext.extra` 是同一份 */
+  extra: Record<string, unknown>
 }
 
 /** 表单字段 */
@@ -128,10 +130,20 @@ export interface PageFormField<TBody> {
   enumId?: string
   /** 注册表 key，或直接给组件（editor / icon-select / attachment-upload 这类包内控件） */
   component?: PageFieldComponent | Component
-  rules?: FormItemProps['rules']
+  /**
+   * 校验规则。函数形态拿得到实体，用于「按当前值变化」的规则
+   * （如 resource 的 `category === PLUGIN` 时不必填）
+   */
+  rules?: FormItemProps['rules'] | ((ctx: PageFieldRenderContext<TBody>) => FormItemProps['rules'])
   /** 24 栅格跨度，默认 12 */
   span?: number
-  props?: Record<string, unknown>
+  /**
+   * 组件 props。函数形态拿得到实体，用于「按当前值变化」的 props
+   * （如编辑态 disabled、选项来自异步加载的 ref）
+   */
+  props?:
+    | Record<string, unknown>
+    | ((ctx: PageFieldRenderContext<TBody>) => Record<string, unknown>)
   /**
    * 该形态下是否显示；缺省显示。
    * 新增/编辑两态不一致时用它：`visible: ({entity}) => !entity?.value.id`（只在新增时出现）
@@ -150,6 +162,15 @@ export interface PageListDefinition<TEntity extends BasicIdMetadata<unknown>> {
   enums?: string[]
   /** 列顺序 = 数组顺序；按形态显隐用列自己的 `visible` */
   columns: PageListEntry<TEntity>[]
+  /** 行拖拽排序（树表按 treeDrop 事件回传 sorts，页面自己处理提交） */
+  drag?: boolean
+  /**
+   * 拖拽时跟着光标的幽灵内容，`drag` 为真时才有意义。
+   * 返回字符串（推荐 `(record) => record.name`）或 VNode（要图标/标签这类富内容时）；
+   * 类型直接复用 `@loncra/antdv-pro` 的 `DragPreviewContent`，别在这里重写（VNode 跨不过两份 vue 副本）。
+   * 缺省是**主键值**（看着就是一串 id），所以实际都该写。
+   */
+  formatDragPreview?: (record: TEntity) => DragPreviewContent
   rowSelection?: TableProps['rowSelection'] | false
   /**
    * 行内动作。函数形态用于需要 router、或按 `ctx.variant` 裁剪动作集合的场景

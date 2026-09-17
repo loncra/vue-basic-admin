@@ -1,154 +1,23 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
-import type {ResourceEntity, ResourceSavePayload} from "@loncra/client/auth";
-import {AUTH_SERVER_RESOURCE_CATEGORY, ResourceService} from "@loncra/client/auth";
-import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import type {IconfontJson} from "@/types/composables/common";
-import {requireNonNullOrUndefined} from "@/utils";
-import {
-  AUTH_SERVER_RESOURCE_ROUTE,
-  OPERATION_DATA_TRACE_TABLE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME
-} from '@/constants';
-import LBasicForm from "@/components/basic/form/BasicForm.vue";
-import {ResourceServerService} from "@/apis";
+import {ref} from 'vue'
+import type {ResourceEntity} from '@loncra/client/auth'
+import {CrudFormPage} from '@/components/basic/page'
+import {resourcePage} from './resource.page'
 
-import {loadIcon} from "@/utils/resourceUtils";
-import {getEnumValue} from "@/utils/commonUtils";
-import {IconSelect as LIconSelect} from '@loncra/antdv'
-
+/**
+ * 新增/编辑页薄壳。
+ * 字段、按分类变化的条件规则/禁用、图标清单、父资源都归声明（resource.page.ts）；
+ * 这里只把 parent ref 递进去（标题要用它）。
+ */
 defineOptions({
-  name: 'AuthServerResourceForm'
+  name: 'AuthServerResourceForm',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const service = new ResourceService()
-
-const options = ref<{
-  entity:ResourceSavePayload
-  enabledOptions:NameValueEnumMetadata<number>[]
-  typeOptions:NameValueEnumMetadata<string>[]
-  sourceOptions:NameValueEnumMetadata<string>[]
-  parent?:ResourceEntity
-  icons:string[]
-  iconOptions: IconfontJson[]
-  spinning:boolean
-}>({
-  spinning: false,
-  entity: {
-    sort: 0,
-    enabled:1,
-    authority: "",
-    type: "",
-    sources: [],
-    name: "",
-    icon: "",
-    parentId: null as unknown as number,
-    applicationName: "",
-    page: "",
-    id: null as unknown as number,
-    version: null as unknown as string,
-    category: AUTH_SERVER_RESOURCE_CATEGORY.CUSTOMIZE
-  },
-  typeOptions:[],
-  enabledOptions:[],
-  sourceOptions:[],
-  icons:["/font_loncra_icon/iconfont.json","/font_xiaojiage/iconfont.json"],
-  iconOptions:[],
-})
-
-async function mounted() {
-
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM},{id:SYSTEM_ENUM_TYPE.YES_OR_NO}],[SYSTEM_MODULE_NAME.AUTH_SERVER]:[{id:SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM}]})
-  if (enums.data) {
-    options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
-    options.value.sourceOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM] as NameValueEnumMetadata<string>[]
-    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM] as NameValueEnumMetadata<string>[]
-  }
-  if (globalProperties.$route.query.parentId) {
-    const result:RestResult<ResourceEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)
-    if (result.data) {
-      options.value.parent = result.data
-      options.value.entity.parentId = options.value.parent.id
-    }
-  }
-
-  for (const icon of options.value.icons) {
-    const iconData:IconfontJson = await loadIcon(import.meta.env.VITE_APP_SITE_URL + icon)
-    options.value.iconOptions.push(iconData)
-  }
-}
-
-function setPageTitle(title:string, entity: ResourceEntity | ResourceSavePayload) {
-  if (options.value.parent) {
-    return title + ' (' + options.value.parent.name + ')'
-  } else if (entity.id) {
-    return title + ' (' + entity.name + ')'
-  }
-  return title
-}
-
+const parent = ref<ResourceEntity>()
+/** 声明里的 preMounted / titleText 通过 contextExtra 拿到它 */
+const contextExtra = {parent}
 </script>
 
 <template>
-  <div>
-    <l-basic-form
-      :pre-mounted="mounted"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.RESOURCE"
-      :title-text="setPageTitle"
-      :redirect="{name:AUTH_SERVER_RESOURCE_ROUTE.HOME}"
-      :service="service"
-      v-model:entity="options.entity"
-      :spinning="options.spinning"
-    >
-      <template #rowLayout>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="name" :label="globalProperties.$t('common.name')" :rules="getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true}]">
-            <a-input v-model:value="options.entity.name" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="authority" :label="globalProperties.$t('authServer.authority')" :rules="getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true}]">
-            <a-input v-model:value="options.entity.authority" :disabled="options.entity.id && getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN" />
-          </a-form-item>
-        </a-col>
-
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="sources" :label="globalProperties.$t('authServer.source')" :rules="getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN ? undefined : [{required: true, trigger: 'change', type: 'array'}]">
-            <a-select mode="multiple" :disabled="options.entity.id && getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.sources" :options="options.sourceOptions" :field-names="{label:'name'}" />
-          </a-form-item>
-        </a-col>
-
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="type" :label="globalProperties.$t('common.type')">
-            <a-select :disabled="options.entity.id && getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.type" :options="options.typeOptions" :field-names="{label:'name'}" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="enabled" :label="globalProperties.$t('common.enabled')">
-            <a-select :disabled="options.entity.id && getEnumValue(options.entity.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN" v-model:value="options.entity.enabled" :options="options.enabledOptions" :field-names="{label:'name'}" />
-          </a-form-item>
-        </a-col>
-
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item name="page" :label="globalProperties.$t('authServer.resource.page')" >
-            <a-input v-model:value="options.entity.page" />
-          </a-form-item>
-        </a-col>
-
-      </template>
-
-      <a-form-item name="icon" :label="globalProperties.$t('common.icon')">
-        <l-icon-select :options="options.iconOptions" v-model:value="options.entity.icon" />
-      </a-form-item>
-      <a-form-item name="remark" :label="globalProperties.$t('common.remark')">
-        <a-textarea v-model:value="options.entity.remark" :rows="4" show-count :maxlength="256" />
-      </a-form-item>
-    </l-basic-form>
-  </div>
+  <crud-form-page :page="resourcePage" :context-extra="contextExtra" />
 </template>

@@ -2,33 +2,33 @@
 import {ref, watch} from 'vue'
 import type {ResourceEntity} from '@loncra/client/auth'
 import {CrudDetailPage} from '@/components/basic/page'
-import LResourceTable from '@/components/auth-server/ResourceTable.vue'
+import {RESOURCE_VARIANT, resourcePage} from '@/views/auth-server/resource/resource.page'
 import {rolePage} from './role.page'
 
 /**
  * 详情页薄壳。
- * 声明（role.page.ts）管基本信息；「独立资源」子树是声明管不到的部分，作为逃生内容留在这里。
+ * 声明（role.page.ts）管基本信息；「独立资源」子树（只读）是声明管不到的部分，作为逃生内容留在这里。
  */
 defineOptions({
   name: 'AuthServerRoleDetail',
 })
 
 const detailPageRef = ref<{entity?: ResourceEntity & {id?: number}}>()
-const resourceTableRef = ref<InstanceType<typeof LResourceTable>>()
+const resourcePickerRef = ref<{fetchDataSource?: () => void}>()
 const resourceQuery = ref<Record<string, unknown>>({
   'filter_[enabled_eq]': '1',
   'filter_[sources_jin]': [],
 })
 
 /** 声明里的 postGetEntity 通过 contextExtra 拿到这两个 ref */
-const contextExtra = {resourceTable: resourceTableRef, resourceQuery}
+const contextExtra = {resourceTable: resourcePickerRef, resourceQuery}
 
 // 表格已挂载 且 实体已加载 → 刷新，两种就绪顺序都能覆盖
 watch(
-  [resourceTableRef, () => detailPageRef.value?.entity?.id],
+  [resourcePickerRef, () => detailPageRef.value?.entity?.id],
   () => {
-    if (resourceTableRef.value && detailPageRef.value?.entity?.id) {
-      resourceTableRef.value.fetchDataSource()
+    if (resourcePickerRef.value && detailPageRef.value?.entity?.id) {
+      resourcePickerRef.value.fetchDataSource?.()
     }
   },
   {immediate: true},
@@ -45,11 +45,16 @@ watch(
         </a-space>
       </a-divider>
 
-      <l-resource-table
-        :immediate="false"
-        ref="resourceTableRef"
+      <crud-home-page
+        ref="resourcePickerRef"
+        :page="resourcePage"
+        :variant="RESOURCE_VARIANT.PICKER"
+        :record-actions="false"
         :drag="false"
-        preview
+        :immediate="false"
+        :pagination="false"
+        :scroll="{x: 'max-content', y: 350}"
+        :expand-icon-column-index="2"
         hide-title
         :query="resourceQuery"
         :row-selection="{

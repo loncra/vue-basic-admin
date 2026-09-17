@@ -1,5 +1,5 @@
 import {type Component, markRaw, onMounted, ref, type VNode} from 'vue'
-import {DatePicker, Input, InputNumber, Select} from 'antdv-next'
+import {DatePicker, type DescriptionsItemType, Input, InputNumber, Select} from 'antdv-next'
 import {getEnumName} from '@/utils'
 import i18n from '@/i18n'
 import {ResourceServerService} from '@/apis'
@@ -12,6 +12,7 @@ import type {
   PageDetailItem,
   PageEnums,
   PageFieldComponent,
+  PageFieldRenderContext,
   PageFieldsDictionary,
   PageFormField,
   PageListColumn,
@@ -268,24 +269,34 @@ export function renderCell<TEntity extends object>(
   return undefined
 }
 
-/** 详情项声明 → a-descriptions 的 items */
+/**
+ * 详情项声明 → a-descriptions 的 items。
+ *
+ * 返回类型钉在 `DescriptionsItemType` 上：antdv-next 的内容字段叫 **`content`**
+ * （不是 antd React 那套 `children`，写了不报错但值是空的 —— 见
+ * `node_modules/antdv-next/dist/descriptions/Item.d.ts`）。
+ */
 export function buildDetailItems<TEntity extends object>(
   declared: PageDetailEntry<TEntity>[],
   fields: PageFieldsDictionary<TEntity>,
   entity: TEntity,
   i18nPrefix: string,
-) {
+): DescriptionsItemType[] {
   return declared.map((entry) => {
     const item = toDetailItem(entry)
     const spec = fields[item.key]
     const value = (entity as Record<string, unknown>)[item.key]
+    // render / formatValue 都返回 unknown（没声明 format 就是原始值），进描述组件前收成节点类型
+    const content = (
+      item.render
+        ? item.render(value, entity)
+        : formatValue(item.format ?? spec?.format, value, {key: item.key, record: entity})
+    ) as DescriptionsItemType['content']
     return {
       key: item.key,
       label: resolveLabel(item.key, item.labelKey ?? spec?.labelKey, i18nPrefix),
       span: item.span,
-      children: item.render
-        ? item.render(value, entity)
-        : formatValue(item.format ?? spec?.format, value, {key: item.key, record: entity}),
+      content,
     }
   })
 }
@@ -314,17 +325,24 @@ export function buildFields<TBody extends object, TEntity extends TBody & object
             + '用 defineFieldComponent 给它补 mapOptions，或者去掉 enumId（选项自己塞 props）',
         )
       }
+      // 函数形态的 rules / props 拿实体：读 ctx.entity 会建立依赖，实体变了这里会重算
+      const renderCtx: PageFieldRenderContext<TBody> = {
+        entity: ctx.entity?.value as TBody,
+        t: ctx.t,
+        variant: ctx.variant,
+        extra: ctx.extra,
+      }
       return {
         key: field.key,
         label: resolveLabel(field.key, field.labelKey ?? spec?.labelKey, i18nPrefix),
-        rules: field.rules,
+        rules: typeof field.rules === 'function' ? field.rules(renderCtx) : field.rules,
         span: field.span ?? 12,
         render: field.render,
         component: componentSpec?.component,
         props: {
           ...componentSpec?.defaults,
           ...(options.length > 0 ? componentSpec?.mapOptions?.(options) ?? {} : {}),
-          ...field.props,
+          ...(typeof field.props === 'function' ? field.props(renderCtx) : field.props),
         },
       }
     })
