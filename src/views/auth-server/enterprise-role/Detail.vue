@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {EnterpriseRoleEntity, ResourceEntity} from "@loncra/client/auth";
 import {EnterpriseRoleService, ResourceService} from "@loncra/client/auth";
 import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
 import type {RestResult} from "@loncra/client/commons";
+import {getEnumName} from "@loncra/client/commons"
 import LResourceTable from "@/components/auth-server/ResourceTable.vue";
 
 defineOptions({

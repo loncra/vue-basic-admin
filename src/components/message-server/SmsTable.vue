@@ -11,9 +11,7 @@ import {
 import {
   applyColumnOptions,
   dateTimeFormat,
-  getEnumName,
-  getEnumValue,
-  requireNonNullOrUndefined
+  requireNonNullOrUndefined,
 } from '@/utils'
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
@@ -33,6 +31,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants';
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 
 defineOptions({
   name: 'LSmsTable',
@@ -189,7 +188,6 @@ onMounted(mounted)
     :query="props.query"
     :hide-title="props.preview"
     :authority="{
-      export:MESSAGE_SERVER_SMS_AUTHORITY.EXPORT,
       detail:MESSAGE_SERVER_SMS_AUTHORITY.GET,
       delete:MESSAGE_SERVER_SMS_AUTHORITY.DELETE
     }"

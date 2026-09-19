@@ -8,8 +8,9 @@ import LAgentHubSkillReleaseChangeLog
 import {DEFAULT_PAGE_RESULT_VALUE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants'
 import type {McpPackageEntity} from '@/types/apis'
 import type {IdValueMetadata, RestResult, TotalPage} from '@loncra/client/commons'
-import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
+import {getEnumValue} from '@loncra/client/commons'
 
 defineOptions({
   name: 'LAgentHubMyPlugin',

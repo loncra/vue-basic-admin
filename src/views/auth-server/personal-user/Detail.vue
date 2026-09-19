@@ -2,13 +2,14 @@
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import type {PersonalUserEntity} from '@loncra/client/auth'
 import {AUTH_SERVER_GENDER, PersonalUserService} from '@loncra/client/auth'
-import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
+import {dateTimeFormat, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {
   AUTH_SERVER_PERSONAL_USER_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
   YES_OR_NO_TYPE
 } from '@/constants'
+import {getEnumName} from '@loncra/client/commons'
 
 defineOptions({
   name: 'AuthServerPersonalUserDetail',

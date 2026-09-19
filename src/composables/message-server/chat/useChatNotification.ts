@@ -12,10 +12,8 @@ import {AuthServerService} from "@/apis";
 import {
   createAvatarNode,
   createUserAvatarNode,
-  getEnumName,
-  getEnumValue,
   getMessageContent,
-  requireNonNullOrUndefined
+  requireNonNullOrUndefined,
 } from "@/utils";
 
 import {type ComponentInternalInstance, getCurrentInstance, h} from "vue";
@@ -25,6 +23,7 @@ import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {Flex} from "antdv-next";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
 import {renderIconFont} from '@loncra/antdv'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 
 export function useChatNotification(config: UseChatNotificationParam) {

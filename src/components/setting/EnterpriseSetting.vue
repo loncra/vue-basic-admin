@@ -18,9 +18,10 @@ import {
 import type {RestResult} from "@loncra/client/commons";
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {IconfontJson} from "@/types/composables";
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({

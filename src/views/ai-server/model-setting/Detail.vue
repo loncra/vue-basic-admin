@@ -4,7 +4,7 @@ import {ResourceServerService} from '@/apis'
 import type {ModelGenerateOptions, ModelSettingEntity} from '@loncra/client/ai'
 import {AI_SERVER_MODEL_TYPE, ModelSettingService} from '@loncra/client/ai'
 
-import {booleanToYesOrNo, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {booleanToYesOrNo, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
@@ -20,6 +20,7 @@ import {
   VALUE_TYPE,
   YES_OR_NO_TYPE
 } from '@/constants'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
 defineOptions({

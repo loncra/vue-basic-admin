@@ -11,7 +11,7 @@ import {
 import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
 import type {UserChatMessageReadResponseBody} from "@loncra/client/message";
 import {ChatMessageService} from "@loncra/client/message";
-import {dateTimeFormat, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
@@ -20,6 +20,7 @@ import {SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LChatMessageReadTable',

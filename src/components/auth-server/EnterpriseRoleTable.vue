@@ -15,7 +15,7 @@ import type {EnterpriseRoleEntity} from "@loncra/client/auth";
 import {EnterpriseRoleService} from "@loncra/client/auth";
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import {applyColumnOptions, getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {applyColumnOptions, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
@@ -24,6 +24,7 @@ import {
   AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
   SYSTEM_MODULE_NAME
 } from '@/constants';
+import {getEnumName} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LEnterpriseRoleTable',

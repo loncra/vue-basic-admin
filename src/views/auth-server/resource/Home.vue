@@ -4,7 +4,7 @@ import type {TreeSortMetadata} from '@loncra/client/commons'
 import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import type {ResourceEntity} from '@loncra/client/auth'
 import {ResourceService} from '@loncra/client/auth'
-import {CrudHomePage} from '@/components/basic/page'
+import {CrudHomePage} from '@loncra/antdv-pro'
 import {resourceHomePage} from './resource.home.page'
 
 /**

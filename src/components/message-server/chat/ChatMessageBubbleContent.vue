@@ -4,7 +4,6 @@ import {AttachmentUpload as LAttachmentUpload} from '@loncra/antdv-pro'
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
 import {useSlots} from "vue";
-import {getEnumName, getEnumValue} from "@/utils";
 import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useChatCallModalExpose} from "@/composables";
@@ -13,6 +12,7 @@ import {
   MESSAGE_SERVER_CHAT_CALL_SCENE,
   MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS
 } from '@loncra/client/message'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LChatMessageBubbleContent',

@@ -4,12 +4,12 @@ import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import LAgentConversation from "@/components/ai-server/agent/AgentConversation.vue";
 import LAgentView from "@/components/ai-server/agent/AgentView.vue";
 import {provideAgentChatContext} from "@/composables";
-import {getEnumValue} from "@/utils";
 import type {ActiveAgentConversationItem} from "@/types/composables";
 import {onMounted, ref} from "vue";
 import LAgentHubView from "@/components/ai-server/agent/AgentHubView.vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
+import {getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'CommonAiAgent',

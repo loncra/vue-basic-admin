@@ -18,7 +18,7 @@ import {
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
-import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {addBubbleListMessage, requireNonNullOrUndefined} from "@/utils";
 import {useChatContext, useImDraftPersist} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
@@ -28,6 +28,7 @@ import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
+import {getEnumValue} from "@loncra/client/commons"
 import LChatCallButton from "@/components/message-server/chat/ChatCallButton.vue";
 
 defineOptions({

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {BatchMessageEntity} from "@loncra/client/message";
 import {
@@ -14,6 +14,7 @@ import LSiteTable from "@/components/message-server/SiteTable.vue";
 import LEmailTable from "@/components/message-server/EmailTable.vue";
 
 import {MESSAGE_SERVER_BATCH_ROUTE} from '@/constants';
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'MessageServerBatchDetail'

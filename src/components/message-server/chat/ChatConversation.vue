@@ -18,9 +18,8 @@ import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversati
 import {
   createAvatarNode,
   getDraftContent,
-  getEnumValue,
   getMessageContent,
-  requireNonNullOrUndefined
+  requireNonNullOrUndefined,
 } from "@/utils";
 import type {ServerConversationItem} from "@/types/composables";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
@@ -28,6 +27,7 @@ import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, YES_OR_NO_TYPE} from '@/constants'
 import type {MenuItemType} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
 import {useChatContext, useConversationActions} from "@/composables/message-server/chat";
+import {getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LChatConversation',

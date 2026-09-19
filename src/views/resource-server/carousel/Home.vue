@@ -27,7 +27,7 @@ import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {AttachmentService, CarouselService} from "@loncra/client/resource";
 import {ResourceServerService} from "@/apis";
 
-import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
@@ -40,6 +40,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants';
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 interface TabDataSource {
   key: string

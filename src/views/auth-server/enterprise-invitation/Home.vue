@@ -24,9 +24,7 @@ import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {
   applyColumnOptions,
   dateTimeFormat,
-  getEnumName,
-  getEnumValue,
-  requireNonNullOrUndefined
+  requireNonNullOrUndefined,
 } from '@/utils'
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 import {CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
@@ -37,6 +35,7 @@ import {
   SYSTEM_MODULE_NAME
 } from '@/constants'
 import {QrCodeModal as LQrCodeModal, renderIconFont} from '@loncra/antdv'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
 import LEnterpriseInvitationModal, {
   createEmptyForm

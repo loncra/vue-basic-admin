@@ -3,7 +3,7 @@ import LBasicDetail from '@/components/basic/BasicDetail.vue'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {EnterpriseEntity} from '@loncra/client/auth'
 import {EnterpriseService} from '@loncra/client/auth'
-import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
+import {dateTimeFormat, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {
   AUTH_SERVER_ENTERPRISE_ROUTE,
@@ -11,6 +11,7 @@ import {
   OPERATION_DATA_TRACE_TABLE,
   YES_OR_NO_TYPE
 } from '@/constants'
+import {getEnumName} from '@loncra/client/commons'
 
 defineOptions({
   name: 'AuthServerEnterpriseDetail',

@@ -34,12 +34,13 @@ import {ResourceServerService} from "@/apis";
 
 import {AGENT_CHAT_TYPE_STYLE, AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import {createInstructionSlot, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {createInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {type MenuItemType, Space} from "antdv-next";
 import {getConversationRuns, useAgentChatContext} from "@/composables";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import type {MenuInfo} from "@v-c/menu";
+import {getEnumValue} from "@loncra/client/commons"
 
 function toModelMenuItems(models: ModelSettingEntity[]): MenuItemType[] {
   const groups = new Map<string, {

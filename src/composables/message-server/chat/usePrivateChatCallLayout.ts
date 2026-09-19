@@ -10,7 +10,7 @@ import {
   ref,
   watch,
 } from "vue";
-import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {
   computePrivateCallLayout,
   getCallLayoutConstraints,
@@ -35,6 +35,7 @@ import {
   MESSAGE_SERVER_CHAT_CALL_TYPE,
   MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS
 } from '@loncra/client/message'
+import {getEnumValue} from "@loncra/client/commons"
 
 const miniWindowClass =
   'absolute opacity-80 top-0 left-0 rounded-lg border border-border-secondary m-xs shadow-card bg-container cursor-pointer z-10'

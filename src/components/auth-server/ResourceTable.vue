@@ -18,9 +18,9 @@ import type {
   RestResult,
   TreeSortMetadata
 } from '@loncra/client/commons';
-import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
+import {findAllTreeNodes, findFirstTreeNode, unmergeTree, getEnumName} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from '@loncra/client/resource';
-import {applyColumnOptions, getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {applyColumnOptions, requireNonNullOrUndefined} from "@/utils";
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';

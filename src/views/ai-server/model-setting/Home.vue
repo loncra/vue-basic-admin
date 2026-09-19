@@ -23,7 +23,7 @@ import type {ModelSettingEntity} from '@loncra/client/ai'
 import {ModelSettingService} from '@loncra/client/ai'
 import {ResourceServerService} from '@/apis'
 
-import {applyColumnOptions, getEnumName, requireNonNullOrUndefined} from '@/utils'
+import {applyColumnOptions, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {
   AI_SERVER_MODEL_SETTING_AUTHORITY,
@@ -34,6 +34,7 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'
+import {getEnumName} from '@loncra/client/commons'
 
 const {message} = App.useApp()
 

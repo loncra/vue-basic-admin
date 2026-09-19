@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {getEnumName, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {DataDictionaryEntity} from "@loncra/client/resource";
 import {DataDictionaryService} from "@loncra/client/resource";
@@ -9,6 +9,7 @@ import {
   RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
   VALUE_TYPE
 } from '@/constants';
+import {getEnumName} from "@loncra/client/commons"
 
 defineOptions({
   name: 'ResourceServerDataDictionaryDetail',

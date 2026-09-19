@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {useAgentConversation} from '@/composables/ai-server/agent/useAgentConversation.ts'
-import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
+import {getEnumValue} from '@loncra/client/commons'
 
 defineOptions({
   name: 'LAgentConversation',

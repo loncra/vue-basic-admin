@@ -20,8 +20,7 @@ import type {
   GenerateConversationName,
 } from '@/types/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from '@/types/apis'
-import {getEnumValue} from '@/utils'
-import {findFirstTreeNode} from '@loncra/client/commons'
+import {findFirstTreeNode, getEnumValue} from '@loncra/client/commons'
 import {getConversationRuns} from "@/composables";
 import {AI_SERVER_AGENT_BLOCK_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
 

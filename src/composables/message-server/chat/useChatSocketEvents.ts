@@ -10,9 +10,10 @@ import type {ChatSocketEventsOptions} from '@/types/composables'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
-import {addBubbleListMessage, getEnumValue} from '@/utils'
+import {addBubbleListMessage} from '@/utils'
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from '@/constants'
 import {parseSocketRestPayload} from '@/types/socket.ts'
+import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 集中 chat 模块的 socket 事件接线（新消息 / 新建会话 / 按房间刷新 / 全量刷新）。

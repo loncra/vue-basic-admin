@@ -10,9 +10,10 @@ import type {
   UserChatConversationActiveProps,
 } from '@/types/composables'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
-import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {addBubbleListMessage, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 活跃会话的消息分页、锚点跳转与会话切换。

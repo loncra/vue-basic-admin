@@ -24,11 +24,12 @@ import {
   useAgentDraftPersist,
 } from '@/composables'
 import {AGENT_CHAT_TYPE_STYLE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
-import {addBubbleListMessage, getEnumName, getEnumValue} from '@/utils'
+import {addBubbleListMessage} from '@/utils'
 import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
 import {renderIconFont} from '@loncra/antdv'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 
 
 /** Agent 气泡 role：ai 项按状态动态挂 loading */

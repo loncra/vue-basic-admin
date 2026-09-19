@@ -5,7 +5,6 @@ import type {
 } from "@/types/apis";
 import type {SystemUserContactItem} from '@loncra/antdv-pro';
 import type {RestResult} from "@loncra/client/commons";
-import {getEnumName, getEnumValue} from "@/utils";
 import {
   CHAAT_ROOM_VIEW_MODAL_TYPE,
   USER_CHAT_PARTICIPANT_OWNER_TYPE_VALUE,
@@ -20,6 +19,7 @@ import {
   MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE,
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from '@loncra/client/message'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LChatRoomView',

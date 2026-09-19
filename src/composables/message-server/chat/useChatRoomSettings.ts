@@ -17,9 +17,10 @@ import {useConversationActions} from '@/composables/message-server/chat/useConve
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import useApp from 'antdv-next/dist/app/useApp'
-import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {CHAAT_ROOM_VIEW_MODAL_TYPE, SOCKET_EVENT_TYPE} from '@/constants'
 import {parseSocketRestPayload} from '@/types/socket.ts'
+import {getEnumValue} from '@loncra/client/commons'
 import {useChatContext} from "@/composables";
 
 /**

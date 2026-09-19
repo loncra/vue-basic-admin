@@ -5,12 +5,13 @@ import type {
   AgentViewController,
   ChatBubbleItem
 } from '@/types/composables'
-import {addBubbleListMessage, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {addBubbleListMessage, requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {AgentService} from '@/apis'
 import type {AgentMessageEntity} from '@/types/apis'
 import type {PageResult, RestResult} from '@loncra/client/commons'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
+import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 智能体活跃会话的消息分页、锚点跳转与会话切换。

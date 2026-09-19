@@ -4,8 +4,8 @@ import type {ChatBubbleItem, UserChatConversationActiveProps} from '@/types/comp
 import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
-import {getEnumValue} from '@/utils'
 import {YES_OR_NO_TYPE} from '@/constants';
+import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 可见消息已读上报队列。

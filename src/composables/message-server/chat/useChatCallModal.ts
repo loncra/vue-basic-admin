@@ -19,7 +19,7 @@ import {
   MESSAGE_SERVER_MESSAGE_GROUP,
   MESSAGE_SERVER_USER_CHAT_CALL_STATUS
 } from "@loncra/client/message";
-import {exitDocumentFullscreenIfNeeded, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {exitDocumentFullscreenIfNeeded, requireNonNullOrUndefined} from "@/utils";
 import {useSocketSubscriptions} from "@/composables";
 import {
   CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY,
@@ -41,6 +41,7 @@ import type {
   ChatCallUiMode,
   UseChatCallModalParams,
 } from "@/types/composables";
+import {getEnumValue} from "@loncra/client/commons"
 
 export function provideChatCallExpose(config:UseChatCallModalParams) {
   const {on} = useSocketSubscriptions()

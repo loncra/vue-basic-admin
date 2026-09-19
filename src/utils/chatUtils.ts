@@ -23,13 +23,13 @@ import {AGENT_INSTRUCTION_PREFIX, CHAT_BUBBLE_TYPE} from '@/constants';
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import {getEnumName, getEnumValue} from "@/utils/commonUtils.ts";
 import {XProvider as AxConfigProvider} from "@antdv-next/x";
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
 import {renderIconFont} from '@loncra/antdv'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 
 const instructionIconMap:Record<string, string> = {

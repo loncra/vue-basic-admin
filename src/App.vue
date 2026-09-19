@@ -7,12 +7,13 @@ import {
   ClientProvider as LClientProvider,
   CrudConfigProvider as LCrudConfigProvider
 } from '@loncra/antdv-pro'
+import type {CrudNavigateTarget} from '@loncra/antdv-pro'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
 import {useBootstrapStore} from '@/stores/bootStore.ts'
 import {convertFormUrlencoded} from '@/utils/commonUtils'
 import {useRouter} from 'vue-router'
-import {RESOURCE_SERVER_USER_EXPORT_ROUTE} from "@/constants";
+import i18n from '@/i18n'
 
 defineOptions({
   name: 'App',
@@ -55,6 +56,11 @@ function formValueConvert(_key: string, value: unknown) {
   return convertFormUrlencoded(value)
 }
 
+/** 列表/表单/详情的**默认**文案解析：声明层给了 `i18nResolver` 就优先用声明层的，这里只是兜底 */
+function i18nResolver(key: string, named?: Record<string, unknown>) {
+  return i18n.global.t(key, named as never)
+}
+
 function hasPermission(permission: string) {
   return principalStore.hasPermission(permission)
 }
@@ -64,8 +70,19 @@ function resolveDefaultTitle() {
   return {title: crumb?.name ?? '', icon: crumb?.icon ?? 'loncra-file'}
 }
 
-function onExported() {
-  void router.push({name: RESOURCE_SERVER_USER_EXPORT_ROUTE})
+/**
+ * 列表页的跳转**兜底**：页面声明（`CrudPageCore.onNavigate`）没给实现时才用它。
+ * 约定：编辑 / 详情带 `id`（`BasicIdMetadata.id` 是可选的，要判空）；
+ * 内嵌列表（variant 不是整页）不动。
+ */
+function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
+  // 兜底只服务整页列表：宿主给了形态名（如 'picker'）说明是内嵌场景，不跳
+  if (!name || variant != null) {
+    return
+  }
+  const id = record?.id
+  const withId = (kind === 'edit' || kind === 'detail') && id != null
+  void router.push({name, query: withId ? {id: String(id)} : undefined})
 }
 </script>
 
@@ -92,8 +109,9 @@ function onExported() {
         >
           <l-crud-config-provider
             :has-permission="hasPermission"
+            :i18n-resolver="i18nResolver"
             :resolve-default-title="resolveDefaultTitle"
-            :on-exported="onExported"
+            :on-navigate="onNavigate"
           >
             <router-view v-slot="{ Component }">
               <transition name="fade-transform" mode="out-in">

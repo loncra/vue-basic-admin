@@ -3,10 +3,10 @@ import type {Router} from 'vue-router'
 
 import dayjs from 'dayjs'
 import {dayjsFormat} from './dateUtils'
-import type {NameValueEnumMetadata} from '@loncra/client/commons'
+import {getEnumValue, type NameValueEnumMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
 import {EXECUTE_STATUS_TYPE, YES_OR_NO_TYPE} from '@/constants'
-import type {DefaultCrudEntity, SearchableColumnType} from '@loncra/antdv-pro';
+import type {DefaultCrudEntity, PageSearchConfig, SearchableColumnType} from '@loncra/antdv-pro';
 
 /**
  * 值转换函数类型
@@ -156,12 +156,6 @@ export function convertFormUrlencoded(
 }
 
 /**
- * 通用数据转换工具
- * 配置驱动的「源格式 → 目标格式」转换，支持递归、过滤、字段映射
- * 可复用于菜单、树、级联选择器等树形结构场景
- */
-
-/**
  * 转换配置接口
  * @template TSource - 源数据类型
  * @template TTarget - 目标数据类型
@@ -295,37 +289,6 @@ export function convertObject<TSource extends Record<string, unknown>, TTarget e
   return result
 }
 
-/**
- * 判断是否为「名称 + 值」枚举元数据（与裸 TValue 区分，避免把 number/string 误判为对象）。
- */
-export function isNameValueEnumMetadata<TValue>(
-  value: NameValueEnumMetadata<TValue> | TValue,
-): value is NameValueEnumMetadata<TValue> {
-  if (value === null || value === undefined) {
-    return false
-  }
-  if (typeof value !== 'object') {
-    return false
-  }
-  return 'value' in value && 'name' in value
-}
-
-/** 从元数据取业务值，否则原样返回裸枚举值 */
-export function getEnumValue<TValue>(value: NameValueEnumMetadata<TValue> | TValue): TValue {
-  if (isNameValueEnumMetadata(value)) {
-    return value.value
-  }
-  return value as TValue
-}
-
-/** 从元数据取展示名，裸值则转成字符串 */
-export function getEnumName<TValue>(value: NameValueEnumMetadata<TValue> | TValue): string {
-  if (isNameValueEnumMetadata(value)) {
-    return value.name
-  }
-  return String(value)
-}
-
 /** 表单 YesOrNo(0/1) → boolean（后端 toBoolean 不认数字） */
 export function yesOrNoToBoolean(value: unknown): boolean | undefined {
   if (value === null || value === undefined || value === '') {
@@ -384,6 +347,60 @@ export function applyColumnOptions<RecordType extends object = DefaultCrudEntity
 
 export function isTauri(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+}
+
+/** 搜索项类型：就是 pro 注册表的组件 key（`select` 这种叫法两边必须一致） */
+export type SearchPropsKind = 'input' | 'number' | 'select' | 'date' | 'dateRange'
+
+/**
+ * 第二条参数能覆盖的东西 = pro 的搜索项声明（`PageSearchConfig`）去掉 `component`（component 由 kind 决定）。
+ * 形状归 pro 所有，以后 pro 给搜索项加字段这里自动跟上，不用两边各维护一份。
+ */
+export type SearchPropsOverride = Partial<Omit<PageSearchConfig, 'component'>>
+
+/**
+ * 类型 → **整份搜索项的默认**：placeholder 文案、默认查询表达式、组件专属 props。
+ * 要调默认值只动这张表（宿主的资产都在宿主这边）。
+ */
+const SEARCH_DEFAULTS: Record<
+  SearchPropsKind,
+  {placeholder: string; expression: string; props?: Record<string, unknown>}
+> = {
+  input: {placeholder: 'search.placeholder.input', expression: 'like'},
+  number: {placeholder: 'search.placeholder.input', expression: 'eq'},
+  select: {
+    placeholder: 'search.placeholder.select',
+    expression: 'eq',
+    // 筛选下拉只有 padding、宽度靠内容撑：Select 不撑满就和下面那排按钮不等宽
+    props: {classes: {root: 'w-full'}, popupMatchSelectWidth: false},
+  },
+  date: {placeholder: 'search.placeholder.date', expression: 'eq'},
+  dateRange: {placeholder: 'search.placeholder.dateRange', expression: 'between'},
+}
+
+/**
+ * 列表搜索项：整份 `search` 一次产出（`defineSearchProps('select', {expression: 'jin', props: {mode: 'multiple'}})`）。
+ * 第二个参数是扩展，不传就用该类型的默认。
+ *
+ * `props` 返回**函数**而不是对象：`*.page.ts` 只在应用启动时求值一次，写成对象会把当时的语言冻住，
+ * 之后切换语言 placeholder 不跟着变。pro 构建列时（computed 内）才调用它。
+ */
+export function defineSearchProps(
+  kind: SearchPropsKind = 'input',
+  override: SearchPropsOverride = {},
+): PageSearchConfig {
+  const fallback = SEARCH_DEFAULTS[kind]
+  return {
+    // override 里的其余字段（queryName / defaultValue / 以后 pro 新增的）原样带走
+    ...override,
+    component: kind,
+    expression: override.expression ?? fallback.expression,
+    props: () => ({
+      placeholder: i18n.global.t(fallback.placeholder),
+      ...fallback.props,
+      ...override.props,
+    }),
+  }
 }
 
 export function getExecuteBadgeStatus(executeStatus:NameValueEnumMetadata<number> | number) {

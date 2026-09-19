@@ -5,7 +5,7 @@ import type {MyMessageState} from "@/types/apis";
 import type {IdNameMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {MessageGroup, UserChatUnreadItem} from "@loncra/client/message";
 import {MESSAGE_SERVER_MESSAGE_GROUP, MessageServerService} from "@loncra/client/message";
-import {getEnumValue} from "@/utils";
+import {getEnumValue} from "@loncra/client/commons"
 
 const RESET: MyMessageState = {
   record: {

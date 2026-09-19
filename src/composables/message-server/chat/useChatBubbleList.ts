@@ -12,11 +12,12 @@ import type {MenuItemType} from 'antdv-next'
 import {Space, StatisticTimer} from 'antdv-next'
 import useApp from 'antdv-next/dist/app/useApp'
 import {ChatMessageService} from '@loncra/client/message'
-import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'
 import {DEFAULT_BUBBLE_LIST_ROLE,} from '@/composables/chat/useBubbleList.ts'
 import {renderIconFont} from '@loncra/antdv'
+import {getEnumValue} from '@loncra/client/commons'
 
 
 function getBubbleMessageTime(item: ChatBubbleItem): number {

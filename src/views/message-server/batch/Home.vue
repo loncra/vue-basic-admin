@@ -3,9 +3,7 @@
 import {
   applyColumnOptions,
   dateTimeFormat,
-  getEnumName,
-  getEnumValue,
-  requireNonNullOrUndefined
+  requireNonNullOrUndefined,
 } from "@/utils";
 import type {SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
@@ -29,6 +27,7 @@ import {
   SYSTEM_MODULE_NAME
 } from '@/constants';
 import {DateRangePicker, Select} from "antdv-next";
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'MessageServerBatchHome',
@@ -133,7 +132,6 @@ onMounted(mounted)
       :service="service"
       :columns="columns"
       :authority="{
-      export:MESSAGE_SERVER_BATCH_AUTHORITY.EXPORT,
       detail:MESSAGE_SERVER_BATCH_AUTHORITY.GET,
       delete:MESSAGE_SERVER_BATCH_AUTHORITY.DELETE
     }"

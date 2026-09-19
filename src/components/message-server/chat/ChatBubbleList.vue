@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
-import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE} from '@/constants'
 import {AuthServerService} from '@/apis'
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
@@ -12,6 +12,7 @@ import {useChatBubbleList, useChatContext} from '@/composables/message-server/ch
 import LChatMessageBubbleContent
   from '@/components/message-server/chat/ChatMessageBubbleContent.vue'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
+import {getEnumValue} from '@loncra/client/commons'
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
 
 defineOptions({

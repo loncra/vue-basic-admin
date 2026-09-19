@@ -25,9 +25,7 @@ import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {
   applyColumnOptions,
   dateTimeFormat,
-  getEnumName,
-  getEnumValue,
-  requireNonNullOrUndefined
+  requireNonNullOrUndefined,
 } from "@/utils";
 import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
@@ -43,6 +41,7 @@ import LForm from "@/components/Form.vue";
 import {isBusinessSuccess} from "@/requests";
 import useApp from "antdv-next/dist/app/useApp";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 import LEnterpriseInvitationModal, {
   createEmptyForm
 } from "@/components/auth-server/EnterpriseInvitationModal.vue";

@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import {AuthServerService} from "@/apis";
-import type {EnterpriseInvitationEntity, EnterpriseMemberEntity} from "@loncra/client/auth";
+import {
+  AuthServerService} from "@/apis";
+import type {EnterpriseInvitationEntity,
+  EnterpriseMemberEntity} from "@loncra/client/auth";
 import {
   AUTH_SERVER_AUDIT_TYPE_VALUE,
   AUTH_SERVER_ENTERPRISE_INVITATION_STATUS,
   EnterpriseInvitationService
 } from "@loncra/client/auth";
-import {dateTimeFormat, getEnumName, requireNonNullOrUndefined} from '@/utils'
+import {dateTimeFormat,
+  requireNonNullOrUndefined,
+} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants'
 
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {getEnumName} from '@loncra/client/commons'
 
 defineOptions({
   name: 'AuthServerEnterpriseInvitationDetail',

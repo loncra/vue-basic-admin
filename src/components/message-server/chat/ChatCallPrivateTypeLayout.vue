@@ -1,12 +1,12 @@
 <script setup lang="ts">
 
-import {getEnumName, getEnumValue} from "@/utils";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrivateChatCallLayout} from "@/composables";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {onMounted} from "vue";
 import {CHAT_CALL_PRIVATE_ROLE_TYPE} from '@/constants';
 import {MESSAGE_SERVER_USER_CHAT_CALL_STATUS} from '@loncra/client/message'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LChatCallPrivateTypeLayout',

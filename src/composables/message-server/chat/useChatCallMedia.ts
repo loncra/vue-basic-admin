@@ -1,6 +1,6 @@
 import {useChatCallModalExpose, useSocketSubscriptions} from "@/composables";
 import {inject, markRaw, nextTick, provide, ref, watch,} from "vue";
-import {getEnumValue, getMediaStreamConstraintsByCall} from "@/utils";
+import {getMediaStreamConstraintsByCall} from "@/utils";
 import type {RestResult} from "@loncra/client/commons";
 import type {UserChatCallParticipantEntity} from "@loncra/client/message";
 import {
@@ -33,6 +33,7 @@ import type {
   ChatCallPrivateRoleType,
   VideoMetrics
 } from "@/types/composables";
+import {getEnumValue} from "@loncra/client/commons"
 
 export function provideChatCallMedia(): ChatCallMediaExpose {
   const {on} = useSocketSubscriptions()

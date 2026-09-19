@@ -13,8 +13,8 @@ import {
   useAgentAssistantBubble
 } from "@/composables";
 import type {AgentMessageEntity} from "@/types/apis";
-import {getEnumName, getEnumValue} from "@/utils";
 import {AI_SERVER_AGENT_TOOL_BLOCK_STATUS} from '@loncra/client/ai'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LAgentAssistantBubbleContent',

@@ -10,7 +10,7 @@ import {
   AI_SERVER_SKILL_UPDATE_POLICY,
   AiSkillPackageService
 } from '@loncra/client/ai'
-import {getEnumName, getEnumValue, getExecuteBadgeStatus, requireNonNullOrUndefined} from '@/utils'
+import {getExecuteBadgeStatus, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {
   ICON_SELECT_AVATAR_MODE_VALUE,
@@ -20,6 +20,7 @@ import {
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {FileEditor as LFileEditor} from '@loncra/antdv-pro'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 
 defineOptions({
   name: 'AiServerSkillPackageDetail',

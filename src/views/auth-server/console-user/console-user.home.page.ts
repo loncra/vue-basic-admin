@@ -1,15 +1,18 @@
 import {renderIconFont} from '@loncra/antdv'
 import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
+import {defineHomePage, exportCollectionData} from '@loncra/antdv-pro'
 import {AuthServerService} from '@/apis'
-import {defineHomePage} from '@/components/basic/page'
 import {
   AUTH_SERVER_CONSOLE_USER_AUTHORITY,
   AUTH_SERVER_SYSTEM_USER_AUTHORITY,
+  RESOURCE_SERVER_USER_EXPORT_ROUTE,
   SYSTEM_ENUM_TYPE,
 } from '@/constants'
+import i18n from '@/i18n'
 import {isBusinessSuccess} from '@/requests'
-import {dateTimeFormat} from '@/utils'
+import router from '@/routers'
+import {dateTimeFormat, defineSearchProps} from '@/utils'
 import {consoleUserCore} from './console-user.page'
 
 /**
@@ -24,49 +27,76 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
   {
     authority: {
       add: AUTH_SERVER_CONSOLE_USER_AUTHORITY.SAVE,
-      export: AUTH_SERVER_CONSOLE_USER_AUTHORITY.EXPORT,
       edit: AUTH_SERVER_CONSOLE_USER_AUTHORITY.SAVE,
       detail: AUTH_SERVER_CONSOLE_USER_AUTHORITY.GET,
       delete: AUTH_SERVER_CONSOLE_USER_AUTHORITY.DELETE,
     },
     enums: [SYSTEM_ENUM_TYPE.GENDER_ENUM, SYSTEM_ENUM_TYPE.USER_STATUS_ENUM],
     rowSelection: {fixed: true, type: 'checkbox'},
+    /**
+     * 导出是**本业务自己的事**：pro 不预置导出动作，这里自己声明一个标题栏动作。
+     * 选中了就导选中，没选就按当前查询条件导全部；导完去导出视图。
+     */
+    titleActions: [
+      {
+        id: 'export',
+        permission: AUTH_SERVER_CONSOLE_USER_AUTHORITY.EXPORT,
+        label: (ctx) =>
+          ctx.selectedItems.length > 0
+            ? i18n.global.t('common.export.selected', {count: ctx.selectedItems.length})
+            : i18n.global.t('common.export.all'),
+        icon: () => renderIconFont('loncra-download', 'align'),
+        run: async (ctx) => {
+          const result = await exportCollectionData({
+            service: consoleUserCore.service,
+            // 选中了就导选中，没选就按当前查询条件导全部（`exportCollectionData` 自己分流）
+            query: ctx.query ?? {},
+            records: ctx.selectedItems,
+          })
+          void ctx.message.success(result.message)
+          void router.push({name: RESOURCE_SERVER_USER_EXPORT_ROUTE})
+        },
+      },
+    ],
     columns: [
-      {key: 'realName', width: 150, search: {component: 'input', expression: 'like'}},
-      {key: 'gender', width: 150, search: {component: 'select', expression: 'eq'}},
-      {key: 'username', width: 300, search: {component: 'input', expression: 'like'}},
-      {key: 'status', width: 150, search: {component: 'select', expression: 'eq'}},
-      {key: 'email', width: 150, search: {component: 'input', expression: 'eq'}},
-      {key: 'phoneNumber', width: 150, search: {component: 'number', expression: 'eq'}},
+      {key: 'realName', width: 150, search: defineSearchProps('input')},
+      {key: 'gender', width: 150, search: defineSearchProps('select')},
+      {key: 'username', width: 300, search: defineSearchProps('input')},
+      {key: 'status', width: 150, search: defineSearchProps('select')},
+      // 邮箱要精确匹配，input 默认是 like
+      {key: 'email', width: 150, search: defineSearchProps('input', {expression: 'eq'})},
+      {key: 'phoneNumber', width: 150, search: defineSearchProps('number')},
       {
         key: 'lastAuthenticationTime',
         width: 210,
         render: (value) => dateTimeFormat(value as number),
-        search: {component: 'dateRange', expression: 'between'},
+        search: defineSearchProps('dateRange'),
       },
     ],
-    rowActions: (ctx) => [
+    rowActions: () => [
       {
         id: 'resetPassword',
         danger: true,
         permission: AUTH_SERVER_SYSTEM_USER_AUTHORITY.ADMIN_RESET_PASSWORD,
-        label: () => ctx.t('auth.adminResetPassword.text'),
+        label: () => i18n.global.t('auth.adminResetPassword.text'),
         icon: () => renderIconFont('loncra-lock-open'),
         run: (actionCtx) => {
           if (actionCtx.record?.id == null) {
             return
           }
-          ctx.modal.confirm({
-            title: ctx.t('auth.adminResetPassword.confirmTitle'),
-            content: ctx.t('auth.adminResetPassword.confirmSingle'),
+          actionCtx.modal.confirm({
+            title: i18n.global.t('auth.adminResetPassword.confirmTitle'),
+            content: i18n.global.t('auth.adminResetPassword.confirmSingle'),
             onOk: async () => {
               const result = await AuthServerService.adminResetPassword(
                 AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE,
                 String(actionCtx.record!.id),
               )
               if (isBusinessSuccess(result)) {
-                ctx.message.success(
-                  ctx.t('auth.adminResetPassword.success', {password: String(result.data ?? '')}),
+                void actionCtx.message.success(
+                  i18n.global.t('auth.adminResetPassword.success', {
+                    password: String(result.data ?? ''),
+                  }),
                   8,
                 )
               }

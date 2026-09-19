@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {CrudHomePage} from '@/components/basic/page'
+import {CrudHomePage} from '@loncra/antdv-pro'
 import {roleHomePage} from './role.home.page'
 
 defineOptions({

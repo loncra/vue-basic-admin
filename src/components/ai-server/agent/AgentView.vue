@@ -10,9 +10,9 @@ import LAgentAssistantBubbleContent
 import LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import {createAgentBubbleListRole, useAgentView} from '@/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
-import {getEnumName, getEnumValue} from "@/utils";
 import type {AgentSseMessageContent} from "@/types/composables";
 import {AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LAgentView',

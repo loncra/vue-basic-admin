@@ -3,10 +3,10 @@ import {IconSelect} from '@loncra/antdv'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
 import {defineFormPage} from '@/components/basic/page'
-import {getEnumValue} from '@/utils'
 import {loadIcon} from '@/utils/resourceUtils'
 import type {IconfontJson} from '@/types/composables/common'
 import {resourceCore} from './resource.page'
+import {getEnumValue} from '@loncra/client/commons'
 
 /** 图标清单（表单的 IconSelect 用）。懒加载一次，函数形态的 props 读它 —— 只有表单用，所以留在形态文件里 */
 const iconOptions = ref<IconfontJson[]>([])

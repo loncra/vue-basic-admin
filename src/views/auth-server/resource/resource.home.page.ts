@@ -1,15 +1,18 @@
 import {renderIconFont} from '@loncra/antdv'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
-import {defineHomePage} from '@/components/basic/page'
+import {defineHomePage} from '@loncra/antdv-pro'
+import i18n from '@/i18n'
+import router from '@/routers'
 import {
   AUTH_SERVER_RESOURCE_AUTHORITY,
   AUTH_SERVER_RESOURCE_ROUTE,
   SYSTEM_ENUM_TYPE
 } from '@/constants'
-import {getEnumValue} from '@/utils'
+import {defineSearchProps} from '@/utils'
 import type {DragPreviewContent} from '@loncra/antdv-pro'
 import {renderIconName, RESOURCE_VARIANT, resourceCore} from './resource.page'
+import {getEnumValue} from '@loncra/client/commons'
 
 /** 资源列表（`Home.vue`）。核心在 `resource.page.ts`，这里只写列表形态。 */
 export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEntity>(resourceCore, {
@@ -38,33 +41,33 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
   // 拖拽时显示的文本，缺省是主键（会显示成一串 id）
   formatDragPreview: (record) => renderIconName(record.name, record) as DragPreviewContent,
   columns: [
-    {key: 'name', width: 450, render: renderIconName, search: {component: 'input', expression: 'like'}},
-    {key: 'authority', width: 250, search: {component: 'input', expression: 'like'}},
+    {key: 'name', width: 450, render: renderIconName, search: defineSearchProps('input')},
+    {key: 'authority', width: 250, search: defineSearchProps('input')},
     // 当选择器用的时候（variant: 'picker'）不展示来源
     {
       key: 'sources',
       width: 300,
       visible: ({variant}) => variant !== RESOURCE_VARIANT.PICKER,
-      search: {component: 'select', expression: 'jin', props: {mode: 'multiple'}},
+      search: defineSearchProps('select', {expression: 'jin', props: {mode: 'multiple'}}),
     },
-    {key: 'applicationName', width: 150, search: {component: 'input', expression: 'like'}},
-    {key: 'page', width: 350, search: {component: 'input', expression: 'like'}},
+    {key: 'applicationName', width: 150, search: defineSearchProps('input')},
+    {key: 'page', width: 350, search: defineSearchProps('input')},
     {
       key: 'type',
       width: 150,
-      search: {component: 'select', expression: 'in', props: {mode: 'multiple'}},
+      search: defineSearchProps('select', {expression: 'in', props: {mode: 'multiple'}}),
     },
-    {key: 'category', width: 150, search: {component: 'select', expression: 'eq'}},
+    {key: 'category', width: 150, search: defineSearchProps('select')},
   ],
   rowActions: (ctx) => [
     {
       id: 'addChild',
       permission: AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
-      label: () => ctx.t('common.addChild', {name: ''}),
+      label: () => i18n.global.t('common.addChild', {name: ''}),
       icon: () => renderIconFont('loncra-list-tree'),
       run: (actionCtx) => {
         if (actionCtx.record) {
-          void ctx.router.push({
+          void router.push({
             name: AUTH_SERVER_RESOURCE_ROUTE.ADD_CHILD,
             query: {parentId: String(actionCtx.record.id)},
           })

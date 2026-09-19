@@ -10,7 +10,6 @@ import type {
   ChatBubbleItem,
   ThoughtChainItemDataType
 } from "@/types/composables";
-import {getEnumValue} from "@/utils";
 import {AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE, BLOCK_RUNNING_STATUS_VALUE} from '@/constants';
 import {computed, reactive} from "vue";
 import type {ThoughtChainItemType} from "@antdv-next/x";
@@ -22,6 +21,7 @@ import {
   AI_SERVER_AGENT_CONTENT_TYPE,
   AI_SERVER_AGENT_TOOL_BLOCK_STATUS
 } from '@loncra/client/ai'
+import {getEnumValue} from "@loncra/client/commons"
 
 /** 是否正在运行（THINK / ANSWER / TOOL 共用） */
 export function isBlockRunning(block: BlockRunningContentMetadata): boolean {

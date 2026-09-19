@@ -14,7 +14,7 @@ import {
   AI_SERVER_SKILL_UPDATE_POLICY,
   AiSkillPackageService
 } from '@loncra/client/ai'
-import {getEnumValue, loadIcon} from '@/utils'
+import {loadIcon} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 
@@ -36,6 +36,7 @@ import {
   AttachmentUpload as LAttachmentUpload,
   FileEditor as LFileEditor,
 } from '@loncra/antdv-pro'
+import {getEnumValue} from '@loncra/client/commons'
 
 defineOptions({
   name: 'AiServerSkillPackageAddForm',

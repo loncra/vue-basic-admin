@@ -22,11 +22,12 @@ import {
 } from '@/constants';
 import type {SearchableColumnType} from '@loncra/antdv-pro';
 import {UserSelect as LUserSelect} from '@loncra/antdv-pro';
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 
 import useApp from "antdv-next/dist/app/useApp";
 import {navigateAfterMessageSend} from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'MessageServerSmsForm',

@@ -391,6 +391,8 @@ const locale: LanguagePack = {
     placeholder: {
       input: 'Enter content to search',
       select: 'Select options to search',
+      date: 'Select a date to search',
+      dateRange: 'Select a date range to search',
     },
   },
   attachment: {

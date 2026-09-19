@@ -19,10 +19,8 @@ import {ResourceServerService} from '@/apis'
 
 import {
   applyColumnOptions,
-  getEnumName,
-  getEnumValue,
   getExecuteBadgeStatus,
-  requireNonNullOrUndefined
+  requireNonNullOrUndefined,
 } from '@/utils'
 import {
   DATA_RELEASE_STATUS,
@@ -38,6 +36,7 @@ import {
 } from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
 import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import LAgentHubSkillReleaseChangeLog
   from "@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue";
 

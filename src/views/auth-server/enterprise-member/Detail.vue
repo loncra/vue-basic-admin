@@ -11,7 +11,7 @@ import {
   EnterpriseMemberService,
   ResourceService
 } from '@loncra/client/auth'
-import {dateTimeFormat, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {dateTimeFormat, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from 'vue'
 import {
   APP_RELOAD_PROVIDE_KEY,
@@ -22,6 +22,7 @@ import {
 } from '@/constants'
 
 import type {TableProps} from 'antdv-next'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 
 import LEnterpriseRoleTable from '@/components/auth-server/EnterpriseRoleTable.vue'
 import LResourceTable from '@/components/auth-server/ResourceTable.vue'

@@ -9,7 +9,7 @@ import type {
   ModelSettingSavePayload
 } from '@loncra/client/ai'
 import {AI_SERVER_MODEL_TYPE, ModelSettingService} from '@loncra/client/ai'
-import {booleanToYesOrNo, getEnumValue, requireNonNullOrUndefined, yesOrNoToBoolean} from '@/utils'
+import {booleanToYesOrNo, requireNonNullOrUndefined, yesOrNoToBoolean} from '@/utils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 
@@ -29,6 +29,7 @@ import {
   VALUE_TYPE,
   YES_OR_NO_TYPE
 } from '@/constants'
+import {getEnumValue} from '@loncra/client/commons'
 
 defineOptions({
   name: 'AiServerModelSettingForm',

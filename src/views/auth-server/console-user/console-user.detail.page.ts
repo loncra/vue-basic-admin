@@ -1,7 +1,8 @@
 import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@loncra/client/auth'
 import {defineDetailPage} from '@/components/basic/page'
-import {dateTimeFormat, getEnumName} from '@/utils'
+import {dateTimeFormat} from '@/utils'
 import {consoleUserCore} from './console-user.page'
+import {getEnumName} from '@loncra/client/commons'
 
 /**
  * 控制台用户详情（`Detail.vue`）。核心在 `console-user.page.ts`，这里只写详情形态。

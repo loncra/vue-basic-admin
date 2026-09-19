@@ -10,7 +10,8 @@ import {
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
 } from '@/constants'
-import type {CrudPageCore} from '@/components/basic/page'
+import type {CrudPageCore} from '@loncra/antdv-pro'
+import i18n from '@/i18n'
 
 const resourceService = new ResourceService()
 

@@ -9,10 +9,11 @@ import {
   AUTHENTICATION_MEMBER_TYPE,
   ICON_SELECT_AVATAR_MODE_VALUE
 } from '@/constants';
-import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
 import type {PersonalEnterprise} from "@loncra/client/auth";
 import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
+import {getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LLogo',

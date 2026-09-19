@@ -13,8 +13,8 @@ import {
   watch
 } from "vue";
 import {type RouteLocationNormalizedLoaded} from "vue-router";
-import {getEnumValue, requireNonNullOrUndefined} from "@/utils";
-import {filterTreeDeep, findFirstTreeNode, unmergeTree} from "@loncra/client/commons";
+import {requireNonNullOrUndefined} from "@/utils";
+import {filterTreeDeep, findFirstTreeNode, unmergeTree, getEnumValue} from "@loncra/client/commons";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {MenuInfo} from '@v-c/menu'
 import {useMessageServerStore} from "@/stores/messageServerStore";

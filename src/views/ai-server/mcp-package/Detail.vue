@@ -5,7 +5,7 @@ import type {
   StdioMcpClientTransportMetadata
 } from '@loncra/client/ai'
 import {AI_SERVER_MCP_CLIENT_TYPE, AiMcpPackageService} from '@loncra/client/ai'
-import {getEnumName, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {McpPackageEntity} from '@/types/apis'
 import {
@@ -17,6 +17,7 @@ import {
 } from '@/constants'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
+import {getEnumName} from '@loncra/client/commons'
 import LMcpClarifyPolicyTable from "@/components/ai-server/mcp/McpClarifyPolicyTable.vue";
 
 defineOptions({

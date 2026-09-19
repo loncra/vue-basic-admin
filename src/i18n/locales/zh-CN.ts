@@ -381,7 +381,9 @@ const locale: LanguagePack = {
     text:'搜索',
     placeholder:{
       input:'输入内容进行查询',
-      select:'选择内容进行查询'
+      select:'选择内容进行查询',
+      date:'选择日期进行查询',
+      dateRange:'选择时间范围进行查询'
     }
   },
   attachment: {

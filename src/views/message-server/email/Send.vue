@@ -8,7 +8,7 @@ import type {EmailMessageSendPayload} from "@loncra/client/message";
 import {EmailMessageService, MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
 import {AttachmentUpload as LAttachmentUpload, UserSelect as LUserSelect} from '@loncra/antdv-pro';
-import {getEnumName, getEnumValue, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 import {Editor as LEditor} from '@loncra/antdv'
 
@@ -18,6 +18,7 @@ import {
   navigateAfterMessageSend
 } from "@/composables/message-server/useMessageSendFlow.ts";
 import {useRouter} from "vue-router";
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'MessageServerEmailSend',

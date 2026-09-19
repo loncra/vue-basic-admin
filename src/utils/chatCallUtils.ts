@@ -1,4 +1,3 @@
-import {getEnumValue} from "@/utils/commonUtils.ts";
 import type {NameValueEnumMetadata} from "@loncra/client/commons";
 import type {UserChatCallEntity, UserChatRoomEntity} from "@loncra/client/message";
 import {
@@ -23,6 +22,7 @@ import type {
   LayoutConstraints,
   VideoMetrics
 } from "@/types/composables";
+import {getEnumValue} from "@loncra/client/commons"
 
 export function getParticipantBadgeStatus(status:NameValueEnumMetadata<number> | number) {
   const value = getEnumValue(status)

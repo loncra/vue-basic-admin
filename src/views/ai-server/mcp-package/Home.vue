@@ -17,7 +17,7 @@ import type {McpPackageSavePayload} from '@loncra/client/ai'
 import {AiMcpPackageService} from '@loncra/client/ai'
 import {ResourceServerService} from '@/apis'
 
-import {applyColumnOptions, getEnumName, getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {applyColumnOptions, requireNonNullOrUndefined} from '@/utils'
 import {
   DATA_STATUS,
   ICON_SELECT_AVATAR_MODE_VALUE,
@@ -29,6 +29,7 @@ import {
 } from '@/constants'
 import useApp from "antdv-next/dist/app/useApp";
 import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 
 defineOptions({
   name: 'AiServerMcpPackageHome',

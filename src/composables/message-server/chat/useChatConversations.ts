@@ -1,7 +1,7 @@
 import {computed, type Ref, ref} from 'vue'
 import type {UserChatConversationResponseBody} from '@/types/apis'
-import {getEnumValue} from '@/utils'
 import {YES_OR_NO_TYPE} from '@/constants'
+import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 会话列表状态与变更集中管理。

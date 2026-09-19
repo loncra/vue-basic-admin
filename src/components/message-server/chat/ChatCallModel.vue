@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import {type Component, computed, onMounted, onUnmounted, ref} from "vue";
-import {getEnumName, getEnumValue} from "@/utils";
 import {CHAT_CALL_MINI_SIZE, CHAT_CALL_UI_MODE, DATE_TIME_FORMAT} from '@/constants';
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
 import {provideChatCallMedia, useChatCallModalExpose,} from "@/composables";
@@ -12,6 +11,7 @@ import {
   MESSAGE_SERVER_CHAT_CALL_SCENE,
   MESSAGE_SERVER_USER_CHAT_CALL_STATUS
 } from '@loncra/client/message'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LChatCallModel',

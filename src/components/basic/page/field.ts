@@ -1,10 +1,9 @@
 import {type Component, markRaw, onMounted, ref, type VNode} from 'vue'
 import {DatePicker, type DescriptionsItemType, Input, InputNumber, Select} from 'antdv-next'
-import {getEnumName} from '@/utils'
 import i18n from '@/i18n'
 import {ResourceServerService} from '@/apis'
 import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
-import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {SYSTEM_MODULE_NAME, getEnumName} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import type {
   PageContext,
@@ -236,6 +235,12 @@ export function buildColumns<TEntity extends object>(
       }
       const placeholderKey =
         typeof search.component === 'string' ? SEARCH_PLACEHOLDER[search.component] : undefined
+      // 函数形态的 props：pro 的声明用函数给（跟随语言），旧壳（本kit）也要能跑它 ——
+      // 直接展开函数等于什么都没展开，`mode: 'multiple'` 这类会静默丢掉。
+      const searchProps = search.props as
+        | Record<string, unknown>
+        | ((ctx: PageContext) => Record<string, unknown>)
+        | undefined
       built.search = {
         component: spec?.component,
         expression: search.expression ?? 'eq',
@@ -243,7 +248,7 @@ export function buildColumns<TEntity extends object>(
           placeholder: i18n.global.t(placeholderKey ?? 'search.placeholder.input'),
           ...spec?.searchDefaults,
           ...(options.length > 0 ? spec?.mapOptions?.(options) ?? {} : {}),
-          ...search.props,
+          ...(typeof searchProps === 'function' ? searchProps(ctx) : searchProps),
         },
       }
     }

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 
-import {getEnumName, getEnumValue, getMessageContent, requireNonNullOrUndefined} from "@/utils";
+import {getMessageContent, requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {type ComponentInternalInstance, getCurrentInstance} from "vue";
 import {MESSAGE_SERVER_USER_CHAT_PARTICIPANT_TYPE} from '@loncra/client/message'
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'LChatMessageReference',

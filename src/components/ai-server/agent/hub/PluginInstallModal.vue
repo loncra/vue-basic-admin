@@ -7,7 +7,7 @@ import {
 import {useAgentChatContext} from '@/composables'
 import {AGENT_WORKSPACE_TYPE_VALUE} from '@/constants'
 import type {RestResult} from '@loncra/client/commons'
-import {getEnumValue, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import useApp from 'antdv-next/dist/app/useApp'
 import {
   type ComponentInternalInstance,
@@ -17,6 +17,7 @@ import {
   ref,
   watch,
 } from 'vue'
+import {getEnumValue} from '@loncra/client/commons'
 
 defineOptions({
   name: 'LAgentHubPluginInstall',

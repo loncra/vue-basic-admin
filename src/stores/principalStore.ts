@@ -15,8 +15,8 @@ import type {RestResult} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
 import {isBusinessSuccess} from '@/requests'
 import {STORE} from '@/constants'
-import {getEnumValue} from '@/utils'
 import {clearPrincipal} from '@/composables/chat/draft'
+import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 重置状态常量
