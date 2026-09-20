@@ -13,7 +13,7 @@ import {
   ref
 } from "vue";
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 
 import {Input} from "antdv-next";
@@ -82,7 +82,7 @@ const loading = ref<boolean>(false);
 const table = ref();
 const {message, modal} = useApp()
 
-const rowActions: ActionDefinition<ObjectItemInfo>[] = [{
+const rowActions: RecordActionDefinition<ObjectItemInfo>[] = [{
   id: 'download',
   permission: true,
   label: () => globalProperties.$t('common.download.text'),
@@ -106,7 +106,7 @@ const rowActions: ActionDefinition<ObjectItemInfo>[] = [{
   },
 }]
 
-const actions: ActionDefinition<ObjectItemInfo>[] = [{
+const actions: ToolbarActionDefinition<ObjectItemInfo>[] = [{
   id: 'downloadSelected',
   permission: true,
   label: (ctx) => globalProperties.$t('common.download.selected',{count: ctx.selectedItems.length}),

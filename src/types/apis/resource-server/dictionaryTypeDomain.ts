@@ -4,7 +4,7 @@ import type {
   DictionaryTypeEntity,
   DictionaryTypeSavePayload
 } from '@loncra/client/resource'
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
+import type {RecordActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 
 export interface DictionaryTypeProps {
   columns: SearchableColumnType<DictionaryTypeEntity>[]
@@ -14,7 +14,7 @@ export interface DictionaryTypeProps {
   formOpen: boolean
   selectedRows: DictionaryTypeEntity[]
   entity: DictionaryTypeSavePayload
-  rowActions: ActionDefinition<DictionaryTypeEntity>[]
+  rowActions: RecordActionDefinition<DictionaryTypeEntity>[]
 }
 
 export interface DataDictionary {

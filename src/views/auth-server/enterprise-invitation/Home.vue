@@ -26,7 +26,7 @@ import {
   dateTimeFormat,
   requireNonNullOrUndefined,
 } from '@/utils'
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
+import type {RecordActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
 import {CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
@@ -138,7 +138,7 @@ function openShard(entity: EnterpriseInvitationEntity) {
   options.value.share.url = import.meta.env.VITE_APP_SITE_URL + import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/' + entity.id + "?" + AUTH_SERVER_AUTHENTICATION_TYPE_PARAM + '=' + AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL;
 }
 
-const itemActionDefinitions = function (): ActionDefinition<EnterpriseInvitationEntity>[] {
+const itemActionDefinitions = function (): RecordActionDefinition<EnterpriseInvitationEntity>[] {
   return [
     {
       id: 'share',

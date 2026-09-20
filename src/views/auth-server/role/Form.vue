@@ -47,7 +47,7 @@ const contextExtra = {resourceTable: resourcePickerRef, resourceQuery}
       :pagination="false"
       :scroll="{x: 'max-content', y: 350}"
       :expand-icon-column-index="2"
-      hide-title
+      :title="false"
       root-class="mb-md"
       :query="resourceQuery"
       :row-selection="resourceTreeSelection({

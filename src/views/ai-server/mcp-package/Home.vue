@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
+import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro'
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {
   type ComponentInternalInstance,
@@ -172,7 +172,7 @@ const options = ref<{
 
 const table = ref()
 
-const bulkActions = function(): ActionDefinition<McpPackageSavePayload>[] {
+const bulkActions = function(): ToolbarActionDefinition<McpPackageSavePayload>[] {
   return [
     {
       id: 'releaseSelect',
@@ -199,7 +199,7 @@ const bulkActions = function(): ActionDefinition<McpPackageSavePayload>[] {
   ]
 }
 
-const itemActionDefinitions = function(): ActionDefinition<McpPackageSavePayload>[] {
+const itemActionDefinitions = function(): RecordActionDefinition<McpPackageSavePayload>[] {
   return [
     {
       id: 'release',

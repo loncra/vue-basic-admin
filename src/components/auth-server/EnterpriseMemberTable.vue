@@ -27,7 +27,7 @@ import {
   dateTimeFormat,
   requireNonNullOrUndefined,
 } from "@/utils";
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
@@ -201,8 +201,8 @@ const rowSelection: NonNullable<TableProps['rowSelection']> = {
   getCheckboxProps,
 }
 
-function rowActions(): ActionDefinition<EnterpriseMemberEntity>[] {
-  const result:ActionDefinition<EnterpriseMemberEntity>[] = [
+function rowActions(): RecordActionDefinition<EnterpriseMemberEntity>[] {
+  const result:RecordActionDefinition<EnterpriseMemberEntity>[] = [
     {
       id: 'edit',
       enabled: (ctx) => getEnumValue(ctx.record?.role) !== AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER,
@@ -274,7 +274,7 @@ function closeAuditModal() {
   auditModal.value.open = false
 }
 
-function bulkActions(): ActionDefinition<EnterpriseMemberEntity>[] {
+function bulkActions(): ToolbarActionDefinition<EnterpriseMemberEntity>[] {
   if (props.audit) {
     return [
       {

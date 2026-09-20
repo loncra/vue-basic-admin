@@ -78,7 +78,7 @@ function onSuccess() {
     </template>
 
     <a-form-item name="roleIds" :label="$t('authServer.userRole')" :rules="[{required: true, type:'array'}]">
-      <l-enterprise-role-table preview hide-title :query="{'filter_[enabled_eq]':'1'}" :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange}"/>
+      <l-enterprise-role-table preview :title="false" :query="{'filter_[enabled_eq]':'1'}" :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange}"/>
     </a-form-item>
 
     <a-form-item name="subTitle" :label="$t('common.subTitle')">

@@ -13,7 +13,7 @@ import {
   dateTimeFormat,
   requireNonNullOrUndefined,
 } from '@/utils'
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import type {SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
@@ -48,7 +48,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const actionButtons = ref<ActionDefinition<SmsMessageEntity>[]>([{
+const actionButtons = ref<ToolbarActionDefinition<SmsMessageEntity>[]>([{
   id: "send",
   permission:MESSAGE_SERVER_SMS_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.sms.routePage')}),
@@ -186,7 +186,7 @@ onMounted(mounted)
     :actions="mergeDefinitions(actionButtons)"
     :record-actions="!props.preview"
     :query="props.query"
-    :hide-title="props.preview"
+    :title="props.preview ? false : undefined"
     :authority="{
       detail:MESSAGE_SERVER_SMS_AUTHORITY.GET,
       delete:MESSAGE_SERVER_SMS_AUTHORITY.DELETE

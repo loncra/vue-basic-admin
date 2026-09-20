@@ -6,7 +6,7 @@ import {
   dateTimeFormat,
   requireNonNullOrUndefined,
 } from '@/utils'
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import type {SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
@@ -41,7 +41,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const actionButtons = ref<ActionDefinition<SiteMessageEntity>[]>([{
+const actionButtons = ref<ToolbarActionDefinition<SiteMessageEntity>[]>([{
   id: "send",
   permission:MESSAGE_SERVER_SITE_AUTHORITY.SEND,
   label:() => globalProperties.$t('common.send',{name:globalProperties.$t('messageServer.site.routePage')}),
@@ -146,7 +146,7 @@ onMounted(mounted)
     :actions="mergeDefinitions(actionButtons)"
     :record-actions="!props.preview"
     :query="props.query"
-    :hide-title="props.preview"
+    :title="props.preview ? false : undefined"
     :authority="{
       detail:MESSAGE_SERVER_SITE_AUTHORITY.GET,
       delete:MESSAGE_SERVER_SITE_AUTHORITY.DELETE

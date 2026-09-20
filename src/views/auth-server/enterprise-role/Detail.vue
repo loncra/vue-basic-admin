@@ -88,7 +88,7 @@ onMounted(() => loadResourceDataSource())
           :immediate="false"
           :drag="false"
           preview
-          hide-title
+          :title="false"
           v-model:resource-ids="entity.resourceIds"
           v-model:data-source="resourceDataSource"
           :row-selection="{getCheckboxProps:() => ({disabled:true})}"

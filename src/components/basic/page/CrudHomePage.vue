@@ -24,7 +24,7 @@ import type {CrudHomeDefinition, PageContext, PageListEntry} from './types'
  * 不做路由（路由在 src/routers），不写业务逻辑，只做"填空"。
  *
  * 逃生：
- * - `$attrs` 直通 CrudTable（hide-title / record-actions / query / row-selection / scroll …）；
+ * - `$attrs` 直通 CrudTable（`:title="false"` 关卡片头 / record-actions / query / row-selection / scroll …）；
  * - 拿到的 `ctx.variant` 是**宿主命名的形态**（整页 `'page'`，内嵌宿主自己起名如 `'picker'`），
  *   列用 `visible`、动作用函数形态按形态裁剪；
  * - 页面自己的 `#title` / `#bodyCell` / `#expandedRowRender` 优先。
@@ -128,7 +128,6 @@ function go(name?: string, record?: TEntity) {
     :service="page.service"
     :columns="columns"
     :drag="page.list?.drag"
-    :format-drag-preview="page.list?.formatDragPreview"
     v-model:data-source="dataSource"
     :authority="page.list?.authority"
     :row-actions="rowActions"

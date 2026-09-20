@@ -36,10 +36,9 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
         AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN,
     }),
   },
-  // 树表拖拽排序；提交在页面壳里（@tree-drop）
-  drag: true,
-  // 拖拽时显示的文本，缺省是主键（会显示成一串 id）
-  formatDragPreview: (record) => renderIconName(record.name, record) as DragPreviewContent,
+  // 树表拖拽排序；提交在页面壳里（@tree-drop）。
+  // 幽灵内容 = 资源名（缺省是主键，会显示成一串 id）
+  drag: (record) => renderIconName(record.name, record) as DragPreviewContent,
   columns: [
     {key: 'name', width: 450, render: renderIconName, search: defineSearchProps('input')},
     {key: 'authority', width: 250, search: defineSearchProps('input')},

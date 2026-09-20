@@ -1,6 +1,6 @@
 import type {Component, Ref} from 'vue'
 import type {FormItemProps, TableProps} from 'antdv-next'
-import type {ActionDefinition, AuthorityProps, DragPreviewContent} from '@loncra/antdv-pro'
+import type {AuthorityProps, DragProp, RecordActionDefinition} from '@loncra/antdv-pro'
 import type {
   BasicCrudService,
   BasicIdMetadata,
@@ -177,23 +177,20 @@ export interface PageListDefinition<TEntity extends BasicIdMetadata<unknown>> {
   enums?: string[]
   /** 列顺序 = 数组顺序；按形态显隐用列自己的 `visible` */
   columns: PageListEntry<TEntity>[]
-  /** 行拖拽排序（树表按 treeDrop 事件回传 sorts，页面自己处理提交） */
-  drag?: boolean
   /**
-   * 拖拽时跟着光标的幽灵内容，`drag` 为真时才有意义。
-   * 返回字符串（推荐 `(record) => record.name`）或 VNode（要图标/标签这类富内容时）；
-   * 类型直接复用 `@loncra/antdv-pro` 的 `DragPreviewContent`，别在这里重写（VNode 跨不过两份 vue 副本）。
-   * 缺省是**主键值**（看着就是一串 id），所以实际都该写。
+   * 行拖拽排序 + 幽灵内容（一个口两件事，树表按 treeDrop 事件回传 sorts，页面自己处理提交）：
+   * `true` = 可拖（幽灵缺省是主键）；`(record) => 内容` = 可拖且它就是幽灵（推荐 `(record) => record.name`，
+   * 要图标/标签这类富内容就返回 VNode —— 类型直接用 pro 的 `DragProp`，别在这里重写）。
    */
-  formatDragPreview?: (record: TEntity) => DragPreviewContent
+  drag?: DragProp<TEntity>
   rowSelection?: TableProps['rowSelection'] | false
   /**
    * 行内动作。函数形态用于需要 router、或按 `ctx.variant` 裁剪动作集合的场景
-   * （单个动作的按行显隐仍用 `ActionDefinition.visible`）。
+   * （单个动作的按行显隐仍用 `RecordActionDefinition.visible`）。
    */
   rowActions?:
-    | ActionDefinition<TEntity>[]
-    | ((ctx: PageContext) => ActionDefinition<TEntity>[])
+    | RecordActionDefinition<TEntity>[]
+    | ((ctx: PageContext) => RecordActionDefinition<TEntity>[])
 }
 
 export interface PageFormDefinition<TBody, TEntity> {

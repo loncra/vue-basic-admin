@@ -23,7 +23,7 @@ import type {EnumBucketsResponseBody} from '@loncra/client/resource';
 import {applyColumnOptions, requireNonNullOrUndefined} from "@/utils";
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import type {RecordActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_RESOURCE_AUTHORITY,
@@ -134,7 +134,7 @@ const dataSource = defineModel<ResourceEntity[]>("dataSource",{default:() => []}
 const resourceIds = defineModel<number[]>("resourceIds",{default:() => []})
 const crudTable = ref()
 
-const rowActions = ref<ActionDefinition<ResourceEntity>[]>([])
+const rowActions = ref<RecordActionDefinition<ResourceEntity>[]>([])
 
 function removeSelected(selectedRows: ResourceEntity[]) {
   crudTable.value.remove(selectedRows);
@@ -292,8 +292,7 @@ onMounted(mounted)
 <template>
   <l-crud-table
     v-bind="$attrs"
-    :drag="props.drag"
-    :format-drag-preview="formatDragPreview"
+    :drag="props.drag ? formatDragPreview : false"
     @tree-drop="onTreeDrop"
     :expand-icon-column-index="props.drag ? 3 : 2"
     :pagination="false"

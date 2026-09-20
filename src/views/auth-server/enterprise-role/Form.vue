@@ -158,7 +158,7 @@ onMounted(() => loadEnterpriseResource())
         :immediate="false"
         :drag="false"
         preview
-        hide-title
+        :title="false"
         v-model:resource-ids="options.entity.resourceIds"
         v-model:data-source="options.resourceDataSource"
         root-class="mb-md"

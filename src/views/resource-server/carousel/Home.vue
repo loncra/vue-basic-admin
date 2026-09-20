@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import type {ActionDefinition, GridExposed} from '@loncra/antdv-pro'
+import type {GridExposed, RecordActionDefinition, ToolbarActionDefinition} from '@loncra/antdv-pro'
 import {
   ActionButton as LActionButton,
   CrudCardGrid as LCrudCardGrid,
@@ -85,7 +85,7 @@ const options = ref<{
 const tabActiveKey = ref<string>();
 const tabDataSource = ref<TabDataSource[]>([]);
 
-const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
+const bulkActions = function(): ToolbarActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'add',
@@ -137,7 +137,7 @@ const bulkActions = function(): ActionDefinition<CarouselEntity>[] {
   ]
 }
 
-const itemActionDefinitions = function(): ActionDefinition<CarouselEntity>[] {
+const itemActionDefinitions = function(): RecordActionDefinition<CarouselEntity>[] {
   return [
     {
       id: 'release',

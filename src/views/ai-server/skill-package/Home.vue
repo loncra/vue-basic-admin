@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
+import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro'
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import LForm from '@/components/Form.vue'
 import {
@@ -222,7 +222,7 @@ const table = ref()
 
 const snapshotFormRef = ref()
 
-const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
+const bulkActions = function (): ToolbarActionDefinition<SkillPackageSavePayload>[] {
   return [
     {
       id: 'releaseSelect',
@@ -260,7 +260,7 @@ const bulkActions = function (): ActionDefinition<SkillPackageSavePayload>[] {
   ]
 }
 
-const itemActionDefinitions = function (): ActionDefinition<SkillPackageSavePayload>[] {
+const itemActionDefinitions = function (): RecordActionDefinition<SkillPackageSavePayload>[] {
   return [
     {
       id: 'snapshot',

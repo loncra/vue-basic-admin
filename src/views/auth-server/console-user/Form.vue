@@ -57,7 +57,7 @@ function roleSelection(entity: ConsoleUserSavePayload) {
       :record-actions="false"
       :query="roleQuery"
       :row-selection="roleSelection(entity)"
-      hide-title
+      :title="false"
       root-class="mb-md"
     />
 
@@ -78,7 +78,7 @@ function roleSelection(entity: ConsoleUserSavePayload) {
       :expand-icon-column-index="2"
       :query="resourceQuery"
       :row-selection="{type: 'checkbox', selectedRowKeys: entity.resourceIds}"
-      hide-title
+      :title="false"
       root-class="mb-md"
     />
 

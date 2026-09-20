@@ -163,7 +163,7 @@ async function onSave() {
         <l-enterprise-role-table
           ref="roleTableRef"
           v-model:data-source="roleDataSource"
-          preview hide-title root-class="mb-md"
+          preview :title="false" root-class="mb-md"
           :query="{'filter_[enabled_eq]':'1'}"
           :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange,getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER})}"
         />
@@ -179,7 +179,7 @@ async function onSave() {
           ref="resourceTableRef"
           :immediate="false"
           :drag="false"
-          hide-title
+          :title="false"
           v-model:resource-ids="entity.resourceIds"
           v-model:data-source="resourceDataSource"
           :row-selection="{getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER || !principalStore.hasPermission(AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.SAVE)})}"

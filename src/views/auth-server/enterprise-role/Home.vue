@@ -3,7 +3,7 @@
 import type {TableProps} from "antdv-next";
 
 
-import type {ActionDefinition} from '@loncra/antdv-pro';
+import type {RecordActionDefinition} from '@loncra/antdv-pro';
 import {YES_OR_NO_TYPE} from '@/constants';
 import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
 import type {EnterpriseRoleEntity} from "@loncra/client/auth";
@@ -23,7 +23,7 @@ const rowSelection: NonNullable<TableProps['rowSelection']> = {
   getCheckboxProps,
 }
 
-const rowActions: ActionDefinition<EnterpriseRoleEntity>[] = [
+const rowActions: RecordActionDefinition<EnterpriseRoleEntity>[] = [
   {
     id: 'edit',
     visible: (ctx) => getEnumValue(ctx.record!.modifiable) !== YES_OR_NO_TYPE.NO,

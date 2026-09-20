@@ -151,9 +151,11 @@ const dataDictionaryTable = ref()
 const dictionaryTypeTable = ref()
 const dictionaryTypeForm = ref()
 
-const dataDictionaryActionContextExtras = computed(() => ({
-  titleActionsEnabled: selectedDictionaryType.value !== null,
-}))
+/** `add` / `deleteSelected` 只在选了类型后出现（条件归页面自己，按 id 覆盖默认定义） */
+const dataDictionaryToolbarActions = computed(() => [
+  {id: 'add', visible: () => selectedDictionaryType.value !== null},
+  {id: 'deleteSelected', visible: () => selectedDictionaryType.value !== null},
+])
 
 const onDictionaryTypeRow: NonNullable<TableProps['onRow']> = (record) => {
   const row = record as DictionaryTypeEntity
@@ -324,9 +326,8 @@ onMounted(mounted)
         <a-splitter-panel >
           <l-crud-table
             ref="dataDictionaryTable"
-            drag
-            :format-drag-preview="formatDataDictionaryDragPreview"
-            :action-context-extras="dataDictionaryActionContextExtras"
+            :drag="formatDataDictionaryDragPreview"
+            :actions="dataDictionaryToolbarActions"
             :expand-icon-column-index="3"
             :bordered="false"
             :immediate="false"

@@ -118,9 +118,11 @@ const options = ref<{
   query: {},
 })
 
-const modelSettingActionContextExtras = computed(() => ({
-  titleActionsEnabled: selectedManufacturer.value !== null,
-}))
+/** `add` / `deleteSelected` 只在选了厂商后出现（条件归页面自己，按 id 覆盖默认定义） */
+const modelSettingToolbarActions = computed(() => [
+  {id: 'add', visible: () => selectedManufacturer.value !== null},
+  {id: 'deleteSelected', visible: () => selectedManufacturer.value !== null},
+])
 
 const dragEnabled = computed(() =>
   principalStore.hasPermission(AI_SERVER_MODEL_SETTING_AUTHORITY.SORT),
@@ -262,9 +264,8 @@ onMounted(mounted)
         <a-splitter-panel>
           <l-crud-table
             ref="modelSettingTable"
-            :drag="dragEnabled"
-            :format-drag-preview="formatDragPreview"
-            :action-context-extras="modelSettingActionContextExtras"
+            :drag="dragEnabled ? formatDragPreview : false"
+            :actions="modelSettingToolbarActions"
             :bordered="false"
             :pagination="false"
             :immediate="false"

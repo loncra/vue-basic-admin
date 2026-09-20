@@ -17,7 +17,7 @@ import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {applyColumnOptions, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import type {ActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
+import type {RecordActionDefinition, SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY,
@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<{
   preview?: boolean
   query?:FilterRequest,
   rowSelection?:TableProps["rowSelection"]
-  rowActions?: ActionDefinition<EnterpriseRoleEntity>[]
+  rowActions?: RecordActionDefinition<EnterpriseRoleEntity>[]
 }>(), {
   preview: false,
   rowSelection: () => ({fixed: true, type: 'checkbox'})
@@ -47,7 +47,7 @@ const props = withDefaults(defineProps<{
 
 const service = new EnterpriseRoleService()
 
-const actionButtons = ref<ActionDefinition<EnterpriseRoleEntity>[]>([])
+const actionButtons = ref<RecordActionDefinition<EnterpriseRoleEntity>[]>([])
 
 const dataSource = defineModel<EnterpriseRoleEntity[]>("dataSource", {default: () => []})
 
