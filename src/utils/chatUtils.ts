@@ -276,7 +276,7 @@ export function getSendInstructionIcon(prefix:string, vnode?:boolean):string | u
   if (!vnode) {
     return string;
   } else {
-    return renderIconFont(string)
+    return renderIconFont(string) ?? undefined
   }
 }
 

@@ -1,11 +1,10 @@
-<script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
+<script setup lang="ts" generic="TBodyId = unknown, TBody extends BasicIdMetadata<TBodyId> = BasicIdMetadata<TBodyId>, TEntity extends TBody = TBody">
 
 import LForm from "@/components/Form.vue";
 
 import {type ComponentInternalInstance, getCurrentInstance, h, ref, watch} from "vue";
 import type {BasicCrudService, BasicIdMetadata, RestResult} from "@loncra/client/commons";
 import type {BasicAuthorityProps} from "@/types/composables";
-import {SYSTEM_CONSTANT} from '@/constants';
 import {isResultSuccess} from "@/requests";
 import {App, Button} from "antdv-next";
 import {requireNonNullOrUndefined} from "@/utils";
@@ -18,6 +17,9 @@ defineOptions({
   name: 'LModalForm',
 })
 
+/** 主键类型：见 `BasicForm.vue` 同名说明（`TBodyId` 约束主体、`TId` 是 service 那一侧的形状）。 */
+type TId = TBodyId | undefined
+
 const { message } = App.useApp()
 
 const globalProperties =
@@ -28,7 +30,7 @@ const configProviderStore = useConfigProviderStore()
 const props = withDefaults(
   defineProps<{
     operationDataTraceTarget:string,
-    service: BasicCrudService<TBody,TEntity>
+    service: BasicCrudService<TBody,TEntity,TId>
     authority?: BasicAuthorityProps
     preMounted?: () => void
     postMounted?: () => void
@@ -41,7 +43,7 @@ const props = withDefaults(
 const formRef = ref()
 const creationTime = ref<number>()
 const loading = defineModel<boolean>("spinning", {default: false})
-const entity = defineModel<TBody>("entity", {default: () => {}})
+const entity = defineModel<TBody>("entity", {required: true})
 
 const open = defineModel<boolean>("open", {default: false})
 
@@ -129,8 +131,9 @@ async function mounted() {
   }
   loading.value = true
   props?.preMounted?.()
-  if (entity.value.id && (typeof entity.value.id === 'number' && (entity.value.id as number) > 0)) {
-    await getEntity(entity.value.id)
+  const id = entity.value.id
+  if (typeof id === 'number' && id > 0) {
+    await getEntity(id)
   }
   loading.value = false
   props?.postMounted?.()

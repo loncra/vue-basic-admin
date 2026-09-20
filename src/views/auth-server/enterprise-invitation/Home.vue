@@ -31,6 +31,7 @@ import {CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
   AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants'

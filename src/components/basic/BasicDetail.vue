@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TEntity extends BasicIdMetadata<TId>, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
+<script setup lang="ts" generic="TEntity extends BasicIdMetadata<unknown>">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import {
@@ -33,6 +33,9 @@ defineOptions({
   name: 'LBasicDetail',
 })
 
+/** 主键类型：见 `form/BasicForm.vue` 同名说明（SFC 泛型里不能有循环依赖，改成体内别名）。 */
+type TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
+
 const closeLayoutTab = inject<(page: string, activatePane:boolean) => void>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
 const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_PROVIDE_KEY)
 
@@ -46,27 +49,27 @@ const configProviderStore = useConfigProviderStore();
 const props = withDefaults(
   defineProps<{
     queryFields?: string[],
-    getDetail?: (id: TId) => Promise<RestResult<TEntity>>,
+    getDetail?: (id: NonNullable<TId>) => Promise<RestResult<TEntity>>,
     actionItems?: NonNullable<MenuProps['items']>
     operationDataTraceTarget?:string,
     redirect: RouteLocationRaw
     postGetEntity?:(entity: TEntity) => TEntity | Promise<TEntity>
-    service: DetailSearchService<TEntity>
+    service: DetailSearchService<TEntity, TId>
     titleText?: (title:string, entity: TEntity) => string
   }>(),
   {
     postGetEntity: (entity: TEntity) => entity ,
     queryFields: () => ['id'],
-    titleText: (title:string, entity: TEntity) => title,
+    titleText: (title:string) => title,
   },
 )
 
 const loading = defineModel<boolean>("loading", {default: false})
-const entity = defineModel<TEntity>("entity", {default: () => {}})
+const entity = defineModel<TEntity>("entity", {required: true})
 const creationTime = ref<number>()
 const route = ref<RouteLocationNormalizedLoaded>()
 
-function fetchDetail(id: TId): Promise<RestResult<TEntity>> {
+function fetchDetail(id: NonNullable<TId>): Promise<RestResult<TEntity>> {
   return props.getDetail != null ? props.getDetail(id) : props.service.get(id)
 }
 
@@ -85,6 +88,10 @@ async function mounted() {
     sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_BAD_REQUEST_NAME, JSON.stringify(data));
     globalProperties.$router.push({name:"400"});
     closeLayoutTab?.(globalProperties.$route.fullPath, false);
+    return ;
+  }
+  if (id == null) {
+    loading.value = false;
     return ;
   }
   const result:RestResult<TEntity> = await fetchDetail(id);
@@ -108,8 +115,8 @@ function updateTitle(entity: TEntity, updateCurrentBreadcrumbs:boolean = true) {
     return ;
   }
 
-  const title = props.titleText(getRouteTitle(route.value.name), entity as TEntity)
-  setPaneName?.(route.value.fullPath as string,title)
+  const title = props.titleText(getRouteTitle(route.value.name), entity)
+  setPaneName?.(route.value.fullPath, title)
   if (!updateCurrentBreadcrumbs) {
     return ;
   }
@@ -125,7 +132,7 @@ async function activated() {
   if (!entity.value.id) {
     return ;
   }
-  updateTitle(entity.value as TEntity)
+  updateTitle(entity.value)
   const result:RestResult<TEntity> = await props.service.get(entity.value.id);
   if (result.data) {
     return ;

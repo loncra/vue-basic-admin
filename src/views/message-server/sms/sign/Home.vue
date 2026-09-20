@@ -3,6 +3,7 @@ import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import type {SearchableColumnType} from '@loncra/antdv-pro';
 import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import type {SmsSignEntity} from "@loncra/client/message";
 import {SmsSignService} from "@loncra/client/message";
 import {MESSAGE_SERVER_SMS_SIGN_AUTHORITY} from '@/constants'
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
@@ -17,7 +18,7 @@ const globalProperties =
 
 const service = new SmsSignService('alibabaCloud')
 
-const columns = computed<SearchableColumnType[]>(() => [{
+const columns = computed<SearchableColumnType<SmsSignEntity>[]>(() => [{
   title: globalProperties.$t('common.channel'),
   dataIndex: "channel",
   ellipsis: true,

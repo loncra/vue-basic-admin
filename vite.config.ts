@@ -75,7 +75,51 @@ export default defineConfig(({ mode }) => {
         // 源码别名后 peer 不再沿管理端 node_modules 往上找，显式指回本应用。
         'p-limit': fileURLToPath(new URL('./node_modules/p-limit', import.meta.url)),
       },
-      dedupe: ['dayjs', 'vue', 'antdv-next', 'p-limit'],
+      /**
+       * `antdv-next-tiptap` 住在 packages/node_modules，它把整个 tiptap 家族声明成 **peer**
+       * （含子路径 `@tiptap/extensions/character-count`、`@tiptap/vue-3/menus`），
+       * 而 workspace 侧一个都没装 ⇒ 从该文件的位置往上找不到。
+       * dev 能跑是因为 optimizeDeps 从应用根解析；build 的模块图按文件位置解析，所以只在 build 暴露。
+       * 这里用 dedupe（按包名从应用根重解析，保留 exports 映射）——
+       * 不能改成路径别名：别名会绕过包 exports，子路径会变成"找不到文件"。
+       */
+      dedupe: [
+        'dayjs',
+        'vue',
+        'antdv-next',
+        'p-limit',
+        '@tiptap/core',
+        '@tiptap/pm',
+        '@tiptap/starter-kit',
+        '@tiptap/extensions',
+        '@tiptap/vue-3',
+        '@tiptap/extension-blockquote',
+        '@tiptap/extension-bold',
+        '@tiptap/extension-bullet-list',
+        '@tiptap/extension-code',
+        '@tiptap/extension-code-block-lowlight',
+        '@tiptap/extension-color',
+        '@tiptap/extension-document',
+        '@tiptap/extension-font-family',
+        '@tiptap/extension-hard-break',
+        '@tiptap/extension-heading',
+        '@tiptap/extension-highlight',
+        '@tiptap/extension-horizontal-rule',
+        '@tiptap/extension-image',
+        '@tiptap/extension-italic',
+        '@tiptap/extension-link',
+        '@tiptap/extension-list-item',
+        '@tiptap/extension-ordered-list',
+        '@tiptap/extension-paragraph',
+        '@tiptap/extension-strike',
+        '@tiptap/extension-table',
+        '@tiptap/extension-task-item',
+        '@tiptap/extension-task-list',
+        '@tiptap/extension-text',
+        '@tiptap/extension-text-align',
+        '@tiptap/extension-text-style',
+        '@tiptap/extension-underline',
+      ],
       preserveSymlinks: true,
     },
     optimizeDeps: {

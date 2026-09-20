@@ -56,7 +56,7 @@ const { message } = App.useApp()
 
 const service = new ResourceService()
 
-const columns = computed<SearchableColumnType[]>(() => [
+const columns = computed<SearchableColumnType<ResourceEntity>[]>(() => [
   {
     title: globalProperties.$t('common.name'),
     dataIndex: 'name',

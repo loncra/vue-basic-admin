@@ -134,7 +134,7 @@ function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSa
   return title
 }
 
-async function postSubmit(result:RestResult<number>) {
+async function postSubmit(result:RestResult<SkillPackageEntity['id']>) {
   options.value.entity.id = result.data
   await nextTick()
   if (getEnumValue(options.value.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL) {

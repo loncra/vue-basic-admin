@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TBody extends BasicIdMetadata<TId>, TEntity extends TBody, TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]">
+<script setup lang="ts" generic="TBodyId = unknown, TBody extends BasicIdMetadata<TBodyId> = BasicIdMetadata<TBodyId>, TEntity extends TBody = TBody">
 
 import LForm from "@/components/Form.vue";
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
@@ -35,6 +35,14 @@ defineOptions({
   name: 'LBasicForm',
 })
 
+/**
+ * 主键类型。**不能**写成 `TId = TEntity[...]` 再让 `TBody extends BasicIdMetadata<TId>` 反过来依赖它
+ * —— 两者互为依赖，新版 language-tools 推不出来 ⇒ 整个泛型退化成宏签名自带的 `T`。
+ * 拆成两半就都成立了：`TBodyId` 约束在 `TBody` 上（`entity.value.id` 因此有类型），
+ * `TId` 是 service 那一侧的形状（client 里实体 id 声明为可选，索引出来自带 `undefined`）。
+ */
+type TId = TBodyId | undefined
+
 const closeLayoutTab = inject<(page: string, activatePane:boolean) => void>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
 const setPaneName = inject<(fullPath: string, name: string) => void>(LAYOUT_PANE_TITLE_PROVIDE_KEY)
 
@@ -50,7 +58,7 @@ const { message, modal } = App.useApp()
 const props = withDefaults(
   defineProps<{
     operationDataTraceTarget:string,
-    service: BasicCrudService<TBody,TEntity>
+    service: BasicCrudService<TBody,TEntity,TId>
     preMounted?: () => void | Promise<void>
     postMounted?: () => void | Promise<void>
     preSubmit?: () => void | Promise<void>
@@ -78,7 +86,7 @@ const props = withDefaults(
 const formRef = ref()
 const creationTime = ref<number>()
 const spinning = defineModel<boolean>("spinning", {default: false})
-const entity = defineModel<TBody>("entity", {default: () => {}})
+const entity = defineModel<TBody>("entity", {required: true})
 const currentRoute = ref<RouteLocationNormalizedLoaded>()
 
 const emit = defineEmits<{
@@ -121,12 +129,13 @@ async function doSubmit() {
     }
     if(result.status === 200) {
       emit('success', result)
-      if (!entity.value.id) {
+      const id = entity.value.id
+      if (!id) {
         createdAfterSetting(result)
       } else {
         message.success(result.message)
-        entity.value = await getEntity(entity.value.id)
-        updateTitle(entity.value as TEntity)
+        entity.value = await getEntity(id)
+        updateTitle(entity.value)
         globalProperties.$router.push(props.redirect)
       }
     } else {
@@ -233,7 +242,7 @@ async function doPostMounted() {
   if (props.postMounted) {
     await props.postMounted()
   }
-  updateTitle(entity.value as TEntity)
+  updateTitle(entity.value)
   spinning.value = false
 }
 
@@ -242,7 +251,7 @@ function updateTitle(entity: TEntity | TBody, updateCurrentBreadcrumbs:boolean =
     return ;
   }
 
-  const title = props.titleText(getRouteTitle(currentRoute.value.name), entity as TEntity)
+  const title = props.titleText(getRouteTitle(currentRoute.value.name), entity)
   if (updateCurrentBreadcrumbs) {
     const currentBreadcrumbs = [...menuPrincipalStore.state.currentBreadcrumbs];
     const last = currentBreadcrumbs.at(-1)
@@ -251,11 +260,11 @@ function updateTitle(entity: TEntity | TBody, updateCurrentBreadcrumbs:boolean =
     }
     menuPrincipalStore.setCurrentBreadcrumbs(currentBreadcrumbs);
   }
-  setPaneName?.(currentRoute.value.fullPath as string, title)
+  setPaneName?.(currentRoute.value.fullPath, title)
 }
 
 async function activated() {
-  updateTitle(entity.value as TEntity)
+  updateTitle(entity.value)
   if (!entity.value.id) {
     return ;
   }
