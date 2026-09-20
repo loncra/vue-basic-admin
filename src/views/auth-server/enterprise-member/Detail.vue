@@ -11,7 +11,7 @@ import {
   EnterpriseMemberService,
   ResourceService
 } from '@loncra/client/auth'
-import {dateTimeFormat, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from 'vue'
 import {
   APP_RELOAD_PROVIDE_KEY,
@@ -29,6 +29,10 @@ import LResourceTable from '@/components/auth-server/ResourceTable.vue'
 import useApp from 'antdv-next/dist/app/useApp'
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+
+import {useDateFormat} from '@loncra/antdv-pro'
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'AuthServerEnterpriseMemberDetail',

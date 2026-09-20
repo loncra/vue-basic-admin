@@ -7,15 +7,17 @@ import type {AuditEventEntity} from "@loncra/client/auth";
 import {OperationDataTraceAuditEventService} from "@loncra/client/auth";
 import {
   applyColumnOptions,
-  dateTimeFormat,
+  
   postTimestampFormat,
   requireNonNullOrUndefined
 } from "@/utils";
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import type {SearchableColumnType} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants';
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'LOperationDataTraceTable',

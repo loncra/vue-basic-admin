@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import type {EnterpriseInvitationDetail} from "@loncra/client/auth";
 import {
@@ -12,9 +12,11 @@ import {
 import type {RestResult} from "@loncra/client/commons";
 import {ICON_SELECT_AVATAR_MODE_VALUE} from '@/constants';
 import {IconSelect as LIconSelect} from '@loncra/antdv'
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'AuthServerEnterpriseInvitationConfirm',

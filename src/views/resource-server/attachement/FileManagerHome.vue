@@ -3,7 +3,7 @@ import {renderIconFont} from '@/utils/commonUtils'
 
 import {type ObjectItemInfo, RESOURCE_SERVER_ATTACHMENT_AUTHORITY} from "@loncra/client/resource";
 import {AttachmentService, FileManagerService} from "@loncra/client/resource";
-import {byteFormat, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {byteFormat, requireNonNullOrUndefined} from "@/utils";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -14,10 +14,12 @@ import {
 } from "vue";
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro';
 
 import {Input} from "antdv-next";
 import useApp from "antdv-next/dist/app/useApp";
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'CommonUserExport',

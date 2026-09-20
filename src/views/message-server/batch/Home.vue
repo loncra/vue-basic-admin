@@ -2,11 +2,11 @@
 
 import {
   applyColumnOptions,
-  dateTimeFormat,
+  
   requireNonNullOrUndefined,
 } from "@/utils";
 import type {SearchableColumnType} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import {
   type ComponentInternalInstance,
   computed,
@@ -28,6 +28,8 @@ import {
 } from '@/constants';
 import {DateRangePicker, Select} from "antdv-next";
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'MessageServerBatchHome',

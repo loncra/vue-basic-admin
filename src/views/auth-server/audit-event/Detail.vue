@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 
 import type {AuditEventEntity} from "@loncra/client/auth";
 import {AuditEventService} from "@loncra/client/auth";
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
 import type {RestResult} from "@loncra/client/commons";
+
+import {useDateFormat} from '@loncra/antdv-pro'
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'AuthServerAuditEventDetail',

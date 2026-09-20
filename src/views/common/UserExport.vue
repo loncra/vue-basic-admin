@@ -3,13 +3,15 @@ import {renderIconFont} from '@/utils/commonUtils'
 
 import type {ExportDataMetadata, FileObject} from "@loncra/client/resource";
 import {AttachmentService, UserExportService} from "@loncra/client/resource";
-import {byteFormat, dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {byteFormat, requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro';
 
 import {EXECUTE_STATUS_TYPE} from '@/constants';
 import {getEnumName} from "@loncra/client/commons"
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'CommonUserExport',

@@ -24,11 +24,11 @@ import type {FilterRequest, NameValueEnumMetadata, RestResult} from "@loncra/cli
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {
   applyColumnOptions,
-  dateTimeFormat,
+  
   requireNonNullOrUndefined,
 } from "@/utils";
 import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {useDateFormat, CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
   AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
@@ -45,6 +45,8 @@ import {getEnumName, getEnumValue} from "@loncra/client/commons"
 import LEnterpriseInvitationModal, {
   createEmptyForm
 } from "@/components/auth-server/EnterpriseInvitationModal.vue";
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'LEnterpriseMemberTable',

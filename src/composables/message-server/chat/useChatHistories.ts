@@ -14,10 +14,11 @@ import type {ObjectItemInfo} from '@loncra/client/resource'
 import {AttachmentService} from '@loncra/client/resource'
 import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 
-import {dateFormat, requireNonNullOrUndefined} from '@/utils'
+import {requireNonNullOrUndefined} from '@/utils'
 import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {Dayjs} from 'dayjs'
 import {renderIconFont} from '@/utils/commonUtils'
+import {useDateFormat} from '@loncra/antdv-pro'
 
 
 /**
@@ -27,6 +28,8 @@ export function useChatHistories(roomId: Ref<number>) {
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
+
+  const {dateFormat} = useDateFormat()
 
   const dataSource = ref<TotalPage<UserChatMessageResponseBody>>()
   const loading = ref<boolean>(false)

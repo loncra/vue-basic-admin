@@ -10,11 +10,11 @@ import {
 } from 'vue';
 import {
   applyColumnOptions,
-  dateTimeFormat,
+  
   requireNonNullOrUndefined,
 } from '@/utils'
 import type {SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
+import {useDateFormat, CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
 import type {FilterRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import type {SmsMessageEntity} from "@loncra/client/message";
@@ -32,6 +32,8 @@ import {
   SYSTEM_MODULE_NAME
 } from '@/constants';
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'LSmsTable',

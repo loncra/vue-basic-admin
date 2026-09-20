@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
-import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import type {SearchableColumnType} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro';
+import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro';
 import type {SmsSignEntity} from "@loncra/client/message";
 import {SmsSignService} from "@loncra/client/message";
 import {MESSAGE_SERVER_SMS_SIGN_AUTHORITY} from '@/constants'
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'MessageServerSmsSignHome',

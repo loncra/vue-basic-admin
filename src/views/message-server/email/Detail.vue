@@ -2,12 +2,14 @@
 
 import LBasicDetail from "@/components/basic/BasicDetail.vue";
 import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
-import {AttachmentUpload as LAttachmentUpload} from '@loncra/antdv-pro'
+import {requireNonNullOrUndefined} from "@/utils";
+import {useDateFormat, AttachmentUpload as LAttachmentUpload} from '@loncra/antdv-pro'
 import type {EmailMessageEntity} from "@loncra/client/message";
 import {EmailMessageService, MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from "@loncra/client/message";
 import {MESSAGE_SERVER_EMAIL_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
 import {getEnumName} from "@loncra/client/commons"
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'MessageServerEmailDetail',

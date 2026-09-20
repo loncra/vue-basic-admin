@@ -20,12 +20,14 @@ import {
 import type {MySiteMessageProps} from "@/types/apis";
 import type {IdNameMetadata, RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.js";
-import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 import type {ResolvedAction} from '@loncra/antdv-pro';
-import {ActionButton as LActionButton} from '@loncra/antdv-pro';
+import {useDateFormat, ActionButton as LActionButton} from '@loncra/antdv-pro';
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from '@/constants';
 import {getEnumValue} from "@loncra/client/commons"
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'MySiteMessageHome',

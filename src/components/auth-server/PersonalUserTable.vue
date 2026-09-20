@@ -7,9 +7,9 @@ import {DateRangePicker, Input, InputNumber, Select} from 'antdv-next'
 
 import type {RestResult} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
-import {applyColumnOptions, dateTimeFormat, requireNonNullOrUndefined} from '@/utils'
+import {applyColumnOptions, requireNonNullOrUndefined} from '@/utils'
 import type {SearchableColumnType} from '@loncra/antdv-pro'
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
+import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {
   AUTH_SERVER_PERSONAL_USER_AUTHORITY,
   AUTH_SERVER_PERSONAL_USER_ROUTE,
@@ -17,6 +17,8 @@ import {
   SYSTEM_MODULE_NAME
 } from '@/constants'
 import {getEnumName} from '@loncra/client/commons'
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'LPersonalUserTable',

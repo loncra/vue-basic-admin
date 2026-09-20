@@ -2,7 +2,7 @@
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import type {GridExposed, RecordActionDefinition, ToolbarActionDefinition} from '@loncra/antdv-pro'
-import {
+import {useDateFormat, 
   ActionButton as LActionButton,
   CrudCardGrid as LCrudCardGrid,
   isObjectWriteResult
@@ -27,7 +27,7 @@ import type {EnumBucketsResponseBody} from "@loncra/client/resource";
 import {AttachmentService, CarouselService} from "@loncra/client/resource";
 import {ResourceServerService} from "@/apis";
 
-import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
@@ -42,6 +42,8 @@ import {
   SYSTEM_MODULE_NAME
 } from '@/constants';
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
+
+const {dateTimeFormat} = useDateFormat()
 
 interface TabDataSource {
   key: string

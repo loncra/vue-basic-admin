@@ -6,21 +6,11 @@ import type {Router} from 'vue-router'
 import type {VNode} from '@loncra/antdv'
 
 import dayjs from 'dayjs'
-import {dayjsFormat} from './dateUtils'
+import {type DateLike, dayjsFormat} from '@loncra/antdv-pro'
 import {getEnumValue, type NameValueEnumMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
 import {EXECUTE_STATUS_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import type {DefaultCrudEntity, PageSearchConfig, SearchableColumnType} from '@loncra/antdv-pro';
-
-/**
- * 值转换函数类型
- * 用于在表单编码过程中对特定字段的值进行自定义转换
- *
- * @param key - 字段名称
- * @param value - 字段原始值
- * @returns 转换后的值
- */
-type ValueConvertFn = (key: string, value: unknown) => unknown
 
 /**
  * 导出视图数据接口
@@ -74,72 +64,6 @@ export function requireNonNullOrUndefined<T>(obj: T | unknown | undefined): T {
 }
 
 /**
- * 将 JSON 对象转换为 URLSearchParams 格式
- * 用于构建 URL 查询参数或表单编码数据
- * 支持忽略指定属性、值转换和数组处理
- *
- * @param json - 要转换的 JSON 对象
- * @param ignoreProperties - 要忽略的属性名，可以是单个字符串或字符串数组
- * @param valueConvert - 可选的值转换函数，用于对特定字段的值进行自定义转换
- * @returns URLSearchParams 对象，可直接用于 URL 或表单提交
- *
- * @example
- * ```typescript
- * const params = formUrlEncoded(
- *   { name: 'John', age: 30, ignoreMe: 'value' },
- *   ['ignoreMe'],
- *   (key, val) => key === 'age' ? val.toString() : val
- * );
- * // 结果: name=John&age=30
- * ```
- */
-export function formUrlEncoded(
-  json: Record<string, unknown>,
-  ignoreProperties?: string | string[],
-  valueConvert?: ValueConvertFn,
-): URLSearchParams {
-  const param = new URLSearchParams()
-
-  // 处理忽略属性列表
-  let ignore: string[] = []
-
-  if (typeof ignoreProperties === 'string') {
-    ignore.push(ignoreProperties)
-  } else {
-    ignore = ignoreProperties || []
-  }
-
-  // 遍历对象属性
-  for (const j in json) {
-    // 跳过忽略的属性
-    if (ignore.includes(j)) {
-      continue
-    }
-
-    let val = json[j]
-
-    // 跳过 undefined 和 null 值
-    if (val === undefined || val === null) {
-      continue
-    }
-
-    // 应用值转换函数（如果提供）
-    if (valueConvert) {
-      val = valueConvert(j, val)
-    }
-
-    // 处理数组：数组的每个元素都作为单独的参数值
-    if (Array.isArray(val)) {
-      val.forEach((v) => param.append(j, convertFormUrlencoded(v) as string))
-    } else {
-      param.append(j, convertFormUrlencoded(val) as string)
-    }
-  }
-
-  return param
-}
-
-/**
  * 转换表单 URL 编码值
  * 主要用于将 dayjs 日期对象转换为字符串格式
  * 其他类型的值直接返回原值
@@ -147,9 +71,7 @@ export function formUrlEncoded(
  * @param val - 要转换的值
  * @returns 转换后的值，dayjs 对象会被转换为字符串，其他类型保持不变
  */
-export function convertFormUrlencoded(
-  val: unknown,
-): string | number | boolean | null | undefined | unknown {
+export function convertFormUrlencoded(val: unknown): unknown {
   // 如果是 dayjs 日期对象，转换为指定格式的字符串
   if (dayjs.isDayjs(val)) {
     return dayjsFormat(val, import.meta.env.VITE_APP_POST_DATETIME_FORMAT)
@@ -157,6 +79,16 @@ export function convertFormUrlencoded(
 
   // 其他类型直接返回
   return val
+}
+
+/**
+ * POST 请求 / 路由 query 用的时间格式（`after` 这类参数）。
+ *
+ * 这跟"显示格式"是两件事：后端与 URL 吃的是固定形态，所以**留在宿主**、自己读
+ * `import.meta.env`；pro 只做显示，不碰它。格式化本身用 pro 的纯函数。
+ */
+export function postTimestampFormat(value: DateLike): string {
+  return dayjsFormat(value, import.meta.env.VITE_APP_POST_DATETIME_FORMAT)
 }
 
 /**

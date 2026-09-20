@@ -9,14 +9,16 @@ import {
   AUTH_SERVER_ENTERPRISE_INVITATION_STATUS,
   EnterpriseInvitationService
 } from "@loncra/client/auth";
-import {dateTimeFormat,
+import {
   requireNonNullOrUndefined,
 } from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants'
 
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {getEnumName} from '@loncra/client/commons'
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'AuthServerEnterpriseInvitationDetail',

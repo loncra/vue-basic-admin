@@ -12,7 +12,7 @@ import {
 import i18n from '@/i18n'
 import {isBusinessSuccess} from '@/requests'
 import router from '@/routers'
-import {dateTimeFormat, defineSearchProps} from '@/utils'
+import {defineSearchProps} from '@/utils'
 import {consoleUserCore} from './console-user.page'
 
 /**
@@ -69,7 +69,7 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
       {
         key: 'lastAuthenticationTime',
         width: 210,
-        render: (value) => dateTimeFormat(value as number),
+        format: 'dateTime',
         search: defineSearchProps('dateRange'),
       },
     ],

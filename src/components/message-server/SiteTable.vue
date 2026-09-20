@@ -3,11 +3,11 @@ import {renderIconFont} from '@/utils/commonUtils'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue';
 import {
   applyColumnOptions,
-  dateTimeFormat,
+  
   requireNonNullOrUndefined,
 } from '@/utils'
 import type {SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
+import {useDateFormat, CrudTable as LCrudTable, mergeDefinitions} from '@loncra/antdv-pro';
 import {DateRangePicker, Input, Select} from "antdv-next";
 import {ResourceServerService} from "@/apis";
 import type {SiteMessageEntity} from "@loncra/client/message";
@@ -25,6 +25,8 @@ import {
   YES_OR_NO_TYPE
 } from '@/constants';
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'LSiteTable',

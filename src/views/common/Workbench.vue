@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {dateTimeFormat, postTimestampFormat, requireNonNullOrUndefined} from '@/utils'
+import {postTimestampFormat, requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {AuditEventEntity} from "@loncra/client/auth";
 import {OperationDataTraceAuditEventService} from "@loncra/client/auth";
 import type {RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
+
+const {dateTimeFormat} = useDateFormat()
 
 defineOptions({
   name: 'CommonWorkbench'
