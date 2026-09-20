@@ -10,7 +10,7 @@ import type {MenuInfo} from "@v-c/menu";
 import {type MenuItemType, type MenuProps} from "antdv-next";
 import {ensureConversationDraftTree, useAgentChatContext} from "@/composables";
 import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 
 
 export function useAgentConversation(params:{

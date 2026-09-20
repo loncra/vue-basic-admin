@@ -22,7 +22,7 @@ import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {Flex} from "antdv-next";
 import {getCallIcon} from "@/utils/chatCallUtils.ts";
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 

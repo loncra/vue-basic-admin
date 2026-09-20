@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 
 import {AuthServerService, ResourceServerService} from "@/apis";
 import type {EnterpriseMemberEntity} from "@loncra/client/auth";

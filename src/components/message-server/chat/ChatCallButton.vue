@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 
 import useApp from "antdv-next/dist/app/useApp";
 import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";

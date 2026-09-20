@@ -1,4 +1,4 @@
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
 import {defineHomePage, exportCollectionData} from '@loncra/antdv-pro'

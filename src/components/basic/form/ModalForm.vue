@@ -11,7 +11,7 @@ import {App, Button} from "antdv-next";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 
 
 defineOptions({

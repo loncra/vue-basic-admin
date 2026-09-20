@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import LForm from '@/components/Form.vue'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {AuthFormProp} from '@/types/apis'

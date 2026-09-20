@@ -1,4 +1,4 @@
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import type {RoleEntity, RoleSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_ROLE_AUTHORITY} from '@loncra/client/auth'
 import {defineHomePage} from '@loncra/antdv-pro'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 
 import LLogo from "@/components/Logo.vue";
 import LForm from "@/components/Form.vue";

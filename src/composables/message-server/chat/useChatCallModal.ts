@@ -33,7 +33,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {Button, Space} from "antdv-next";
 import {Room} from "livekit-client";
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import type {
   ChatCallModalContext,
   ChatCallModalInnerProps,

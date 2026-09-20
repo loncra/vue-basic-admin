@@ -1,4 +1,4 @@
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
 import {defineHomePage} from '@loncra/antdv-pro'

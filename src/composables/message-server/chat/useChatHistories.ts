@@ -17,7 +17,7 @@ import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra
 import {dateFormat, requireNonNullOrUndefined} from '@/utils'
 import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {Dayjs} from 'dayjs'
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 
 
 /**

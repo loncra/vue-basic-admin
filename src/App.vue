@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import {onMounted} from 'vue'
+import {h, onMounted, type VNode} from 'vue'
+import {Space} from 'antdv-next'
 import axios from '@/requests'
 import {createAxiosHttpClient} from '@loncra/client/adapters/axios'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
@@ -8,10 +9,12 @@ import {
   CrudConfigProvider as LCrudConfigProvider
 } from '@loncra/antdv-pro'
 import type {CrudNavigateTarget} from '@loncra/antdv-pro'
+// `VNodeChild` 取**包的类型视野**（两份 vue 副本的 d.ts 互不兼容，运行期是同一份 vue）
+import type {VNodeChild} from '@loncra/antdv'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
 import {useBootstrapStore} from '@/stores/bootStore.ts'
-import {convertFormUrlencoded} from '@/utils/commonUtils'
+import {convertFormUrlencoded, renderIconFont} from '@/utils/commonUtils'
 import {useRouter} from 'vue-router'
 import i18n from '@/i18n'
 
@@ -65,9 +68,16 @@ function hasPermission(permission: string) {
   return principalStore.hasPermission(permission)
 }
 
-function resolveDefaultTitle() {
+/**
+ * 列表页默认标题（面包屑）：**在这里拼成 VNode**交给 pro（pro 不关心里面是图标还是文字）。
+ *
+ * 两次 `as` 是"两份 vue 副本"的代价：`renderIconFont` 的返回按**包视野**声明（pro 的动作类型吃它），
+ * 喂给宿主的 `h` 时要当宿主 VNode 用，整体结果再按包视野交出去 —— 运行期是同一份 vue（vite 已 dedupe）。
+ */
+function resolveDefaultTitle(): VNodeChild {
   const crumb = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
-  return {title: crumb?.name ?? '', icon: crumb?.icon ?? 'loncra-file'}
+  const icon = renderIconFont(crumb?.icon ?? 'loncra-file', 'align') as unknown as VNode
+  return h(Space, null, [icon, h('span', crumb?.name ?? '')]) as unknown as VNodeChild
 }
 
 /**

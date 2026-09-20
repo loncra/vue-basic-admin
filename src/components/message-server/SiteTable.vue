@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import {type ComponentInternalInstance, getCurrentInstance, markRaw, onMounted, ref} from 'vue';
 import {
   applyColumnOptions,

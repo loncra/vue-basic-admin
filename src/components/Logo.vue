@@ -10,7 +10,8 @@ import {
   ICON_SELECT_AVATAR_MODE_VALUE
 } from '@/constants';
 import {requireNonNullOrUndefined} from "@/utils";
-import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
+import {IconSelect as LIconSelect} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import type {PersonalEnterprise} from "@loncra/client/auth";
 import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
 import {getEnumValue} from "@loncra/client/commons"

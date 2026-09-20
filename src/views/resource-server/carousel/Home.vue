@@ -31,7 +31,8 @@ import {dateTimeFormat, requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import useApp from "antdv-next/dist/app/useApp";
-import {BasicImage as LBasicImage, renderIconFont} from '@loncra/antdv'
+import {BasicImage as LBasicImage} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import {
   DATA_STATUS,
   RESOURCE_SERVER_CAROUSEL_AUTHORITY,

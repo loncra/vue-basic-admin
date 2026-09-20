@@ -1,5 +1,9 @@
+import {h, resolveComponent} from 'vue'
 import {message} from 'antdv-next'
 import type {Router} from 'vue-router'
+// `VNode` 取**包的类型视野**：这类 VNode 要交给 pro（动作的 icon 等），
+// 两份 vue 副本的 d.ts 互不兼容，只有同一个视野里才判等（运行期是同一份 vue）。
+import type {VNode} from '@loncra/antdv'
 
 import dayjs from 'dayjs'
 import {dayjsFormat} from './dateUtils'
@@ -401,6 +405,28 @@ export function defineSearchProps(
       ...override.props,
     }),
   }
+}
+
+/**
+ * 渲染 `IconFont`（`main.ts` 注册的那个字体图标组件）成 VNode。
+ *
+ * **宿主自己的事**：`IconFont` 是宿主 `app.component('IconFont', …)` 注册的，
+ * 包里不该去 `resolveComponent` 找它，所以这份实现落在宿主这边（pro 侧只管 `title` / `icon` 是 VNode）。
+ */
+export function renderIconFont(
+  type?: string,
+  classes: string = '',
+  spin = false,
+  rotate = 0,
+): VNode | null {
+  if (!type) {
+    return null
+  }
+  const IconFont = resolveComponent('IconFont')
+  if (typeof IconFont === 'string') {
+    return null
+  }
+  return h(IconFont, {type, class: 'icon ' + (classes ?? ''), spin, rotate}) as unknown as VNode
 }
 
 export function getExecuteBadgeStatus(executeStatus:NameValueEnumMetadata<number> | number) {

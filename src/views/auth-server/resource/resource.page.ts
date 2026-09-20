@@ -1,7 +1,7 @@
 import {h} from 'vue'
 import {Space, type TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {ResourceService} from '@loncra/client/auth'
 import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from '@loncra/client/commons'

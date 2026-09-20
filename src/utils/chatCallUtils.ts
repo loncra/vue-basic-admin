@@ -6,7 +6,7 @@ import {
   MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS,
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from '@loncra/client/message'
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import {
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
   PIP_MAX_WIDTH_PX,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 
 import {type ObjectItemInfo, RESOURCE_SERVER_ATTACHMENT_AUTHORITY} from "@loncra/client/resource";
 import {AttachmentService, FileManagerService} from "@loncra/client/resource";

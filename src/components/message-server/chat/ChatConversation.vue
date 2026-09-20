@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 
 import {AuthServerService} from "@/apis";
 import {AttachmentService} from "@loncra/client/resource";

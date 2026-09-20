@@ -35,7 +35,8 @@ import {
   SYSTEM_MODULE_NAME
 } from '@/constants'
 import useApp from 'antdv-next/dist/app/useApp'
-import {IconSelect as LIconSelect, renderIconFont} from '@loncra/antdv'
+import {IconSelect as LIconSelect} from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import LAgentHubSkillReleaseChangeLog
   from "@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue";

@@ -21,8 +21,8 @@ import {
   type InstructionMeasure,
   type InstructionSenderExpose,
   isInstructionSlot,
-  renderIconFont
 } from '@loncra/antdv'
+import {renderIconFont} from '@/utils/commonUtils'
 import type {
   AgentConversationItem,
   AgentSenderFormProps,
