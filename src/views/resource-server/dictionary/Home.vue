@@ -17,11 +17,23 @@ defineOptions({
 
 /** 左树选中的类型 id */
 const typeId = ref<number | string>()
+
+/**
+ * 卡片（`classes` 是唯一通到 plan `Card` 的通道）：
+ *
+ * - `header: 'mb-0!'` —— **必须**。antdv-next 的卡片头自带 `margin-bottom: -1px`
+ *   （`node_modules/antdv-next/dist/card/style/index.js` 的 head 段），它会被卡体里
+ *   第一个**有背景**的子块（这里就是内层的白卡）压住那 1px ⇒ 卡片头的下边框看着没了。
+ *   去掉这个负边距，下边框回来，卡体照样贴边（不用靠加 padding 去躲）。
+ * - `body: 'p-0!'` —— 分割器直接顶到卡片头下面。
+ */
+const cardClasses = {header: 'mb-0!', body: 'p-0!'}
+
 </script>
 
 <template>
-  <l-data-loading-card-plan :classes="{body: 'p-0!'}">
-    <a-splitter>
+  <l-data-loading-card-plan :classes="cardClasses">
+    <a-splitter >
       <a-splitter-panel default-size="20%" min="15%" max="25%">
         <dictionary-type-home @select="typeId = $event" />
       </a-splitter-panel>

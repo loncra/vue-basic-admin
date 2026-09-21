@@ -32,6 +32,17 @@ const emit = defineEmits<{
 
 const route = useRoute()
 const table = ref<CrudHomePageExpose<DictionaryTypeEntity>>()
+
+/**
+ * 卡片外观：走 `classes`（`classes` 是**唯一**通到 plan 的 `Card` 的通道 ——
+ * 门面 / 表格的 `$attrs` 里只有它被显式转给基类，见 `QueryTable.tsx:478`）。
+ * 去边框、去圆角 + 卡体贴边（表格不再被 body 的内边距挤进去）。
+ * `header: 'mb-0!'` 是必须的：antdv-next 的卡片头自带 `margin-bottom: -1px`
+ * （`dist/card/style/index.js` 的 head 段），会被卡体里第一个有背景的子块压掉那 1px ⇒
+ * 卡片头的下边框看不见；去掉负边距即可（`p-0!` 也不会再遮住它）。
+ * ⚠️ 别用 `variant="borderless"`：那个 prop 名被 `CrudHomePage` 的**页面形态名**占了。
+ */
+const cardClasses = {root: 'rounded-none! border-0!', header: 'mb-0!', body: 'p-0!'}
 const rows = ref<DictionaryTypeEntity[]>([])
 const openKeys = ref<number[]>([])
 const formRef = ref()
@@ -141,6 +152,7 @@ onActivated(restoreFromRoute)
       ref="table"
       v-model:data-source="rows"
       :page="dictionaryTypeHomePage"
+      :classes="cardClasses"
       :pagination="false"
       :bordered="false"
       :on-row="onRow"
