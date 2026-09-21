@@ -2,7 +2,7 @@ import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestCon
 import router, {saveRequestPathThenToAuth} from '@/routers'
 import {message} from 'antdv-next'
 import {AUTH_SERVER_AUTHENTICATION_TYPE_PARAM, HTTP} from '@/constants'
-import {BusinessError, type RestResult} from '@loncra/client/commons'
+import {BusinessError, isBusinessSuccess, isResultSuccess, type RestResult} from '@loncra/client/commons'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useBootstrapStore} from "@/stores/bootStore.ts";
 import i18n from '@/i18n'
@@ -14,29 +14,11 @@ const ignoreErrorStatus: number[] = [404]
 const checkDataValues: string[] = ['true', '1']
 
 /**
- * 检查业务是否成功
- * @param result 响应结果
- * @returns 是否为成功响应
+ * 成功判定**全平台只有一份实现**（`@loncra/client/commons` 的 `isResultSuccess` /
+ * `isBusinessSuccess`，pro 的 `_util/uploadFile.ts` / `file-editor/useFileEditor.ts` 走的是同一套）。
+ * 这里只转出，宿主 `@/requests` 的公开名保持不变。
  */
-export function isBusinessSuccess<T>(result: RestResult<T>): boolean {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  return result.status === 200 && HTTP.SUCCESS_EXECUTE_CODES.includes(result.executeCode)
-}
-
-/**
- * 检查 RestResult 是否成功且包含数据（包含空值检查）
- * @param result RestResult 对象
- * @returns 是否为成功响应且包含数据
- */
-export function isResultSuccess<T>(
-  result: RestResult<T> | null | undefined,
-): result is RestResult<T> & { data: T } {
-  if (!result) {
-    return false
-  }
-  return isBusinessSuccess(result) && result.data !== undefined
-}
+export {isBusinessSuccess, isResultSuccess} from '@loncra/client/commons'
 
 /**
  * 组装与 axios 拦截器一致的鉴权/设备请求头（供 XRequest 等非 axios 客户端复用）。

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import type {GridExposed, RecordActionDefinition, ToolbarActionDefinition} from '@loncra/antdv-pro'
+import type {CollectionExpose, RecordActionDefinition, ToolbarActionDefinition} from '@loncra/antdv-pro'
 import {useDateFormat, 
   ActionButton as LActionButton,
   CrudCardGrid as LCrudCardGrid,
@@ -111,7 +111,7 @@ const bulkActions = function(): ToolbarActionDefinition<CarouselEntity>[] {
       run: (ctx) => {
         const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
         if (tab) {
-          (instance.refs?.[tab.key] as GridExposed<CarouselEntity>)?.remove(getReleaseSelectedEntities(ctx.selectedItems))
+          (instance.refs?.[tab.key] as CollectionExpose<CarouselEntity>)?.remove(getReleaseSelectedEntities(ctx.selectedItems))
         }
       },
     },
@@ -221,7 +221,7 @@ async function loadCarouselPreview(tab: TabDataSource): Promise<void> {
 async function loadTabData(tab: TabDataSource): Promise<void> {
   await loadCarouselPreview(tab)
   if (instance.refs?.[tab.key]) {
-    (instance.refs?.[tab.key] as GridExposed<CarouselEntity>)?.fetchDataSource()
+    (instance.refs?.[tab.key] as CollectionExpose<CarouselEntity>)?.fetchDataSource()
     tab.isLoading = true
   }
 }
