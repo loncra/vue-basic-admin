@@ -1,96 +1,15 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
-import {requireNonNullOrUndefined} from "@/utils";
-import type {SearchableColumnType} from '@loncra/antdv-pro';
-import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro';
-import {type SmsTemplateEntity, SmsTemplateService} from "@loncra/client/message";
-import {MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY} from '@/constants'
-import {getEnumName, getEnumValue} from "@loncra/client/commons"
-
-const {dateTimeFormat} = useDateFormat()
+import {CrudHomePage} from '@loncra/antdv-pro'
+import {templateHomePage} from './template.home.page'
 
 defineOptions({
   name: 'MessageServerSmsTemplateHome',
 })
-
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const service = new SmsTemplateService('alibabaCloud')
-
-const columns = computed<SearchableColumnType<SmsTemplateEntity>[]>(() => [{
-  title: globalProperties.$t('common.channel'),
-  dataIndex: "channel",
-  ellipsis: true,
-  width: 150
-}, {
-  title: globalProperties.$t('common.creationTime'),
-  dataIndex: "creationTime",
-  ellipsis: true,
-  width: 210
-}, {
-  title: globalProperties.$t('common.code'),
-  dataIndex: "id",
-  ellipsis: true,
-  width: 150
-}, {
-  title: globalProperties.$t('common.name'),
-  dataIndex: "name",
-  ellipsis: true,
-  width: 150
-}, {
-  title: globalProperties.$t('common.type'),
-  dataIndex: "type",
-  ellipsis: true,
-  width: 150
-}, {
-  title: globalProperties.$t('common.content'),
-  dataIndex: "content",
-  ellipsis: true,
-  width: 350
-}, {
-  title: globalProperties.$t('common.status'),
-  dataIndex: "status",
-  ellipsis: true,
-  width: 200
-}, {
-  title: globalProperties.$t('common.auditionTime'),
-  dataIndex: "auditionTime",
-  ellipsis: true,
-  width: 210
-}])
-
 </script>
 
 <template>
-  <l-crud-table
-    v-bind="$attrs"
-    :service="service"
-    :columns="columns"
-    :authority="{
-      detail:MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY.GET,
-    }"
+  <crud-home-page
+    :page="templateHomePage"
     :scroll="{x:'max-content'}"
-  >
-    <template #bodyCell="{ column, record }">
-      <template v-if="column.dataIndex === 'creationTime'">
-        {{ dateTimeFormat(record.creationTime) }}
-      </template>
-      <template v-if="column.dataIndex === 'channel'">
-        {{ getEnumName(record.channel) }}
-      </template>
-      <template v-if="column.dataIndex === 'type'">
-        {{ getEnumName(record.type) }}
-      </template>
-      <template v-if="column.dataIndex === 'status'">
-        {{ getEnumName(record.status) }}
-      </template>
-      <template v-if="column.dataIndex === 'auditionTime'">
-        <template v-if="getEnumValue(record.channel) === 'alibabaCloud'">
-          {{record?.metadata?.rejectDate}}
-        </template>
-      </template>
-    </template>
-  </l-crud-table>
+  />
 </template>

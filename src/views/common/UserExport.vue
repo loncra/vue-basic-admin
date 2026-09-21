@@ -1,153 +1,15 @@
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
-
-import type {ExportDataMetadata, FileObject} from "@loncra/client/resource";
-import {AttachmentService, UserExportService} from "@loncra/client/resource";
-import {byteFormat, requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
-import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro';
-import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro';
-
-import {EXECUTE_STATUS_TYPE} from '@/constants';
-import {getEnumName} from "@loncra/client/commons"
-
-const {dateTimeFormat} = useDateFormat()
+import {CrudHomePage} from '@loncra/antdv-pro'
+import {userExportHomePage} from './user-export.home.page'
 
 defineOptions({
   name: 'CommonUserExport',
 })
-
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const columns = computed<SearchableColumnType<ExportDataMetadata>[]>(() => [{
-  title: globalProperties.$t('common.creationTime'),
-  dataIndex: "creationTime",
-  ellipsis: true,
-  key: "creationTime",
-  width: 210
-},{
-  title: globalProperties.$t('resourceServer.attachment.filename'),
-  dataIndex: "filename",
-  ellipsis: true,
-  key: "filename",
-  width: 400
-}, {
-  title: globalProperties.$t('common.type'),
-  dataIndex: "type",
-  ellipsis: true,
-  key: "type",
-  width: 120
-}, {
-  title: globalProperties.$t('common.size'),
-  dataIndex: "size",
-  ellipsis: true,
-  key: "size",
-  width: 150
-}, {
-  title: globalProperties.$t('common.executeStatus'),
-  dataIndex: "executeStatus",
-  ellipsis: true,
-  key:'executeStatus',
-  width: 210
-}, {
-  title: globalProperties.$t('common.successTime'),
-  dataIndex: "successTime",
-  ellipsis: true,
-  key:'successTime',
-  width: 210
-}, {
-  title: globalProperties.$t('common.expiresTime'),
-  dataIndex: "expiresTime",
-  ellipsis: true,
-  key:'expiresTime',
-  width: 210
-}])
-
-const service = new UserExportService();
-const selectedRows = ref<ExportDataMetadata[]>([]);
-
-const rowActions: RecordActionDefinition<ExportDataMetadata>[] = [{
-  id: 'download',
-  permission: true,
-  label: () => globalProperties.$t('common.download.text'),
-  icon: () => renderIconFont('loncra-download', 'align'),
-  run: (ctx) => {
-    if (!ctx.record) {
-      return
-    }
-    downloadRecord(ctx.record)
-  },
-}]
-
-const actions: ToolbarActionDefinition<ExportDataMetadata>[] = [{
-  id: 'downloadSelected',
-  permission: true,
-  label: (ctx) => globalProperties.$t('common.download.selected',{count: ctx.selectedItems.length}),
-  enabled: (ctx) => ctx.selectedItems.some((item) => item.executeStatus.value === EXECUTE_STATUS_TYPE.SUCCESS),
-  icon: () => renderIconFont('loncra-download', 'align'),
-  run: (ctx) => {
-    const files: FileObject[] = ctx.selectedItems
-      .filter((item) => item.executeStatus.value === EXECUTE_STATUS_TYPE.SUCCESS)
-      .map((item) => item.metadata)
-      .map((metadata) => metadata.data as FileObject)
-      AttachmentService.downloads(files)
-  },
-}]
-
-function downloadRecord(record: ExportDataMetadata) {
-  const data = record?.metadata?.data as FileObject;
-  if (!data) {
-    return ;
-  }
-  const bucketName = data?.bucketName;
-  const objectName = data?.objectName;
-  if (!objectName || !bucketName) {
-    return ;
-  }
-  AttachmentService.download(bucketName, objectName);
-}
-
 </script>
 
 <template>
-  <l-crud-table
-    :service="service"
-    :columns="columns"
-    :actions="actions"
-    :row-actions="rowActions"
-    v-model:selected-rows="selectedRows"
+  <crud-home-page
+    :page="userExportHomePage"
     :scroll="{x:'max-content'}"
-    :row-selection="{fixed:true, type: 'checkbox'}"
-    :authority="{
-      delete:true
-    }"
-  >
-    <template #bodyCell="{ column, record }">
-
-      <template v-if="column.dataIndex === 'executeStatus'">
-        {{getEnumName(record.executeStatus)}}
-      </template>
-
-      <template v-if="column.dataIndex === 'type'">
-        {{ getEnumName(record.type) }}
-      </template>
-
-      <template v-if="column.dataIndex === 'creationTime'">
-        {{ dateTimeFormat(record.creationTime) }}
-      </template>
-
-      <template v-if="column.dataIndex === 'successTime'">
-        {{ dateTimeFormat(record.successTime) }}
-      </template>
-      <template v-if="column.dataIndex === 'expiresTime'">
-        {{ dateTimeFormat(record.expiresTime) }}
-      </template>
-
-      <template v-if="column.dataIndex === 'size'">
-        {{ byteFormat(record.size) }}
-      </template>
-    </template>
-  </l-crud-table>
+  />
 </template>

@@ -2,7 +2,7 @@
 import {computed, ref, type Ref, useAttrs} from 'vue'
 import {useRouter} from 'vue-router'
 import useApp from 'antdv-next/dist/app/useApp'
-import type {BasicIdMetadata} from '@loncra/client/commons'
+import type {BasicCrudService, BasicIdMetadata} from '@loncra/client/commons'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import i18n from '@/i18n'
 import {buildFields, PAGE_VARIANT, usePageEnums} from './field'
@@ -35,6 +35,12 @@ const props = withDefaults(
 const attrs = useAttrs()
 const router = useRouter()
 const {message, modal} = useApp()
+
+/**
+ * `BasicForm` 要 `save`（{@link BasicForm} 的 `service` prop），而声明层的 `service` 只保证"读得到数据"
+ * ⇒ 按**事实**窄化：旧 kit 只服务 CRUD 页（列表形态走 pro，不需要 save）。
+ */
+const crudService = computed(() => props.page.service as BasicCrudService<TBody, TEntity, TId>)
 
 // 实体初值来自声明；BasicForm 随后会用服务端数据合并进来
 const entity = ref(props.page.form?.createEntity?.() ?? ({} as TBody)) as unknown as Ref<TBody>
@@ -86,7 +92,7 @@ defineExpose({entity})
 
 <template>
   <l-basic-form
-    :service="page.service"
+    :service="crudService"
     :operation-data-trace-target="page.operationDataTraceTarget as string"
     :redirect="{name: page.routes?.home}"
     :pre-mounted="preMounted"

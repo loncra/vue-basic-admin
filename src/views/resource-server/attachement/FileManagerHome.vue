@@ -3,7 +3,8 @@ import {renderIconFont} from '@/utils/commonUtils'
 
 import {type ObjectItemInfo, RESOURCE_SERVER_ATTACHMENT_AUTHORITY} from "@loncra/client/resource";
 import {AttachmentService, FileManagerService} from "@loncra/client/resource";
-import {byteFormat, requireNonNullOrUndefined} from "@/utils";
+import {byteFormat} from "@loncra/antdv-pro";
+import {requireNonNullOrUndefined} from "@/utils";
 import {
   type ComponentInternalInstance,
   getCurrentInstance,

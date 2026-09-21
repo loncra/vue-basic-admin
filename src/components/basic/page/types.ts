@@ -1,11 +1,16 @@
 import type {Component, Ref} from 'vue'
 import type {FormItemProps, TableProps} from 'antdv-next'
-import type {AuthorityProps, DragProp, RecordActionDefinition} from '@loncra/antdv-pro'
 import type {
-  BasicCrudService,
+  AuthorityProps,
+  CollectionService,
+  DragProp,
+  RecordActionDefinition,
+} from '@loncra/antdv-pro'
+import type {
   BasicIdMetadata,
   DetailSearchService,
   NameValueEnumMetadata,
+  ScrollPageResult,
   SYSTEM_CONSTANT,
 } from '@loncra/client/commons'
 import type {Router} from 'vue-router'
@@ -228,7 +233,11 @@ export interface CrudPageCore<
   TEntity extends TBody = TBody,
   TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME],
 > {
-  service: BasicCrudService<TBody, TEntity>
+  /**
+   * 与 pro 的 `CrudPageCore.service` 同一个口径：**只保证"读得到数据"**
+   * （只读的 `find` / `page` 服务也能用）。表单壳要的 `save` 由 `CrudFormPage` 自己按事实窄化。
+   */
+  service: CollectionService<TBody, TEntity, ScrollPageResult<TEntity>, TId>
   detailService?: DetailSearchService<TEntity>
   /** 主键字段名；不传时表格用 `SYSTEM_CONSTANT.ID_NAME` */
   rowKey?: keyof TEntity & string
