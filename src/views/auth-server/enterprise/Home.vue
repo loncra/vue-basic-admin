@@ -8,6 +8,7 @@ import {DateRangePicker, Input, Select} from 'antdv-next'
 import type {RestResult} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {applyColumnOptions, requireNonNullOrUndefined} from '@/utils'
+import {renderIconFont} from '@/utils/commonUtils'
 import type {SearchableColumnType} from '@loncra/antdv-pro'
 import {useDateFormat, CrudTable as LCrudTable} from '@loncra/antdv-pro'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
@@ -141,7 +142,7 @@ onMounted(mounted)
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'name'">
           <a-space>
-            <l-icon-select preview :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
+            <l-icon-select preview :icon-render="renderIconFont" :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
             {{ record.name }}
           </a-space>
         </template>

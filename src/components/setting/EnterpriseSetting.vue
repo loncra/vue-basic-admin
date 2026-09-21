@@ -19,6 +19,7 @@ import type {RestResult} from "@loncra/client/commons";
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {IconfontJson} from "@/types/composables";
 import {requireNonNullOrUndefined} from "@/utils";
+import {renderIconFont} from '@/utils/commonUtils'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
@@ -142,7 +143,7 @@ async function doLeave(id:number) {
               align="center"
               flex="1"
             >
-              <l-icon-select preview :value="item.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + item.name" />
+              <l-icon-select preview :icon-render="renderIconFont" :value="item.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + item.name" />
               <a-typography-text>{{ item.name }}</a-typography-text>
               <a-tag :color="AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR[Number(getEnumValue(item.role))] || 'purple'" variant="outlined">
                 <template #icon>
@@ -260,6 +261,7 @@ async function doLeave(id:number) {
         <l-icon-select
           class="w-full"
           :mode="ICON_SELECT_MODE.AVATAR"
+          :icon-render="renderIconFont"
           v-model:value="options.modal.form.icon"
           :options="options.iconOptions"
         />

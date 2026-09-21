@@ -5,6 +5,7 @@ import {IconSelect as LIconSelect} from '@loncra/antdv'
 import LAgentHubPluginInstall from '@/components/ai-server/agent/hub/PluginInstallModal.vue'
 import type {RestResult, TotalPage} from '@loncra/client/commons'
 import {requireNonNullOrUndefined} from '@/utils'
+import {renderIconFont} from '@/utils/commonUtils'
 import useApp from 'antdv-next/dist/app/useApp'
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from 'vue'
 import {ICON_SELECT_AVATAR_MODE_VALUE} from '@/constants';
@@ -114,7 +115,7 @@ function onChangePage(page: number, pageSize: number) {
       </template>
       <a-flex gap="middle" vertical class="w-full">
         <a-flex gap="middle" class="w-full">
-          <l-icon-select preview :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
+          <l-icon-select preview :icon-render="renderIconFont" :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
           <a-flex gap="small" vertical class="w-full">
             <a-flex justify="space-between" align="center">
               <a-space wrap class="flex-1">

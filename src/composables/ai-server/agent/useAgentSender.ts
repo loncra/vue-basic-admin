@@ -18,9 +18,10 @@ import {
   ModelSettingService
 } from "@loncra/client/ai";
 import {
+  type InstructionItem,
   type InstructionMeasure,
   type InstructionSenderExpose,
-  isInstructionSlot,
+  type InstructionSenderHandle,
 } from '@loncra/antdv'
 import {renderIconFont} from '@/utils/commonUtils'
 import type {
@@ -34,7 +35,11 @@ import {ResourceServerService} from "@/apis";
 
 import {AGENT_CHAT_TYPE_STYLE, AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import {createInstructionSlot, requireNonNullOrUndefined} from "@/utils";
+import {
+  createInstructionSlot as buildInstructionSlot,
+  isInstructionSlot,
+  requireNonNullOrUndefined,
+} from "@/utils";
 import {type MenuItemType, Space} from "antdv-next";
 import {getConversationRuns, useAgentChatContext} from "@/composables";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -339,7 +344,7 @@ export function useAgentSender(
     if (!slotPrefix) {
       return
     }
-    const block = createInstructionSlot(
+    const block = buildInstructionSlot(
       {
         id: crypto.randomUUID(),
         type: 'custom',
@@ -367,6 +372,33 @@ export function useAgentSender(
       return
     }
     insertCatalogItem(option)
+  }
+
+  /**
+   * 选中指令后造芯片（交给 `InstructionSender` 的 `createInstructionSlot` prop）；
+   * 与 plus 菜单、草稿还原共用 `@/utils` 的 `createInstructionSlot`。
+   */
+  function createInstructionSlot(option: InstructionItem, measure: InstructionMeasure): object {
+    return buildInstructionSlot(
+      {
+        id: crypto.randomUUID(),
+        type: 'custom',
+        slotKind: 'instruction',
+        value: option as unknown as IdValueMetadata<string, string>,
+        prefix: String(option.metadata?.slotPrefix ?? measure.prefix),
+      },
+      configProviderStore,
+      currentInstance,
+    )
+  }
+
+  /** 选中后怎么插：芯片 + 一个空格，替换掉触发的 `@keyword` */
+  function senderInsertInstruction(
+    sender: InstructionSenderHandle,
+    block: object,
+    measure: InstructionMeasure,
+  ): void {
+    sender.insert([block, {type: 'text', value: ' '}], 'cursor', measure.prefix + measure.keyword)
   }
 
   async function mounted() {
@@ -427,5 +459,7 @@ export function useAgentSender(
     findCatalogItem,
     insertCatalogItem,
     onPlusMenuClick,
+    createInstructionSlot,
+    senderInsertInstruction,
   }
 }

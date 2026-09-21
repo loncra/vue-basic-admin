@@ -11,6 +11,7 @@ import type {
 } from '@loncra/client/ai'
 import {AI_SERVER_MCP_CLIENT_TYPE, AiMcpPackageService} from '@loncra/client/ai'
 import {loadIcon, requireNonNullOrUndefined} from '@/utils'
+import {renderIconFont} from '@/utils/commonUtils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 
@@ -250,6 +251,7 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
             <l-icon-select
               class="w-full"
               :mode="ICON_SELECT_MODE.AVATAR"
+              :icon-render="renderIconFont"
               v-model:value="options.entity.icon"
               :options="options.iconOptions"
             />
@@ -454,25 +456,37 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
           </template>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <l-key-value-table
-              icon="loncra-form"
               @change="(item, data) => (options.entity.metadata.client as SseMcpClientTransportMetadata).headers = Object.fromEntries(data.map(row => [row.key, row.value as string[]]))"
               ref="headerTableRef"
               multiple-value
               :form-item-name-prefix="['headerDataSource']"
               :title="globalProperties.$t('aiServer.mcpPackage.headers')"
               v-model:value="options.entity.headerDataSource"
-            />
+            >
+              <template #title="{title}">
+                <a-space>
+                  <component :is="() => renderIconFont('loncra-form', 'align')" />
+                  {{ title }}
+                </a-space>
+              </template>
+            </l-key-value-table>
           </a-col>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <l-key-value-table
-              icon="loncra-variable"
               multiple-value
               @change="(item, data) => (options.entity.metadata.client as SseMcpClientTransportMetadata).queryParams = Object.fromEntries(data.map(row => [row.key, row.value as string[]]))"
               ref="queryParamTableRef"
               :form-item-name-prefix="['queryParamDataSource']"
               :title="globalProperties.$t('aiServer.mcpPackage.queryParams')"
               v-model:value="options.entity.queryParamDataSource"
-            />
+            >
+              <template #title="{title}">
+                <a-space>
+                  <component :is="() => renderIconFont('loncra-variable', 'align')" />
+                  {{ title }}
+                </a-space>
+              </template>
+            </l-key-value-table>
           </a-col>
         </template>
         <template v-else>
@@ -504,9 +518,15 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
               @change="(item, data) => (options.entity.metadata.client as StdioMcpClientTransportMetadata).env = Object.fromEntries(data.map(row => [row.key, row.value as string]))"
               :title="globalProperties.$t('aiServer.mcpPackage.env')"
               :form-item-name-prefix="['envDataSource']"
-              icon="loncra-variable"
               v-model:value="options.entity.envDataSource"
-            />
+            >
+              <template #title="{title}">
+                <a-space>
+                  <component :is="() => renderIconFont('loncra-variable', 'align')" />
+                  {{ title }}
+                </a-space>
+              </template>
+            </l-key-value-table>
           </a-col>
         </template>
         <a-col :span="24" :class="['mt-lg', options.entity.id ? undefined : 'mb-lg']">

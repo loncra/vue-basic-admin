@@ -87,7 +87,7 @@ async function onSwitch(item: { key:string }) {
 <template>
   <a-flex align="center" gap="small" class="w-full">
     <a-flex class="shrink-0" v-if="currentItem" >
-      <l-icon-select size="large" preview :value="currentItem.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + currentItem.name" />
+      <l-icon-select size="large" preview :icon-render="renderIconFont" :value="currentItem.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + currentItem.name" />
     </a-flex>
     <slot name="icon" v-else>
       <icon-font class="icon shrink-0 text-h1! leading-none" :type="props.icon"/>

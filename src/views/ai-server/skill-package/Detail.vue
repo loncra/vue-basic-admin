@@ -11,6 +11,7 @@ import {
   AiSkillPackageService
 } from '@loncra/client/ai'
 import {getExecuteBadgeStatus, requireNonNullOrUndefined} from '@/utils'
+import {renderIconFont} from '@/utils/commonUtils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {
   ICON_SELECT_AVATAR_MODE_VALUE,
@@ -86,7 +87,7 @@ function postGetEntity(record: SkillPackageEntity) {
         {{ entity.packageKey }}
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.icon')">
-        <l-icon-select preview :value="entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name" />
+        <l-icon-select preview :icon-render="renderIconFont" :value="entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name" />
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.group')">
         {{ entity.category?.name }}

@@ -504,7 +504,7 @@ onMounted(mounted)
       <template #bodyCell="{column, record}">
         <template v-if="column.dataIndex === 'name'">
           <a-space>
-            <l-icon-select preview :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
+            <l-icon-select preview :icon-render="renderIconFont" :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
             {{ record.name }}
           </a-space>
         </template>

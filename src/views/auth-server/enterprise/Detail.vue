@@ -4,6 +4,7 @@ import {IconSelect as LIconSelect} from '@loncra/antdv'
 import type {EnterpriseEntity} from '@loncra/client/auth'
 import {EnterpriseService} from '@loncra/client/auth'
 import {requireNonNullOrUndefined} from '@/utils'
+import {renderIconFont} from '@/utils/commonUtils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import {
   AUTH_SERVER_ENTERPRISE_ROUTE,
@@ -51,7 +52,7 @@ const entity = ref<EnterpriseEntity>({
       </a-descriptions-item>
       <a-descriptions-item :label="globalProperties.$t('common.name')">
         <a-space>
-          <l-icon-select preview :value="entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name" />
+          <l-icon-select preview :icon-render="renderIconFont" :value="entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name" />
           {{entity.name}}
         </a-space>
       </a-descriptions-item>

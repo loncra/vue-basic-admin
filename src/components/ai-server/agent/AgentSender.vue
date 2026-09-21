@@ -6,7 +6,6 @@ import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";
 import type {IdValueMetadata} from "@loncra/client/commons";
 import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
-import {getSendInstructionIcon} from '@/utils'
 
 defineOptions({
   name: 'LAgentSender',
@@ -32,6 +31,8 @@ const {
   onPlusMenuClick,
   toCatalogMenuItems,
   findCatalogItem,
+  createInstructionSlot,
+  senderInsertInstruction,
 } = useAgentSender({
   onSubmit:(form:AgentSenderFormProps) => emits("submit", form),
   onCancel:() => emits("cancel"),
@@ -59,11 +60,6 @@ function onSlashMenuClick(
   }
 }
 
-function getInstructionIcon(prefix: string) {
-  const icon = getSendInstructionIcon(prefix, false)
-  return typeof icon === 'string' ? icon : undefined
-}
-
 defineExpose({
   clear:() => senderRef?.value?.clear(),
   getSlotConfigValue:() => senderRef?.value?.getSlotConfigValue(),
@@ -76,8 +72,9 @@ defineExpose({
     ref="senderRef"
     :placeholder="$t('agent.view.placeholder')"
     :instruction-map="instructionMap"
-    :filter-instruction="filterInstruction"
-    :get-instruction-icon="getInstructionIcon"
+    :on-filter-data-source="filterInstruction"
+    :sender-insert-instruction="senderInsertInstruction"
+    :create-instruction-slot="createInstructionSlot"
     v-bind="$attrs"
     @submit="handleSubmit"
     @cancel="handleCancel"

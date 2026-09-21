@@ -18,7 +18,7 @@ import {
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
-import {addBubbleListMessage, requireNonNullOrUndefined} from "@/utils";
+import {addBubbleListMessage, isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {useChatContext, useImDraftPersist} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
@@ -103,9 +103,6 @@ async function onSendMessage(content: ChatContentBlock[]) {
   }
 }
 
-function isInstructionSlot(slot: SlotConfigType): boolean {
-  return slot.type === 'custom' && slot.props?.slotKind === 'instruction'
-}
 /** 选 @所有人 时：去掉所有单人 @ tag，保留文本/附件等 */
 function stripIndividualMentions(slots: SlotConfigType[]): SlotConfigType[] {
   return slots.filter((slot) => {

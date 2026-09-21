@@ -2,6 +2,7 @@
 
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
+import {renderIconFont} from '@/utils/commonUtils'
 import {AuthServerService} from "@/apis";
 import type {EnterpriseInvitationDetail} from "@loncra/client/auth";
 import {
@@ -141,7 +142,7 @@ onMounted(mounted)
     <a-card class="shadow-card w-120" v-if="options.detail">
       <template #title>
         <a-space>
-          <l-icon-select preview :value="options.detail.enterprise.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + options.detail.enterprise.name" />
+          <l-icon-select preview :icon-render="renderIconFont" :value="options.detail.enterprise.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + options.detail.enterprise.name" />
           <a-typography-text strong class="text-xl">
             {{options.detail.enterprise.name}}
           </a-typography-text>

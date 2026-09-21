@@ -17,6 +17,7 @@ import type {
   ChatBubbleItem,
   ChatContentBlock,
   InstructionBlock,
+  InstructionSlotProps,
   TextBlock
 } from "@/types/composables";
 import {AGENT_INSTRUCTION_PREFIX, CHAT_BUBBLE_TYPE} from '@/constants';
@@ -278,6 +279,20 @@ export function getSendInstructionIcon(prefix:string, vnode?:boolean):string | u
   } else {
     return renderIconFont(string) ?? undefined
   }
+}
+
+/**
+ * 指令芯片判定。`@loncra/antdv` 不再提供：芯片长什么样、带什么 metadata 是宿主的事。
+ * 提交组装（useChatMessageSender / useAgentSender）与草稿持久化共用这一份，别各写一遍。
+ */
+export function isInstructionSlot(
+  slot: unknown,
+): slot is {type: 'custom'; props: InstructionSlotProps} {
+  if (!slot || typeof slot !== 'object') {
+    return false
+  }
+  const value = slot as {type?: string; props?: {slotKind?: unknown}}
+  return value.type === 'custom' && value.props?.slotKind === 'instruction'
 }
 
 export function createInstructionSlot(

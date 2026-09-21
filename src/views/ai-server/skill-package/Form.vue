@@ -15,6 +15,7 @@ import {
   AiSkillPackageService
 } from '@loncra/client/ai'
 import {loadIcon} from '@/utils'
+import {renderIconFont} from '@/utils/commonUtils'
 import LBasicForm from '@/components/basic/form/BasicForm.vue'
 import {ResourceServerService} from '@/apis'
 
@@ -213,6 +214,7 @@ function onSourceTypeChange(value:number) {
             <l-icon-select
               class="w-full"
               :mode="ICON_SELECT_MODE.AVATAR"
+              :icon-render="renderIconFont"
               v-model:value="options.entity.icon"
               :options="options.iconOptions"
             />

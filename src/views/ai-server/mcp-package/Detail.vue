@@ -6,6 +6,7 @@ import type {
 } from '@loncra/client/ai'
 import {AI_SERVER_MCP_CLIENT_TYPE, AiMcpPackageService} from '@loncra/client/ai'
 import {requireNonNullOrUndefined} from '@/utils'
+import {renderIconFont} from '@/utils/commonUtils'
 import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {McpPackageEntity} from '@/types/apis'
 import {
@@ -163,18 +164,30 @@ function postGetEntity(entity: McpPackageEntity) {
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
               <l-key-value-table
                 :edit="false"
-                icon="loncra-form"
                 :title="globalProperties.$t('aiServer.mcpPackage.headers')"
                 v-model:value="entity.headerDataSource"
-              />
+              >
+                <template #title="{title}">
+                  <a-space>
+                    <component :is="() => renderIconFont('loncra-form', 'align')" />
+                    {{ title }}
+                  </a-space>
+                </template>
+              </l-key-value-table>
             </a-col>
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
               <l-key-value-table
                 :edit="false"
-                icon="loncra-variable"
                 :title="globalProperties.$t('aiServer.mcpPackage.queryParams')"
                 v-model:value="entity.queryParamDataSource"
-              />
+              >
+                <template #title="{title}">
+                  <a-space>
+                    <component :is="() => renderIconFont('loncra-variable', 'align')" />
+                    {{ title }}
+                  </a-space>
+                </template>
+              </l-key-value-table>
             </a-col>
           </a-row>
         </template>
@@ -192,9 +205,15 @@ function postGetEntity(entity: McpPackageEntity) {
           <l-key-value-table
             :edit="false"
             :title="globalProperties.$t('aiServer.mcpPackage.env')"
-            icon="loncra-variable"
             v-model:value="entity.envDataSource"
-          />
+          >
+            <template #title="{title}">
+              <a-space>
+                <component :is="() => renderIconFont('loncra-variable', 'align')" />
+                {{ title }}
+              </a-space>
+            </template>
+          </l-key-value-table>
         </template>
         <l-mcp-clarify-policy-table
           class="mt-lg"

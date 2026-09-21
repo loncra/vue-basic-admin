@@ -30,10 +30,15 @@ import {
   uploadFile as uploadAttachmentFile,
 } from '@loncra/antdv-pro'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
-import {createInstructionSlot, requireNonNullOrUndefined} from '@/utils'
+import {
+  createInstructionSlot as buildInstructionSlot,
+  isInstructionSlot,
+  requireNonNullOrUndefined,
+} from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
+import type {IdValueMetadata} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
-import {isInstructionSlot} from '@loncra/antdv'
+import type {InstructionItem, InstructionMeasure} from '@loncra/antdv'
 
 /**
  * 发送器逻辑：files 词槽创建/渲染/上传、粘贴文件、提交组装（附件 + 引用）、
@@ -335,7 +340,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
       } else if (slot.type === 'custom' && slot.slotKind === 'reference') {
         refMessages.value = (slot as ReferenceBlock).value
       } else if (slot.type === 'custom' && slot.slotKind === 'instruction') {
-        result.push(createInstructionSlot(slot, configProviderStore, currentInstance))
+        result.push(buildInstructionSlot(slot, configProviderStore, currentInstance))
       }
     }
     return result
@@ -343,6 +348,24 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
 
   function getSlotConfigValue(): SlotConfigType[] {
     return getSender()?.getValue()?.slotConfig || []
+  }
+
+  /**
+   * 选中指令后造芯片（交给 `InstructionSender` 的 `createInstructionSlot` prop）。
+   * 与草稿还原共用 `@/utils` 的 `createInstructionSlot`，芯片形状只在这一处定义。
+   */
+  function createInstructionSlot(option: InstructionItem, measure: InstructionMeasure): object {
+    return buildInstructionSlot(
+      {
+        id: crypto.randomUUID(),
+        type: 'custom',
+        slotKind: 'instruction',
+        value: option as unknown as IdValueMetadata<string, string>,
+        prefix: String(option.metadata?.slotPrefix ?? measure.prefix),
+      },
+      configProviderStore,
+      currentInstance,
+    )
   }
 
   return {
@@ -354,6 +377,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     convertContentBlockToSlotConfig,
     getSlotConfigValue,
     createFilesSlot,
+    createInstructionSlot,
   }
 }
 

@@ -13,7 +13,6 @@ import {
   type InstructionSenderHandle,
 } from '@loncra/antdv'
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
-import {getSendInstructionIcon} from '@/utils'
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -60,11 +59,6 @@ const emit = defineEmits<{
 
 const instructionSenderRef = ref<InstructionSenderExpose>()
 
-function getInstructionIcon(prefix: string) {
-  const icon = getSendInstructionIcon(prefix, false)
-  return typeof icon === 'string' ? icon : undefined
-}
-
 function onInsertInstruction(
   sender: InstructionSenderHandle,
   block: object,
@@ -82,6 +76,7 @@ const {
   convertContentBlockToSlotConfig,
   getSlotConfigValue,
   createFilesSlot,
+  createInstructionSlot,
 } = useChatMessageSender({
   refMessages,
   sending: toRef(props, 'sending'),
@@ -107,9 +102,9 @@ defineExpose({
     :disabled="props.disabled"
     :instruction-context-visible-margin="props.instructionContextVisibleMargin"
     :instruction-map="props.instructionMap"
-    :filter-instruction="props.filterInstruction"
+    :on-filter-data-source="props.filterInstruction"
     :sender-insert-instruction="onInsertInstruction"
-    :get-instruction-icon="getInstructionIcon"
+    :create-instruction-slot="createInstructionSlot"
     @paste-file="onPasteFiles"
     @submit="handleSubmit"
     @change="(value, event, slotConfig) => emit('change', value, event, slotConfig)"
