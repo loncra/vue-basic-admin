@@ -8,6 +8,7 @@ import {
   AUTH_SERVER_SYSTEM_USER_AUTHORITY,
   RESOURCE_SERVER_USER_EXPORT_ROUTE,
   SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
 } from '@/constants'
 import i18n from '@/i18n'
 import {isBusinessSuccess} from '@/requests'
@@ -31,7 +32,12 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
       detail: AUTH_SERVER_CONSOLE_USER_AUTHORITY.GET,
       delete: AUTH_SERVER_CONSOLE_USER_AUTHORITY.DELETE,
     },
-    enums: [SYSTEM_ENUM_TYPE.GENDER_ENUM, SYSTEM_ENUM_TYPE.USER_STATUS_ENUM],
+    enums: [
+      {
+        module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
+        ids: [SYSTEM_ENUM_TYPE.GENDER_ENUM, SYSTEM_ENUM_TYPE.USER_STATUS_ENUM],
+      },
+    ],
     rowSelection: {fixed: true, type: 'checkbox'},
     /**
      * 导出是**本业务自己的事**：pro 不预置导出动作，这里自己声明一个标题栏动作。

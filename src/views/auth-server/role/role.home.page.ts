@@ -5,7 +5,7 @@ import {defineHomePage} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
 import {AUTH_SERVER_ROLE_ROUTE} from '@/routers/auth-server/role'
-import {SYSTEM_ENUM_TYPE, YES_OR_NO_TYPE, getEnumValue} from '@loncra/client/commons'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, YES_OR_NO_TYPE, getEnumValue} from '@loncra/client/commons'
 import {defineSearchProps} from '@/utils'
 import {ROLE_VARIANT, roleCore} from './role.page'
 
@@ -17,7 +17,12 @@ export const roleHomePage = defineHomePage<RoleSavePayload, RoleEntity>(roleCore
     detail: AUTH_SERVER_ROLE_AUTHORITY.GET,
     delete: AUTH_SERVER_ROLE_AUTHORITY.DELETE,
   },
-  enums: [SYSTEM_ENUM_TYPE.YES_OR_NO, SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM],
+  enums: [
+    {
+      module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
+      ids: [SYSTEM_ENUM_TYPE.YES_OR_NO, SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM],
+    },
+  ],
   rowSelection: {
     fixed: true,
     type: 'checkbox',

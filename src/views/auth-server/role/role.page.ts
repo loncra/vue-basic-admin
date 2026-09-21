@@ -4,7 +4,12 @@ import {RoleService} from '@loncra/client/auth'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import {AUTH_SERVER_ROLE_ROUTE} from '@/routers/auth-server/role'
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, getEnumValue} from '@loncra/client/commons'
+import {
+  OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  getEnumValue,
+} from '@loncra/client/commons'
 
 const roleService = new RoleService()
 
@@ -54,7 +59,7 @@ export const roleCore: CrudPageCore<RoleSavePayload, RoleEntity> = {
   },
   operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.ROLE,
 
-  /** 字段字典：labelKey / format / enumId 只写一次，三种形态共用 */
+  /** 字段字典：labelKey / format / enumRef 只写一次，三种形态共用 */
   fields: {
     id: {labelKey: 'common.id'},
     name: {labelKey: 'common.name'},
@@ -62,11 +67,23 @@ export const roleCore: CrudPageCore<RoleSavePayload, RoleEntity> = {
     sources: {
       labelKey: 'authServer.source',
       format: 'enumList',
-      enumId: SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM,
+      enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM},
     },
-    removable: {labelKey: 'authServer.role.removable', format: 'enum', enumId: SYSTEM_ENUM_TYPE.YES_OR_NO},
-    modifiable: {labelKey: 'authServer.role.modifiable', format: 'enum', enumId: SYSTEM_ENUM_TYPE.YES_OR_NO},
-    enabled: {labelKey: 'common.enabled', format: 'enum', enumId: SYSTEM_ENUM_TYPE.YES_OR_NO},
+    removable: {
+      labelKey: 'authServer.role.removable',
+      format: 'enum',
+      enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.YES_OR_NO},
+    },
+    modifiable: {
+      labelKey: 'authServer.role.modifiable',
+      format: 'enum',
+      enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.YES_OR_NO},
+    },
+    enabled: {
+      labelKey: 'common.enabled',
+      format: 'enum',
+      enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.YES_OR_NO},
+    },
     remark: {labelKey: 'common.remark'},
   },
 }

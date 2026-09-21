@@ -7,7 +7,8 @@ import router from '@/routers'
 import {
   AUTH_SERVER_RESOURCE_AUTHORITY,
   AUTH_SERVER_RESOURCE_ROUTE,
-  SYSTEM_ENUM_TYPE
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
 } from '@/constants'
 import {defineSearchProps} from '@/utils'
 import type {DragPreviewContent} from '@loncra/antdv-pro'
@@ -23,9 +24,14 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
     delete: AUTH_SERVER_RESOURCE_AUTHORITY.DELETE,
   },
   enums: [
-    SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM,
-    SYSTEM_ENUM_TYPE.RESOURCE_CATEGORY_ENUM,
-    SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM,
+    {
+      module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
+      ids: [
+        SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM,
+        SYSTEM_ENUM_TYPE.RESOURCE_CATEGORY_ENUM,
+        SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM,
+      ],
+    },
   ],
   rowSelection: {
     fixed: true,

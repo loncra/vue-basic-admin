@@ -9,6 +9,7 @@ import {
   AUTH_SERVER_RESOURCE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
 } from '@/constants'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
@@ -127,21 +128,33 @@ export const resourceCore: CrudPageCore<ResourceSavePayload, ResourceEntity> = {
   },
   operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.RESOURCE,
 
-  /** 字段字典：labelKey / format / enumId 只写一次 */
+  /** 字段字典：labelKey / format / enumRef 只写一次 */
   fields: {
     id: {labelKey: 'common.id'},
     name: {labelKey: 'common.name'},
     authority: {labelKey: 'authServer.authority'},
     applicationName: {labelKey: 'authServer.resource.applicationName'},
     page: {labelKey: 'authServer.resource.page'},
-    type: {labelKey: 'common.type', format: 'enum', enumId: SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM},
-    category: {labelKey: 'common.category', format: 'enum', enumId: SYSTEM_ENUM_TYPE.RESOURCE_CATEGORY_ENUM},
+    type: {
+      labelKey: 'common.type',
+      format: 'enum',
+      enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM},
+    },
+    category: {
+      labelKey: 'common.category',
+      format: 'enum',
+      enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.RESOURCE_CATEGORY_ENUM},
+    },
     sources: {
       labelKey: 'authServer.source',
       format: 'enumList',
-      enumId: SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM,
+      enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM},
     },
-    enabled: {labelKey: 'common.enabled', format: 'enum', enumId: SYSTEM_ENUM_TYPE.YES_OR_NO},
+    enabled: {
+      labelKey: 'common.enabled',
+      format: 'enum',
+      enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.YES_OR_NO},
+    },
     remark: {labelKey: 'common.remark'},
   },
 }
