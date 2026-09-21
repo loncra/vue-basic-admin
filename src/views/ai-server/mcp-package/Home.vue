@@ -9,6 +9,6 @@ defineOptions({
 
 <template>
   <div>
-    <l-crud-home-page :page="mcpPackageHomePage" :scroll="{x: 'max-content'}" />
+    <l-crud-home-page :page="mcpPackageHomePage" />
   </div>
 </template>

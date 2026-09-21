@@ -4,11 +4,11 @@ import {Space} from 'antdv-next'
 import axios from '@/requests'
 import {createAxiosHttpClient} from '@loncra/client/adapters/axios'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
+import type {CrudNavigateTarget} from '@loncra/antdv-pro'
 import {
   ClientProvider as LClientProvider,
   CrudConfigProvider as LCrudConfigProvider
 } from '@loncra/antdv-pro'
-import type {CrudNavigateTarget} from '@loncra/antdv-pro'
 // `VNodeChild` 取**包的类型视野**（两份 vue 副本的 d.ts 互不兼容，运行期是同一份 vue）
 import type {VNodeChild} from '@loncra/antdv'
 import {usePrincipalStore} from '@/stores/principalStore'

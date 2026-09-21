@@ -8,8 +8,5 @@ defineOptions({
 </script>
 
 <template>
-  <crud-home-page
-    :page="signHomePage"
-    :scroll="{x:'max-content'}"
-  />
+  <crud-home-page :page="signHomePage" />
 </template>

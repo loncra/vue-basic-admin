@@ -9,9 +9,6 @@ defineOptions({
 
 <template>
   <div>
-    <crud-home-page
-      :page="enterpriseHomePage"
-      :scroll="{x:'max-content'}"
-    />
+    <crud-home-page :page="enterpriseHomePage" />
   </div>
 </template>

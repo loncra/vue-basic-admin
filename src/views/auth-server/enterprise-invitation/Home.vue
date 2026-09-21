@@ -31,9 +31,10 @@ const globalProperties =
  */
 const table = ref<CrudHomePageExpose<EnterpriseInvitationEntity>>()
 const auditTypeOptions = computed(
-  // 桶条目的 value 是 `string | number`，而「审核类型」在库里就是数字（弹层的 select 按数字用）
+  // 桶条目的 value 是 `string | number`，而「审核类型」在库里就是数字（弹层的 select 按数字用）。
+  // `buckets` 是**值**（expose 出来的 ref 会被 Vue 解包）⇒ 不许再写 `.value`
   () =>
-    (table.value?.buckets.value[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
+    (table.value?.buckets[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
       SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM
     ] ?? []) as NameValueEnumMetadata<number>[],
 )
@@ -64,7 +65,6 @@ function openForm(record?: EnterpriseInvitationEntity): void {
     <l-crud-home-page
       ref="table"
       :page="enterpriseInvitationHomePage"
-      :scroll="{x: 'max-content'}"
       :expandable="{
         rowExpandable: (record: EnterpriseInvitationEntity) =>
           getEnumValue(record.auditType) === AUTH_SERVER_AUDIT_TYPE_VALUE.MANUAL,

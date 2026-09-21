@@ -165,7 +165,6 @@ onMounted(mounted)
             :pagination="false"
             :bordered="false"
             :drag="dragEnabled ? formatDragPreview : false"
-            :scroll="{x: 'max-content'}"
             @drop="onDrop"
             @add="onAdd"
           >

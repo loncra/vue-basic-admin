@@ -47,7 +47,6 @@ function cancelSnapshot(): void {
     <l-crud-home-page
       ref="table"
       :page="skillPackageHomePage"
-      :scroll="{x: 'max-content'}"
       :expandable="{
         rowExpandable: (record: SkillPackageEntity) =>
           getEnumValue(record.status) === DATA_STATUS.RELEASE,
