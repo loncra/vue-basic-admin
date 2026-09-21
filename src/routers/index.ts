@@ -17,7 +17,6 @@ import {unmergeTree} from '@loncra/client/commons'
 import Auth from '@/views/Auth.vue'
 import Home from '@/views/Home.vue'
 import Workbench from '@/views/common/Workbench.vue'
-import UserExport from "@/views/common/UserExport.vue";
 import MyMessage from '@/views/common/MyMessage.vue'
 import Setting from '@/views/common/Setting.vue'
 import NotFound from '@/views/error/NotFound.vue';
@@ -75,7 +74,9 @@ const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/commons/user/export',
     name: RESOURCE_SERVER_USER_EXPORT_ROUTE,
-    component: UserExport,
+    // 必须懒加载：声明文件（`user-export.home.page.ts`）在模块顶层就 `new UserExportService()`，
+    // 而该服务构造时会取 `BASE_URL` → `getClient()`；静态导入会让它在 createClient() 之前求值
+    component: () => import('@/views/common/UserExport.vue'),
     meta: {
       applicationName: 'commons',
       requiresAuth: true,

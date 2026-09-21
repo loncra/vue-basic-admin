@@ -11,9 +11,20 @@ import {
   SYSTEM_MODULE_NAME
 } from '@/constants'
 import {defineSearchProps} from '@/utils'
-import type {DragPreviewContent} from '@loncra/antdv-pro'
+import type {DragPreviewContent, RecordActionContext} from '@loncra/antdv-pro'
 import {renderIconName, RESOURCE_VARIANT, resourceCore} from './resource.page'
 import {getEnumValue} from '@loncra/client/commons'
+
+/** 加子级：跳到 addChild 路由，把当前行当父级（`run` 只接线，实现放这儿） */
+function addChild(ctx: RecordActionContext<ResourceEntity>): void {
+  const record = ctx.record
+  if (record) {
+    void router.push({
+      name: AUTH_SERVER_RESOURCE_ROUTE.ADD_CHILD,
+      query: {parentId: String(record.id)},
+    })
+  }
+}
 
 /** 资源列表（`Home.vue`）。核心在 `resource.page.ts`，这里只写列表形态。 */
 export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEntity>(resourceCore, {
@@ -70,14 +81,7 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
       permission: AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
       label: () => i18n.global.t('common.addChild', {name: ''}),
       icon: () => renderIconFont('loncra-list-tree'),
-      run: (actionCtx) => {
-        if (actionCtx.record) {
-          void router.push({
-            name: AUTH_SERVER_RESOURCE_ROUTE.ADD_CHILD,
-            query: {parentId: String(actionCtx.record.id)},
-          })
-        }
-      },
+      run: addChild,
     },
     // 选择器形态只留 addChild；整页才有编辑/删除
     ...(ctx.variant === RESOURCE_VARIANT.PICKER ? [] : [{id: 'edit'}, {id: 'delete'}]),

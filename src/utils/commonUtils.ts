@@ -333,6 +333,7 @@ export function defineSearchProps(
     expression: override.expression ?? fallback.expression,
     props: () => ({
       placeholder: i18n.global.t(fallback.placeholder),
+      classes: {root: 'w-full'},
       ...fallback.props,
       ...override.props,
     }),

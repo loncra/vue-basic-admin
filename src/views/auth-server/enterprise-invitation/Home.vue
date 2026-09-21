@@ -1,49 +1,21 @@
 <script setup lang="ts">
-
-import {AuthServerService, ResourceServerService} from '@/apis'
+import {computed, type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
+import {AUTH_SERVER_AUDIT_STATUS_VALUE, AUTH_SERVER_AUDIT_TYPE_VALUE} from '@loncra/client/auth'
 import type {EnterpriseInvitationEntity} from '@loncra/client/auth'
-import {
-  AUTH_SERVER_AUDIT_STATUS_VALUE,
-  AUTH_SERVER_AUDIT_TYPE_VALUE,
-  AUTH_SERVER_AUTHENTICATION_TYPE,
-  EnterpriseInvitationService
-} from '@loncra/client/auth'
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  markRaw,
-  onMounted,
-  ref
-} from 'vue'
-import {DateRangePicker, Select} from 'antdv-next'
-
-import type {EnterpriseInvitationSavePayload} from '@/types/apis'
-import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
-import type {EnumBucketsResponseBody} from '@loncra/client/resource'
-import {
-  applyColumnOptions,
-  
-  requireNonNullOrUndefined,
-} from '@/utils'
-import type {RecordActionDefinition, SearchableColumnType} from '@loncra/antdv-pro'
-import {useDateFormat, CrudTable as LCrudTable, UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
-import {
-  AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
-  AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
-  AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME
-} from '@/constants'
+import {getEnumValue, type NameValueEnumMetadata} from '@loncra/client/commons'
 import {QrCodeModal as LQrCodeModal} from '@loncra/antdv'
-import {renderIconFont} from '@/utils/commonUtils'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
-import LEnterpriseMemberTable from "@/components/auth-server/EnterpriseMemberTable.vue";
+import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import type {EnterpriseInvitationSavePayload} from '@/types/apis'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants'
+import {renderIconFont, requireNonNullOrUndefined} from '@/utils'
 import LEnterpriseInvitationModal, {
-  createEmptyForm
-} from "@/components/auth-server/EnterpriseInvitationModal.vue";
-
-const {dateTimeFormat} = useDateFormat()
+  createEmptyForm,
+} from '@/components/auth-server/EnterpriseInvitationModal.vue'
+import LEnterpriseMemberTable from '@/components/auth-server/EnterpriseMemberTable.vue'
+import {
+  enterpriseInvitationHomePage,
+  invitationShare,
+} from './enterprise-invitation.home.page'
 
 defineOptions({
   name: 'AuthServerEnterpriseInvitationHome',
@@ -53,211 +25,84 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const service = new EnterpriseInvitationService()
+/**
+ * 表格实例：`buckets` 是声明里 `list.enums` 拉回来的枚举桶，
+ * 「审核类型」下拉直接用这一份（不再自己发请求）。
+ */
+const table = ref<CrudHomePageExpose<EnterpriseInvitationEntity>>()
+const auditTypeOptions = computed(
+  // 桶条目的 value 是 `string | number`，而「审核类型」在库里就是数字（弹层的 select 按数字用）
+  () =>
+    (table.value?.buckets.value[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
+      SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM
+    ] ?? []) as NameValueEnumMetadata<number>[],
+)
 
-const columns = computed<SearchableColumnType<EnterpriseInvitationEntity>[]>(() => [
-  {
-    title: globalProperties.$t('authServer.enterpriseInvitation.inviterPrincipal'),
-    dataIndex: 'member',
-    key: 'member',
-    width: 250,
-    ellipsis: true
-  },
-  {
-    title: globalProperties.$t('common.status'),
-    dataIndex: 'status',
-    key: 'status',
-    width: 120,
-    ellipsis: true,
-    search: {
-      component: markRaw(Select),
-      props: {placeholder: globalProperties.$t('search.placeholder.select'), fieldNames: {label: 'name'}, classes: {root: 'w-full'}, popupMatchSelectWidth: false},
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('authServer.enterpriseInvitation.auditType'),
-    dataIndex: 'auditType',
-    key: 'audit_type',
-    width: 120,
-    ellipsis: true,
-    search: {
-      component: markRaw(Select),
-      props: {placeholder: globalProperties.$t('search.placeholder.select'), fieldNames: {label: 'name'}, classes: {root: 'w-full'}, popupMatchSelectWidth: false},
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('authServer.enterpriseInvitation.roleId'),
-    dataIndex: 'roles',
-    key: 'roles',
-    width: 180,
-    ellipsis: true,
-  },
-  {
-    title: globalProperties.$t('common.expiresTime'),
-    dataIndex: 'expirationTime',
-    key: 'expiration_time',
-    width: 210,
-    search: {
-      component: markRaw(DateRangePicker),
-      props: {},
-      expression: 'between',
-    },
-  },
-  {
-    title: globalProperties.$t('common.creationTime'),
-    dataIndex: 'creationTime',
-    key: 'creation_time',
-    width: 210,
-    search: {
-      component: markRaw(DateRangePicker),
-      props: {},
-      expression: 'between',
-    },
-  },
-])
-
-const options = ref<{
-  entity?:EnterpriseInvitationSavePayload,
-  auditTypeOptions:NameValueEnumMetadata<number>[]
-  model:boolean
-  share:{
-    open:boolean,
-    url:string
-  }
-}>({
-  model:false,
-  share:{
-    open:false,
-    url:''
-  },
-  auditTypeOptions:[]
+/** 新增 / 编辑弹层：`@add` / `@edit` 在模板上接管 pro 的默认跳转，弹层状态留在壳里 */
+const form = ref<{open: boolean; entity: EnterpriseInvitationSavePayload}>({
+  open: false,
+  entity: createEmptyForm(),
 })
 
-const crudTable = ref()
-
-function openShard(entity: EnterpriseInvitationEntity) {
-  options.value.share.open = true;
-  options.value.share.url = import.meta.env.VITE_APP_SITE_URL + import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/' + entity.id + "?" + AUTH_SERVER_AUTHENTICATION_TYPE_PARAM + '=' + AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL;
-}
-
-const itemActionDefinitions = function (): RecordActionDefinition<EnterpriseInvitationEntity>[] {
-  return [
-    {
-      id: 'share',
-      permission:AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
-      label: () => globalProperties.$t('common.share'),
-      icon: () => renderIconFont('loncra-share'),
-      run: (ctx) => openShard(ctx.record!),
-    },
-  ]
-}
-
-async function mounted() {
-  const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
-    [SYSTEM_MODULE_NAME.AUTH_SERVER]: [
-      {id: SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_STATUS_ENUM}
-    ],
-    [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-      {id: SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM},
-    ]
-  })
-  if (enums.data) {
-    applyColumnOptions(
-      columns.value,
-      'status',
-      enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_STATUS_ENUM] || [],
-    )
-    applyColumnOptions(
-      columns.value,
-      'auditType',
-      enums.data[SYSTEM_MODULE_NAME.AUTH_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM] || [],
-    )
-    options.value.auditTypeOptions = (enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM] || [] ) as NameValueEnumMetadata<number>[]
+function openForm(record?: EnterpriseInvitationEntity): void {
+  form.value = {
+    open: true,
+    entity: record
+      ? {
+          ...record,
+          expirationTime: record.expirationTime
+            ? globalProperties.$dayjs(record.expirationTime)
+            : undefined,
+        }
+      : createEmptyForm(),
   }
 }
-
-function onEdit(record:EnterpriseInvitationEntity | undefined) {
-  options.value.model = true
-  if (record) {
-    options.value.entity = {...record, expirationTime:record.expirationTime ? globalProperties.$dayjs(record.expirationTime) : undefined}
-  } else {
-    options.value.entity = createEmptyForm()
-  }
-}
-
-onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-crud-table
-      ref="crudTable"
-      :service="service"
-      :columns="columns"
-      :row-actions="itemActionDefinitions()"
-      :expandable="{ rowExpandable: (record:EnterpriseInvitationEntity) => getEnumValue(record.auditType) === AUTH_SERVER_AUDIT_TYPE_VALUE.MANUAL }"
-      :authority="{
-        detail: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
-        delete: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.DELETE,
-        edit:AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.SAVE,
-        add:AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.SAVE,
+    <l-crud-home-page
+      ref="table"
+      :page="enterpriseInvitationHomePage"
+      :scroll="{x: 'max-content'}"
+      :expandable="{
+        rowExpandable: (record: EnterpriseInvitationEntity) =>
+          getEnumValue(record.auditType) === AUTH_SERVER_AUDIT_TYPE_VALUE.MANUAL,
       }"
-      :scroll="{x:'max-content'}"
-      :row-selection="{fixed: true, type: 'checkbox'}"
-      @add="onEdit(undefined)"
-      @edit="onEdit"
-      @detail="r => globalProperties.$router.push({name:AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE.DETAIL, query:{id:String(r.id)}})"
+      @add="openForm()"
+      @edit="openForm"
     >
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.dataIndex === 'member'">
-          <a-space>
-            <l-user-avatar :user="record.member" />
-            {{AuthServerService.getPrincipalNameByUserDetails(record.member)}}
-          </a-space>
-        </template>
-        <template v-if="column.dataIndex === 'status'">
-          {{ getEnumName(record.status) }}
-        </template>
-        <template v-if="column.dataIndex === 'auditType'">
-          {{ getEnumName(record.auditType) }}
-        </template>
-        <template v-if="column.dataIndex === 'roles'">
-          {{ (record.roles || []).map(s => s.name).join(', ') }}
-        </template>
-        <template v-if="column.dataIndex === 'expirationTime'">
-          {{ record.expirationTime ? dateTimeFormat(record.expirationTime) : globalProperties.$t('common.permanent')}}
-        </template>
-        <template v-if="column.dataIndex === 'creationTime'">
-          {{ dateTimeFormat(record.creationTime) }}
-        </template>
-      </template>
-      <template #expandedRowRender="{ record }">
-        <l-enterprise-member-table audit :query="{'filter_[invitation_id_eq]':record.id,'filter_[audit_status_eq]':AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE}">
+      <template #expandedRowRender="{record}">
+        <l-enterprise-member-table
+          audit
+          :query="{
+            'filter_[invitation_id_eq]': record.id,
+            'filter_[audit_status_eq]': AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE,
+          }"
+        >
           <template #title>
             <a-space>
-              <icon-font type="loncra-user-check" />
+              <component :is="() => renderIconFont('loncra-user-check')" />
               {{ globalProperties.$t('authServer.enterpriseInvitation.invitedMembers') }}
             </a-space>
           </template>
         </l-enterprise-member-table>
       </template>
-    </l-crud-table>
+    </l-crud-home-page>
 
-    <teleport v-if="options.model || options.share.open" to="body">
+    <teleport v-if="form.open || invitationShare.open" to="body">
       <l-enterprise-invitation-modal
-        @success="crudTable?.fetchDataSource()"
-        v-if="options.model"
-        v-model:open="options.model"
-        :audit-type-options="options.auditTypeOptions"
-        v-model:entity="options.entity"
+        v-if="form.open"
+        v-model:open="form.open"
+        v-model:entity="form.entity"
+        :audit-type-options="auditTypeOptions"
+        @success="table?.fetchDataSource()"
       />
 
       <l-qr-code-modal
-        v-if="options.share.open"
-        :url="options.share.url"
-        v-model:open="options.share.open"
+        v-if="invitationShare.open"
+        v-model:open="invitationShare.open"
+        :url="invitationShare.url"
       />
     </teleport>
   </div>

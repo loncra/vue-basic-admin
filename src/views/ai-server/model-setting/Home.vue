@@ -1,133 +1,44 @@
 <script setup lang="ts">
-import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
-import type {SearchableColumnType} from '@loncra/antdv-pro';
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  markRaw,
-  onActivated,
-  onMounted,
-  ref,
-} from 'vue'
-import {App, Input, type MenuProps, Select} from 'antdv-next'
-import type {
-  FilterRequest,
-  NameValueEnumMetadata,
-  RestResult,
-  TreeSortMetadata
-} from '@loncra/client/commons'
-import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
+import {computed, onActivated, onMounted, ref} from 'vue'
+import {App, type MenuProps} from 'antdv-next'
+import {useRoute} from 'vue-router'
+import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import type {ModelSettingEntity} from '@loncra/client/ai'
-import {ModelSettingService} from '@loncra/client/ai'
+import type {FilterRequest, RestResult, TreeSortMetadata} from '@loncra/client/commons'
 import {ResourceServerService} from '@/apis'
-
-import {applyColumnOptions, requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
+import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
+import router from '@/routers'
 import {
   AI_SERVER_MODEL_SETTING_AUTHORITY,
   AI_SERVER_MODEL_SETTING_ROUTE,
   MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
   SYSTEM_CONSTANT,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME
 } from '@/constants'
-import {getEnumName} from '@loncra/client/commons'
-
-const {message} = App.useApp()
+import {modelSettingService} from './model-setting.page'
+import {modelSettingHomePage, selectedManufacturer} from './model-setting.home.page'
 
 defineOptions({
   name: 'AiServerModelSettingHome',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const {message} = App.useApp()
+const route = useRoute()
 const principalStore = usePrincipalStore()
 
-const modelSettingService = new ModelSettingService()
-
-const modelSettingTable = ref()
+const table = ref<CrudHomePageExpose<ModelSettingEntity>>()
+const query = ref<FilterRequest>({})
 const manufacturers = ref<DataDictionaryMetadata[]>([])
 const manufacturersLoading = ref(false)
-const selectedManufacturer = ref<DataDictionaryMetadata | null>(null)
 const selectedKeys = ref<string[]>([])
-
-const columns = computed<SearchableColumnType<ModelSettingEntity>[]>(() => [
-  {
-    title: globalProperties.$t('common.name'),
-    dataIndex: 'name',
-    key: 'name',
-    search: {
-      component: markRaw(Input),
-      props: {placeholder: globalProperties.$t('search.placeholder.input')},
-      expression: 'like',
-    },
-  },
-  {
-    title: globalProperties.$t('aiServer.modelSetting.model'),
-    dataIndex: 'model',
-    key: 'model',
-    search: {
-      component: markRaw(Input),
-      props: {placeholder: globalProperties.$t('search.placeholder.input')},
-      expression: 'like',
-    },
-  },
-  {
-    title: globalProperties.$t('common.type'),
-    dataIndex: 'type',
-    key: 'type',
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('common.enabled'),
-    dataIndex: 'enabled',
-    key: 'enabled',
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      expression: 'eq',
-    },
-  },
-])
-
-const options = ref<{
-  selectedRows: ModelSettingEntity[]
-  typeOptions: NameValueEnumMetadata<number>[]
-  enabledOptions: NameValueEnumMetadata<number>[]
-  query: FilterRequest
-}>({
-  selectedRows: [],
-  typeOptions: [],
-  enabledOptions: [],
-  query: {},
-})
-
-/** `add` / `deleteSelected` 只在选了厂商后出现（条件归页面自己，按 id 覆盖默认定义） */
-const modelSettingToolbarActions = computed(() => [
-  {id: 'add', visible: () => selectedManufacturer.value !== null},
-  {id: 'deleteSelected', visible: () => selectedManufacturer.value !== null},
-])
 
 const dragEnabled = computed(() =>
   principalStore.hasPermission(AI_SERVER_MODEL_SETTING_AUTHORITY.SORT),
 )
 
+/** 左树：厂商 = 数据字典（`manufacturerCode`） */
 const manufacturerMenuItems = computed(() =>
   manufacturers.value.map((item) => ({
     key: item.code,
@@ -136,11 +47,11 @@ const manufacturerMenuItems = computed(() =>
   })),
 )
 
-function selectManufacturer(item: DataDictionaryMetadata) {
+function selectManufacturer(item: DataDictionaryMetadata): void {
   selectedManufacturer.value = item
   selectedKeys.value = [item.code]
-  options.value.query['filter_[manufacturer.code_jeq]'] = item.code
-  modelSettingTable.value?.fetchDataSource()
+  query.value['filter_[manufacturer.code_jeq]'] = item.code
+  void table.value?.fetchDataSource()
 }
 
 const onManufacturerMenuClick: MenuProps['onClick'] = (info) => {
@@ -150,10 +61,11 @@ const onManufacturerMenuClick: MenuProps['onClick'] = (info) => {
   }
 }
 
-async function loadManufacturers() {
+async function loadManufacturers(): Promise<void> {
   manufacturersLoading.value = true
   try {
-    const result:RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([MODEL_SETTING_MANUFACTURER_CODE_PREFIX])
+    const result: RestResult<Record<string, DataDictionaryMetadata[]>> =
+      await ResourceServerService.findDataDictionariesByCodes([MODEL_SETTING_MANUFACTURER_CODE_PREFIX])
     manufacturers.value = result.data?.[MODEL_SETTING_MANUFACTURER_CODE_PREFIX] || []
   } finally {
     manufacturersLoading.value = false
@@ -161,7 +73,7 @@ async function loadManufacturers() {
 }
 
 /** 对齐字典页：仅从 Form 返回的 query 恢复选中，左侧点击不改 URL */
-async function activated(manufacturerCode?: string | null) {
+async function activated(manufacturerCode?: string | null): Promise<void> {
   if (!manufacturerCode) {
     return
   }
@@ -175,54 +87,37 @@ async function activated(manufacturerCode?: string | null) {
   selectManufacturer(target)
 }
 
-function formatDragPreview(record: ModelSettingEntity) {
+/** 拖拽幽灵内容（`@drag` 与 `@drop` 都用宿主自己的状态，所以留在壳里） */
+function formatDragPreview(record: ModelSettingEntity): string {
   return record.name
 }
 
 async function onDrop(
   sorts: TreeSortMetadata<ModelSettingEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[],
-) {
+): Promise<void> {
   const result: RestResult<void> = await modelSettingService.sort(sorts)
-  message.success(result.message)
+  void message.success(result.message)
 }
 
-function onAdd() {
-  if (!selectedManufacturer.value) {
+/** 新增要带上当前厂商（pro 的默认跳转只拼 `{id}`）⇒ 壳绑 `@add` 接管 */
+function onAdd(): void {
+  const manufacturer = selectedManufacturer.value
+  if (!manufacturer) {
     return
   }
-  void globalProperties.$router.push({
+  void router.push({
     name: AI_SERVER_MODEL_SETTING_ROUTE.ADD,
-    query: {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: selectedManufacturer.value.code},
+    query: {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: manufacturer.code},
   })
 }
 
-async function mounted() {
-  const enums: RestResult<EnumBucketsResponseBody> =
-    await ResourceServerService.getServiceEnumerates({
-      [SYSTEM_MODULE_NAME.AI_SERVER]: [{id: SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM}],
-      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.YES_OR_NO}],
-    })
-  if (enums.data) {
-    options.value.typeOptions = (enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM] ||
-      []) as NameValueEnumMetadata<number>[]
-    options.value.enabledOptions = (enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] ||
-      []) as NameValueEnumMetadata<number>[]
-
-    applyColumnOptions(columns.value, "type", enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM] || [])
-    applyColumnOptions(columns.value, "enabled", enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] || [])
-
-  }
-
+async function mounted(): Promise<void> {
   await loadManufacturers()
-  await activated(
-    globalProperties.$route.query[MODEL_SETTING_MANUFACTURER_CODE_QUERY] as string,
-  )
+  await activated(route.query[MODEL_SETTING_MANUFACTURER_CODE_QUERY] as string)
 }
 
 onActivated(() => {
-  void activated(
-    globalProperties.$route.query[MODEL_SETTING_MANUFACTURER_CODE_QUERY] as string,
-  )
+  void activated(route.query[MODEL_SETTING_MANUFACTURER_CODE_QUERY] as string)
 })
 
 onMounted(mounted)
@@ -238,7 +133,7 @@ onMounted(mounted)
               <a-space>
                 <icon-font icon="icon align" type="loncra-building" />
                 <a-typography-text strong>
-                  {{ globalProperties.$t('aiServer.modelSetting.manufacturer') }}
+                  {{ $t('aiServer.modelSetting.manufacturer') }}
                 </a-typography-text>
               </a-space>
             </a-flex>
@@ -262,37 +157,24 @@ onMounted(mounted)
         </a-splitter-panel>
 
         <a-splitter-panel>
-          <l-crud-table
-            ref="modelSettingTable"
-            :drag="dragEnabled ? formatDragPreview : false"
-            :actions="modelSettingToolbarActions"
-            :bordered="false"
-            :pagination="false"
+          <l-crud-home-page
+            ref="table"
+            v-model:query="query"
+            :page="modelSettingHomePage"
             :immediate="false"
-            v-model:query="options.query"
-            v-model:selected-rows="options.selectedRows"
-            :service="modelSettingService"
-            :columns="columns"
-            :authority="{
-              add: AI_SERVER_MODEL_SETTING_AUTHORITY.SAVE,
-              edit: AI_SERVER_MODEL_SETTING_AUTHORITY.SAVE,
-              delete: AI_SERVER_MODEL_SETTING_AUTHORITY.DELETE,
-              detail: AI_SERVER_MODEL_SETTING_AUTHORITY.GET,
-            }"
+            :pagination="false"
+            :bordered="false"
+            :drag="dragEnabled ? formatDragPreview : false"
             :scroll="{x: 'max-content'}"
-            :row-selection="{fixed: true, type: 'checkbox'}"
             @drop="onDrop"
             @add="onAdd"
-            @detail="r => globalProperties.$router.push({name: AI_SERVER_MODEL_SETTING_ROUTE.DETAIL,query: {id: String(r.id)},})"
-            @edit="r =>globalProperties.$router.push({name: AI_SERVER_MODEL_SETTING_ROUTE.EDIT,query: {id: String(r.id)},})
-            "
           >
             <template #title>
               <a-flex justify="space-between" align="center">
                 <a-space>
                   <icon-font icon="icon align" type="loncra-sticker" />
                   <a-typography-text strong>
-                    {{ globalProperties.$t('aiServer.modelSetting.routePage') }}
+                    {{ $t('aiServer.modelSetting.routePage') }}
                     <template v-if="selectedManufacturer">
                       ({{ selectedManufacturer.name }})
                     </template>
@@ -300,25 +182,7 @@ onMounted(mounted)
                 </a-space>
               </a-flex>
             </template>
-
-            <template #bodyCell="{column, record}">
-              <template v-if="column.dataIndex === 'name'">
-                <a-space>
-                  <icon-font
-                    icon="icon align"
-                    :type="record.icon || 'loncra-sticker'"
-                  />
-                  <span>{{ record.name }}</span>
-                </a-space>
-              </template>
-              <template v-if="column.dataIndex === 'type'">
-                {{ getEnumName(record.type) }}
-              </template>
-              <template v-if="column.dataIndex === 'enabled'">
-                {{ getEnumName(record.enabled) }}
-              </template>
-            </template>
-          </l-crud-table>
+          </l-crud-home-page>
         </a-splitter-panel>
       </a-splitter>
     </l-menu-title-card>

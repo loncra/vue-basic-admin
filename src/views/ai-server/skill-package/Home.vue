@@ -1,563 +1,95 @@
 <script setup lang="ts">
-import type {RecordActionDefinition, SearchableColumnType, ToolbarActionDefinition} from '@loncra/antdv-pro'
-import {CrudTable as LCrudTable} from '@loncra/antdv-pro'
+import {ref} from 'vue'
+import {App} from 'antdv-next'
+import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import type {SkillPackageEntity} from '@loncra/client/ai'
+import {getEnumValue} from '@loncra/client/commons'
 import LForm from '@/components/Form.vue'
-import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  markRaw,
-  onMounted,
-  ref,
-} from 'vue'
-import {Input, Select} from 'antdv-next'
-import type {FilterRequest, RestResult} from '@loncra/client/commons'
-import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
-import type {SkillPackageEntity, SkillPackageSavePayload} from '@loncra/client/ai'
-import {AiSkillPackageService} from '@loncra/client/ai'
-import {ResourceServerService} from '@/apis'
-
-import {
-  applyColumnOptions,
-  getExecuteBadgeStatus,
-  requireNonNullOrUndefined,
-} from '@/utils'
-import {
-  DATA_RELEASE_STATUS,
-  DATA_STATUS,
-  EXECUTE_STATUS_TYPE,
-  EXECUTE_TYPE_RETRY_STATUS,
-  ICON_SELECT_AVATAR_MODE_VALUE,
-  SKILL_GROUP_CODE_PREFIX,
-  SKILL_PACKAGE_AUTHORITY,
-  SKILL_PACKAGE_ROUTE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME
-} from '@/constants'
-import useApp from 'antdv-next/dist/app/useApp'
-import {IconSelect as LIconSelect} from '@loncra/antdv'
-import {renderIconFont} from '@/utils/commonUtils'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
-import LAgentHubSkillReleaseChangeLog
-  from "@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue";
+import LAgentHubSkillReleaseChangeLog from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
+import {DATA_STATUS} from '@/constants'
+import {skillPackageService} from './skill-package.page'
+import {skillPackageHomePage, skillSnapshot} from './skill-package.home.page'
 
 defineOptions({
   name: 'AiServerSkillPackageHome',
 })
 
-const {modal, message} = useApp()
+const {message} = App.useApp()
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const service = new AiSkillPackageService()
-
-const columns = computed<SearchableColumnType<SkillPackageEntity>[]>(() => [
-  {
-    title: globalProperties.$t('common.name'),
-    dataIndex: 'name',
-    key: 'name',
-    width: 320,
-    search: {
-      component: markRaw(Input),
-      props: {placeholder: globalProperties.$t('search.placeholder.input')},
-      expression: 'like',
-    },
-  },
-  {
-    title: globalProperties.$t('aiServer.skillPackage.packageKey'),
-    dataIndex: 'packageKey',
-    key: 'package_key',
-    width: 160,
-    search: {
-      component: markRaw(Input),
-      props: {placeholder: globalProperties.$t('search.placeholder.input')},
-      expression: 'like',
-    },
-  },
-  {
-    title: globalProperties.$t('aiServer.skillPackage.origin'),
-    dataIndex: 'origin',
-    key: 'origin',
-    width: 80,
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('common.status'),
-    dataIndex: 'status',
-    key: 'status',
-    width: 80,
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('common.type'),
-    dataIndex: 'type',
-    key: 'type',
-    width: 80,
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('aiServer.skillPackage.defaultUpdatePolicy'),
-    dataIndex: 'defaultUpdatePolicy',
-    key: 'default_update_policy',
-    width: 120,
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('aiServer.skillPackage.sourceType'),
-    dataIndex: 'sourceType',
-    key: 'source_type',
-    width: 120,
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('common.executeStatus'),
-    dataIndex: 'executeStatus',
-    key: 'execute_status',
-    width: 120,
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      expression: 'eq',
-    },
-  },
-  {
-    title: globalProperties.$t('aiServer.skillPackage.latestVersion'),
-    dataIndex: 'latestVersion',
-    key: 'latest_version',
-    width: 120,
-    search: {
-      component: markRaw(Input),
-      props: {placeholder: globalProperties.$t('search.placeholder.input')},
-      expression: 'like',
-    },
-  },
-  {
-    title: globalProperties.$t('common.group'),
-    dataIndex: 'category',
-    key: SKILL_GROUP_CODE_PREFIX,
-    width: 150,
-    search: {
-      component: markRaw(Select),
-      props: {
-        classes: {root: 'w-full'},
-        fieldNames: {label: 'name'},
-        placeholder: globalProperties.$t('search.placeholder.select'),
-      },
-      queryName: 'filter_[category.code_jeq]',
-    },
-  },
-])
-
-const options = ref<{
-  selectedRows: SkillPackageEntity[]
-  query: FilterRequest
-  snapshot:{
-    modalOpen:boolean
-    packageId?:number
-    spinning:boolean
-    form:{
-      releaseVersion:string
-      changelog:string
-    }
-  }
-}>({
-  selectedRows: [],
-  query: {},
-  snapshot:{
-    modalOpen:false,
-    spinning:false,
-    form:{
-      releaseVersion:'',
-      changelog:''
-    }
-  }
-})
-
-const table = ref()
-
+const table = ref<CrudHomePageExpose<SkillPackageEntity>>()
 const snapshotFormRef = ref()
 
-const bulkActions = function (): ToolbarActionDefinition<SkillPackageSavePayload>[] {
-  return [
-    {
-      id: 'releaseSelect',
-      permission: SKILL_PACKAGE_AUTHORITY.RELEASE,
-      enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
-      label: (ctx) =>
-        globalProperties.$t('common.release.selected', {
-          count: getReleaseSelectedEntities(ctx.selectedItems).length,
-        }),
-      icon: () => renderIconFont('loncra-screen-share'),
-      run: (ctx) => release(getReleaseSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
-    },
-    {
-      id: 'revokeSelect',
-      permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
-      enabled: (ctx) => getRevokeSelectedEntities(ctx.selectedItems).length > 0,
-      label: (ctx) =>
-        globalProperties.$t('common.revoke.selected', {
-          count: getRevokeSelectedEntities(ctx.selectedItems).length,
-        }),
-      icon: () => renderIconFont('loncra-screen-share-off'),
-      run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
-    },
-    {
-      id: 'reingestSelect',
-      permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
-      enabled: (ctx) => getReingestSelectedEntities(ctx.selectedItems).length > 0,
-      label: (ctx) =>
-        globalProperties.$t('aiServer.skillPackage.reingest.selected', {
-          count: getReingestSelectedEntities(ctx.selectedItems).length,
-        }),
-      icon: () => renderIconFont('loncra-folder-sync'),
-      run: (ctx) => reingest(getReingestSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
-    },
-  ]
-}
-
-const itemActionDefinitions = function (): RecordActionDefinition<SkillPackageSavePayload>[] {
-  return [
-    {
-      id: 'snapshot',
-      permission: SKILL_PACKAGE_AUTHORITY.SNAPSHOT,
-      enabled: (ctx) => getEnumValue(ctx.record!.executeStatus ?? 0) === EXECUTE_STATUS_TYPE.SUCCESS,
-      label: () => globalProperties.$t('aiServer.skillPackage.snapshot.text'),
-      icon: () => renderIconFont('loncra-package'),
-      run: (ctx) => openSnapshot(ctx.record!),
-    },
-    {
-      id: 'release',
-      permission: SKILL_PACKAGE_AUTHORITY.RELEASE,
-      enabled: (ctx) =>
-        getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE && Boolean(ctx.record!.latestVersion),
-      label: () => globalProperties.$t('common.release.text'),
-      icon: () => renderIconFont('loncra-screen-share'),
-      run: (ctx) => release([Number(ctx.record!.id)]),
-    },
-    {
-      id: 'revoke',
-      permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
-      label: () => globalProperties.$t('common.revoke.text'),
-      icon: () => renderIconFont('loncra-screen-share-off'),
-      run: (ctx) => revoke([Number(ctx.record!.id)]),
-    },
-    {
-      id: 'reingest',
-      permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
-      enabled: (ctx) => EXECUTE_TYPE_RETRY_STATUS.includes(getEnumValue(ctx.record!.executeStatus ?? 0)),
-      label: () => globalProperties.$t('aiServer.skillPackage.reingest.text'),
-      icon: () => renderIconFont('loncra-folder-sync'),
-      run: (ctx) => reingest([Number(ctx.record!.id)]),
-    }
-  ]
-}
-
-function getReleaseSelectedEntities(selectedRows: SkillPackageSavePayload[]) {
-  return selectedRows.filter(
-    (e) => DATA_RELEASE_STATUS.includes(getEnumValue(e.status ?? 0)) && Boolean(e.latestVersion),
-  )
-}
-
-function getReingestSelectedEntities(selectedRows: SkillPackageSavePayload[]) {
-  return selectedRows.filter((e) => EXECUTE_TYPE_RETRY_STATUS.includes(getEnumValue(e.executeStatus ?? 0)))
-}
-
-function getRevokeSelectedEntities(selectedRows: SkillPackageSavePayload[]) {
-  return selectedRows.filter((e) => getEnumValue(e.status ?? 0) === DATA_STATUS.RELEASE)
-}
-
-function release(ids: number[]) {
-  if (ids.length === 0) {
+/** 快照提交：校验表单 → 调接口 → 提示 → 关弹层 → 刷新列表（业务留在壳里，因为表单 ref 在这儿） */
+async function onSnapshotOk(): Promise<void> {
+  await snapshotFormRef.value?.validate()
+  const snapshot = skillSnapshot.value
+  if (!snapshot.packageId || snapshot.spinning) {
     return
   }
-  const content = ids.length === 1
-    ? globalProperties.$t('common.release.confirmSingle')
-    : globalProperties.$t('common.release.confirmBatch', {count: ids.length})
-  modal.confirm({
-    title: globalProperties.$t('common.release.confirmTitle'),
-    content,
-    onOk: () => doRelease(ids),
-  })
-}
-
-async function doRelease(ids: number[]) {
+  snapshot.spinning = true
   try {
-    const result: RestResult<void> = await service.release(ids)
-    message.success(result.message)
-    table.value.fetchDataSource()
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
+    const result = await skillPackageService.snapshot(snapshot.packageId, snapshot.form)
+    void message.success(result.message)
+    snapshot.open = false
+    await table.value?.fetchDataSource()
+  } finally {
+    snapshot.spinning = false
   }
 }
 
-function revoke(ids: number[]) {
-  if (ids.length === 0) {
-    return
-  }
-  const content = ids.length === 1
-    ? globalProperties.$t('common.revoke.confirmSingle')
-    : globalProperties.$t('common.revoke.confirmBatch', {count: ids.length})
-  modal.confirm({
-    title: globalProperties.$t('common.revoke.confirmTitle'),
-    content,
-    onOk: () => doRevoke(ids),
-  })
-}
-
-async function doRevoke(ids: number[]) {
-  try {
-    const result: RestResult<void> = await service.revoke(ids)
-    message.success(result.message)
-    table.value.fetchDataSource()
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  }
-}
-
-function reingest(ids: number[]) {
-  if (ids.length === 0) {
-    return
-  }
-  const content = ids.length === 1
-    ? globalProperties.$t('aiServer.skillPackage.reingest.confirmSingle')
-    : globalProperties.$t('aiServer.skillPackage.reingest.confirmBatch', {count: ids.length})
-  modal.confirm({
-    title: globalProperties.$t('aiServer.skillPackage.reingest.confirmTitle'),
-    content,
-    onOk: () => doReingest(ids),
-  })
-}
-
-async function doReingest(ids: number[]) {
-  try {
-    const result: RestResult<void> = await service.reingest(ids)
-    message.success(result.message)
-    table.value.fetchDataSource()
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  }
-}
-
-function openSnapshot(record: SkillPackageSavePayload) {
-  options.value.snapshot.packageId = Number(record.id)
-  options.value.snapshot.form = {
-    releaseVersion: '',
-    changelog: '',
-  }
-  options.value.snapshot.modalOpen = true
-}
-
-function cancelSnapshot() {
+function cancelSnapshot(): void {
   snapshotFormRef.value?.resetFields?.()
 }
-
-async function onSnapshotOk() {
-  await snapshotFormRef.value?.validate()
-  const packageId = options.value.snapshot.packageId
-  if (!packageId || options.value.snapshot.spinning) {
-    return
-  }
-  options.value.snapshot.spinning = true
-  try {
-    const result: RestResult<number> = await service.snapshot(packageId, options.value.snapshot.form)
-    message.success(result.message)
-    options.value.snapshot.modalOpen = false
-    table.value.fetchDataSource()
-  } finally {
-    options.value.snapshot.spinning = false
-  }
-}
-
-async function mounted() {
-  const enums: RestResult<EnumBucketsResponseBody> =
-    await ResourceServerService.getServiceEnumerates({
-      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-        {id: SYSTEM_ENUM_TYPE.DATA_STATUS_ENUM},
-        {id: SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM},
-        {id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM},
-      ],
-      [SYSTEM_MODULE_NAME.AI_SERVER]: [
-        {id: SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM},
-        {id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM},
-        {id: SYSTEM_ENUM_TYPE.SKILL_SOURCE_TYPE_ENUM},
-      ],
-    })
-  if (!enums.data) {
-    return
-  }
-
-  applyColumnOptions(columns.value, 'origin', enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM] || [])
-  applyColumnOptions(columns.value, 'type', enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM] || [])
-  applyColumnOptions(columns.value, 'defaultUpdatePolicy', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM] || [])
-  applyColumnOptions(columns.value, 'sourceType', enums.data[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.SKILL_SOURCE_TYPE_ENUM] || [])
-  applyColumnOptions(columns.value, 'status', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.DATA_STATUS_ENUM] || [])
-  applyColumnOptions(columns.value, 'executeStatus', enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM] || [])
-
-  const dataDictionaryResult: RestResult<Record<string, DataDictionaryMetadata[]>> =
-    await ResourceServerService.findDataDictionariesByCodes([SKILL_GROUP_CODE_PREFIX])
-  if (!dataDictionaryResult.data) {
-    return
-  }
-
-  for (const key in dataDictionaryResult.data) {
-    applyColumnOptions(
-      columns.value,
-      key,
-      (dataDictionaryResult.data[key] || []).map((item) => ({name: item.name, value: item.code})),
-    )
-  }
-}
-
-onMounted(mounted)
 </script>
 
 <template>
   <div>
-    <l-crud-table
+    <l-crud-home-page
       ref="table"
-      v-model:query="options.query"
-      v-model:selected-rows="options.selectedRows"
-      :service="service"
-      :columns="columns"
-      :authority="{
-        add: SKILL_PACKAGE_AUTHORITY.SAVE,
-        edit: SKILL_PACKAGE_AUTHORITY.SAVE,
-        delete: SKILL_PACKAGE_AUTHORITY.DELETE,
-        detail: SKILL_PACKAGE_AUTHORITY.GET,
-      }"
-      :expandable="{ rowExpandable: (record:SkillPackageEntity) => getEnumValue(record.status) === DATA_STATUS.RELEASE }"
+      :page="skillPackageHomePage"
       :scroll="{x: 'max-content'}"
-      :row-selection="{fixed: true, type: 'checkbox'}"
-      @add="globalProperties.$router.push({name: SKILL_PACKAGE_ROUTE.ADD})"
-      @detail="
-        (record) =>
-          globalProperties.$router.push({
-            name: SKILL_PACKAGE_ROUTE.DETAIL,
-            query: {id: String(record.id)},
-          })
-      "
-      @edit="
-        (record) =>
-          globalProperties.$router.push({
-            name: SKILL_PACKAGE_ROUTE.EDIT,
-            query: {id: String(record.id)},
-          })
-      "
-      :actions="bulkActions()"
-      :row-actions="itemActionDefinitions()"
+      :expandable="{
+        rowExpandable: (record: SkillPackageEntity) =>
+          getEnumValue(record.status) === DATA_STATUS.RELEASE,
+      }"
     >
-      <template #expandedRowRender="{ record }">
+      <template #expandedRowRender="{record}">
         <a-flex vertical gap="middle">
           <a-typography-text>
-            {{$t('agent.hub.changelog.text')}}
+            {{ $t('agent.hub.changelog.text') }}
           </a-typography-text>
           <l-agent-hub-skill-release-change-log :package-id="Number(record.id)" />
         </a-flex>
       </template>
-      <template #bodyCell="{column, record}">
-        <template v-if="column.dataIndex === 'name'">
-          <a-space>
-            <l-icon-select preview :icon-render="renderIconFont" :value="record.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + record.name" />
-            {{ record.name }}
-          </a-space>
-        </template>
-        <template v-if="column.dataIndex === 'category'">
-          {{ record.category?.name }}
-        </template>
-        <template v-if="column.dataIndex === 'origin'">
-          {{ getEnumName(record.origin) }}
-        </template>
-        <template v-if="column.dataIndex === 'status'">
-          {{ getEnumName(record.status) }}
-        </template>
-        <template v-if="column.dataIndex === 'type'">
-          {{ getEnumName(record.type) }}
-        </template>
-        <template v-if="column.dataIndex === 'defaultUpdatePolicy'">
-          {{ getEnumName(record.defaultUpdatePolicy) }}
-        </template>
-        <template v-if="column.dataIndex === 'sourceType'">
-          {{ getEnumName(record.sourceType) }}
-        </template>
-        <template v-if="column.dataIndex === 'executeStatus' && record.executeStatus">
-          <a-badge :status="getExecuteBadgeStatus(record.executeStatus)" :text="getEnumName(record.executeStatus)" />
-        </template>
-      </template>
-    </l-crud-table>
+    </l-crud-home-page>
+
     <a-modal
-      v-model:open="options.snapshot.modalOpen"
-      :title="globalProperties.$t('aiServer.skillPackage.snapshot.title')"
-      :ok-text="globalProperties.$t('aiServer.skillPackage.snapshot.text')"
-      :confirm-loading="options.snapshot.spinning"
+      v-model:open="skillSnapshot.open"
+      :title="$t('aiServer.skillPackage.snapshot.title')"
+      :ok-text="$t('aiServer.skillPackage.snapshot.text')"
+      :confirm-loading="skillSnapshot.spinning"
       :mask-closable="false"
       destroy-on-hidden
       @ok="onSnapshotOk"
       @cancel="cancelSnapshot"
     >
-      <l-form id="snapshot-form" ref="snapshotFormRef" :model="options.snapshot.form" @finish="onSnapshotOk">
+      <l-form id="snapshot-form" ref="snapshotFormRef" :model="skillSnapshot.form" @finish="onSnapshotOk">
         <a-form-item
           name="releaseVersion"
-          :label="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersion.text')"
+          :label="$t('aiServer.skillPackage.snapshot.releaseVersion.text')"
           :rules="[{required: true}]"
         >
           <a-input
-            v-model:value="options.snapshot.form.releaseVersion"
-            :placeholder="globalProperties.$t('aiServer.skillPackage.snapshot.releaseVersion.placeholder')"
+            v-model:value="skillSnapshot.form.releaseVersion"
+            :placeholder="$t('aiServer.skillPackage.snapshot.releaseVersion.placeholder')"
           />
         </a-form-item>
         <a-form-item
           name="changelog"
-          :label="globalProperties.$t('aiServer.skillPackage.snapshot.changelog')"
+          :label="$t('aiServer.skillPackage.snapshot.changelog')"
         >
           <a-textarea
-            v-model:value="options.snapshot.form.changelog"
+            v-model:value="skillSnapshot.form.changelog"
             :rows="4"
             show-count
             :maxlength="512"
