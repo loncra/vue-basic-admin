@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import {h, onMounted, type VNode} from 'vue'
+import {computed, h, onMounted, type VNode} from 'vue'
 import {Space} from 'antdv-next'
 import axios from '@/requests'
 import {createAxiosHttpClient} from '@loncra/client/adapters/axios'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
+import {antdvConfig, antdvLocaleMessage} from '@/stores/antdvConfig'
 import type {CrudNavigateTarget} from '@loncra/antdv-pro'
-import {
-  ClientProvider as LClientProvider,
-  CrudConfigProvider as LCrudConfigProvider
-} from '@loncra/antdv-pro'
+import {Provider as LProvider} from '@loncra/antdv-pro'
 // `VNodeChild` 取**包的类型视野**（两份 vue 副本的 d.ts 互不兼容，运行期是同一份 vue）
 import type {VNodeChild} from '@loncra/antdv'
 import {usePrincipalStore} from '@/stores/principalStore'
@@ -41,11 +39,14 @@ onMounted(async () => {
   window.__boot?.remove()
 })
 
-// ===== 客户端（HTTP / 运行时）配置：在此构建，交给 LClientProvider =====
+// ===== 客户端（HTTP / 运行时）配置：在此构建，交给 LProvider =====
 const http = createAxiosHttpClient(axios)
 const runtimeMode = import.meta.env.VITE_APP_RUNTIME_MODE
 const resourcePath = import.meta.env.VITE_APP_RESOURCE_PATH
 const uploadBlockSize = Number(import.meta.env.VITE_APP_UPLOAD_BLOCK_SIZE)
+
+/** antdv 的 locale 对象（跟着宿主的 i18n 走；`antdvConfig.state.locale` 一变就重算） */
+const localeMessage = computed(() => antdvLocaleMessage())
 
 function getAccessToken(): string | null {
   return localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME)
@@ -98,7 +99,13 @@ function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
 
 <template>
   <a-style-provider layer>
-    <l-client-provider
+    <!--
+      一层顶原来的「客户端配置 + antdv 主题/语言/尺寸 + CRUD 配置」。
+      `antdvConfig` 是宿主自己初始化的那份（初值从 localStorage 读、变更写回、`data-theme` 同步都在 `@/stores/antdvConfig`）。
+    -->
+    <l-provider
+      :antdv-config="antdvConfig"
+      :locale-message="localeMessage"
       :http="http"
       :runtime-mode="runtimeMode"
       :get-access-token="getAccessToken"
@@ -106,31 +113,22 @@ function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
       :open-attachment-url="openAttachmentUrl"
       :form-value-convert="formValueConvert"
       :upload-block-size="uploadBlockSize"
+      :has-permission="hasPermission"
+      :i18n-resolver="i18nResolver"
+      :resolve-default-title="resolveDefaultTitle"
+      :on-navigate="onNavigate"
     >
-      <ax-provider
-        :locale="(configProviderStore.localeMessage as { antDesign?: object }).antDesign"
-        :component-size="configProviderStore.state.componentSize"
-        :theme="{ algorithm: configProviderStore.getAlgorithm(), token: configProviderStore.state.token }"
+      <a-app
+        class="min-h-screen bg-layout"
+        :message="configProviderStore.state.messageConfig"
+        :notification="configProviderStore.state.notificationConfig"
       >
-        <a-app
-          class="min-h-screen bg-layout"
-          :message="configProviderStore.state.messageConfig"
-          :notification="configProviderStore.state.notificationConfig"
-        >
-          <l-crud-config-provider
-            :has-permission="hasPermission"
-            :i18n-resolver="i18nResolver"
-            :resolve-default-title="resolveDefaultTitle"
-            :on-navigate="onNavigate"
-          >
-            <router-view v-slot="{ Component }">
-              <transition name="fade-transform" mode="out-in">
-                <component :is="Component"/>
-              </transition>
-            </router-view>
-          </l-crud-config-provider>
-        </a-app>
-      </ax-provider>
-    </l-client-provider>
+        <router-view v-slot="{ Component }">
+          <transition name="fade-transform" mode="out-in">
+            <component :is="Component"/>
+          </transition>
+        </router-view>
+      </a-app>
+    </l-provider>
   </a-style-provider>
 </template>

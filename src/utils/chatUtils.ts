@@ -26,6 +26,7 @@ import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {XProvider as AxConfigProvider} from "@antdv-next/x";
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
+import {antdvConfig, antdvLocaleMessage} from '@/stores/antdvConfig'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
@@ -317,7 +318,7 @@ function instructionCustomRender(
   value: IdValueMetadata<string, string>,
   _props: {disabled?: boolean; readOnly?: boolean},
   item: SlotConfigType,
-  configProviderStore:ReturnType<typeof useConfigProviderStore>,
+  _configProviderStore:ReturnType<typeof useConfigProviderStore>,
   currentInstance:ComponentInternalInstance,
 ){
   const slotKey = 'key' in item && item.key ? item.key : ''
@@ -326,9 +327,10 @@ function instructionCustomRender(
   const node = h(
     AxConfigProvider,
     {
-      locale: (configProviderStore.localeMessage as { antDesign?: object }).antDesign,
-      componentSize: configProviderStore.state.componentSize,
-      theme: configProviderStore.providerTheme(),
+      // antdv 的 locale / 主题取自宿主那份配置实例；
+      // （`XProvider` 的 props 里没有 `componentSize`，原来传了也是空转）
+      locale: antdvLocaleMessage(),
+      theme: antdvConfig.themeConfig.value,
     },
     {
       default: () =>

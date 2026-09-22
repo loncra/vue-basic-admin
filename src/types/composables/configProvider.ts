@@ -1,42 +1,24 @@
 import type {NameValueEnumMetadata} from "@loncra/client/commons";
-import {type CreateSuccessBackValue, type ThemeMode, type ThemeValue} from '@/constants';
-import type {MappingAlgorithm} from "antdv-next/dist/theme";
+import {type CreateSuccessBackValue} from '@/constants';
 import type {GlobalConfigProps} from "antdv-next/dist/notification/interface";
 import type {ConfigOptions} from "antdv-next/dist/message/interface";
 
 /**
- * 存储在 localStorage 中的状态值
- * 这些值会被持久化保存
+ * 宿主自己的那份配置（**antdv 那半已经交给 pro**：主题 / 语言 / 尺寸 / token / 布局
+ * 都在 `@/stores/antdvConfig` 的 `antdvConfig` 实例里）。
+ * 这些值会被持久化保存（键见 store）。
  */
 export interface ConfigProviderStoredState {
-  /** 主题模式：深色/浅色/系统 */
-  mode: ThemeMode
-  /** 当前主题值 */
-  theme: ThemeValue
+  /** 首页侧边栏宽度 */
+  homeSiderWidth: number
   /** 首页侧边栏折叠时的宽度 */
   homeCollapsedWidth: number
   /** 首页侧边栏是否可折叠 */
   homeCollapsible: boolean
-  /** 表单布局方式 */
-  formLayout: string
-  /** 明细页布局方式 */
-  detailLayout:string
-  /** 首页侧边栏宽度 */
-  homeSiderWidth: number
-  /** 当前语言环境 */
-  locale: string
-  /** 主题 token */
-  token: Record<string, unknown>
-  /** 组件默认大小 */
-  componentSize:string
-  /** 紧凑型 */
-  compact:boolean
-  /**
-   * 创建成功后的跳转位置
-   */
-  createSuccessBack?:CreateSuccessBackValue
-  messageConfig:ConfigOptions
-  notificationConfig:GlobalConfigProps
+  /** 创建记录成功后的去向 */
+  createSuccessBack?: CreateSuccessBackValue
+  messageConfig: ConfigOptions
+  notificationConfig: GlobalConfigProps
 }
 
 /**
@@ -44,8 +26,6 @@ export interface ConfigProviderStoredState {
  * 扩展了 StoredStateValue，添加了运行时状态
  */
 export interface ConfigProviderState extends ConfigProviderStoredState {
-  /** Ant Design Vue 主题算法（深色/浅色） */
-  algorithm: MappingAlgorithm
-  /** 当前屏幕断点信息，根据窗口宽度自动计算 */
+  /** 当前屏幕断点信息，根据窗口宽度自动计算（运行时值，不持久化） */
   screen: NameValueEnumMetadata<number>
 }

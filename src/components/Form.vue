@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import {useConfigProviderStore} from '@/stores/configProviderStore.js'
+import {antdvConfig} from '@/stores/antdvConfig'
 import {ref} from 'vue'
 import type {FormInstance} from 'antdv-next'
 
-const configProviderStore = useConfigProviderStore()
 
 defineOptions({
   name: 'LForm',
@@ -25,7 +24,7 @@ defineExpose({
   <a-form
     ref="formRef"
     v-bind="$attrs"
-    :layout="props.layout || configProviderStore.state.formLayout"
+    :layout="props.layout || antdvConfig.state.formLayout"
   >
     <slot></slot>
   </a-form>

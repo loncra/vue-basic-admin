@@ -1,54 +1,5 @@
 
-/**
- * 主题模式类型
- * 从 CONFIG_PROVIDER_THEME 常量推导的类型
- * 可以是：dark（深色）、light（浅色）或 system（跟随系统）
- */
-export type ThemeMode =
-  | typeof CONFIG_PROVIDER_THEME.DARK
-  | typeof CONFIG_PROVIDER_THEME.LIGHT
-  | typeof CONFIG_PROVIDER_THEME.SYSTEM
-
-/**
- * 主题值类型
- * 实际应用的主题值，仅包含 dark 和 light
- * 不包含 system，因为 system 需要转换为具体的 dark 或 light
- */
-export type ThemeValue = typeof CONFIG_PROVIDER_THEME.DARK | typeof CONFIG_PROVIDER_THEME.LIGHT
-
 export type CreateSuccessBackValue = typeof CREATE_SUCCESS_BACK.CURRENT | typeof CREATE_SUCCESS_BACK.HOME
-
-/**
- * 主题模式类型
- */
-export const CONFIG_PROVIDER_THEME = {
-  DARK: 'dark',
-  LIGHT: 'light',
-  SYSTEM: 'system',
-  ICON: {
-    system: 'loncra-sun-moon',
-    dark: 'loncra-moon',
-    light: 'loncra-sun-medium',
-  }
-} as const
-
-export const MATCH_MEDIA_QUERY = '(prefers-color-scheme: dark)'
-
-export const STORED_STATE_VALUE = {
-  mode: CONFIG_PROVIDER_THEME.SYSTEM,
-  homeCollapsedWidth: 84,
-  collapsible: false,
-  formLayout: 'vertical',
-  homeSiderWidth: 260,
-  token: {},
-  componentSize: 'middle',
-  compact: false,
-  detailLayout: 'vertical',
-  messageConfig:{
-    maxCount:1
-  },
-  notificationConfig:{ placement: 'bottomRight',maxCount:6, showProgress: true}
-}
 
 export const CREATE_SUCCESS_BACK = {
   CURRENT: 'current',

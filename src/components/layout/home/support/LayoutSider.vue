@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {antdvConfig} from '@/stores/antdvConfig'
 import {useConfigProviderStore} from '@/stores/configProviderStore.js'
 import LLogo from '@/components/Logo.vue'
 import LMenu from '@/components/layout/Menu.vue'
@@ -24,7 +25,7 @@ defineExpose({
     :collapsed-width="configProviderStore.state.homeCollapsedWidth"
     :width="configProviderStore.state.homeSiderWidth"
     :trigger="null"
-    :theme="configProviderStore.state.theme"
+    :theme="antdvConfig.theme.value"
     class="layout-sider"
   >
     <a-flex vertical class="h-full">
