@@ -178,115 +178,16 @@ const locale: LanguagePack = {
     type:'操作类型',
     data:'操作数据'
   },
+  /**
+   * 只留**宿主自己的**文案。设置面板的其余文案（颜色 / 尺寸 / 字号 / 行高 / 阴影 / 透明度…）
+   * 由 `@loncra/antdv-pro` 的 `ConfigProviderSetting` 语言包提供（见其 `src/locale/zh_CN.ts`），
+   * 宿主不再维护副本 —— 这里曾经抄过一整套（`colorSetting` / `boxShadow` / `size` / `theme`…），已删。
+   */
   systemSetting: {
-    componentSize:'组件默认大小设置',
-    wireframe:'边框化',
-    compact:'紧凑型',
     createSuccessBack:'创建记录成功后操作',
-    borderRadius:'圆角',
-    boxShadow:{
-      text:'阴影',
-      secondary:'2 级元素阴影',
-      tertiary:'3 级元素阴影'
-    },
-    font:{
-      text:'字号',
-      heading:'{number} 级标题字号'
-    },
-    lineHeight: {
-      text:'行高',
-      heading:'{number} 级字号标签行高'
-    },
-    margin:'外间距',
-    padding:'内间距',
-    size:{
-      common: '通用尺寸',
-      large:'大',
-      middle:'中',
-      small:'小',
-      lg:'大尺寸',
-      md:'中大尺寸',
-      sm:'中小尺寸',
-      xl:'超大尺寸',
-      xs:'小尺寸',
-      xxl:'最大尺寸',
-      xxs:'最小尺寸'
-    },
-    theme:{
-      text:'主题',
-      dark:'暗黑模式',
-      light:'白昼模式',
-      system:'跟随系统',
-    },
     home: {
       homeSiderWidth:'首页侧边栏宽度',
       homeCollapsedWidth:'首页侧边栏折叠宽度',
-    },
-    other: {
-      transparency:{
-        text: '透明度',
-        loading:'加载状态的透明度',
-        image:'图片不透明度'
-      }
-    },
-    colorSetting:{
-      text:'颜色',
-      prepare:'预设颜色',
-      colorPrimary:'品牌色',
-      colorSuccess:'成功色',
-      colorError:'错误色',
-      colorWarning:'警告色',
-      other:{
-        blue:'蓝色',
-        purple:'紫色',
-        cyan:'青蓝色',
-        red:'红色',
-        orange: '橙色',
-        yellow: '黄色',
-        green: '绿色',
-        magenta: '品红色',
-        pink:'粉色',
-        volcano:'火山色',
-        geekblue:'极客蓝',
-        lime:'酸橙色',
-        gold:'金色'
-      },
-      active: {
-        title: '激活态',
-        subTitle: '在该色梯度下，用于深色或高对比场景中的选中、按下等强调。',
-      },
-      bg: {
-        title: '浅背景',
-        subTitle: '同色系浅色底，多用于层级较弱的背景或弱化选中。',
-      },
-      bgHover: {
-        title: '浅背景（悬停）',
-        subTitle: '与浅背景成对的悬停色，用于可交互区域的 Hover 反馈。',
-      },
-      border: {
-        title: '描边',
-        subTitle: '该梯度下的轮廓色，常用于 Slider、输入框等描边。',
-      },
-      borderHover: {
-        title: '描边（悬停）',
-        subTitle: '描边在悬停时变化，用于 Button、Slider 等边框 Hover。',
-      },
-      hover: {
-        title: '悬停态',
-        subTitle: '该梯度下用于一般控件面或图标的悬停强调（非专用文本色）。',
-      },
-      colorText: {
-        title: '文本色',
-        subTitle: '该梯度下正文、辅助文案及图标的主用色。',
-      },
-      colorTextActive: {
-        title: '文本（激活）',
-        subTitle: '文本或链接在激活、选中状态下的颜色。',
-      },
-      colorTextHover: {
-        title: '文本（悬停）',
-        subTitle: '文本或链接在鼠标悬停时的颜色。',
-      },
     },
     enterprise: {
       title:'企业列表',

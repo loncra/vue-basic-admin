@@ -181,118 +181,16 @@ const locale: LanguagePack = {
     type: 'Operation type',
     data: 'Operation data',
   },
+  /**
+   * Host-only copy. The settings panel's remaining copy (colors / sizes / fonts / line heights /
+   * shadows / opacity…) comes from `@loncra/antdv-pro`'s `ConfigProviderSetting` locale
+   * (see its `src/locale/en_US.ts`) — the host no longer keeps a copy.
+   */
   systemSetting: {
-    componentSize: 'Default component size',
-    wireframe: 'Wireframe',
-    compact: 'Compact',
     createSuccessBack: 'After creating a record',
-    borderRadius: 'Border radius',
-    boxShadow: {
-      text: 'Shadow',
-      secondary: 'Level 2 box shadow',
-      tertiary: 'Level 3 box shadow',
-    },
-    font: {
-      text: 'Font size',
-      heading: 'Heading {number} font size',
-    },
-    lineHeight: {
-      text: 'Line height',
-      heading: 'Line height for heading {number} text',
-    },
-    margin: 'Outer spacing',
-    padding: 'Inner spacing',
-    size: {
-      common: 'General sizes',
-      large: 'Large',
-      middle: 'Middle',
-      small: 'Small',
-      lg: 'Large',
-      md: 'Medium-large',
-      sm: 'Medium-small',
-      xl: 'Extra large',
-      xs: 'Small',
-      xxl: 'Extra extra large',
-      xxs: 'Extra extra small',
-    },
-    theme: {
-      text: 'Theme',
-      dark: 'Dark mode',
-      light: 'Light mode',
-      system: 'Follow system',
-    },
     home: {
       homeSiderWidth: 'Home sidebar width',
       homeCollapsedWidth: 'Home sidebar collapsed width',
-    },
-    other: {
-      transparency: {
-        text: 'Opacity',
-        loading: 'Loading state opacity',
-        image: 'Image opacity',
-      },
-    },
-    colorSetting: {
-      text: 'Colors',
-      prepare: 'Preset colors',
-      colorPrimary: 'Brand color',
-      colorSuccess: 'Success color',
-      colorError: 'Error color',
-      colorWarning: 'Warning color',
-      other: {
-        blue: 'Blue',
-        purple: 'Purple',
-        cyan: 'Cyan',
-        red: 'Red',
-        orange: 'Orange',
-        yellow: 'Yellow',
-        green: 'Green',
-        magenta: 'Magenta',
-        pink: 'Pink',
-        volcano: 'Volcano',
-        geekblue: 'Geek blue',
-        lime: 'Lime',
-        gold: 'Gold',
-      },
-      active: {
-        title: 'Active',
-        subTitle:
-          'In this color ramp, used for selected or pressed emphasis on dark or high-contrast surfaces.',
-      },
-      bg: {
-        title: 'Soft background',
-        subTitle:
-          'Light tint in the same palette, often for weaker hierarchy or low-emphasis selection.',
-      },
-      bgHover: {
-        title: 'Soft background (hover)',
-        subTitle: 'Hover color paired with the soft background for interactive feedback.',
-      },
-      border: {
-        title: 'Border',
-        subTitle: 'Outline color in this ramp for sliders, inputs, and similar strokes.',
-      },
-      borderHover: {
-        title: 'Border (hover)',
-        subTitle: 'Border color on hover for buttons, sliders, and similar outlines.',
-      },
-      hover: {
-        title: 'Hover',
-        subTitle:
-          'General hover accent in this ramp for surfaces or icons (not dedicated text color).',
-      },
-      colorText: {
-        title: 'Text color',
-        subTitle: 'Primary color for body text, secondary copy, and icons in this ramp.',
-      },
-      colorTextActive: {
-        title: 'Text (active)',
-        subTitle: 'Text or link color when active or selected.',
-      },
-      colorTextHover: {
-        title: 'Text (hover)',
-        subTitle: 'Text or link color on hover.',
-      },
     },
     enterprise: {
       title: 'Enterprises',
