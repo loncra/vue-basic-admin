@@ -28,7 +28,7 @@ import {isResultSuccess} from "@/requests/http.ts";
 import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {getRouteTitle} from "@/routers";
-import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
+import {OperationTrace as LOperationTrace} from "@loncra/antdv-pro";
 import i18n from "@/i18n";
 
 defineOptions({
@@ -84,7 +84,6 @@ const props = withDefaults(
 )
 
 const formRef = ref()
-const creationTime = ref<number>()
 const spinning = defineModel<boolean>("spinning", {default: false})
 const entity = defineModel<TBody>("entity", {required: true})
 const currentRoute = ref<RouteLocationNormalizedLoaded>()
@@ -216,10 +215,6 @@ async function getEntity(id: TId): Promise<TEntity> {
     entity.value[key] = afterValue[key]
   }
 
-  const ct = (value as { creationTime?: number }).creationTime
-  if (ct != null) {
-    creationTime.value = ct
-  }
   return afterValue;
 }
 
@@ -307,15 +302,11 @@ watch(
             <slot name="rowLayout"></slot>
           </a-row>
           <slot></slot>
-          <div v-if="entity.id && creationTime" class="mb-md">
-            <a-divider orientation="left" plain>
-              <a-space>
-                <icon-font class="icon align" type="loncra-timer-reset" />
-                <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
-              </a-space>
-            </a-divider>
-            <l-operation-data-trace-table :title="false" detailView :date="creationTime" :query="{'filter_[data.operationTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationTrace.id_eq]':entity.id}"/>
-          </div>
+          <!--
+            操作记录：pro 的能力（`target` / `entity.id` / `entity.creationTime` 三个值齐了才渲染，
+            自己拉数据、自己的文案；想隐藏就不给值）。下方插槽留给宿主业务内容。
+          -->
+          <l-operation-trace :target="props.operationDataTraceTarget" :entity="entity" />
           <a-space>
             <slot name="beforeButton"></slot>
             <a-button v-if="resolvedSaveButton.show" type="primary" html-type="submit" :loading="spinning">
