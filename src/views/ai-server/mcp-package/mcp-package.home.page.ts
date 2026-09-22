@@ -91,7 +91,7 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
       },
     ],
     /** 分组下拉与 `category` 列的名称都吃这份字典（`format: 'dict'`） */
-    dicts: [MCP_GROUP_CODE_PREFIX],
+    dictionaries: [MCP_GROUP_CODE_PREFIX],
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
       {

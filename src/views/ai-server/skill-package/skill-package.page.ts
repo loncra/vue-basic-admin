@@ -83,7 +83,7 @@ export const skillPackageCore: CrudPageCore<SkillPackageSavePayload, SkillPackag
       },
     },
     latestVersion: {labelKey: 'aiServer.skillPackage.latestVersion'},
-    // 分组是数据字典（值是整条字典项，只给 code 时回查 `list.dicts` 预载的那份）
+    // 分组是数据字典（值是整条字典项，只给 code 时回查 `list.dictionaries` 预载的那份）
     category: {labelKey: 'common.group', format: 'dict', dictId: SKILL_GROUP_CODE_PREFIX},
   },
 }

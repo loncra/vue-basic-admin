@@ -159,7 +159,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
       },
     ],
     /** 分组下拉与 `category` 列的名称都吃这份字典（`format: 'dict'`） */
-    dicts: [SKILL_GROUP_CODE_PREFIX],
+    dictionaries: [SKILL_GROUP_CODE_PREFIX],
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
       {

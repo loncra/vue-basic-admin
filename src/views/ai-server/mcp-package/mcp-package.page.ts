@@ -65,7 +65,7 @@ export const mcpPackageCore: CrudPageCore<McpPackageSavePayload, McpPackageEntit
       format: 'enum',
       enumRef: {module: SYSTEM_MODULE_NAME.AI_SERVER, id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM},
     },
-    // 分组是数据字典（值是整条字典项，只给 code 时回查 `list.dicts` 预载的那份）
+    // 分组是数据字典（值是整条字典项，只给 code 时回查 `list.dictionaries` 预载的那份）
     category: {labelKey: 'common.group', format: 'dict', dictId: MCP_GROUP_CODE_PREFIX},
     // 动态激活：后端 `YesOrNo`（resource-server）
     dynamicActivation: {
