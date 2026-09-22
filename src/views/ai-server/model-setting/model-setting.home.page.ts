@@ -26,10 +26,6 @@ export const modelSettingHomePage = defineHomePage<ModelSettingSavePayload, Mode
       delete: AI_SERVER_MODEL_SETTING_AUTHORITY.DELETE,
       detail: AI_SERVER_MODEL_SETTING_AUTHORITY.GET,
     },
-    enums: [
-      {module: SYSTEM_MODULE_NAME.AI_SERVER, ids: [SYSTEM_ENUM_TYPE.MODEL_TYPE_ENUM]},
-      {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, ids: [SYSTEM_ENUM_TYPE.YES_OR_NO]},
-    ],
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
       {

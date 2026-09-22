@@ -76,22 +76,6 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
       delete: MCP_PACKAGE_AUTHORITY.DELETE,
       detail: MCP_PACKAGE_AUTHORITY.GET,
     },
-    enums: [
-      {
-        module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
-        ids: [SYSTEM_ENUM_TYPE.DATA_STATUS_ENUM, SYSTEM_ENUM_TYPE.YES_OR_NO],
-      },
-      {
-        module: SYSTEM_MODULE_NAME.AI_SERVER,
-        ids: [
-          SYSTEM_ENUM_TYPE.MCP_PACKAGE_AUTH_MODE_ENUM,
-          SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM,
-          SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM,
-        ],
-      },
-    ],
-    /** 分组下拉与 `category` 列的名称都吃这份字典（`format: 'dict'`） */
-    dictionaryCodes: [MCP_GROUP_CODE_PREFIX],
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
       {

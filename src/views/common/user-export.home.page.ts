@@ -40,12 +40,6 @@ export const userExportHomePage = defineHomePage<ExportDataMetadata, ExportDataM
   {
     authority: {delete: true},
     rowSelection: {fixed: true, type: 'checkbox'},
-    enums: [
-      {
-        module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
-        ids: [SYSTEM_ENUM_TYPE.IMPORT_EXPORT_TYPE_ENUM, SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM],
-      },
-    ],
     columns: [
       {key: 'creationTime', width: 210, format: 'dateTime'},
       {key: 'filename', width: 400},

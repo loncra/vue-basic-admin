@@ -28,12 +28,6 @@ export const roleHomePage = defineHomePage<RoleSavePayload, RoleEntity>(roleCore
     detail: AUTH_SERVER_ROLE_AUTHORITY.GET,
     delete: AUTH_SERVER_ROLE_AUTHORITY.DELETE,
   },
-  enums: [
-    {
-      module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
-      ids: [SYSTEM_ENUM_TYPE.YES_OR_NO, SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM],
-    },
-  ],
   rowSelection: {
     fixed: true,
     type: 'checkbox',

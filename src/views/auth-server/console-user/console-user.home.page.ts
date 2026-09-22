@@ -69,12 +69,6 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
       detail: AUTH_SERVER_CONSOLE_USER_AUTHORITY.GET,
       delete: AUTH_SERVER_CONSOLE_USER_AUTHORITY.DELETE,
     },
-    enums: [
-      {
-        module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
-        ids: [SYSTEM_ENUM_TYPE.GENDER_ENUM, SYSTEM_ENUM_TYPE.USER_STATUS_ENUM],
-      },
-    ],
     rowSelection: {fixed: true, type: 'checkbox'},
     /** 导出是**本业务自己的事**：pro 不预置导出动作，这里声明一个标题栏动作（实现见上方 `exportConsoleUsers`） */
     toolbarActions: [

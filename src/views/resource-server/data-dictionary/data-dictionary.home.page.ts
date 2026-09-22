@@ -26,12 +26,6 @@ export const dataDictionaryHomePage = defineHomePage<DataDictionarySavePayload, 
       delete: RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.DELETE,
       detail: RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.GET,
     },
-    enums: [
-      {
-        module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
-        ids: [SYSTEM_ENUM_TYPE.VALUE_TYPE_ENUM, SYSTEM_ENUM_TYPE.YES_OR_NO],
-      },
-    ],
     rowSelection: {fixed: true, type: 'checkbox'},
     /** 拖拽幽灵 = 名称（这一侧一直可拖，旧实现就没按权限关） */
     drag: (record) => record.name,

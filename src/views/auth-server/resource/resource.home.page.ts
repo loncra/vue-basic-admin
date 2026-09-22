@@ -34,16 +34,6 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
     detail: AUTH_SERVER_RESOURCE_AUTHORITY.GET,
     delete: AUTH_SERVER_RESOURCE_AUTHORITY.DELETE,
   },
-  enums: [
-    {
-      module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
-      ids: [
-        SYSTEM_ENUM_TYPE.RESOURCE_TYPE_ENUM,
-        SYSTEM_ENUM_TYPE.RESOURCE_CATEGORY_ENUM,
-        SYSTEM_ENUM_TYPE.RESOURCE_SOURCE_ENUM,
-      ],
-    },
-  ],
   rowSelection: {
     fixed: true,
     type: 'checkbox',

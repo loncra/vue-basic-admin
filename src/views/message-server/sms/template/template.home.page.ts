@@ -15,13 +15,6 @@ export const templateHomePage = defineHomePage<SmsTemplateEntity, SmsTemplateEnt
   templateCore,
   {
     authority: {detail: MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY.GET},
-    enums: [
-      {
-        module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
-        ids: [SYSTEM_ENUM_TYPE.CLOUD_CHANNEL_ENUM, SYSTEM_ENUM_TYPE.AUDIT_STATUS_ENUM],
-      },
-      {module: SYSTEM_MODULE_NAME.MESSAGE_SERVER, ids: [SYSTEM_ENUM_TYPE.MESSAGE_TYPE_ENUM]},
-    ],
     columns: [
       {key: 'channel', width: 150, search: defineSearchProps('select')},
       {key: 'creationTime', width: 210, format: 'dateTime'},

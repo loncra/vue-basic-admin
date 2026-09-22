@@ -13,7 +13,6 @@ export const enterpriseHomePage = defineHomePage<EnterprisePayload, EnterpriseEn
   enterpriseCore,
   {
     authority: {detail: AUTH_SERVER_ENTERPRISE_AUTHORITY.PAGE},
-    enums: [{module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, ids: [SYSTEM_ENUM_TYPE.YES_OR_NO]}],
     rowSelection: false,
     columns: [
       {

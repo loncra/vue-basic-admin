@@ -13,10 +13,6 @@ export const batchHomePage = defineHomePage<BatchMessageEntity, BatchMessageEnti
     detail: MESSAGE_SERVER_BATCH_AUTHORITY.GET,
     delete: MESSAGE_SERVER_BATCH_AUTHORITY.DELETE,
   },
-  enums: [
-    {module: SYSTEM_MODULE_NAME.MESSAGE_SERVER, ids: [SYSTEM_ENUM_TYPE.BATCH_MESSAGE_TYPE_ENUM]},
-    {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, ids: [SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM]},
-  ],
   rowSelection: {fixed: true, type: 'checkbox'},
   columns: [
     {key: 'type', width: 80, search: defineSearchProps('select')},

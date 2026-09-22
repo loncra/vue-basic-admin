@@ -58,16 +58,6 @@ export const enterpriseInvitationHomePage = defineHomePage<
       delete: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.DELETE,
       detail: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
     },
-    enums: [
-      {
-        module: SYSTEM_MODULE_NAME.AUTH_SERVER,
-        ids: [SYSTEM_ENUM_TYPE.ENTERPRISE_INVITATION_STATUS_ENUM],
-      },
-      {
-        module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
-        ids: [SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM],
-      },
-    ],
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
       {key: 'member', width: 250, ellipsis: true, render: inviterCell},
