@@ -91,7 +91,7 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
       },
     ],
     /** 分组下拉与 `category` 列的名称都吃这份字典（`format: 'dict'`） */
-    dictionaries: [MCP_GROUP_CODE_PREFIX],
+    dictionaryCodes: [MCP_GROUP_CODE_PREFIX],
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
       {
@@ -120,7 +120,7 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
       },
       {key: 'dynamicActivation', width: 120, search: defineSearchProps('select')},
     ],
-    titleActions: [
+    toolbarActions: [
       {
         id: 'releaseSelect',
         permission: MCP_PACKAGE_AUTHORITY.RELEASE,
@@ -140,7 +140,7 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
         run: (ctx) => revokePackages(ctx, revocable(ctx.selectedItems).map((item) => Number(item.id))),
       },
     ],
-    rowActions: [
+    recordActions: [
       {
         id: 'release',
         permission: MCP_PACKAGE_AUTHORITY.RELEASE,

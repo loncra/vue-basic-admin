@@ -301,8 +301,7 @@ onMounted(mounted)
     v-model:data-source="dataSource"
     :service="service"
     :columns="columns"
-    :row-actions="rowActions"
-    :record-actions="!props.preview"
+    :record-actions="props.preview ? false : rowActions"
     :authority="{
       add:AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
       edit:AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,

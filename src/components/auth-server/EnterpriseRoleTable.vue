@@ -152,8 +152,7 @@ onMounted(mounted)
     v-model:data-source="dataSource"
     :service="service"
     :columns="columns"
-    :row-actions="mergeDefinitions(actionButtons, props.rowActions ?? [])"
-    :record-actions="!props.preview"
+    :record-actions="props.preview ? false : mergeDefinitions(actionButtons, props.rowActions ?? [])"
     :authority="{
       add:AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.SAVE,
       edit:AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.SAVE,

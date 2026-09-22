@@ -55,7 +55,7 @@ export const userExportHomePage = defineHomePage<ExportDataMetadata, ExportDataM
       {key: 'successTime', width: 210, format: 'dateTime'},
       {key: 'expiresTime', width: 210, format: 'dateTime'},
     ],
-    rowActions: [
+    recordActions: [
       {
         id: 'download',
         permission: true,
@@ -64,7 +64,7 @@ export const userExportHomePage = defineHomePage<ExportDataMetadata, ExportDataM
         run: downloadFile,
       },
     ],
-    titleActions: [
+    toolbarActions: [
       {
         id: 'downloadSelected',
         permission: true,

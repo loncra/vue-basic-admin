@@ -48,7 +48,7 @@ export const modelSettingHomePage = defineHomePage<ModelSettingSavePayload, Mode
       {key: 'enabled', search: defineSearchProps('select')},
     ],
     /** 没选厂商时列表本来就是空的，新增 / 批量删除没有意义 ⇒ 按 id 覆盖默认动作的 `visible` */
-    titleActions: [
+    toolbarActions: [
       {id: 'add', visible: () => selectedManufacturer.value !== null},
       {id: 'deleteSelected', visible: () => selectedManufacturer.value !== null},
     ],

@@ -43,7 +43,7 @@ export const dataDictionaryHomePage = defineHomePage<DataDictionarySavePayload, 
       {key: 'enabled', search: defineSearchProps('select')},
     ],
     /** 同 id 覆盖默认动作的 `visible`（`add` / `deleteSelected` 都只在有类型过滤时出现） */
-    titleActions: [
+    toolbarActions: [
       {id: 'add', visible: hasTypeFilter},
       {id: 'deleteSelected', visible: hasTypeFilter},
     ],

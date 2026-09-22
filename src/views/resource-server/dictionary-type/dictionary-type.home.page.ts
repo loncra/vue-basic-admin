@@ -95,8 +95,8 @@ export const dictionaryTypeHomePage = defineHomePage<DictionaryTypeSavePayload, 
      * 工具栏"新增"打开弹层（根级，无父级）。同 id 覆盖内置 `add` 的 `run`：
      * **这一侧没有路由、也没有 Form 页**（增改都是弹层，见 `Home.vue`）。
      */
-    titleActions: [{id: 'add', run: () => openAdd()}],
-    rowActions: [
+    toolbarActions: [{id: 'add', run: () => openAdd()}],
+    recordActions: [
       {
         id: 'addChild',
         permission: RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY.SAVE,

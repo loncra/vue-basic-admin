@@ -402,8 +402,8 @@ onActivated(activated)
                 delete: RESOURCE_SERVER_CAROUSEL_AUTHORITY.DELETE,
                 detail: false,
               }"
-              :actions="bulkActions()"
-              :item-actions="itemActionDefinitions()"
+              :toolbar-actions="bulkActions()"
+              :record-actions="itemActionDefinitions()"
               @deleted="onGridDeleted"
               @drop="onCardDrop"
             >

@@ -143,7 +143,7 @@ onMounted(mounted)
     v-bind="$attrs"
     :service="service"
     :columns="columns"
-    :record-actions="!props.preview"
+    :record-actions="props.preview ? false : []"
     :authority="{
       detail: AUTH_SERVER_PERSONAL_USER_AUTHORITY.GET,
     }"

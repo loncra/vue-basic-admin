@@ -77,7 +77,7 @@ export const enterpriseInvitationHomePage = defineHomePage<
       {key: 'expirationTime', width: 210, render: expirationCell, search: defineSearchProps('dateRange')},
       {key: 'creationTime', width: 210, format: 'dateTime', search: defineSearchProps('dateRange')},
     ],
-    rowActions: [
+    recordActions: [
       {
         id: 'share',
         permission: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,

@@ -145,8 +145,8 @@ onMounted(mounted)
     v-bind="$attrs"
     :service="service"
     :columns="columns"
-    :actions="mergeDefinitions(actionButtons)"
-    :record-actions="!props.preview"
+    :toolbar-actions="mergeDefinitions(actionButtons)"
+    :record-actions="props.preview ? false : []"
     :query="props.query"
     :title="props.preview ? false : undefined"
     :authority="{

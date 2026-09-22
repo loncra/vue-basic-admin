@@ -75,7 +75,7 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
     },
     {key: 'category', width: 150, search: defineSearchProps('select')},
   ],
-  rowActions: (ctx) => [
+  recordActions: (ctx) => [
     {
       id: 'addChild',
       permission: AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,

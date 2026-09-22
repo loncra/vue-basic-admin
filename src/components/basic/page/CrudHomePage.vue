@@ -130,7 +130,7 @@ function go(name?: string, record?: TEntity) {
     :drag="page.list?.drag"
     v-model:data-source="dataSource"
     :authority="page.list?.authority"
-    :row-actions="rowActions"
+    :record-actions="rowActions"
     :row-key="page.rowKey"
     :row-selection="page.list?.rowSelection"
     @add="go(page.routes?.add)"

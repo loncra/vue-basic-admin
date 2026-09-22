@@ -77,7 +77,7 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
     ],
     rowSelection: {fixed: true, type: 'checkbox'},
     /** 导出是**本业务自己的事**：pro 不预置导出动作，这里声明一个标题栏动作（实现见上方 `exportConsoleUsers`） */
-    titleActions: [
+    toolbarActions: [
       {
         id: 'export',
         permission: AUTH_SERVER_CONSOLE_USER_AUTHORITY.EXPORT,
@@ -103,7 +103,7 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
         search: defineSearchProps('dateRange'),
       },
     ],
-    rowActions: () => [
+    recordActions: () => [
       {
         id: 'resetPassword',
         danger: true,

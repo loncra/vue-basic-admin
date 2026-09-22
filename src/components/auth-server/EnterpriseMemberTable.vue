@@ -335,9 +335,8 @@ onMounted(mounted)
       :service="service"
       :columns="columns"
       :query="props.query"
-      :actions="bulkActions()"
-      :row-actions="rowActions()"
-      :record-actions="!props.preview"
+      :toolbar-actions="bulkActions()"
+      :record-actions="props.preview ? false : rowActions()"
       :authority="{
         detail: props.audit ? '' : AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.GET,
         delete: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.DELETE

@@ -159,7 +159,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
       },
     ],
     /** 分组下拉与 `category` 列的名称都吃这份字典（`format: 'dict'`） */
-    dictionaries: [SKILL_GROUP_CODE_PREFIX],
+    dictionaryCodes: [SKILL_GROUP_CODE_PREFIX],
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
       {
@@ -193,7 +193,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         search: defineSearchProps('select', {queryName: 'filter_[category.code_jeq]'}),
       },
     ],
-    titleActions: [
+    toolbarActions: [
       {
         id: 'releaseSelect',
         permission: SKILL_PACKAGE_AUTHORITY.RELEASE,
@@ -227,7 +227,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
           reingestPackages(ctx, reingestable(ctx.selectedItems).map((item) => Number(item.id))),
       },
     ],
-    rowActions: [
+    recordActions: [
       {
         id: 'snapshot',
         permission: SKILL_PACKAGE_AUTHORITY.SNAPSHOT,

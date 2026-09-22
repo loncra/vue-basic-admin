@@ -55,7 +55,7 @@ export const roleHomePage = defineHomePage<RoleSavePayload, RoleEntity>(roleCore
     {key: 'modifiable', width: 150, search: defineSearchProps('select')},
     {key: 'enabled', width: 150, search: defineSearchProps('select')},
   ],
-  rowActions: (ctx) => [
+  recordActions: (ctx) => [
     {
       id: 'addChild',
       permission: AUTH_SERVER_ROLE_AUTHORITY.SAVE,

@@ -153,7 +153,7 @@ onMounted(mounted)
     v-bind="$attrs"
     :query="options.query"
     v-model:data-source="dataSource"
-    :record-actions="!props.detailView"
+    :record-actions="props.detailView ? false : []"
     :service="service"
     :columns="columns"
     :authority="{detail:'perms[auth_server_audit_event:get]'}"
