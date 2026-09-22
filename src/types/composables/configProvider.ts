@@ -2,13 +2,14 @@ import type {NameValueEnumMetadata} from "@loncra/client/commons";
 import {type CreateSuccessBackValue} from '@/constants';
 import type {GlobalConfigProps} from "antdv-next/dist/notification/interface";
 import type {ConfigOptions} from "antdv-next/dist/message/interface";
+import type {AntdvConfigInitial} from "@loncra/antdv-pro";
 
 /**
  * 宿主自己的那份配置（**antdv 那半已经交给 pro**：主题 / 语言 / 尺寸 / token / 布局
  * 在 `@/stores/configProviderStore` 的 `antdv` 实例上，即 store 的 `antdv` 成员）。
  * 这些值会被持久化保存（键见 store）。
  */
-export interface ConfigProviderStoredState {
+export interface ConfigProviderStoredState extends AntdvConfigInitial{
   /** 首页侧边栏宽度 */
   homeSiderWidth: number
   /** 首页侧边栏折叠时的宽度 */

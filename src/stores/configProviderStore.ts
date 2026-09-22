@@ -16,23 +16,16 @@
 import {computed, type ComputedRef, markRaw, onMounted, onUnmounted, ref, watch} from 'vue'
 import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
-import {createAntdvConfig, type AntdvConfigState} from '@loncra/antdv-pro'
+import {createAntdvConfig} from '@loncra/antdv-pro'
 import dayjs from 'dayjs'
 import i18n, {type LanguagePack} from '@/i18n'
-import {
-  type CreateSuccessBackValue,
-  PAD_SCREENS,
-  SCREEN_BREAKPOINT,
-  STORE,
-} from '@/constants'
+import {type CreateSuccessBackValue, PAD_SCREENS, SCREEN_BREAKPOINT, STORE,} from '@/constants'
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import type {ConfigOptions} from 'antdv-next/dist/message/interface'
 import type {GlobalConfigProps} from 'antdv-next/dist/notification/interface'
 import type {ConfigProviderState, ConfigProviderStoredState} from '@/types/composables'
 
 const LEGACY_KEY = import.meta.env.VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME
-/** 布局/业务那半单独一个键：antdv 那半写老键，各写各的不会互相覆盖 */
-const STORAGE_KEY = `${LEGACY_KEY}:layout`
 
 const DEFAULTS: ConfigProviderStoredState = {
   homeSiderWidth: 260,
@@ -43,23 +36,11 @@ const DEFAULTS: ConfigProviderStoredState = {
   notificationConfig: {placement: 'bottomRight', maxCount: 6, showProgress: true} as GlobalConfigProps,
 }
 
-/**
- * antdv 那半的初值：**沿用老键** —— 老版本的 JSON 里正好就有 `mode` / `token` /
- * `componentSize` / `locale` / `formLayout` / `detailLayout` ⇒ 用户偏好直接带过来。
- */
-function readAntdvStored(): Partial<AntdvConfigState> {
-  try {
-    const raw = localStorage.getItem(LEGACY_KEY)
-    return raw ? (JSON.parse(raw) as Partial<AntdvConfigState>) : {}
-  } catch {
-    return {}
-  }
-}
 
 /** 先读新键；没有就**从老键迁一次**（老版本的 JSON 里这些字段就在同一份里） */
 function readStored(): Partial<ConfigProviderStoredState> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_KEY)
+    const raw = localStorage.getItem(LEGACY_KEY)
     return raw ? (JSON.parse(raw) as Partial<ConfigProviderStoredState>) : {}
   } catch {
     return {}
@@ -77,7 +58,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    * pro 的 `useAntdvConfig()` 都取不到 ref。实例内部的 `state` 本来就是 reactive，
    * 所以读 `store.antdv.state.x` 一样响应式；`theme` / `themeConfig` 要写 `.value`。
    */
-  const antdv = markRaw(createAntdvConfig(readAntdvStored()))
+  const antdv = markRaw(createAntdvConfig(readStored()))
 
   // 存回：`state` 全是"输入"，整份写
   watch(
@@ -202,7 +183,7 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
       messageConfig: current.messageConfig,
       notificationConfig: current.notificationConfig,
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(storedValue))
+    localStorage.setItem(LEGACY_KEY, JSON.stringify(storedValue))
   }
 
   function $reset(): ConfigProviderState {
