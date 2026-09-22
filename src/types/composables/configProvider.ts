@@ -5,7 +5,7 @@ import type {ConfigOptions} from "antdv-next/dist/message/interface";
 
 /**
  * 宿主自己的那份配置（**antdv 那半已经交给 pro**：主题 / 语言 / 尺寸 / token / 布局
- * 都在 `@/stores/antdvConfig` 的 `antdvConfig` 实例里）。
+ * 在 `@/stores/configProviderStore` 的 `antdv` 实例上，即 store 的 `antdv` 成员）。
  * 这些值会被持久化保存（键见 store）。
  */
 export interface ConfigProviderStoredState {

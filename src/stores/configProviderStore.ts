@@ -1,15 +1,24 @@
 /**
- * 宿主的**配置 store**（只剩宿主自己那两半）：
- * - 布局偏好：首页侧边栏宽度 / 折叠宽度 / 可折叠 / 屏幕断点；
- * - 业务偏好：创建成功后的去向、message / notification 配置。
+ * 宿主的**配置**（就这一处）：
+ * - **antdv 那半**：pro 的配置实例（`createAntdvConfig`）—— 主题模式 / 语言 / 组件尺寸 /
+ *   token 覆盖 / formLayout / detailLayout。pro 只持内存状态（一台机器 N 个用户 ⇒ pro 不知道
+ *   "按谁存"），初值读取、写回、`<html data-theme>`、i18n / dayjs 同步都是这里的宿主接线；
+ * - **布局偏好**：首页侧边栏宽度 / 折叠宽度 / 可折叠 / 屏幕断点；
+ * - **业务偏好**：创建成功后的去向、message / notification 配置。
  *
- * antdv 那半（主题 / 语言 / 组件尺寸 / token / formLayout / detailLayout）已经归
- * `@loncra/antdv-pro` 的配置实例，宿主那份在 `@/stores/antdvConfig`（初值、持久化、
- * `<html data-theme>`、i18n / dayjs 同步都在那里）。
+ * 前两半原来分在 `@/stores/antdvConfig` + 本文件两个文件里，2026-09-22 收紧到一处：
+ * 它们都是"应用级、per-user 的配置"、都由 `App.vue` 引导，激活时机一致（首次 `useStore()`）。
+ *
+ * ⚠️ 取"**算好的 token 表**"走 `getToken()`（内部就是 antdv 的 `theme.useToken()`，由
+ * `<l-provider :theme="antdv.themeConfig">` 驱动）；`antdv.state.token` 只是**用户改过的
+ * 覆盖项**（`AntdvTokenOverrides`，标量白名单），别当 token 表用。
  */
-import {computed, type ComputedRef, onMounted, onUnmounted, ref} from 'vue'
+import {computed, type ComputedRef, markRaw, onMounted, onUnmounted, ref, watch} from 'vue'
 import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
+import {createAntdvConfig, type AntdvConfigState} from '@loncra/antdv-pro'
+import dayjs from 'dayjs'
+import i18n, {type LanguagePack} from '@/i18n'
 import {
   type CreateSuccessBackValue,
   PAD_SCREENS,
@@ -22,7 +31,7 @@ import type {GlobalConfigProps} from 'antdv-next/dist/notification/interface'
 import type {ConfigProviderState, ConfigProviderStoredState} from '@/types/composables'
 
 const LEGACY_KEY = import.meta.env.VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME
-/** 宿主这半单独一个键：`antdvConfig` 那份也写老键，各写各的不会互相覆盖 */
+/** 布局/业务那半单独一个键：antdv 那半写老键，各写各的不会互相覆盖 */
 const STORAGE_KEY = `${LEGACY_KEY}:layout`
 
 const DEFAULTS: ConfigProviderStoredState = {
@@ -32,6 +41,19 @@ const DEFAULTS: ConfigProviderStoredState = {
   createSuccessBack: undefined,
   messageConfig: {maxCount: 1} as ConfigOptions,
   notificationConfig: {placement: 'bottomRight', maxCount: 6, showProgress: true} as GlobalConfigProps,
+}
+
+/**
+ * antdv 那半的初值：**沿用老键** —— 老版本的 JSON 里正好就有 `mode` / `token` /
+ * `componentSize` / `locale` / `formLayout` / `detailLayout` ⇒ 用户偏好直接带过来。
+ */
+function readAntdvStored(): Partial<AntdvConfigState> {
+  try {
+    const raw = localStorage.getItem(LEGACY_KEY)
+    return raw ? (JSON.parse(raw) as Partial<AntdvConfigState>) : {}
+  } catch {
+    return {}
+  }
 }
 
 /** 先读新键；没有就**从老键迁一次**（老版本的 JSON 里这些字段就在同一份里） */
@@ -45,6 +67,57 @@ function readStored(): Partial<ConfigProviderStoredState> {
 }
 
 export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () => {
+  // #region antdv 配置实例（pro 的 `AntdvConfig`）+ 宿主接线
+
+  /**
+   * 唯一那份配置实例（`App.vue` 喂给 `LProvider`，pro 内部 `useAntdvConfig()` 拿到的就是它）。
+   *
+   * ⚠️ `markRaw` 不能省：pinia 会把 store 里的对象**深度 reactive 化**，那会把 `theme` /
+   * `themeConfig` 这两个 computed **解包掉**（类型也不再是 `AntdvConfig`）⇒ `LProvider` 与
+   * pro 的 `useAntdvConfig()` 都取不到 ref。实例内部的 `state` 本来就是 reactive，
+   * 所以读 `store.antdv.state.x` 一样响应式；`theme` / `themeConfig` 要写 `.value`。
+   */
+  const antdv = markRaw(createAntdvConfig(readAntdvStored()))
+
+  // 存回：`state` 全是"输入"，整份写
+  watch(
+    antdv.state,
+    (state) => {
+      localStorage.setItem(LEGACY_KEY, JSON.stringify(state))
+    },
+    {deep: true},
+  )
+
+  // `<html data-theme>`：启动骨架 / 依赖 CSS 变量的样式靠它适配明暗（pro 不碰 DOM）
+  watch(
+    antdv.theme,
+    (resolved) => {
+      document.documentElement.setAttribute('data-theme', resolved)
+    },
+    {immediate: true},
+  )
+
+  // 语言：配置一改就同步 vue-i18n 与 dayjs（pro 不引 vue-i18n）
+  watch(
+    () => antdv.state.locale,
+    (locale) => {
+      i18n.global.locale.value = locale
+      const dayjsLocale = (i18n.global.messages.value as Record<string, LanguagePack>)[locale]?.dayjs
+      if (typeof dayjsLocale === 'string') {
+        dayjs.locale(dayjsLocale)
+      }
+    },
+    {immediate: true},
+  )
+
+  /** antdv 的 locale 对象（喂 `LProvider :locale-message`）：由宿主的 i18n 决定，pro 不猜 */
+  function antdvLocaleMessage(): object | undefined {
+    const messages = i18n.global.messages.value as Record<string, LanguagePack>
+    return messages[antdv.state.locale]?.antDesign as object | undefined
+  }
+
+  // #endregion
+
   // Ant Design 的 token：**视图值**（间距、尺寸），不是状态 —— 页面用它算 spacing/尺寸
   const {useToken} = theme
   const {token} = useToken()
@@ -162,6 +235,10 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
   saveLocalStorage()
 
   return {
+    /** antdv 配置实例：喂 `LProvider :antdv-config`；宿主里读它的 `state` / `theme` / `themeConfig` */
+    antdv,
+    /** antdv 的 locale 对象（喂 `LProvider :locale-message`；宿主的 i18n 决定） */
+    antdvLocaleMessage,
     /** 响应式状态对象 */
     state,
     /** Ant Design 的 token（视图值） */

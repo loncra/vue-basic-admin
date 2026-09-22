@@ -4,7 +4,6 @@ import {Space} from 'antdv-next'
 import axios from '@/requests'
 import {createAxiosHttpClient} from '@loncra/client/adapters/axios'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
-import {antdvConfig, antdvLocaleMessage} from '@/stores/antdvConfig'
 import type {CrudNavigateTarget} from '@loncra/antdv-pro'
 import {Provider as LProvider} from '@loncra/antdv-pro'
 // `VNodeChild` 取**包的类型视野**（两份 vue 副本的 d.ts 互不兼容，运行期是同一份 vue）
@@ -46,7 +45,7 @@ const resourcePath = import.meta.env.VITE_APP_RESOURCE_PATH
 const uploadBlockSize = Number(import.meta.env.VITE_APP_UPLOAD_BLOCK_SIZE)
 
 /** antdv 的 locale 对象（跟着宿主的 i18n 走；`antdvConfig.state.locale` 一变就重算） */
-const localeMessage = computed(() => antdvLocaleMessage())
+const localeMessage = computed(() => configProviderStore.antdvLocaleMessage())
 
 function getAccessToken(): string | null {
   return localStorage.getItem(import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME)
@@ -101,10 +100,10 @@ function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
   <a-style-provider layer>
     <!--
       一层顶原来的「客户端配置 + antdv 主题/语言/尺寸 + CRUD 配置」。
-      `antdvConfig` 是宿主自己初始化的那份（初值从 localStorage 读、变更写回、`data-theme` 同步都在 `@/stores/antdvConfig`）。
+      `antdv` 是宿主自己初始化的那份（初值从 localStorage 读、变更写回、`data-theme` 同步都在 `@/stores/configProviderStore`）。
     -->
     <l-provider
-      :antdv-config="antdvConfig"
+      :antdv-config="configProviderStore.antdv"
       :locale-message="localeMessage"
       :http="http"
       :runtime-mode="runtimeMode"

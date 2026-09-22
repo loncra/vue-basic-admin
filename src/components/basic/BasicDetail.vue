@@ -25,7 +25,7 @@ import {App, type MenuProps} from "antdv-next";
 import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
 import i18n from "@/i18n";
-import {antdvConfig} from '@/stores/antdvConfig'
+import {useConfigProviderStore} from '@/stores/configProviderStore'
 
 const { modal } = App.useApp()
 
@@ -45,6 +45,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 const menuPrincipalStore = useMenuPrincipalStore()
+const configProviderStore = useConfigProviderStore()
 const props = withDefaults(
   defineProps<{
     queryFields?: string[],
@@ -168,7 +169,7 @@ watch(
       <template #extra v-if="slots.extra">
         <slot name="extra" />
       </template>
-      <a-descriptions bordered :layout="antdvConfig.state.detailLayout" v-bind="$attrs" :title="globalProperties.$t('common.basicInformation')">
+      <a-descriptions bordered :layout="configProviderStore.antdv.state.detailLayout" v-bind="$attrs" :title="globalProperties.$t('common.basicInformation')">
         <slot></slot>
       </a-descriptions>
 

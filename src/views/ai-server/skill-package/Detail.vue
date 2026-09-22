@@ -18,7 +18,7 @@ import {
   OPERATION_DATA_TRACE_TABLE,
   SKILL_PACKAGE_ROUTE
 } from '@/constants'
-import {antdvConfig} from '@/stores/antdvConfig'
+import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {FileEditor as LFileEditor} from '@loncra/antdv-pro'
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
@@ -31,6 +31,7 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
+const configProviderStore = useConfigProviderStore()
 const service = new AiSkillPackageService()
 
 const entity = ref<SkillPackageEntity>({
@@ -148,7 +149,7 @@ function postGetEntity(record: SkillPackageEntity) {
           <a-descriptions
             class="mb-lg"
             bordered
-            :layout="antdvConfig.state.detailLayout"
+            :layout="configProviderStore.antdv.state.detailLayout"
             :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1}"
           >
             <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.git.url')" :span="2">

@@ -16,7 +16,6 @@ import {
   TIME_UNIT_TYPE,
   YES_OR_NO_TYPE
 } from '@/constants'
-import {antdvConfig} from '@/stores/antdvConfig'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
 import {getEnumName} from '@loncra/client/commons'
@@ -150,7 +149,7 @@ function postGetEntity(entity: McpPackageEntity) {
           </a-space>
         </a-divider>
         <template v-if="MCP_CLIENT_HTTP_TYPE_VALUE.includes(entity.metadata.client.type)">
-          <a-descriptions class="mb-lg"  bordered :layout="antdvConfig.state.detailLayout" :column="{xxxl: 3, xxl: 3, xl: 3, lg: 3, md: 1, sm: 1, xs: 1}">
+          <a-descriptions class="mb-lg"  bordered :layout="configProviderStore.antdv.state.detailLayout" :column="{xxxl: 3, xxl: 3, xl: 3, lg: 3, md: 1, sm: 1, xs: 1}">
             <a-descriptions-item :label="globalProperties.$t('aiServer.mcpPackage.baseUrl')">
               {{ (entity.metadata.client as SseMcpClientTransportMetadata).baseUrl || '' }}
             </a-descriptions-item>
@@ -193,7 +192,7 @@ function postGetEntity(entity: McpPackageEntity) {
           </a-row>
         </template>
         <template v-else>
-          <a-descriptions class="mb-lg" bordered :layout="antdvConfig.state.detailLayout" :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1}">
+          <a-descriptions class="mb-lg" bordered :layout="configProviderStore.antdv.state.detailLayout" :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1}">
             <a-descriptions-item :label="globalProperties.$t('aiServer.mcpPackage.command')">
               {{ (entity.metadata.client as StdioMcpClientTransportMetadata).command || '' }}
             </a-descriptions-item>

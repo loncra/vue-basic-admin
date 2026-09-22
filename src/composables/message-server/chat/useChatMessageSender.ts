@@ -35,7 +35,6 @@ import {
   isInstructionSlot,
   requireNonNullOrUndefined,
 } from '@/utils'
-import {antdvConfig, antdvLocaleMessage} from '@/stores/antdvConfig'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import type {IdValueMetadata} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
@@ -187,9 +186,9 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     const node = h(
       AxConfigProvider,
       {
-        locale: antdvLocaleMessage(),
-        componentSize: antdvConfig.state.componentSize,
-        theme: antdvConfig.themeConfig.value,
+        locale: configProviderStore.antdvLocaleMessage(),
+        componentSize: configProviderStore.antdv.state.componentSize,
+        theme: configProviderStore.antdv.themeConfig.value,
       },
       {
         default: () =>

@@ -21,7 +21,7 @@ import {
   YES_OR_NO_TYPE
 } from '@/constants'
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
-import {antdvConfig} from '@/stores/antdvConfig'
+import {useConfigProviderStore} from '@/stores/configProviderStore'
 
 defineOptions({
   name: 'AiServerModelSettingDetail',
@@ -32,6 +32,7 @@ const globalProperties =
     .globalProperties
 
 
+const configProviderStore = useConfigProviderStore()
 const service = new ModelSettingService()
 const yesOrNoOptions = ref<NameValueEnumMetadata<number>[]>([])
 const entity = ref<ModelSettingEntity>({
@@ -149,7 +150,7 @@ onMounted(async () => {
         </a-divider>
         <a-descriptions
           bordered
-          :layout="antdvConfig.state.detailLayout"
+          :layout="configProviderStore.antdv.state.detailLayout"
           :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1}"
         >
           <a-descriptions-item
