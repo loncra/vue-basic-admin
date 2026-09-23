@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref} from 'vue'
+import {ref} from 'vue'
 import {useRoute} from 'vue-router'
 import type {TableProps} from 'antdv-next'
 import type {ConsoleUserSavePayload, RoleEntity} from '@loncra/client/auth'
@@ -28,7 +28,8 @@ defineOptions({
 const route = useRoute()
 const formRef = ref<{entity?: ConsoleUserSavePayload}>()
 /** pro 的壳不认路由：主键由页壳取出来传进去（没有 = 新增） */
-const id = computed(() => route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined)
+/** 主键：**进页面那一刻取一次**（快照）。别写 `computed` —— 那样 id 会跟着"当前路由"走：本实例若在路由切走后被重新挂载/重新激活，就会拿**别人的 id** 去取自己的数据 */
+const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
 
 /** 两个选择器的固定查询：只列启用的、且支持控制台登录的 */
 const roleQuery = {

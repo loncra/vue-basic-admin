@@ -1,10 +1,7 @@
 import {defineHomePage, executeStatusCell} from '@loncra/antdv-pro'
 import type {BatchMessageEntity} from '@loncra/client/message'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
-import {
-  MESSAGE_SERVER_BATCH_AUTHORITY,
-} from '@/constants'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {MESSAGE_SERVER_BATCH_AUTHORITY,} from '@/constants'
+import {defineSearchProps} from '@/utils'
 import {batchCore} from './batch.page'
 
 /** 批量消息列表（`Home.vue`）。核心在 `batch.page.ts`，这里只写列表形态。 */
@@ -21,11 +18,8 @@ export const batchHomePage = defineHomePage<BatchMessageEntity, BatchMessageEnti
       key: 'executeStatus',
       width: 80,
       search: defineSearchProps('select'),
-      // 失败时多一个图标 + 悬浮显示异常信息：布局在 pro，图标的类型与渲染由宿主给
-      render: executeStatusCell({
-        renderIcon: renderIconFont,
-        iconType: 'loncra-message-circle-warning',
-      }),
+      // 状态点 + 状态名（`a-badge`）：映射与布局都在 pro（失败且有 exception 时悬浮显示原因）
+      render: executeStatusCell(),
     },
     {key: 'count', width: 200},
     {key: 'failNumber', width: 200},

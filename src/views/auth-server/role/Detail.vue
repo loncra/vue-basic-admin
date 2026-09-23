@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
+import {ref, watch} from 'vue'
 import type {ResourceEntity} from '@loncra/client/auth'
 import {CrudDetailPage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
-import {SYSTEM_CONSTANT} from '@/constants'
 import {RESOURCE_VARIANT} from '@/views/auth-server/resource/resource.page'
 import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
 import {roleCore} from './role.page'
@@ -21,13 +19,10 @@ defineOptions({
   name: 'AuthServerRoleDetail',
 })
 
-const route = useRoute()
 const detailPageRef = ref<{entity?: ResourceEntity & {id?: number}}>()
-/** pro 的壳不认路由：主键由页壳取出来传进去 */
-const id = computed(() => route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined)
 
-/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**（旧 `BasicDetail` 的 `queryFields`） */
-const {ok} = useRequiredQuery()
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照 —— 别再自己读 route，旧 `BasicDetail` 的 `queryFields` 就是这件事） */
+const {ok, id} = useRequiredQuery()
 
 const resourcePickerRef = ref<{fetchDataSource?: () => void}>()
 const resourceQuery = ref<Record<string, unknown>>({

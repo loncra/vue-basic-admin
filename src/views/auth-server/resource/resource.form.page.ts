@@ -4,6 +4,7 @@ import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
 import {defineFormPage} from '@loncra/antdv-pro'
 import router from '@/routers'
+import {renderIconFont} from '@/utils'
 import {loadIcon} from '@/utils/resourceUtils'
 import type {IconfontJson} from '@/types/composables/common'
 import {resourceCore} from './resource.page'
@@ -68,7 +69,15 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
       props: ({entity}) => ({disabled: Boolean(entity?.id) && isPlugin(entity)}),
     },
     {key: 'page', component: 'input'},
-    {key: 'icon', labelKey: 'common.icon', span: 24, component: IconSelect, props: () => ({options: iconOptions.value})},
+    {
+      key: 'icon',
+      labelKey: 'common.icon',
+      span: 24,
+      component: IconSelect,
+      // ⚠️ `iconRender` 必须给：`@loncra/antdv` 的 `IconSelect` **不认识宿主的图标字体**，
+      // 契约就是"不给就什么都不画"（面板会出一片空框）。宿主页面里的 `l-icon-select` 也都传了它。
+      props: () => ({options: iconOptions.value, iconRender: renderIconFont}),
+    },
     {
       key: 'remark',
       component: 'textarea',

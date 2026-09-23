@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import {computed, ref} from 'vue'
-import {useRoute} from 'vue-router'
+import {ref} from 'vue'
 import type {PersonalUserEntity} from '@loncra/client/auth'
 import {CrudDetailPage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
-import {SYSTEM_CONSTANT} from '@/constants'
 import {personalUserCore} from './personal-user.page'
 import {personalUserDetailPage} from './personal-user.detail.page'
 
@@ -18,13 +16,10 @@ defineOptions({
   name: 'AuthServerPersonalUserDetail',
 })
 
-const route = useRoute()
 const detailRef = ref<{entity?: PersonalUserEntity}>()
-/** pro 的壳不认路由：主键由页壳取出来传进去 */
-const id = computed(() => route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined)
 
-/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载** */
-const {ok} = useRequiredQuery()
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照 —— 别再自己读 route，旧 `BasicDetail` 的 `queryFields` 就是这件事） */
+const {ok, id} = useRequiredQuery()
 
 /** 标题：旧 `title-text` 是 `标题 (昵称 || 账号)` */
 useEntityPageTitle(() => {

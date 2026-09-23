@@ -9,7 +9,11 @@ import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {ResourceEntity} from "@loncra/client/auth";
 import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
-import {AUTHENTICATION_MEMBER_TYPE, RESOURCE_SERVER_USER_EXPORT_ROUTE} from '@/constants';
+import {
+  AUTHENTICATION_MEMBER_TYPE,
+  RESOURCE_SERVER_USER_EXPORT_ROUTE,
+  SYSTEM_ROUTE
+} from '@/constants';
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@loncra/client/commons'
@@ -40,7 +44,7 @@ import {useBootstrapStore} from "@/stores/bootStore.ts";
 const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/error/403',
-    name: '403',
+    name: SYSTEM_ROUTE.FORBIDDEN,
     component: Forbidden,
     meta: {
       quickAccess:false,
@@ -51,7 +55,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/error/400',
-    name: '400',
+    name: SYSTEM_ROUTE.BAD_REQUEST,
     component: BadRequest,
     meta: {
       quickAccess:false,
@@ -62,7 +66,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/commons/workbench',
-    name: import.meta.env.VITE_APP_HOME_ROUTE_PAGE_NAME,
+    name: SYSTEM_ROUTE.WORKBENCH,
     component: Workbench,
     meta: {
       applicationName: 'commons',
@@ -84,7 +88,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/commons/setting',
-    name: 'setting',
+    name: SYSTEM_ROUTE.SETTING,
     component: Setting,
     meta: {
       applicationName: 'commons',
@@ -93,7 +97,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/commons/agent',
-    name: 'agent',
+    name: SYSTEM_ROUTE.AGENT,
     component: Agent,
     meta: {
       applicationName: 'commons',
@@ -102,8 +106,8 @@ const childrenRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/commons/my/message',
-    name: 'my_message',
-    redirect: {name: 'my_chat_message'},
+    name: SYSTEM_ROUTE.MY_MESSAGE,
+    redirect: {name: SYSTEM_ROUTE.MY_CHAT_MESSAGE},
     component: MyMessage,
     meta: {
       applicationName: 'commons',
@@ -111,7 +115,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     },
     children:[{
       path: '/commons/my/message/site',
-      name: 'my_site_message',
+      name: SYSTEM_ROUTE.MY_SITE_MESSAGE,
       component: MySiteMessage,
       meta: {
         applicationName: 'commons',
@@ -120,7 +124,7 @@ const childrenRoutes: RouteRecordRaw[] = [
       },
     },{
       path: '/commons/my/message/chat',
-      name: 'my_chat_message',
+      name: SYSTEM_ROUTE.MY_CHAT_MESSAGE,
       component: MyChatMessage,
       meta: {
         applicationName: 'commons',
@@ -139,24 +143,24 @@ const routes: RouteRecordRaw[] = [
   {
     // 根路径，重定向到工作台
     path: '/',
-    name: 'root',
-    redirect: {name: import.meta.env.VITE_APP_HOME_ROUTE_PAGE_NAME},
+    name: SYSTEM_ROUTE.ROOT,
+    redirect: {name: SYSTEM_ROUTE.WORKBENCH},
   },
   {
     // 认证页面路由
-    path: '/' + import.meta.env.VITE_APP_AUTH_PAGE_NAME + '/:authenticationType(console|personal)?',
-    name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
+    path: '/' + SYSTEM_ROUTE.AUTH + '/:authenticationType(console|personal)?',
+    name: SYSTEM_ROUTE.AUTH,
     component: Auth
   },
   {
     // 忘记密码路由
     path: '/forgot/password',
-    name: 'forgot_password',
+    name: SYSTEM_ROUTE.FORGOT_PASSWORD,
     component: ForgotPassword
   },
   {
     path: '/error/404',
-    name: '404',
+    name: SYSTEM_ROUTE.NOT_FOUND,
     component: NotFound,
     meta:{
       quickAccess:false,
@@ -164,8 +168,8 @@ const routes: RouteRecordRaw[] = [
   },
   {
     // 首页路由，包含子路由
-    path: '/' + import.meta.env.VITE_APP_HOME_PAGE_NAME,
-    name: import.meta.env.VITE_APP_HOME_PAGE_NAME,
+    path: '/' + SYSTEM_ROUTE.HOME_PAGE,
+    name: SYSTEM_ROUTE.HOME_PAGE,
     component: Home,
     children: childrenRoutes
   }/*,
@@ -337,7 +341,7 @@ export const registerServiceRoutes = async (serviceName: string[]): Promise<Rout
     }
   }
   const importRoutes: RouteRecordRaw[] = await loadServiceRoutes(services)
-  importRoutes.forEach((route) => router.addRoute(import.meta.env.VITE_APP_HOME_PAGE_NAME, route))
+  importRoutes.forEach((route) => router.addRoute(SYSTEM_ROUTE.HOME_PAGE, route))
   initialState.value = true
   return importRoutes
 }
@@ -378,7 +382,7 @@ export const getAuthRouterParam =  (
     authenticationType = AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL
   }
   return {
-    name: import.meta.env.VITE_APP_AUTH_PAGE_NAME,
+    name: SYSTEM_ROUTE.AUTH,
     params: {
       authenticationType:(authenticationType).toLowerCase(),
     },
@@ -391,7 +395,7 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   const socketStore = useSocketStore()
   const menuPrincipalStore = useMenuPrincipalStore()
 
-  if (to.name === import.meta.env.VITE_APP_AUTH_PAGE_NAME) {
+  if (to.name === SYSTEM_ROUTE.AUTH) {
     socketStore.disconnect()
     await principalStore.logout()
     clearDynamicRoutes()

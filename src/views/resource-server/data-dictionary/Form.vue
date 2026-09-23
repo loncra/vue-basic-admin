@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
 import type {NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {
   DataDictionaryEntity,
@@ -10,7 +10,6 @@ import type {
 import {DataDictionaryService, DictionaryTypeService} from "@loncra/client/resource";
 import {requireNonNullOrUndefined} from "@/utils";
 import {
-  LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
   OPERATION_DATA_TRACE_TABLE,
   RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
   SYSTEM_ENUM_TYPE,
@@ -18,6 +17,7 @@ import {
   VALUE_TYPE
 } from '@/constants';
 import LBasicForm from "@/components/basic/form/BasicForm.vue";
+import {useRequiredQuery} from "@/composables/useRequiredQuery";
 import {ResourceServerService} from "@/apis";
 
 defineOptions({
@@ -28,7 +28,13 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-const closeLayoutTab = inject<(page: string, activatePane:boolean) => void>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)
+/**
+ * 入口校验 + 取参：`id`（编辑）/ `parentId`（在某条下面新增）/ `typeId`（在某个类型下新增）
+ * **至少给一个**，一个都没有才跳 400（`{anyOf: true}`）。
+ * 参数不齐时模板的 `v-if="ok"` 让表单壳**根本不挂载**（旧代码是在 `preMounted` 里手写这段，
+ * 还会晚一步、让表单先渲染出来）。值同样是**快照**（进页面那一刻取一次）。
+ */
+const {ok, parentId, typeId} = useRequiredQuery(['id', 'parentId', 'typeId'], {anyOf: true})
 
 const service = new DataDictionaryService()
 const typeService = new DictionaryTypeService()
@@ -69,23 +75,18 @@ async function preMounted() {
     options.value.valueTypeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.VALUE_TYPE_ENUM] as NameValueEnumMetadata<number>[]
     options.value.enabledOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
   }
-  if (globalProperties.$route.query.parentId) {
-    const result:RestResult<DataDictionaryEntity> = await service.get(globalProperties.$route.query.parentId as unknown as number)
+  // 参数不齐（三者一个都没有）由 `useRequiredQuery` 处理（跳 400 + 关 tab，见文件顶部）；这里只按参数加载
+  if (parentId) {
+    const result:RestResult<DataDictionaryEntity> = await service.get(parentId)
     if (result.data) {
       options.value.parent = result.data
     }
-  } else if (globalProperties.$route.query.typeId) {
-    const result:RestResult<DictionaryTypeEntity> = await typeService.get(globalProperties.$route.query.typeId as unknown as number)
+  } else if (typeId) {
+    const result:RestResult<DictionaryTypeEntity> = await typeService.get(typeId)
     if (result.data) {
       options.value.type = result.data
       options.value.entity.typeId = Number(result.data.id)
     }
-  } else if (!globalProperties.$route.query.id) {
-    const field = 'id parentId typeId'
-    sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_BAD_REQUEST_NAME, JSON.stringify([{code:"400", field:field, defaultMessage: globalProperties.$t('error.notNull')}]));
-    globalProperties.$router.push({name:"400"});
-    closeLayoutTab?.(globalProperties.$route.fullPath, false)
-    return ;
   }
 }
 
@@ -115,6 +116,7 @@ function setPageTitle(title:string, entity: DataDictionaryEntity | DataDictionar
 <template>
   <div>
     <l-basic-form
+      v-if="ok"
       :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.DATA_DICTIONARY"
       :pre-mounted="preMounted"
       :post-mounted="postMounted"
