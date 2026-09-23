@@ -64,6 +64,16 @@ function i18nResolver(key: string, named?: Record<string, unknown>) {
   return i18n.global.t(key, named as never)
 }
 
+/**
+ * **显示**用日期格式（后端要的格式是 `VITE_APP_POST_*`，两回事）。
+ *
+ * pro 的 `useDateFormat()` 与声明里的 `format: 'date' | 'dateTime'` 都读 `CrudConfig` 的这两个值；
+ * 不传就退回 pro 的默认 `YYYY-MM-DD` / `YYYY-MM-DD HH:mm:ss` —— 以前就是没传，
+ * 于是所有 pro 表格/详情都按 ISO 显示，跟 env 里写的「YYYY年MM月DD日」对不上（宿主的声明自己也用 env 那个格式）。
+ */
+const dateFormat = import.meta.env.VITE_APP_DATE_VALUE_FORMAT
+const dateTimeFormat = import.meta.env.VITE_APP_DATE_TIME_VALUE_FORMAT
+
 function hasPermission(permission: string) {
   return principalStore.hasPermission(permission)
 }
@@ -77,7 +87,11 @@ function hasPermission(permission: string) {
 function resolveDefaultTitle(): VNodeChild {
   const crumb = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
   const icon = renderIconFont(crumb?.icon ?? 'loncra-file', 'align') as unknown as VNode
-  return h(Space, null, [icon, h('span', crumb?.name ?? '')]) as unknown as VNodeChild
+  // ⚠️ 给**组件**（这里 `Space`）传 children 必须走 slots：直接传数组会被 Vue 当成"非函数 default 槽"，
+  // 每次重渲染 warn 一次（卡片标题 → 每个列表页都刷）。`{default: () => [...]}` 才是对的。
+  return h(Space, null, {
+    default: () => [icon, h('span', crumb?.name ?? '')],
+  }) as unknown as VNodeChild
 }
 
 /**
@@ -116,6 +130,8 @@ function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
       :i18n-resolver="i18nResolver"
       :resolve-default-title="resolveDefaultTitle"
       :on-navigate="onNavigate"
+      :date-format="dateFormat"
+      :date-time-format="dateTimeFormat"
     >
       <a-app
         class="min-h-screen bg-layout"

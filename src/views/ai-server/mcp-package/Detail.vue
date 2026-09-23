@@ -141,7 +141,7 @@ function postGetEntity(entity: McpPackageEntity) {
       </a-descriptions-item>
 
       <template #afterDescriptions>
-        <a-divider orientation="left" plain>
+        <a-divider titlePlacement="start" plain>
           <a-space>
             <icon-font class="icon" type="loncra-sliders-horizontal" />
             {{ globalProperties.$t('aiServer.mcpPackage.client') }}

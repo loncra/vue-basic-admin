@@ -106,7 +106,7 @@ const {
           <template v-else>
             <template v-if="computedFileDataSource.length > 0">
               <div v-for="group in computedFileDataSource" :key="group.key">
-                <a-divider orientation="left" plain>
+                <a-divider titlePlacement="start" plain>
                   <a-space>
                     <icon-font type="loncra-calendar-clock"/>
                     <span>{{ group.key }}</span>

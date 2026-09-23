@@ -259,7 +259,7 @@ function isSelect(user: PlatformUser, type: string) {
                   </div>
 
                   <template :key="typeUsers.id" v-for="typeUsers of systemUsers">
-                    <a-divider plain orientation="left" class="mt-0">
+                    <a-divider plain titlePlacement="start" class="mt-0">
                       {{ typeUsers.name }}
                     </a-divider>
                     <a-flex vertical gap="middle" class="group">

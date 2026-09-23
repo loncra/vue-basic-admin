@@ -386,7 +386,7 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
         </a-col>
       </template>
 
-      <a-divider class="m-0 mb-md" orientation="left" plain>
+      <a-divider class="m-0 mb-md" titlePlacement="start" plain>
         <a-space>
           <icon-font class="icon align" type="loncra-sliders-horizontal" />
           {{ globalProperties.$t('aiServer.mcpPackage.client') }}

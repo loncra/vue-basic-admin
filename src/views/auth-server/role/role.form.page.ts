@@ -1,6 +1,7 @@
 import type {Ref} from 'vue'
 import type {RoleEntity, RoleSavePayload} from '@loncra/client/auth'
-import {defineFormPage} from '@/components/basic/page'
+import {defineFormPage} from '@loncra/antdv-pro'
+import router from '@/routers'
 import {applySources, roleCore} from './role.page'
 
 /** 角色新增/编辑（`Form.vue`）。核心在 `role.page.ts`，这里只写表单形态。 */
@@ -41,17 +42,12 @@ export const roleFormPage = defineFormPage<RoleSavePayload, RoleEntity>(roleCore
       props: {rows: 4, showCount: true, maxlength: 256},
     },
   ],
-  titleText: (title, entity, ctx) => {
-    const parent = (ctx.extra.parent as Ref<RoleEntity | undefined> | undefined)?.value
-    if (parent) {
-      return `${title} (${parent.name})`
-    }
-    const value = entity as RoleEntity
-    return value.id ? `${title} (${value.name})` : title
-  },
+  // 标题不在这里：`titleText` 没进 pro（"怎么写标题"是宿主的事）⇒ 拼装在 `Form.vue` 的
+  // `useEntityPageTitle` 里（父角色名 / 实体名的分支照旧）。
   // addChild 入口：把父角色的可选择资源带过来
   preMounted: async (ctx) => {
-    const parentId = ctx.router.currentRoute.value.query.parentId
+    // pro 的上下文不带 router（宿主环境不进声明上下文）⇒ 声明文件自己 import 宿主 router
+    const parentId = router.currentRoute.value.query.parentId
     if (!parentId) {
       return
     }

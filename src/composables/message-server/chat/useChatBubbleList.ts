@@ -146,7 +146,10 @@ export function useChatBubbleList(
           value: (item?.data as UserChatMessageResponseBody)?.undoableTime,
           format: globalProperties.$t('chat.view.undo.countdown'),
         })
-        const label = h(Space, {}, [globalProperties.$t('chat.view.undo.action'), timer])
+        // 组件的 children 走 slots（直接给数组会被 Vue 认成"非函数 default 槽"并 warn）
+  const label = h(Space, {}, {
+    default: () => [globalProperties.$t('chat.view.undo.action'), timer],
+  })
         items.push({
           key: "undo",
           label: label,

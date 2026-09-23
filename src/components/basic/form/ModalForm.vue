@@ -164,7 +164,7 @@ defineExpose({
       </a-row>
       <slot></slot>
       <div v-if="entity.id && creationTime" class="mb-md">
-        <a-divider orientation="left" plain>
+        <a-divider titlePlacement="start" plain>
           <a-space>
             <icon-font class="icon" type="loncra-timer-reset" />
             <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>

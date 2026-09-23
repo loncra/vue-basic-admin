@@ -43,7 +43,7 @@ export const consoleUserCore: CrudPageCore<ConsoleUserSavePayload, ConsoleUserEn
       format: 'enum',
       enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.USER_STATUS_ENUM},
     },
-    lastAuthenticationTime: {labelKey: 'authServer.lastAuthenticationTime'},
+    lastAuthenticationTime: {labelKey: 'authServer.lastAuthenticationTime',format: 'dateTime'},
     remark: {labelKey: 'common.remark'},
   },
 }

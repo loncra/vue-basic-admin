@@ -157,7 +157,7 @@ async function onSave() {
         {{dateTimeFormat(entity.lastAuthenticationTime)}}
       </a-descriptions-item>
       <template #afterDescriptions>
-        <a-divider orientation="left" plain>
+        <a-divider titlePlacement="start" plain>
           <a-space>
             <icon-font class="icon" type="loncra-users-round" />
             {{ globalProperties.$t('authServer.userRole') }}
@@ -172,7 +172,7 @@ async function onSave() {
           :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange,getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER})}"
         />
 
-        <a-divider orientation="left" plain>
+        <a-divider titlePlacement="start" plain>
           <a-space>
             <icon-font class="icon" type="loncra-key-round" />
             {{ globalProperties.$t('authServer.standaloneResource') }}

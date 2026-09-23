@@ -53,7 +53,7 @@ const emits = defineEmits<{
       </a-button>
     </a-flex>
 
-    <a-divider plain orientation="left" class="mt-0 mb-0">
+    <a-divider plain titlePlacement="start" class="mt-0 mb-0">
       <a-space>
         <icon-font type="loncra-folder"/>
         <span>{{ $t('agent.workspace.title') }}</span>

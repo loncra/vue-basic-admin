@@ -28,7 +28,8 @@ import {isResultSuccess} from "@/requests/http.ts";
 import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {getRouteTitle} from "@/routers";
-import {OperationTrace as LOperationTrace} from "@loncra/antdv-pro";
+import {isOperationTraceVisible, OperationTraceTable as LOperationTraceTable} from "@loncra/antdv-pro";
+import {HistoryOutlined} from "@antdv-next/icons";
 import i18n from "@/i18n";
 
 defineOptions({
@@ -304,9 +305,18 @@ watch(
           <slot></slot>
           <!--
             操作记录：pro 的能力（`target` / `entity.id` / `entity.creationTime` 三个值齐了才渲染，
-            自己拉数据、自己的文案；想隐藏就不给值）。下方插槽留给宿主业务内容。
+            自己拉数据；想隐藏就不给值）。**分割线归页面**（表格组件只管表格），
+            值不齐时连分割线一起不出。下方插槽留给宿主业务内容。
           -->
-          <l-operation-trace :target="props.operationDataTraceTarget" :entity="entity" />
+          <template v-if="isOperationTraceVisible(props.operationDataTraceTarget, entity)">
+            <a-divider titlePlacement="start" plain>
+              <a-space>
+                <history-outlined />
+                <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
+              </a-space>
+            </a-divider>
+            <l-operation-trace-table :target="props.operationDataTraceTarget" :entity="entity" />
+          </template>
           <a-space>
             <slot name="beforeButton"></slot>
             <a-button v-if="resolvedSaveButton.show" type="primary" html-type="submit" :loading="spinning">

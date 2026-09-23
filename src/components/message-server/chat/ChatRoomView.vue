@@ -129,7 +129,7 @@ const {
           </template>
           {{ globalProperties.$t('chat.history') }}
         </a-button>
-        <a-divider plain orientation="left" class="mt-xs mb-xs">
+        <a-divider plain titlePlacement="start" class="mt-xs mb-xs">
           <a-space>
             <icon-font type="loncra-settings-2" />
             <span>{{ globalProperties.$t('common.setting') }}</span>

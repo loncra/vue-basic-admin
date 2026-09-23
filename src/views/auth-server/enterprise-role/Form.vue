@@ -146,7 +146,7 @@ onMounted(() => loadEnterpriseResource())
         </a-col>
       </template>
 
-      <a-divider class="m-0 mb-md" orientation="left" plain>
+      <a-divider class="m-0 mb-md" titlePlacement="start" plain>
         <a-space>
           <icon-font class="icon" type="loncra-key-round" />
           {{ globalProperties.$t('authServer.standaloneResource') }}

@@ -1,6 +1,6 @@
 import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_GENDER} from '@loncra/client/auth'
-import {defineFormPage} from '@/components/basic/page'
+import {defineFormPage} from '@loncra/antdv-pro'
 import {VALID_REGX} from '@/constants'
 import {consoleUserCore} from './console-user.page'
 
@@ -61,7 +61,8 @@ export const consoleUserFormPage = defineFormPage<ConsoleUserSavePayload, Consol
       {key: 'gender', component: 'select', span: 12},
       {key: 'status', component: 'select', span: 12},
     ],
-    titleText: (title, entity) => (entity.id ? `${title} (${entity.realName})` : title),
+    // 标题不在这里：`titleText` 没进 pro（"怎么写标题"是宿主的事）⇒ 在 `Form.vue` 的
+    // `useEntityPageTitle` 里拼（编辑态带 `(realName)`，与旧行为一致）。
     onReset: (ctx) => {
       const entity = ctx.entity?.value
       if (entity) {

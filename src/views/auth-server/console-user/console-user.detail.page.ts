@@ -1,8 +1,6 @@
 import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@loncra/client/auth'
-import {defineDetailPage} from '@/components/basic/page'
-import {dayjsFormat} from '@loncra/antdv-pro'
+import {defineDetailPage} from '@loncra/antdv-pro'
 import {consoleUserCore} from './console-user.page'
-import {getEnumName} from '@loncra/client/commons'
 
 /**
  * 控制台用户详情（`Detail.vue`）。核心在 `console-user.page.ts`，这里只写详情形态。
@@ -14,7 +12,7 @@ export const consoleUserDetailPage = defineDetailPage<ConsoleUserSavePayload, Co
   consoleUserCore,
   {
     column: {xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1},
-    titleText: (title, entity) => `${title} (${entity.realName})`,
+    // 标题（`titleText`）没进 pro ⇒ 在 `Detail.vue` 用 `useEntityPageTitle` 拼 `(realName)`
     fields: [
       'id',
       'realName',
@@ -25,18 +23,16 @@ export const consoleUserDetailPage = defineDetailPage<ConsoleUserSavePayload, Co
       'status',
       {
         key: 'lastAuthenticationTime',
-        // 详情形态的条目还没有 `format` 通道（宿主旧 kit），这里用 pro 的纯函数 + 宿主自己的格式串
-        render: (value) => dayjsFormat(value as number, import.meta.env.VITE_APP_DATE_TIME_VALUE_FORMAT),
       },
       {
         key: 'initialization.randomPassword',
         labelKey: 'authServer.randomPassword',
-        render: (_value, entity) => getEnumName(entity.initialization.randomPassword),
+        format: 'enum',
       },
       {
         key: 'initialization.randomUsername',
         labelKey: 'authServer.randomUsername',
-        render: (_value, entity) => getEnumName(entity.initialization.randomUsername),
+        format: 'enum',
       },
       'remark',
     ],

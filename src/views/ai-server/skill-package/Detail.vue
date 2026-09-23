@@ -140,7 +140,7 @@ function postGetEntity(record: SkillPackageEntity) {
 
       <template #afterDescriptions>
         <template v-if="getEnumValue(entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.GIT">
-          <a-divider orientation="left" plain>
+          <a-divider titlePlacement="start" plain>
             <a-space>
               <icon-font class="icon" type="loncra-git-branch" />
               {{ globalProperties.$t('aiServer.skillPackage.git.url') }}
@@ -166,7 +166,7 @@ function postGetEntity(record: SkillPackageEntity) {
             </a-descriptions-item>
           </a-descriptions>
         </template>
-        <a-divider orientation="left" plain>
+        <a-divider titlePlacement="start" plain>
           <a-space>
             <icon-font class="icon" type="loncra-folder-tree" />
             {{ globalProperties.$t('aiServer.skillPackage.files') }}

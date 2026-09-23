@@ -39,5 +39,9 @@ export const dataDictionaryCore: CrudPageCore<DataDictionarySavePayload, DataDic
       format: 'enum',
       enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.YES_OR_NO},
     },
+    // 下面三个只有详情形态用（旧 `Detail.vue` 手写的 descriptions 项）
+    sort: {labelKey: 'common.sort'},
+    value: {labelKey: 'common.value'},
+    remark: {labelKey: 'common.remark'},
   },
 }

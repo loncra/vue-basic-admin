@@ -141,7 +141,9 @@ function activateTab(route: RouteResourceMetadata) {
   } else {
     if (route.parentKeepAlive) {
       current.path = String(route.path)
-    } else {
+    } else if (globalProperties.$route.fullPath !== current.path) {
+      // 已在目标路径上就别再 push 一次：同址导航虽然会被 vue-router 静默吞掉，
+      // 但一次点击走两遍导航流程（含两遍过渡判定）纯属浪费 —— 排查页签缓存问题时顺手加的守卫
       globalProperties.$router.push(current.path)
     }
   }
@@ -385,8 +387,7 @@ function onRemoveTab(value: string, action: string) {
 
 watch(
   () => globalProperties.$route.fullPath,
-  () => activateTab(menuPrincipalStore.toResourceRouteMetadata(globalProperties.$route))
-
+  () => activateTab(menuPrincipalStore.toResourceRouteMetadata(globalProperties.$route)),
 )
 
 watch(
@@ -488,16 +489,25 @@ onUnmounted(() => routeCacheVersions.value = {})
         </div>
       </a-flex>
       <a-flex vertical flex="1" class="pr-md pl-md">
-        <a-spin class="size-full-spin" :spinning="isRoutePageLoading(globalProperties.$route.fullPath)" :description="globalProperties.$t('layoutContent.loading')">
+        <a-spin
+          class="size-full-spin"
+          :spinning="isRoutePageLoading(globalProperties.$route.fullPath)"
+          :description="globalProperties.$t('layoutContent.loading')"
+        >
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
-            <transition name="fade-transform" mode="out-in">
-              <!-- 使用 key 来清除缓存：key = fullPath + 版本号 -->
-              <!-- 当关闭标签页时，版本号会增加，key 改变，keep-alive 会销毁旧实例并创建新实例 -->
-              <!-- 无 Component 时不渲染 keep-alive，避免空白（如路由未解析完） -->
-              <keep-alive v-if="Component">
-                <component :is="Component" :key="getRouteCacheKey(route)"/>
-              </keep-alive>
-            </transition>
+            <!--
+              ⚠️ 这层**不要**包 `<transition>`（任何 `mode` 都不行）：
+              Vue 的 `<transition>` 需要"独占持有旧 child"等它 leave 收尾，而旧 child 同时又是
+              `<keep-alive>` 要接管的缓存实例（DOM 要搬进游离容器）——两边攥着同一个节点 ⇒
+              收尾/搬迁错位，旧页面会**留在内容容器里**并且逐次累积。
+              2026-09-23 逐个试过三种组合（`mode="out-in"` / 只给 `:duration` / 去掉 `mode`），
+              用"内容容器子节点数 + 过渡类名 + 节点归属的组件链"确认：都会残留（去掉 `mode` 时更糟，三页并存）。
+              页面切换动画改由 **CSS 承担**：命中内容容器里那层页面卡片（`.size-full-spin .ant-spin-container > .ant-card`，
+              见 `assets/style.css`），元素新建/被 keep-alive 搬回来时自动播，不需要 JS 触发。
+            -->
+            <keep-alive v-if="Component">
+              <component :is="Component" :key="getRouteCacheKey(route)"/>
+            </keep-alive>
           </router-view>
         </a-spin>
       </a-flex>

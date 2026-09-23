@@ -1,108 +1,47 @@
 <script setup lang="ts">
-import LBasicDetail from '@/components/basic/BasicDetail.vue'
+import {computed, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import type {PersonalUserEntity} from '@loncra/client/auth'
-import {AUTH_SERVER_GENDER, PersonalUserService} from '@loncra/client/auth'
-import {requireNonNullOrUndefined} from '@/utils'
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import {
-  AUTH_SERVER_PERSONAL_USER_ROUTE,
-  OPERATION_DATA_TRACE_TABLE,
-  YES_OR_NO_TYPE
-} from '@/constants'
-import {getEnumName} from '@loncra/client/commons'
+import {CrudDetailPage} from '@loncra/antdv-pro'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {usePageExit} from '@/composables/usePageExit'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
+import {SYSTEM_CONSTANT} from '@/constants'
+import {personalUserCore} from './personal-user.page'
+import {personalUserDetailPage} from './personal-user.detail.page'
 
-import {useDateFormat} from '@loncra/antdv-pro'
-
-const {dateTimeFormat} = useDateFormat()
-
+/**
+ * 个人用户详情页薄壳：字段、标签、枚举显示、跨列数全在声明（`personal-user.detail.page.ts`）；
+ * 这里只剩三件宿主的事 —— 主键（pro 不认路由）、标题、离场。
+ */
 defineOptions({
   name: 'AuthServerPersonalUserDetail',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const route = useRoute()
+const detailRef = ref<{entity?: PersonalUserEntity}>()
+/** pro 的壳不认路由：主键由页壳取出来传进去 */
+const id = computed(() => route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined)
 
-const service = new PersonalUserService()
-const entity = ref<PersonalUserEntity>({
-  id: 0,
-  version: 0,
-  systemName: '',
-  username: '',
-  nickname: '',
-  emailVerified: YES_OR_NO_TYPE.NO,
-  phoneNumberVerified: YES_OR_NO_TYPE.NO,
-  gender: AUTH_SERVER_GENDER.UNKNOWN,
-  lastAuthenticationTime: 0,
-  phoneNumber: '',
-  status: {
-    value: 99,
-    name: '',
-  },
-  initialization: {
-    randomPassword: {
-      value: YES_OR_NO_TYPE.YES,
-      name: '',
-    },
-    randomUsername: {
-      value: YES_OR_NO_TYPE.YES,
-      name: '',
-    },
-  },
-  type: {
-    name: '',
-    value: '',
-  },
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载** */
+const {ok} = useRequiredQuery()
+
+/** 标题：旧 `title-text` 是 `标题 (昵称 || 账号)` */
+useEntityPageTitle(() => {
+  const entity = detailRef.value?.entity
+  return entity ? entity.nickname || entity.username || undefined : undefined
 })
 
+/** 记录被删 ⇒ 回列表 + 关 tab */
+const {onStale} = usePageExit({redirect: personalUserCore.routes?.home})
 </script>
 
 <template>
-  <div>
-    <l-basic-detail
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.PERSONAL_USER"
-      :redirect="{name:AUTH_SERVER_PERSONAL_USER_ROUTE.HOME}"
-      :title-text="(title:string, _entity:PersonalUserEntity) => title + ' (' + (_entity.nickname || _entity.username) + ')'"
-      :service="service"
-      :column="{xxxl: 4,xxl: 4,xl: 4,lg: 2,md: 2,sm: 1,xs: 1}"
-      v-model:entity="entity"
-    >
-      <a-descriptions-item :label="globalProperties.$t('common.id')">
-        {{entity.id}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.realName')">
-        {{entity.nickname}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('auth.account')">
-        {{entity.username}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.email')">
-        {{entity.email}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.phoneNumber')">
-        {{entity.phoneNumber}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.gender')">
-        {{ getEnumName(entity.gender)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.status')">
-        {{ getEnumName(entity.status)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.lastAuthenticationTime')">
-        {{ dateTimeFormat(entity.lastAuthenticationTime)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.randomPassword')">
-        {{ getEnumName(entity.initialization.randomPassword) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.randomUsername')">
-        {{ getEnumName(entity.initialization.randomUsername) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.personalUser.promoCode')">
-        {{ entity.promoCode || '' }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterprise.tenantId')">
-        {{ entity.tenantId || '' }}
-      </a-descriptions-item>
-    </l-basic-detail>
-  </div>
+  <crud-detail-page
+    v-if="ok"
+    ref="detailRef"
+    :id="id"
+    :page="personalUserDetailPage"
+    @stale="onStale"
+  />
 </template>

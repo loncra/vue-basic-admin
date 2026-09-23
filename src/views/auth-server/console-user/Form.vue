@@ -1,23 +1,34 @@
 <script setup lang="ts">
+import {computed, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import type {TableProps} from 'antdv-next'
 import type {ConsoleUserSavePayload, RoleEntity} from '@loncra/client/auth'
 import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
-import {CrudFormPage} from '@/components/basic/page'
-import {CrudHomePage} from '@loncra/antdv-pro'
+import {CrudFormPage, CrudHomePage} from '@loncra/antdv-pro'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
+import {SYSTEM_CONSTANT} from '@/constants'
 import {ROLE_VARIANT} from '@/views/auth-server/role/role.page'
 import {roleHomePage} from '@/views/auth-server/role/role.home.page'
 import {RESOURCE_VARIANT} from '@/views/auth-server/resource/resource.page'
 import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
+import {consoleUserCore} from './console-user.page'
 import {consoleUserFormPage} from './console-user.form.page'
 
 /**
  * 控制台用户表单的**薄壳**。
- * 字段、校验、编辑态禁用、标题、重置都在声明（`console-user.form.page.ts`）里；
- * 这里只留声明管不到的三块：分隔标题、两个内嵌选择器、备注（它们在默认插槽里，位置与旧页面一致）。
+ * 字段、校验、编辑态禁用、重置都在声明（`console-user.form.page.ts`）里；
+ * 这里留声明管不到的三块：分隔标题、两个内嵌选择器、备注（默认插槽里，位置与旧页面一致），
+ * 外加标题（旧 `titleText`）与主键（pro 的壳不认路由）。
  */
 defineOptions({
   name: 'AuthServerConsoleUserForm',
 })
+
+const route = useRoute()
+const formRef = ref<{entity?: ConsoleUserSavePayload}>()
+/** pro 的壳不认路由：主键由页壳取出来传进去（没有 = 新增） */
+const id = computed(() => route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined)
 
 /** 两个选择器的固定查询：只列启用的、且支持控制台登录的 */
 const roleQuery = {
@@ -25,6 +36,15 @@ const roleQuery = {
   'filter_[sources_jin]': AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE,
 }
 const resourceQuery = {...roleQuery}
+
+/** 标题：编辑态带真实姓名（与旧 `titleText` 一致） */
+useEntityPageTitle(() => (formRef.value?.entity?.id ? formRef.value?.entity?.realName : undefined))
+
+/** 保存成功后的去向（编辑回列表 / 新增按偏好；关 tab + 记住偏好）—— pro 的壳只 emit('success') */
+const {onSuccess, onStale, formKey} = useFormSuccessBack({
+  redirect: consoleUserCore.routes?.home,
+  entity: () => formRef.value?.entity,
+})
 
 /**
  * 勾了角色，把它带的资源也一并勾上（旧实现的行为，别丢）。
@@ -43,8 +63,16 @@ function roleSelection(entity: ConsoleUserSavePayload) {
 </script>
 
 <template>
-  <crud-form-page :page="consoleUserFormPage" v-slot="{entity}">
-    <a-divider class="m-0 mb-md" orientation="left" plain>
+  <crud-form-page
+    ref="formRef"
+    :key="formKey"
+    :id="id"
+    :page="consoleUserFormPage"
+    @success="onSuccess"
+    @stale="onStale"
+    v-slot="{entity}"
+  >
+    <a-divider class="m-0 mb-md" titlePlacement="start" plain>
       <a-space>
         <icon-font class="icon" type="loncra-users-round" />
         {{ $t('authServer.userRole') }}
@@ -56,12 +84,12 @@ function roleSelection(entity: ConsoleUserSavePayload) {
       :variant="ROLE_VARIANT.PICKER"
       :record-actions="false"
       :query="roleQuery"
+      plain
       :row-selection="roleSelection(entity)"
       :title="false"
-      root-class="mb-md"
     />
 
-    <a-divider class="m-0 mb-md" orientation="left" plain>
+    <a-divider titlePlacement="start" class="mb-md mt-md" plain>
       <a-space>
         <icon-font class="icon" type="loncra-key-round" />
         {{ $t('authServer.standaloneResource') }}
@@ -79,7 +107,8 @@ function roleSelection(entity: ConsoleUserSavePayload) {
       :query="resourceQuery"
       :row-selection="{type: 'checkbox', selectedRowKeys: entity.resourceIds}"
       :title="false"
-      root-class="mb-md"
+      plain
+      :classes="{header: 'mb-0!', 'table.root':'mb-md'}"
     />
 
     <a-form-item name="remark" :label="$t('common.remark')">

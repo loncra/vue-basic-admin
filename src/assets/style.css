@@ -91,6 +91,31 @@
     @apply transition-all duration-500;
   }
 
+  /* 数值与老的 `.fade-transform`（`translate-y-5` + `duration-500 ease-in-out`）保持一致，观感不降级 */
+  @keyframes layout-route-enter {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /*
+   * 路由切换的**进入动画**：直接挂在内容容器里那层"页面卡片"上（`.ant-card`），**不用 JS 触发**。
+   *
+   * 为什么挂在这里而不是容器上：动画要**跟着新页面的元素**播 ——
+   * 页面卡片是新建的（或被我 keep-alive 从游离容器搬回来的）元素，CSS 动画会自动重播；
+   * 挂容器 + 路由 watcher 触发的话，class 是在"旧页面还挂着"的时候切的（旧页先被淡到 0 = 页面忽然消失，
+   * 等新页插进来动画已经跑完 = 没效果），2026-09-23 用户反馈的问题就是这个。
+   * 只命中直接子级 ⇒ 页面内部的卡片（子表、选择器那些）不受影响。
+   */
+  .size-full-spin .ant-spin-container > .ant-card {
+    animation: layout-route-enter 0.5s ease-in-out;
+  }
+
   /* ========== 认证页面背景 ========== */
   .auth-background {
     @apply relative;

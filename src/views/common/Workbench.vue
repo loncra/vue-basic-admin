@@ -94,7 +94,7 @@ onMounted(mounted)
             </a-typography-text>
           </a-flex>
 
-          <a-divider plain orientation="left" class="text-text-secondary">
+          <a-divider plain titlePlacement="start" class="text-text-secondary">
             <a-space>
               <icon-font class="icon align" type="loncra-file-text"/>
               {{globalProperties.$t('common.basicInformation')}}

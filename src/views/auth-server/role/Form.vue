@@ -1,18 +1,29 @@
 <script setup lang="ts">
-import {ref} from 'vue'
-import type {ResourceEntity} from '@loncra/client/auth'
-import {CrudFormPage} from '@/components/basic/page'
+import {computed, ref} from 'vue'
+import {useRoute} from 'vue-router'
+import type {ResourceEntity, RoleSavePayload} from '@loncra/client/auth'
+import {CrudFormPage} from '@loncra/antdv-pro'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
+import {SYSTEM_CONSTANT} from '@/constants'
 import {RESOURCE_VARIANT, resourceTreeSelection,} from '@/views/auth-server/resource/resource.page'
 import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
+import {roleCore} from './role.page'
 import {roleFormPage} from './role.form.page'
 
 /**
  * 新增/编辑页薄壳。
- * 字段、提交、标题、父角色继承都由声明（role.page.ts）管；「独立资源」选择器是逃生内容。
+ * 字段、提交、父角色继承都由声明（role.form.page.ts）管；「独立资源」选择器是逃生内容。
+ * 标题（旧 `titleText`）改由这里用 `useEntityPageTitle` 拼 —— pro 的壳不解析标题。
  */
 defineOptions({
   name: 'AuthServerRoleForm',
 })
+
+const route = useRoute()
+const formRef = ref<{entity?: RoleSavePayload}>()
+/** pro 的壳不认路由：主键由页壳取出来传进去（没有 = 新增） */
+const id = computed(() => route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined)
 
 const resourcePickerRef = ref<{
   fetchDataSource?: () => void
@@ -26,11 +37,29 @@ const resourceQuery = ref<Record<string, unknown>>({
 
 /** 声明里的 preMounted / postGetEntity 通过 contextExtra 拿到这两个 ref */
 const contextExtra = {resourceTable: resourcePickerRef, resourceQuery}
+
+/** 标题：编辑态带角色名，新增态不带（与旧 `titleText` 一致） */
+useEntityPageTitle(() => (formRef.value?.entity?.id ? formRef.value?.entity?.name : undefined))
+
+/** 保存成功后的去向（编辑回列表 / 新增按偏好；关 tab + 记住偏好）—— pro 的壳只 emit('success') */
+const {onSuccess, onStale, formKey} = useFormSuccessBack({
+  redirect: roleCore.routes?.home,
+  entity: () => formRef.value?.entity,
+})
 </script>
 
 <template>
-  <crud-form-page :page="roleFormPage" :context-extra="contextExtra" v-slot="{entity}">
-    <a-divider class="m-0 mb-md" orientation="left" plain>
+  <crud-form-page
+    ref="formRef"
+    :key="formKey"
+    :id="id"
+    :page="roleFormPage"
+    :context-extra="contextExtra"
+    @success="onSuccess"
+    @stale="onStale"
+    v-slot="{entity}"
+  >
+    <a-divider class="m-0 mb-md" titlePlacement="start" plain>
       <a-space>
         <icon-font class="icon" type="loncra-key-round" />
         {{ $t('authServer.standaloneResource') }}

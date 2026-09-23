@@ -76,7 +76,7 @@ onMounted(() => loadResourceDataSource())
       </a-descriptions-item>
 
       <template #afterDescriptions>
-        <a-divider orientation="left" plain>
+        <a-divider titlePlacement="start" plain>
           <a-space>
             <icon-font class="icon" type="loncra-key-round" />
             {{ globalProperties.$t('authServer.standaloneResource') }}

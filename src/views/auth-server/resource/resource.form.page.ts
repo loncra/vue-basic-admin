@@ -2,7 +2,8 @@ import {ref, type Ref} from 'vue'
 import {IconSelect} from '@loncra/antdv'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
-import {defineFormPage} from '@/components/basic/page'
+import {defineFormPage} from '@loncra/antdv-pro'
+import router from '@/routers'
 import {loadIcon} from '@/utils/resourceUtils'
 import type {IconfontJson} from '@/types/composables/common'
 import {resourceCore} from './resource.page'
@@ -75,14 +76,8 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
       props: {rows: 4, showCount: true, maxlength: 256},
     },
   ],
-  titleText: (title, entity, ctx) => {
-    const parent = (ctx.extra.parent as Ref<ResourceEntity | undefined> | undefined)?.value
-    if (parent) {
-      return `${title} (${parent.name})`
-    }
-    const value = entity as ResourceEntity
-    return value.id ? `${title} (${value.name})` : title
-  },
+  // 标题不在这里：`titleText` 没进 pro（"怎么写标题"是宿主的事）⇒ 拼装在 `Form.vue` 的
+  // `useEntityPageTitle` 里（父资源名 / 实体名的分支照旧）。
   // addChild 入口：带父资源；顺便懒加载图标清单
   preMounted: async (ctx) => {
     if (iconOptions.value.length === 0) {
@@ -90,7 +85,8 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
         ICON_MANIFESTS.map((path) => loadIcon(import.meta.env.VITE_APP_SITE_URL + path)),
       )
     }
-    const parentId = ctx.router.currentRoute.value.query.parentId
+    // pro 的上下文不带 router（宿主环境不进声明上下文）⇒ 声明文件自己 import 宿主 router
+    const parentId = router.currentRoute.value.query.parentId
     if (!parentId) {
       return
     }

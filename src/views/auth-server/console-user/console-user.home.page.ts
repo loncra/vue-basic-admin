@@ -93,7 +93,6 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
       {
         key: 'lastAuthenticationTime',
         width: 210,
-        format: 'dateTime',
         search: defineSearchProps('dateRange'),
       },
     ],
