@@ -31,15 +31,17 @@ export const personalUserCore: CrudPageCore<PersonalUserEntity> = {
     email: {labelKey: 'common.email'},
     phoneNumber: {labelKey: 'common.phoneNumber'},
     /**
-     * 性别 / 状态：旧页面用 `getEnumName` 显示（值可能是裸 code）⇒ 详情项里也用 `render` 调它，
-     * 这里的 `enumRef` 是留给以后表单形态用的（与 `console-user` 同一份枚举）。
+     * 性别 / 状态：显示用 `format: 'enum'`（= 宿主 `getEnumName`，值可能是裸 code）；
+     * `enumRef` 是留给以后表单形态用的（与 `console-user` 同一份枚举）。
      */
     gender: {
       labelKey: 'common.gender',
+      format: 'enum',
       enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.GENDER_ENUM},
     },
     status: {
       labelKey: 'common.status',
+      format: 'enum',
       enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.USER_STATUS_ENUM},
     },
     lastAuthenticationTime: {labelKey: 'authServer.lastAuthenticationTime', format: 'dateTime'},

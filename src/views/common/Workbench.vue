@@ -9,7 +9,7 @@ import {OperationDataTraceAuditEventService} from "@loncra/client/auth";
 import type {RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
-import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants';
+import {AUTH_SERVER_AUDIT_EVENT_ROUTE, DATE_TIME_FORMAT} from '@/constants';
 
 const {dateTimeFormat} = useDateFormat()
 
@@ -35,7 +35,7 @@ async function mounted() {
     number: 1,
     size:1000,
     'filter_[principal_eq]':principalStore.state.name,
-    'after': globalProperties.$dayjs().startOf('d')
+    'after': globalProperties.$dayjs().startOf('d').format(DATE_TIME_FORMAT.POST_TIMESTAMP_FORMAT)
   }
   const result: RestResult<TotalPage<AuditEventEntity>> = await operationDataTraceAuditEventService.page(request)
   const elements = result.data?.elements

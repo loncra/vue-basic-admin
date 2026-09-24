@@ -1,88 +1,42 @@
 <script setup lang="ts">
+import {ref} from 'vue'
+import type {SmsMessageEntity} from '@loncra/client/message'
+import {CrudDetailPage} from '@loncra/antdv-pro'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {usePageExit} from '@/composables/usePageExit'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
+import {smsCore} from './sms.page'
+import {smsDetailPage} from './sms.detail.page'
 
-import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
-import {requireNonNullOrUndefined} from "@/utils";
-import type {SmsMessageEntity} from "@loncra/client/message";
-import {MESSAGE_SERVER_MESSAGE_TYPE_VALUE, SmsMessageService} from "@loncra/client/message";
-import {MESSAGE_SERVER_SMS_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
-import {getEnumName} from "@loncra/client/commons"
-
-import {useDateFormat} from '@loncra/antdv-pro'
-
-const {dateTimeFormat} = useDateFormat()
-
+/**
+ * 短信消息详情页薄壳：字段、标签、枚举显示、跨列数、操作记录都在声明（`sms.detail.page.ts` / `sms.page.ts`）；
+ * 这里只剩三件宿主的事 —— 主键（pro 不认路由）、标题、离场。
+ */
 defineOptions({
-  name: 'MessageServerEmailDetail',
+  name: 'MessageServerSmsDetail',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const detailRef = ref<{entity?: SmsMessageEntity}>()
 
-const service = new SmsMessageService()
-const entity = ref<SmsMessageEntity>({
-  batchId: 0,
-  channel: "",
-  content: "",
-  executeStatus: 10,
-  id: 0,
-  metadata: {},
-  phoneNumber: "",
-  principal: "",
-  remark: "",
-  type: MESSAGE_SERVER_MESSAGE_TYPE_VALUE.NOTICE,
-  version: 0
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照） */
+const {ok, id} = useRequiredQuery()
+
+/** 标题：旧 `title-text` 是 `标题 (id)` */
+useEntityPageTitle(() => {
+  const entityId = detailRef.value?.entity?.id
+  return entityId == null ? undefined : String(entityId)
 })
 
+/** 记录被删 ⇒ 回列表 + 关 tab（旧 `BasicDetail` 自己干的） */
+const {onStale} = usePageExit({redirect: smsCore.routes?.home})
 </script>
 
 <template>
-  <div>
-    <l-basic-detail
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.SMS_MESSAGE"
-      :redirect="{name:MESSAGE_SERVER_SMS_ROUTE.HOME}"
-      :title-text="(title:string, _entity:SmsMessageEntity) => title + ' (' + _entity.id + ')'"
-      :service="service"
-      :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 1,sm: 1,xs: 1}"
-      v-model:entity="entity"
-    >
-      <a-descriptions-item :label="globalProperties.$t('common.creationTime')">
-        {{ dateTimeFormat(entity.creationTime) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.channel')">
-        {{ getEnumName(entity.channel) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.type')">
-        {{ getEnumName(entity.type) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.phoneNumber')">
-        {{ entity.phoneNumber }}
-        <template v-if="entity.metadata?.toPrincipal">
-          ({{(entity.metadata?.toPrincipal as {name:string})?.name}})
-        </template>
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.status')">
-        {{ getEnumName(entity.executeStatus) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.retry.count')">
-        {{ entity.retryCount }} / {{entity.maxRetryCount}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.retry.time')">
-        {{ dateTimeFormat(entity.retryTime) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.successTime')">
-        {{ dateTimeFormat(entity.successTime) }}
-      </a-descriptions-item>
-      <a-descriptions-item :span="2" :label="globalProperties.$t('error.errorMessage')">
-        {{ entity.exception }}
-      </a-descriptions-item>
-      <a-descriptions-item :span="2" :label="globalProperties.$t('common.remark')">
-        {{ entity.remark }}
-      </a-descriptions-item>
-      <a-descriptions-item :span="2" :label="globalProperties.$t('common.content')">
-        {{entity.content}}
-      </a-descriptions-item>
-    </l-basic-detail>
-  </div>
+  <crud-detail-page
+    v-if="ok"
+    ref="detailRef"
+    :id="id"
+    :page="smsDetailPage"
+    @stale="onStale"
+  />
 </template>
