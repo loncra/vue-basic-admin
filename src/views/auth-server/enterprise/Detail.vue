@@ -1,79 +1,39 @@
 <script setup lang="ts">
-import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import {IconSelect as LIconSelect} from '@loncra/antdv'
+import {ref} from 'vue'
 import type {EnterpriseEntity} from '@loncra/client/auth'
-import {EnterpriseService} from '@loncra/client/auth'
-import {requireNonNullOrUndefined} from '@/utils'
-import {renderIconFont} from '@/utils/commonUtils'
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import {
-  AUTH_SERVER_ENTERPRISE_ROUTE,
-  ICON_SELECT_AVATAR_MODE_VALUE,
-  OPERATION_DATA_TRACE_TABLE,
-  YES_OR_NO_TYPE
-} from '@/constants'
-import {getEnumName} from '@loncra/client/commons'
+import {CrudDetailPage} from '@loncra/antdv-pro'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {usePageExit} from '@/composables/usePageExit'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
+import {enterpriseCore} from './enterprise.page'
+import {enterpriseDetailPage} from './enterprise.detail.page'
 
-import {useDateFormat} from '@loncra/antdv-pro'
-
-const {dateTimeFormat} = useDateFormat()
-
+/**
+ * 企业详情页薄壳：字段、图标+名称、枚举显示、跨列数、操作记录都在声明里；
+ * 这里只剩三件宿主的事 —— 主键（pro 不认路由）、标题、离场。
+ */
 defineOptions({
   name: 'AuthServerEnterpriseDetail',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const detailRef = ref<{entity?: EnterpriseEntity}>()
 
-const service = new EnterpriseService()
-const entity = ref<EnterpriseEntity>({
-  id: 0,
-  version: 0,
-  name: '',
-  ownerPrincipal: '',
-  enabled: YES_OR_NO_TYPE.YES,
-})
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照） */
+const {ok, id} = useRequiredQuery()
 
+/** 标题：旧 `title-text` 是 `标题 (企业名)` */
+useEntityPageTitle(() => detailRef.value?.entity?.name)
+
+/** 记录被删 ⇒ 回列表 + 关 tab（旧 `BasicDetail` 自己干的） */
+const {onStale} = usePageExit({redirect: enterpriseCore.routes?.home})
 </script>
 
 <template>
-  <div>
-    <l-basic-detail
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE"
-      :redirect="{name:AUTH_SERVER_ENTERPRISE_ROUTE.HOME}"
-      :title-text="(title:string, _entity:EnterpriseEntity) => title + ' (' + _entity.name + ')'"
-      :service="service"
-      :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"
-      v-model:entity="entity"
-    >
-      <a-descriptions-item :label="globalProperties.$t('common.id')">
-        {{entity.id}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.name')">
-        <a-space>
-          <l-icon-select preview :icon-render="renderIconFont" :value="entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name" />
-          {{entity.name}}
-        </a-space>
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterprise.ownerPrincipal')">
-        {{entity.ownerPrincipal}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.enabled')">
-        {{getEnumName(entity.enabled)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterprise.tenantId')">
-        {{entity.tenantId || ''}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.remark')">
-        {{entity.remark || ''}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterprise.disbandTime')">
-        {{dateTimeFormat(entity.disbandTime)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.creationTime')">
-        {{dateTimeFormat(entity.creationTime)}}
-      </a-descriptions-item>
-    </l-basic-detail>
-  </div>
+  <crud-detail-page
+    v-if="ok"
+    ref="detailRef"
+    :id="id"
+    :page="enterpriseDetailPage"
+    @stale="onStale"
+  />
 </template>

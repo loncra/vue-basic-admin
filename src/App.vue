@@ -12,6 +12,7 @@ import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
 import {useBootstrapStore} from '@/stores/bootStore.ts'
 import {convertFormUrlencoded, renderIconFont} from '@/utils/commonUtils'
+import {crudFormatters} from '@/utils/crudFormatters'
 import {useRouter} from 'vue-router'
 import i18n from '@/i18n'
 
@@ -130,6 +131,7 @@ function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
       :i18n-resolver="i18nResolver"
       :resolve-default-title="resolveDefaultTitle"
       :on-navigate="onNavigate"
+      :formatters="crudFormatters"
       :date-format="dateFormat"
       :date-time-format="dateTimeFormat"
     >
