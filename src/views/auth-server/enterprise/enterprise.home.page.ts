@@ -20,7 +20,7 @@ export const enterpriseHomePage = defineHomePage<EnterprisePayload, EnterpriseEn
         width: 240,
         // 名称前带企业图标：布局仍归 pro（`iconNameCell`），这里用宿主注册的 `iconName`
         // formatter；不传 `args.size` = Avatar 默认（32px，与改前一致）
-        format: 'iconName',
+        format: {name: 'iconName', args: {size: 'large'}},
         search: defineSearchProps('input'),
       },
       {key: 'ownerPrincipal', width: 200, search: defineSearchProps('input')},

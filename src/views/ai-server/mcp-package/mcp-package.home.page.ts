@@ -1,4 +1,4 @@
-import {defineHomePage, iconNameCell, type ActionContext} from '@loncra/antdv-pro'
+import {defineHomePage, type ActionContext} from '@loncra/antdv-pro'
 import type {McpPackageEntity, McpPackageSavePayload} from '@loncra/client/ai'
 import {getEnumValue} from '@loncra/client/commons'
 import i18n from '@/i18n'
@@ -83,12 +83,8 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
         width: 320,
         // 旧实现这里是**没有 options 源的空下拉**，改成按名称模糊查
         search: defineSearchProps('input'),
-        // 名称前带包图标：布局在 pro（`iconNameCell`），图标怎么画由宿主注入
-        render: iconNameCell({
-          renderIcon: renderIconFont,
-          nameOf: (record) => record.name,
-          iconOf: (record) => record.icon,
-        }),
+        // 名称前带包图标：宿主注册的 `iconName` formatter（布局仍归 pro 的 `iconNameCell`）
+        format: {name: 'iconName', args: {size: 'large'}},
       },
       {key: 'authMode', width: 120, search: defineSearchProps('select')},
       // 包装键要精确匹配（旧实现就是 `eq`）

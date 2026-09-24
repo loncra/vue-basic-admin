@@ -2,7 +2,6 @@ import {h, ref} from 'vue'
 import {Badge} from 'antdv-next'
 import {
   defineHomePage,
-  iconNameCell,
   type ActionContext,
   type RecordActionContext,
 } from '@loncra/antdv-pro'
@@ -146,12 +145,8 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         key: 'name',
         width: 320,
         search: defineSearchProps('input'),
-        // 名称前带包图标：布局在 pro（`iconNameCell`），图标怎么画由宿主注入
-        render: iconNameCell({
-          renderIcon: renderIconFont,
-          nameOf: (record) => record.name,
-          iconOf: (record) => record.icon,
-        }),
+        // 名称前带包图标：宿主注册的 `iconName` formatter（布局仍归 pro 的 `iconNameCell`）
+        format: {name: 'iconName', args: {size: 'large'}},
       },
       {key: 'packageKey', width: 160, search: defineSearchProps('input')},
       {key: 'origin', width: 80, search: defineSearchProps('select')},
