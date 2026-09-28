@@ -29,8 +29,15 @@ export const modelSettingCore: CrudPageCore<ModelSettingSavePayload, ModelSettin
 
   /** 字段字典：labelKey / format / enumRef 只写一次 */
   fields: {
+    id: {labelKey: 'common.id'},
     name: {labelKey: 'common.name'},
     model: {labelKey: 'aiServer.modelSetting.model'},
+    // 详情用（列表没有这一列）：图标 / 厂商 / 排序 / 描述 / 备注
+    icon: {labelKey: 'aiServer.modelSetting.icon'},
+    manufacturer: {labelKey: 'aiServer.modelSetting.manufacturer'},
+    sort: {labelKey: 'common.sort'},
+    description: {labelKey: 'aiServer.modelSetting.description'},
+    remark: {labelKey: 'common.remark'},
     // 模型类型：后端 `ModelTypeEnum`（ai-server）
     type: {
       labelKey: 'common.type',

@@ -2,7 +2,9 @@
 import {ref} from 'vue'
 import {useRoute} from 'vue-router'
 import type {ResourceEntity, RoleSavePayload} from '@loncra/client/auth'
-import {CrudFormPage} from '@loncra/antdv-pro'
+// ⚠️ `CrudHomePage` 也要显式 import：宿主 `src/components` 下的旧 kit 渲染器被
+// unplugin-vue-components 自动注册成了**全局**同名组件 ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
+import {CrudFormPage, CrudHomePage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {SYSTEM_CONSTANT} from '@/constants'
@@ -78,6 +80,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
       :scroll="{x: 'max-content', y: 350}"
       :expand-icon-column-index="2"
       :title="false"
+      plain
       root-class="mb-md"
       :query="resourceQuery"
       :row-selection="resourceTreeSelection({

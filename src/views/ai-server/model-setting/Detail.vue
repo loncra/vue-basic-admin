@@ -1,69 +1,84 @@
 <script setup lang="ts">
-import LBasicDetail from '@/components/basic/BasicDetail.vue'
+import {onMounted, ref} from 'vue'
 import {ResourceServerService} from '@/apis'
 import type {ModelGenerateOptions, ModelSettingEntity} from '@loncra/client/ai'
-import {AI_SERVER_MODEL_TYPE, ModelSettingService} from '@loncra/client/ai'
-
-import {booleanToYesOrNo, requireNonNullOrUndefined} from '@/utils'
-import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
+// ⚠️ 必须显式 import：宿主 `src/components` 下的旧 kit 渲染器被 unplugin-vue-components
+// 自动注册成了**全局** `CrudDetailPage` ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
+import {CrudDetailPage} from '@loncra/antdv-pro'
+import {booleanToYesOrNo} from '@/utils'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {usePageExit} from '@/composables/usePageExit'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
+import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {
   AI_SERVER_MODEL_SETTING_ROUTE,
   MODEL_DEFAULT_OPTIONS_KEY,
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
   MODEL_GENERATE_OPTION_KEYS,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
-  VALUE_TYPE,
-  YES_OR_NO_TYPE
 } from '@/constants'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
-import {useConfigProviderStore} from '@/stores/configProviderStore'
+import {modelSettingDetailPage} from './model-setting.detail.page'
 
+/**
+ * 模型设置详情页薄壳：字段、标签、枚举显示、跨列数、操作记录都在声明
+ * （`model-setting.detail.page.ts` / `model-setting.page.ts`）；这里只剩四件宿主的事 ——
+ * 主键（pro 不认路由）、标题、离场，外加「默认参数」那张附表（值要过是/否枚举才显示得出来）。
+ */
 defineOptions({
   name: 'AiServerModelSettingDetail',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-
 const configProviderStore = useConfigProviderStore()
-const service = new ModelSettingService()
+const detailRef = ref<{entity?: ModelSettingEntity}>()
+
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照） */
+const {ok, id} = useRequiredQuery()
+
+/** 标题：旧 `title-text` 是 `标题 (模型名)` */
+useEntityPageTitle(() => detailRef.value?.entity?.name)
+
+/**
+ * 记录被删 ⇒ 回列表 + 关 tab。⚠️ 回列表要**带上厂商 code**（列表左侧树靠它选中厂商，
+ * 旧 `Detail.vue` 的 `redirect` 就是这么算的）⇒ 用函数形态（离场那一刻才求值）。
+ */
+const {onStale} = usePageExit({
+  redirect: () => {
+    const code = detailRef.value?.entity?.manufacturer?.code
+    return {
+      name: AI_SERVER_MODEL_SETTING_ROUTE.HOME,
+      query: code ? {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: code} : {},
+    }
+  },
+})
+
+/** 是/否枚举：附表里布尔型参数要显示成「是/否」（照抄旧页面的 `onMounted`） */
 const yesOrNoOptions = ref<NameValueEnumMetadata<number>[]>([])
-const entity = ref<ModelSettingEntity>({
-  id: 0,
-  version: 0,
-  name: '',
-  model: '',
-  icon: null,
-  type: AI_SERVER_MODEL_TYPE.CHAT,
-  enabled: YES_OR_NO_TYPE.YES,
-  remark: '',
-  description: '',
-  manufacturer: {
-    code: '',
-    name: '',
-    value: '',
-    valueType: VALUE_TYPE.STRING,
-    metadata: {},
-  },
-  metadata: {
-    [MODEL_DEFAULT_OPTIONS_KEY]: {},
-  },
+onMounted(async () => {
+  const enums: RestResult<EnumBucketsResponseBody> =
+    await ResourceServerService.getServiceEnumerates({
+      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.YES_OR_NO}],
+    })
+  if (enums.data) {
+    yesOrNoOptions.value = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
+      SYSTEM_ENUM_TYPE.YES_OR_NO
+    ] as NameValueEnumMetadata<number>[]
+  }
 })
 
-const generateOptions = computed(() => {
-  const raw = entity.value.metadata?.[MODEL_DEFAULT_OPTIONS_KEY]
-  return (raw && typeof raw === 'object' ? raw : {}) as ModelGenerateOptions
-})
-
-function optionDisplay(key: (typeof MODEL_GENERATE_OPTION_KEYS)[number]) {
-  const value = generateOptions.value[key]
+/**
+ * 默认参数的一项（照抄旧页面的 `optionDisplay`）：布尔型翻 Enum 显示名，其余原样。
+ * 入参是插槽给的实体 ⇒ 在边界收窄一次。
+ */
+function optionDisplay(entity: unknown, key: (typeof MODEL_GENERATE_OPTION_KEYS)[number]): string {
+  const record = (entity ?? {}) as ModelSettingEntity
+  const raw = record.metadata?.[MODEL_DEFAULT_OPTIONS_KEY]
+  const options = (raw && typeof raw === 'object' ? raw : {}) as ModelGenerateOptions
+  const value = options[key]
   if (value === null || value === undefined || value === '') {
     return ''
   }
@@ -74,94 +89,37 @@ function optionDisplay(key: (typeof MODEL_GENERATE_OPTION_KEYS)[number]) {
   }
   return String(value)
 }
-
-const redirect = computed(() => {
-  const code = entity.value.manufacturer?.code
-  return {
-    name: AI_SERVER_MODEL_SETTING_ROUTE.HOME,
-    query: code ? {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: code} : {},
-  }
-})
-
-onMounted(async () => {
-  const enums: RestResult<EnumBucketsResponseBody> =
-    await ResourceServerService.getServiceEnumerates({
-      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.YES_OR_NO}],
-    })
-  if (enums.data) {
-    yesOrNoOptions.value = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] as NameValueEnumMetadata<number>[]
-  }
-})
 </script>
 
 <template>
-  <div>
-    <l-basic-detail
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_MODEL_SETTING"
-      :redirect="redirect"
-      :title-text="(title: string, _entity: ModelSettingEntity) => title + ' (' + _entity.name + ')'"
-      :service="service"
-      :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1}"
-      v-model:entity="entity"
-    >
-      <a-descriptions-item :label="globalProperties.$t('common.id')">
-        {{ entity.id }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.name')">
-        {{ entity.name }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.modelSetting.model')">
-        {{ entity.model }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.modelSetting.icon')">
-        <icon-font class="icon" :type="entity.icon || 'loncra-sticker'" />
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.type')">
-        {{ getEnumName(entity.type) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.enabled')">
-        {{ getEnumName(entity.enabled) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.modelSetting.manufacturer')">
+  <crud-detail-page
+    v-if="ok"
+    ref="detailRef"
+    :id="id"
+    :page="modelSettingDetailPage"
+    @stale="onStale"
+  >
+    <!-- 旧 `BasicDetail` 的同名插槽：描述列表之后、操作记录之前 -->
+    <template #afterDescriptions="{entity}">
+      <a-divider titlePlacement="start" plain>
         <a-space>
-          <icon-font
-            class="icon"
-            :type="String(entity.manufacturer?.metadata?.icon || 'loncra-building')"
-          />
-          <span>{{ entity.manufacturer?.name || '' }}</span>
+          <icon-font class="icon" type="loncra-sliders-horizontal" />
+          {{ $t('aiServer.modelSetting.defaultOptions') }}
         </a-space>
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.sort')">
-        {{ entity.sort ?? '' }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.modelSetting.description')" :span="2">
-        {{ entity.description || '' }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.remark')" :span="2">
-        {{ entity.remark || '' }}
-      </a-descriptions-item>
-
-      <template #afterDescriptions>
-        <a-divider titlePlacement="start" plain>
-          <a-space>
-            <icon-font class="icon" type="loncra-sliders-horizontal" />
-            {{ globalProperties.$t('aiServer.modelSetting.defaultOptions') }}
-          </a-space>
-        </a-divider>
-        <a-descriptions
-          bordered
-          :layout="configProviderStore.antdv.state.detailLayout"
-          :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1}"
+      </a-divider>
+      <a-descriptions
+        bordered
+        :layout="configProviderStore.antdv.state.detailLayout"
+        :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1}"
+      >
+        <a-descriptions-item
+          v-for="key in MODEL_GENERATE_OPTION_KEYS"
+          :key="key"
+          :label="$t(`aiServer.modelSetting.options.${key}.label`)"
         >
-          <a-descriptions-item
-            v-for="key in MODEL_GENERATE_OPTION_KEYS"
-            :key="key"
-            :label="globalProperties.$t(`aiServer.modelSetting.options.${key}.label`)"
-          >
-            {{ optionDisplay(key) }}
-          </a-descriptions-item>
-        </a-descriptions>
-      </template>
-    </l-basic-detail>
-  </div>
+          {{ optionDisplay(entity, key) }}
+        </a-descriptions-item>
+      </a-descriptions>
+    </template>
+  </crud-detail-page>
 </template>

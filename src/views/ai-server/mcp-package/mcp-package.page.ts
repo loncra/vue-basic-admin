@@ -30,7 +30,13 @@ export const mcpPackageCore: CrudPageCore<McpPackageSavePayload, McpPackageEntit
 
   /** 字段字典：labelKey / format / enumRef / dictId 只写一次 */
   fields: {
+    id: {labelKey: 'common.id'},
     name: {labelKey: 'common.name'},
+    // 详情用（列表没有这几项）：初始化超时 / 简介 / 标签 / 附加信息
+    initializeTimeout: {labelKey: 'aiServer.mcpPackage.initializeTimeout'},
+    summary: {labelKey: 'aiServer.mcpPackage.summary'},
+    tags: {labelKey: 'aiServer.mcpPackage.tags'},
+    additionalInformation: {labelKey: 'aiServer.mcpPackage.additionalInformation'},
     // 认证方式：后端 `McpPackageAuthModeEnum`（ai-server）
     authMode: {
       labelKey: 'aiServer.mcpPackage.authMode',

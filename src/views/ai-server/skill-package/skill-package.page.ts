@@ -30,8 +30,14 @@ export const skillPackageCore: CrudPageCore<SkillPackageSavePayload, SkillPackag
 
   /** 字段字典：labelKey / format / enumRef / dictId 只写一次 */
   fields: {
+    id: {labelKey: 'common.id'},
     name: {labelKey: 'common.name'},
     packageKey: {labelKey: 'aiServer.skillPackage.packageKey'},
+    // 详情用（列表没有这几项）：图标 / 简介 / 标签 / 附加信息
+    icon: {labelKey: 'common.icon'},
+    summary: {labelKey: 'aiServer.skillPackage.summary'},
+    tags: {labelKey: 'aiServer.skillPackage.tags'},
+    additionalInformation: {labelKey: 'aiServer.skillPackage.additionalInformation'},
     // 来源：后端 `PackageOriginEnum`（ai-server）
     origin: {
       labelKey: 'aiServer.skillPackage.origin',

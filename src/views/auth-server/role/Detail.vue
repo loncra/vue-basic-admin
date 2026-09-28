@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import {ref, watch} from 'vue'
 import type {ResourceEntity} from '@loncra/client/auth'
-import {CrudDetailPage} from '@loncra/antdv-pro'
+// ⚠️ `CrudHomePage` 也要显式 import：宿主 `src/components` 下的旧 kit 渲染器被
+// unplugin-vue-components 自动注册成了**全局**同名组件 ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
+import {CrudDetailPage, CrudHomePage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'

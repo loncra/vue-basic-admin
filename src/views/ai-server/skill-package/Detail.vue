@@ -1,185 +1,92 @@
 <script setup lang="ts">
-import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import type {
-  GitSkillSourceMetadata,
-  ManualSkillSourceMetadata,
-  SkillPackageEntity
-} from '@loncra/client/ai'
-import {
-  AI_SERVER_SKILL_SOURCE_TYPE,
-  AI_SERVER_SKILL_UPDATE_POLICY,
-  AiSkillPackageService
-} from '@loncra/client/ai'
-import {getExecuteBadgeStatus, requireNonNullOrUndefined} from '@/utils'
-import {renderIconFont} from '@/utils/commonUtils'
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import {
-  ICON_SELECT_AVATAR_MODE_VALUE,
-  OPERATION_DATA_TRACE_TABLE,
-  SKILL_PACKAGE_ROUTE
-} from '@/constants'
+import {ref} from 'vue'
+import type {GitSkillSourceMetadata, SkillPackageEntity} from '@loncra/client/ai'
+import {AI_SERVER_SKILL_SOURCE_TYPE} from '@loncra/client/ai'
+// ⚠️ 必须显式 import `CrudDetailPage`：宿主 `src/components` 下的旧 kit 渲染器被
+// unplugin-vue-components 自动注册成了**全局**同名组件 ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
+import {CrudDetailPage, FileEditor as LFileEditor} from '@loncra/antdv-pro'
+import {getEnumValue} from '@loncra/client/commons'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {usePageExit} from '@/composables/usePageExit'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
-import {IconSelect as LIconSelect} from '@loncra/antdv'
-import {FileEditor as LFileEditor} from '@loncra/antdv-pro'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
+import {skillPackageCore} from './skill-package.page'
+import {skillPackageDetailPage} from './skill-package.detail.page'
 
+/**
+ * 技能包详情页薄壳：字段、标签、枚举显示、跨列数、执行状态、操作记录都在声明
+ * （`skill-package.detail.page.ts` / `skill-package.page.ts`）；这里只剩四件宿主的事 ——
+ * 主键（pro 不认路由）、标题、离场，外加「Git 来源」与「文件列表」两块附表。
+ */
 defineOptions({
   name: 'AiServerSkillPackageDetail',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
 const configProviderStore = useConfigProviderStore()
-const service = new AiSkillPackageService()
+const detailRef = ref<{entity?: SkillPackageEntity}>()
 
-const entity = ref<SkillPackageEntity>({
-  id: 0,
-  version: 0,
-  name: '',
-  packageKey: '',
-  summary: '',
-  tags: [],
-  additionalInformation: '',
-  origin: 0,
-  status: 0,
-  type: 0,
-  icon: '',
-  defaultUpdatePolicy: 0,
-  sourceType: 0,
-  metadata: {
-    source: {type: AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata,
-  },
-})
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照） */
+const {ok, id} = useRequiredQuery()
 
+/** 标题：旧 `title-text` 是 `标题 (技能包名)` */
+useEntityPageTitle(() => detailRef.value?.entity?.name)
 
-function postGetEntity(record: SkillPackageEntity) {
-  if (!record.metadata) {
-    record.metadata = {source: {type: AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata}
-  }
-  if (!record.metadata.source) {
-    record.metadata.source = {type: AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
-  }
-  return record
-}
-
+/** 记录被删 ⇒ 回列表 + 关 tab（旧 `BasicDetail` 自己干的） */
+const {onStale} = usePageExit({redirect: skillPackageCore.routes?.home})
 </script>
 
 <template>
-  <div>
-    <l-basic-detail
-      :post-get-entity="postGetEntity"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_SKILL_PACKAGE"
-      :redirect="{name: SKILL_PACKAGE_ROUTE.HOME}"
-      :title-text="(title: string, record: SkillPackageEntity) => title + ' (' + record.name + ')'"
-      :service="service"
-      :column="{xxxl: 3, xxl: 3, xl: 3, lg: 3, md: 1, sm: 1, xs: 1}"
-      v-model:entity="entity"
-    >
-      <a-descriptions-item :label="globalProperties.$t('common.id')">
-        {{ entity.id }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.name')">
-        {{ entity.name }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.packageKey')">
-        {{ entity.packageKey }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.icon')">
-        <l-icon-select preview :icon-render="renderIconFont" :value="entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name" />
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.group')">
-        {{ entity.category?.name }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.origin')">
-        {{ getEnumName(entity.origin) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.status')">
-        {{ getEnumName(entity.status) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.type')">
-        {{ getEnumName(entity.type) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.latestVersion')">
-        {{ entity.latestVersion || '' }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.defaultUpdatePolicy')">
-        {{ getEnumName(entity.defaultUpdatePolicy) }}
-        <template
-          v-if="
-            getEnumValue(entity.defaultUpdatePolicy) === AI_SERVER_SKILL_UPDATE_POLICY.AUTOMATIC &&
-            entity.metadata.updatePolicyTime
-          "
-        >
-          {{ entity.metadata.updatePolicyTime.value }}
-          {{ getEnumName(entity.metadata.updatePolicyTime.unit) }}
-        </template>
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.sourceType')">
-        {{ getEnumName(entity.sourceType) }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.executeStatus')">
-        <a-badge
-          :status="getExecuteBadgeStatus(entity.executeStatus ?? 0)"
-          :text="getEnumName(entity.executeStatus)"
-        />
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.summary')" :span="3">
-        {{ entity.summary || '' }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.tags')" :span="3">
-        {{ (entity.tags || []).join(',') }}
-      </a-descriptions-item>
-      <a-descriptions-item
-        :label="globalProperties.$t('aiServer.skillPackage.additionalInformation')"
-        :span="3"
-      >
-        {{ entity.additionalInformation || '' }}
-      </a-descriptions-item>
-
-      <template #afterDescriptions>
-        <template v-if="getEnumValue(entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.GIT">
-          <a-divider titlePlacement="start" plain>
-            <a-space>
-              <icon-font class="icon" type="loncra-git-branch" />
-              {{ globalProperties.$t('aiServer.skillPackage.git.url') }}
-            </a-space>
-          </a-divider>
-          <a-descriptions
-            class="mb-lg"
-            bordered
-            :layout="configProviderStore.antdv.state.detailLayout"
-            :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1}"
-          >
-            <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.git.url')" :span="2">
-              {{ (entity.metadata.source as GitSkillSourceMetadata).url || '' }}
-            </a-descriptions-item>
-            <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.git.path.title')">
-              {{ (entity.metadata.source as GitSkillSourceMetadata).path || '' }}
-            </a-descriptions-item>
-            <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.git.ref.title')">
-              {{ (entity.metadata.source as GitSkillSourceMetadata).ref || '' }}
-            </a-descriptions-item>
-            <a-descriptions-item :label="globalProperties.$t('aiServer.skillPackage.git.sha.title')" :span="2">
-              {{ (entity.metadata.source as GitSkillSourceMetadata).sha || '' }}
-            </a-descriptions-item>
-          </a-descriptions>
-        </template>
+  <crud-detail-page
+    v-if="ok"
+    ref="detailRef"
+    :id="id"
+    :page="skillPackageDetailPage"
+    @stale="onStale"
+  >
+    <!-- 旧 `BasicDetail` 的同名插槽：描述列表之后、操作记录之前 -->
+    <template #afterDescriptions="{entity}">
+      <!-- Git 来源：按来源类型整体显隐（旧页面那段 `<template v-if>`） -->
+      <template v-if="getEnumValue(entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.GIT">
         <a-divider titlePlacement="start" plain>
           <a-space>
-            <icon-font class="icon" type="loncra-folder-tree" />
-            {{ globalProperties.$t('aiServer.skillPackage.files') }}
+            <icon-font class="icon" type="loncra-git-branch" />
+            {{ $t('aiServer.skillPackage.git.url') }}
           </a-space>
         </a-divider>
-        <l-file-editor
-          v-if="entity.id"
-          readonly
-          bucket="system.file"
-          :path="'ai/skill/' + entity.id + '/'"
-          :name="entity.packageKey"
-        />
+        <a-descriptions
+          class="mb-lg"
+          bordered
+          :layout="configProviderStore.antdv.state.detailLayout"
+          :column="{xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1}"
+        >
+          <a-descriptions-item :label="$t('aiServer.skillPackage.git.url')" :span="2">
+            {{ (entity.metadata.source as GitSkillSourceMetadata).url || '' }}
+          </a-descriptions-item>
+          <a-descriptions-item :label="$t('aiServer.skillPackage.git.path.title')">
+            {{ (entity.metadata.source as GitSkillSourceMetadata).path || '' }}
+          </a-descriptions-item>
+          <a-descriptions-item :label="$t('aiServer.skillPackage.git.ref.title')">
+            {{ (entity.metadata.source as GitSkillSourceMetadata).ref || '' }}
+          </a-descriptions-item>
+          <a-descriptions-item :label="$t('aiServer.skillPackage.git.sha.title')" :span="2">
+            {{ (entity.metadata.source as GitSkillSourceMetadata).sha || '' }}
+          </a-descriptions-item>
+        </a-descriptions>
       </template>
-    </l-basic-detail>
-  </div>
+
+      <a-divider titlePlacement="start" plain>
+        <a-space>
+          <icon-font class="icon" type="loncra-folder-tree" />
+          {{ $t('aiServer.skillPackage.files') }}
+        </a-space>
+      </a-divider>
+      <l-file-editor
+        v-if="entity.id"
+        readonly
+        bucket="system.file"
+        :path="'ai/skill/' + entity.id + '/'"
+        :name="entity.packageKey"
+      />
+    </template>
+  </crud-detail-page>
 </template>
