@@ -25,7 +25,7 @@ export const personalUserCore: CrudPageCore<PersonalUserEntity> = {
   operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.PERSONAL_USER,
   fields: {
     id: {labelKey: 'common.id'},
-    /** 显示的是 `nickname`，但标签沿用旧页面的「真实姓名」 */
+    /** 显示的是 `nickname`，但标签沿用旧页面的「真实姓名」（列表显示形式见 `personal-user.home.page.ts`） */
     nickname: {labelKey: 'common.realName'},
     username: {labelKey: 'auth.account'},
     email: {labelKey: 'common.email'},

@@ -9,9 +9,10 @@ import {
   SiteMessageService
 } from "@loncra/client/message";
 import type {RestResult} from "@loncra/client/commons";
-import LSmsTable from "@/components/message-server/SmsTable.vue";
-import LSiteTable from "@/components/message-server/SiteTable.vue";
-import LEmailTable from "@/components/message-server/EmailTable.vue";
+import {CrudHomePage} from '@loncra/antdv-pro'
+import {smsHomePage} from '@/views/message-server/sms/sms.home.page'
+import {siteHomePage} from '@/views/message-server/site/site.home.page'
+import {emailHomePage} from '@/views/message-server/email/email.home.page'
 
 import {MESSAGE_SERVER_BATCH_ROUTE} from '@/constants';
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
@@ -86,10 +87,41 @@ async function postGetEntity(entity:BatchMessageEntity){
           </template>
         </a-space>
       </a-descriptions-item>
+      <!--
+        子表：按批次类型显示短信 / 站内信 / 邮件消息（旧的三张表已由 pro 的列表声明取代）。
+        旧组件 `preview` 的等价物 = 不要标题 + 不要行内动作 + 不要多选，再用 `plain` 去掉卡片边框与内边距。
+      -->
       <template #afterDescriptions v-if="Number(entity.id) > 0">
-        <l-sms-table v-if="getEnumValue(entity.type) === 30" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
-        <l-site-table v-else-if="getEnumValue(entity.type) === 10" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
-        <l-email-table v-else-if="getEnumValue(entity.type) === 20" class="mt-lg" :query="{'filter_[batch_id_eq]':entity.id}" preview/>
+        <crud-home-page
+          v-if="getEnumValue(entity.type) === 30"
+          class="mt-lg"
+          :page="smsHomePage"
+          :query="{'filter_[batch_id_eq]':entity.id}"
+          :title="false"
+          :record-actions="false"
+          :row-selection="false"
+          plain
+        />
+        <crud-home-page
+          v-else-if="getEnumValue(entity.type) === 10"
+          class="mt-lg"
+          :page="siteHomePage"
+          :query="{'filter_[batch_id_eq]':entity.id}"
+          :title="false"
+          :record-actions="false"
+          :row-selection="false"
+          plain
+        />
+        <crud-home-page
+          v-else-if="getEnumValue(entity.type) === 20"
+          class="mt-lg"
+          :page="emailHomePage"
+          :query="{'filter_[batch_id_eq]':entity.id}"
+          :title="false"
+          :record-actions="false"
+          :row-selection="false"
+          plain
+        />
       </template>
     </l-basic-detail>
   </div>

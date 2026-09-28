@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import {ref} from 'vue'
-import {
-  AUTH_SERVER_AUTHENTICATION_TYPE,
-  type PersonalUserEntity,
-  type RoleEntity
-} from '@loncra/client/auth'
-import {CrudDetailPage, CrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import {AUTH_SERVER_AUTHENTICATION_TYPE, type PersonalUserEntity} from '@loncra/client/auth'
+import {CrudDetailPage, CrudHomePage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'

@@ -1,86 +1,48 @@
 <script setup lang="ts">
-import LBasicDetail from '@/components/basic/BasicDetail.vue'
-import {
-  AuthServerService} from "@/apis";
-import type {EnterpriseInvitationEntity,
-  EnterpriseMemberEntity} from "@loncra/client/auth";
-import {
-  AUTH_SERVER_AUDIT_TYPE_VALUE,
-  AUTH_SERVER_ENTERPRISE_INVITATION_STATUS,
-  EnterpriseInvitationService
-} from "@loncra/client/auth";
-import {
-  requireNonNullOrUndefined,
-} from '@/utils'
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import {AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants'
+import {ref} from 'vue'
+import type {EnterpriseInvitationEntity} from '@loncra/client/auth'
+import {CrudDetailPage} from '@loncra/antdv-pro'
+import {AuthServerService} from '@/apis'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {usePageExit} from '@/composables/usePageExit'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
+import {enterpriseInvitationCore} from './enterprise-invitation.page'
+import {enterpriseInvitationDetailPage} from './enterprise-invitation.detail.page'
 
-import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
-import {getEnumName} from '@loncra/client/commons'
-
-const {dateTimeFormat} = useDateFormat()
-
+/**
+ * 企业邀请详情页薄壳：字段、邀请人（头像 + 显示名）、枚举显示、过期兜底、跨列数、操作记录都在声明里；
+ * 这里只剩三件宿主的事 —— 主键（pro 不认路由）、标题、离场。
+ */
 defineOptions({
   name: 'AuthServerEnterpriseInvitationDetail',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const detailRef = ref<{entity?: EnterpriseInvitationEntity}>()
 
-const service = new EnterpriseInvitationService()
-const entity = ref<EnterpriseInvitationEntity>({
-  id: 0,
-  version: 0,
-  enterpriseId: 0,
-  status: AUTH_SERVER_ENTERPRISE_INVITATION_STATUS.EXECUTION,
-  expirationTime: 0,
-  roles: [],
-  auditType:AUTH_SERVER_AUDIT_TYPE_VALUE.AUTOMATIC,
-  member: null as unknown as EnterpriseMemberEntity,
-  principal: "",
-  roleIds: []
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照） */
+const {ok, id} = useRequiredQuery()
+
+/** 标题：旧 `title-text` 是 `标题 (邀请人)` —— 有成员用成员名，否则用 principal */
+useEntityPageTitle(() => {
+  const entity = detailRef.value?.entity
+  if (!entity) {
+    return undefined
+  }
+  return entity.member
+    ? AuthServerService.getPrincipalNameByUserDetails(entity.member)
+    : entity.principal
 })
 
+/** 记录被删 ⇒ 回列表 + 关 tab（旧 `BasicDetail` 自己干的） */
+const {onStale} = usePageExit({redirect: enterpriseInvitationCore.routes?.home})
 </script>
 
 <template>
-  <div>
-    <l-basic-detail
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_INVITATION"
-      :redirect="{name:AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE.HOME}"
-      :title-text="(title:string, _entity:EnterpriseInvitationEntity) => title + ' (' + _entity.member ? AuthServerService.getPrincipalNameByUserDetails(_entity.member) : _entity.principal + ')'"
-      :service="service"
-      :column="{xxxl: 2,xxl: 2,xl: 2,lg: 2,md: 2,sm: 1,xs: 1}"
-      v-model:entity="entity"
-    >
-      <a-descriptions-item :label="globalProperties.$t('common.id')">
-        {{entity.id}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterpriseInvitation.inviterPrincipal')">
-        <a-space>
-          <l-user-avatar :user="entity.member" />
-          {{AuthServerService.getPrincipalNameByUserDetails(entity.member)}}
-        </a-space>
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.status')">
-        {{getEnumName(entity.status)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterpriseInvitation.roleId')">
-        {{ (entity.roles || []).map(s => s.name).join(', ') }}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.expiresTime')">
-        {{entity.expirationTime ? dateTimeFormat(entity.expirationTime) : globalProperties.$t('common.permanent')}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterpriseInvitation.auditType')">
-        {{getEnumName(entity.auditType)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.creationTime')">
-        {{dateTimeFormat(entity.creationTime)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.enterprise.tenantId')">
-        {{entity.tenantId || ''}}
-      </a-descriptions-item>
-    </l-basic-detail>
-  </div>
+  <crud-detail-page
+    v-if="ok"
+    ref="detailRef"
+    :id="id"
+    :page="enterpriseInvitationDetailPage"
+    @stale="onStale"
+  />
 </template>

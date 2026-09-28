@@ -6,7 +6,6 @@ import {renderIconFont} from '@/utils/commonUtils'
 import {AuthServerService} from "@/apis";
 import type {EnterpriseInvitationDetail} from "@loncra/client/auth";
 import {
-  AUTH_SERVER_AUDIT_STATUS_VALUE,
   AUTH_SERVER_USER_STATUS_TYPE,
   EnterpriseService
 } from "@loncra/client/auth";
@@ -15,7 +14,7 @@ import {ICON_SELECT_AVATAR_MODE_VALUE} from '@/constants';
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {getEnumName, getEnumValue} from "@loncra/client/commons"
+import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from "@loncra/client/commons"
 
 const {dateTimeFormat} = useDateFormat()
 
@@ -96,7 +95,7 @@ function getInviteeAttr() {
   }
   const base = 'authServer.enterpriseInvitation.confirmResult'
   const invitee = options.value.detail.invitee
-  if (getEnumValue(invitee.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.AGREED) {
+  if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.AGREED) {
     return {
       status:"success",
       title: globalProperties.$t(`${base}.joined.title`),
@@ -104,19 +103,19 @@ function getInviteeAttr() {
         role: getEnumName(invitee.role) + (invitee?.roles || []).map(role => role.name).join(','),
       }),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.AUDITABLE) {
     return {
       status:"info",
       title: globalProperties.$t(`${base}.auditable.title`),
       subTitle: globalProperties.$t(`${base}.auditable.subTitle`),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.REJECTED) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.REJECTED) {
     return {
       status:"warning",
       title: globalProperties.$t(`${base}.rejected.title`),
       subTitle: globalProperties.$t(`${base}.rejected.subTitle`),
     }
-  } else if (getEnumValue(invitee.auditStatus) === AUTH_SERVER_AUDIT_STATUS_VALUE.DISAGREE) {
+  } else if (getEnumValue(invitee.auditStatus) === AUDIT_STATUS_VALUE.DISAGREE) {
     return {
       status:"error",
       title: globalProperties.$t(`${base}.disagree.title`),

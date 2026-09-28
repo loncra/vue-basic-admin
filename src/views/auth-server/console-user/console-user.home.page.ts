@@ -84,7 +84,9 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
       },
     ],
     columns: [
-      {key: 'realName', width: 150, search: defineSearchProps('input')},
+      // 头像 + 名称（本人那行带「(我)」）：宿主注册的 `principalName` formatter
+      // （`realName` 可选，formatter 会从整条记录取"人"）
+      {key: 'realName', width: 150, format: {name: 'principalName', args: {self: true}}, search: defineSearchProps('input')},
       {key: 'gender', width: 150, search: defineSearchProps('select')},
       {key: 'username', width: 300, search: defineSearchProps('input')},
       {key: 'status', width: 150, search: defineSearchProps('select')},

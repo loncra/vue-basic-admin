@@ -1,99 +1,78 @@
 <script setup lang="ts">
-import LBasicDetail from "@/components/basic/BasicDetail.vue";
-import {requireNonNullOrUndefined} from "@/utils";
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {EnterpriseRoleEntity, ResourceEntity} from "@loncra/client/auth";
-import {EnterpriseRoleService, ResourceService} from "@loncra/client/auth";
-import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE, OPERATION_DATA_TRACE_TABLE} from '@/constants';
-import type {RestResult} from "@loncra/client/commons";
-import {getEnumName} from "@loncra/client/commons"
-import LResourceTable from "@/components/auth-server/ResourceTable.vue";
+import {ref} from 'vue'
+import type {EnterpriseRoleEntity, ResourceEntity} from '@loncra/client/auth'
+import {CrudDetailPage, CrudHomePage} from '@loncra/antdv-pro'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {usePageExit} from '@/composables/usePageExit'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
+import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
+import {
+  fetchEnterpriseResources,
+  RESOURCE_VARIANT,
+  resourceTreeSelection,
+} from '@/views/auth-server/resource/resource.page'
+import {enterpriseRoleCore} from './enterprise-role.page'
+import {enterpriseRoleDetailPage} from './enterprise-role.detail.page'
 
+/**
+ * 企业角色详情页薄壳：字段、枚举显示、跨列数、操作记录都在声明里；
+ * 这里留三件宿主的事 —— 主键（pro 不认路由）、标题、离场，外加「独立资源」那张表。
+ */
 defineOptions({
-  name: 'AuthServerEnterpriseRoleDetail'
+  name: 'AuthServerEnterpriseRoleDetail',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const detailRef = ref<{entity?: EnterpriseRoleEntity}>()
 
-const service = new EnterpriseRoleService()
-const resourceService = new ResourceService()
-const entity = ref<EnterpriseRoleEntity>({
-  resourceIds: [],
-  version: 0,
-  enabled: 0,
-  removable: 0,
-  modifiable: 0,
-  name: "",
-  authority: "",
-  children: [],
-  id: 0
-})
+/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照） */
+const {ok, id} = useRequiredQuery()
 
-const resourceDataSource = ref<ResourceEntity[]>()
+/** 标题：旧 `title-text` 是 `标题 (角色名)` */
+useEntityPageTitle(() => detailRef.value?.entity?.name)
 
-async function loadResourceDataSource() {
-  const result:RestResult<ResourceEntity[]> = await resourceService.findEnterprise({})
-  resourceDataSource.value = result.data || []
-}
+/** 记录被删 ⇒ 回列表 + 关 tab（旧 `BasicDetail` 自己干的） */
+const {onStale} = usePageExit({redirect: enterpriseRoleCore.routes?.home})
 
-onMounted(() => loadResourceDataSource())
-
+/** 资源选择器的实例：树形勾选要按它当前的 `dataSource` 找祖先 / 子节点 */
+const resourcePickerRef = ref<{dataSource?: ResourceEntity[]}>()
 </script>
 
 <template>
-  <div>
-    <l-basic-detail
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_ROLE"
-      :redirect="{name:AUTH_SERVER_ENTERPRISE_ROLE_ROUTE.HOME}"
-      :title-text="(title:string, _entity:EnterpriseRoleEntity) => title + ' (' + _entity.name + ')'"
-      :service="service"
-      :column="{xxxl: 3,xxl: 3,xl: 3,lg: 2,md: 2,sm: 1,xs: 1}"
-      v-model:entity="entity"
-    >
-      <a-descriptions-item :label="globalProperties.$t('common.id')">
-        {{entity.id}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.name')">
-        {{entity.name}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.authority')">
-        {{entity.authority}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.role.modifiable')">
-        {{getEnumName(entity.modifiable)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('authServer.role.removable')">
-        {{getEnumName(entity.removable)}}
-      </a-descriptions-item>
-      <a-descriptions-item :label="globalProperties.$t('common.enabled')">
-        {{ getEnumName(entity.enabled)}}
-      </a-descriptions-item>
+  <crud-detail-page
+    v-if="ok"
+    ref="detailRef"
+    :id="id"
+    :page="enterpriseRoleDetailPage"
+    @stale="onStale"
+  >
+    <!-- 旧 `BasicDetail` 的同名插槽：描述列表之后、操作记录之前 -->
+    <template #afterDescriptions="{entity}">
+      <a-divider titlePlacement="start" plain>
+        <a-space>
+          <icon-font class="icon" type="loncra-key-round" />
+          {{ $t('authServer.standaloneResource') }}
+        </a-space>
+      </a-divider>
 
-      <a-descriptions-item :label="globalProperties.$t('common.remark')" :span="2">
-        {{ entity.remark || '' }}
-      </a-descriptions-item>
-
-      <template #afterDescriptions>
-        <a-divider titlePlacement="start" plain>
-          <a-space>
-            <icon-font class="icon" type="loncra-key-round" />
-            {{ globalProperties.$t('authServer.standaloneResource') }}
-          </a-space>
-        </a-divider>
-
-        <l-resource-table
-          ref="resourceTableRef"
-          :immediate="false"
-          :drag="false"
-          preview
-          :title="false"
-          v-model:resource-ids="entity.resourceIds"
-          v-model:data-source="resourceDataSource"
-          :row-selection="{getCheckboxProps:() => ({disabled:true})}"
-        />
-      </template>
-    </l-basic-detail>
-  </div>
+      <!-- 独立资源：pro 的资源列表声明当**只读选择器**用（旧组件是 `preview` + 全部禁用）；取数口换成 `/resource/find/enterprise` -->
+      <crud-home-page
+        ref="resourcePickerRef"
+        :page="resourceHomePage"
+        :variant="RESOURCE_VARIANT.PICKER"
+        :record-actions="false"
+        :drag="false"
+        :pagination="false"
+        :title="false"
+        :scroll="{x: 'max-content', y: 350}"
+        :expand-icon-column-index="2"
+        :fetch="fetchEnterpriseResources"
+        :row-selection="resourceTreeSelection({
+          dataSource: () => resourcePickerRef?.dataSource ?? [],
+          selectedIds: () => entity.resourceIds,
+          onChange: () => {},
+          getCheckboxProps: () => ({disabled: true}),
+        })"
+      />
+    </template>
+  </crud-detail-page>
 </template>

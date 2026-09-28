@@ -109,7 +109,7 @@ function roleSelection(entity: ConsoleUserSavePayload) {
       :row-selection="{type: 'checkbox', selectedRowKeys: entity.resourceIds}"
       :title="false"
       plain
-      :classes="{header: 'mb-0!', 'table.root':'mb-md'}"
+      :classes="{'table.root':'mb-md'}"
     />
 
     <a-form-item name="remark" :label="$t('common.remark')">

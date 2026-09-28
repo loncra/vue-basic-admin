@@ -16,7 +16,6 @@ import {
 import {
   enterpriseInvitationCore,
   expirationCell,
-  inviterCell,
   roleNamesCell,
 } from './enterprise-invitation.page'
 
@@ -60,12 +59,13 @@ export const enterpriseInvitationHomePage = defineHomePage<
     },
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
-      {key: 'member', width: 250, ellipsis: true, render: inviterCell},
+      // 显示（头像 + 名称，本人那行带「(我)」）来自核心字典的 `format: {name: 'principalName', args: {self: true}}`
+      {key: 'member', width: 250, ellipsis: true},
       {key: 'status', width: 120, ellipsis: true, search: defineSearchProps('select')},
       {key: 'auditType', width: 120, ellipsis: true, search: defineSearchProps('select')},
       {key: 'roles', width: 180, ellipsis: true, render: roleNamesCell},
       {key: 'expirationTime', width: 210, render: expirationCell, search: defineSearchProps('dateRange')},
-      {key: 'creationTime', width: 210, format: 'dateTime', search: defineSearchProps('dateRange')},
+      {key: 'creationTime', width: 210, search: defineSearchProps('dateRange')},
     ],
     recordActions: [
       {

@@ -20,8 +20,8 @@ import {usePageExit} from '@/composables/usePageExit'
  * 用法：`<crud-form-page :key="formKey" @success="onSuccess" @stale="onStale">`
  */
 export function useFormSuccessBack(options: {
-  /** 回列表的去处（页面的 `routes.home`）；给不出就只关 tab */
-  redirect?: RouteLocationRaw
+  /** 回列表的去处（页面的 `routes.home`）；给不出就只关 tab。**给函数** = 离场那一刻才求值 */
+  redirect?: RouteLocationRaw | (() => RouteLocationRaw)
   /** 当前实体（用 `id` 判新增 / 编辑） */
   entity: () => {id?: unknown} | undefined
 }) {

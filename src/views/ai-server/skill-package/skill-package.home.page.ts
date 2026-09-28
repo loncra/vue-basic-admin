@@ -1,14 +1,14 @@
-import {h, ref} from 'vue'
-import {Badge} from 'antdv-next'
+import {ref} from 'vue'
 import {
   defineHomePage,
+  executeStatusCell,
   type ActionContext,
   type RecordActionContext,
 } from '@loncra/antdv-pro'
 import type {SkillPackageEntity, SkillPackageSavePayload} from '@loncra/client/ai'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
+import {getEnumValue} from '@loncra/client/commons'
 import i18n from '@/i18n'
-import {defineSearchProps, getExecuteBadgeStatus, renderIconFont} from '@/utils'
+import {defineSearchProps, renderIconFont} from '@/utils'
 import {
   DATA_RELEASE_STATUS,
   DATA_STATUS,
@@ -31,17 +31,6 @@ export const skillSnapshot = ref({
   spinning: false,
   form: {releaseVersion: '', changelog: ''},
 })
-
-/** 执行状态：带徽标的名称（`a-badge`）；没有值时**返回 `undefined`** 交回表格自己渲染 */
-function executeStatusBadgeCell(_value: unknown, record: SkillPackageEntity) {
-  if (!record.executeStatus) {
-    return undefined
-  }
-  return h(Badge, {
-    status: getExecuteBadgeStatus(record.executeStatus),
-    text: getEnumName(record.executeStatus),
-  })
-}
 
 /** 可发布的：新建 / 已撤销，且**有版本**（没有版本发布不了） */
 function releasable(items: SkillPackageEntity[]) {
@@ -158,7 +147,9 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         key: 'executeStatus',
         width: 120,
         search: defineSearchProps('select'),
-        render: executeStatusBadgeCell,
+        // 执行状态统一用 pro 的 `executeStatusCell()`（原来这里是宿主手写的一份，
+        // 且它的 `if (!record.executeStatus)` 会把 `PROCESSING`（值 = 0）连同徽标一起吞掉）
+        render: executeStatusCell(),
       },
       {key: 'latestVersion', width: 120, search: defineSearchProps('input')},
       {

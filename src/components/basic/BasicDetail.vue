@@ -23,7 +23,8 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {getRouteTitle} from "@/routers";
 import {App, type MenuProps} from "antdv-next";
 import type {RouteLocationNormalizedLoaded, RouteLocationRaw} from "vue-router";
-import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
+import {isOperationTraceVisible, OperationTraceTable as LOperationTraceTable} from "@loncra/antdv-pro";
+import {HistoryOutlined} from '@antdv-next/icons';
 import i18n from "@/i18n";
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 
@@ -175,15 +176,19 @@ watch(
 
       <slot name="afterDescriptions"></slot>
 
-      <div v-if="entity.id && creationTime && operationDataTraceTarget">
+      <!--
+        操作记录：pro 的能力（`target` / `entity.id` / `entity.creationTime` 三个值齐了才渲染，
+        自己拉数据；想隐藏就不给值）。**分割线归页面**（表格组件只管表格），值不齐时连分割线一起不出。
+      -->
+      <template v-if="isOperationTraceVisible(props.operationDataTraceTarget, entity)">
         <a-divider titlePlacement="start" plain>
           <a-space>
-            <icon-font class="icon" type="loncra-timer-reset" />
+            <history-outlined />
             <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
           </a-space>
         </a-divider>
-        <l-operation-data-trace-table :title="false" detailView :date="creationTime" :query="{'filter_[data.operationTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationTrace.id_eq]':entity.id}"/>
-      </div>
+        <l-operation-trace-table :target="props.operationDataTraceTarget" :entity="entity" />
+      </template>
 
       <slot name="afterOperationDataTrace"></slot>
     </l-menu-title-card>

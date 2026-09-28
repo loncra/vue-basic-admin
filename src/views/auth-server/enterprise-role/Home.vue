@@ -1,48 +1,18 @@
 <script setup lang="ts">
+import {CrudHomePage} from '@loncra/antdv-pro'
+import {enterpriseRoleHomePage} from './enterprise-role.home.page'
 
-import type {TableProps} from "antdv-next";
-
-
-import type {RecordActionDefinition} from '@loncra/antdv-pro';
-import {YES_OR_NO_TYPE} from '@/constants';
-import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
-import type {EnterpriseRoleEntity} from "@loncra/client/auth";
-import {getEnumValue} from "@loncra/client/commons"
-
+/**
+ * 企业角色列表页薄壳：列、搜索、权限、动作（含 addChild）、跳转全在声明里
+ * —— 旧 `EnterpriseRoleTable.vue` 那份手写表格已由 pro 的列表 DSL 取代。
+ */
 defineOptions({
-  name: 'AuthServerEnterpriseRoleHome'
+  name: 'AuthServerEnterpriseRoleHome',
 })
-
-const getCheckboxProps: NonNullable<TableProps['rowSelection']>['getCheckboxProps'] = (record) => ({
-  disabled: getEnumValue(record.removable) === YES_OR_NO_TYPE.NO,
-})
-
-const rowSelection: NonNullable<TableProps['rowSelection']> = {
-  fixed: true,
-  type: 'checkbox',
-  getCheckboxProps,
-}
-
-const rowActions: RecordActionDefinition<EnterpriseRoleEntity>[] = [
-  {
-    id: 'edit',
-    visible: (ctx) => getEnumValue(ctx.record!.modifiable) !== YES_OR_NO_TYPE.NO,
-  },
-  {
-    id: 'delete',
-    visible: (ctx) => getEnumValue(ctx.record!.removable) !== YES_OR_NO_TYPE.NO,
-  },
-]
-
 </script>
 
 <template>
-
   <div>
-    <l-enterprise-role-table
-      :row-actions="rowActions"
-      :row-selection="rowSelection"
-    />
+    <crud-home-page :page="enterpriseRoleHomePage" />
   </div>
-
 </template>

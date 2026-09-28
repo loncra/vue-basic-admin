@@ -411,4 +411,13 @@
   .ant-table-expanded-row-fixed .ant-table-title {
     @apply border-t-0
   }
+  .ant-table-expanded-row .ant-table-bordered > .ant-table-title,
+  .ant-table-expanded-row .ant-table-bordered > .ant-table-container {
+    margin-inline-start: -1px;
+  }
+  .ant-table-wrapper .ant-table-container >.ant-table-content {
+    @apply rounded-none
+    /* border-start-start-radius: var(--ant-table-header-border-radius); */
+    /* border-start-end-radius: var(--ant-table-header-border-radius); */
+  }
 }

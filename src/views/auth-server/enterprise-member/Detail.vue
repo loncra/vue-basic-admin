@@ -6,10 +6,8 @@ import type {
   ResourceEntity
 } from '@loncra/client/auth'
 import {
-  AUTH_SERVER_AUDIT_STATUS_VALUE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   EnterpriseMemberService,
-  ResourceService
 } from '@loncra/client/auth'
 import {requireNonNullOrUndefined} from '@/utils'
 import {type ComponentInternalInstance, getCurrentInstance, inject, ref} from 'vue'
@@ -22,10 +20,16 @@ import {
 } from '@/constants'
 
 import type {TableProps} from 'antdv-next'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
+import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from '@loncra/client/commons'
 
-import LEnterpriseRoleTable from '@/components/auth-server/EnterpriseRoleTable.vue'
-import LResourceTable from '@/components/auth-server/ResourceTable.vue'
+import {CrudHomePage} from '@loncra/antdv-pro'
+import {enterpriseRoleHomePage} from '@/views/auth-server/enterprise-role/enterprise-role.home.page'
+import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
+import {
+  fetchEnterpriseResources,
+  RESOURCE_VARIANT,
+  resourceTreeSelection,
+} from '@/views/auth-server/resource/resource.page'
 import useApp from 'antdv-next/dist/app/useApp'
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -47,9 +51,8 @@ const principalStore = usePrincipalStore()
 
 const {message} = useApp()
 
-const resourceDataSource = ref<ResourceEntity[]>([])
-const roleDataSource = ref<EnterpriseRoleEntity[]>([])
-const resourceService = new ResourceService()
+/** 资源选择器的实例：树形勾选要按它当前的 `dataSource` 找祖先 / 子节点 */
+const resourcePickerRef = ref<{dataSource?: ResourceEntity[]}>()
 const service = new EnterpriseMemberService()
 const loading = ref(false)
 
@@ -60,7 +63,7 @@ const entity = ref<EnterpriseMemberEntity>({
   principal: '',
   username: '',
   role: AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.MEMBER,
-  auditStatus: AUTH_SERVER_AUDIT_STATUS_VALUE.AUDITABLE,
+  auditStatus: AUDIT_STATUS_VALUE.AUDITABLE,
   status: {
     value: 99,
     name: '',
@@ -99,12 +102,6 @@ const roleSelectedChange: NonNullable<TableProps["rowSelection"]>["onChange"] = 
   ]
 }
 
-async function postGetEntity(entity: EnterpriseMemberEntity) {
-  const result = await resourceService.findEnterprise({})
-  resourceDataSource.value = result.data ?? []
-  return entity
-}
-
 async function onSave() {
   loading.value = true
   try {
@@ -122,7 +119,6 @@ async function onSave() {
   <div>
     <l-basic-detail
       :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE_MEMBER"
-      :post-get-entity="postGetEntity"
       :redirect="{name:AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE.HOME}"
       :title-text="(title:string, _entity:EnterpriseMemberEntity) => title + ' (' + displayName(_entity) + ')'"
       :service="service"
@@ -164,12 +160,19 @@ async function onSave() {
           </a-space>
         </a-divider>
 
-        <l-enterprise-role-table
-          ref="roleTableRef"
-          v-model:data-source="roleDataSource"
-          preview :title="false" root-class="mb-md"
+        <!-- 角色表：换成 pro 的角色列表声明（旧组件的 `preview` = 不要行内动作；标题由上面的分割线给） -->
+        <crud-home-page
+          class="mb-md"
+          :page="enterpriseRoleHomePage"
+          :record-actions="false"
+          :title="false"
           :query="{'filter_[enabled_eq]':'1'}"
-          :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange,getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER})}"
+          :row-selection="{
+            type: 'checkbox',
+            selectedRowKeys: entity.roleIds,
+            onChange: roleSelectedChange,
+            getCheckboxProps: () => ({disabled: getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER}),
+          }"
         />
 
         <a-divider titlePlacement="start" plain>
@@ -179,14 +182,28 @@ async function onSave() {
           </a-space>
         </a-divider>
 
-        <l-resource-table
-          ref="resourceTableRef"
-          :immediate="false"
+        <!-- 资源选择器：换成 pro 的资源列表声明；取数口换成 `/resource/find/enterprise`（`fetchEnterpriseResources`） -->
+        <crud-home-page
+          ref="resourcePickerRef"
+          :page="resourceHomePage"
+          :variant="RESOURCE_VARIANT.PICKER"
+          :record-actions="false"
           :drag="false"
+          :pagination="false"
           :title="false"
-          v-model:resource-ids="entity.resourceIds"
-          v-model:data-source="resourceDataSource"
-          :row-selection="{getCheckboxProps:() => ({disabled:getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER || !principalStore.hasPermission(AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.SAVE)})}"
+          :scroll="{x: 'max-content', y: 350}"
+          :expand-icon-column-index="2"
+          :fetch="fetchEnterpriseResources"
+          :row-selection="resourceTreeSelection({
+            dataSource: () => resourcePickerRef?.dataSource ?? [],
+            selectedIds: () => entity.resourceIds,
+            onChange: (ids) => { entity.resourceIds = ids },
+            getCheckboxProps: () => ({
+              disabled:
+                getEnumValue(entity.role) === AUTH_SERVER_ENTERPRISE_MEMBER_ROLE.OWNER ||
+                !principalStore.hasPermission(AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.SAVE),
+            }),
+          })"
         />
 
       </template>

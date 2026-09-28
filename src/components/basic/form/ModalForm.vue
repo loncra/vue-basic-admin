@@ -9,7 +9,8 @@ import {isResultSuccess} from "@/requests";
 import {App, Button} from "antdv-next";
 import {requireNonNullOrUndefined} from "@/utils";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import LOperationDataTraceTable from "@/components/auth-server/OperationDataTraceTable.vue";
+import {isOperationTraceVisible, OperationTraceTable as LOperationTraceTable} from "@loncra/antdv-pro";
+import {HistoryOutlined} from '@antdv-next/icons';
 import {renderIconFont} from '@/utils/commonUtils'
 
 
@@ -41,7 +42,6 @@ const props = withDefaults(
 )
 
 const formRef = ref()
-const creationTime = ref<number>()
 const loading = defineModel<boolean>("spinning", {default: false})
 const entity = defineModel<TBody>("entity", {required: true})
 
@@ -95,12 +95,7 @@ async function getEntity(id: TId) {
     entity.value[key] = value[key]
   }
   emit('postGet', result, entity.value)
-
-  const ct = (value as { creationTime?: number }).creationTime
-  if (ct != null) {
-    creationTime.value = ct
   }
-}
 
 const footer = () => {
   return [
@@ -163,14 +158,21 @@ defineExpose({
         <slot name="rowLayout"></slot>
       </a-row>
       <slot></slot>
-      <div v-if="entity.id && creationTime" class="mb-md">
+      <!--
+        操作记录：pro 的能力（`target` / 实体 `id` / `creationTime` 三者齐才渲染，自己拉数据）。
+        **分割线归页面**（表格组件只管表格），值不齐时连分割线一起不出。
+      -->
+      <div
+        v-if="isOperationTraceVisible(props.operationDataTraceTarget, entity)"
+        class="mb-md"
+      >
         <a-divider titlePlacement="start" plain>
           <a-space>
-            <icon-font class="icon" type="loncra-timer-reset" />
+            <history-outlined />
             <span>{{ globalProperties.$t('form.operationDataTrace') }}</span>
           </a-space>
         </a-divider>
-        <l-operation-data-trace-table detailView :date="creationTime" :query="{'filter_[data.operationDataTrace.target_eq]': props.operationDataTraceTarget, 'filter_[data.operationDataTrace.entityId_eq]':entity.id}"/>
+        <l-operation-trace-table :target="props.operationDataTraceTarget" :entity="entity" />
       </div>
     </l-form>
   </a-modal>

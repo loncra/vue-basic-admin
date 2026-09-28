@@ -4,7 +4,7 @@ import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
 import {renderIconFont} from '@/utils/commonUtils'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {ResourceService} from '@loncra/client/auth'
-import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from '@loncra/client/commons'
+import {findAllTreeNodes, findFirstTreeNode, type FilterRequest, unmergeTree} from '@loncra/client/commons'
 import {
   AUTH_SERVER_RESOURCE_ROUTE,
   OPERATION_DATA_TRACE_TABLE,
@@ -14,13 +14,25 @@ import {
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 
-const resourceService = new ResourceService()
+/** 资源服务实例（企业侧页面要拿它调 `findEnterprise`，见 `fetchEnterpriseResources`） */
+export const resourceService = new ResourceService()
 
 /**
  * 宿主形态名。role 表单/详情、console-user 表单把资源表当选择器用，传 `variant: RESOURCE_VARIANT.PICKER`，
  * 宿主 import 这个常量，别写字面量。
  */
 export const RESOURCE_VARIANT = {PICKER: 'picker'} as const
+
+/**
+ * 「**企业可选资源**」的取数口：企业侧的「独立资源」表（企业角色表单 / 详情、企业成员详情）都只列
+ * 企业来源的启用资源，而**企业侧登录用户调不了 `resource/find`**（那个只给运营后台）⇒ 必须走
+ * `/resource/find/enterprise`。声明里的 `service` 是运营侧那个，所以这些壳用 pro 的 `:fetch` 换掉取数。
+ *
+ * ⚠️ **不要再往 `query` 里塞 `filter_[enabled_eq]` / `filter_[sources_jin]`**：`findEnterprise`
+ * 的服务端实现自带那两个固定过滤，前端重复传会让接口报错。
+ */
+export const fetchEnterpriseResources = (request: FilterRequest) =>
+  resourceService.findEnterprise(request)
 
 /** 名称单元格：图标 + 名称（**列表与详情共用**，所以放核心） */
 export function renderIconName(value: unknown, record: ResourceEntity) {
@@ -46,6 +58,8 @@ export function resourceTreeSelection(options: {
   selectedIds: () => number[] | undefined
   /** 写回勾选结果 */
   onChange: (ids: number[]) => void
+  /** 额外的勾选框条件（如企业成员详情里"不是企业主 / 没有保存权限就禁用"）；给不出就是不限制 */
+  getCheckboxProps?: NonNullable<TableProps['rowSelection']>['getCheckboxProps']
 }): NonNullable<TableProps['rowSelection']> {
   function findParentNode(parentIds: number[]): ResourceEntity[] {
     const parentNode = findAllTreeNodes(
@@ -110,7 +124,14 @@ export function resourceTreeSelection(options: {
     )
   }
 
-  return {fixed: true, type: 'checkbox', selectedRowKeys: options.selectedIds(), onSelect, onChange}
+  return {
+    fixed: true,
+    type: 'checkbox',
+    selectedRowKeys: options.selectedIds(),
+    getCheckboxProps: options.getCheckboxProps,
+    onSelect,
+    onChange,
+  }
 }
 
 /**
