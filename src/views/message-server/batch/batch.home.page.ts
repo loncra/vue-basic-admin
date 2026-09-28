@@ -13,7 +13,8 @@ export const batchHomePage = defineHomePage<BatchMessageEntity, BatchMessageEnti
   rowSelection: {fixed: true, type: 'checkbox'},
   columns: [
     {key: 'type', width: 80, search: defineSearchProps('select')},
-    {key: 'creationTime', width: 210, format: 'dateTime', search: defineSearchProps('dateRange')},
+    // `format: 'dateTime'` 在核心字典里（列上不重复写）
+    {key: 'creationTime', width: 210, search: defineSearchProps('dateRange')},
     {
       key: 'executeStatus',
       width: 80,
@@ -24,6 +25,6 @@ export const batchHomePage = defineHomePage<BatchMessageEntity, BatchMessageEnti
     {key: 'count', width: 200},
     {key: 'failNumber', width: 200},
     {key: 'successNumber', width: 200},
-    {key: 'completeTime', width: 210, format: 'dateTime', search: defineSearchProps('dateRange')},
+    {key: 'completeTime', width: 210, search: defineSearchProps('dateRange')},
   ],
 })

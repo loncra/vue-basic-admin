@@ -72,7 +72,7 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
     {
       key: 'icon',
       labelKey: 'common.icon',
-      span: 24,
+      col: {span: 24},
       component: IconSelect,
       // ⚠️ `iconRender` 必须给：`@loncra/antdv` 的 `IconSelect` **不认识宿主的图标字体**，
       // 契约就是"不给就什么都不画"（面板会出一片空框）。宿主页面里的 `l-icon-select` 也都传了它。
@@ -81,7 +81,7 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
     {
       key: 'remark',
       component: 'textarea',
-      span: 24,
+      col: {span: 24},
       props: {rows: 4, showCount: true, maxlength: 256},
     },
   ],

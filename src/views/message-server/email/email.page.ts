@@ -45,5 +45,10 @@ export const emailCore: CrudPageCore<EmailMessageEntity> = {
     retryCount: {labelKey: 'common.retry.count'},
     retryTime: {labelKey: 'common.retry.time', format: 'dateTime'},
     exception: {labelKey: 'error.errorMessage'},
+    // 下面四个只有**详情**形态用（旧 `Detail.vue` 手写的 descriptions 项），列表没有这几列
+    fromEmail: {labelKey: 'messageServer.email.fromEmail'},
+    remark: {labelKey: 'common.remark'},
+    content: {labelKey: 'common.content'},
+    attachmentList: {labelKey: 'attachment.text'},
   },
 }

@@ -1,5 +1,6 @@
 import {
   defineHomePage,
+  executeStatusCell,
   type RecordActionContext,
   type ToolbarActionContext,
 } from '@loncra/antdv-pro'
@@ -45,7 +46,8 @@ export const userExportHomePage = defineHomePage<ExportDataMetadata, ExportDataM
       {key: 'filename', width: 400},
       {key: 'type', width: 120, search: defineSearchProps('select')},
       {key: 'size', width: 150, format: 'byte'},
-      {key: 'executeStatus', width: 210, search: defineSearchProps('select')},
+      // 状态点 + 状态名：全仓规矩 —— executeStatus 不分形态都用 `executeStatusCell()`
+      {key: 'executeStatus', width: 210, render: executeStatusCell(), search: defineSearchProps('select')},
       {key: 'successTime', width: 210, format: 'dateTime'},
       {key: 'expiresTime', width: 210, format: 'dateTime'},
     ],

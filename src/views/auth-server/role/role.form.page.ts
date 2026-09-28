@@ -38,7 +38,7 @@ export const roleFormPage = defineFormPage<RoleSavePayload, RoleEntity>(roleCore
     {
       key: 'remark',
       component: 'textarea',
-      span: 24,
+      col: {span: 24},
       props: {rows: 4, showCount: true, maxlength: 256},
     },
   ],

@@ -166,6 +166,7 @@ async function onSave() {
           :page="enterpriseRoleHomePage"
           :record-actions="false"
           :title="false"
+          plain
           :query="{'filter_[enabled_eq]':'1'}"
           :row-selection="{
             type: 'checkbox',
@@ -189,6 +190,7 @@ async function onSave() {
           :variant="RESOURCE_VARIANT.PICKER"
           :record-actions="false"
           :drag="false"
+          plain
           :pagination="false"
           :title="false"
           :scroll="{x: 'max-content', y: 350}"
@@ -205,10 +207,9 @@ async function onSave() {
             }),
           })"
         />
-
       </template>
       <template #afterOperationDataTrace v-if="principalStore.hasPermission(AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.SAVE)">
-        <a-divider />
+        <div class="mb-md" />
         <a-button type="primary" @click="onSave" :loading="loading">
           <icon-font class="icon" type="loncra-save" v-if="!loading"/>
           {{ $t('common.save') }}

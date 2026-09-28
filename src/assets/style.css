@@ -309,7 +309,15 @@
     @apply size-full min-h-0;
   }
 
-  .size-full-spin .ant-spin-container {
+  /*
+   * 只有**页面级**那层容器要撑满 + 纵向 flex（撑起 `size-full` 的高度链）。
+   * ⚠️ 必须用 `>` 限定**直接子级**，不能写成后代形式 `.size-full-spin .ant-spin-container`：
+   * 页面内部还会再套 Spin（pro 的 `DataLoadingCardPlan`，`spin` 默认 true，卡片壳那层），
+   * 后代写法会把内层容器一起命中 ⇒ 它变成 `flex-direction: column` ⇒ 它的直接子级
+   * （`a-divider` / `a-button` / `a-space` …）被 `align-items: stretch` **拉满宽度**
+   * （按钮"莫名其妙 100%"，与有没有写 `block` 无关）。2026-09-28 踩过。
+   */
+  .size-full-spin.ant-spin-nested-loading > .ant-spin-container {
     @apply size-full min-h-0 flex flex-col;
   }
 
@@ -417,7 +425,5 @@
   }
   .ant-table-wrapper .ant-table-container >.ant-table-content {
     @apply rounded-none
-    /* border-start-start-radius: var(--ant-table-header-border-radius); */
-    /* border-start-end-radius: var(--ant-table-header-border-radius); */
   }
 }

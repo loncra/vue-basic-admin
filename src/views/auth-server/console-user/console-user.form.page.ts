@@ -33,18 +33,16 @@ export const consoleUserFormPage = defineFormPage<ConsoleUserSavePayload, Consol
       systemName: '',
     }),
     fields: [
-      {key: 'realName', component: 'input', span: 12, rules: [{required: true}]},
+      {key: 'realName', component: 'input', rules: [{required: true}]},
       {
         key: 'username',
         component: 'input',
-        span: 12,
         rules: [{required: true}],
         props: (ctx) => ({disabled: Boolean(ctx.entity?.id)}),
       },
       {
         key: 'email',
         component: 'input',
-        span: 12,
         // 新增要校验邮箱格式，编辑不让改邮箱 ⇒ 也不用校验
         rules: (ctx) => (ctx.entity?.id ? [] : [{type: 'email'}]),
         props: (ctx) => ({disabled: Boolean(ctx.entity?.id)}),
@@ -52,14 +50,13 @@ export const consoleUserFormPage = defineFormPage<ConsoleUserSavePayload, Consol
       {
         key: 'phoneNumber',
         component: 'input',
-        span: 12,
         rules: (ctx) => [
           {type: 'string', pattern: VALID_REGX.PHONE_NUMBER, message: ctx.t('error.valid.phoneNumber')},
         ],
         props: (ctx) => ({disabled: Boolean(ctx.entity?.id)}),
       },
-      {key: 'gender', component: 'select', span: 12},
-      {key: 'status', component: 'select', span: 12},
+      {key: 'gender', component: 'select'},
+      {key: 'status', component: 'select'},
     ],
     // 标题不在这里：`titleText` 没进 pro（"怎么写标题"是宿主的事）⇒ 在 `Form.vue` 的
     // `useEntityPageTitle` 里拼（编辑态带 `(realName)`，与旧行为一致）。

@@ -76,14 +76,14 @@ export const dataDictionaryFormPage = defineFormPage<
     {
       key: 'value',
       component: 'textarea',
-      span: 24,
+      col: {span: 24},
       rules: [{required: true}],
       props: {rows: 4, showCount: true, maxlength: 256},
     },
     {
       key: 'remark',
       component: 'textarea',
-      span: 24,
+      col: {span: 24},
       props: {rows: 4, showCount: true, maxlength: 256},
     },
   ],

@@ -13,7 +13,10 @@ const batchMessageService = new BatchMessageService()
 export const batchCore: CrudPageCore<BatchMessageEntity, BatchMessageEntity> = {
   service: batchMessageService,
   i18nPrefix: 'messageServer.batch',
-  routes: {detail: MESSAGE_SERVER_BATCH_ROUTE.DETAIL},
+  routes: {
+    home: MESSAGE_SERVER_BATCH_ROUTE.HOME,
+    detail: MESSAGE_SERVER_BATCH_ROUTE.DETAIL,
+  },
 
   /** 字段字典：labelKey / format / enumRef 只写一次 */
   fields: {
@@ -26,10 +29,12 @@ export const batchCore: CrudPageCore<BatchMessageEntity, BatchMessageEntity> = {
         id: SYSTEM_ENUM_TYPE.BATCH_MESSAGE_TYPE_ENUM,
       },
     },
-    creationTime: {labelKey: 'common.creationTime'},
-    // 执行状态：后端 `ExecuteStatus`（resource-server）；显示由列上的 `executeStatusCell` 负责
+    creationTime: {labelKey: 'common.creationTime', format: 'dateTime'},
+    // 执行状态：后端 `ExecuteStatus`（resource-server）；列表那列显示由 `executeStatusCell` 负责（`render` 优先于 `format`），
+    // `format: 'enum'` 是给**详情**用的（= `getEnumName`）
     executeStatus: {
       labelKey: 'common.status',
+      format: 'enum',
       enumRef: {
         module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
         id: SYSTEM_ENUM_TYPE.EXECUTE_STATUS_ENUM,
@@ -38,6 +43,6 @@ export const batchCore: CrudPageCore<BatchMessageEntity, BatchMessageEntity> = {
     count: {labelKey: 'messageServer.batch.count'},
     failNumber: {labelKey: 'messageServer.batch.failNumber'},
     successNumber: {labelKey: 'messageServer.batch.successNumber'},
-    completeTime: {labelKey: 'common.completionTime'},
+    completeTime: {labelKey: 'common.completionTime', format: 'dateTime'},
   },
 }

@@ -38,9 +38,12 @@ export const enterpriseRoleFormPage = defineFormPage<
   fields: [
     {key: 'name', component: 'input', rules: [{required: true}]},
     {key: 'authority', component: 'input', rules: [{required: true}]},
-    {key: 'removable', component: 'select'},
-    {key: 'modifiable', component: 'select'},
-    {key: 'enabled', component: 'select'},
+    // 三个 v1 开关**一排三个**：`col` 整包透传给 `<a-col>`（官方 `ColProps`，pro 不加工）。
+    // ⚠️ 传了 `col` 就是**整包替换** pro 默认 ⇒ 想让手机一列、`md` 起三列，`xs`/`sm` 也得写出来
+    // （只写 `{span: 8}` 的话手机端也会三个挤一行）。
+    {key: 'removable', component: 'select', col: {xs: 24, sm: 24, md: 8, lg: 8, xl: 8, xxl: 8}},
+    {key: 'modifiable', component: 'select', col: {xs: 24, sm: 24, md: 8, lg: 8, xl: 8, xxl: 8}},
+    {key: 'enabled', component: 'select', col: {xs: 24, sm: 24, md: 8, lg: 8, xl: 8, xxl: 8}},
     // `remark` 不在这里：旧页面的它在「独立资源」表**下面**（不在字段行里）⇒ 由 `Form.vue`
     // 的默认插槽渲染（同 `console-user/Form.vue` 的做法），位置与旧页面一致。
   ],

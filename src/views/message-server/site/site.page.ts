@@ -44,5 +44,10 @@ export const siteCore: CrudPageCore<SiteMessageEntity> = {
     pushable: {labelKey: 'messageServer.site.pushable', format: 'enum'},
     readTime: {labelKey: 'common.read.time', format: 'dateTime'},
     exception: {labelKey: 'error.errorMessage'},
+    // 下面四个只有**详情**形态用（旧 `Detail.vue` 手写的 descriptions 项），列表没有这几列
+    remark: {labelKey: 'common.remark'},
+    cover: {labelKey: 'common.cover'},
+    content: {labelKey: 'common.content'},
+    attachmentList: {labelKey: 'attachment.text'},
   },
 }

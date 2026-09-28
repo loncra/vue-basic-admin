@@ -75,6 +75,7 @@ const resourcePickerRef = ref<{dataSource?: ResourceEntity[]}>()
       :record-actions="false"
       :drag="false"
       :pagination="false"
+      plain
       :title="false"
       :scroll="{x: 'max-content', y: 350}"
       :expand-icon-column-index="2"
