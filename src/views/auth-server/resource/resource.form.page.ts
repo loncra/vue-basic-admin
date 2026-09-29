@@ -1,5 +1,4 @@
 import {ref, type Ref} from 'vue'
-import {IconSelect} from '@loncra/antdv'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
 import {defineFormPage} from '@loncra/antdv-pro'
@@ -10,7 +9,7 @@ import type {IconfontJson} from '@/types/composables/common'
 import {resourceCore} from './resource.page'
 import {getEnumValue} from '@loncra/client/commons'
 
-/** 图标清单（表单的 IconSelect 用）。懒加载一次，函数形态的 props 读它 —— 只有表单用，所以留在形态文件里 */
+/** 图标清单（表单的 `iconSelect` 用）。懒加载一次，函数形态的 props 读它 —— 只有表单用，所以留在形态文件里 */
 const iconOptions = ref<IconfontJson[]>([])
 const ICON_MANIFESTS = ['/font_loncra_icon/iconfont.json', '/font_xiaojiage/iconfont.json']
 
@@ -73,7 +72,9 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
       key: 'icon',
       labelKey: 'common.icon',
       col: {span: 24},
-      component: IconSelect,
+      // 走注册表内置的 `iconSelect`（值绑定 / label 归 pro）；`props` 函数形态是因为图标清单
+      // 在 `preMounted` 里懒加载（函数在 `fields` computed 里求值才跟得上）
+      component: 'iconSelect',
       // ⚠️ `iconRender` 必须给：`@loncra/antdv` 的 `IconSelect` **不认识宿主的图标字体**，
       // 契约就是"不给就什么都不画"（面板会出一片空框）。宿主页面里的 `l-icon-select` 也都传了它。
       // `IconSelect` 只把 `type` 递给它 ⇒ 这里包一层把 `align`（图标字体对齐类）带上 ✓

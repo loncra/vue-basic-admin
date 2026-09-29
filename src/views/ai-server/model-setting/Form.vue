@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import {inject, onMounted, ref} from 'vue'
+import {computed, inject, ref} from 'vue'
 import {useRoute} from 'vue-router'
-import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import type {ModelGenerateOptions, ModelSettingSavePayload} from '@loncra/client/ai'
 import {CrudFormPage} from '@loncra/antdv-pro'
-import {ResourceServerService} from '@/apis'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {
@@ -33,7 +32,8 @@ defineOptions({
 })
 
 const route = useRoute()
-const formRef = ref<{entity?: ModelSettingSavePayload}>()
+/** 壳要读 expose 的 `buckets`（是/否下拉的选项来自声明统一加载的那份桶）⇒ 本地类型带上它 */
+const formRef = ref<{entity?: ModelSettingSavePayload; buckets?: EnumBucketsResponseBody}>()
 
 /** 关 tab 要递给声明的 `preMounted`（厂商 code 缺失/查不到 → 400 那条路），声明里拿不到 inject */
 const closeLayoutTab = inject<(page: string, activatePane: boolean) => void>(
@@ -68,19 +68,18 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
   entity: () => formRef.value?.entity,
 })
 
-/** 是/否枚举：默认参数里的布尔项，界面上是「是/否」下拉（照抄旧页面 `preMounted` 拉的同一份桶） */
-const yesOrNoOptions = ref<NameValueEnumMetadata<number>[]>([])
-onMounted(async () => {
-  const enums: RestResult<EnumBucketsResponseBody> =
-    await ResourceServerService.getServiceEnumerates({
-      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.YES_OR_NO}],
-    })
-  if (enums.data) {
-    yesOrNoOptions.value = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
+/**
+ * 是/否枚举：默认参数里的布尔项，界面上是「是/否」下拉。
+ *
+ * 这份桶由**声明**统一加载（核心字典里 `enabled` 的 `enumRef: YES_OR_NO`）⇒ 壳从
+ * `CrudFormPageExpose.buckets` 读**同一份**结果，不再自己发一次同样的请求（那段 `onMounted` 也就没了）。
+ */
+const yesOrNoOptions = computed(
+  () =>
+    (formRef.value?.buckets?.[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
       SYSTEM_ENUM_TYPE.YES_OR_NO
-    ] as NameValueEnumMetadata<number>[]
-  }
-})
+    ] ?? []) as NameValueEnumMetadata<number>[],
+)
 
 /**
  * 「默认参数」的绑定对象：实体上的 `metadata.默认参数`（旧页面 `generateOptions` 的 getter）。

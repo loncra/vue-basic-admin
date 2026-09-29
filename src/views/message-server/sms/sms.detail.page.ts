@@ -38,8 +38,8 @@ export const smsDetailPage = defineDetailPage(smsCore, {
     },
     'retryTime',
     'successTime',
-    {key: 'exception', span: 2},
-    {key: 'remark', span: 2},
-    {key: 'content', span: 2},
+    {key: 'exception', span: 'filled'},
+    {key: 'remark', span: 'filled'},
+    {key: 'content', span: 'filled'},
   ],
 })

@@ -1,18 +1,15 @@
 import {h, ref} from 'vue'
 import {InputNumber, Select, SpaceCompact} from 'antdv-next'
-import {IconSelect} from '@loncra/antdv'
-import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
-import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
+import type {NameValueEnumMetadata} from '@loncra/client/commons'
+import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
   AI_SERVER_MCP_CLIENT_TYPE,
-  type McpPackageEntity,
   type McpPackageSavePayload,
   type SseMcpClientTransportMetadata,
   type StdioMcpClientTransportMetadata,
   type StreamableHttpMcpClientTransportMetadata,
 } from '@loncra/client/ai'
 import {defineFormPage} from '@loncra/antdv-pro'
-import {ResourceServerService} from '@/apis'
 import {loadIcon, renderIconFont} from '@/utils'
 import type {IconfontJson} from '@/types/composables'
 /** 宿主在 `metadata.client` 上补的三张「键值表」行数据（`@/types/apis`）—— 只在摊/收数据时要 */
@@ -28,23 +25,18 @@ import {
 } from '@/constants'
 import {mcpPackageCore} from './mcp-package.page'
 
-/** 分组字典（`category` 的选项） */
-const groupOptions = ref<DataDictionaryMetadata[]>([])
-/** 图标字体清单（旧页面的 `options.icons`） */
+/**
+ * 图标字体清单（旧页面的 `options.icons`）；分组字典不在这里 —— `category` 的 `render` 里
+ * 直接读 `ctx.dictionaries`。
+ */
 const ICON_FONTS = ['/font_ai_icon/iconfont.json']
 const iconOptions = ref<IconfontJson[]>([])
 /**
- * 时间单位：`initializeTimeout`（声明里）与客户端 `timeout`（壳里）都用 ⇒ **导出**给壳，
- * 一处拉、两处读（不再各拉一份）。
+ * **本文件不导出任何选项 ref**：壳里那三处枚举（时间单位 / 客户端类型 / 是否）与声明里
+ * `initializeTimeout` 用的是**同一份来源** —— 来源清单写在下面的 `enums`，pro 统一拉完给两边：
+ * 声明侧读字段级 `ctx.buckets`，壳侧读槽作用域的 `buckets`（`CrudFormPageSlots.default`）
+ * ⇒ 谁都不用自己再发一次请求，也不必靠模块级 ref 中转。
  */
-export const mcpPackageTimeOptions = ref<NameValueEnumMetadata<string>[]>([])
-/** 客户端类型：旧页面那个 `a-segmented` 用（分段控件在壳里）⇒ 同样导出给它 */
-export const mcpPackageClientTypeOptions = ref<NameValueEnumMetadata<string>[]>([])
-/**
- * 是否类开关（客户端那几处 `select` 在壳里）。`dynamicActivation` 本身吃核心字典的 `enumRef` ✓，
- * 但壳里的「启动时连接」「可续传流」也要同一份选项 ⇒ 导出。
- */
-export const mcpPackageYesOrNoOptions = ref<NameValueEnumMetadata<number>[]>([])
 
 /**
  * 实体初值（照抄旧页面 `createEmptyEntity`）。
@@ -105,8 +97,9 @@ function createEmptyEntity(): McpPackageEntityWithSources {
  *   `McpClarifyPolicyTable`）⇒ 与详情页同一个处理方式；
  * - 枚举字段（`authMode` / `origin` / `status` / `type` / `dynamicActivation`）**不写 options**：
  *   核心字典有 `enumRef` ⇒ pro 自动拉桶；
- * - `icon` / `category` / `initializeTimeout` 三处是组合控件 ⇒ `render` 自绘（表单字段 key
- *   不支持 `a.b` 路径）。`icon` 的 `iconRender` 与技能包表单**同一个口径**（带宿主的 `align` 类）。
+ * - `icon` **不写 `render`**：走注册表内置的 `iconSelect`（`iconRender` 与技能包表单**同一个口径**，
+ *   带宿主的 `align` 类）；
+ * - `category` / `initializeTimeout` 两处是组合控件 ⇒ `render` 自绘。
  */
 export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
   createEntity: () => createEmptyEntity() as unknown as McpPackageSavePayload,
@@ -121,18 +114,18 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
     },
     {
       key: 'icon',
-      render: (ctx) =>
-        h(IconSelect, {
-          class: 'w-full',
-          mode: ICON_SELECT_MODE.AVATAR,
-          // 与 `skill-package.form.page.ts` 同一个口径：`align` 是宿主的图标字体微调类
-          iconRender: (type: string) => renderIconFont(type, 'align'),
-          value: ctx.entity.icon,
-          options: iconOptions.value,
-          'onUpdate:value': (value: string) => {
-            ctx.entity.icon = value
-          },
-        }),
+      /**
+       * 走注册表内置的 `iconSelect`（值绑定 / label 归 pro）；`props` 的函数形态与理由同
+       * `skill-package.form.page.ts`（图标清单在 `preMounted` 才灌进 `iconOptions`）。
+       */
+      component: 'iconSelect',
+      props: () => ({
+        class: 'w-full',
+        mode: ICON_SELECT_MODE.AVATAR,
+        // 与 `skill-package.form.page.ts` 同一个口径：`align` 是宿主的图标字体微调类
+        iconRender: (type: string) => renderIconFont(type, 'align'),
+        options: iconOptions.value,
+      }),
     },
     {
       key: 'category',
@@ -145,7 +138,7 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
         h(Select, {
           class: 'w-full',
           value: ctx.entity.category?.code,
-          options: groupOptions.value.map((item) => ({
+          options: (ctx.dictionaries[MCP_GROUP_CODE_PREFIX] ?? []).map((item) => ({
             label: item.name,
             value: item.code,
             data: item,
@@ -185,7 +178,9 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
             }),
             h(Select, {
               class: 'w-auto',
-              options: mcpPackageTimeOptions.value,
+              options: (ctx.buckets[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
+                SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM
+              ] ?? []) as NameValueEnumMetadata<string>[],
               fieldNames: {label: 'name'},
               value: timeout.unit,
               'onUpdate:value': (value: unknown) => {
@@ -209,29 +204,20 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
       props: {rows: 4, showCount: true, maxlength: 512},
     },
   ],
-  /** 旧页面 `preMounted`：时间单位 + 分组字典 + 图标字体（枚举那几份由核心字典的 `enumRef` 接管） */
+  /**
+   * 显式声明的来源（**逃生口**）：这两个桶没有任何字段引用 —— `TIME_UNIT_ENUM` 给 `initializeTimeout`
+   * 的单位下拉（声明侧）与客户端 `timeout` 的单位（壳侧）、`MCP_CLIENT_TYPE_ENUM` 给壳里的分段控件
+   * ⇒ 写在这儿让 pro 统一拉，**两边读的是同一份**：声明侧读字段级 `ctx.buckets`，壳侧读槽作用域的
+   * `buckets`（`CrudFormPageSlots.default`）。
+   * `YES_OR_NO`（核心 `dynamicActivation.enumRef`）与分组字典（核心 `category.dictId`）由 pro 推导 ✓
+   * —— 壳里的「启动时连接」「可续传流」读的就是这份 `YES_OR_NO`。
+   */
+  enums: [
+    {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, ids: [SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM]},
+    {module: SYSTEM_MODULE_NAME.AI_SERVER, ids: [SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM]},
+  ],
+  /** 只剩"必须自己拉"的那段：本地图标字体（与 `skill-package.form.page.ts` 同一个口径） */
   preMounted: async () => {
-    const enums: RestResult<EnumBucketsResponseBody> =
-      await ResourceServerService.getServiceEnumerates({
-        [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-          {id: SYSTEM_ENUM_TYPE.YES_OR_NO},
-          {id: SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM},
-        ],
-        [SYSTEM_MODULE_NAME.AI_SERVER]: [{id: SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM}],
-      })
-    const resourceServer = enums.data?.[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
-    const aiServer = enums.data?.[SYSTEM_MODULE_NAME.AI_SERVER] ?? {}
-    mcpPackageYesOrNoOptions.value = (resourceServer[SYSTEM_ENUM_TYPE.YES_OR_NO] ??
-      []) as NameValueEnumMetadata<number>[]
-    mcpPackageTimeOptions.value = (resourceServer[SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM] ??
-      []) as NameValueEnumMetadata<string>[]
-    mcpPackageClientTypeOptions.value = (aiServer[SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM] ??
-      []) as NameValueEnumMetadata<string>[]
-
-    const dictionaries: RestResult<Record<string, DataDictionaryMetadata[]>> =
-      await ResourceServerService.findDataDictionariesByCodes([MCP_GROUP_CODE_PREFIX])
-    groupOptions.value = dictionaries.data?.[MCP_GROUP_CODE_PREFIX] ?? []
-
     iconOptions.value = []
     for (const icon of ICON_FONTS) {
       iconOptions.value.push(await loadIcon(import.meta.env.VITE_APP_SITE_URL + icon))

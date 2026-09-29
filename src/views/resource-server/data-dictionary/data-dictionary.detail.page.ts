@@ -28,7 +28,7 @@ export const dataDictionaryDetailPage = defineDetailPage<
     'level',
     'sort',
     // `value` 是字典项的值本身，核心字典里没写 format ⇒ 这里显式用 `enum`（= `getEnumName`，照旧）
-    {key: 'value', span: 2, format: 'enum'},
-    {key: 'remark', span: 2},
+    {key: 'value', span: 'filled', format: 'enum'},
+    {key: 'remark', span: 'filled'},
   ],
 })

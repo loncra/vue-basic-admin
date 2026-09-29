@@ -1,9 +1,8 @@
 import {h, nextTick, ref} from 'vue'
 import {InputNumber, Select, SpaceAddon, SpaceCompact} from 'antdv-next'
-import {IconSelect} from '@loncra/antdv'
 import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
 import {getEnumValue} from '@loncra/client/commons'
-import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
+import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
   AI_SERVER_SKILL_SOURCE_TYPE,
   AI_SERVER_SKILL_UPDATE_POLICY,
@@ -14,7 +13,6 @@ import {
   type SkillSourceMetadata,
 } from '@loncra/client/ai'
 import {defineFormPage} from '@loncra/antdv-pro'
-import {ResourceServerService} from '@/apis'
 import type {IconfontJson} from '@/types/composables'
 import {loadIcon, renderIconFont} from '@/utils'
 import {
@@ -27,19 +25,15 @@ import {
 import {skillPackageCore} from './skill-package.page'
 
 /**
- * 这个表单要的三份"选项数据"（旧页面 `options` 里的 `groupOptions` / `timeOptions` / `iconOptions`）。
+ * 只放"**ctx 给不了**"的选项数据：图标字体清单来自本地 json（`loadIcon`），ctx 里没有
+ * ⇒ 只能模块级 ref + `preMounted` 灌。
  *
- * 放模块级：消费方全在本文件（下面三个 `render`），没必要绕 `ctx.extra` 从壳里递进来。
- * `origin` / `type` / `sourceType` / `defaultUpdatePolicy` 那几份枚举**不在这里** —— 它们写在核心字典
- * 的 `enumRef` 上，pro 的 `collectFormSources` 会自动拉桶（旧页面 `preMounted` 里那半段因此删掉）。
+ * 桶 / 字典**一律在 `render` 里直接读 `ctx.buckets` / `ctx.dictionaries`**（与 `site.send.page.ts`
+ * 同一个口径）—— 别再绕一层中间 ref：字段级 ctx 早就有这两样了，中间 ref 只是
+ * "字段级 ctx 还没有 buckets"那个时代留下的绕路。
+ * `origin` / `type` / `sourceType` / `defaultUpdatePolicy` 那几份枚举也不在这里 —— 它们写在核心字典
+ * 的 `enumRef` 上，pro 的 `collectFormSources` 会自动拉桶。
  */
-const groupOptions = ref<DataDictionaryMetadata[]>([])
-const timeOptions = ref<NameValueEnumMetadata<string>[]>([])
-/**
- * 更新策略的选项：`defaultUpdatePolicy` 是 `render` 字段 ⇒ 拿不到 pro 给组件注入的 options
- * （`render` 逃生时 `component` 是空的），所以这一份得自己拉。
- */
-const updatePolicyOptions = ref<NameValueEnumMetadata<number>[]>([])
 const iconOptions = ref<IconfontJson[]>([])
 /** 图标字体清单（旧页面的 `options.icons`） */
 const ICON_FONTS = ['/font_ai_icon/iconfont.json']
@@ -105,8 +99,9 @@ function onSourceTypeChange(entity: SkillPackageSavePayload, value: number): voi
  *   —— 这样**顺序与旧页面完全一致**，且带宿主组件的块不必塞进声明；
  * - 枚举字段（`origin` / `type` / `sourceType` / `defaultUpdatePolicy`）**不手写 options**：
  *   核心字典有 `enumRef` ⇒ pro 自动拉桶并映射成组件能吃的形状；
- * - `icon` / `category` / `defaultUpdatePolicy` 三处是**组合控件**（`IconSelect` / 取整条字典项的
- *   `Select` / 带「自动更新间隔」的 `SpaceCompact`）⇒ 用 `render` 自绘（表单字段 key 不支持 `a.b` 路径）。
+ * - `icon` **不写 `render`**：走注册表内置的 `iconSelect`（`options` / `iconRender` 由 `props` 给）；
+ * - `category` / `defaultUpdatePolicy` 两处是**组合控件**（取整条字典项的 `Select` / 带「自动更新
+ *   间隔」的 `SpaceCompact`）⇒ 用 `render` 自绘。
  */
 export const skillPackageFormPage = defineFormPage(skillPackageCore, {
   createEntity: createEmptyEntity,
@@ -121,19 +116,21 @@ export const skillPackageFormPage = defineFormPage(skillPackageCore, {
     },
     {
       key: 'icon',
-      render: (ctx) =>
-        h(IconSelect, {
-          class: 'w-full',
-          mode: ICON_SELECT_MODE.AVATAR,
-          // 宿主的 `renderIconFont(type, classes)` 第二参是类名 ⇒ 包一层把 `align` 带上
-          // （`IconSelect` 的 `iconRender` 只收 `type` 一个参数）
-          iconRender: (type: string) => renderIconFont(type, 'align'),
-          value: ctx.entity.icon,
-          options: iconOptions.value,
-          'onUpdate:value': (value: string) => {
-            ctx.entity.icon = value
-          },
-        }),
+      /**
+       * 走注册表内置的 `iconSelect`（`registry.ts`）：值绑定（`value` / `onUpdate:value`）与 label
+       * 都归 pro，这里只喂 `options` / `iconRender`。
+       * `props` **必须是函数形态** —— 图标清单在 `preMounted` 里才灌进 `iconOptions`，
+       * 函数在 `fields` computed 里求值才跟得上（先例：`resource.form.page.ts` 的 `icon`）。
+       */
+      component: 'iconSelect',
+      props: () => ({
+        class: 'w-full',
+        mode: ICON_SELECT_MODE.AVATAR,
+        // 宿主的 `renderIconFont(type, classes)` 第二参是类名 ⇒ 包一层把 `align` 带上
+        // （`IconSelect` 的 `iconRender` 只收 `type` 一个参数）
+        iconRender: (type: string) => renderIconFont(type, 'align'),
+        options: iconOptions.value,
+      }),
     },
     {
       key: 'category',
@@ -147,7 +144,7 @@ export const skillPackageFormPage = defineFormPage(skillPackageCore, {
         h(Select, {
           class: 'w-full',
           value: ctx.entity.category?.code,
-          options: groupOptions.value.map((item) => ({
+          options: (ctx.dictionaries[SKILL_GROUP_CODE_PREFIX] ?? []).map((item) => ({
             label: item.name,
             value: item.code,
             data: item,
@@ -177,7 +174,9 @@ export const skillPackageFormPage = defineFormPage(skillPackageCore, {
             disabled:
               getEnumValue(entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL,
             value: entity.defaultUpdatePolicy,
-            options: updatePolicyOptions.value,
+            options: (ctx.buckets[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
+              SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM
+            ] ?? []) as NameValueEnumMetadata<number>[],
             fieldNames: {label: 'name'},
             // Select 的回调参数是 `SelectValue`（可空）⇒ 收到后自己收窄
             onChange: (value: unknown) =>
@@ -203,7 +202,9 @@ export const skillPackageFormPage = defineFormPage(skillPackageCore, {
             }),
             h(Select, {
               class: 'w-auto',
-              options: timeOptions.value,
+              options: (ctx.buckets[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
+                SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM
+              ] ?? []) as NameValueEnumMetadata<string>[],
               fieldNames: {label: 'name'},
               value: time.unit,
               'onUpdate:value': (value: unknown) => {
@@ -225,27 +226,15 @@ export const skillPackageFormPage = defineFormPage(skillPackageCore, {
     },
   ],
   /**
-   * 旧页面 `preMounted` 的后半段：字典分组 + 时间单位 + 图标字体。
-   * （前半段手拉的那四份枚举已由核心字典的 `enumRef` 接管 ✓）
+   * 显式声明的来源（**逃生口**）：`TIME_UNIT_ENUM` 没有任何字段引用（它给 `render` 里的单位下拉用）
+   * ⇒ 写在这儿让 pro 统一拉。`UPDATE_POLICY_ENUM`（核心 `defaultUpdatePolicy.enumRef`）与分组字典
+   * （核心 `category.dictId`）都由 pro 推导，不用写 ✓。
+   */
+  enums: [{module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, ids: [SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM]}],
+  /**
+   * 只剩"必须自己拉"的那段：本地图标字体。桶与字典由 pro 统一拉，`render` 里直接读。
    */
   preMounted: async () => {
-    const enums: RestResult<EnumBucketsResponseBody> =
-      await ResourceServerService.getServiceEnumerates({
-        [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-          {id: SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM},
-          {id: SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM},
-        ],
-      })
-    const resourceServer = enums.data?.[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
-    timeOptions.value = (resourceServer[SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM] ??
-      []) as NameValueEnumMetadata<string>[]
-    updatePolicyOptions.value = (resourceServer[SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM] ??
-      []) as NameValueEnumMetadata<number>[]
-
-    const dictionaries: RestResult<Record<string, DataDictionaryMetadata[]>> =
-      await ResourceServerService.findDataDictionariesByCodes([SKILL_GROUP_CODE_PREFIX])
-    groupOptions.value = dictionaries.data?.[SKILL_GROUP_CODE_PREFIX] ?? []
-
     iconOptions.value = []
     for (const font of ICON_FONTS) {
       iconOptions.value.push(await loadIcon(import.meta.env.VITE_APP_SITE_URL + font))

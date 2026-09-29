@@ -61,7 +61,7 @@ export const modelSettingDetailPage = defineDetailPage(modelSettingCore, {
         }),
     },
     'sort',
-    {key: 'description', span: 2},
-    {key: 'remark', span: 2},
+    {key: 'description', span: 'filled'},
+    {key: 'remark', span: 'filled'},
   ],
 })

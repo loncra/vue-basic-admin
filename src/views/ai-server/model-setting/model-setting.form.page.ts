@@ -128,7 +128,7 @@ export const modelSettingFormPage = defineFormPage(modelSettingCore, {
     fields: [
       {key: 'name', component: 'input', rules: [{required: true}]},
       {key: 'model', component: 'input', rules: [{required: true}]},
-      {key: 'icon', component: 'input', props: {allowClear: true}},
+      {key: 'icon', component: 'input'},
       {key: 'type', component: 'select', rules: [{required: true}]},
       {key: 'enabled', component: 'select', rules: [{required: true}]},
       // 厂商：只读展示（值由 `preMounted` 从数据字典灌进来）

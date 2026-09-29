@@ -85,13 +85,13 @@ export const skillPackageDetailPage = defineDetailPage(skillPackageCore, {
     },
     'sourceType',
     {key: 'executeStatus', render: executeStatusCell()},
-    {key: 'summary', span: 3},
+    {key: 'summary', span: 'filled'},
     {
       key: 'tags',
-      span: 3,
+      span: 'filled',
       render: (_value, entity: SkillPackageEntity) => (entity.tags || []).join(','),
     },
-    {key: 'additionalInformation', span: 3},
+    {key: 'additionalInformation', span: 'filled'},
   ],
   /** 旧页面的 `postGetEntity`：保证 `metadata.source` 一定在（模板里要按 `sourceType` 取它） */
   postGetEntity: (entity: SkillPackageEntity) => {

@@ -47,18 +47,18 @@ export const emailDetailPage = defineDetailPage(emailCore, {
     },
     'retryTime',
     'successTime',
-    {key: 'exception', span: 2},
-    {key: 'remark', span: 2},
-    {key: 'title', span: 2},
+    {key: 'exception', span: 'filled'},
+    {key: 'remark', span: 'filled'},
+    {key: 'title', span: 'filled'},
     {
       key: 'content',
-      span: 2,
+      span: 'filled',
       // 照抄旧页面的 `v-html`：正文本身是 HTML（邮件内容），这里不做转义
       render: (value) => h('div', {innerHTML: String(value ?? '')}),
     },
     {
       key: 'attachmentList',
-      span: 2,
+      span: 'filled',
       render: (_value, entity: EmailMessageEntity) =>
         h(AttachmentUpload, {
           preview: true,

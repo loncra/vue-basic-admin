@@ -66,13 +66,13 @@ export const mcpPackageDetailPage = defineDetailPage(mcpPackageCore, {
       render: (_value, entity: McpPackageEntity) =>
         `${entity.initializeTimeout?.value ?? ''} ${getEnumName(entity.initializeTimeout?.unit)}`,
     },
-    {key: 'summary', span: 3},
+    {key: 'summary', span: 'filled'},
     {
       key: 'tags',
-      span: 3,
+      span: 'filled',
       render: (_value, entity: McpPackageEntity) => (entity.tags || []).join(','),
     },
-    {key: 'additionalInformation', span: 3},
+    {key: 'additionalInformation', span: 'filled'},
   ],
   /**
    * 旧页面的 `postGetEntity`：把 `metadata.client` 的 headers / queryParams / env 摊成

@@ -8,6 +8,7 @@ import type {
   StreamableHttpMcpClientTransportMetadata,
 } from '@loncra/client/ai'
 import {AI_SERVER_MCP_CLIENT_TYPE} from '@loncra/client/ai'
+import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
 import {CrudFormPage} from '@loncra/antdv-pro'
 /** 三张键值表的行数据是宿主扩展字段（不是后端字段）⇒ 模板里在这个类型上取/写 */
@@ -16,14 +17,14 @@ import LMcpClarifyPolicyTable from '@/components/ai-server/mcp/McpClarifyPolicyT
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
-import {MCP_CLIENT_HTTP_TYPE_VALUE, SYSTEM_CONSTANT} from '@/constants'
-import {mcpPackageCore} from './mcp-package.page'
 import {
-  mcpPackageClientTypeOptions,
-  mcpPackageFormPage,
-  mcpPackageTimeOptions,
-  mcpPackageYesOrNoOptions,
-} from './mcp-package.form.page'
+  MCP_CLIENT_HTTP_TYPE_VALUE,
+  SYSTEM_CONSTANT,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+} from '@/constants'
+import {mcpPackageCore} from './mcp-package.page'
+import {mcpPackageFormPage} from './mcp-package.form.page'
 
 /**
  * MCP 包新增/编辑页薄壳：12 个字段、校验、初值、枚举来源、组合控件（图标 / 分组 / 初始化超时）
@@ -33,6 +34,9 @@ import {
  * 按 `metadata.client.type` 分叉的两套附表（HTTP / STDIO）+ 三张键值表 + 澄清策略表。
  * 留在壳里的两个原因：① 顺序与旧页面一致（声明里的字段会全部排在插槽之前）；
  * ② 都是宿主组件，且声明侧的 `preSubmit` 要靠它们 `confirmAllEditingRows()` 的 ref（走 `contextExtra`）。
+ *
+ * 这一块要的三份枚举（时间单位 / 客户端类型 / 是否）**从槽作用域的 `buckets` 取** —— 与声明里
+ * `enums` 拉的是同一份结果（一处加载，两处消费）⇒ 壳里不另发请求，声明也不必导出模块级 ref。
  */
 defineOptions({
   name: 'AiServerMcpPackageForm',
@@ -55,6 +59,18 @@ function confirmKeyValueTables() {
   headerTableRef.value?.confirmAllEditingRows()
   queryParamTableRef.value?.confirmAllEditingRows()
   envTableRef.value?.confirmAllEditingRows()
+}
+
+/**
+ * 分段控件的选项：值来自**槽作用域那份桶**（`CrudFormPageSlots.default` 给的 `buckets`，
+ * 与声明里 `enums` 拉的是同一份 ⇒ 壳里不另发请求）。
+ * 桶条目值是 `string | number`，而客户端类型本身就是字符串枚举 ⇒ 这里收成字符串，
+ * 分段控件的 `v-model` 才与实体的声明类型对得上。
+ */
+function clientTypeOptions(buckets: EnumBucketsResponseBody | undefined) {
+  return (
+    buckets?.[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM] ?? []
+  ).map((item) => ({label: item.name, value: String(item.value)}))
 }
 
 /** 标题：旧 `title-text` 是 `标题 (包名)`，新增态只给基标题 */
@@ -81,7 +97,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
     @stale="onStale"
   >
     <!-- 字段行之后（旧页面同一顺序） -->
-    <template #default="{entity}">
+    <template #default="{entity, buckets}">
       <a-divider class="m-0 mb-md" title-placement="start" plain>
         <a-space>
           <icon-font class="icon align" type="loncra-sliders-horizontal" />
@@ -89,7 +105,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
           <a-flex class="shrink-0">
             <a-segmented
               v-model:value="entity.metadata.client.type"
-              :options="mcpPackageClientTypeOptions.map((c) => ({label: c.name, value: c.value}))"
+              :options="clientTypeOptions(buckets)"
               @change="(value: string) => (entity.metadata.client.type = value)"
             />
           </a-flex>
@@ -125,7 +141,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
                 />
                 <a-select
                   class="w-auto"
-                  :options="mcpPackageTimeOptions"
+                  :options="buckets[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM] ?? []"
                   :field-names="{label: 'name'}"
                   v-model:value="(entity.metadata.client as SseMcpClientTransportMetadata).timeout.unit"
                 />
@@ -143,7 +159,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
                 <a-select
                   class="w-full"
                   v-model:value="(entity.metadata.client as StreamableHttpMcpClientTransportMetadata).openConnectionOnStartup"
-                  :options="mcpPackageYesOrNoOptions"
+                  :options="buckets[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] ?? []"
                   :field-names="{label: 'name'}"
                 />
               </a-form-item>
@@ -156,7 +172,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
                 <a-select
                   class="w-full"
                   v-model:value="(entity.metadata.client as StreamableHttpMcpClientTransportMetadata).resumableStreams"
-                  :options="mcpPackageYesOrNoOptions"
+                  :options="buckets[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.YES_OR_NO] ?? []"
                   :field-names="{label: 'name'}"
                 />
               </a-form-item>

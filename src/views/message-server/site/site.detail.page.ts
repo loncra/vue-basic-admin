@@ -57,11 +57,11 @@ export const siteDetailPage = defineDetailPage(siteCore, {
     'retryTime',
     'successTime',
     'readTime',
-    {key: 'exception', span: 3},
-    {key: 'remark', span: 3},
+    {key: 'exception', span: 'filled'},
+    {key: 'remark', span: 'filled'},
     {
       key: 'cover',
-      span: 3,
+      span: 'filled',
       render: (_value, entity: SiteMessageEntity) =>
         h(AttachmentUpload, {
           mode: ATTACHMENT_UPLOAD_MODE.PICTURE_CARD,
@@ -77,16 +77,16 @@ export const siteDetailPage = defineDetailPage(siteCore, {
           },
         }),
     },
-    {key: 'title', span: 3},
+    {key: 'title', span: 'filled'},
     {
       key: 'content',
-      span: 3,
+      span: 'filled',
       // 照抄旧页面的 `v-html`：正文本身是 HTML（站内信内容），这里不做转义
       render: (value) => h('div', {innerHTML: String(value ?? '')}),
     },
     {
       key: 'attachmentList',
-      span: 3,
+      span: 'filled',
       render: (_value, entity: SiteMessageEntity) =>
         h(AttachmentUpload, {
           preview: true,
