@@ -1,9 +1,14 @@
 import type {BasicIdMetadata} from '@loncra/client/commons'
 import type {SiteMessageSendPayload} from '@loncra/client/message'
 import {MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from '@loncra/client/message'
-import {type CrudFormCore, defineFormPage, type UserSelectOption} from '@loncra/antdv-pro'
+import {
+  type CrudFormCore,
+  defineFormPage,
+  type PageFieldRenderContext,
+  type UserSelectOption,
+} from '@loncra/antdv-pro'
 import {Select, SpaceAddon, SpaceCompact, Switch, Typography} from 'antdv-next'
-import {h, shallowRef} from 'vue'
+import {h} from 'vue'
 import i18n from '@/i18n'
 import {AuthServerService} from '@/apis'
 import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, YES_OR_NO_TYPE} from '@/constants'
@@ -17,15 +22,6 @@ import {siteCore, siteMessageService} from './site.page'
  * 本页永远不传 `id`。
  */
 export type SiteSendForm = SiteMessageSendPayload & BasicIdMetadata<number>
-
-/**
- * 当前实体（**声明级插槽**的补丁）。
- *
- * `PageFormFieldSlots` 的签名是 `(...args: never[]) => VNodeChild` —— 插槽函数拿不到 `ctx`，
- * 而封面那两个插槽要显示 `title` / `content`（旧页 `#itemTitle` / `#itemDescription`）。
- * ⇒ 用 `preMounted` 把壳里那个实体 Ref 记住，插槽读它（`shallowRef` + 响应式实体 ⇒ 表单里一改就跟着变）。
- */
-const formEntity = shallowRef<SiteSendForm>()
 
 const siteSendCore: CrudFormCore<SiteSendForm, SiteSendForm, number> = {
   // 与 site.page.ts 那份核心共用两个字符串；**不给 service**（这页不取数）
@@ -55,10 +51,6 @@ export const siteSendFormPage = defineFormPage(siteSendCore, {
     remark: '',
     metadata: {},
   }),
-  // 给上面的两个插槽记住实体（第一个渲染发生在 `preMounted` 之前 ⇒ 先渲染成空，拿到后自动补上）
-  preMounted: (ctx) => {
-    formEntity.value = ctx.entity.value
-  },
   /**
    * 字段顺序 = 旧页面顺序。栅格：`type` / `channels` 不写 `col`（旧页是 `md` 起两列 = pro 默认断点），
    * 其余都在旧页的 `a-row` 之外（整宽）⇒ `span: 24`。
@@ -85,15 +77,19 @@ export const siteSendFormPage = defineFormPage(siteSendCore, {
         },
       },
       slots: {
-        // 封面卡的标题 / 正文预览用**同一份表单里的标题与正文**（旧页 `#itemTitle` / `#itemDescription`）
-        itemTitle: () =>
-          h(Typography.Text, {ellipsis: true}, {default: () => formEntity.value?.title}),
+        /**
+         * 封面卡的标题 / 正文预览用**同一份表单里的标题与正文**（旧页 `#itemTitle` / `#itemDescription`）。
+         * 插槽参数**末尾**带着字段 ctx（见 `PageFormFieldSlots`）⇒ 直接读 `ctx.entity`，
+         * 不必再"用模块级 ref 记住实体"（那是 2026-09-29 之前的补丁）；`_file` 是控件给的附件参数，用不上。
+         */
+        itemTitle: (_file: unknown, ctx: PageFieldRenderContext<SiteSendForm>) =>
+          h(Typography.Text, {ellipsis: true}, {default: () => ctx.entity.title}),
         uploadDescription: () => i18n.global.t('common.cover'),
-        itemDescription: () =>
+        itemDescription: (_file: unknown, ctx: PageFieldRenderContext<SiteSendForm>) =>
           h(
             Typography.Paragraph,
             {class: 'm-0', type: 'secondary', ellipsis: {rows: 3}},
-            {default: () => (formEntity.value?.content ?? '').replace(/<[^>]*>/g, '')},
+            {default: () => (ctx.entity.content ?? '').replace(/<[^>]*>/g, '')},
           ),
       },
     },
