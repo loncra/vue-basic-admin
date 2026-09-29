@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
-import {ResourceServerService} from '@/apis'
+import {computed, ref} from 'vue'
 import type {ModelGenerateOptions, ModelSettingEntity} from '@loncra/client/ai'
-import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
+import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 // ⚠️ 必须显式 import：宿主 `src/components` 下的旧 kit 渲染器被 unplugin-vue-components
@@ -34,7 +33,8 @@ defineOptions({
 })
 
 const configProviderStore = useConfigProviderStore()
-const detailRef = ref<{entity?: ModelSettingEntity}>()
+/** 壳要读 expose 的 `buckets`（是/否选项来自声明统一加载的那份桶）⇒ 本地类型带上它 */
+const detailRef = ref<{entity?: ModelSettingEntity; buckets?: EnumBucketsResponseBody}>()
 
 /** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照） */
 const {ok, id} = useRequiredQuery()
@@ -56,19 +56,18 @@ const {onStale} = usePageExit({
   },
 })
 
-/** 是/否枚举：附表里布尔型参数要显示成「是/否」（照抄旧页面的 `onMounted`） */
-const yesOrNoOptions = ref<NameValueEnumMetadata<number>[]>([])
-onMounted(async () => {
-  const enums: RestResult<EnumBucketsResponseBody> =
-    await ResourceServerService.getServiceEnumerates({
-      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.YES_OR_NO}],
-    })
-  if (enums.data) {
-    yesOrNoOptions.value = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
+/**
+ * 是/否枚举：附表里布尔型参数要显示成「是/否」。
+ *
+ * 这份桶由**声明**统一加载（`model-setting.detail.page.ts` 的 `detail.enums`）⇒ 壳从
+ * `CrudDetailPageExpose.buckets` 读**同一份**结果，不再自己发一次同样的请求（旧 `onMounted` 那段退役）。
+ */
+const yesOrNoOptions = computed(
+  () =>
+    (detailRef.value?.buckets?.[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
       SYSTEM_ENUM_TYPE.YES_OR_NO
-    ] as NameValueEnumMetadata<number>[]
-  }
-})
+    ] ?? []) as NameValueEnumMetadata<number>[],
+)
 
 /**
  * 默认参数的一项（照抄旧页面的 `optionDisplay`）：布尔型翻 Enum 显示名，其余原样。
@@ -103,7 +102,7 @@ function optionDisplay(entity: unknown, key: (typeof MODEL_GENERATE_OPTION_KEYS)
     <template #afterDescriptions="{entity}">
       <a-divider titlePlacement="start" plain>
         <a-space>
-          <icon-font class="icon" type="loncra-sliders-horizontal" />
+          <icon-font class="icon align" type="loncra-sliders-horizontal" />
           {{ $t('aiServer.modelSetting.defaultOptions') }}
         </a-space>
       </a-divider>

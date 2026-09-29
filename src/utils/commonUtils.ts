@@ -273,14 +273,6 @@ export function validatePassword(newPassword:string, confirmPassword:string, i18
   }
 }
 
-export function applyColumnOptions<RecordType extends object = DefaultCrudEntity>(columns:SearchableColumnType<RecordType>[], dataIndex: string, enumOptions: NameValueEnumMetadata<number | string>[]) {
-  const column = columns.find((item) => item.dataIndex === dataIndex || item.key === dataIndex)
-  if (column?.search) {
-    column.search.props = column.search.props ?? {}
-    column.search.props.options = enumOptions
-  }
-}
-
 export function isTauri(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 }

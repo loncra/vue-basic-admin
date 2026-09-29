@@ -2,7 +2,13 @@ import {h} from 'vue'
 import {Space} from 'antdv-next'
 import {AI_SERVER_MODEL_TYPE, type ModelSettingEntity} from '@loncra/client/ai'
 import {defineDetailPage} from '@loncra/antdv-pro'
-import {MODEL_DEFAULT_OPTIONS_KEY, VALUE_TYPE, YES_OR_NO_TYPE} from '@/constants'
+import {
+  MODEL_DEFAULT_OPTIONS_KEY,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  VALUE_TYPE,
+  YES_OR_NO_TYPE,
+} from '@/constants'
 import {renderIconFont} from '@/utils'
 import {modelSettingCore} from './model-setting.page'
 
@@ -64,4 +70,10 @@ export const modelSettingDetailPage = defineDetailPage(modelSettingCore, {
     {key: 'description', span: 'filled'},
     {key: 'remark', span: 'filled'},
   ],
+  /**
+   * 唯一一处"**详情字段本身不引用、但宿主附表要用**"的来源：`#afterDescriptions` 那张「默认参数」表
+   * 要把布尔值翻成「是/否」（`type` / `enabled` 那两处显示走的是值自带的 `name`，用不上桶）。
+   * 详情形态**不从字段推导**来源 ⇒ 必须显式声明；声明后壳不再自己发请求（`Detail.vue` 那半个 `onMounted` 退役）。
+   */
+  enums: [{module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, ids: [SYSTEM_ENUM_TYPE.YES_OR_NO]}],
 })

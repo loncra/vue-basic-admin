@@ -15,7 +15,8 @@ import useApp from "antdv-next/dist/app/useApp";
 import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 
 defineOptions({
-  name: 'CommonUserExport',
+  // 与 `FileManagerHome.vue` 曾经**撞同一个名**（`CommonUserExport` ⇒ keep-alive 会当成同一个组件）⇒ 按房规改
+  name: 'ResourceServerMyResourceHome',
 })
 
 const globalProperties =

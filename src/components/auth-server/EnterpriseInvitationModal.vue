@@ -17,10 +17,11 @@ export function createEmptyForm(): EnterpriseInvitationSavePayload {
 
 import { DATE_TIME_FORMAT, OPERATION_DATA_TRACE_TABLE } from '@/constants';
 import LModalForm from "@/components/basic/form/ModalForm.vue";
-import LEnterpriseRoleTable from "@/components/auth-server/EnterpriseRoleTable.vue";
 
 import {EnterpriseInvitationService, AUTH_SERVER_AUDIT_TYPE_VALUE} from "@loncra/client/auth";
 import type {TableProps} from "antdv-next";
+import {CrudHomePage} from '@loncra/antdv-pro';
+import {enterpriseRoleHomePage} from "@/views/auth-server/enterprise-role/enterprise-role.home.page";
 
 defineOptions({
   name: 'LEnterpriseInvitationModal',
@@ -78,7 +79,19 @@ function onSuccess() {
     </template>
 
     <a-form-item name="roleIds" :label="$t('authServer.userRole')" :rules="[{required: true, type:'array'}]">
-      <l-enterprise-role-table plain preview :title="false" :query="{'filter_[enabled_eq]':'1'}" :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange, fixed:true}"/>
+      <!--
+        选角色：用**列表声明**（`enterprise-role.home.page.ts`）的嵌入形态 —— `plain`（不要卡片壳）+
+        `:title="false"` + `:record-actions="false"`（= 旧组件那个 `preview`：只挑选、不给行操作）。
+        列 / 搜索 / 枚举 options / 权限全在声明里，弹层不再自己写表格（旧 `EnterpriseRoleTable.vue` 已删）。
+      -->
+      <crud-home-page
+        :page="enterpriseRoleHomePage"
+        plain
+        :title="false"
+        :record-actions="false"
+        :query="{'filter_[enabled_eq]':'1'}"
+        :row-selection="{type: 'checkbox', selectedRowKeys: entity.roleIds, onChange: roleSelectedChange, fixed:true}"
+      />
     </a-form-item>
 
     <a-form-item name="subTitle" :label="$t('common.subTitle')">
