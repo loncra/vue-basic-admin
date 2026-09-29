@@ -1,74 +1,67 @@
 <script setup lang="ts">
 
-import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
-import type {CollectionExpose, RecordActionDefinition, ToolbarActionDefinition} from '@loncra/antdv-pro'
-import {useDateFormat,
-  ActionButton as LActionButton,
-  CrudCardGrid as LCrudCardGrid,
-  isObjectWriteResult
-} from '@loncra/antdv-pro';
 import {
-  type ComponentInternalInstance,
-  computed,
-  getCurrentInstance,
-  nextTick,
-  onActivated,
-  onMounted,
-  ref,
-} from "vue";
+  ActionButton as LActionButton,
+  CrudCardGridPage as LCrudCardGridPage,
+  DataLoadingCardPlan as LDataLoadingCardPlan,
+  isObjectWriteResult,
+  useDateFormat,
+} from '@loncra/antdv-pro';
+import {computed, ref} from 'vue'
 import type {CarouselEntity} from "@/types/apis";
-import type {
-  FlatSortMetadata,
-  NameValueEnumMetadata,
-  PageRequest,
-  RestResult
-} from "@loncra/client/commons";
+import type {NameValueEnumMetadata, PageRequest, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import {AttachmentService, CarouselService} from "@loncra/client/resource";
+import {AttachmentService} from "@loncra/client/resource";
+import {getEnumName, getEnumValue} from "@loncra/client/commons";
 import {ResourceServerService} from "@/apis";
-
-import {requireNonNullOrUndefined} from "@/utils";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
-import useApp from "antdv-next/dist/app/useApp";
 import {BasicImage as LBasicImage} from '@loncra/antdv'
-import {renderIconFont} from '@/utils/commonUtils'
 import {
   DATA_STATUS,
   RESOURCE_SERVER_CAROUSEL_AUTHORITY,
-  RESOURCE_SERVER_CAROUSEL_ROUTE,
-  SYSTEM_CONSTANT,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@/constants';
-import {getEnumName, getEnumValue} from "@loncra/client/commons"
+import {CAROUSEL_TYPE_FILTER, carouselService} from './carousel.page'
+import {carouselHomePage, carouselPreviewReloader} from './carousel.home.page'
 
-const {dateTimeFormat} = useDateFormat()
-
-interface TabDataSource {
+/**
+ * 每个 tab 的模型：**只有页面结构要用的东西**。
+ *
+ * 旧实现还在这里放 `selectedItems` / `isLoading` —— 那是网格自己的状态（走
+ * `v-model:selected-items` / 内部 `loading`），页面不该再持一份。
+ */
+interface CarouselTab {
   key: string
   label: string
-  isLoading: boolean
-  previewLoading: boolean
-  carouselDataSource: CarouselEntity[]
-  selectedItems: CarouselEntity[]
+  /** 该 tab 的查询条件（`v-model:query`）：与声明里的"新增"动作同源（动作从它里面取类型） */
   query: PageRequest
+  /** 预览轮播的数据：该类型"已发布"的那一批（`number: -1`，不分页） */
+  preview: CarouselEntity[]
+  previewLoading: boolean
 }
 
 defineOptions({
   name: 'ResourceServerCarouselHome',
 })
 
-const { modal, message } = useApp();
+const {dateTimeFormat} = useDateFormat()
 
 const configProviderStore = useConfigProviderStore()
 const principalStore = usePrincipalStore()
 
-const instance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
-const globalProperties = instance.appContext.config
-    .globalProperties
+const tabs = ref<CarouselTab[]>([])
+const tabActiveKey = ref<string>()
 
-const carouselService = new CarouselService()
+/**
+ * 拖拽开关：按权限。**这是页面的策略，不是声明能表达的** ——
+ * `drag` 的函数形态是"幽灵内容"（不是布尔），pro 也没给拖拽接权限
+ * ⇒ 壳用 `$attrs` 传下去（门面把 attrs 排在最后 ⇒ 就是`接管`）。
+ */
+const dragEnabled = computed(() =>
+  principalStore.hasPermission(RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE),
+)
 
 function getCoverImageSrc(cover: CarouselEntity['cover']) {
   if (!isObjectWriteResult(cover)) {
@@ -76,107 +69,6 @@ function getCoverImageSrc(cover: CarouselEntity['cover']) {
   }
   return AttachmentService.query(cover.bucketName, cover.objectName)
 }
-
-const options = ref<{
-  typeOptions: NameValueEnumMetadata<number>[]
-  loading: boolean
-}>({
-  typeOptions: [],
-  loading: false,
-})
-
-const tabActiveKey = ref<string>();
-const tabDataSource = ref<TabDataSource[]>([]);
-
-const bulkActions = function(): ToolbarActionDefinition<CarouselEntity>[] {
-  return [
-    {
-      id: 'add',
-      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE,
-      label: () => globalProperties.$t('common.add', {name: ''}),
-      icon: () => renderIconFont('loncra-file-plus'),
-      run: () => {
-        void globalProperties.$router.push({name: RESOURCE_SERVER_CAROUSEL_ROUTE.ADD, query: {type: tabActiveKey.value}})
-      },
-    },
-    {
-      id: 'deleteSelected',
-      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.DELETE,
-      enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
-      label: (ctx) =>
-        globalProperties.$t('common.delete.selected', {
-          count: getReleaseSelectedEntities(ctx.selectedItems).length,
-        }),
-      icon: () => renderIconFont('loncra-archive-x'),
-      run: (ctx) => {
-        const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
-        if (tab) {
-          (instance.refs?.[tab.key] as CollectionExpose<CarouselEntity>)?.remove(getReleaseSelectedEntities(ctx.selectedItems))
-        }
-      },
-    },
-    {
-      id: 'releaseSelect',
-      permission:RESOURCE_SERVER_CAROUSEL_AUTHORITY.RELEASE,
-      enabled: (ctx) => getReleaseSelectedEntities(ctx.selectedItems).length > 0,
-      label: (ctx) =>
-        globalProperties.$t('common.release.selected', {
-          count: getReleaseSelectedEntities(ctx.selectedItems).length,
-        }),
-      icon: () => renderIconFont('loncra-screen-share'),
-      run: (ctx) => release(getReleaseSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
-    },
-    {
-      id: 'revokeSelect',
-      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.REVOKE,
-      enabled: (ctx) => getRevokeSelectedEntities(ctx.selectedItems).length > 0,
-      label: (ctx) =>
-        globalProperties.$t('common.revoke.selected', {
-          count: getRevokeSelectedEntities(ctx.selectedItems).length,
-        }),
-      icon: () => renderIconFont('loncra-screen-share-off'),
-      run: (ctx) => revoke(getRevokeSelectedEntities(ctx.selectedItems).map((e) => Number(e.id))),
-    },
-  ]
-}
-
-const itemActionDefinitions = function(): RecordActionDefinition<CarouselEntity>[] {
-  return [
-    {
-      id: 'release',
-      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.RELEASE,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
-      label: () => globalProperties.$t('common.release.text'),
-      icon: () => renderIconFont('loncra-screen-share'),
-      run: (ctx) => release([Number(ctx.record!.id)]),
-    },
-    {
-      id: 'revoke',
-      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.REVOKE,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
-      label: () => globalProperties.$t('common.revoke.text'),
-      icon: () => renderIconFont('loncra-screen-share-off'),
-      run: (ctx) => revoke([Number(ctx.record!.id)]),
-    },
-    {
-      id: 'edit',
-      permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.GET,
-      enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
-      label: () => globalProperties.$t('common.edit'),
-      icon: () => renderIconFont('loncra-file-pen-line'),
-      run: (ctx) => {
-        void globalProperties.$router.push({
-          name: RESOURCE_SERVER_CAROUSEL_ROUTE.EDIT,
-          query: {id: String(ctx.record!.id)},
-        })
-      },
-    },
-  ]
-}
-
-const dragEnabled = computed(() =>
-  principalStore.hasPermission(RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE),
-)
 
 const statusSetting = {
   [DATA_STATUS.NEW]: {
@@ -190,191 +82,85 @@ const statusSetting = {
   }
 } as const
 
-function getReleaseSelectedEntities(selectedRows: CarouselEntity[]) {
-  return selectedRows.filter((e) => {
-    const status = getEnumValue(e.status ?? 0)
-    return status === DATA_STATUS.NEW || status === DATA_STATUS.REVOKE
-  })
-}
-
-function getRevokeSelectedEntities(selectedRows: CarouselEntity[]) {
-  return selectedRows.filter(e => getEnumValue(e.status ?? 0) === DATA_STATUS.RELEASE)
-}
-
-async function loadCarouselPreview(tab: TabDataSource): Promise<void> {
+/** 预览：把"该类型已发布"的全部拉回来 */
+async function loadPreview(tab: CarouselTab): Promise<void> {
   tab.previewLoading = true
   try {
-    const carouselDataSource: RestResult<{elements: CarouselEntity[]}> = await carouselService.page({
+    const result: RestResult<{elements: CarouselEntity[]}> = await carouselService.page({
       number: -1,
-      'filter_[type_eq]': tab.key,
+      [CAROUSEL_TYPE_FILTER]: tab.key,
       'filter_[status_eq]': DATA_STATUS.RELEASE,
     })
-    if (carouselDataSource.data) {
-      tab.carouselDataSource = carouselDataSource.data.elements
-    }
+    tab.preview = result.data?.elements ?? []
   } finally {
     tab.previewLoading = false
   }
-
 }
 
-async function loadTabData(tab: TabDataSource): Promise<void> {
-  await loadCarouselPreview(tab)
-  if (instance.refs?.[tab.key]) {
-    (instance.refs?.[tab.key] as CollectionExpose<CarouselEntity>)?.fetchDataSource()
-    tab.isLoading = true
-  }
-}
-
-async function onChangeTab(key: string): Promise<void> {
-  tabActiveKey.value = key
-  const dataSource = tabDataSource.value.find(s => s.key === key)
-  if (dataSource && !dataSource.isLoading) {
-    await loadTabData(dataSource)
-  }
-}
-
-async function onGridDeleted() {
-  const tab = tabDataSource.value.find((t) => t.key === tabActiveKey.value)
+/** 重载**当前 tab** 的预览：声明里的动作 / 落库口干完活要通过 `carouselPreviewReloader` 调它 */
+async function reloadActivePreview(): Promise<void> {
+  const tab = tabs.value.find((item) => item.key === tabActiveKey.value)
   if (tab) {
-    tab.selectedItems = []
-    await loadTabData(tab)
+    await loadPreview(tab)
   }
 }
 
-async function onCardDrop(sorts: FlatSortMetadata<CarouselEntity[typeof SYSTEM_CONSTANT.ID_NAME]>[]) {
-  try {
-    const result = await carouselService.sort(sorts)
-    message.success(result.message)
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  }
-}
-
-function release(ids: number[]) {
-  if (ids.length === 0) {
-    return
-  }
-  const content = ids.length === 1
-    ? globalProperties.$t('common.release.confirmSingle')
-    : globalProperties.$t('common.release.confirmBatch', {count: ids.length})
-  modal.confirm({
-    title: globalProperties.$t('common.release.confirmTitle'),
-    content,
-    onOk: () => doRelease(ids),
-  })
-}
-
-async function doRelease(ids: number[]) {
-  try {
-    const result: RestResult<void> = await carouselService.release(ids)
-    message.success(result.message)
-    const dataSource = tabDataSource.value.find(t => t.key === tabActiveKey.value)
-    if (dataSource) {
-      dataSource.selectedItems = []
-      await loadTabData(dataSource)
-    }
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  }
-}
-
-function revoke(ids: number[]) {
-  if (ids.length === 0) {
-    return
-  }
-  const content = ids.length === 1
-    ? globalProperties.$t('common.revoke.confirmSingle')
-    : globalProperties.$t('common.revoke.confirmBatch', {count: ids.length})
-  modal.confirm({
-    title: globalProperties.$t('common.revoke.confirmTitle'),
-    content,
-    onOk: () => doRevoke(ids),
-  })
-}
-
-async function doRevoke(ids: number[]) {
-  try {
-    const result: RestResult<void> = await carouselService.revoke(ids)
-    message.success(result.message)
-    const dataSource = tabDataSource.value.find(t => t.key === tabActiveKey.value)
-    if (dataSource) {
-      dataSource.selectedItems = []
-      await loadTabData(dataSource)
-    }
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  }
-}
-
-async function mounted() {
-  options.value.loading = true
-
+/**
+ * 首屏：拉类型枚举 → 建 tab（每个 tab 一个查询条件）→ 载入第一个 tab 的预览。
+ *
+ * ⚠️ 这份枚举是**页面结构**（tab 分组）用的，不是"网格的来源"：tab 必须先于网格存在，
+ * 而网格在 tab 里面 ⇒ 用不了"网格加载回来的桶"那条接缝（卡片网格也不上报桶），只能由壳拉一次。
+ * `#item` 里显示的枚举（状态名）用的是值自带的元数据（`getEnumName`），不需要桶。
+ */
+async function load(): Promise<void> {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.CAROUSEL_TYPE_ENUM}],
   })
-  // FIXME 这里不应该用枚举，应该用字典去灵活配置样式
-  if (enums.data) {
-    options.value.typeOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.CAROUSEL_TYPE_ENUM] as NameValueEnumMetadata<number>[]
-    for (const item of options.value.typeOptions) {
-      tabDataSource.value.push({
-        key: String(item.value),
-        label: item.name,
-        previewLoading: false,
-        carouselDataSource: [],
-        isLoading: false,
-        selectedItems: [],
-        query: {
-          number: 1,
-          size: 10,
-          'filter_[type_eq]': String(item.value),
-        },
-      })
-    }
-  }
-
-  options.value.loading = false
-  await nextTick()
-
-  if (tabDataSource.value.length > 0) {
-    const firstTab = tabDataSource.value.at(0) as TabDataSource
-    tabActiveKey.value = firstTab.key
-    await loadTabData(firstTab)
-  }
+  const options = enums.data?.[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.CAROUSEL_TYPE_ENUM] as NameValueEnumMetadata<number>[] | undefined
+  tabs.value = (options ?? []).map((item) => ({
+    key: String(item.value),
+    label: item.name,
+    query: {
+      number: 1,
+      size: 10,
+      [CAROUSEL_TYPE_FILTER]: String(item.value),
+    },
+    preview: [],
+    previewLoading: false,
+  }))
+  tabActiveKey.value = tabs.value.at(0)?.key
+  await reloadActivePreview()
+  // 声明里的动作要靠它刷预览（见 `carousel.home.page.ts` 的说明）
+  carouselPreviewReloader.value = reloadActivePreview
 }
 
-function activated() {
-  if (tabActiveKey.value) {
-    const tab = tabDataSource.value.find(t => t.key === tabActiveKey.value)
-    if (tab) {
-      void loadTabData(tab)
-    }
-  }
+/** 切回页面：刷当前 tab 的预览（**网格自己刷**：`refreshOnActivate` 默认开） */
+async function activated(): Promise<void> {
+  await reloadActivePreview()
 }
-
-onMounted(mounted)
-
-onActivated(activated)
 </script>
 
 <template>
   <div>
-    <l-menu-title-card :loading="options.loading">
+    <!--
+      生命周期交给壳：`onMounted` / `onActivated` 是 `DataLoadingCardPlan` 的两个口
+      （它负责编排 + 统一 `loading`）⇒ 页面不再自己写 `onMounted` / `onActivated`。
+    -->
+    <l-data-loading-card-plan :on-mounted="load" :on-activated="activated">
       <a-tabs
         v-model:active-key="tabActiveKey"
         centered
-        @change="onChangeTab"
-        :items="tabDataSource"
+        :items="tabs"
       >
         <template #contentRender="{item}">
           <a-space orientation="vertical" class="w-full" :size="configProviderStore.getToken().sizeMD">
             <a-spin :spinning="item.previewLoading">
               <!--
-                空状态：与有数据时的轮播**同高**（那几屏是 `h-[360px]`）+ 居中 ——
-                不然一空就塌下去、还贴在左上角 ✗（2026-09-29 用户截图报）
+                空状态：与有数据时的轮播**同高**（那几屏是 `h-90`）+ 居中 ——
+                不然一空就塌下去、还贴在左上角 ✗
               -->
               <div
-                v-if="(item.carouselDataSource || []).length <= 0"
+                v-if="item.preview.length <= 0"
                 class="flex h-90 items-center justify-center"
               >
                 <a-empty />
@@ -384,7 +170,7 @@ onActivated(activated)
                 <div
                   class="aspect-square h-90 overflow-hidden bg-mask"
                   :key="entity.id"
-                  v-for="entity of item?.carouselDataSource || []"
+                  v-for="entity of item.preview"
                 >
                   <l-basic-image
                     :preview="false"
@@ -395,28 +181,26 @@ onActivated(activated)
               </a-carousel>
             </a-spin>
 
-            <l-crud-card-grid
-              :service="carouselService"
-              :ref="item.key"
+            <!--
+              每个 tab 一个网格实例（同一份声明，用 `:query` 区分类型）：
+              **`v-if` 懒挂载** ⇒ 首屏取数交给组件（`immediate` 默认开），切回页面交给
+              `refreshOnActivate`（默认开）—— 页面不再手写取数时机、也不再拿 `instance.refs` 去调 `fetchDataSource`。
+            -->
+            <l-crud-card-grid-page
+              v-if="tabActiveKey === item.key"
               :key="item.key"
+              :page="carouselHomePage"
               v-model:query="item.query"
-              v-model:selected-items="item.selectedItems"
-              :immediate="false"
               :drag="dragEnabled"
-              :authority="{
-                add: RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE,
-                edit: RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE,
-                delete: RESOURCE_SERVER_CAROUSEL_AUTHORITY.DELETE,
-                detail: false,
-              }"
-              :toolbar-actions="bulkActions()"
-              :record-actions="itemActionDefinitions()"
-              @deleted="onGridDeleted"
-              @drop="onCardDrop"
+              @deleted="reloadActivePreview"
             >
               <template #title>
-                {{ item.label }}{{ globalProperties.$t('resourceServer.carousel.dataContent') }}
+                {{ item.label }}{{ $t('resourceServer.carousel.dataContent') }}
               </template>
+              <!--
+                卡片本体：给了 `#item` ⇒ 网格内置那张卡（含动作行与拖拽柄）不再渲染，
+                这两样要自己画（参数里都给了）。
+              -->
               <template #item="{ record, itemActions, dragEnabled: itemDragEnabled, onDragStart, onDragEnd }">
                 <a-badge-ribbon
                   :text="getEnumName(record.status)"
@@ -425,8 +209,8 @@ onActivated(activated)
                   <a-tooltip>
                     <template #title>
                       <a-space orientation="vertical">
-                        <span>{{ globalProperties.$t('resourceServer.carousel.showtime') }}: {{ record.showtime ? dateTimeFormat(record.showtime) : globalProperties.$t('resourceServer.carousel.immediately') }}</span>
-                        <span>{{ globalProperties.$t('common.expiresTime') }}: {{ record.expirationTime ? dateTimeFormat(record.expirationTime) : globalProperties.$t('common.permanent') }}</span>
+                        <span>{{ $t('resourceServer.carousel.showtime') }}: {{ record.showtime ? dateTimeFormat(record.showtime) : $t('resourceServer.carousel.immediately') }}</span>
+                        <span>{{ $t('common.expiresTime') }}: {{ record.expirationTime ? dateTimeFormat(record.expirationTime) : $t('common.permanent') }}</span>
                       </a-space>
                     </template>
                     <a-card size="small" :title="record.name">
@@ -465,10 +249,10 @@ onActivated(activated)
                   </a-tooltip>
                 </a-badge-ribbon>
               </template>
-            </l-crud-card-grid>
+            </l-crud-card-grid-page>
           </a-space>
         </template>
       </a-tabs>
-    </l-menu-title-card>
+    </l-data-loading-card-plan>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
+import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 import LAgentConversation from "@/components/ai-server/agent/AgentConversation.vue";
 import LAgentView from "@/components/ai-server/agent/AgentView.vue";
 import {provideAgentChatContext} from "@/composables";
@@ -36,7 +36,7 @@ onMounted(() => {
 
 <template>
   <div class="h-full min-h-0">
-    <l-menu-title-card
+    <l-data-loading-card-plan
       :classes="{
         root:'min-h-0 flex flex-col h-full shadow-ter',
         header: 'shrink-0',
@@ -72,6 +72,6 @@ onMounted(() => {
           </a-splitter-panel>
         </a-splitter>
       </div>
-    </l-menu-title-card>
+    </l-data-loading-card-plan>
   </div>
 </template>

@@ -8,7 +8,7 @@ import type {ModelSettingEntity} from '@loncra/client/ai'
 import type {FilterRequest, RestResult, TreeSortMetadata} from '@loncra/client/commons'
 import {ResourceServerService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
+import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 import router from '@/routers'
 import {
   AI_SERVER_MODEL_SETTING_AUTHORITY,
@@ -125,7 +125,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-menu-title-card :classes="{body: 'pt-1 pr-0 pl-0 pb-0'}">
+    <l-data-loading-card-plan :classes="{body: 'pt-1 pr-0 pl-0 pb-0'}">
       <a-splitter>
         <a-splitter-panel default-size="20%" min="15%" max="25%">
           <a-flex vertical class="h-full min-h-0">
@@ -185,6 +185,6 @@ onMounted(mounted)
           </l-crud-home-page>
         </a-splitter-panel>
       </a-splitter>
-    </l-menu-title-card>
+    </l-data-loading-card-plan>
   </div>
 </template>

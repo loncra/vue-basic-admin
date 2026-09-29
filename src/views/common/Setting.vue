@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {renderIconFont} from '@/utils/commonUtils'
-import LMenuTitleCard from '@/components/basic/MenuTitleCard.vue'
+import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {ConfigProviderSetting as LConfigProviderSetting} from "@loncra/antdv-pro";
@@ -70,9 +70,9 @@ const createSuccessOptions = computed(() => [
 
 <template>
   <div class="mx-auto my-0 max-w-250">
-    <l-menu-title-card
+    <l-data-loading-card-plan
       :tab-list="tabList"
-      hide-title
+      :title="false"
       :active-tab-key="activeTabKey"
       @tab-change="(key:string) => activeTabKey = key"
     >
@@ -129,6 +129,6 @@ const createSuccessOptions = computed(() => [
       <template v-if="activeTabKey === 'enterpriseSetting'">
         <l-enterprise-setting />
       </template>
-    </l-menu-title-card>
+    </l-data-loading-card-plan>
   </div>
 </template>

@@ -12,7 +12,7 @@ import {
   AttachmentMasonry as LAttachmentMasonry
 } from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
-import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
+import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 
 defineOptions({
   name: 'CommonUserExport',
@@ -105,11 +105,11 @@ onMounted(() => loadDataSource())
 
 <template>
   <div>
-    <l-menu-title-card :loading="loading" :classes="{body:'max-h-150 overflow-auto'}">
+    <l-data-loading-card-plan :loading="loading" :classes="{body:'max-h-150 overflow-auto'}">
       <template #extra>
         <l-action-button :actions="actions"/>
       </template>
       <l-attachment-masonry v-model:data-source="dataSource" :check-value="checkValue" />
-    </l-menu-title-card>
+    </l-data-loading-card-plan>
   </div>
 </template>

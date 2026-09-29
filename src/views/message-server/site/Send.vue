@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LForm from "@/components/Form.vue";
-import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
+import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {NameValueEnumMetadata} from "@loncra/client/commons";
 import type {ObjectWriteResult} from "@loncra/client/resource";
@@ -83,7 +83,7 @@ onMounted(mounted);
 
 <template>
   <div>
-    <l-menu-title-card>
+    <l-data-loading-card-plan>
       <a-spin :spinning="options.loading" >
         <l-form ref="formRef" @finish="onFinish" :model="options.form">
           <a-form-item :message-variables="{ label: globalProperties.$t('common.cover') }" name="cover">
@@ -188,6 +188,6 @@ onMounted(mounted);
           </a-space>
         </l-form>
       </a-spin>
-    </l-menu-title-card>
+    </l-data-loading-card-plan>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
+import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -63,7 +63,7 @@ onActivated(activated)
 
 <template>
   <div class="h-full min-h-0">
-    <l-menu-title-card
+    <l-data-loading-card-plan
       :classes="{
         root:'min-h-0 flex flex-col h-full shadow-ter',
         header: 'shrink-0',
@@ -93,6 +93,6 @@ onActivated(activated)
           </transition>
         </router-view>
       </div>
-    </l-menu-title-card>
+    </l-data-loading-card-plan>
   </div>
 </template>

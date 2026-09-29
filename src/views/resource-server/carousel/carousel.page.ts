@@ -14,6 +14,12 @@ import {
 export const carouselService = new CarouselService()
 
 /**
+ * "按类型过滤"的查询名：**列表（每个 tab 一个网格）**与**声明里的"新增"动作**都要用它
+ * （动作要从当前网格的 query 里把类型取出来带给新增页）⇒ 跨文件共用一个常量，不重复写字面量。
+ */
+export const CAROUSEL_TYPE_FILTER = 'filter_[type_eq]'
+
+/**
  * 轮播图的**核心**：service / i18nPrefix / routes / 字段字典只写一次。
  *
  * 形态目前只有 Form（`carousel.form.page.ts`）—— 列表 `Home.vue` 还没迁声明式，

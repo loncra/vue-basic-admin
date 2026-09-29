@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LForm from "@/components/Form.vue";
-import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
+import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import type {IdNameValueMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
@@ -154,7 +154,7 @@ onMounted(mounted);
 
 <template>
   <div>
-    <l-menu-title-card>
+    <l-data-loading-card-plan>
       <l-form ref="formRef" @finish="onFinish" :model="options.form">
         <a-row :gutter="configProviderStore.getToken().sizeMD">
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
@@ -245,6 +245,6 @@ onMounted(mounted);
         </a-space>
       </l-form>
 
-    </l-menu-title-card>
+    </l-data-loading-card-plan>
   </div>
 </template>
