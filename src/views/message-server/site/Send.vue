@@ -1,193 +1,48 @@
 <script setup lang="ts">
-import LForm from "@/components/Form.vue";
-import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {NameValueEnumMetadata} from "@loncra/client/commons";
-import type {ObjectWriteResult} from "@loncra/client/resource";
-import type {SiteMessageSendPayload} from "@loncra/client/message";
-import {MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from '@loncra/client/message'
-import {AuthServerService} from "@/apis";
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {AttachmentUpload as LAttachmentUpload, UserSelect as LUserSelect} from '@loncra/antdv-pro';
-import {requireNonNullOrUndefined} from "@/utils";
-import useApp from "antdv-next/dist/app/useApp";
-
-import {Editor as LEditor} from '@loncra/antdv'
-import {YES_OR_NO_TYPE} from '@/constants';
-import {loadMessageSendEnums} from "@/composables/message-server/useMessageSendFlow.ts";
+import type {RestResult} from '@loncra/client/commons'
+import {CrudFormPage} from '@loncra/antdv-pro'
+import {useRouter} from 'vue-router'
+import {MESSAGE_SERVER_SITE_ROUTE} from '@/constants'
+import {navigateAfterMessageSend} from '@/composables/message-server/useMessageSendFlow'
+import {siteSendFormPage} from './site.send.page'
 
 defineOptions({
+  // 与旧页同名：tab / keep-alive / 路由缓存认这个名字
   name: 'MessageServerSiteSend',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const router = useRouter()
 
-const configProviderStore = useConfigProviderStore()
-
-const {message} = useApp()
-
-const formRef = ref()
-const coverUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
-const attachmentUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
-
-const options = ref<{
-  form:SiteMessageSendPayload
-  typeOptions:NameValueEnumMetadata<number>[] | number[]
-  channelOptions:NameValueEnumMetadata<number>[] | number[]
-  loading:boolean
-}>({
-  loading: false,
-  form: {
-    toUsers: [],
-    type: MESSAGE_SERVER_MESSAGE_TYPE_VALUE.NOTICE,
-    content:"",
-    title: "",
-    pushable: YES_OR_NO_TYPE.YES,
-    channels:[],
-    attachmentList: [],
-    remark:"",
-    metadata: {}
-  },
-  typeOptions:[],
-  channelOptions:[],
-})
-
-function onFinish(){
-  formRef.value.validate().then(() => doSubmit())
+/**
+ * 站内信发送页：**只剩壳** —— 字段 / 校验 / 提交 / 来源（枚举桶）全在 `site.send.page.ts`。
+ *
+ * 来源只有一处：声明里写 `enumRef`，pro 统一收清单拉一次（`collectFormSources` + `loadSources`）；
+ * 渠道那个**复合控件**是 `render` 逃生字段，它从字段级 ctx 的 `ctx.buckets` 取同一份结果
+ * ⇒ 壳里**不需要**再拉一次（那是同一份桶两处请求）。
+ *
+ * 发送成功去哪：`navigateAfterMessageSend` 认单条 / 批量两种返回形状（旧页 `doSubmit` 里那行）。
+ * 成功提示不用管 —— 壳会照 `result.message` 给（与旧页那句 `message.success` 一致）。
+ */
+function onSuccess(result: RestResult<unknown>): void {
+  navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_SITE_ROUTE.HOME)
 }
-
-async function doSubmit(){
-  options.value.loading = true;
-  try {
-    await Promise.all([coverUploadRef.value?.upload(), attachmentUploadRef.value?.upload()])
-    /*const result = await service.send(options.value.form);
-    navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_SITE_ROUTE.HOME)
-    message.success(result.message)*/
-  } catch (error) {
-    message.error(error instanceof Error ? error.message : String(error))
-  } finally {
-    options.value.loading = false;
-  }
-}
-
-async function mounted() {
-  const enums = await loadMessageSendEnums()
-  options.value.typeOptions = enums.typeOptions
-  options.value.channelOptions = enums.channelOptions
-}
-
-onMounted(mounted);
 </script>
 
 <template>
-  <div>
-    <l-data-loading-card-plan>
-      <a-spin :spinning="options.loading" >
-        <l-form ref="formRef" @finish="onFinish" :model="options.form">
-          <a-form-item :message-variables="{ label: globalProperties.$t('common.cover') }" name="cover">
-            <l-attachment-upload
-              mode="picture-card"
-              accept=".jpg,.jpeg,.png"
-              ref="coverUploadRef"
-              :classes="{
-                item:'w-[425px] h-[225px]',
-                list:'w-full justify-center',
-                meta:'w-[425px] mt-xxs max-w-full min-w-0'
-              }"
-              :max-count="1"
-              :multiple="false"
-              v-model:value="options.form.cover"
-            >
-              <template #itemTitle>
-                <a-typography-text ellipsis>
-                  {{options.form.title}}
-                </a-typography-text>
-              </template>
-              <template #uploadDescription>
-                {{globalProperties.$t('common.cover')}}
-              </template>
-              <template #itemDescription>
-                <a-typography-paragraph class="m-0" type="secondary" :ellipsis="{ rows: 3 }">
-                  {{options.form.content.replace(/<[^>]*>/g, '')}}
-                </a-typography-paragraph>
-              </template>
-            </l-attachment-upload>
-          </a-form-item>
+  <crud-form-page :page="siteSendFormPage" @success="onSuccess">
+    <!-- 旧版按钮上方那条分割线 -->
+    <a-divider />
 
-          <a-row :gutter="configProviderStore.getToken().sizeMD">
-            <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-              <a-form-item :label="globalProperties.$t('common.type')" name="type" >
-                <a-select v-model:value="options.form.type" :options="options.typeOptions" :field-names="{label:'name'}">
-                </a-select>
-              </a-form-item>
-            </a-col>
-            <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-              <a-form-item :label="globalProperties.$t('messageServer.site.channel')" name="channels" :rules="options.form.pushable === YES_OR_NO_TYPE.YES ? [{required: true, trigger: 'change'}] : undefined">
-                <a-space-compact block>
-                  <a-select mode="multiple" :disabled="options.form.pushable !== YES_OR_NO_TYPE.YES" :options="options.channelOptions" :field-names="{label:'name'}" v-model:value="options.form.channels" />
-                  <a-space-addon>
-                    <a-switch
-                      v-model:value="options.form.pushable"
-                      :un-checked-value="YES_OR_NO_TYPE.NO"
-                      :checked-value="YES_OR_NO_TYPE.YES"
-                      :checked-children="globalProperties.$t('common.enabled')"
-                      :un-checked-children="globalProperties.$t('common.disabled')"
-                    />
-                  </a-space-addon>
-                </a-space-compact>
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-form-item :label="globalProperties.$t('auth.principal')" name="toUsers" :rules="[{required: true,type:'array', trigger: 'change'}]">
-            <l-user-select v-model:value="options.form.toUsers" mode="multiple">
-              <template #optionRender="{ option }">
-                <template v-if="option.data.payload">
-                  {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload) }}
-                </template>
-                <template v-else>
-                  {{option.data.label}}
-                </template>
-              </template>
-            </l-user-select>
-          </a-form-item>
-          <a-form-item :label="globalProperties.$t('common.title')" name="title" :rules="[{required: true, trigger: 'change'}]">
-            <a-input v-model:value="options.form.title" />
-          </a-form-item>
-          <a-form-item :label="globalProperties.$t('common.content')" name="content" :rules="[{required: true, trigger: 'change'}]">
-            <l-editor v-model:value="options.form.content" />
-          </a-form-item>
-          <a-form-item :label="globalProperties.$t('attachment.text')" name="attachmentList">
-            <l-attachment-upload
-              ref="attachmentUploadRef"
-              mode="dragger"
-              v-model:value="options.form.attachmentList"
-            />
-          </a-form-item>
+    <template #buttons="{loading, resetButton}">
+      <a-button type="primary" html-type="submit" :loading="loading">
+        <template #icon>
+          <icon-font class="icon" type="loncra-send" />
+        </template>
+        <span>{{ $t('common.send') }}</span>
+      </a-button>
 
-          <a-form-item :label="globalProperties.$t('common.remark')" name="remark">
-            <a-textarea v-model:value="options.form.remark" :auto-size="{ minRows: 5, maxRows: 10 }"/>
-          </a-form-item>
-
-          <a-divider />
-          <a-space>
-            <a-button type="primary" html-type="submit" :loading="options.loading">
-              <template #icon>
-                <icon-font class="icon" type="loncra-send" />
-              </template>
-              <span>{{ globalProperties.$t('common.send') }}</span>
-            </a-button>
-
-            <a-button html-type="reset" :disabled="options.loading">
-              <template #icon>
-                <icon-font class="icon" type="loncra-history" />
-              </template>
-              <span>{{ globalProperties.$t('common.reset') }}</span>
-            </a-button>
-          </a-space>
-        </l-form>
-      </a-spin>
-    </l-data-loading-card-plan>
-  </div>
+      <!-- 「重置」直接用壳那颗（图标 / 文案 / 逻辑都是 pro 的标准实现） -->
+      <component :is="resetButton" />
+    </template>
+  </crud-form-page>
 </template>

@@ -1,250 +1,187 @@
 <script setup lang="ts">
-import LForm from "@/components/Form.vue";
-import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {IdNameValueMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
-import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import type {SmsMessageSendPayload, SmsSignEntity, SmsTemplateEntity} from "@loncra/client/message";
-import {
-  MESSAGE_SERVER_MESSAGE_TYPE_VALUE,
-  SmsMessageService,
-  SmsSignService,
-  SmsTemplateService
-} from "@loncra/client/message";
-import {AuthServerService, ResourceServerService} from "@/apis";
-
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {
-  MESSAGE_SERVER_SMS_ROUTE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-  YES_OR_NO_TYPE
-} from '@/constants';
-import type {SearchableColumnType} from '@loncra/antdv-pro';
-import {UserSelect as LUserSelect} from '@loncra/antdv-pro';
-import {requireNonNullOrUndefined} from "@/utils";
-
-import useApp from "antdv-next/dist/app/useApp";
-import {navigateAfterMessageSend} from "@/composables/message-server/useMessageSendFlow.ts";
-import {useRouter} from "vue-router";
-import {getEnumName, getEnumValue} from "@loncra/client/commons"
+import type {IdNameValueMetadata, RestResult} from '@loncra/client/commons'
+import {getEnumValue} from '@loncra/client/commons'
+import type {SmsSignEntity, SmsTemplateEntity} from '@loncra/client/message'
+import {SmsSignService, SmsTemplateService} from '@loncra/client/message'
+import {CrudFormPage, type CrudFormPageExpose, type SearchableColumnType,} from '@loncra/antdv-pro'
+import {computed, onMounted, ref, watch} from 'vue'
+import {useRouter} from 'vue-router'
+import i18n from '@/i18n'
+import {MESSAGE_SERVER_SMS_ROUTE} from '@/constants'
+import {navigateAfterMessageSend} from '@/composables/message-server/useMessageSendFlow'
+import {type SmsSendForm, smsSendFormPage} from './sms.send.page'
 
 defineOptions({
+  // 与旧页同名：tab / keep-alive / 路由缓存认这个名字
   name: 'MessageServerSmsForm',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const configProviderStore = useConfigProviderStore()
-
-const {message} = useApp()
 const router = useRouter()
 
-const options = ref<{
-  loading:boolean
-  spinning: boolean
-  channelOptions:NameValueEnumMetadata<string>[]
-  templateOptions:SmsTemplateEntity[]
-  signOptions:SmsSignEntity[]
-  form:SmsMessageSendPayload
-}>({
-  signOptions: [],
-  loading:false,
-  spinning:false,
-  channelOptions: [],
-  templateOptions:[],
-  form: {
-    phoneNumbers: [],
-    channel: "alibabaCloud",
-    content: '',
-    type: MESSAGE_SERVER_MESSAGE_TYPE_VALUE.NOTICE,
-    remark: '',
-    metadata: {
-      signCode: '',
-      templateCode: '',
-      variables: []
-    }
-  }
-});
+const formRef = ref<CrudFormPageExpose<SmsSendForm>>()
 
-const variableTableColumns = ref<SearchableColumnType[]>([
-  {
-    title: globalProperties.$t('common.name'),
-    dataIndex: "id",
-    key:'id'
-  },{
-    title: globalProperties.$t('common.type'),
-    dataIndex: "name",
-    key:'name'
-  },{
-    title:  globalProperties.$t('common.value'),
-    dataIndex: "value",
-    key:'value'
+/** 按渠道取的两份业务选项（声明侧从 `:context-extra` 读，见 `sms.send.page.ts`） */
+const smsTemplates = ref<SmsTemplateEntity[]>([])
+const smsSigns = ref<SmsSignEntity[]>([])
+
+/** 拉模板详情期间转圈（旧页 `options.spinning`） */
+const spinning = ref(false)
+
+/** 模板原文：变量替换每次都从它重算（= 旧页的 `currentTemplateContent`，行为照搬） */
+const templateContent = ref('')
+
+/**
+ * 首屏按**当前渠道**拉两份业务选项（= 旧 `mounted()`）。
+ *
+ * ⚠️ **现状照搬**：旧页只在挂载时拉一次 ⇒ 切换渠道**不会**重拉这份列表。要改成跟随渠道，
+ * 在这里加 `watch(() => formRef.value?.entity.channel, …)` 即可（本轮没做，属既有行为）。
+ */
+async function loadChannelOptions(): Promise<void> {
+  const channel = formRef.value?.entity.channel
+  if (!channel) {
+    return
   }
+  const channelValue = String(getEnumValue(channel))
+  const [templates, signs] = await Promise.all([
+    new SmsTemplateService(channelValue).find(),
+    new SmsSignService(channelValue).find(),
+  ])
+  smsTemplates.value = templates.data ?? []
+  smsSigns.value = signs.data ?? []
+}
+
+onMounted(loadChannelOptions)
+
+/**
+ * 选模板 ⇒ 拉模板详情，铺变量行与内容（= 旧 `onTemplateCodeChange`）。
+ *
+ * 变量行来自模板的 `variableAttribute`（一个 `{变量名: 说明}` 的 JSON 串）；内容取
+ * `templateContent` 存进实体，原文另存 `templateContent` 供"改变量重算内容"用。
+ */
+async function onTemplateChange(code: string): Promise<void> {
+  const entity = formRef.value?.entity
+  if (!entity) {
+    return
+  }
+  try {
+    spinning.value = true
+    entity.metadata.variables = []
+    entity.content = ''
+    templateContent.value = ''
+    const result = await new SmsTemplateService(String(getEnumValue(entity.channel))).getByCode(code)
+    // 旧页直接 `JSON.parse(String(... || ''))`（没有变量属性时会抛）⇒ 这里补空值判断，其余照搬
+    const raw = String(result.data?.variableAttribute || '')
+    const variables = raw ? (JSON.parse(raw) as Record<string, string>) : null
+    if (!variables) {
+      return
+    }
+    entity.content = String(result.data?.templateContent || '')
+    templateContent.value = entity.content
+    for (const [key, label] of Object.entries(variables)) {
+      entity.metadata.variables.push({id: key, name: label, value: ''})
+    }
+  } finally {
+    spinning.value = false
+  }
+}
+
+// 只看声明字段的值（重置后 `templateCode` 回到初值空串 ⇒ 不重复拉）
+watch(
+  () => formRef.value?.entity.metadata.templateCode,
+  (code) => {
+    if (code) {
+      void onTemplateChange(code)
+    }
+  },
+)
+
+/**
+ * 改变量 ⇒ 重算内容（= 旧 `variableValueChange`）。
+ *
+ * ⚠️ 与旧页一字不差：每次都从**模板原文**替换这一个变量 ⇒ 先改 A 再改 B，A 的替换会被抹掉。
+ * 这是既有行为，本次不擅自动（要修是另一件事）。
+ */
+function variableValueChange(record: IdNameValueMetadata<string>): void {
+  const entity = formRef.value?.entity
+  if (entity) {
+    entity.content = templateContent.value.replace('${' + record.id + '}', record.value)
+  }
+}
+
+/** 变量表列（旧页 `variableTableColumns`，label 改走 computed 以跟随语言切换） */
+const variableTableColumns = computed<SearchableColumnType[]>(() => [
+  {title: i18n.global.t('common.name'), dataIndex: 'id', key: 'id'},
+  {title: i18n.global.t('common.type'), dataIndex: 'name', key: 'name'},
+  {title: i18n.global.t('common.value'), dataIndex: 'value', key: 'value'},
 ])
 
-const currentTemplateContent = ref<String>('')
-const formRef = ref();
-const service = new SmsMessageService();
-
-async function onTemplateCodeChange(value:string) {
-  try {
-    options.value.spinning = true;
-    options.value.form.metadata.variables = [];
-    options.value.form.content = '';
-    const result:RestResult<Record<string, unknown>> = await new SmsTemplateService(getEnumValue(options.value.form.channel)).getByCode(value)
-
-    const data = JSON.parse(String(result.data?.variableAttribute || ''));
-    if (!data) {
-      return ;
-    }
-    options.value.form.content = String(result.data?.templateContent || '');
-    currentTemplateContent.value = String(result.data?.templateContent || '');
-    for (const key in data) {
-      const json:IdNameValueMetadata<string> = {id:key,name:data[key],value:''};
-      options.value.form.metadata.variables.push(json);
-    }
-  } finally {
-    options.value.spinning = false;
-  }
+/** 发送成功去哪：列表 / 批次明细由返回值形状决定（旧 `doSubmit` 里那一步） */
+function onSuccess(result: RestResult<unknown>): void {
+  navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_SMS_ROUTE.HOME)
 }
-
-async function mounted() {
-  const enums:RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({[SYSTEM_MODULE_NAME.RESOURCE_SERVER]:[{id:SYSTEM_ENUM_TYPE.CLOUD_CHANNEL_ENUM}]})
-  if (enums.data) {
-    options.value.channelOptions = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[SYSTEM_ENUM_TYPE.CLOUD_CHANNEL_ENUM] as NameValueEnumMetadata<string>[]
-  }
-
-  const templates:RestResult<SmsTemplateEntity[]> = await new SmsTemplateService(getEnumValue(options.value.form.channel)).find()
-  if (templates.data) {
-    options.value.templateOptions = templates.data
-  }
-
-  const signs:RestResult<SmsSignEntity[]> = await new SmsSignService(getEnumValue(options.value.form.channel)).find()
-  if (signs.data) {
-    options.value.signOptions = signs.data
-  }
-}
-
-function variableValueChange(record:IdNameValueMetadata<string>) {
-  options.value.form.content = currentTemplateContent.value.replace('${' + record.id + '}', record.value)
-}
-
-function onFinish(){
-  formRef.value.validate().then(() => doSubmit())
-}
-
-async function doSubmit(){
-  options.value.loading = true;
-  try {
-    const result = await service.send(options.value.form);
-    navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_SMS_ROUTE.HOME)
-    message.success(result.message)
-  } catch (error) {
-    message.error(error instanceof Error ? error.message : String(error))
-  } finally {
-    options.value.loading = false;
-  }
-}
-
-onMounted(mounted);
 </script>
 
 <template>
-  <div>
-    <l-data-loading-card-plan>
-      <l-form ref="formRef" @finish="onFinish" :model="options.form">
-        <a-row :gutter="configProviderStore.getToken().sizeMD">
-          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <a-form-item :label="globalProperties.$t('common.channel')" name="channel" :rules="[{required: true, trigger: 'change'}]">
-              <a-select v-model:value="options.form.channel" :options="options.channelOptions" :field-names="{label:'name'}">
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <a-form-item :label="globalProperties.$t('messageServer.sms.template.code')" :name="['metadata','templateCode']" :rules="[{required: true, trigger: 'change'}]">
-              <a-select :options="options.templateOptions" :field-names="{label:'name', value:'id'}" v-model:value="options.form.metadata.templateCode" @change="onTemplateCodeChange">
-
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <a-form-item :label="globalProperties.$t('messageServer.sms.sign.code')" :name="['metadata','signCode']" :rules="[{required: true, trigger: 'change'}]">
-              <a-select :options="options.signOptions" :field-names="{label:'name', value:'id'}" v-model:value="options.form.metadata.signCode">
-
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <a-form-item :label="globalProperties.$t('common.phoneNumber')" name="phoneNumbers" :rules="[{required: true, trigger: 'change'}]">
-              <l-user-select :query="{'filter_[phone_number_nen]':'true'}" v-model:value="options.form.phoneNumbers" mode="tags">
-                <template #optionRender="{ option }">
-                  <template v-if="option.data.payload">
-                    <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.phoneNumberVerified)})">
-                      <a-typography-text :type="getEnumValue(option.data?.payload.phoneNumberVerified) === YES_OR_NO_TYPE.YES ? 'success' : 'warning'">
-                        {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload) }}
-                        ({{ option.data?.payload?.phoneNumber }})
-                      </a-typography-text>
-                    </a-tooltip>
-                  </template>
-                  <template v-else>
-                    {{option.data.label}}
-                  </template>
-                </template>
-              </l-user-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-form-item :label="globalProperties.$t('common.remark')" name="remark">
-          <a-textarea v-model:value="options.form.remark" :auto-size="{ minRows: 5, maxRows: 10 }"/>
+  <crud-form-page
+    ref="formRef"
+    :page="smsSendFormPage"
+    :context-extra="{smsTemplates, smsSigns}"
+    @success="onSuccess"
+  >
+    <!--
+      变量区（内容预览 + 变量表）：pro 没有"表格式字段"能力 ⇒ 按既定口径走**宿主自己的逃生**，
+      画在壳的 `default` 槽里（位置正好是"字段行之后、按钮之前"，与旧页顺序一致）。
+      旧页 markup 照搬，只有两点不同：`message-variables` 是旧 kit `LForm` 的 prop（新表单没有，
+      已去掉）；表格标题栏文案照旧走 i18n。
+    -->
+    <template #default="{entity}">
+      <a-spin v-if="entity.content" :spinning="spinning">
+        <a-form-item :label="$t('common.content')" name="content">
+          <a-textarea
+            :value="(entity.metadata.signCode ? `【${entity.metadata.signCode}】` : '') + entity.content"
+            disabled
+            :auto-size="{minRows: 8, maxRows: 10}"
+          />
         </a-form-item>
-        <a-spin :spinning="options.spinning" v-if="options.form.content">
-          <a-form-item :label="globalProperties.$t('common.content')" name="content">
-            <a-textarea :value="(options.form.metadata.signCode !== '' ? '【' + options.form.metadata.signCode + '】' : '') + options.form.content" disabled :auto-size="{ minRows: 8, maxRows: 10 }"/>
-          </a-form-item>
-          <a-table v-if="options.form.metadata.variables.length > 0"
-                   :pagination="false"
-                   bordered
-                   :data-source="options.form.metadata.variables"
-                   :columns="variableTableColumns">
-            <template #title>
-              {{ globalProperties.$t('messageServer.sms.variable.title') }}
-            </template>
-            <template #bodyCell="{index, column, record}">
-              <template v-if="column.dataIndex === 'value'">
-                <a-form-item
-                  class="m-0"
-                  :message-variables="{ label: record.id }"
-                  :name="['metadata','variables', index, 'value']"
-                  :rules="[{required: true,  trigger: 'change'}]"
-                >
-                  <a-input v-model:value="record.value" @change="variableValueChange(record)"/>
-                </a-form-item>
-              </template>
-            </template>
-          </a-table>
-        </a-spin>
 
-        <a-divider />
-        <a-space>
-          <a-button type="primary" html-type="submit" :loading="options.loading">
-            <template #icon>
-              <icon-font class="icon" type="loncra-send" />
+        <a-table
+          v-if="entity.metadata.variables.length > 0"
+          :pagination="false"
+          bordered
+          :data-source="entity.metadata.variables"
+          :columns="variableTableColumns"
+        >
+          <template #title>
+            {{ $t('messageServer.sms.variable.title') }}
+          </template>
+          <template #bodyCell="{index, column, record}">
+            <template v-if="column.dataIndex === 'value'">
+              <a-form-item
+                class="m-0"
+                :name="['metadata', 'variables', index, 'value']"
+                :rules="[{required: true, trigger: 'change'}]"
+              >
+                <a-input v-model:value="record.value" @change="variableValueChange(record)" />
+              </a-form-item>
             </template>
-            <span>{{ globalProperties.$t('common.send') }}</span>
-          </a-button>
+          </template>
+        </a-table>
+      </a-spin>
 
-          <a-button html-type="reset" :disabled="options.loading">
-            <template #icon>
-              <icon-font class="icon" type="loncra-history" />
-            </template>
-            <span>{{ globalProperties.$t('common.reset') }}</span>
-          </a-button>
-        </a-space>
-      </l-form>
+      <!-- 旧版按钮上方那条分割线 -->
+      <a-divider />
+    </template>
 
-    </l-data-loading-card-plan>
-  </div>
+    <template #buttons="{loading, resetButton}">
+      <a-button type="primary" html-type="submit" :loading="loading">
+        <template #icon>
+          <icon-font class="icon" type="loncra-send" />
+        </template>
+        <span>{{ $t('common.send') }}</span>
+      </a-button>
+
+      <!-- 「重置」直接用壳那颗（图标 / 文案 / 逻辑都是 pro 的标准实现） -->
+      <component :is="resetButton" />
+    </template>
+  </crud-form-page>
 </template>
