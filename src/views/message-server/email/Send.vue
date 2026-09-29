@@ -1,150 +1,48 @@
 <script setup lang="ts">
-import LForm from "@/components/Form.vue";
-import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
-import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
-import type {NameValueEnumMetadata} from "@loncra/client/commons";
-import type {ObjectWriteResult} from "@loncra/client/resource";
-import type {EmailMessageSendPayload} from "@loncra/client/message";
-import {EmailMessageService, MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from "@loncra/client/message";
-import {AuthServerService} from "@/apis";
-import {AttachmentUpload as LAttachmentUpload, UserSelect as LUserSelect} from '@loncra/antdv-pro';
-import {requireNonNullOrUndefined} from "@/utils";
-import useApp from "antdv-next/dist/app/useApp";
-import {Editor as LEditor} from '@loncra/antdv'
+import {useRouter} from 'vue-router'
+import type {RestResult} from '@loncra/client/commons'
+import {CrudFormPage} from '@loncra/antdv-pro'
+import {MESSAGE_SERVER_EMAIL_ROUTE} from '@/constants'
+import {navigateAfterMessageSend} from '@/composables/message-server/useMessageSendFlow'
+import {emailSendFormPage} from './email.send.page'
 
-import {MESSAGE_SERVER_EMAIL_ROUTE, YES_OR_NO_TYPE} from '@/constants';
-import {
-  loadMessageSendEnums,
-  navigateAfterMessageSend
-} from "@/composables/message-server/useMessageSendFlow.ts";
-import {useRouter} from "vue-router";
-import {getEnumName, getEnumValue} from "@loncra/client/commons"
-
+/**
+ * 邮件发送页：**只剩壳** —— 字段 / 校验 / 提交（`send`）全在 `email.send.page.ts`。
+ *
+ * 它还管两件"宿主环境"的事（pro 不认）：
+ * ① **按钮区**：只把「保存」换成「发送」（旧版文案 + 自己的图标字体）；**「重置」用壳给的那颗**
+ *    （`resetButton` 就是渲染函数 ⇒ `<component :is="resetButton" />`，行为与壳上那颗一模一样：
+ *    antd `resetFields` + 声明的 `onReset` + `emit('resetFields')`）；
+ * ② **发送成功去哪**：`navigateAfterMessageSend` 认单条 / 批量两种返回形状。成功提示不用管 ——
+ *    壳会照 `result.message` 给（与旧页面那句 `message.success` 一字不差）。
+ */
 defineOptions({
   name: 'MessageServerEmailSend',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
-
-const {message} = useApp()
 const router = useRouter()
 
-const formRef = ref()
-const service = new EmailMessageService()
-const attachmentUploadRef = ref<{ upload: () => Promise<ObjectWriteResult | undefined> }>()
-
-const options = ref<{
-  form:EmailMessageSendPayload
-  typeOptions:NameValueEnumMetadata<number>[] | number[]
-  channelOptions:NameValueEnumMetadata<number>[] | number[]
-  loading:boolean
-}>({
-  loading: false,
-  form: {
-    toEmails: [],
-    type: MESSAGE_SERVER_MESSAGE_TYPE_VALUE.NOTICE,
-    content:"",
-    title: "",
-    attachmentList: [],
-    remark:"",
-    metadata: {}
-  },
-  typeOptions:[],
-  channelOptions:[],
-})
-
-function onFinish(){
-  formRef.value.validate().then(() => doSubmit())
+/** 列表 / 批次明细由返回值形状决定（旧 `doSubmit` 里那一步） */
+function onSuccess(result: RestResult<unknown>) {
+  navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_EMAIL_ROUTE.HOME)
 }
-
-async function doSubmit(){
-  options.value.loading = true;
-  try {
-    await attachmentUploadRef.value?.upload()
-    const result = await service.send(options.value.form);
-    navigateAfterMessageSend(router, result.data, MESSAGE_SERVER_EMAIL_ROUTE.HOME)
-    message.success(result.message)
-  } catch (error) {
-    message.error(error instanceof Error ? error.message : String(error))
-  } finally {
-    options.value.loading = false;
-  }
-}
-
-async function mounted() {
-  const enums = await loadMessageSendEnums()
-  options.value.typeOptions = enums.typeOptions
-  options.value.channelOptions = enums.channelOptions
-}
-
-onMounted(mounted);
 </script>
 
 <template>
-  <div>
-    <l-data-loading-card-plan>
-      <a-spin :spinning="options.loading" >
-        <l-form ref="formRef" @finish="onFinish" :model="options.form">
-          <a-form-item :label="globalProperties.$t('common.type')" name="type">
-            <a-select v-model:value="options.form.type" :options="options.typeOptions" :field-names="{label:'name'}">
-            </a-select>
-          </a-form-item>
-          <a-form-item :label="globalProperties.$t('common.email')" name="toEmails" :rules="[{required: true,type:'array', trigger: 'change'}]">
-            <l-user-select :query="{'filter_[email_nen]':'true'}" v-model:value="options.form.toEmails" mode="tags">
-              <template #optionRender="{ option }">
-                <template v-if="option.data.payload">
-                  <a-tooltip :title="globalProperties.$t('common.verified',{name:':' + getEnumName(option.data?.payload.emailVerified)})">
-                    <a-typography-text :type="getEnumValue(option.data?.payload.emailVerified) === YES_OR_NO_TYPE.YES ? 'success' : 'warning'">
+  <crud-form-page :page="emailSendFormPage" @success="onSuccess">
+    <!-- 旧版按钮上方那条分割线（字段之后、按钮之前正好是 default 槽） -->
+    <a-divider />
 
-                      {{ AuthServerService.getPrincipalNameByUserDetails(option.data?.payload) }}
-                      ({{ option.data?.payload?.email }})
-                    </a-typography-text>
-                  </a-tooltip>
-                </template>
-                <template v-else>
-                  {{option.data.label}}
-                </template>
-              </template>
-            </l-user-select>
-          </a-form-item>
-          <a-form-item :label="globalProperties.$t('common.title')" name="title" :rules="[{required: true, trigger: 'change'}]">
-            <a-input v-model:value="options.form.title" />
-          </a-form-item>
-          <a-form-item :label="globalProperties.$t('common.content')" name="content" :rules="[{required: true, trigger: 'change'}]">
-            <l-editor v-model:value="options.form.content" />
-          </a-form-item>
-          <a-form-item :label="globalProperties.$t('attachment.text')" name="attachmentList">
-            <l-attachment-upload
-              ref="attachmentUploadRef"
-              mode="dragger"
-              v-model:value="options.form.attachmentList"
-            />
-          </a-form-item>
+    <template #buttons="{loading, resetButton}">
+      <a-button type="primary" html-type="submit" :loading="loading">
+        <template #icon>
+          <icon-font class="icon" type="loncra-send" />
+        </template>
+        <span>{{ $t('common.send') }}</span>
+      </a-button>
 
-          <a-form-item :label="globalProperties.$t('common.remark')" name="remark">
-            <a-textarea v-model:value="options.form.remark" :auto-size="{ minRows: 5, maxRows: 10 }"/>
-          </a-form-item>
-
-          <a-divider />
-          <a-space>
-            <a-button type="primary" html-type="submit" :loading="options.loading">
-              <template #icon>
-                <icon-font class="icon" type="loncra-send" />
-              </template>
-              <span>{{ globalProperties.$t('common.send') }}</span>
-            </a-button>
-
-            <a-button html-type="reset" :disabled="options.loading">
-              <template #icon>
-                <icon-font class="icon" type="loncra-history" />
-              </template>
-              <span>{{ globalProperties.$t('common.reset') }}</span>
-            </a-button>
-          </a-space>
-        </l-form>
-      </a-spin>
-    </l-data-loading-card-plan>
-  </div>
+      <!-- 「重置」直接用壳那颗（图标/文案/逻辑都是 pro 的标准实现，不再抄一遍） -->
+      <component :is="resetButton" />
+    </template>
+  </crud-form-page>
 </template>
