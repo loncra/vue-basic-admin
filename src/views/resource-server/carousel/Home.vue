@@ -2,7 +2,7 @@
 
 import LMenuTitleCard from "@/components/basic/MenuTitleCard.vue";
 import type {CollectionExpose, RecordActionDefinition, ToolbarActionDefinition} from '@loncra/antdv-pro'
-import {useDateFormat, 
+import {useDateFormat,
   ActionButton as LActionButton,
   CrudCardGrid as LCrudCardGrid,
   isObjectWriteResult
@@ -369,13 +369,20 @@ onActivated(activated)
         <template #contentRender="{item}">
           <a-space orientation="vertical" class="w-full" :size="configProviderStore.getToken().sizeMD">
             <a-spin :spinning="item.previewLoading">
-              <template v-if="(item.carouselDataSource || []).length <= 0">
+              <!--
+                空状态：与有数据时的轮播**同高**（那几屏是 `h-[360px]`）+ 居中 ——
+                不然一空就塌下去、还贴在左上角 ✗（2026-09-29 用户截图报）
+              -->
+              <div
+                v-if="(item.carouselDataSource || []).length <= 0"
+                class="flex h-90 items-center justify-center"
+              >
                 <a-empty />
-              </template>
+              </div>
 
               <a-carousel v-else :autoplay="{ dotDuration: true }" :autoplay-speed="5000" arrows>
                 <div
-                  class="aspect-square h-[360px] overflow-hidden bg-mask"
+                  class="aspect-square h-90 overflow-hidden bg-mask"
                   :key="entity.id"
                   v-for="entity of item?.carouselDataSource || []"
                 >

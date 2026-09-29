@@ -52,6 +52,7 @@ export function useFormSuccessBack(options: {
         title: t('form.createSuccess.title'),
         content: `${result.message} ${t('form.createSuccess.subTitle')}`,
         okText: t('form.createSuccess.okReturnList'),
+        width:520,
         cancelText: t('form.createSuccess.addAnother'),
         onOk: () => {
           if (rememberMe.value) {
