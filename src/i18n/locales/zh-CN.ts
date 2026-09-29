@@ -172,12 +172,6 @@ const locale: LanguagePack = {
       }
     },
   },
-  operation:{
-    time:'操作时间',
-    principal:'操作账户',
-    type:'操作类型',
-    data:'操作数据'
-  },
   /**
    * 只留**宿主自己的**文案。设置面板的其余文案（颜色 / 尺寸 / 字号 / 行高 / 阴影 / 透明度…）
    * 由 `@loncra/antdv-pro` 的 `ConfigProviderSetting` 语言包提供（见其 `src/locale/zh_CN.ts`），
@@ -379,11 +373,6 @@ const locale: LanguagePack = {
       applicationName: '应用名称',
       page:'路由页面',
       routePage:'权限',
-    },
-    auditEvent:{
-      type:'审计类型',
-      target:'审计目标',
-      traceId:'关联业务 id'
     },
     consoleUser: {
       routePage:'员工'

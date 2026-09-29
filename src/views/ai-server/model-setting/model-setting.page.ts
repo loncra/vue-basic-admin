@@ -3,6 +3,7 @@ import {ModelSettingService} from '@loncra/client/ai'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import {
   AI_SERVER_MODEL_SETTING_ROUTE,
+  OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
 } from '@/constants'
@@ -26,6 +27,9 @@ export const modelSettingCore: CrudPageCore<ModelSettingSavePayload, ModelSettin
     edit: AI_SERVER_MODEL_SETTING_ROUTE.EDIT,
     detail: AI_SERVER_MODEL_SETTING_ROUTE.DETAIL,
   },
+
+  /** 操作记录（旧的 Form / Detail 各自传过 `OPERATION_DATA_TRACE_TABLE.AI_MODEL_SETTING` ⇒ 收进 core 一处写） */
+  operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.AI_MODEL_SETTING,
 
   /** 字段字典：labelKey / format / enumRef 只写一次 */
   fields: {

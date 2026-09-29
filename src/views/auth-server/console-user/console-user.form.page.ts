@@ -17,7 +17,7 @@ export const consoleUserFormPage = defineFormPage<ConsoleUserSavePayload, Consol
   consoleUserCore,
   {
     createEntity: () => ({
-      // `id` / `version` 必须有**占位键**：`BasicForm.getEntity` 只按「初值里已有的键」把服务端数据写回实体，
+      // `id` / `version` 必须有**占位键**：pro 的 `CrudFormPage` 取数时只把「初值（`createEntity`）里已有的键」写回实体，
       // 少了它们，编辑态 `entity.id` 永远 undefined（disabled 规则、email 规则、编辑态标题全会失效）。
       id: null as unknown as number,
       version: null as unknown as number,

@@ -4,6 +4,7 @@
  */
 
 import {createI18n} from 'vue-i18n'
+import {enUS as proEnUS, zhCN as proZhCN} from '@loncra/antdv-pro'
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
 
 /** 语言包接口：扩展名称-值对，包含 Ant Design 国际化配置 */
@@ -50,6 +51,30 @@ const loadAllLocales = async (): Promise<Record<string, LanguagePack>> => {
 }
 
 /**
+ * `@loncra/antdv-pro` **自带**的语言包（`Crud.*` / `Crud.operationTrace.*` / `FileEditor.*` …）。
+ *
+ * ⚠️ 必须并进 vue-i18n：声明层的 `labelKey` 是**宿主的 `i18nResolver`**（= `i18n.global.t`）解析的，
+ * pro 工厂/组件里写的 key（如 `Crud.operationTrace.time` = 操作时间）在宿主语言包里没有 ✗ ⇒
+ * 不并进来表头就会显示 key 原文（2026-09-29 踩过）。宿主自己的 key 优先（`...pro` 在前）。
+ */
+const proLocales: Record<string, Locale> = {
+  'zh-CN': proZhCN as unknown as Locale,
+  'en-US': proEnUS as unknown as Locale,
+}
+
+/**
+ * 按当前语言取 pro 的语言包 —— **两条链共用这一处**：
+ * - 宿主 `i18n`（声明层 `labelKey` 走 `i18nResolver` = `i18n.global.t`）⇒ 见上面的 `setLocaleMessage` ✓；
+ * - `XProvider` 的 `locale`（pro 组件内部文案走 `useLocale('X')`，按**同名段**合并 ⇒
+ *   见 `configProviderStore.antdvLocaleMessage`）✓。
+ *
+ * 认不出的语言给空对象（回落 pro 自己的 zh 兜底包 ✓）。
+ */
+export function proLocaleOf(locale: string | undefined): Locale {
+  return (locale ? proLocales[locale] : undefined) ?? {}
+}
+
+/**
  * 创建 i18n 实例
  * 使用 Composition API 模式（legacy: false）
  */
@@ -66,8 +91,8 @@ Object.keys(messages).forEach((m) => {
   if (!locale) {
     return
   }
-  // 设置语言包消息
-  i18n.global.setLocaleMessage(m, locale)
+  // 设置语言包消息（宿主在前 = 同名 key 时宿主优先 ✓）
+  i18n.global.setLocaleMessage(m, {...(proLocales[m] ?? {}), ...locale})
   // 如果语言包标记为回退语言，设置为默认语言
   if (locale.fallbackLocale) {
     i18n.global.fallbackLocale.value = locale.value

@@ -59,7 +59,8 @@ export const skillPackageDetailPage = defineDetailPage(skillPackageCore, {
       render: (_value, entity: SkillPackageEntity) =>
         h(IconSelect, {
           preview: true,
-          iconRender: renderIconFont,
+          // 与表单页同一个口径：`align` 是宿主的图标字体对齐类（`style.css` 的 `.icon.align` ✓）
+          iconRender: (type: string) => renderIconFont(type, 'align'),
           value: entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name,
         }),
     },

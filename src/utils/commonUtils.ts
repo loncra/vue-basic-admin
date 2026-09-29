@@ -88,7 +88,7 @@ export function convertFormUrlencoded(val: unknown): unknown {
  * `import.meta.env`；pro 只做显示，不碰它。格式化本身用 pro 的纯函数。
  */
 export function postTimestampFormat(value: DateLike): string {
-  return dayjsFormat(value, import.meta.env.VITE_APP_POST_DATETIME_FORMAT)
+  return dayjsFormat(value, import.meta.env.VITE_APP_POST_TIMESTAMP_FORMAT)
 }
 
 /**

@@ -4,6 +4,7 @@ import type {CrudPageCore} from '@loncra/antdv-pro'
 import {
   MCP_GROUP_CODE_PREFIX,
   MCP_PACKAGE_ROUTE,
+  OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
 } from '@/constants'
@@ -27,6 +28,9 @@ export const mcpPackageCore: CrudPageCore<McpPackageSavePayload, McpPackageEntit
     edit: MCP_PACKAGE_ROUTE.EDIT,
     detail: MCP_PACKAGE_ROUTE.DETAIL,
   },
+
+  /** 操作记录（旧的 Form / Detail 各自传过 `OPERATION_DATA_TRACE_TABLE.AI_MCP_PACKAGE` ⇒ 收进 core 一处写） */
+  operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.AI_MCP_PACKAGE,
 
   /** 字段字典：labelKey / format / enumRef / dictId 只写一次 */
   fields: {

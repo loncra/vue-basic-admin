@@ -1,441 +1,149 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import type {McpPackageEntity} from '@/types/apis'
-import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
-import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
+import {ref} from 'vue'
+import {useRoute} from 'vue-router'
 import type {
   McpPackageSavePayload,
   SseMcpClientTransportMetadata,
   StdioMcpClientTransportMetadata,
-  StreamableHttpMcpClientTransportMetadata
+  StreamableHttpMcpClientTransportMetadata,
 } from '@loncra/client/ai'
-import {AI_SERVER_MCP_CLIENT_TYPE, AiMcpPackageService} from '@loncra/client/ai'
-import {loadIcon, requireNonNullOrUndefined} from '@/utils'
-import {renderIconFont} from '@/utils/commonUtils'
-import LBasicForm from '@/components/basic/form/BasicForm.vue'
-import {ResourceServerService} from '@/apis'
-
+import {AI_SERVER_MCP_CLIENT_TYPE} from '@loncra/client/ai'
+import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
+import {CrudFormPage} from '@loncra/antdv-pro'
+/** 三张键值表的行数据是宿主扩展字段（不是后端字段）⇒ 模板里在这个类型上取/写 */
+import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
+import LMcpClarifyPolicyTable from '@/components/ai-server/mcp/McpClarifyPolicyTable.vue'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
+import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
+import {MCP_CLIENT_HTTP_TYPE_VALUE, SYSTEM_CONSTANT} from '@/constants'
+import {mcpPackageCore} from './mcp-package.page'
 import {
-  ICON_SELECT_MODE,
-  MCP_CLIENT_HTTP_TYPE_VALUE,
-  MCP_GROUP_CODE_PREFIX,
-  MCP_PACKAGE_ROUTE,
-  OPERATION_DATA_TRACE_TABLE,
-  SYSTEM_CONSTANT,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-  TIME_UNIT_TYPE,
-  YES_OR_NO_TYPE
-} from '@/constants'
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import LMcpClarifyPolicyTable from "@/components/ai-server/mcp/McpClarifyPolicyTable.vue";
-import {IconSelect as LIconSelect, KeyValueTable as LKeyValueTable} from '@loncra/antdv'
-import type {IconfontJson} from "@/types/composables";
+  mcpPackageClientTypeOptions,
+  mcpPackageFormPage,
+  mcpPackageTimeOptions,
+  mcpPackageYesOrNoOptions,
+} from './mcp-package.form.page'
 
+/**
+ * MCP 包新增/编辑页薄壳：12 个字段、校验、初值、枚举来源、组合控件（图标 / 分组 / 初始化超时）
+ * 以及 `preMounted` / `postGetEntity` / `preSubmit` 都在声明（`mcp-package.form.page.ts`）。
+ *
+ * 这里只剩：主键与标题、离场，外加**「客户端」那一大块**（旧页面它就在 `#rowLayout` 之外）——
+ * 按 `metadata.client.type` 分叉的两套附表（HTTP / STDIO）+ 三张键值表 + 澄清策略表。
+ * 留在壳里的两个原因：① 顺序与旧页面一致（声明里的字段会全部排在插槽之前）；
+ * ② 都是宿主组件，且声明侧的 `preSubmit` 要靠它们 `confirmAllEditingRows()` 的 ref（走 `contextExtra`）。
+ */
 defineOptions({
   name: 'AiServerMcpPackageForm',
 })
 
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
+const route = useRoute()
+const formRef = ref<{entity?: McpPackageSavePayload}>()
 
-const configProviderStore = useConfigProviderStore();
+/** 主键：进页面那一刻取一次（快照）；新增态没有 id ⇒ pro 不取数 */
+const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
 
-const service = new AiMcpPackageService()
+const configProviderStore = useConfigProviderStore()
 
-function createEmptyEntity(): McpPackageEntity {
-  return {
-    id: undefined as unknown as number,
-    version: undefined as unknown as number,
-    name: '',
-    packageKey: '',
-    summary: '',
-    tags: [],
-    additionalInformation: '',
-    authMode: undefined as unknown as number,
-    origin: undefined as unknown as number,
-    status: undefined as unknown as number,
-    type: undefined as unknown as number,
-    category:undefined as unknown as DataDictionaryMetadata,
-    dynamicActivation: YES_OR_NO_TYPE.NO,
-    icon:'',
-    initializeTimeout: {
-      value:1,
-      unit: TIME_UNIT_TYPE.MINUTES
-    },
-    metadata: {
-      client: {
-        type: AI_SERVER_MCP_CLIENT_TYPE.STREAMABLE_HTTP,
-        baseUrl: '',
-        endpoint: '/mcp',
-        timeout: {
-          value: 1,
-          unit: TIME_UNIT_TYPE.MINUTES
-        },
-        headers: {},
-        queryParams: {},
-        openConnectionOnStartup: 0,
-        resumableStreams: 0,
-      } as StreamableHttpMcpClientTransportMetadata,
-      clarifyPolicies: [],
-    },
-    envDataSource:[],
-    headerDataSource:[],
-    queryParamDataSource:[]
-  }
-}
+/** 三张键值表：`preSubmit` 里要先把"正在编辑"的行确认掉，再摊回 `metadata.client` */
+const headerTableRef = ref<{confirmAllEditingRows: () => void}>()
+const queryParamTableRef = ref<{confirmAllEditingRows: () => void}>()
+const envTableRef = ref<{confirmAllEditingRows: () => void}>()
 
-const options = ref<{
-  entity: McpPackageEntity
-  spinning: boolean
-  fetchingTools: boolean
-  authModeOptions: NameValueEnumMetadata<number>[]
-  originOptions: NameValueEnumMetadata<number>[]
-  typeOptions: NameValueEnumMetadata<number>[]
-  yesOrNoOptions: NameValueEnumMetadata<number>[]
-  clientTypeOptions: NameValueEnumMetadata<string>[]
-  timeOptions: NameValueEnumMetadata<string>[]
-  groupOptions:DataDictionaryMetadata[]
-  icons:string[]
-  iconOptions: IconfontJson[]
-}>({
-  spinning: false,
-  fetchingTools: false,
-  entity: createEmptyEntity(),
-  authModeOptions: [],
-  originOptions: [],
-  typeOptions: [],
-  yesOrNoOptions: [],
-  clientTypeOptions: [],
-  timeOptions:[],
-  icons:["/font_ai_icon/iconfont.json"],
-  iconOptions:[],
-  groupOptions:[]
-})
-
-const headerTableRef = ref<{ confirmAllEditingRows: () => void }>()
-const queryParamTableRef = ref<{ confirmAllEditingRows: () => void }>()
-const envTableRef = ref<{ confirmAllEditingRows: () => void }>()
-
-async function preSubmit() {
+function confirmKeyValueTables() {
   headerTableRef.value?.confirmAllEditingRows()
   queryParamTableRef.value?.confirmAllEditingRows()
   envTableRef.value?.confirmAllEditingRows()
-  const client = options.value.entity.metadata.client
-  if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(client.type)) {
-    const http = client as SseMcpClientTransportMetadata
-    http.headers = Object.fromEntries((options.value.entity.headerDataSource ?? []).map(row => [row.key, row.value as string[]]))
-    http.queryParams = Object.fromEntries((options.value.entity.queryParamDataSource ?? []).map(row => [row.key, row.value as string[]]))
-  } else if (client.type === AI_SERVER_MCP_CLIENT_TYPE.STDIO) {
-    const stdio = client as StdioMcpClientTransportMetadata
-    stdio.env = Object.fromEntries((options.value.entity.envDataSource ?? []).map(row => [row.key, String(row.value)]))
-  }
 }
 
-function postGetEntity(entity: McpPackageEntity) {
-  const client = entity.metadata.client
-  if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(client.type)) {
-    const http = client as SseMcpClientTransportMetadata
-    entity.headerDataSource = Object.entries(http.headers || {}).map(([key, value]) => ({
-      id: crypto.randomUUID(),
-      key,
-      value: value as string[],
-      editing: false,
-    }))
-    entity.queryParamDataSource = Object.entries(http.queryParams || {}).map(([key, value]) => ({
-      id: crypto.randomUUID(),
-      key,
-      value: value as string[],
-      editing: false,
-    }))
-  } else if (client.type === AI_SERVER_MCP_CLIENT_TYPE.STDIO) {
-    const stdio = client as StdioMcpClientTransportMetadata
-    entity.envDataSource = Object.entries(stdio.env || {}).map(([key, value]) => ({
-      id: crypto.randomUUID(),
-      key,
-      value: String(value),
-      editing: false,
-    }))
-  }
-  return entity
-}
+/** 标题：旧 `title-text` 是 `标题 (包名)`，新增态只给基标题 */
+useEntityPageTitle(() => {
+  const entity = formRef.value?.entity
+  return entity?.id ? entity.name : undefined
+})
 
-async function preMounted() {
-  options.value.spinning = true
-  const enums: RestResult<EnumBucketsResponseBody> =
-    await ResourceServerService.getServiceEnumerates({
-      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-        {id: SYSTEM_ENUM_TYPE.YES_OR_NO},
-        {id: SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM},
-      ],
-      [SYSTEM_MODULE_NAME.AI_SERVER]: [
-        {id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_AUTH_MODE_ENUM},
-        {id: SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM},
-        {id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM},
-        {id: SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM},
-      ],
-    })
-  if (enums.data) {
-    const resourceServer = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
-    const aiServer = enums.data[SYSTEM_MODULE_NAME.AI_SERVER] ?? {}
-
-    options.value.originOptions = (aiServer[SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM] || []) as NameValueEnumMetadata<number>[]
-    options.value.yesOrNoOptions = (resourceServer[SYSTEM_ENUM_TYPE.YES_OR_NO] || []) as NameValueEnumMetadata<number>[]
-    options.value.timeOptions = (resourceServer[SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM] || []) as NameValueEnumMetadata<string>[]
-
-    options.value.authModeOptions = (aiServer[SYSTEM_ENUM_TYPE.MCP_PACKAGE_AUTH_MODE_ENUM] || []) as NameValueEnumMetadata<number>[]
-    options.value.typeOptions = (aiServer[SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM] || []) as NameValueEnumMetadata<number>[]
-    options.value.clientTypeOptions = (aiServer[SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM] || []) as NameValueEnumMetadata<string>[]
-  }
-  const result:RestResult<Record<string, DataDictionaryMetadata[]>> = await ResourceServerService.findDataDictionariesByCodes([MCP_GROUP_CODE_PREFIX])
-  if (result.data) {
-    options.value.groupOptions = result.data[MCP_GROUP_CODE_PREFIX] ?? []
-  }
-  for (const icon of options.value.icons) {
-    const iconData:IconfontJson = await loadIcon(import.meta.env.VITE_APP_SITE_URL + icon)
-    options.value.iconOptions.push(iconData)
-  }
-  options.value.spinning = false
-}
-
-function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePayload) {
-  if (entity.id) {
-    return title + ' (' + entity.name + ')'
-  }
-  return title
-}
-
+/** 保存成功后的去向（旧页面 `:redirect="{name: MCP_PACKAGE_ROUTE.HOME}"`） */
+const {onSuccess, onStale, formKey} = useFormSuccessBack({
+  redirect: mcpPackageCore.routes?.home,
+  entity: () => formRef.value?.entity,
+})
 </script>
 
 <template>
-  <div>
-    <l-basic-form
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_MCP_PACKAGE"
-      :pre-mounted="preMounted"
-      :post-get-entity="postGetEntity"
-      :title-text="setPageTitle"
-      :redirect="{name: MCP_PACKAGE_ROUTE.HOME}"
-      :pre-submit="preSubmit"
-      :service="service"
-      v-model:entity="options.entity"
-      :spinning="options.spinning"
-    >
-      <template #rowLayout>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="name"
-            :label="globalProperties.$t('common.name')"
-            :rules="[{required: true}]"
-          >
-            <a-input v-model:value="options.entity.name" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="packageKey"
-            :label="globalProperties.$t('aiServer.mcpPackage.packageKey')"
-            :rules="[{required: true}]"
-          >
-            <a-input
-              v-model:value="options.entity.packageKey"
-              :disabled="globalProperties.$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="icon"
-            :label="globalProperties.$t('common.icon')"
-          >
-            <l-icon-select
-              class="w-full"
-              :mode="ICON_SELECT_MODE.AVATAR"
-              :icon-render="renderIconFont"
-              v-model:value="options.entity.icon"
-              :options="options.iconOptions"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="group"
-            :label="globalProperties.$t('common.group')"
-          >
-            <a-select
-              class="w-full"
-              :value="options.entity.category?.code"
-              :options="options.groupOptions"
-              :field-names="{ label: 'name', value: 'code' }"
-              allow-clear
-              @change="(_value:string,option:DataDictionaryMetadata) => options.entity.category = option"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="authMode"
-            :label="globalProperties.$t('aiServer.mcpPackage.authMode')"
-            :rules="[{required: true}]"
-          >
-            <a-select
-              class="w-full"
-              v-model:value="options.entity.authMode"
-              :options="options.authModeOptions"
-              :field-names="{label: 'name'}"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="origin"
-            :label="globalProperties.$t('aiServer.mcpPackage.origin')"
-            :rules="[{required: true}]"
-          >
-            <a-select
-              class="w-full"
-              v-model:value="options.entity.origin"
-              :options="options.originOptions"
-              :field-names="{label: 'name'}"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="tags"
-            :label="globalProperties.$t('aiServer.mcpPackage.tags')"
-          >
-            <a-select
-              class="w-full"
-              mode="tags"
-              max-tag-count="responsive"
-              v-model:value="options.entity.tags"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="type"
-            :label="globalProperties.$t('common.type')"
-            :rules="[{required: true}]"
-          >
-            <a-select
-              class="w-full"
-              v-model:value="options.entity.type"
-              :options="options.typeOptions"
-              :field-names="{label: 'name'}"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="dynamicActivation"
-            :label="globalProperties.$t('aiServer.mcpPackage.dynamicActivation')"
-            :rules="[{required: true}]"
-          >
-            <a-select
-              class="w-full"
-              v-model:value="options.entity.dynamicActivation"
-              :options="options.yesOrNoOptions"
-              :field-names="{label: 'name'}"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="initializeTimeout"
-            :label="globalProperties.$t('aiServer.mcpPackage.initializeTimeout')"
-          >
-            <a-space-compact block>
-              <a-input-number class="w-full" v-model:value="options.entity.initializeTimeout.value" :min="1" />
-              <a-select
-                class="w-auto"
-                :options="options.timeOptions"
-                :field-names="{label: 'name'}"
-                v-model:value="options.entity.initializeTimeout.unit"
-              />
-            </a-space-compact>
-
-          </a-form-item>
-        </a-col>
-        <a-col :span="24">
-          <a-form-item
-            name="summary"
-            :label="globalProperties.$t('aiServer.mcpPackage.summary')"
-          >
-            <a-textarea
-              v-model:value="options.entity.summary"
-              :rows="4"
-              show-count
-              :maxlength="512"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="24">
-          <a-form-item
-            name="additionalInformation"
-            :label="globalProperties.$t('aiServer.mcpPackage.additionalInformation')"
-          >
-            <a-textarea
-              v-model:value="options.entity.additionalInformation"
-              :rows="4"
-              show-count
-              :maxlength="512"
-            />
-          </a-form-item>
-        </a-col>
-      </template>
-
-      <a-divider class="m-0 mb-md" titlePlacement="start" plain>
+  <crud-form-page
+    ref="formRef"
+    :key="formKey"
+    :id="id"
+    :page="mcpPackageFormPage"
+    :context-extra="{confirmKeyValueTables}"
+    @success="onSuccess"
+    @stale="onStale"
+  >
+    <!-- 字段行之后（旧页面同一顺序） -->
+    <template #default="{entity}">
+      <a-divider class="m-0 mb-md" title-placement="start" plain>
         <a-space>
           <icon-font class="icon align" type="loncra-sliders-horizontal" />
-          {{ globalProperties.$t('aiServer.mcpPackage.client') }}
+          {{ $t('aiServer.mcpPackage.client') }}
           <a-flex class="shrink-0">
             <a-segmented
-              v-model:value="options.entity.metadata.client.type"
-              :options="options.clientTypeOptions.map(c => ({label: c.name, value: c.value}))"
-              @change="(value: string) => options.entity.metadata.client.type = value"
+              v-model:value="entity.metadata.client.type"
+              :options="mcpPackageClientTypeOptions.map((c) => ({label: c.name, value: c.value}))"
+              @change="(value: string) => (entity.metadata.client.type = value)"
             />
           </a-flex>
         </a-space>
       </a-divider>
+
       <a-row :gutter="[configProviderStore.getToken().sizeMD]">
-        <template v-if="MCP_CLIENT_HTTP_TYPE_VALUE.includes(options.entity.metadata.client.type)">
+        <template v-if="MCP_CLIENT_HTTP_TYPE_VALUE.includes(entity.metadata.client.type)">
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <a-form-item
-              :name="['metadata', 'client','baseUrl']"
-              :label="globalProperties.$t('aiServer.mcpPackage.baseUrl')"
+              :name="['metadata', 'client', 'baseUrl']"
+              :label="$t('aiServer.mcpPackage.baseUrl')"
               :rules="[{required: true}]"
             >
               <a-space-compact block>
-                <a-input v-model:value="(options.entity.metadata.client as SseMcpClientTransportMetadata).baseUrl" />
-                <a-input class="w-auto" v-model:value="(options.entity.metadata.client as SseMcpClientTransportMetadata).endpoint" />
-              </a-space-compact>
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <a-form-item :label="globalProperties.$t('aiServer.mcpPackage.timeout')">
-              <a-space-compact block>
-                <a-input-number class="w-full" v-model:value="(options.entity.metadata.client as SseMcpClientTransportMetadata).timeout.value" :min="1" />
-                <a-select
+                <a-input
+                  v-model:value="(entity.metadata.client as SseMcpClientTransportMetadata).baseUrl"
+                />
+                <a-input
                   class="w-auto"
-                  :options="options.timeOptions"
-                  :field-names="{label: 'name'}"
-                  v-model:value="(options.entity.metadata.client as SseMcpClientTransportMetadata).timeout.unit"
+                  v-model:value="(entity.metadata.client as SseMcpClientTransportMetadata).endpoint"
                 />
               </a-space-compact>
             </a-form-item>
           </a-col>
-          <template v-if="options.entity.metadata.client.type === AI_SERVER_MCP_CLIENT_TYPE.STREAMABLE_HTTP">
+          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+            <a-form-item :label="$t('aiServer.mcpPackage.timeout')">
+              <a-space-compact block>
+                <a-input-number
+                  class="w-full"
+                  v-model:value="(entity.metadata.client as SseMcpClientTransportMetadata).timeout.value"
+                  :min="1"
+                />
+                <a-select
+                  class="w-auto"
+                  :options="mcpPackageTimeOptions"
+                  :field-names="{label: 'name'}"
+                  v-model:value="(entity.metadata.client as SseMcpClientTransportMetadata).timeout.unit"
+                />
+              </a-space-compact>
+            </a-form-item>
+          </a-col>
+          <template
+            v-if="entity.metadata.client.type === AI_SERVER_MCP_CLIENT_TYPE.STREAMABLE_HTTP"
+          >
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
               <a-form-item
                 :name="['metadata', 'client', 'openConnectionOnStartup']"
-                :label="globalProperties.$t('aiServer.mcpPackage.openConnectionOnStartup')"
+                :label="$t('aiServer.mcpPackage.openConnectionOnStartup')"
               >
                 <a-select
                   class="w-full"
-                  v-model:value="(options.entity.metadata.client as StreamableHttpMcpClientTransportMetadata).openConnectionOnStartup"
-                  :options="options.yesOrNoOptions"
+                  v-model:value="(entity.metadata.client as StreamableHttpMcpClientTransportMetadata).openConnectionOnStartup"
+                  :options="mcpPackageYesOrNoOptions"
                   :field-names="{label: 'name'}"
                 />
               </a-form-item>
@@ -443,12 +151,12 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
             <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
               <a-form-item
                 :name="['metadata', 'client', 'resumableStreams']"
-                :label="globalProperties.$t('aiServer.mcpPackage.resumableStreams')"
+                :label="$t('aiServer.mcpPackage.resumableStreams')"
               >
                 <a-select
                   class="w-full"
-                  v-model:value="(options.entity.metadata.client as StreamableHttpMcpClientTransportMetadata).resumableStreams"
-                  :options="options.yesOrNoOptions"
+                  v-model:value="(entity.metadata.client as StreamableHttpMcpClientTransportMetadata).resumableStreams"
+                  :options="mcpPackageYesOrNoOptions"
                   :field-names="{label: 'name'}"
                 />
               </a-form-item>
@@ -456,16 +164,20 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
           </template>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <l-key-value-table
-              @change="(item, data) => (options.entity.metadata.client as SseMcpClientTransportMetadata).headers = Object.fromEntries(data.map(row => [row.key, row.value as string[]]))"
               ref="headerTableRef"
               multiple-value
               :form-item-name-prefix="['headerDataSource']"
-              :title="globalProperties.$t('aiServer.mcpPackage.headers')"
-              v-model:value="options.entity.headerDataSource"
+              :title="$t('aiServer.mcpPackage.headers')"
+              v-model:value="(entity as McpPackageEntityWithSources).headerDataSource"
+              @change="
+                (_item, data) =>
+                  ((entity.metadata.client as SseMcpClientTransportMetadata).headers =
+                    Object.fromEntries(data.map((row) => [row.key, row.value as string[]])))
+              "
             >
               <template #title="{title}">
                 <a-space>
-                  <component :is="() => renderIconFont('loncra-form', 'align')" />
+                  <icon-font class="icon align" type="loncra-form" />
                   {{ title }}
                 </a-space>
               </template>
@@ -473,70 +185,82 @@ function setPageTitle(title: string, entity: McpPackageEntity | McpPackageSavePa
           </a-col>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <l-key-value-table
-              multiple-value
-              @change="(item, data) => (options.entity.metadata.client as SseMcpClientTransportMetadata).queryParams = Object.fromEntries(data.map(row => [row.key, row.value as string[]]))"
               ref="queryParamTableRef"
+              multiple-value
               :form-item-name-prefix="['queryParamDataSource']"
-              :title="globalProperties.$t('aiServer.mcpPackage.queryParams')"
-              v-model:value="options.entity.queryParamDataSource"
+              :title="$t('aiServer.mcpPackage.queryParams')"
+              v-model:value="(entity as McpPackageEntityWithSources).queryParamDataSource"
+              @change="
+                (_item, data) =>
+                  ((entity.metadata.client as SseMcpClientTransportMetadata).queryParams =
+                    Object.fromEntries(data.map((row) => [row.key, row.value as string[]])))
+              "
             >
               <template #title="{title}">
                 <a-space>
-                  <component :is="() => renderIconFont('loncra-variable', 'align')" />
+                  <icon-font class="icon align" type="loncra-variable" />
                   {{ title }}
                 </a-space>
               </template>
             </l-key-value-table>
           </a-col>
         </template>
+
         <template v-else>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <a-form-item
-              :name="['metadata', 'client','command']"
-              :label="globalProperties.$t('aiServer.mcpPackage.command')"
+              :name="['metadata', 'client', 'command']"
+              :label="$t('aiServer.mcpPackage.command')"
               :rules="[{required: true}]"
             >
-              <a-input v-model:value="(options.entity.metadata.client as StdioMcpClientTransportMetadata).command" />
+              <a-input
+                v-model:value="(entity.metadata.client as StdioMcpClientTransportMetadata).command"
+              />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <a-form-item
-              :name="['metadata', 'client','args']"
-              :label="globalProperties.$t('aiServer.mcpPackage.args')"
+              :name="['metadata', 'client', 'args']"
+              :label="$t('aiServer.mcpPackage.args')"
               :rules="[{required: true}]"
             >
               <a-select
                 class="w-full"
                 mode="tags"
-                v-model:value="(options.entity.metadata.client as StdioMcpClientTransportMetadata).args"
+                v-model:value="(entity.metadata.client as StdioMcpClientTransportMetadata).args"
               />
             </a-form-item>
           </a-col>
-          <a-col :span="24" >
+          <a-col :span="24">
             <l-key-value-table
               ref="envTableRef"
-              @change="(item, data) => (options.entity.metadata.client as StdioMcpClientTransportMetadata).env = Object.fromEntries(data.map(row => [row.key, row.value as string]))"
-              :title="globalProperties.$t('aiServer.mcpPackage.env')"
               :form-item-name-prefix="['envDataSource']"
-              v-model:value="options.entity.envDataSource"
+              :title="$t('aiServer.mcpPackage.env')"
+              v-model:value="(entity as McpPackageEntityWithSources).envDataSource"
+              @change="
+                (_item, data) =>
+                  ((entity.metadata.client as StdioMcpClientTransportMetadata).env =
+                    Object.fromEntries(data.map((row) => [row.key, String(row.value)])))
+              "
             >
               <template #title="{title}">
                 <a-space>
-                  <component :is="() => renderIconFont('loncra-variable', 'align')" />
+                  <icon-font class="icon align" type="loncra-variable" />
                   {{ title }}
                 </a-space>
               </template>
             </l-key-value-table>
           </a-col>
         </template>
-        <a-col :span="24" :class="['mt-lg', options.entity.id ? undefined : 'mb-lg']">
+
+        <a-col :span="24" :class="['mt-lg', entity.id ? undefined : 'mb-lg']">
           <l-mcp-clarify-policy-table
-            :mcp-client="options.entity.metadata.client"
+            :mcp-client="entity.metadata.client"
             :form-item-name-prefix="['metadata', 'clarifyPolicies']"
-            v-model:value="options.entity.metadata.clarifyPolicies"
+            v-model:value="entity.metadata.clarifyPolicies"
           />
         </a-col>
       </a-row>
-    </l-basic-form>
-  </div>
+    </template>
+  </crud-form-page>
 </template>

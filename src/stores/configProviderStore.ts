@@ -18,7 +18,7 @@ import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
 import {createAntdvConfig} from '@loncra/antdv-pro'
 import dayjs from 'dayjs'
-import i18n, {type LanguagePack} from '@/i18n'
+import i18n, {proLocaleOf, type LanguagePack} from '@/i18n'
 import {type CreateSuccessBackValue, PAD_SCREENS, SCREEN_BREAKPOINT, STORE,} from '@/constants'
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import type {ConfigOptions} from 'antdv-next/dist/message/interface'
@@ -91,10 +91,20 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     {immediate: true},
   )
 
-  /** antdv 的 locale 对象（喂 `LProvider :locale-message`）：由宿主的 i18n 决定，pro 不猜 */
+  /**
+   * `LProvider :locale-message` 的内容 = **pro 语言包 + antd 语言包**（都按当前语言）。
+   *
+   * ⚠️ **只给 antd 的包是不够的**：pro 组件的内部文案走 `useLocale('X')`，它是拿「XProvider 的
+   * `locale`」里的**同名段**去覆盖 pro 自己的 zh 兜底包（`@loncra/antdv/src/_util/useLocale.ts`）
+   * ⇒ 宿主若只喂 antd 的包（里面只有 `Select` / `Table` / `DatePicker`… ✗，没有 `Crud` / `FileEditor`
+   * / `AttachmentUpload` / `UserSelect` / `SystemUserPanel` / `ConfigProviderSetting` ✗）⇒ **永远回落中文**
+   * ⇒ 切英文时列表工具条（搜索 / 重置 / 新增…）/ 设置面板 / 文件编辑器仍是中文 ✗（2026-09-29 查明）。
+   * antd 在后 = 同名段 antd 优先 ✓。
+   */
   function antdvLocaleMessage(): object | undefined {
     const messages = i18n.global.messages.value as Record<string, LanguagePack>
-    return messages[antdv.state.locale]?.antDesign as object | undefined
+    const antDesign = messages[antdv.state.locale]?.antDesign as object | undefined
+    return {...proLocaleOf(antdv.state.locale), ...antDesign}
   }
 
   // #endregion

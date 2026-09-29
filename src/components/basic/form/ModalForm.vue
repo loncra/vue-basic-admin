@@ -18,7 +18,7 @@ defineOptions({
   name: 'LModalForm',
 })
 
-/** 主键类型：见 `BasicForm.vue` 同名说明（`TBodyId` 约束主体、`TId` 是 service 那一侧的形状）。 */
+/** 主键类型：`TBodyId` 约束主体、`TId` 是 service 那一侧的形状（允许 `undefined` = 新增态）。 */
 type TId = TBodyId | undefined
 
 const { message } = App.useApp()

@@ -175,12 +175,6 @@ const locale: LanguagePack = {
       },
     },
   },
-  operation: {
-    time: 'Operation time',
-    principal: 'Operator account',
-    type: 'Operation type',
-    data: 'Operation data',
-  },
   /**
    * Host-only copy. The settings panel's remaining copy (colors / sizes / fonts / line heights /
    * shadows / opacity…) comes from `@loncra/antdv-pro`'s `ConfigProviderSetting` locale
@@ -388,11 +382,6 @@ const locale: LanguagePack = {
       applicationName: 'Application name',
       page: 'Route path',
       routePage: 'Permissions',
-    },
-    auditEvent: {
-      type: 'Audit type',
-      target: 'Audit target',
-      traceId: 'Related business ID',
     },
     consoleUser: {
       routePage: 'Employees',

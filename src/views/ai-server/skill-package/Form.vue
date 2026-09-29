@@ -1,396 +1,173 @@
 <script setup lang="ts">
-import {nextTick, ref} from 'vue'
-import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
-import type {DataDictionaryMetadata, EnumBucketsResponseBody} from '@loncra/client/resource'
-import type {
-  GitSkillSourceMetadata,
-  ManualSkillSourceMetadata,
-  SkillPackageEntity,
-  SkillPackageSavePayload,
-  SkillSourceMetadata
-} from '@loncra/client/ai'
-import {
-  AI_SERVER_SKILL_SOURCE_TYPE,
-  AI_SERVER_SKILL_UPDATE_POLICY,
-  AiSkillPackageService
-} from '@loncra/client/ai'
-import {loadIcon} from '@/utils'
-import {renderIconFont} from '@/utils/commonUtils'
-import LBasicForm from '@/components/basic/form/BasicForm.vue'
-import {ResourceServerService} from '@/apis'
-
-import {
-  ICON_SELECT_MODE,
-  OPERATION_DATA_TRACE_TABLE,
-  SKILL_GROUP_CODE_PREFIX,
-  SKILL_PACKAGE_ROUTE,
-  SYSTEM_CONSTANT,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-  TIME_UNIT_TYPE
-} from '@/constants'
-import {IconSelect as LIconSelect} from '@loncra/antdv'
-import type {IconfontJson} from '@/types/composables'
-import type {AttachmentUploadExpose} from '@loncra/antdv-pro'
+import {ref} from 'vue'
+import {useRoute} from 'vue-router'
+import type {GitSkillSourceMetadata, SkillPackageSavePayload} from '@loncra/client/ai'
+import {AI_SERVER_SKILL_SOURCE_TYPE} from '@loncra/client/ai'
+import {getEnumValue} from '@loncra/client/commons'
 import {
   ATTACHMENT_UPLOAD_MODE,
-  AttachmentUpload as LAttachmentUpload,
+  type AttachmentUploadExpose,
+  CrudFormPage,
   FileEditor as LFileEditor,
+  AttachmentUpload as LAttachmentUpload,
 } from '@loncra/antdv-pro'
-import {getEnumValue} from '@loncra/client/commons'
+import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
+import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
+import {SYSTEM_CONSTANT} from '@/constants'
+import {skillPackageCore} from './skill-package.page'
+import {skillPackageFormPage} from './skill-package.form.page'
 
+/**
+ * 技能包新增/编辑页薄壳：字段、校验、初值、枚举来源、图标/分组/更新策略三处组合控件、
+ * 以及 `preMounted`/`postSubmit` 都在声明（`skill-package.form.page.ts` / `skill-package.page.ts`）。
+ *
+ * 这里只剩：主键与标题、离场，外加**字段行之后的五块**（旧页面它们就在 `#rowLayout` 之外）
+ * —— Git 来源（带 `['metadata','source','url']` 嵌套校验）、标签、文件、简介、附加信息。
+ * 之所以留在壳里：① **顺序与旧页面完全一致**（声明里的字段会全部排在插槽之前）；
+ * ② 文件那块要用宿主组件（`AttachmentUpload` / `FileEditor`）与它的 `ref`。
+ */
 defineOptions({
-  name: 'AiServerSkillPackageAddForm',
+  name: 'AiServerSkillPackageForm',
 })
 
-const service = new AiSkillPackageService()
+const route = useRoute()
+const formRef = ref<{entity?: SkillPackageSavePayload}>()
 
-function createEmptyEntity(): SkillPackageEntity {
-  return {
-    id: undefined as unknown as number,
-    version: undefined as unknown as number,
-    name: '',
-    packageKey: '',
-    summary: '',
-    tags: [],
-    category: undefined as unknown as DataDictionaryMetadata,
-    additionalInformation: '',
-    origin: undefined as unknown as number,
-    status: undefined as unknown as number,
-    type: undefined as unknown as number,
-    icon: '',
-    defaultUpdatePolicy: undefined as unknown as number,
-    sourceType: undefined as unknown as number,
-    metadata:{
-      source:{type:AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
-    }
-  }
-}
+/** 主键：进页面那一刻取一次（快照）；新增态没有 id ⇒ pro 不取数 */
+const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
 
-const options = ref<{
-  entity: SkillPackageEntity
-  spinning: boolean
-  originOptions: NameValueEnumMetadata<number>[]
-  typeOptions: NameValueEnumMetadata<number>[]
-  updatePolicyOptions: NameValueEnumMetadata<number>[]
-  sourceTypeOptions: NameValueEnumMetadata<number>[]
-  timeOptions:NameValueEnumMetadata<string>[]
-  groupOptions: DataDictionaryMetadata[]
-  icons: string[]
-  iconOptions: IconfontJson[]
-}>({
-  spinning: false,
-  entity: createEmptyEntity(),
-  originOptions: [],
-  typeOptions: [],
-  timeOptions:[],
-  updatePolicyOptions: [],
-  sourceTypeOptions: [],
-  icons: ['/font_ai_icon/iconfont.json'],
-  iconOptions: [],
-  groupOptions: []
-})
-
+/** 新增态选好的附件：`postSubmit` 里（声明侧）要拿它上传，所以从壳递进去 */
 const attachmentUpload = ref<AttachmentUploadExpose>()
 
-async function preMounted() {
-  options.value.spinning = true
-  const enums: RestResult<EnumBucketsResponseBody> =
-    await ResourceServerService.getServiceEnumerates({
-      [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [
-        {id: SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM},
-        {id: SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM},
-      ],
-      [SYSTEM_MODULE_NAME.AI_SERVER]: [
-        {id: SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM},
-        {id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM},
-        {id: SYSTEM_ENUM_TYPE.SKILL_SOURCE_TYPE_ENUM},
-      ],
-    })
-  if (enums.data) {
-    const resourceServer = enums.data[SYSTEM_MODULE_NAME.RESOURCE_SERVER] ?? {}
-    const aiServer = enums.data[SYSTEM_MODULE_NAME.AI_SERVER] ?? {}
-    options.value.originOptions = (aiServer[SYSTEM_ENUM_TYPE.PACKAGE_ORIGIN_ENUM] || []) as NameValueEnumMetadata<number>[]
-    options.value.typeOptions = (aiServer[SYSTEM_ENUM_TYPE.MCP_PACKAGE_TYPE_ENUM] || []) as NameValueEnumMetadata<number>[]
-    options.value.updatePolicyOptions = (resourceServer[SYSTEM_ENUM_TYPE.UPDATE_POLICY_ENUM] || []) as NameValueEnumMetadata<number>[]
-    options.value.sourceTypeOptions = (aiServer[SYSTEM_ENUM_TYPE.SKILL_SOURCE_TYPE_ENUM] || []) as NameValueEnumMetadata<number>[]
-    options.value.timeOptions = (resourceServer[SYSTEM_ENUM_TYPE.TIME_UNIT_ENUM] || []) as NameValueEnumMetadata<string>[]
-  }
-  const result: RestResult<Record<string, DataDictionaryMetadata[]>> =
-    await ResourceServerService.findDataDictionariesByCodes([SKILL_GROUP_CODE_PREFIX])
-  if (result.data) {
-    options.value.groupOptions = result.data[SKILL_GROUP_CODE_PREFIX] ?? []
-  }
-  for (const icon of options.value.icons) {
-    const iconData: IconfontJson = await loadIcon(import.meta.env.VITE_APP_SITE_URL + icon)
-    options.value.iconOptions.push(iconData)
-  }
-  options.value.spinning = false
-}
+/** 标题：旧 `title-text` 是 `标题 (技能包名)`，新增态只给基标题 */
+useEntityPageTitle(() => {
+  const entity = formRef.value?.entity
+  return entity?.id ? entity.name : undefined
+})
 
-function setPageTitle(title: string, entity: SkillPackageEntity | SkillPackageSavePayload) {
-  if (entity.id) {
-    return title + ' (' + entity.name + ')'
-  }
-  return title
-}
-
-async function postSubmit(result:RestResult<SkillPackageEntity['id']>) {
-  options.value.entity.id = result.data
-  await nextTick()
-  if (getEnumValue(options.value.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL) {
-    try {
-      options.value.spinning = true
-      await attachmentUpload?.value?.upload()
-    } finally {
-      options.value.spinning = false
-    }
-  }
-  return false
-}
-
-function onDefaultUpdatePolicyChange(value:number) {
-  if (value !== AI_SERVER_SKILL_UPDATE_POLICY.AUTOMATIC) {
-    return
-  }
-  if (!options.value.entity.metadata.updatePolicyTime) {
-    options.value.entity.metadata.updatePolicyTime = {value:1, unit:TIME_UNIT_TYPE.DAYS}
-  }
-}
-
-function onSourceTypeChange(value:number) {
-  options.value.entity.metadata = {
-    source: {type:value} as SkillSourceMetadata
-  }
-  if (value === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL) {
-    options.value.entity.defaultUpdatePolicy = AI_SERVER_SKILL_UPDATE_POLICY.MANUAL
-    options.value.entity.metadata.source = {type:AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata
-  } else {
-    options.value.entity.metadata.source = {type:AI_SERVER_SKILL_SOURCE_TYPE.GIT, url:''} as GitSkillSourceMetadata
-  }
-}
-
+/** 保存成功后的去向（旧页面 `:redirect="{name: SKILL_PACKAGE_ROUTE.HOME}"`） */
+const {onSuccess, onStale, formKey} = useFormSuccessBack({
+  redirect: skillPackageCore.routes?.home,
+  entity: () => formRef.value?.entity,
+})
 </script>
 
 <template>
-  <div>
-    <l-basic-form
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.AI_SKILL_PACKAGE"
-      :pre-mounted="preMounted"
-      :title-text="setPageTitle"
-      :redirect="{name: SKILL_PACKAGE_ROUTE.HOME}"
-      :service="service"
-      :post-submit="postSubmit"
-      v-model:entity="options.entity"
-      :spinning="options.spinning"
-    >
-      <template #rowLayout>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="name"
-            :label="$t('common.name')"
-            :rules="[{required: true}]"
-          >
-            <a-input v-model:value="options.entity.name" />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="packageKey"
-            :label="$t('aiServer.skillPackage.packageKey')"
-            :rules="[{required: true}]"
-          >
-            <a-input
-              v-model:value="options.entity.packageKey"
-              :disabled="$route.query[SYSTEM_CONSTANT.ID_NAME] !== undefined"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="icon"
-            :label="$t('common.icon')"
-          >
-            <l-icon-select
-              class="w-full"
-              :mode="ICON_SELECT_MODE.AVATAR"
-              :icon-render="renderIconFont"
-              v-model:value="options.entity.icon"
-              :options="options.iconOptions"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="category"
-            :label="$t('common.group')"
-            :rules="[{required: true}]"
-          >
-            <a-select
-              class="w-full"
-              :value="options.entity.category?.code"
-              :options="options.groupOptions"
-              :field-names="{label: 'name', value: 'code'}"
-              allow-clear
-              @change="(_value: string, option: DataDictionaryMetadata) => options.entity.category = option"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="origin"
-            :label="$t('aiServer.skillPackage.origin')"
-            :rules="[{required: true}]"
-          >
-            <a-select
-              class="w-full"
-              v-model:value="options.entity.origin"
-              :options="options.originOptions"
-              :field-names="{label: 'name'}"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="type"
-            :label="$t('common.type')"
-            :rules="[{required: true}]"
-          >
-            <a-select
-              class="w-full"
-              v-model:value="options.entity.type"
-              :options="options.typeOptions"
-              :field-names="{label: 'name'}"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="defaultUpdatePolicy"
-            :label="$t('aiServer.skillPackage.defaultUpdatePolicy')"
-            :rules="[{required: true}]"
-          >
-            <a-space-compact block>
-              <a-select
-                class="w-full"
-                :disabled="getEnumValue(options.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL"
-                v-model:value="options.entity.defaultUpdatePolicy"
-                :options="options.updatePolicyOptions"
-                @change="onDefaultUpdatePolicyChange"
-                :field-names="{label: 'name'}"
-              />
-              <template v-if="options.entity.metadata.updatePolicyTime && getEnumValue(options.entity.defaultUpdatePolicy) === AI_SERVER_SKILL_UPDATE_POLICY.AUTOMATIC">
-                <a-space-addon>
-                  {{$t('aiServer.skillPackage.automaticUpdateInterval')}}
-                </a-space-addon>
-                <a-input-number class="w-60" v-model:value="options.entity.metadata.updatePolicyTime.value" :min="1" />
-                <a-select
-                  :options="options.timeOptions"
-                  class="w-auto"
-                  :field-names="{label: 'name'}"
-                  v-model:value="options.entity.metadata.updatePolicyTime.unit"
-                />
-              </template>
-            </a-space-compact>
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-          <a-form-item
-            name="sourceType"
-            :label="$t('aiServer.skillPackage.sourceType')"
-            :rules="[{required: true}]"
-          >
-            <a-select
-              class="w-full"
-              v-model:value="options.entity.sourceType"
-              :options="options.sourceTypeOptions"
-              :field-names="{label: 'name'}"
-              @change="onSourceTypeChange"
-            />
-          </a-form-item>
-        </a-col>
-      </template>
+  <crud-form-page
+    ref="formRef"
+    :key="formKey"
+    :id="id"
+    :page="skillPackageFormPage"
+    :context-extra="{uploadAttachments: () => attachmentUpload?.upload()}"
+    @success="onSuccess"
+    @stale="onStale"
+  >
+    <!-- 字段行之后（旧页面同一顺序） -->
+    <template #default="{entity}">
+      <!-- Git 来源：整块按来源类型显隐，url 是**嵌套路径**的必填项 -->
       <a-form-item
-        v-if="getEnumValue(options.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.GIT"
+        v-if="getEnumValue(entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.GIT"
         :name="['metadata', 'source', 'url']"
         :label="$t('aiServer.skillPackage.git.url')"
         :rules="[{required: true}]"
       >
         <a-space-compact block>
-          <a-input v-model:value="(options.entity.metadata.source as GitSkillSourceMetadata).url" />
+          <a-input v-model:value="(entity.metadata.source as GitSkillSourceMetadata).url" />
           <a-space-addon>
             <a-space>
               <a-tooltip :title="$t('aiServer.skillPackage.git.path.subTitle')">
                 <icon-font type="loncra-circle-question-mark"></icon-font>
               </a-tooltip>
-              <span>{{$t('aiServer.skillPackage.git.path.title')}}</span>
+              <span>{{ $t('aiServer.skillPackage.git.path.title') }}</span>
             </a-space>
           </a-space-addon>
-          <a-input class="w-70" v-model:value="(options.entity.metadata.source as GitSkillSourceMetadata).path" />
+          <a-input
+            class="w-70"
+            v-model:value="(entity.metadata.source as GitSkillSourceMetadata).path"
+          />
           <a-space-addon>
             <a-space>
               <a-tooltip :title="$t('aiServer.skillPackage.git.ref.subTitle')">
                 <icon-font type="loncra-circle-question-mark"></icon-font>
               </a-tooltip>
-              <span>{{$t('aiServer.skillPackage.git.ref.title')}}</span>
+              <span>{{ $t('aiServer.skillPackage.git.ref.title') }}</span>
             </a-space>
           </a-space-addon>
-          <a-input class="w-50" v-model:value="(options.entity.metadata.source as GitSkillSourceMetadata).ref" />
+          <a-input
+            class="w-50"
+            v-model:value="(entity.metadata.source as GitSkillSourceMetadata).ref"
+          />
           <a-space-addon>
             <a-space>
               <a-tooltip :title="$t('aiServer.skillPackage.git.sha.subTitle')">
                 <icon-font type="loncra-circle-question-mark"></icon-font>
               </a-tooltip>
-              <span>{{$t('aiServer.skillPackage.git.sha.title')}}</span>
+              <span>{{ $t('aiServer.skillPackage.git.sha.title') }}</span>
             </a-space>
           </a-space-addon>
-          <a-input class="w-70" v-model:value="(options.entity.metadata.source as GitSkillSourceMetadata).sha" />
+          <a-input
+            class="w-70"
+            v-model:value="(entity.metadata.source as GitSkillSourceMetadata).sha"
+          />
         </a-space-compact>
       </a-form-item>
-      <a-form-item
-        name="tags"
-        :label="$t('aiServer.skillPackage.tags')"
-      >
+
+      <a-form-item name="tags" :label="$t('aiServer.skillPackage.tags')">
         <a-select
           class="w-full"
           mode="tags"
           max-tag-count="responsive"
-          v-model:value="options.entity.tags"
+          v-model:value="entity.tags"
         />
       </a-form-item>
+
+      <!-- 文件：新建态用上传（挂到刚建出来的 id 上），编辑态用文件编辑器 -->
       <a-form-item
-        v-if="options.entity.id !== undefined || getEnumValue(options.entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL"
+        v-if="
+          entity.id !== undefined ||
+          getEnumValue(entity.sourceType) === AI_SERVER_SKILL_SOURCE_TYPE.MANUAL
+        "
         name="files"
         :label="$t('aiServer.skillPackage.files')"
       >
         <a-flex gap="middle" vertical>
-          <l-attachment-upload v-if="options.entity.id === undefined" directory ref="attachmentUpload" :upload-options="{param:{prefix:'ai/skill/' + options.entity.id, randomName:false}}" bucket="system.file" :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER" />
-          <l-file-editor v-else bucket="system.file" :path="'ai/skill/' + options.entity.id + '/'" :name="options.entity.packageKey"/>
+          <l-attachment-upload
+            v-if="entity.id === undefined"
+            directory
+            ref="attachmentUpload"
+            :upload-options="{param: {prefix: 'ai/skill/' + entity.id, randomName: false}}"
+            bucket="system.file"
+            :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER"
+          />
+          <l-file-editor
+            v-else
+            bucket="system.file"
+            :path="'ai/skill/' + entity.id + '/'"
+            :name="entity.packageKey"
+          />
         </a-flex>
       </a-form-item>
-      <a-form-item
-        name="summary"
-        :label="$t('aiServer.skillPackage.summary')"
-      >
+
+      <a-form-item name="summary" :label="$t('aiServer.skillPackage.summary')">
         <a-textarea
-          v-model:value="options.entity.summary"
-          :rows="4"
-          show-count
-          :maxlength="512"
-        />
-      </a-form-item>
-      <a-form-item
-        name="additionalInformation"
-        :label="$t('aiServer.skillPackage.additionalInformation')"
-      >
-        <a-textarea
-          v-model:value="options.entity.additionalInformation"
+          v-model:value="entity.summary"
           :rows="4"
           show-count
           :maxlength="512"
         />
       </a-form-item>
 
-    </l-basic-form>
-  </div>
+      <a-form-item
+        name="additionalInformation"
+        :label="$t('aiServer.skillPackage.additionalInformation')"
+      >
+        <a-textarea
+          v-model:value="entity.additionalInformation"
+          :rows="4"
+          show-count
+          :maxlength="512"
+        />
+      </a-form-item>
+    </template>
+  </crud-form-page>
 </template>

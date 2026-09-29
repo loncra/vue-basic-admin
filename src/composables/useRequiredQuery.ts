@@ -7,6 +7,15 @@ import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, SYSTEM_CONSTANT, SYSTEM_ROUTE} fro
 export interface RequiredQueryOptions {
   /** `true` = 列出的字段**至少有一个**就行（新增表单那种"给谁都行"）；默认全部必须有 */
   anyOf?: boolean
+  /**
+   * 值按什么口径给（默认 `true`）。
+   *
+   * - `true`：**按宿主约定转成 `number`**（这些参数都是 id，声明层要 `number`）；空串 / 非数字 ⇒ 当没给（⇒ 400）；
+   * - `false`：**保留原样字符串**。给"id 本身不是数字"的页面用（如审计事件的 `id` / `after` 时间戳，
+   *   `AuditEventService.detail(id: string, after: string)` 收字符串；大整数 id 转 `Number` 还会丢精度）——
+   *   旧 `BasicDetail` 的 `queryFields` 就是这个口径。
+   */
+  numeric?: boolean
 }
 
 /**
@@ -16,12 +25,12 @@ export interface RequiredQueryOptions {
  * （URL 里本来是字符串 ⇒ 这个转换以前散在每个页壳的 `as number | undefined` 里）。
  * 空串与非数字一律当"没给"（`undefined`）。
  */
-export type RequiredQueryResult<T extends string> = {
+export type RequiredQueryResult<T extends string, V = number> = {
   /** 参数齐不齐（快照） */
   ok: boolean
   /** 缺哪些字段（空数组 = 齐了） */
   missing: string[]
-} & Record<T, number | undefined>
+} & Record<T, V | undefined>
 
 /**
  * 必备查询参数校验 + 取参 —— **宿主策略**：pro 不认路由（`id` 也是宿主从 `route.query` 取出来传进去的），
@@ -50,9 +59,17 @@ export type RequiredQueryResult<T extends string> = {
  * @param options 见 `RequiredQueryOptions`
  */
 export function useRequiredQuery<T extends string = typeof SYSTEM_CONSTANT.ID_NAME>(
+  fields: readonly T[],
+  options: RequiredQueryOptions & {numeric: false},
+): RequiredQueryResult<T, string>
+export function useRequiredQuery<T extends string = typeof SYSTEM_CONSTANT.ID_NAME>(
+  fields?: readonly T[],
+  options?: RequiredQueryOptions,
+): RequiredQueryResult<T, number>
+export function useRequiredQuery<T extends string = typeof SYSTEM_CONSTANT.ID_NAME>(
   fields: readonly T[] = [SYSTEM_CONSTANT.ID_NAME] as unknown as readonly T[],
   options: RequiredQueryOptions = {},
-): RequiredQueryResult<T> {
+): RequiredQueryResult<T, number | string> {
   const route = useRoute()
   const router = useRouter()
   const closeLayoutTab = inject<(page: string, activatePane: boolean) => void>(
@@ -60,15 +77,25 @@ export function useRequiredQuery<T extends string = typeof SYSTEM_CONSTANT.ID_NA
   )
 
   /**
-   * 各字段的值 —— **快照**：顺手把 `LocationQueryValue`（`string | null` / 数组）收敛，
-   * 并**按宿主约定转成数字**（这些参数都是 id；声明层要 `number`）。空串 / 非数字 ⇒ 当没给。
+   * 各字段的值 —— **快照**：顺手把 `LocationQueryValue`（`string | null` / 数组）收敛。
+   * 默认**按宿主约定转成数字**（这些参数都是 id；声明层要 `number`），`numeric: false` 时保留原样字符串。
+   * 两种口径下"空 ⇒ 当没给"是一致的。
    */
-  const values: Record<string, number | undefined> = {}
+  const numeric = options.numeric ?? true
+  const values: Record<string, number | string | undefined> = {}
   for (const field of fields) {
     const raw = route.query[field]
     const single = (Array.isArray(raw) ? raw[0] : raw) ?? undefined
-    const num = single === undefined || single === '' ? Number.NaN : Number(single)
-    values[field] = Number.isNaN(num) ? undefined : num
+    const text = single ?? ''
+    if (text === '') {
+      values[field] = undefined
+    } else if (!numeric) {
+      values[field] = text
+    } else {
+      // ⚠️ 别写成 `Number(text) || undefined`：`0` 是合法 id，会被当成"没给"
+      const num = Number(text)
+      values[field] = Number.isNaN(num) ? undefined : num
+    }
   }
 
   /** 缺哪些字段（空数组 = 齐了）。`anyOf` 时"一个都没有"才算缺，并把候选都报出来（好排查） */

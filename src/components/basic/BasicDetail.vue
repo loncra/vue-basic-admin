@@ -34,7 +34,7 @@ defineOptions({
   name: 'LBasicDetail',
 })
 
-/** 主键类型：见 `form/BasicForm.vue` 同名说明（SFC 泛型里不能有循环依赖，改成体内别名）。 */
+/** 主键类型（SFC 泛型里不能有循环依赖，改成体内别名）：`TBodyId` 约束主体、`TId` 是 service 那一侧的形状。 */
 type TId = TEntity[typeof SYSTEM_CONSTANT.ID_NAME]
 
 const closeLayoutTab = inject<(page: string, activatePane:boolean) => void>(LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY)

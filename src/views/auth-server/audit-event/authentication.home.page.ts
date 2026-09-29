@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import type {AuditEventEntity} from '@loncra/client/auth'
 import {defineHomePage} from '@loncra/antdv-pro'
-import {defineSearchProps} from '@/utils'
+import {defineSearchProps, postTimestampFormat} from '@/utils'
 import i18n from '@/i18n'
 import {authenticationCore} from './authentication.page'
 
@@ -21,6 +21,9 @@ export const authenticationHomePage = defineHomePage<AuditEventEntity, AuditEven
     columns: [
       {
         key: 'timestamp',
+        // ⚠️ 必须显式给 `labelKey`：不带的话会兜底成 `${i18nPrefix}.${key}` =
+        // `authServer.authenticationEvent.timestamp`（语言包里没有这段 ✗ ⇒ 表头显示 key）
+        labelKey: 'Crud.operationTrace.time',
         width: 210,
         format: 'dateTime',
         // 不用 defineSearchProps('date')：它的 placeholder 写死是 'search.placeholder.date'，
@@ -28,7 +31,12 @@ export const authenticationHomePage = defineHomePage<AuditEventEntity, AuditEven
         search: {
           component: 'date',
           queryName: 'after',
-          defaultValue: dayjs().startOf('d'),
+          /**
+           * ⚠️ `defaultValue` 是**原样进 query** 的（`QueryTable.tsx:375` 直接 `patchQuery`）⇒
+           * 必须给**要发出去的值**：`postTimestampFormat(...)` 的结果（与详情跳转、操作日志列表
+           * 同一个格式），不能给 Dayjs 对象 ✗。
+           */
+          defaultValue: postTimestampFormat(dayjs().startOf('d')),
           props: () => ({
             allowClear: false,
             class: 'w-full',
@@ -39,6 +47,7 @@ export const authenticationHomePage = defineHomePage<AuditEventEntity, AuditEven
       },
       {
         key: 'principal',
+        labelKey: 'Crud.operationTrace.principal',
         width: 150,
         render: (_value, record) => record.data?.details?.metadata?.realName || record.principal,
         search: defineSearchProps('input', {

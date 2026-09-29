@@ -2,6 +2,7 @@ import type {SkillPackageEntity, SkillPackageSavePayload} from '@loncra/client/a
 import {AiSkillPackageService} from '@loncra/client/ai'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import {
+  OPERATION_DATA_TRACE_TABLE,
   SKILL_GROUP_CODE_PREFIX,
   SKILL_PACKAGE_ROUTE,
   SYSTEM_ENUM_TYPE,
@@ -27,6 +28,9 @@ export const skillPackageCore: CrudPageCore<SkillPackageSavePayload, SkillPackag
     edit: SKILL_PACKAGE_ROUTE.EDIT,
     detail: SKILL_PACKAGE_ROUTE.DETAIL,
   },
+
+  /** 操作记录（旧的 Form / Detail 各自传过 `OPERATION_DATA_TRACE_TABLE.AI_SKILL_PACKAGE` ⇒ 收进 core 一处写） */
+  operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.AI_SKILL_PACKAGE,
 
   /** 字段字典：labelKey / format / enumRef / dictId 只写一次 */
   fields: {

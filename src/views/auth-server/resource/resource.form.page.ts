@@ -76,7 +76,11 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
       component: IconSelect,
       // ⚠️ `iconRender` 必须给：`@loncra/antdv` 的 `IconSelect` **不认识宿主的图标字体**，
       // 契约就是"不给就什么都不画"（面板会出一片空框）。宿主页面里的 `l-icon-select` 也都传了它。
-      props: () => ({options: iconOptions.value, iconRender: renderIconFont}),
+      // `IconSelect` 只把 `type` 递给它 ⇒ 这里包一层把 `align`（图标字体对齐类）带上 ✓
+      props: () => ({
+        options: iconOptions.value,
+        iconRender: (type: string) => renderIconFont(type, 'align'),
+      }),
     },
     {
       key: 'remark',

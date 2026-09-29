@@ -164,6 +164,7 @@ onMounted(mounted)
             :immediate="false"
             :pagination="false"
             :bordered="false"
+            plain
             :drag="dragEnabled ? formatDragPreview : false"
             @drop="onDrop"
             @add="onAdd"

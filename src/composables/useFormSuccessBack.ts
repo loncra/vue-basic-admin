@@ -1,11 +1,10 @@
 import {h, ref} from 'vue'
 import {App, Checkbox} from 'antdv-next'
 import type {RestResult} from '@loncra/client/commons'
-import type {RouteLocationRaw} from 'vue-router'
 import i18n from '@/i18n'
 import {CREATE_SUCCESS_BACK} from '@/constants'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
-import {usePageExit} from '@/composables/usePageExit'
+import {usePageExit, type PageExitRedirect} from '@/composables/usePageExit'
 
 /**
  * 表单**保存成功后**的宿主策略（旧 `BasicForm.vue` 的 `doSubmit` 尾部 + `createdAfterSetting` 搬过来）。
@@ -20,8 +19,12 @@ import {usePageExit} from '@/composables/usePageExit'
  * 用法：`<crud-form-page :key="formKey" @success="onSuccess" @stale="onStale">`
  */
 export function useFormSuccessBack(options: {
-  /** 回列表的去处（页面的 `routes.home`）；给不出就只关 tab。**给函数** = 离场那一刻才求值 */
-  redirect?: RouteLocationRaw | (() => RouteLocationRaw)
+  /**
+   * 回列表的去处：`core.routes.home`（**路由名**，字符串 ✓）或 `RouteLocationRaw`；
+   * 给不出就只关 tab。**给函数** = 离场那一刻才求值 —— 要带实体上的东西（字典的 `typeId`、
+   * 厂商 `code`）就自己返回 `{name: 路由名, query: {...}}`（见 `model-setting/Form.vue`）。
+   */
+  redirect?: PageExitRedirect
   /** 当前实体（用 `id` 判新增 / 编辑） */
   entity: () => {id?: unknown} | undefined
 }) {
