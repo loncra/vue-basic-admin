@@ -2,23 +2,20 @@
 import {onActivated, onMounted, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import type {TableProps} from 'antdv-next'
-import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import {CrudFormModal as LCrudFormModal, CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
 import type {DictionaryTypeEntity} from '@loncra/client/resource'
 import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from '@loncra/client/commons'
-import LModalForm from '@/components/basic/form/ModalForm.vue'
-import {OPERATION_DATA_TRACE_TABLE} from '@/constants'
-import {dictionaryTypeService} from './dictionary-type.page'
+import {dictionaryTypeFormPage} from './dictionary-type.form.page'
 import {
   dictionaryTypeHomePage,
   dictionaryTypeModal,
   dictionaryTypeModalTitle,
-  emptyDictionaryTypeEntity,
 } from './dictionary-type.home.page'
 
 /**
  * 字典类型树（字典页左半边，被 `dictionary/Home.vue` 嵌入）。
  *
- * - **这一侧不进路由**：没有 Form / Detail 页，新增与修改都是本页的 `l-modal-form` 弹层；
+ * - **这一侧不进路由**：没有 Form / Detail 页，新增与修改都是本页的 `l-crud-form-modal` 弹层；
  * - 选中哪个类型通过 `select` 抛给外层，右半边（字典数据）按它加载。
  */
 defineOptions({
@@ -45,7 +42,6 @@ const table = ref<CrudHomePageExpose<DictionaryTypeEntity>>()
 const cardClasses = {root: 'rounded-none! border-0!', header: 'mb-0!', body: 'p-0!'}
 const rows = ref<DictionaryTypeEntity[]>([])
 const openKeys = ref<number[]>([])
-const formRef = ref()
 /** 选中行高亮用的 id */
 const selectedId = ref<number | string>()
 
@@ -82,15 +78,14 @@ function onExpandedRowsChange(keys: readonly (string | number)[]): void {
   openKeys.value = keys.map((key) => Number(key))
 }
 
-/** 弹层保存成功：刷左树 → 关弹层（`l-modal-form` 的 `cancel` 会复位表单并 emit `cancel`） */
+/**
+ * 弹层保存成功：刷左树 → 关弹层。
+ *
+ * 不再需要"复位实体"：弹层内容是**每次打开重挂载**（`CrudFormModal` 的 `v-if`）⇒ 下一次一定是新的表单。
+ */
 async function onSaved(): Promise<void> {
   await table.value?.fetchDataSource()
-  formRef.value?.cancel?.()
-}
-
-/** 弹层取消/关闭：实体复位（下次进来是空表单） */
-function onCancel(): void {
-  dictionaryTypeModal.value.entity = emptyDictionaryTypeEntity()
+  dictionaryTypeModal.value.open = false
 }
 
 /** 待展开的类型 id：首次挂载时左树数据还在飞，数据到了再补展开 */
@@ -174,26 +169,21 @@ onActivated(restoreFromRoute)
       </template>
     </l-crud-home-page>
 
-    <l-modal-form
-      ref="formRef"
+    <!--
+      新增 / 修改弹层：字段与必填、父级 code 前缀、操作轨迹**全在声明里**
+      （`dictionary-type.form.page.ts`）—— 这里只递"这一次为谁而开"：
+      `id`（编辑态）/ `parentId` 与 `parentCode`（加子级）。保存成功刷左树后关弹层。
+    -->
+    <l-crud-form-modal
       v-model:open="dictionaryTypeModal.open"
-      v-model:entity="dictionaryTypeModal.entity"
-      :service="dictionaryTypeService"
+      :page="dictionaryTypeFormPage"
+      :id="dictionaryTypeModal.id"
       :title="dictionaryTypeModalTitle"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.DICTIONARY_TYPE"
+      :context-extra="{
+        parentId: dictionaryTypeModal.parent?.id,
+        parentCode: dictionaryTypeModal.parent?.code,
+      }"
       @success="onSaved"
-      @cancel="onCancel"
-    >
-      <a-form-item name="name" :label="$t('common.name')" :rules="[{required: true}]">
-        <a-input v-model:value="dictionaryTypeModal.entity.name" />
-      </a-form-item>
-      <a-form-item name="code" :label="$t('common.code')" :rules="[{required: true}]">
-        <a-input v-model:value="dictionaryTypeModal.entity.code">
-          <template #prefix v-if="dictionaryTypeModal.parent">
-            {{ dictionaryTypeModal.parent.code + '.' }}
-          </template>
-        </a-input>
-      </a-form-item>
-    </l-modal-form>
+    />
   </div>
 </template>
