@@ -37,6 +37,10 @@ export const enterpriseMemberCore: CrudPageCore<
     // 见 `enterprise-member.home.page.ts`）—— 不放这份字典里是因为 home / detail 共用它，
     // 而详情要的是纯文本（旧 `Detail.vue` 就是 `{{entity.nickname || ''}}`）。
     realName: {labelKey: 'common.realName'},
+    /** 详情显示的是 `nickname`（旧 `Detail.vue` 那句 `{{entity.nickname || ''}}`）⇒ 与 `realName` 同一句 label */
+    nickname: {labelKey: 'common.realName'},
+    username: {labelKey: 'auth.account'},
+    principal: {labelKey: 'authServer.enterpriseMember.principal'},
     // 四个枚举的显示靠值自带元数据，**搜索下拉的 options 靠这里的 enumRef 推导**
     // （旧表是 `mounted` 里手拉四个枚举再 `applyColumnOptions`）
     gender: {
