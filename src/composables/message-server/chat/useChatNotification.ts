@@ -1,6 +1,6 @@
 import {provideChatCallExpose, useSocketSubscriptions} from "@/composables";
 import type {UseChatNotificationParam} from "@/types/composables";
-import {SOCKET_EVENT_TYPE, YES_OR_NO_TYPE} from '@/constants';
+import {SOCKET_EVENT_TYPE, SYSTEM_ROUTE, YES_OR_NO_TYPE} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
 import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
@@ -48,7 +48,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
     }
 
     await messageServerStore.fetchUnreadQuantity()
-    if (globalProperties.$route.name === 'my_chat_message') {
+    if (globalProperties.$route.name === SYSTEM_ROUTE.MY_CHAT_MESSAGE) {
       return
     }
 
@@ -92,7 +92,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
           root: 'cursor-pointer',
         },
         onClick: () => globalProperties.$router.push({
-          name: 'my_chat_message',
+          name: SYSTEM_ROUTE.MY_CHAT_MESSAGE,
           query: {conversationId: body.id, messageId}
         })
       },

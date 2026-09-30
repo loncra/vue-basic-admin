@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, getCurrentInstance, inject, onMounted, ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
@@ -14,6 +13,7 @@ import useApp from "antdv-next/dist/app/useApp";
 import {
   ATTACHMENT_UPLOAD_MODE,
   AttachmentUpload as LAttachmentUpload,
+  Form as LForm,
   UserAvatar as LUserAvatar
 } from '@loncra/antdv-pro'
 import {AuthServerService} from "@/apis";

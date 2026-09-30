@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {renderIconFont} from '@/utils/commonUtils'
-import LForm from '@/components/Form.vue'
+import {Form as LForm} from '@loncra/antdv-pro'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {AuthFormProp} from '@/types/apis'
 import {BusinessError, type RestResult} from '@loncra/client/commons'

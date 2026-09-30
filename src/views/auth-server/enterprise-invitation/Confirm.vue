@@ -10,7 +10,7 @@ import {
   EnterpriseService
 } from "@loncra/client/auth";
 import type {RestResult} from "@loncra/client/commons";
-import {ICON_SELECT_AVATAR_MODE_VALUE} from '@/constants';
+import {ICON_SELECT_AVATAR_MODE_VALUE, SYSTEM_ROUTE} from '@/constants';
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -47,7 +47,7 @@ function mounted() {
   }
   if (data.length > 0) {
     sessionStorage.setItem(import.meta.env.VITE_APP_SESSION_STORAGE_BAD_REQUEST_NAME, JSON.stringify(data));
-    globalProperties.$router.push({name:"400"});
+    globalProperties.$router.push({name: SYSTEM_ROUTE.BAD_REQUEST});
     return ;
   }
 
@@ -80,7 +80,7 @@ async function loadInvitationDetail(id:number) {
     if (result.data) {
       options.value.detail = result.data
     } else {
-      globalProperties.$router.push({name:"404"});
+      globalProperties.$router.push({name: SYSTEM_ROUTE.NOT_FOUND});
     }
     options.value.currentTime = result.timestamp
   } finally {

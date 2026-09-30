@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {App} from 'antdv-next'
-import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import {CrudHomePage as LCrudHomePage, Form as LForm, type CrudHomePageExpose} from '@loncra/antdv-pro'
 import type {SkillPackageEntity} from '@loncra/client/ai'
 import {getEnumValue} from '@loncra/client/commons'
-import LForm from '@/components/Form.vue'
 import LAgentHubSkillReleaseChangeLog from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
 import {DATA_STATUS} from '@/constants'
 import {skillPackageService} from './skill-package.page'

@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 import {type DateLike, dayjsFormat} from '@loncra/antdv-pro'
 import {getEnumValue, type NameValueEnumMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
-import {EXECUTE_STATUS_TYPE, YES_OR_NO_TYPE} from '@/constants'
+import {YES_OR_NO_TYPE} from '@/constants'
 import type {DefaultCrudEntity, PageSearchConfig, SearchableColumnType} from '@loncra/antdv-pro';
 
 /**
@@ -352,19 +352,4 @@ export function renderIconFont(
     return null
   }
   return h(IconFont, {type, class: 'icon ' + (classes ?? ''), spin, rotate}) as unknown as VNode
-}
-
-export function getExecuteBadgeStatus(executeStatus:NameValueEnumMetadata<number> | number) {
-  const status = getEnumValue(executeStatus)
-  if (status === EXECUTE_STATUS_TYPE.PENDING) {
-    return "default"
-  } else if (status === EXECUTE_STATUS_TYPE.PROCESSING) {
-    return "processing"
-  } else if (status === EXECUTE_STATUS_TYPE.SUCCESS) {
-    return "success"
-  } else if (status === EXECUTE_STATUS_TYPE.FAILURE) {
-    return "error"
-  } else {
-    return "warning"
-  }
 }

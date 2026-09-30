@@ -2,7 +2,6 @@
 import {renderIconFont} from '@/utils/commonUtils'
 
 import LLogo from "@/components/Logo.vue";
-import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 import {VALID_REGX} from '@/constants';
@@ -17,7 +16,7 @@ import type {PlatformUser} from "@loncra/client/auth";
 import type {CaptchaToken} from "@loncra/client/resource";
 import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import useApp from "antdv-next/dist/app/useApp";
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {Form as LForm, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'ForgotPasswordHome',
