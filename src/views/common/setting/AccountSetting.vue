@@ -4,7 +4,7 @@ import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, getCurrentInstance, inject, onMounted, ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {APP_RELOAD_PROVIDE_KEY, VALID_REGX} from '@/constants';
+import {APP_RELOAD_PROVIDE_KEY} from '@/constants';
 import type {UploadChangeParam} from "antdv-next";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {RestResult} from "@loncra/client/commons";
@@ -19,7 +19,7 @@ import {
 import {AuthServerService} from "@/apis";
 import {AvatarServerService} from "@loncra/client/auth";
 import {BasicImage as LBasicImage} from '@loncra/antdv'
-import {requireNonNullOrUndefined, validatePassword} from "@/utils";
+import {requireNonNullOrUndefined} from "@/utils";
 
 defineOptions({
   name: 'LAccountSetting',
