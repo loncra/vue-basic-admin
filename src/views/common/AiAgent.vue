@@ -37,10 +37,11 @@ onMounted(() => {
 <template>
   <div class="h-full min-h-0">
     <l-data-loading-card-plan
+      :spin="false"
       :classes="{
         root:'min-h-0 flex flex-col h-full shadow-ter',
         header: 'shrink-0',
-        body:'flex flex-1 min-h-120 p-0! overflow-hidden'
+        body:'flex flex-1 min-h-0 p-0! overflow-hidden'
       }"
     >
       <template #extra v-if="conversationActive && getEnumValue(conversationActive.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION">

@@ -488,7 +488,13 @@ onUnmounted(() => routeCacheVersions.value = {})
           </a-tabs>
         </div>
       </a-flex>
-      <a-flex vertical flex="1" class="pr-md pl-md">
+      <!--
+        `min-h-0` 不能省：`flex="1"` 这层是 flex item，默认 `min-height: auto` ⇒ 内层很高的
+        内容（卡片 body 的最小高 / 很长的列表）会把它**顶高**而不是被压缩 ⇒ 内容区比可视区高、
+        整页溢出（2026-09-30 实测：可视 334px 里塞了 537px 的内容）。仓里其它地方都是
+        `h-full min-h-0` 成对出现，这里就是漏了。
+      -->
+      <a-flex vertical flex="1" class="pr-md pl-md min-h-0">
         <a-spin
           class="size-full-spin"
           :spinning="isRoutePageLoading(globalProperties.$route.fullPath)"
