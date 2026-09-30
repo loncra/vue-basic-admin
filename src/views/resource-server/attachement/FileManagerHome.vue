@@ -112,22 +112,12 @@ onMounted(mounted)
           <div>{{ $t('common.used') }}:{{ byteFormat(size || 0)}}</div>
         </template>
       </a-segmented>
-<!--    <div class="bg-container p-sm mb-md rounded-lg border border-border-secondary">
-      <a-segmented v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
-        <template #labelRender="{name, size, objects}">
-          <a-typography-text strong>{{ name }}({{ objects || 0 }})</a-typography-text>
-          <div>{{ $t('common.used') }}:{{ byteFormat(size || 0)}}</div>
-        </template>
-      </a-segmented>
-    </div>-->
-    <!--
-      表格 = **列表声明**的嵌入形态：`plain`（无卡片壳，与旧版同款）+ `immediate: false`
-      （首屏不自己取数，由壳 `onSegmented` 拿到 bucket 后手动 `fetchDataSource()` —— 旧版同一个顺序）。
-    -->
+
       <l-crud-home-page
         ref="table"
         plain
         :title="false"
+        :pagination="false"
         :page="fileManagerHomePage"
         :query="query"
         :immediate="false"
