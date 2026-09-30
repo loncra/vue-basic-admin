@@ -4,7 +4,7 @@ import LForm from "@/components/Form.vue";
 import {type ComponentInternalInstance, getCurrentInstance, inject, onMounted, ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {APP_RELOAD_PROVIDE_KEY} from '@/constants';
+import {APP_RELOAD_PROVIDE_KEY, VALID_REGX} from '@/constants';
 import type {UploadChangeParam} from "antdv-next";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import type {RestResult} from "@loncra/client/commons";
@@ -19,7 +19,7 @@ import {
 import {AuthServerService} from "@/apis";
 import {AvatarServerService} from "@loncra/client/auth";
 import {BasicImage as LBasicImage} from '@loncra/antdv'
-import {requireNonNullOrUndefined} from "@/utils";
+import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 
 defineOptions({
   name: 'LAccountSetting',
@@ -189,7 +189,7 @@ onMounted(mounted)
           <a-input-password v-model:value="form.newPassword" autocomplete="new-password"/>
         </a-form-item>
 
-        <a-form-item :label="globalProperties.$t('common.confirmPassword')" name="confirmPassword" :rules="[{required: true, trigger: 'change'}, {validator: validatePassword(form.newPassword,form.confirmPassword), trigger: 'change'}]">
+        <a-form-item :label="globalProperties.$t('common.confirmPassword')" name="confirmPassword" :rules="[{required: true, trigger: 'change'}, {validator: () => validatePassword(form.newPassword,form.confirmPassword), trigger: 'change'}]">
           <a-input-password v-model:value="form.confirmPassword" autocomplete="new-password"/>
         </a-form-item>
 
