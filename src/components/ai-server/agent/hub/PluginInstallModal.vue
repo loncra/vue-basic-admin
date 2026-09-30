@@ -4,6 +4,7 @@ import {
   AI_SERVER_PLUGIN_INSTALL_WORKSPACE_SCOPE,
   AiUserPluginInstallService
 } from '@loncra/client/ai'
+import {Form as LForm} from '@loncra/antdv-pro'
 import {useAgentChatContext} from '@/composables'
 import {AGENT_WORKSPACE_TYPE_VALUE} from '@/constants'
 import type {RestResult} from '@loncra/client/commons'
@@ -135,7 +136,7 @@ async function onOk() {
     @ok="onOk"
     @cancel="close"
   >
-    <a-form ref="formRef" :model="form" layout="vertical">
+    <l-form ref="formRef" :model="form" >
       <a-form-item
         name="workspaceScope"
         :label="globalProperties.$t('agent.hub.workspaceScope.text')"
@@ -157,6 +158,6 @@ async function onOk() {
         />
         <a-empty v-else :description="globalProperties.$t('agent.hub.workspace.empty')" />
       </a-form-item>
-    </a-form>
+    </l-form>
   </a-modal>
 </template>

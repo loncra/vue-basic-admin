@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {App} from 'antdv-next'
 import {AUDIT_STATUS_VALUE, getEnumName} from '@loncra/client/commons'
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
+import {Form as LForm, UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
 import {AuthServerService} from '@/apis'
 import {
   closeAudit,
