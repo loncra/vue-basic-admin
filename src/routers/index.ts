@@ -18,25 +18,22 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@loncra/client/commons'
 
-import Auth from '@/views/Auth.vue'
-import Home from '@/views/Home.vue'
-import Workbench from '@/views/common/Workbench.vue'
-import MyMessage from '@/views/common/MyMessage.vue'
-import Setting from '@/views/common/Setting.vue'
-import NotFound from '@/views/error/NotFound.vue';
-import Forbidden from '@/views/error/Forbidden.vue';
-import BadRequest from '@/views/error/BadRequest.vue';
-import ForgotPassword from '@/views/ForgotPassword.vue';
-
-import MySiteMessage from "@/views/common/my/MySiteMessage.vue";
-import MyChatMessage from "@/views/common/my/MyChatMessage.vue";
-
-import Agent from "@/views/common/AiAgent.vue";
-
 import i18n from '@/i18n'
 import {useSocketStore} from "@/stores/socketStore.ts";
 import {useBootstrapStore} from "@/stores/bootStore.ts";
 
+/**
+ * ⚠️ **本文件（及其它 `routers/**` ）不许再出现静态 `import … .vue`**（2026-09-30 用户定的口径）：
+ * 所有页面组件一律 `component: () => import('@/views/….vue')`，**包括框架级常驻页**
+ * （`Home` / `Workbench` / `MyMessage` / `Setting` / `Agent` / `my/*`）。两条理由：
+ *
+ * ① 页面模块会**静态带入声明文件**（`*.page.ts` 顶层 `new XxxService()` 是本仓常态）；
+ *    虽然 service 层已经改成 URL 惰性求值（`DetailSearchRestfulService.resolvedBaseUrl`，
+ *    构造期不碰 `getClient()`），但"别把页面拖进首屏 eager 图"仍然是更稳的一条；
+ * ② 首屏只装当前路由真正要的东西（少一批 chunk）。
+ *
+ * 代价：切到这些常驻 tab 时多一次 chunk 请求（首访；之后被浏览器缓存）。
+ */
 /**
  * 首页的子路由配置
  * 这些路由会作为 Home 组件的子路由显示
@@ -45,7 +42,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/error/403',
     name: SYSTEM_ROUTE.FORBIDDEN,
-    component: Forbidden,
+    component: () => import('@/views/error/Forbidden.vue'),
     meta: {
       quickAccess:false,
       deactivatedClose: true,
@@ -56,7 +53,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/error/400',
     name: SYSTEM_ROUTE.BAD_REQUEST,
-    component: BadRequest,
+    component: () => import('@/views/error/BadRequest.vue'),
     meta: {
       quickAccess:false,
       applicationName: 'system',
@@ -67,7 +64,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/commons/workbench',
     name: SYSTEM_ROUTE.WORKBENCH,
-    component: Workbench,
+    component: () => import('@/views/common/Workbench.vue'),
     meta: {
       applicationName: 'commons',
       requiresAuth: true,
@@ -78,8 +75,6 @@ const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/commons/user/export',
     name: RESOURCE_SERVER_USER_EXPORT_ROUTE,
-    // 必须懒加载：声明文件（`user-export.home.page.ts`）在模块顶层就 `new UserExportService()`，
-    // 而该服务构造时会取 `BASE_URL` → `getClient()`；静态导入会让它在 createClient() 之前求值
     component: () => import('@/views/common/UserExport.vue'),
     meta: {
       applicationName: 'commons',
@@ -89,7 +84,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/commons/setting',
     name: SYSTEM_ROUTE.SETTING,
-    component: Setting,
+    component: () => import('@/views/common/setting/Setting.vue'),
     meta: {
       applicationName: 'commons',
       requiresAuth: true,
@@ -98,7 +93,7 @@ const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/commons/agent',
     name: SYSTEM_ROUTE.AGENT,
-    component: Agent,
+    component: () => import('@/views/common/AiAgent.vue'),
     meta: {
       applicationName: 'commons',
       requiresAuth: true,
@@ -108,7 +103,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     path: '/commons/my/message',
     name: SYSTEM_ROUTE.MY_MESSAGE,
     redirect: {name: SYSTEM_ROUTE.MY_CHAT_MESSAGE},
-    component: MyMessage,
+    component: () => import('@/views/common/my/MyMessage.vue'),
     meta: {
       applicationName: 'commons',
       requiresAuth: true,
@@ -116,7 +111,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     children:[{
       path: '/commons/my/message/site',
       name: SYSTEM_ROUTE.MY_SITE_MESSAGE,
-      component: MySiteMessage,
+      component: () => import('@/views/common/my/MySiteMessage.vue'),
       meta: {
         applicationName: 'commons',
         parentKeepAlive:'/commons/my/message',
@@ -125,7 +120,7 @@ const childrenRoutes: RouteRecordRaw[] = [
     },{
       path: '/commons/my/message/chat',
       name: SYSTEM_ROUTE.MY_CHAT_MESSAGE,
-      component: MyChatMessage,
+      component: () => import('@/views/common/my/MyChatMessage.vue'),
       meta: {
         applicationName: 'commons',
         parentKeepAlive:'/commons/my/message',
@@ -150,18 +145,18 @@ const routes: RouteRecordRaw[] = [
     // 认证页面路由
     path: '/' + SYSTEM_ROUTE.AUTH + '/:authenticationType(console|personal)?',
     name: SYSTEM_ROUTE.AUTH,
-    component: Auth
+    component: () => import('@/views/Auth.vue')
   },
   {
     // 忘记密码路由
     path: '/forgot/password',
     name: SYSTEM_ROUTE.FORGOT_PASSWORD,
-    component: ForgotPassword
+    component: () => import('@/views/ForgotPassword.vue')
   },
   {
     path: '/error/404',
     name: SYSTEM_ROUTE.NOT_FOUND,
-    component: NotFound,
+    component: () => import('@/views/error/NotFound.vue'),
     meta:{
       quickAccess:false,
     }
@@ -170,7 +165,7 @@ const routes: RouteRecordRaw[] = [
     // 首页路由，包含子路由
     path: '/' + SYSTEM_ROUTE.HOME_PAGE,
     name: SYSTEM_ROUTE.HOME_PAGE,
-    component: Home,
+    component: () => import('@/views/Home.vue'),
     children: childrenRoutes
   }/*,
   {

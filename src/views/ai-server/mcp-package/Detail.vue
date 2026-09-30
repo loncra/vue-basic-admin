@@ -18,7 +18,7 @@ import {renderIconFont} from '@/utils'
 import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@/constants'
 /** 宿主在 client 实体上补的三张「键值表」行数据（`@/types/apis`）—— 插槽作用域是 client 类型，写它要收窄 */
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
-import LMcpClarifyPolicyTable from '@/components/ai-server/mcp/McpClarifyPolicyTable.vue'
+import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyTable.vue'
 import {mcpPackageCore} from './mcp-package.page'
 import {mcpPackageDetailPage} from './mcp-package.detail.page'
 

@@ -7,7 +7,7 @@ import {
   closeAudit,
   enterpriseMemberAudit,
   submitAudit,
-} from '@/views/auth-server/enterprise-member/enterprise-member.home.page'
+} from '@/views/auth-server/enterprise-member/enterprise-member.home.page.ts'
 
 /**
  * 企业成员**审核弹层**（旧 `EnterpriseMemberTable.vue` 里内联的那一段）。
@@ -17,7 +17,7 @@ import {
  * 整页成员管理页与邀请页的展开行**两边都用它**（所以单独一个组件，不在壳里各抄一份）。
  */
 defineOptions({
-  name: 'LEnterpriseMemberAuditModal',
+  name: 'AuthServerEnterpriseInvitationAuditForm',
 })
 
 const emit = defineEmits<{success: []}>()

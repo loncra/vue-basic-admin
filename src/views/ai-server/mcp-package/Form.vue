@@ -13,7 +13,7 @@ import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
 import {CrudFormPage} from '@loncra/antdv-pro'
 /** 三张键值表的行数据是宿主扩展字段（不是后端字段）⇒ 模板里在这个类型上取/写 */
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
-import LMcpClarifyPolicyTable from '@/components/ai-server/mcp/McpClarifyPolicyTable.vue'
+import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyTable.vue'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'

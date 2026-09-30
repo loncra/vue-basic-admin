@@ -1,29 +1,30 @@
 <script setup lang="ts">
 
-import {type ComponentInternalInstance, getCurrentInstance, ref} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance, h, ref} from "vue";
+import {Space} from "antdv-next";
+import {EditOutlined, FileAddOutlined} from "@antdv-next/icons";
 import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
   ICON_SELECT_AVATAR_MODE_VALUE,
-  ICON_SELECT_MODE,
-  OPERATION_DATA_TRACE_TABLE
 } from '@/constants';
-import LModalForm from "@/components/basic/form/ModalForm.vue";
-import type {EnterprisePayload, PersonalEnterprise} from "@loncra/client/auth";
+import type {PersonalEnterprise} from "@loncra/client/auth";
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
-  EnterpriseService
 } from "@loncra/client/auth";
 import type {RestResult} from "@loncra/client/commons";
-import {IconSelect as LIconSelect} from '@loncra/antdv'
-import type {IconfontJson} from "@/types/composables";
-import {requireNonNullOrUndefined} from "@/utils";
-import {renderIconFont} from '@/utils/commonUtils'
-import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
+import {IconSelect as LIconSelect} from '@loncra/antdv'
+import {requireNonNullOrUndefined} from "@/utils";
+import {renderIconFont} from '@/utils/commonUtils.ts'
+import {usePrincipalStore} from "@/stores/principalStore.ts";
+import {CrudFormModal as LCrudFormModal, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
+import {
+  enterpriseSettingFormPage,
+  enterpriseSettingService
+} from './enterprise-setting.form.page.ts';
 
 defineOptions({
   name: 'LEnterpriseSetting',
@@ -36,34 +37,48 @@ const globalProperties =
 const principalStore = usePrincipalStore()
 const {modal} = useApp()
 
+/**
+ * 弹层状态：**不再持实体**（旧壳 `v-model:entity` 那套）—— 实体归声明（`createEntity`），
+ * 而且弹层内容是**每次打开重挂载**的 ⇒ 这里只记"这一次给谁改"（`id` 用于取数，`name` 只用于标题）。
+ */
 const options = ref<{
   modal:{
     open:boolean,
-    form:EnterprisePayload
+    id?:number,
+    name?:string,
   }
-  iconOptions: IconfontJson[]
   loading:boolean
 }>({
   modal:{
     open:false,
-    form:createDefaultEntity()
   },
-  iconOptions:[],
   loading:false
 })
 
-function createDefaultEntity() {
-  return {
-    name: '',
-  }
-}
-const modalForm = ref()
+/** 「解散 / 退出」与弹层共用声明里那一份 service（`new` 在声明文件里，全app只有一份） */
+const service = enterpriseSettingService
 
-const service = new EnterpriseService()
+/**
+ * 弹层标题（旧页按 `id` 有无切换，文案照抄）。
+ *
+ * 图标跟 pro **默认动作**那一套（`add` = `FileAddOutlined`、`edit` = `EditOutlined`，
+ * 见 `packages/antdv-pro/src/_util/crud/defaultActions.ts`）—— 与字典类型那个弹层同一个口径。
+ */
+const modalTitle = computed(() => {
+  const current = options.value.modal
+  return h(Space, null, {
+    default: () => [
+      h(current.id ? EditOutlined : FileAddOutlined),
+      current.id
+        ? globalProperties.$t('systemSetting.enterprise.edit', {name: current.name})
+        : globalProperties.$t('systemSetting.enterprise.creation'),
+    ],
+  })
+})
 
 function onSaveSuccess(data: RestResult<number | undefined>) {
-  modalForm.value.cancel();
-  options.value.modal.form = createDefaultEntity()
+  // 关弹层（不再需要"复位实体"：内容每次打开重挂载）→ 刷 accessToken → 整页重载（旧顺序照搬）
+  options.value.modal.open = false
   if (data.metadata?.accessToken) {
     const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
     localStorage.setItem(accessTokenStorageName, data.metadata.accessToken as string)
@@ -72,8 +87,7 @@ function onSaveSuccess(data: RestResult<number | undefined>) {
 }
 
 function onEdit(item:PersonalEnterprise) {
-  options.value.modal.form = {...item}
-  options.value.modal.open = true
+  options.value.modal = {open: true, id: item.id as number, name: item.name}
 }
 
 function onLeave(item:PersonalEnterprise) {
@@ -239,36 +253,16 @@ async function doLeave(id:number) {
     </a-spin>
   </a-flex>
 
-  <teleport to="body">
-    <l-modal-form
-      ref="modalForm"
-      @cancel="options.modal.form = {...createDefaultEntity()}"
-      @success="onSaveSuccess"
-      :title="options.modal.form.id ? $t('systemSetting.enterprise.edit',{name:options.modal.form.name}) : $t('systemSetting.enterprise.creation')"
-      v-model:open="options.modal.open"
-      :operation-data-trace-target="OPERATION_DATA_TRACE_TABLE.ENTERPRISE"
-      :service="service"
-      v-model:entity="options.modal.form"
-    >
-      <a-form-item name="name" :label="$t('common.name')" :rules="[{required: true}]">
-        <a-input v-model:value="options.modal.form.name" />
-      </a-form-item>
-
-      <a-form-item
-        name="icon"
-        :label="$t('common.icon')"
-      >
-        <l-icon-select
-          class="w-full"
-          :mode="ICON_SELECT_MODE.AVATAR"
-          :icon-render="renderIconFont"
-          v-model:value="options.modal.form.icon"
-          :options="options.iconOptions"
-        />
-      </a-form-item>
-      <a-form-item name="remark" :label="$t('common.remark')">
-        <a-textarea v-model:value="options.modal.form.remark" :rows="3" show-count :maxlength="256" />
-      </a-form-item>
-    </l-modal-form>
-  </teleport>
+  <!--
+    新增 / 编辑弹层：字段与必填、图标选择器、文本域、操作轨迹**全在声明里**
+    （`enterprise-setting.form.page.ts`）—— 这里只递"给谁改"（`:id`）与标题。
+    旧版的 `<teleport to="body">` 不再需要：`a-modal` 自己就挂到 body。
+  -->
+  <l-crud-form-modal
+    v-model:open="options.modal.open"
+    :page="enterpriseSettingFormPage"
+    :id="options.modal.id"
+    :title="modalTitle"
+    @success="onSaveSuccess"
+  />
 </template>

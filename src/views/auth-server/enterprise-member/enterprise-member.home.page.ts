@@ -15,10 +15,6 @@ import {
 import {AuthServerService} from '@/apis'
 import {isBusinessSuccess} from '@/requests'
 import i18n from '@/i18n'
-import {
-  createEmptyForm,
-} from '@/components/auth-server/EnterpriseInvitationModal.vue'
-import type {EnterpriseInvitationSavePayload} from '@/types/apis'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {defineSearchProps, renderIconFont} from '@/utils'
 import {
@@ -27,7 +23,11 @@ import {
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
 } from '@/constants'
-import {ENTERPRISE_MEMBER_VARIANT, enterpriseMemberCore, enterpriseMemberService} from './enterprise-member.page'
+import {
+  ENTERPRISE_MEMBER_VARIANT,
+  enterpriseMemberCore,
+  enterpriseMemberService
+} from './enterprise-member.page'
 
 /**
  * 审核弹层的状态：动作（声明里）要打开**壳里的**弹层，所以状态从这里导出、壳只负责渲染
@@ -43,12 +43,11 @@ export const enterpriseMemberAudit = ref<{
 
 /**
  * 发起邀请的弹层状态（只有整页管理那侧用；弹层本身是宿主组件 `EnterpriseInvitationModal`）。
- * 每次打开都换成一张空表单（旧表 `invitation()` 里那句 `createEmptyForm()`）。
+ *
+ * ⚠️ 不再持实体（2026-09-30）：实体归**表单声明**（`createEntity` = `createEmptyForm`），
+ * 且弹层每次打开重挂载 ⇒ 这里只记开关（旧表 `invitation()` 里那句"每次换一张空表单"由声明负责）。
  */
-export const enterpriseMemberInvitation = ref<{
-  open: boolean
-  entity: EnterpriseInvitationSavePayload
-}>({open: false, entity: createEmptyForm()})
+export const enterpriseMemberInvitation = ref<{open: boolean}>({open: false})
 
 function isAudit(variant?: string): boolean {
   return variant === ENTERPRISE_MEMBER_VARIANT.AUDIT
@@ -108,7 +107,7 @@ function resetPassword(ctx: RecordActionContext<EnterpriseMemberEntity>): void {
 }
 
 function openInvitation(): void {
-  enterpriseMemberInvitation.value = {open: true, entity: createEmptyForm()}
+  enterpriseMemberInvitation.value = {open: true}
 }
 
 /**

@@ -3,7 +3,7 @@ import type {
   EnterpriseInvitationSavePayload,
 } from '@loncra/client/auth'
 import {EnterpriseInvitationService} from '@loncra/client/auth'
-import {dayjsFormat, type CrudPageCore} from '@loncra/antdv-pro'
+import {type CrudPageCore, dayjsFormat} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import {
   AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE,
@@ -64,6 +64,10 @@ export const enterpriseInvitationCore: CrudPageCore<
       },
     },
     roles: {labelKey: 'authServer.enterpriseInvitation.roleId'},
+    // 下面三样只有**表单形态**（发起邀请弹层）用：角色勾选（必填）、副标题、备注
+    roleIds: {labelKey: 'authServer.userRole'},
+    subTitle: {labelKey: 'common.subTitle'},
+    remark: {labelKey: 'common.remark'},
     expirationTime: {labelKey: 'common.expiresTime', format: 'dateTime'},
     creationTime: {labelKey: 'common.creationTime', format: 'dateTime'},
     // 审核类型：后端 `AuditTypeEnum` —— **在 resource-server**（旧实现从 auth-server 取 ⇒ 下拉一直是空的）

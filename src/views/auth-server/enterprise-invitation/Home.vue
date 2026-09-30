@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import {computed, type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
-import {AUTH_SERVER_AUDIT_TYPE_VALUE} from '@loncra/client/auth'
+import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
 import type {EnterpriseInvitationEntity} from '@loncra/client/auth'
-import {AUDIT_STATUS_VALUE, getEnumValue, type NameValueEnumMetadata} from '@loncra/client/commons'
+import {AUTH_SERVER_AUDIT_TYPE_VALUE} from '@loncra/client/auth'
+import {AUDIT_STATUS_VALUE, getEnumValue} from '@loncra/client/commons'
 import {QrCodeModal as LQrCodeModal} from '@loncra/antdv'
-import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
-import type {EnterpriseInvitationSavePayload} from '@/types/apis'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants'
+import {
+  CrudHomePage as LCrudHomePage,
+  CrudHomePage,
+  type CrudHomePageExpose
+} from '@loncra/antdv-pro'
 import {renderIconFont, requireNonNullOrUndefined} from '@/utils'
-import LEnterpriseInvitationModal, {
-  createEmptyForm,
-} from '@/components/auth-server/EnterpriseInvitationModal.vue'
-import {CrudHomePage} from '@loncra/antdv-pro'
-import LEnterpriseMemberAuditModal from '@/components/auth-server/EnterpriseMemberAuditModal.vue'
+import LEnterpriseInvitationModal from '@/views/auth-server/enterprise-invitation/Form.vue'
+import LEnterpriseMemberAuditModal from '@/views/auth-server/enterprise-invitation/Audit.vue'
 import {AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY} from '@/constants'
 import {
   enterpriseMemberAudit,
@@ -20,11 +19,10 @@ import {
   memberAuditRecordActions,
   memberAuditToolbarActions,
 } from '@/views/auth-server/enterprise-member/enterprise-member.home.page'
-import {ENTERPRISE_MEMBER_VARIANT} from '@/views/auth-server/enterprise-member/enterprise-member.page'
 import {
-  enterpriseInvitationHomePage,
-  invitationShare,
-} from './enterprise-invitation.home.page'
+  ENTERPRISE_MEMBER_VARIANT
+} from '@/views/auth-server/enterprise-member/enterprise-member.page'
+import {enterpriseInvitationHomePage, invitationShare,} from './enterprise-invitation.home.page'
 
 defineOptions({
   name: 'AuthServerEnterpriseInvitationHome',
@@ -34,41 +32,24 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
-/**
- * 表格实例：`buckets` 是声明里 `list.enums` 拉回来的枚举桶，
- * 「审核类型」下拉直接用这一份（不再自己发请求）。
- */
+/** 表格实例（`@success` 之后刷新它） */
 const table = ref<CrudHomePageExpose<EnterpriseInvitationEntity>>()
-const auditTypeOptions = computed(
-  // 桶条目的 value 是 `string | number`，而「审核类型」在库里就是数字（弹层的 select 按数字用）。
-  // `buckets` 是**值**（expose 出来的 ref 会被 Vue 解包）⇒ 不许再写 `.value`
-  () =>
-    (table.value?.buckets[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
-      SYSTEM_ENUM_TYPE.AUDIT_TYPE_ENUM
-    ] ?? []) as NameValueEnumMetadata<number>[],
-)
 
 /** 展开行里那张审核表的 key：审核成功后 +1 ⇒ 重挂 ⇒ 重新取数（刷新那一行的列表） */
 const memberTableKey = ref(0)
 
-/** 新增 / 编辑弹层：`@add` / `@edit` 在模板上接管 pro 的默认跳转，弹层状态留在壳里 */
-const form = ref<{open: boolean; entity: EnterpriseInvitationSavePayload}>({
-  open: false,
-  entity: createEmptyForm(),
-})
+/**
+ * 新增 / 编辑弹层：`@add` / `@edit` 在模板上接管 pro 的默认跳转，弹层状态留在壳里。
+ *
+ * ⚠️ 只记开关与记录 id（2026-09-30）：实体归**表单声明**（`createEntity` = `createEmptyForm`），
+ * 编辑态由壳按 `id` 拉数据（旧版手工把整条记录 + `dayjs` 化后的过期时间塞进 `entity`，
+ * 其实随后又被"按 id 拉"覆盖 ⇒ 现在直接只给 `id`，结果完全一致）；
+ * 「审核类型」的 options 也由声明的 `enumRef` 自己拉 ⇒ `auditTypeOptions` 退役。
+ */
+const form = ref<{open: boolean; id?: number}>({open: false})
 
 function openForm(record?: EnterpriseInvitationEntity): void {
-  form.value = {
-    open: true,
-    entity: record
-      ? {
-          ...record,
-          expirationTime: record.expirationTime
-            ? globalProperties.$dayjs(record.expirationTime)
-            : undefined,
-        }
-      : createEmptyForm(),
-  }
+  form.value = {open: true, id: record?.id}
 }
 </script>
 
@@ -118,8 +99,7 @@ function openForm(record?: EnterpriseInvitationEntity): void {
       <l-enterprise-invitation-modal
         v-if="form.open"
         v-model:open="form.open"
-        v-model:entity="form.entity"
-        :audit-type-options="auditTypeOptions"
+        :id="form.id"
         @success="table?.fetchDataSource()"
       />
 
