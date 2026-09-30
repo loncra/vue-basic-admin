@@ -111,7 +111,7 @@ export const principalNameFormatter: ValueFormatter = (value, ctx, args) => {
   const user = pickUser(value, ctx.record)
   return h(Space, null, {
     default: () => [
-      h(UserAvatar, {user}),
+      h(UserAvatar, {user, size: 'large'}),
       getPrincipalName(user),
       ...(self && isSelf(user)
         ? [h(TypographyText, {type: 'success'}, {default: () => `(${i18n.global.t('common.me')})`})]
