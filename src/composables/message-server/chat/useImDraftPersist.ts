@@ -11,7 +11,7 @@ import {debounce} from 'lodash-es'
 import type {SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {UserChatMessageResponseBody} from '@/types/apis'
 import type {ObjectWriteResult} from '@loncra/client/resource'
-import type {UserChatConversationActiveProps} from '@/types/composables'
+import type {ImDraftRecord, UserChatConversationActiveProps} from '@/types/composables'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
 import {clearDraft, createImDraftCodec, getDraft, putDraft,} from '@/composables/chat/draft'
 import {createInstructionSlot, requireNonNullOrUndefined} from '@/utils'
@@ -127,7 +127,8 @@ export function useImDraftPersist(options: {
     }
     hydrating = true
     try {
-      const stored = await getDraft('im', principal, targetId)
+      // 包内只认基座 ⇒ 记录类型由这里指定（域记录 `ImDraftRecord` 仍住宿主 types）。
+      const stored = await getDraft<ImDraftRecord>('im', principal, targetId)
       if (!stored || stored.record.scope !== 'im') {
         refMessages.value = []
         return

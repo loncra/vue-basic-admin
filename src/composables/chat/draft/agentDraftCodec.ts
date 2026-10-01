@@ -6,7 +6,7 @@ import {
   persistableToSlotConfig,
   type RestoreDraftSlotFactories,
   slotConfigToPersistable,
-} from './persistableSlots.ts'
+} from '@loncra/antdv-chat'
 
 export type AgentDraftLive = SlotConfigType[]
 

@@ -9,7 +9,11 @@ import {
 } from 'vue'
 import {debounce} from 'lodash-es'
 import type {SlotConfigType} from '@antdv-next/x/dist/sender/interface'
-import type {ActiveAgentConversationItem, ChatContentBlock} from '@/types/composables'
+import type {
+  ActiveAgentConversationItem,
+  AgentDraftRecord,
+  ChatContentBlock,
+} from '@/types/composables'
 import {clearDraft, createAgentDraftCodec, getDraft, putDraft,} from '@/composables/chat/draft'
 import {createInstructionSlot, requireNonNullOrUndefined} from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
@@ -119,7 +123,8 @@ export function useAgentDraftPersist(options: {
     }
     hydrating = true
     try {
-      const stored = await getDraft('agent', principal, targetId)
+      // 包内只认基座 ⇒ 记录类型由这里指定（域记录 `AgentDraftRecord` 仍住宿主 types）。
+      const stored = await getDraft<AgentDraftRecord>('agent', principal, targetId)
       if (!stored || stored.record.scope !== 'agent') {
         return
       }
