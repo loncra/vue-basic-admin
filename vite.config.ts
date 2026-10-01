@@ -71,6 +71,7 @@ export default defineConfig(({ mode }) => {
         '@loncra/antdv': fileURLToPath(new URL('../packages/antdv/src', import.meta.url)),
         '@loncra/client': fileURLToPath(new URL('../packages/client/src', import.meta.url)),
         '@loncra/antdv-pro': fileURLToPath(new URL('../packages/antdv-pro/src', import.meta.url)),
+        '@loncra/antdv-chat': fileURLToPath(new URL('../packages/antdv-chat/src', import.meta.url)),
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         // 源码别名后 peer 不再沿管理端 node_modules 往上找，显式指回本应用。
         'p-limit': fileURLToPath(new URL('./node_modules/p-limit', import.meta.url)),
@@ -123,7 +124,7 @@ export default defineConfig(({ mode }) => {
       preserveSymlinks: true,
     },
     optimizeDeps: {
-      exclude: ['@loncra/client', '@loncra/antdv', '@loncra/antdv-pro'],
+      exclude: ['@loncra/client', '@loncra/antdv', '@loncra/antdv-pro', '@loncra/antdv-chat'],
       include: [
         'antdv-next-tiptap',
         'lowlight',

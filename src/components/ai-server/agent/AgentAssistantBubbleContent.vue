@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type {AgentToolCallBlock, ChatBubbleItem,} from '@/types/composables'
 import {STREAM_RUNNING_STATUS_VALUE} from '@/constants'
-import {Markdown as LMarkdown, MarkdownCodeRenderer as LMarkdownCodeRenderer} from '@loncra/antdv'
+import {Markdown as LMarkdown, MarkdownCodeRenderer as LMarkdownCodeRenderer} from '@loncra/antdv-chat'
 
 import {RightOutlined,} from '@antdv-next/icons'
 import {

@@ -38,7 +38,7 @@ import {
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import type {IdValueMetadata} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
-import type {InstructionItem, InstructionMeasure} from '@loncra/antdv'
+import type {InstructionItem, InstructionMeasure} from '@loncra/antdv-chat'
 
 /**
  * 发送器逻辑：files 词槽创建/渲染/上传、粘贴文件、提交组装（附件 + 引用）、

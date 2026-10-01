@@ -2,7 +2,7 @@
 
 import LChatMessageSender from "@/components/message-server/chat/ChatMessageSender.vue";
 import type {ChatContentBlock} from "@/types/composables";
-import type {InstructionMeasure} from '@loncra/antdv'
+import type {InstructionMeasure} from '@loncra/antdv-chat'
 import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {

@@ -11,7 +11,7 @@ import {
   InstructionSender as LInstructionSender,
   type InstructionSenderExpose,
   type InstructionSenderHandle,
-} from '@loncra/antdv'
+} from '@loncra/antdv-chat'
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
 
 defineOptions({

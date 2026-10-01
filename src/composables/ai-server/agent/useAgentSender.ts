@@ -22,7 +22,7 @@ import {
   type InstructionMeasure,
   type InstructionSenderExpose,
   type InstructionSenderHandle,
-} from '@loncra/antdv'
+} from '@loncra/antdv-chat'
 import {renderIconFont} from '@/utils/commonUtils'
 import type {
   AgentConversationItem,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {InstructionSender as LInstructionSender} from '@loncra/antdv'
+import {InstructionSender as LInstructionSender} from '@loncra/antdv-chat'
 import {useAgentSender} from "@/composables";
 import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";

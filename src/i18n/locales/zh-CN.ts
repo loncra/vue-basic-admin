@@ -1,6 +1,7 @@
 import zhCN from 'antdv-next/locale/zh_CN'
 import loncraZhCN from '@loncra/antdv/locale/zh_CN'
 import loncraAntdvProZhCN from '@loncra/antdv-pro/locale/zh_CN'
+import loncraAntdvChatZhCN from '@loncra/antdv-chat/locale/zh_CN'
 import type {LanguagePack} from '@/i18n'
 import 'dayjs/locale/zh-cn'
 
@@ -9,7 +10,7 @@ const locale: LanguagePack = {
   fallbackLocale: true,
   name: '简体中文',
   dayjs: 'zh-CN',
-  antDesign: {...zhCN, ...loncraZhCN, ...loncraAntdvProZhCN},
+  antDesign: {...zhCN, ...loncraZhCN, ...loncraAntdvProZhCN, ...loncraAntdvChatZhCN},
   boot: {
     prepare: '正在连接服务…',
     routes: '正在加载功能…',
