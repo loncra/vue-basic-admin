@@ -2,7 +2,8 @@
 import {computed, toRef} from 'vue'
 import type {ActiveChatSession, BubbleListCallbacks, ChatBubbleItem} from '@/types/composables'
 import type {BubbleItemType, RoleType} from '@antdv-next/x/dist/bubble/interface'
-import {DEFAULT_BUBBLE_LIST_ROLE, useBubbleList} from '@/composables/chat/useBubbleList.ts'
+import {useBubbleList} from '@loncra/antdv-chat'
+import {DEFAULT_BUBBLE_LIST_ROLE} from '@/constants'
 
 defineOptions({
   name: 'LBubbleList',
@@ -45,7 +46,7 @@ const listProps = computed(() => ({
   topThreshold: props.topThreshold,
 }))
 
-const callbacks: BubbleListCallbacks = {
+const callbacks: BubbleListCallbacks<ChatBubbleItem> = {
   onLoadPage: (tag, scrollBox) => emit('loadPage', tag, scrollBox),
   onReloadLastPage: () => emit('reloadLastPage'),
   onVisibleItems: props.collectVisible
@@ -57,7 +58,6 @@ const callbacks: BubbleListCallbacks = {
 const {
   bubbleListRef,
   bubbleListItems,
-  bubbleListRole,
   showScrollToBottom,
   onBubbleScroll,
   jumpToBottom,
@@ -67,7 +67,7 @@ const {
   scrollTo,
 } = useBubbleList(sessionRef, listProps, callbacks)
 
-const resolvedRole = computed(() => props.role ?? bubbleListRole ?? DEFAULT_BUBBLE_LIST_ROLE)
+const resolvedRole = computed(() => props.role ?? DEFAULT_BUBBLE_LIST_ROLE)
 
 defineExpose({
   getScrollBox,

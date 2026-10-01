@@ -115,24 +115,10 @@ export interface ActiveChatSession extends CoreActiveChatSession {
   dataSource: PageResult<ChatBubbleItem>
 }
 
-export interface BubbleListProps {
-  scrollToBottomThreshold: number
-  throttleOnScrollWait: number
-  /** 可见区回调节流；仅当提供 onVisibleItems 时生效 */
-  throttleCollectVisibleWait: number
-  topThreshold: number
-}
-
-export interface BubbleListCallbacks {
-  onLoadPage: (tag: 'next' | 'previous', scrollBox: HTMLElement) => void
-  onReloadLastPage?: () => void
-  /**
-   * 可选。传入时注册：滚动节流 / items watch / focus / visibilitychange。
-   * 参数为当前视口内全部非 divider 气泡，业务方自行过滤。
-   */
-  onVisibleItems?: (items: ChatBubbleItem[], scrollBox: HTMLElement) => void
-  renderItem:(items:ChatBubbleItem[]) => BubbleItemType[]
-}
+// 容器契约（滚动参数 / 回调）已进实现包 `antdv-chat/src/bubble-list/types.ts`
+// 这里**再导出**（名字不变 ⇒ 16 处调用点零改动）；泛型默认 = 规范的 `ChatBubbleItem`
+import type {BubbleListCallbacks, BubbleListProps} from '@loncra/antdv-chat'
+export type {BubbleListCallbacks, BubbleListProps}
 
 /** IM 气泡列表配置（含时间分隔间隔） */
 export type ChatBubbleListProps = BubbleListProps & {

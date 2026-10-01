@@ -17,13 +17,17 @@ import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import type LBubbleList from '@/components/basic/chat/BubbleList.vue'
 import useApp from 'antdv-next/dist/app/useApp'
 import {
-  DEFAULT_BUBBLE_LIST_ROLE,
   getConversationRuns,
   setConversationDraft,
   useAgentChatContext,
   useAgentDraftPersist,
 } from '@/composables'
-import {AGENT_CHAT_TYPE_STYLE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
+import {
+  AGENT_CHAT_TYPE_STYLE,
+  CHAT_BUBBLE_TYPE,
+  DEFAULT_BUBBLE_LIST_ROLE,
+  STREAM_RUNNING_STATUS_VALUE,
+} from '@/constants'
 import {addBubbleListMessage} from '@/utils'
 import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
