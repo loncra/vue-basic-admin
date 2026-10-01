@@ -3,11 +3,16 @@ import type {
   IdValueMetadata,
   NameValueEnumMetadata,
   PageResult,
-  VersionEntityMetadata
 } from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
+// 形状来源 = 规范包 `@loncra/chat-core`（本地只做**收窄/扩展**：块联合、role、渲染态字段）
+import type {
+  ActiveChatSession as CoreActiveChatSession,
+  ChatBubbleItem as CoreChatBubbleItem,
+  ChatMessageBase,
+} from '@loncra/chat-core'
 import type {
   AgentAnswerBlock,
   AgentErrorBlock,
@@ -87,17 +92,14 @@ export type CursorContext = {
   isAtLineStart: boolean
 }
 
-export interface BaseChatBubble extends VersionEntityMetadata {
+/** 消息体（UI 叠层）：把规范的信封 `ChatBlockBase` 收窄成宿主的块联合 `ChatContentBlock` */
+export interface BaseChatBubble extends ChatMessageBase<ChatContentBlock> {
   content: ChatContentBlock[]
 }
 
-export type ChatBubbleItem = {
-  key: string | number
+export type ChatBubbleItem = CoreChatBubbleItem<ChatContentBlock> & {
   role: BubbleItemType['role']
   content: ChatContentBlock[] | ChatContentBlock | string
-  data?: BaseChatBubble
-  hide?: boolean
-  flashPending?: boolean
   /** ax-bubble loading；Agent 也可由 role 函数动态计算 */
   loading?: boolean
 }
@@ -106,7 +108,7 @@ export type ChatBubbleItem = {
  * IM / Agent 活跃会话共同基类；LBubbleList 直接消费。
  * dataSource.elements 即为气泡列表（业务体挂在 ChatBubbleItem.data）。
  */
-export interface ActiveChatSession {
+export interface ActiveChatSession extends CoreActiveChatSession {
   loading: boolean
   isOnFirstPage?: boolean
   isOnLastPage?: boolean

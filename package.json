@@ -35,6 +35,7 @@
     "@loncra/antdv": "file:../packages/antdv",
     "@loncra/antdv-chat": "file:../packages/antdv-chat",
     "@loncra/antdv-pro": "file:../packages/antdv-pro",
+    "@loncra/chat-core": "file:../packages/chat-core",
     "@loncra/client": "file:../packages/client",
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/api": "^2.11.1",

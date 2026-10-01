@@ -13,6 +13,7 @@ import {useChatSocketEvents} from '@/composables/message-server/chat/useChatSock
 
 function createDefaultActive(): UserChatConversationActiveProps {
   return {
+    // 尚未选中会话 ⇒ 不写 `conversationKey`（规范里它是可选的"当前会话身份"）
     item: undefined,
     loading: false,
     sending: false,
