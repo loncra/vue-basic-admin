@@ -13,7 +13,8 @@ import LChatMessageBubbleContent
   from '@/components/message-server/chat/ChatMessageBubbleContent.vue'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {getEnumValue} from '@loncra/client/commons'
-import LBubbleList from '@/components/basic/chat/BubbleList.vue'
+import {BubbleList as LBubbleList} from '@loncra/antdv-chat'
+import type {BubbleListExpose} from '@loncra/antdv-chat'
 
 defineOptions({
   name: 'LChatBubbleList',
@@ -30,7 +31,7 @@ const emit = defineEmits<{
 
 const {conversationActive: conversation, loader} = useChatContext()
 const principalStore = usePrincipalStore()
-const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
+const bubbleListRef = ref<BubbleListExpose>()
 
 const {
   session,
@@ -207,6 +208,10 @@ defineExpose({
     </template>
     <template v-if="$slots.bubbleListAfter" #bubbleListAfter>
       <slot name="bubbleListAfter" />
+    </template>
+    <!-- 回到底部按钮的图标：宿主注入（包内默认是 antd 图标，不带宿主 iconfont） -->
+    <template #scrollToBottomIcon>
+      <icon-font type="loncra-hard-drive-download" />
     </template>
   </l-bubble-list>
 </template>

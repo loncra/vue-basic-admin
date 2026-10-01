@@ -14,7 +14,7 @@ import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {nextTick, ref, watch} from 'vue'
 import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
-import type LBubbleList from '@/components/basic/chat/BubbleList.vue'
+import type {BubbleListExpose} from '@loncra/antdv-chat'
 import useApp from 'antdv-next/dist/app/useApp'
 import {
   getConversationRuns,
@@ -58,7 +58,7 @@ export function createAgentBubbleListRole() {
 export function useAgentView() {
   const {conversationActive, conversations, activateConversation, loader, stream} = useAgentChatContext()
   const principalStore = usePrincipalStore()
-  const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
+  const bubbleListRef = ref<BubbleListExpose>()
   const senderRef = ref<InstanceType<typeof LAgentSender>>()
 
   const currentReedit = ref<StreamAgentMessageEntity>()

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import LSenderSoldBubbleContent from "@/components/basic/chat/SenderSlotBubbleContent.vue";
+import {SenderSlotBubbleContent as LSenderSlotBubbleContent} from "@loncra/antdv-chat";
 import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables";
 import type {StreamAgentMessageEntity} from "@/types/apis";
 
@@ -16,7 +16,7 @@ defineProps<{
 
 <template>
   <a-typography-text :delete="(item.data as StreamAgentMessageEntity).reedit" :type="(item.data as StreamAgentMessageEntity).reedit ? 'secondary' : 'default'">
-    <l-sender-sold-bubble-content
+    <l-sender-slot-bubble-content
       :content="(item.content as ChatContentBlock[]).filter(c => !(c.type === 'custom' && c.slotKind === 'files'))"
     >
       <template #renderBlock="{block:block}">
@@ -30,6 +30,6 @@ defineProps<{
           {{ block.value.value }}
         </a-tag>
       </template>
-    </l-sender-sold-bubble-content>
+    </l-sender-slot-bubble-content>
   </a-typography-text>
 </template>

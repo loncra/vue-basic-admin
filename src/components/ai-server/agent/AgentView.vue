@@ -7,7 +7,7 @@ import LAgentUserMessageBubbleContent
   from '@/components/ai-server/agent/AgentUserMessageBubbleContent.vue'
 import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
-import LBubbleList from '@/components/basic/chat/BubbleList.vue'
+import {BubbleList as LBubbleList} from '@loncra/antdv-chat'
 import {createAgentBubbleListRole, useAgentView} from '@/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
 import type {AgentSseMessageContent} from "@/types/composables";
@@ -248,6 +248,10 @@ defineExpose({
         </template>
         <template v-if="$slots.bubbleListAfter" #bubbleListAfter>
           <slot name="bubbleListAfter" />
+        </template>
+        <!-- 回到底部按钮的图标：宿主注入（包内默认是 antd 图标，不带宿主 iconfont） -->
+        <template #scrollToBottomIcon>
+          <icon-font type="loncra-hard-drive-download" />
         </template>
       </l-bubble-list>
       <a-flex v-else justify="center" align="center" class="size-full">

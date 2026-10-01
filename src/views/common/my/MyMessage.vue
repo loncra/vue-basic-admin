@@ -62,7 +62,7 @@ onActivated(activated)
 </script>
 
 <template>
-  <div class="h-full min-h-0">
+  <div class="h-full min-h-120">
     <l-data-loading-card-plan
       :spin="false"
       :classes="{

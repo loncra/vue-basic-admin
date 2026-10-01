@@ -25,7 +25,21 @@ import type {ConfigOptions} from 'antdv-next/dist/message/interface'
 import type {GlobalConfigProps} from 'antdv-next/dist/notification/interface'
 import type {ConfigProviderState, ConfigProviderStoredState} from '@/types/composables'
 
-const LEGACY_KEY = import.meta.env.VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME
+/**
+ * **唯一一份**配置存储（`.env` 的 `VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME`）。
+ *
+ * ⚠️ **只允许一个写入者**（就是下面那个持久化 `watch`）：历史上这里是两个 writer ——
+ * 一个整份写 `antdv.state`，另一个（`saveLocalStorage()`）**只写宿主的窄集合**，
+ * 且它在 store 初始化时也会跑一次 ⇒ **刷新时把 pro 的字段（`mode` / `componentSize` /
+ * `formLayout` / `detailLayout` / `locale` / `token` / `compact`）整份覆盖掉**，
+ * 表现为"设置刷新就丢"（2026-10-01 查明；`saveLocalStorage()` 已删除）。
+ */
+const STORAGE_KEY = import.meta.env.VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME
+
+/**
+ * 宿主要持久化的**自有**字段（= 原先那个窄写入者保存的 6 项；`screen` 是运行期派生值 ⇒ 不存）
+ * 在下面唯一写入者里**显式列出**。
+ */
 
 const DEFAULTS: ConfigProviderStoredState = {
   homeSiderWidth: 260,
@@ -37,10 +51,10 @@ const DEFAULTS: ConfigProviderStoredState = {
 }
 
 
-/** 先读新键；没有就**从老键迁一次**（老版本的 JSON 里这些字段就在同一份里） */
+/** 读那份配置 —— pro 字段与宿主字段**在同一份 JSON 里**（见 `ConfigProviderStoredState`） */
 function readStored(): Partial<ConfigProviderStoredState> {
   try {
-    const raw = localStorage.getItem(LEGACY_KEY)
+    const raw = localStorage.getItem(STORAGE_KEY)
     return raw ? (JSON.parse(raw) as Partial<ConfigProviderStoredState>) : {}
   } catch {
     return {}
@@ -60,14 +74,10 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
    */
   const antdv = markRaw(createAntdvConfig(readStored()))
 
-  // 存回：`state` 全是"输入"，整份写
-  watch(
-    antdv.state,
-    (state) => {
-      localStorage.setItem(LEGACY_KEY, JSON.stringify(state))
-    },
-    {deep: true},
-  )
+  /*
+   * 持久化**不在这里**：唯一写入者要同时写 pro 的 `antdv.state` 与宿主的 `state`
+   * ⇒ 必须等 `state` 建好之后再注册（见 `const state = ref<ConfigProviderState>(…)` 之后那段）。
+   */
 
   // `<html data-theme>`：启动骨架 / 依赖 CSS 变量的样式靠它适配明暗（pro 不碰 DOM）
   watch(
@@ -115,6 +125,32 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
 
   const state = ref<ConfigProviderState>($reset())
 
+  /**
+   * 持久化：**唯一写入者** —— 整份写（pro 的 `antdv.state` + 下面那几个宿主自有字段）。
+   *
+   * ⚠️ **不要再加第二个写入者**（特别是"只写一部分字段"的那种）：整份 `setItem` 会把别人写进去的字段
+   * 覆盖掉 —— 2026-10-01 "设置刷新就丢"就是历史上的窄集合写入者 `saveLocalStorage()` 干的（已删除）。
+   * 同理：改这里的字段清单就够，别在别处再写一次 `localStorage.setItem(STORAGE_KEY, …)`。
+   */
+  watch(
+    [antdv.state, state],
+    () => {
+      // `state.value` 是**深层解包**过的类型：直接拿它去标注/赋值会触发 TS 的深度实例化限制
+      // （`TS2589` + `appContext` 不兼容，实测）⇒ 先按"要存的形状"取一次（原 `saveLocalStorage()` 同款手法）。
+      const current = state.value as ConfigProviderStoredState
+      const hostStored: ConfigProviderStoredState = {
+        homeSiderWidth: current.homeSiderWidth,
+        homeCollapsedWidth: current.homeCollapsedWidth,
+        homeCollapsible: current.homeCollapsible,
+        createSuccessBack: current.createSuccessBack,
+        messageConfig: current.messageConfig,
+        notificationConfig: current.notificationConfig,
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({...antdv.state, ...hostStored}))
+    },
+    {deep: true},
+  )
+
   /** 按当前窗口宽度算屏幕断点（宽度取自 antdv token 的断点值） */
   function calculateScreenBreakpoint(width: number): NameValueEnumMetadata<number> {
     const currentToken = token.value
@@ -149,24 +185,22 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
   /** Ant Design 的 token 表（视图值；要单个键就用 `getToken()` 自己取） */
   const getToken: ComputedRef<() => typeof token.value> = computed(() => () => token.value)
 
+  // ⚠️ setter 只管改 `state`（**不再手动存**）：上面那个持久化 `watch` 是唯一写入者，会自动存。
+
   function setHomeSiderWidth(width: number): void {
     state.value.homeSiderWidth = width
-    saveLocalStorage()
   }
 
   function setHomeCollapsedWidth(width: number): void {
     state.value.homeCollapsedWidth = width
-    saveLocalStorage()
   }
 
   function setHomeCollapsible(collapsible: boolean): void {
     state.value.homeCollapsible = collapsible
-    saveLocalStorage()
   }
 
   function setCreateSuccessBack(value: CreateSuccessBackValue): void {
     state.value.createSuccessBack = value
-    saveLocalStorage()
   }
 
   /** 高亮文本中的指定内容（列表搜索命中项那类展示） */
@@ -182,19 +216,11 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     )
   }
 
-  function saveLocalStorage(): void {
-    // `state.value` 的类型是深层解包过的，直接标注会触发 TS 的深度实例化限制 ⇒ 这里按"要存的形状"取一次
-    const current = state.value as ConfigProviderStoredState
-    const storedValue: ConfigProviderStoredState = {
-      homeSiderWidth: current.homeSiderWidth,
-      homeCollapsedWidth: current.homeCollapsedWidth,
-      homeCollapsible: current.homeCollapsible,
-      createSuccessBack: current.createSuccessBack,
-      messageConfig: current.messageConfig,
-      notificationConfig: current.notificationConfig,
-    }
-    localStorage.setItem(LEGACY_KEY, JSON.stringify(storedValue))
-  }
+  /*
+   * `saveLocalStorage()` 已**删除**（2026-10-01）：它是"第二个写入者"，只写宿主那 6 个字段、
+   * 且在初始化时也会执行一次 ⇒ 把 pro 的 `mode` / `componentSize` / `formLayout` … 整份覆盖掉
+   * ⇒ 表现为"设置刷新就丢"。现在只有一个写入者（上面那个 `watch`，整份写）。
+   */
 
   function $reset(): ConfigProviderState {
     const stored = readStored()
@@ -222,8 +248,10 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
 
   onUnmounted(() => window.removeEventListener('resize', handleResize))
 
-  // 初始化时把状态写回新键：老键里的布局项借此完成迁移，之后两边各写各的
-  saveLocalStorage()
+  /*
+   * 这里**不再**在初始化时主动写一次存储（2026-10-01）：那句话原本是窄集合写入者 `saveLocalStorage()`
+   * 的调用点，正是"刷新就把 pro 字段覆盖掉"的直接原因。现在写入只发生在状态真变化时（上面的 `watch`）。
+   */
 
   return {
     /** antdv 配置实例：喂 `LProvider :antdv-config`；宿主里读它的 `state` / `theme` / `themeConfig` */

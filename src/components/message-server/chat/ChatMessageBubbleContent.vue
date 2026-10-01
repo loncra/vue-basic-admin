@@ -7,7 +7,7 @@ import {useSlots} from "vue";
 import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useChatCallModalExpose} from "@/composables";
-import LSenderSoldBubbleContent from "@/components/basic/chat/SenderSlotBubbleContent.vue";
+import {SenderSlotBubbleContent as LSenderSlotBubbleContent} from "@loncra/antdv-chat";
 import {
   MESSAGE_SERVER_CHAT_CALL_SCENE,
   MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS
@@ -35,7 +35,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <l-sender-sold-bubble-content :content="content">
+  <l-sender-slot-bubble-content :content="content">
     <template #renderBlock="{block:block}">
       <div v-if="block.type === 'custom' && block.slotKind === 'files'">
         <l-attachment-upload
@@ -80,5 +80,5 @@ const emit = defineEmits<{
         />
       </a-flex>
     </template>
-  </l-sender-sold-bubble-content>
+  </l-sender-slot-bubble-content>
 </template>
