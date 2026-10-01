@@ -7,6 +7,7 @@ import type {
 } from '@/types/composables'
 import type {UserChatMessageResponseBody} from '@/types/apis'
 import type {RestResult} from '@loncra/client/commons'
+import {toBubbleContent} from '@loncra/chat-core'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import type {MenuItemType} from 'antdv-next'
 import {Space, StatisticTimer} from 'antdv-next'
@@ -61,10 +62,16 @@ export function useChatBubbleList(
         })
         lastDividerTime = msgTime
       }
-      result.push({
-        ...msg,
-        rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
-      } as BubbleItemType)
+      // A1（2026-10-01 S2b-2）：内容**在渲染时**从 `data` 派生（存储条目已无 `content`）。
+      // 派生可能是多条（system 消息按 block 拆条）⇒ 逐条 push（原先是 `addBubbleListMessage`
+      // 提前拆成多条存储条目，现在由这里展开，分隔条仍按"业务体"粒度只出一个）。
+      for (const entry of toBubbleContent(msg)) {
+        result.push({
+          ...msg,
+          ...entry,
+          rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
+        } as BubbleItemType)
+      }
     }
     return result
   }

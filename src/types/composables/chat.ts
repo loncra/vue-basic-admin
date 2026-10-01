@@ -97,11 +97,26 @@ export interface BaseChatBubble extends ChatMessageBase<ChatContentBlock> {
   content: ChatContentBlock[]
 }
 
+/**
+ * **存储条目**（`ActiveChatSession.dataSource.elements` 里那一条）。
+ *
+ * ⚠️ **A1（2026-10-01 S2b-2）：这里没有 `content`** —— 内容从 `data` 派生
+ * （`toBubbleContent(item)`，见 `@loncra/chat-core`）⇒ 结构上不可能再出现"只改了 content 没改 data"。
+ * 要渲染态（带 content）请用下面的 `ChatBubbleRenderItem`。
+ */
 export type ChatBubbleItem = CoreChatBubbleItem<ChatContentBlock> & {
   role: BubbleItemType['role']
-  content: ChatContentBlock[] | ChatContentBlock | string
   /** ax-bubble loading；Agent 也可由 role 函数动态计算 */
   loading?: boolean
+}
+
+/**
+ * **渲染项**：喂给 `ax-bubble-list` 的那一份 = 存储条目 + `toBubbleContent` 派生出来的 `content`。
+ *
+ * 组件里读 `item.content` 的地方收的是**这个**类型（`renderItem` 的产物），不是存储条目。
+ */
+export type ChatBubbleRenderItem = ChatBubbleItem & {
+  content: ChatContentBlock[] | ChatContentBlock | string
 }
 
 /**

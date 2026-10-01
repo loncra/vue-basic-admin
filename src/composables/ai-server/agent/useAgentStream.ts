@@ -72,9 +72,15 @@ export function useAgentStream(
     if (!bubble) {
       return
     }
-    if (!bubble.content) {
-      bubble.content = []
+    // A1（2026-10-01 S2b-2）：内容写在 **`data`**（唯一真相），不再是条目自己的 `content` ——
+    // 渲染时由 `toBubbleContent(item)` 现算 ⇒ 不会再有"改了 content 没改 data"的错位。
+    if (!bubble.data) {
+      return
     }
+    if (!bubble.data.content) {
+      bubble.data.content = []
+    }
+
 
     const ALL_CONTENT_TYPES = Object.values(AI_SERVER_AGENT_CONTENT_TYPE) as string[]
     if (!ALL_CONTENT_TYPES.includes(sseData.type)) {
@@ -82,7 +88,7 @@ export function useAgentStream(
     }
 
     if (STREAM_APPEND_TYPES.includes(sseData.type)) {
-      const content = bubble.content as AgentSseMessageContent[]
+      const content = bubble.data.content as AgentSseMessageContent[]
       if (!content.some(s => s.id === sseData.id && sseData.type === s.type)) {
         content.push(sseData)
         if (getEnumValue(sseData.type) === AI_SERVER_AGENT_CONTENT_TYPE.THINK) {

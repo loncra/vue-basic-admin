@@ -10,14 +10,20 @@ import type {
   UserChatConversationActiveProps,
 } from '@/types/composables'
 import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
-import {addBubbleListMessage, requireNonNullOrUndefined} from '@/utils'
+import {addBubbleListMessage} from '@loncra/chat-core'
+import {requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {getEnumValue} from '@loncra/client/commons'
+import {useChatMessageList} from '@loncra/antdv-chat'
 
 /**
  * 活跃会话的消息分页、锚点跳转与会话切换。
  * 气泡单轨：dataSource.elements 为 ChatBubbleItem[]；分页防重入用内聚 pageLock。
+ *
+ * ⚠️ **分页 / 锚点 / 合入的骨架已抽进 `@loncra/antdv-chat` 的 `useChatMessageList`**（2026-10-01 S2b-1）：
+ * 本文件只留 **IM 域自己的部分** —— 角色判定、请求组装、房间参与者、切会话（草稿写回 / hydrate）、
+ * 已读锚点入口、历史消息跳转。两域实测差异（7 处）见适配器里逐条的注释（含 Agent 侧 2 处疑似 bug，**未归一**）。
  */
 export function useChatMessageLoader(
   conversationActive: Ref<UserChatConversationActiveProps>,
@@ -27,8 +33,6 @@ export function useChatMessageLoader(
     getCurrentInstance(),
   ).appContext.config.globalProperties
   const principalStore = usePrincipalStore()
-
-  let pageLock = false
 
   function resolveRole(d: UserChatMessageResponseBody): BubbleItemType['role'] {
     let role: BubbleItemType['role'] =
@@ -42,51 +46,55 @@ export function useChatMessageLoader(
     return role
   }
 
-  async function loadPage(
-    chatRoomId: number,
-    number: number,
-    append: boolean = false,
-    clear: boolean = false,
-  ): Promise<void> {
-    const active = conversationActive.value
-    if (pageLock) {
-      return
-    }
-    const request = {
-      number,
-      withoutReadableAnchor: active.readableAnchorLoading,
-    }
-    try {
-      pageLock = true
+  const list = useChatMessageList<UserChatConversationActiveProps, ChatBubbleItem>({
+    active: conversationActive,
+    view,
+    // 差异 ②：IM 失败时用**兜底空页**（`first`/`last` 都是 true ⇒ 直接把两端锁住），不存在"放弃本页"
+    fetchPage: async (number, active) => {
       const result: RestResult<PageResult<UserChatMessageResponseBody>> =
-        await ChatMessageService.histories(request, chatRoomId)
-
-      const page = result?.data || DEFAULT_PAGE_RESULT_VALUE
-      const retained = clear ? [] : active.dataSource.elements
-      active.dataSource = {
-        ...active.dataSource,
-        ...page,
-        elements: retained,
-      }
-      // 到达端页则锁住；clear/首屏以当前页为准同步两端标志
-      if (clear) {
-        active.isOnFirstPage = page.first
-        active.isOnLastPage = page.last
-      } else {
-        if (page.first) {
-          active.isOnFirstPage = true
-        }
-        if (page.last) {
-          active.isOnLastPage = true
-        }
-      }
-      for (const d of page.elements || []) {
-        addBubbleListMessage(d, resolveRole(d), active.dataSource.elements, !append)
-      }
-    } finally {
-      pageLock = false
-    }
-  }
+        await ChatMessageService.histories(
+          {number, withoutReadableAnchor: active.readableAnchorLoading},
+          Number(active.item?.data?.room?.id),
+        )
+      return result?.data || DEFAULT_PAGE_RESULT_VALUE
+    },
+    // 差异 ③：IM 传 `!prepend`（更早的页插头、更新的页插尾）
+    mergeMessage: (body, elements, prepend) => {
+      const d = body as UserChatMessageResponseBody
+      addBubbleListMessage(d, resolveRole(d), elements, !prepend)
+    },
+    fetchPageNumberOf: async (messageId, active) => {
+      const result: RestResult<number> = await ChatMessageService.positioningMessagePageNumber(
+        Number(active.item?.data?.room?.id),
+        messageId,
+        active.dataSource.size,
+      )
+      return result.data
+    },
+    // 差异 ④：房间 id 必须有效
+    canLoad: (active) => !!Number(active.item?.data?.room?.id),
+    // 差异 ⑤：'previous'（更新的一页）插尾
+    pageOptionsFor: (tag) => ({prepend: tag === 'previous'}),
+    // 差异 ⑥：IM 有"实时锚点跳转"（Agent 侧那段被注释掉了）
+    anchorJump: true,
+    // A1：合成项的内容也进 `data.content`（条目已无 `content`）⇒ `toBubbleContent` 的 system 分支
+    // 取块的文本值 ⇒ 渲染出来的仍是同一句话。`data` 是"无实体 UI 项"的桩（规范里 `data` 可选）。
+    createNoMoreBubble: () => ({
+      key: globalProperties.$dayjs().unix(),
+      role: CHAT_BUBBLE_TYPE.SYSTEM,
+      data: {
+        content: [{type: 'text', value: globalProperties.$t('common.noMore')}],
+      } as UserChatMessageResponseBody,
+    }),
+    createAnchorBubble: (systemMessage, at) => ({
+      key: 'system-anchor-message-' + globalProperties.$dayjs().unix(),
+      role: CHAT_BUBBLE_TYPE.SYSTEM,
+      data: {
+        content: [{type: 'text', value: systemMessage}],
+        creationTime: at,
+      } as UserChatMessageResponseBody,
+    }),
+  })
 
   async function loadParticipant(roomId: number): Promise<void> {
     const result: RestResult<UserChatParticipantEntity[]> =
@@ -132,105 +140,14 @@ export function useChatMessageLoader(
       await view.value?.hydrateSenderDraft()
       await loadParticipant(Number(active.item?.data?.room?.id))
       if (!messageId) {
-        await loadPage(Number(active.item.data.room.id), 1, false, reload)
+        // 原来这里是 `loadPage(roomId, 1, prepend=false, clear=reload)` ⇒ 等价 `{clear: reload}`
+        await list.loadPage(1, {clear: reload})
         await nextTick()
         view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
       } else {
-        await positioningMessage(messageId, Number(active.item.data.room.id))
+        // 原来要显式传 roomId；现在房间 id 由 `fetchPageNumberOf` 从 active 取（同一个值）
+        await list.positioningMessage(messageId)
       }
-    } finally {
-      active.loading = false
-    }
-  }
-
-  async function loadMore(tag: 'next' | 'previous'): Promise<void> {
-    await nextTick()
-    const active = conversationActive.value
-    if (pageLock) {
-      return
-    }
-    if (tag === 'next' && (active.isOnLastPage || active.dataSource.last)) {
-      return
-    }
-    if (tag === 'previous' && (active.isOnFirstPage || active.dataSource.first)) {
-      return
-    }
-    const roomId = Number(active.item?.data?.room?.id)
-    if (!roomId) {
-      return
-    }
-    const reduceSort = (a: ChatBubbleItem, b: ChatBubbleItem) => {
-      const flag =
-        tag === 'previous'
-          ? (a.data?.creationTime ?? 0) >= (b.data?.creationTime ?? 0)
-          : (a.data?.creationTime ?? 0) <= (b.data?.creationTime ?? 0)
-      return flag ? a : b
-    }
-    const bubbles = active.dataSource.elements
-    const anchor = bubbles.length > 0 ? bubbles.reduce(reduceSort) : undefined
-
-    await loadPage(
-      roomId,
-      tag === 'next' ? ++active.dataSource.number : --active.dataSource.number,
-      tag === 'previous',
-    )
-    await nextTick()
-    if (anchor) {
-      view.value?.jumpToMessage(String(anchor.key), false, tag === 'next' ? 'nearest' : 'end')
-    }
-    if (active.dataSource.last && tag === 'next') {
-      active.dataSource.elements.unshift({
-        key: globalProperties.$dayjs().unix(),
-        role: CHAT_BUBBLE_TYPE.SYSTEM,
-        content: globalProperties.$t('common.noMore'),
-      })
-      active.isOnLastPage = true
-    }
-  }
-
-  async function jumpToAnchorPage(
-    messageId: number,
-    pageNumber: number,
-    systemMessage?: string,
-  ): Promise<void> {
-    const active = conversationActive.value
-    active.isOnLastPage = false
-    active.isOnFirstPage = false
-    active.loading = true
-    try {
-      await loadPage(Number(active.item?.data?.room?.id), pageNumber, false, true)
-
-      if (active.dataSource.elements.length <= 0) {
-        return
-      }
-
-      const anchorIndex = active.dataSource.elements.findIndex((b) => b.key === String(messageId))
-      let key: string | number | undefined
-
-      if (anchorIndex < 0) {
-        key = active.dataSource.elements.at(0)?.key
-      } else {
-        const anchorBubble = active.dataSource.elements[anchorIndex]
-        if (anchorBubble) {
-          key = anchorBubble.key
-        }
-        if (systemMessage && anchorBubble) {
-          const anchorTime = anchorBubble.data?.creationTime ?? 0
-          const newBubble: ChatBubbleItem = {
-            key: 'system-anchor-message-' + globalProperties.$dayjs().unix(),
-            role: CHAT_BUBBLE_TYPE.SYSTEM,
-            content: systemMessage,
-            data: {creationTime: anchorTime - 1} as UserChatMessageResponseBody,
-          }
-          active.dataSource.elements.splice(anchorIndex, 0, newBubble)
-        }
-      }
-
-      await nextTick()
-      if (!view.value || key === undefined) {
-        return
-      }
-      view.value.jumpToMessage(String(key))
     } finally {
       active.loading = false
     }
@@ -256,7 +173,7 @@ export function useChatMessageLoader(
       return
     }
     active.readableAnchorLoading = true
-    await jumpToAnchorPage(
+    await list.jumpToAnchorPage(
       Number(readableAnchorId),
       Number(active.dataSource?.metadata?.readableAnchorPage),
       globalProperties.$t('chat.view.readable.systemMessage'),
@@ -279,34 +196,16 @@ export function useChatMessageLoader(
       view.value?.jumpToMessage(String(anchorBubble.key))
       return
     }
-    await positioningMessage(Number(data.id), Number(active.item?.data?.room?.id))
-  }
-
-  async function positioningMessage(messageId: number, roomId: number): Promise<void> {
-    const active = conversationActive.value
-    if (!active.item) {
-      return
-    }
-    try {
-      active.loading = true
-      const result: RestResult<number> = await ChatMessageService.positioningMessagePageNumber(
-        roomId,
-        messageId,
-        active.dataSource.size,
-      )
-      if (result.data) {
-        await jumpToAnchorPage(messageId, result.data)
-      }
-    } finally {
-      active.loading = false
-    }
+    await list.positioningMessage(Number(data.id))
   }
 
   return {
-    loadPage,
+    /** ⚠️ 形参变了：原 `(chatRoomId, number, append, clear)` → 现 `(number, {prepend, clear})`
+     *  （`chatRoomId` 无外部调用点，房间 id 由域适配器从 active 取） */
+    loadPage: list.loadPage,
     switchConversation,
-    loadMore,
-    jumpToAnchorPage,
+    loadMore: list.loadMore,
+    jumpToAnchorPage: list.jumpToAnchorPage,
     showReadableAnchorButton,
     loadParticipant,
     toReadableAnchor,

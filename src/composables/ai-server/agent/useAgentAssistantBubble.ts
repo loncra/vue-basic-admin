@@ -7,7 +7,7 @@ import type {
   AgentToolCallBlock,
   BlockGroup,
   BlockRunningContentMetadata,
-  ChatBubbleItem,
+  ChatBubbleRenderItem,
   ThoughtChainItemDataType
 } from "@/types/composables";
 import {AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE, BLOCK_RUNNING_STATUS_VALUE} from '@/constants';
@@ -80,8 +80,14 @@ export function getToolChainStatus(block: AgentToolCallBlock): ThoughtChainItemT
   return undefined
 }
 
+/**
+ * 助手气泡的分组/交互。
+ *
+ * ⚠️ 收的是**渲染项**（组件从 x 的插槽拿到的 `item`：已带 `toBubbleContent` 派生出来的 `content`，
+ * 且它**与 `data.content` 同一引用** ⇒ 下面改块（如 `userConfirmed`）仍会落到唯一真相上）。
+ */
 export function useAgentAssistantBubble(
-  item:ChatBubbleItem
+  item:ChatBubbleRenderItem
 ) {
   /** 用户手动设置的展开状态：undefined=未操作, true=展开, false=收起 */
   const toolCallUserState = reactive<Record<string, boolean | undefined>>({})

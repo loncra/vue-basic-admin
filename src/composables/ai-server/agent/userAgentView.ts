@@ -6,6 +6,7 @@ import type {
   AgentTokenUsageContent,
   BlockDeltaContentMetadata,
   ChatBubbleItem,
+  ChatBubbleRenderItem,
   ChatContentBlock,
 } from '@/types/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from '@/types/apis'
@@ -28,7 +29,7 @@ import {
   DEFAULT_BUBBLE_LIST_ROLE,
   STREAM_RUNNING_STATUS_VALUE,
 } from '@/constants'
-import {addBubbleListMessage} from '@/utils'
+import {addBubbleListMessage} from '@loncra/chat-core'
 import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
@@ -41,7 +42,8 @@ export function createAgentBubbleListRole() {
   const baseAi = DEFAULT_BUBBLE_LIST_ROLE.ai
   return {
     ...DEFAULT_BUBBLE_LIST_ROLE,
-    ai: (data: ChatBubbleItem) => {
+    // role 函数收到的是**渲染项**（x 在渲染时给的：已带 `toBubbleContent` 派生出来的 content）
+    ai: (data: ChatBubbleRenderItem) => {
       const isContentEmpty = !data.content || (data.content as AgentSseMessageContent[]).length <= 0
       const isRunning = data.data && STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((data?.data as AgentMessageEntity).status))
 

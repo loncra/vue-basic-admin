@@ -11,16 +11,11 @@ import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 import {type ComponentInternalInstance, h, type VNode} from "vue";
 import {Avatar, AvatarGroup, Tag} from "antdv-next";
 import {AuthServerService} from "@/apis";
-import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import type {
-  BaseChatBubble,
-  ChatBubbleItem,
-  ChatContentBlock,
   InstructionBlock,
   InstructionSlotProps,
-  TextBlock
 } from "@/types/composables";
-import {AGENT_INSTRUCTION_PREFIX, CHAT_BUBBLE_TYPE} from '@/constants';
+import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
@@ -82,55 +77,12 @@ export function createAvatarNode(
   return h(Avatar, {size}, {default: () => defaultLabel.substring(0, 1)})
 }
 
-/**
- * 将一条消息合入气泡列表（去重 + 系统消息拆条 + 头/尾插）。
- * 纯数组变换，无响应式依赖；由 useChatMessageLoader / useChatSocketEvents / 发送流程复用。
+/*
+ * `addBubbleListMessage` **已搬进 `@loncra/chat-core`**（2026-10-01 S2b-2，随 A1 一起）：
+ * 它现在**只维护"业务体进列表"**（去重 + `hide`），**不再写 `content`、也不再做 system 拆条** ——
+ * 渲染内容由 `toBubbleContent(item)` 现算（拆条在那里展开，顺手修掉了原先 fragment 共用一个 key 的真 bug）。
+ * 消费方请从 `@loncra/chat-core` import。
  */
-export function addBubbleListMessage(
-  body: BaseChatBubble,
-  role: BubbleItemType['role'],
-  bubbleList: ChatBubbleItem[],
-  append: boolean = false,
-  hide: boolean = false,
-): void {
-  const content = body.content ?? []
-  const index = bubbleList.findIndex((b) => b.key === String(body.id))
-  if (index >= 0) {
-    bubbleList[index] = {
-      key: String(body.id),
-      role,
-      content,
-      data: body,
-      hide,
-    }
-    return
-  }
-
-  const items =
-    role === CHAT_BUBBLE_TYPE.SYSTEM
-      ? body.content.map((c) => ({
-        key: String(body.id),
-        role,
-        content: (c as TextBlock).value as unknown as ChatContentBlock,
-        data: body,
-        hide,
-      }))
-      : [
-        {
-          key: String(body.id),
-          role,
-          content,
-          data: body,
-          hide,
-        },
-      ]
-
-  if (!append) {
-    bubbleList.splice(0, 0, ...items)
-  } else {
-    bubbleList.push(...items)
-  }
-}
 
 /** 会话列表最后一条消息预览 */
 export function getMessageContent(lastUserMessage: UserChatMessageEntity | undefined, conversation?:UserChatConversationResponseBody): string {

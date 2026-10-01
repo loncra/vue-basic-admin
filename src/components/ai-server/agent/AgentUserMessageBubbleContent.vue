@@ -1,15 +1,16 @@
 <script setup lang="ts">
 
 import {SenderSlotBubbleContent as LSenderSlotBubbleContent} from "@loncra/antdv-chat";
-import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables";
+import type {ChatBubbleRenderItem, ChatContentBlock} from "@/types/composables";
 import type {StreamAgentMessageEntity} from "@/types/apis";
 
 defineOptions({
   name: 'LAgentUserMessageBubbleContent',
 })
 
+// 收的是**渲染项**（x 插槽给的：content 由 `toBubbleContent` 派生）—— A1，2026-10-01 S2b-2
 defineProps<{
-  item: ChatBubbleItem
+  item: ChatBubbleRenderItem
 }>()
 
 </script>

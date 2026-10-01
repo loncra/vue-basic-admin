@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {AgentToolCallBlock, ChatBubbleItem,} from '@/types/composables'
+import type {AgentToolCallBlock, ChatBubbleItem, ChatBubbleRenderItem,} from '@/types/composables'
 import {STREAM_RUNNING_STATUS_VALUE} from '@/constants'
 import {Markdown as LMarkdown, MarkdownCodeRenderer as LMarkdownCodeRenderer} from '@loncra/antdv-chat'
 
@@ -20,7 +20,8 @@ defineOptions({
   name: 'LAgentAssistantBubbleContent',
 })
 
-const model = defineModel<ChatBubbleItem>("item",{required: true})
+// 收的是**渲染项**（x 插槽给的：content 由 `toBubbleContent` 派生）—— A1，2026-10-01 S2b-2
+const model = defineModel<ChatBubbleRenderItem>("item",{required: true})
 
 const {
   toggleToolCallExpanded,

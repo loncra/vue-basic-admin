@@ -18,7 +18,8 @@ import {
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
-import {addBubbleListMessage, isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
+import {isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
+import {addBubbleListMessage} from '@loncra/chat-core'
 import {useChatContext, useImDraftPersist} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
@@ -213,7 +214,8 @@ function onChatMessageUpdate(result: RestResult<UserChatMessageResponseBody | Us
     return
   }
   bubble.data = {...bubble.data, ...result.data}
-  bubble.content = bubble.data.content
+  // A1（2026-10-01 S2b-2）：**删掉** `bubble.content = bubble.data.content` ——
+  // 内容是渲染时由 `toBubbleContent` 从 `data` 现算的，这一行正是"手工同步两半"的历史伤口。
 }
 
 async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
@@ -240,8 +242,8 @@ async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
     tooltip:globalProperties.$t('chat.view.undo.time', {time:':' + globalProperties.$dayjs(data.undoTime).fromNow()})
   }]
   data.metadata = {oldContent:bubble.data.content}
+  // A1：只写 `data`（唯一真相）—— 原版接着还有一行 `bubble.content = undoContent`，已删
   bubble.data.content = undoContent
-  bubble.content = undoContent
 }
 
 function onReedit(content:ChatContentBlock[]) {
