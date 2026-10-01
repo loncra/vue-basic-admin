@@ -68,6 +68,7 @@ defineExpose({
 </script>
 
 <template>
+  <!-- 输入区样式钩子：宿主的 .chat-sender-input（assets/style.css 那两条规则）靠官方 classes.input 注入；包内不再兜这个类名 -->
   <l-instruction-sender
     ref="senderRef"
     :placeholder="$t('agent.view.placeholder')"
@@ -75,6 +76,7 @@ defineExpose({
     :on-filter-data-source="filterInstruction"
     :sender-insert-instruction="senderInsertInstruction"
     :create-instruction-slot="createInstructionSlot"
+    :classes="{input: 'chat-sender-input'}"
     v-bind="$attrs"
     @submit="handleSubmit"
     @cancel="handleCancel"
