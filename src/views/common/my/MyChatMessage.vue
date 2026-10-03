@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import {
   type ComponentInternalInstance,
+  computed,
   getCurrentInstance,
   nextTick,
   onMounted,
   type Ref,
   ref
 } from "vue";
-import type {
-  UserChatConversationResponseBody,
-  UserChatMessageResponseBody
-} from "@/types/apis";
+import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
 import type {SystemUserContactItem} from "@loncra/antdv-pro";
+import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import type {IdNameValueMetadata, RestResult} from "@loncra/client/commons";
+import {isEnumValue} from '@loncra/client/commons'
 import type {PlatformUser} from "@loncra/client/auth";
 import {requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
@@ -24,7 +24,12 @@ import type {ChatViewController, ServerConversationItem} from "@/types/composabl
 import LChatRoomView from "@/components/message-server/chat/ChatRoomView.vue";
 import {provideUserChatContext} from "@/composables/message-server/chat";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
-import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
+import {CHAT_BUBBLE_TYPE} from '@/constants'
+import {
+  MESSAGE_SERVER_MESSAGE_GROUP,
+  MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
+} from '@loncra/client/message'
+import {ImChat} from '@loncra/antdv-chat'
 
 defineOptions({
   name: 'MyChatMessageHome',
@@ -35,6 +40,37 @@ const globalProperties =
     .globalProperties
 
 const principalStore = usePrincipalStore()
+
+/**
+ * ── 试验挂载（**临时**，2026-10-03 Step 3-B）：`?lim=1` 时整个页面换成包内的 `l-im`。
+ *
+ * ⚠️ `port.subscribe` 现在是**空实现**（socket 接线属下一片 3-C）；`getPrincipal` 已是真的。
+ * Step 5 正式切换后，删掉这段开关与 `v-else` 分支。
+ */
+const nextMode = computed(() => globalProperties.$route.query.lim === '1')
+const imPort = {
+  getPrincipal: () => principalStore.state.name,
+  subscribe: () => () => {},
+}
+function onImEvent(event: unknown): void {
+  // 临时：先看事件流（正式接法见 Step 5：系统通知 / 外层角标 / 页面标题都从这儿来）
+  console.log('[l-im] event', event)
+}
+
+/**
+ * `#senderName` 插槽用：**群聊才出表头**（单聊：AI 显示会话名、我发的不出头）—— 2026-10-03 用户拍定。
+ * 模块通过插槽参数把 `conversation` 给过来（判据在宿主，模块不替宿主下结论）。
+ */
+function isGroupChat(conversation: UserChatConversationResponseBody | undefined): boolean {
+  return isEnumValue(conversation?.room?.type, MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT)
+}
+
+function nameOfParticipant(item: {data?: UserChatMessageResponseBody} | undefined): string {
+  const details = item?.data?.participant?.metadata?.details
+  return details
+    ? AuthServerService.getPrincipalNameByUserDetails(details)
+    : globalProperties.$t('common.unname')
+}
 
 const segmented = ref<{
   value: string
@@ -137,7 +173,39 @@ onMounted(mounted)
 </script>
 
 <template>
-  <div class="h-full min-h-0">
+  <!-- 试验挂载（临时）：`?lim=1` ⇒ 用包内的 `l-im`；Step 5 切完删这两段开关 -->
+  <ImChat
+    v-if="nextMode"
+    :port="imPort"
+    :contacts="options.contactDataSource"
+    :format-relative-time="(t: number) => globalProperties.$dayjs(t).fromNow()"
+    :active-key="String(globalProperties.$route.query.conversationId ?? '')"
+    :active-message-id="Number(globalProperties.$route.query.messageId) || undefined"
+    @message="onImEvent"
+  >
+    <!--
+      头像 / "谁发的" —— 模块**不碰** `PlatformUser` ⇒ 由宿主给（判据见计划 §2.2）。
+      Step 5 正式接线就是这两段（逻辑照抄 `ChatBubbleList.vue:155-172` 的 #avatar / #header）。
+    -->
+    <template #avatar="{ item }">
+      <l-user-avatar size="large" :user="item?.data?.participant?.metadata?.details"/>
+    </template>
+    <template #senderName="{ item, conversation }">
+      <!--
+        **表头只有群聊才有**（2026-10-03 用户拍定）：AI ⇒ 参与者名字；我发的 ⇒ "我"。
+        单聊**整块不出**（对方是谁就在页面标题/会话列表里，气泡上不必重复）。
+      -->
+      <template v-if="isGroupChat(conversation)">
+        <a-typography-text v-if="item?.role === CHAT_BUBBLE_TYPE.AI">
+          {{ nameOfParticipant(item) }}
+        </a-typography-text>
+        <a-typography-text v-else type="secondary">
+          {{ globalProperties.$t('common.me') }}
+        </a-typography-text>
+      </template>
+    </template>
+  </ImChat>
+  <div v-else class="h-full min-h-0">
     <a-splitter class="h-full min-h-0">
       <a-splitter-panel class="h-full p-0 overflow-hiddenl" default-size="20%" min="15%" max="25%">
         <a-spin :spinning="options.loading" class="size-full-spin">
