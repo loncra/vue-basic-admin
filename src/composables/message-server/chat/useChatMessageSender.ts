@@ -32,9 +32,9 @@ import {
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
 import {
   createInstructionSlot as buildInstructionSlot,
-  isInstructionSlot,
   requireNonNullOrUndefined,
 } from '@/utils'
+import {isInstructionSlot} from '@loncra/chat-core'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import type {IdValueMetadata} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'

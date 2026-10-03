@@ -37,9 +37,9 @@ import {AGENT_CHAT_TYPE_STYLE, AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {
   createInstructionSlot as buildInstructionSlot,
-  isInstructionSlot,
   requireNonNullOrUndefined,
 } from "@/utils";
+import {isInstructionSlot} from '@loncra/chat-core'
 import {type MenuItemType, Space} from "antdv-next";
 import {getConversationRuns, useAgentChatContext} from "@/composables";
 import {usePrincipalStore} from "@/stores/principalStore.ts";

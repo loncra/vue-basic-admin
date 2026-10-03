@@ -13,7 +13,6 @@ import {Avatar, AvatarGroup, Tag} from "antdv-next";
 import {AuthServerService} from "@/apis";
 import type {
   InstructionBlock,
-  InstructionSlotProps,
 } from "@/types/composables";
 import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import i18n from '@/i18n'
@@ -233,19 +232,11 @@ export function getSendInstructionIcon(prefix:string, vnode?:boolean):string | u
   }
 }
 
-/**
- * 指令芯片判定。`@loncra/antdv` 不再提供：芯片长什么样、带什么 metadata 是宿主的事。
- * 提交组装（useChatMessageSender / useAgentSender）与草稿持久化共用这一份，别各写一遍。
+/*
+ * `isInstructionSlot` **已在规范包**（`@loncra/chat-core` 的 `slot.ts`，2026-10-01 S2a-1 落的）；
+ * 宿主这份是重复实现，2026-10-01 收尾时删除 ⇒ 消费方改从 `@loncra/chat-core` import。
+ * （core 的谓词多带一个 `key?: string`，正是为了消费方紧接着读 `slot.key`。）
  */
-export function isInstructionSlot(
-  slot: unknown,
-): slot is {type: 'custom'; props: InstructionSlotProps} {
-  if (!slot || typeof slot !== 'object') {
-    return false
-  }
-  const value = slot as {type?: string; props?: {slotKind?: unknown}}
-  return value.type === 'custom' && value.props?.slotKind === 'instruction'
-}
 
 export function createInstructionSlot(
   slot:InstructionBlock,

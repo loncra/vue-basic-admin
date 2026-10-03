@@ -18,8 +18,8 @@ import {
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
-import {isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
-import {addBubbleListMessage} from '@loncra/chat-core'
+import {requireNonNullOrUndefined} from "@/utils";
+import {addBubbleListMessage, isInstructionSlot} from '@loncra/chat-core'
 import {useChatContext, useImDraftPersist} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";

@@ -130,12 +130,14 @@ export const DEFAULT_OPERATE_CATEGORY = {
   CUSTOMIZE:20,
 } as const
 
-export const CHAT_BUBBLE_TYPE = {
-  AI:'ai',
-  SYSTEM:'system',
-  USER:'user',
-  DIVIDER:"divider"
-} as const
+/**
+ * 渲染态角色（`AI: 'ai'` / `SYSTEM: 'system'` / `USER: 'user'` / `DIVIDER: 'divider'`）。
+ *
+ * ✅ **与规范包同源**（P3，2026-10-01）：规范里叫 **`CHAT_ROLE`**（`@loncra/chat-core`），
+ * 宿主的历史名是 `CHAT_BUBBLE_TYPE` ⇒ 这里**只做再导出**（一个定义、一个来源），**值逐字相同**。
+ * 调用点（7 文件 / 34 处）零改动；宿主文件将来搬进包时顺手改用 `CHAT_ROLE` 这个名字即可。
+ */
+export {CHAT_ROLE as CHAT_BUBBLE_TYPE} from '@loncra/chat-core'
 
 export {
   AVATAR_SCHEMES,
