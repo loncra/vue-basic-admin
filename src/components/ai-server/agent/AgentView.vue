@@ -36,7 +36,7 @@ const {
   senderRef,
   getSenderSlotConfigValue,
   persistSenderDraft,
-  hydrateSenderDraft,
+  onAppliedSlots,
 } = useAgentView()
 
 function bubbleList(): BubbleListExpose | undefined {
@@ -67,7 +67,6 @@ defineExpose({
   }) => bubbleList()?.scrollTo(options),
   getSenderSlotConfigValue,
   persistSenderDraft,
-  hydrateSenderDraft,
 })
 </script>
 
@@ -268,11 +267,13 @@ defineExpose({
       </a-flex>
     </a-flex>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
-      <!-- :key 按会话重建 Sender。@change 只防抖写盘，不要把槽写回 :slot-config。 -->
+      <!-- :key 按会话重建。草稿由 DraftSender 自己防抖和还原，不要把输入写回 :slot-config。 -->
       <l-agent-sender
         ref="senderRef"
         :key="String(conversationActive?.id ?? '')"
+        :target-id="conversationActive?.id == null ? '' : String(conversationActive.id)"
         :slot-config="conversationActive?.draft"
+        @applied-slots="onAppliedSlots"
         @change="onSenderChange"
         @submit="onSenderSubmit"
         @cancel="onSenderCancel"

@@ -244,7 +244,8 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     if (!sender) {
       return
     }
-    sender.insert([slot], 'cursor')
+    // 和点名芯片一样，原子槽后垫一个空格，避免落在行尾时光标被浏览器换到下一行。
+    sender.insert([slot, {type: 'text', value: ' '}], 'cursor')
   }
 
   async function handleSubmit(

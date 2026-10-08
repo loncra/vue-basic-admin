@@ -19,7 +19,7 @@ import {
 } from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
 import {addBubbleListMessage, isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
-import {useChatContext, useImDraftPersist} from "@/composables/message-server/chat";
+import {useChatContext} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, CHAT_EVERYONE_ID, SOCKET_EVENT_TYPE} from '@/constants';
@@ -46,12 +46,21 @@ const {on} = useSocketSubscriptions()
 const chatBubbleList = ref<InstanceType<typeof LChatBubbleList>>()
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const refMessages = ref<UserChatMessageResponseBody[]>([])
-const {persistSenderDraft, hydrateSenderDraft, schedulePersist, clearPersistedDraft} =
-  useImDraftPersist({
-    senderRef,
-    conversation,
-    refMessages,
-  })
+
+function persistSenderDraft(): Promise<void> {
+  return senderRef.value?.flush() ?? Promise.resolve()
+}
+
+function clearPersistedDraft(): Promise<void> {
+  return senderRef.value?.clearStored() ?? Promise.resolve()
+}
+
+function onAppliedSlots(slots: SlotConfigType[]): void {
+  const data = conversation.value.item?.data
+  if (data) {
+    data.draft = slots
+  }
+}
 const instructionMap = computed(() => ({
   '@':[
     ...conversation.value
@@ -247,7 +256,6 @@ function onReedit(content:ChatContentBlock[]) {
     return
   }
   conversation.value.item.data.draft = senderRef.value.convertContentBlockToSlotConfig(content)
-  schedulePersist()
 }
 
 function onReferenceMessage(message:UserChatMessageResponseBody) {
@@ -288,7 +296,6 @@ defineExpose({
   }) => chatBubbleList.value?.scrollTo(options),
   getSenderSlotConfigValue:() => senderRef?.value?.getSlotConfigValue() || [],
   persistSenderDraft,
-  hydrateSenderDraft,
 })
 </script>
 
@@ -308,12 +315,13 @@ defineExpose({
       </template>
     </l-chat-bubble-list>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
-      <!-- :key 按房间重建，避免槽串房间。@change 只防抖写盘，不要把 getSlotConfigValue 写回 :slot-config（会整表重建编辑器）。 -->
+      <!-- :key 按房间重建。草稿由 DraftSender 自己防抖和还原，不要把输入写回 :slot-config。 -->
       <l-chat-message-sender
         ref="senderRef"
         v-if="conversation?.item?.data"
         :key="String(conversation.item.data.room?.id ?? conversation.item.key)"
-        :slot-config="conversation.item.data.draft ?? []"
+        :target-id="String(conversation.item.data.room?.id ?? '')"
+        :slot-config="conversation.item.data.draft"
         v-model:ref-messages="refMessages"
         :instruction-map="getEnumValue(conversation?.item?.data?.room.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.PRIVATE_CHAT ? undefined :  instructionMap "
         :sending="conversation.sending"
@@ -322,7 +330,7 @@ defineExpose({
         :disabled="getEnumValue(conversation.item.data.status) !== MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED"
         @jump-to-reference="(body) => chatBubbleList?.jumpToMessage(String(body.id))"
         @submit="onSendMessage"
-        @change="schedulePersist"
+        @applied-slots="onAppliedSlots"
         :sender-insert-instruction="onSenderInsertInstruction"
         :filter-instruction="onInstructionFilter"
       >

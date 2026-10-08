@@ -18,9 +18,9 @@ import {
   ModelSettingService
 } from "@loncra/client/ai";
 import {
+  type DraftSenderExpose,
   type InstructionItem,
   type InstructionMeasure,
-  type InstructionSenderExpose,
   type InstructionSenderHandle,
 } from '@loncra/antdv-chat'
 import {renderIconFont} from '@/utils/commonUtils'
@@ -127,7 +127,7 @@ export function useAgentSender(
   // 实例化必须在 setup 内：模块顶层 new Service() 会早于 LClientProvider 完成配置
   const modelSettingService = new ModelSettingService()
 
-  const senderRef = ref<InstructionSenderExpose>()
+  const senderRef = ref<DraftSenderExpose>()
 
   const state = ref<{
     typeOptions:MenuItemType[],

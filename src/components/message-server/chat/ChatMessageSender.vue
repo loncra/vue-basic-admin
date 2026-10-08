@@ -3,22 +3,31 @@ import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interfac
 import type {ChatContentBlock} from "@/types/composables";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import type {IdValueMetadata} from "@loncra/client/commons";
+import type {DraftRestoreResult} from '@loncra/chat-core'
+import type {ImDraftLive} from '@/composables/chat/draft'
+import {createImDraftCodec, getDraft, putDraft, clearDraft} from '@/composables/chat/draft'
 import {useChatMessageSender} from "@/composables/message-server/chat";
-import {ref, toRef} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, ref, toRef} from "vue";
 import {
+  DraftSender as LDraftSender,
+  type DraftBinding,
+  type DraftSenderExpose,
   EmojiButton as LEmojiButton,
   type InstructionMeasure,
-  InstructionSender as LInstructionSender,
-  type InstructionSenderExpose,
   type InstructionSenderHandle,
 } from '@loncra/antdv-chat'
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
+import {createInstructionSlot as buildInstructionSlot, requireNonNullOrUndefined} from '@/utils'
+import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
+import {usePrincipalStore} from '@/stores/principalStore.ts'
 
 defineOptions({
   name: 'LChatMessageSender',
 })
 
 const props = withDefaults(defineProps<{
+  /** 本实例对应的房间。key 重建后旧实例仍读自己的 id，卸载刷盘不会写到下一间。 */
+  targetId: string
   slotConfig?: SlotConfigType[]
   placeholder: string
   sending?: boolean
@@ -55,9 +64,82 @@ const emit = defineEmits<{
   submit: [content: ChatContentBlock[]]
   jumpToReference: [body: UserChatMessageResponseBody]
   change: [value: string, event?: Event, slotConfigType?: SlotConfigType[]]
+  appliedSlots: [slots: SlotConfigType[]]
 }>()
 
-const instructionSenderRef = ref<InstructionSenderExpose>()
+const draftSenderRef = ref<DraftSenderExpose>()
+const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
+const configProviderStore = useConfigProviderStore()
+const principalStore = usePrincipalStore()
+
+function principalName(): string | undefined {
+  const name = principalStore.state.name
+  return name ? name : undefined
+}
+
+function draftCodec() {
+  return createImDraftCodec({
+    restoreFilesSlot: (files, key) => createFilesSlot(files, key),
+    restoreInstructionSlot: (block) =>
+      buildInstructionSlot(block, configProviderStore, currentInstance),
+  })
+}
+
+const binding: DraftBinding<ImDraftLive> = {
+  key: () => {
+    const principal = principalName()
+    return principal && props.targetId ? `${principal}:im:${props.targetId}` : undefined
+  },
+  async save(live) {
+    const principal = principalName()
+    if (!principal || !props.targetId) {
+      return
+    }
+    const codec = draftCodec()
+    await putDraft(codec.toRecord(live, {principal, targetId: props.targetId}), codec.collectBlobs(live))
+  },
+  async load() {
+    const principal = principalName()
+    if (!principal || !props.targetId) {
+      return null
+    }
+    const stored = await getDraft('im', principal, props.targetId)
+    if (!stored || stored.record.scope !== 'im') {
+      return null
+    }
+    return draftCodec().fromRecord(stored.record, stored.blobs)
+  },
+  async clear() {
+    const principal = principalName()
+    if (!principal || !props.targetId) {
+      return
+    }
+    await clearDraft('im', principal, props.targetId)
+  },
+}
+
+function readLive(): ImDraftLive {
+  return {
+    slots: draftSenderRef.value?.getSlotConfigValue() ?? props.slotConfig ?? [],
+    refMessages: [...refMessages.value],
+  }
+}
+
+function slotsOf(live: unknown): SlotConfigType[] {
+  return (live as ImDraftLive).slots
+}
+
+function onRestore(result: DraftRestoreResult<unknown, SlotConfigType[]>): void {
+  const live = result.live as ImDraftLive | null
+  if (!result.found || !live) {
+    refMessages.value = []
+    return
+  }
+  refMessages.value = [...live.refMessages]
+  if (result.applySlots && result.slots) {
+    emit('appliedSlots', result.slots)
+  }
+}
 
 function onInsertInstruction(
   sender: InstructionSenderHandle,
@@ -82,7 +164,7 @@ const {
   sending: toRef(props, 'sending'),
   getUploadOptions: () => props.uploadOptions,
   onSubmit: (content) => emit('submit', content),
-  getSender: () => instructionSenderRef.value?.getSender() as SenderRef | undefined,
+  getSender: () => draftSenderRef.value?.getSender() as SenderRef | undefined,
 })
 
 defineExpose({
@@ -90,13 +172,20 @@ defineExpose({
   convertContentBlockToSlotConfig,
   getSlotConfigValue,
   createFilesSlot,
+  flush: () => draftSenderRef.value?.flush() ?? Promise.resolve(),
+  clearStored: () => draftSenderRef.value?.clearStored() ?? Promise.resolve(),
 })
 </script>
 
 <template>
   <!-- 输入区样式钩子：宿主的 .chat-sender-input（assets/style.css 那两条规则）靠官方 classes.input 注入；包内不再兜这个类名 -->
-  <l-instruction-sender
-    ref="instructionSenderRef"
+  <l-draft-sender
+    ref="draftSenderRef"
+    :binding="binding"
+    :read-live="readLive"
+    :slots-of="slotsOf"
+    :on-restore="onRestore"
+    :save-source="refMessages"
     :slot-config="props.slotConfig"
     :placeholder="placeholder"
     :sending="isSending"
@@ -141,5 +230,5 @@ defineExpose({
     <template v-if="slots.instructionItemRender" #instructionItemRender="slotProps">
       <slot name="instructionItemRender" v-bind="slotProps" />
     </template>
-  </l-instruction-sender>
+  </l-draft-sender>
 </template>

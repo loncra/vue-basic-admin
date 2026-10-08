@@ -93,7 +93,6 @@ export interface ChatViewController {
   }): void
   getSenderSlotConfigValue(): SlotConfigType[]
   persistSenderDraft(): Promise<void>
-  hydrateSenderDraft(): Promise<void>
 }
 
 export interface ProvideUserChatContextOptions {

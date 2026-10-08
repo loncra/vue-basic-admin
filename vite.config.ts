@@ -76,6 +76,7 @@ export default defineConfig(({ mode }) => {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         // 源码别名后 peer 不再沿管理端 node_modules 往上找，显式指回本应用。
         'p-limit': fileURLToPath(new URL('./node_modules/p-limit', import.meta.url)),
+        'dexie': fileURLToPath(new URL('./node_modules/dexie', import.meta.url)),
       },
       /**
        * `antdv-next-tiptap` 住在 packages/node_modules，它把整个 tiptap 家族声明成 **peer**
