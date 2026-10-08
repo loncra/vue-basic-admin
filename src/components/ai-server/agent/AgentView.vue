@@ -7,8 +7,8 @@ import LAgentUserMessageBubbleContent
   from '@/components/ai-server/agent/AgentUserMessageBubbleContent.vue'
 import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
-import LBubbleList from '@/components/basic/chat/BubbleList.vue'
-import {createAgentBubbleListRole, useAgentView} from '@/composables'
+import {BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat'
+import {createAgentBubbleListRole, isAgentBubbleLoading, useAgentView} from '@/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
 import type {AgentSseMessageContent} from "@/types/composables";
 import {AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
@@ -39,6 +39,10 @@ const {
   hydrateSenderDraft,
 } = useAgentView()
 
+function bubbleList(): BubbleListExpose | undefined {
+  return bubbleListRef.value as BubbleListExpose | undefined
+}
+
 const hasMessages = computed(
   () => (conversationActive.value?.dataSource.elements.length ?? 0) > 0,
 )
@@ -48,19 +52,19 @@ function onLoadPage(tag: 'next' | 'previous') {
 }
 
 defineExpose({
-  getScrollBox: () => bubbleListRef.value?.getScrollBox(),
+  getScrollBox: () => bubbleList()?.getScrollBox(),
   jumpToMessage: (
     key: string,
     flashPending?: boolean,
     block?: ScrollLogicalPosition,
     behavior?: ScrollBehavior,
-  ) => bubbleListRef.value?.jumpToMessage(key, flashPending, block, behavior),
+  ) => bubbleList()?.jumpToMessage(key, flashPending, block, behavior),
   scrollTo: (options: {
     key?: string | number
     top?: number | 'bottom' | 'top'
     behavior?: ScrollBehavior
     block?: ScrollLogicalPosition
-  }) => bubbleListRef.value?.scrollTo(options),
+  }) => bubbleList()?.scrollTo(options),
   getSenderSlotConfigValue,
   persistSenderDraft,
   hydrateSenderDraft,
@@ -75,6 +79,7 @@ defineExpose({
         ref="bubbleListRef"
         :session="conversationActive"
         :role="createAgentBubbleListRole()"
+        :is-loading="isAgentBubbleLoading"
         @load-page="onLoadPage"
       >
         <template #avatar="{ item }">

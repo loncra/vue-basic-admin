@@ -1,6 +1,7 @@
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
 import type {IdValueMetadata} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
+import type {BubbleListProps} from '@loncra/antdv-chat'
 import type {
   ActiveChatSession as CoreActiveChatSession,
   AgentChatBubble,
@@ -48,30 +49,11 @@ export type CursorContext = {
   isAtLineStart: boolean
 }
 
-export interface BubbleListProps {
-  scrollToBottomThreshold: number
-  throttleOnScrollWait: number
-  /** 可见区回调节流；仅当提供 onVisibleItems 时生效 */
-  throttleCollectVisibleWait: number
-  topThreshold: number
-}
-
-/** 渲染行。bubble 是列表里的那条；rootClass 只给 ax-bubble 的外层。 */
-export interface BubbleRenderRow {
-  bubble: ChatBubbleItem
-  rootClass?: string
-}
-
-export interface BubbleListCallbacks {
-  onLoadPage: (tag: 'next' | 'previous', scrollBox: HTMLElement) => void
-  onReloadLastPage?: () => void
-  /**
-   * 可选。传入时注册：滚动节流 / items watch / focus / visibilitychange。
-   * 参数为当前视口内全部非 divider 气泡，业务方自行过滤。
-   */
-  onVisibleItems?: (items: ChatBubbleItem[], scrollBox: HTMLElement) => void
-  renderItem: (items: ChatBubbleItem[]) => BubbleRenderRow[]
-}
+export type {
+  BubbleListCallbacks,
+  BubbleListProps,
+  BubbleRenderRow,
+} from '@loncra/antdv-chat'
 
 /** IM 气泡列表配置（含时间分隔间隔） */
 export type ChatBubbleListProps = BubbleListProps & {

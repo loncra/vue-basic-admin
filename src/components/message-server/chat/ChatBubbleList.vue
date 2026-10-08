@@ -13,7 +13,7 @@ import LChatMessageBubbleContent
   from '@/components/message-server/chat/ChatMessageBubbleContent.vue'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {getEnumValue} from '@loncra/client/commons'
-import LBubbleList from '@/components/basic/chat/BubbleList.vue'
+import {BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat'
 
 defineOptions({
   name: 'LChatBubbleList',
@@ -31,6 +31,10 @@ const emit = defineEmits<{
 const {conversationActive: conversation, loader} = useChatContext()
 const principalStore = usePrincipalStore()
 const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
+
+function bubbleList(): BubbleListExpose | undefined {
+  return bubbleListRef.value as BubbleListExpose | undefined
+}
 
 const {
   session,
@@ -58,19 +62,19 @@ const {
 )
 
 defineExpose({
-  getScrollBox: () => bubbleListRef.value?.getScrollBox(),
+  getScrollBox: () => bubbleList()?.getScrollBox(),
   jumpToMessage: (
     key: string,
     flashPending?: boolean,
     block?: ScrollLogicalPosition,
     behavior?: ScrollBehavior,
-  ) => bubbleListRef.value?.jumpToMessage(key, flashPending, block, behavior),
+  ) => bubbleList()?.jumpToMessage(key, flashPending, block, behavior),
   scrollTo: (options: {
     key?: string | number
     top?: number | 'bottom' | 'top'
     behavior?: ScrollBehavior
     block?: ScrollLogicalPosition
-  }) => bubbleListRef.value?.scrollTo(options),
+  }) => bubbleList()?.scrollTo(options),
 })
 </script>
 
@@ -179,7 +183,7 @@ defineExpose({
         <div class="cursor-default">
           <l-chat-message-bubble-content
             :content="content"
-            @jump-to-reference="(body) => bubbleListRef?.jumpToMessage(String(body.id))"
+            @jump-to-reference="(body) => bubbleList()?.jumpToMessage(String(body.id))"
           >
             <template #undo="{ text }">
               <a-space>

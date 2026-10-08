@@ -14,7 +14,8 @@ import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {nextTick, ref, watch} from 'vue'
 import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
-import type LBubbleList from '@/components/basic/chat/BubbleList.vue'
+import type {AgentChatBubble} from '@loncra/chat-core'
+import type {BubbleList as LBubbleList, BubbleListExpose} from '@loncra/antdv-chat'
 import useApp from 'antdv-next/dist/app/useApp'
 import {
   DEFAULT_BUBBLE_LIST_ROLE,
@@ -31,6 +32,13 @@ import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra
 import {renderIconFont} from '@/utils/commonUtils'
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
 
+
+export function isAgentBubbleLoading(item: object): boolean {
+  if (!('status' in item)) {
+    return false
+  }
+  return STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((item as AgentChatBubble).status))
+}
 
 /** Agent 气泡 role：ai 项按状态动态挂 loading */
 export function createAgentBubbleListRole() {
@@ -55,6 +63,10 @@ export function useAgentView() {
   const {conversationActive, conversations, activateConversation, loader, stream} = useAgentChatContext()
   const principalStore = usePrincipalStore()
   const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
+
+  function bubbleList(): BubbleListExpose | undefined {
+    return bubbleListRef.value as BubbleListExpose | undefined
+  }
   const senderRef = ref<InstanceType<typeof LAgentSender>>()
 
   const currentReedit = ref<StreamAgentMessageEntity>()
@@ -135,7 +147,7 @@ export function useAgentView() {
         await nextTick()
       }
 
-      bubbleListRef.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
+      bubbleList()?.scrollTo({top: 'bottom', behavior: 'smooth'})
     } catch (error) {
       message.error(error instanceof Error ? error.message : String(error))
     } finally {

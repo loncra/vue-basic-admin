@@ -25,6 +25,7 @@ export {
 
 export {
   createAgentBubbleListRole,
+  isAgentBubbleLoading,
   useAgentView,
 } from './userAgentView.ts'
 

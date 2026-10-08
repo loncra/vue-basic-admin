@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import LSenderSoldBubbleContent from "@/components/basic/chat/SenderSlotBubbleContent.vue";
+import {SenderSlotBubbleContent as LSenderSoldBubbleContent} from '@loncra/antdv-chat'
 import type {ChatContentBlock} from "@/types/composables";
 import type {AgentChatBubble} from '@loncra/chat-core'
 

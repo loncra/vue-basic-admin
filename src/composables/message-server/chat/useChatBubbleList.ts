@@ -1,6 +1,6 @@
 import {type ComponentInternalInstance, getCurrentInstance, h, type Ref, ref, watch,} from 'vue'
+import type {BubbleListItem, BubbleRenderRow} from '@loncra/antdv-chat'
 import type {
-  BubbleRenderRow,
   ChatBubbleItem,
   ChatBubbleListCallbacks,
   ChatContentBlock,
@@ -21,7 +21,7 @@ import {renderIconFont} from '@/utils/commonUtils'
 import {getEnumValue} from '@loncra/client/commons'
 
 
-function getBubbleMessageTime(item: ChatBubbleItem): number {
+function getBubbleMessageTime(item: {creationTime?: number}): number {
   return item.creationTime ?? 0
 }
 
@@ -43,7 +43,7 @@ export function useChatBubbleList(
   const readMarker = useChatReadMarker(conversation)
 
   function buildBubbleListWithDividers(
-    messages: ChatBubbleItem[]
+    messages: BubbleListItem[]
   ): BubbleRenderRow[] {
     const sorted = [...messages.filter((s) => !s.hide)].sort(
       (a, b) => getBubbleMessageTime(a) - getBubbleMessageTime(b),

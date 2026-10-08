@@ -83,7 +83,7 @@ export function useAgentMessageLoader(
     // 锚点滚动恢复保持关闭，不调用 pageEdgeBubble。
 
     active.dataSource.number = stepPageNumber(active.dataSource.number, tag)
-    await loadPage(active.dataSource.number, tag === 'previous')
+    await loadPage(active.dataSource.number)
     await nextTick()
     prependNoMoreIfLast(
       active,
