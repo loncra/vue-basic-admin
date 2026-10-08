@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, toRef} from 'vue'
-import type {ActiveChatSession, BubbleListCallbacks, ChatBubbleItem} from '@/types/composables'
-import type {BubbleItemType, RoleType} from '@antdv-next/x/dist/bubble/interface'
+import type {ActiveChatSession, BubbleListCallbacks, BubbleRenderRow, ChatBubbleItem} from '@/types/composables'
+import type {RoleType} from '@antdv-next/x/dist/bubble/interface'
 import {DEFAULT_BUBBLE_LIST_ROLE, useBubbleList} from '@/composables/chat/useBubbleList.ts'
 
 defineOptions({
@@ -18,7 +18,7 @@ const props = withDefaults(
     throttleCollectVisibleWait?: number
     topThreshold?: number
     role?: RoleType,
-    renderItem?:(items:ChatBubbleItem[]) => BubbleItemType[]
+    renderItem?: (items: ChatBubbleItem[]) => BubbleRenderRow[]
   }>(),
   {
     collectVisible: false,
@@ -26,7 +26,9 @@ const props = withDefaults(
     throttleOnScrollWait: 300,
     topThreshold: 250,
     scrollToBottomThreshold: 100,
-    renderItem:(items:ChatBubbleItem[]) => [...items.filter((s) => !s.hide)]
+    renderItem: (items: ChatBubbleItem[]) => items
+      .filter((item) => !item.hide)
+      .map((bubble) => ({bubble})),
   },
 )
 
@@ -57,6 +59,7 @@ const callbacks: BubbleListCallbacks = {
 const {
   bubbleListRef,
   bubbleListItems,
+  domainItems,
   bubbleListRole,
   showScrollToBottom,
   onBubbleScroll,
@@ -89,19 +92,19 @@ defineExpose({
       @scroll="onBubbleScroll"
     >
       <template v-if="$slots.extra" #extra="slotProps">
-        <slot name="extra" v-bind="slotProps" />
+        <slot name="extra" v-bind="slotProps" :item="domainItems[slotProps.index]" />
       </template>
       <template v-if="$slots.avatar" #avatar="slotProps">
-        <slot name="avatar" v-bind="slotProps" />
+        <slot name="avatar" v-bind="slotProps" :item="domainItems[slotProps.index]" />
       </template>
       <template v-if="$slots.header" #header="slotProps">
-        <slot name="header" v-bind="slotProps" />
+        <slot name="header" v-bind="slotProps" :item="domainItems[slotProps.index]" />
       </template>
       <template v-if="$slots.contentRender" #contentRender="slotProps">
-        <slot name="contentRender" v-bind="slotProps" />
+        <slot name="contentRender" v-bind="slotProps" :item="domainItems[slotProps.index]" />
       </template>
       <template v-if="$slots.footer" #footer="slotProps">
-        <slot name="footer" v-bind="slotProps" />
+        <slot name="footer" v-bind="slotProps" :item="domainItems[slotProps.index]" />
       </template>
     </ax-bubble-list>
     <slot name="bubbleListAfter" />

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import LChatMessageSender from "@/components/message-server/chat/ChatMessageSender.vue";
-import type {ChatContentBlock} from "@/types/composables";
+import type {ChatContentBlock, UndoBlock} from "@/types/composables";
 import type {InstructionMeasure} from '@loncra/antdv-chat'
 import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
@@ -204,16 +204,16 @@ function onChatMessageUpdate(result: RestResult<UserChatMessageResponseBody | Us
   if (!result.data) {
     return
   }
-  const index = conversation.value.dataSource.elements.findIndex(b => b?.data?.id === result?.data?.id)
+  const index = conversation.value.dataSource.elements.findIndex(b => b?.id === result?.data?.id)
   if (index < 0) {
     return
   }
   const bubble = conversation.value.dataSource.elements[index]
-  if (!bubble || !bubble.data) {
+  if (!bubble) {
     return
   }
-  bubble.data = {...bubble.data, ...result.data}
-  bubble.content = bubble.data.content
+  Object.assign(bubble, result.data)
+  bubble.key = String(result.data.id)
 }
 
 async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
@@ -221,26 +221,24 @@ async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
     return
   }
 
-  const index = conversation.value.dataSource.elements.findIndex(b => b?.data?.id === result?.data?.id)
+  const index = conversation.value.dataSource.elements.findIndex(b => b?.id === result?.data?.id)
   if (index < 0) {
     return
   }
   const bubble = conversation.value.dataSource.elements[index]
-  if (!bubble || !bubble.data) {
+  if (!bubble || !('undo' in bubble)) {
     return
   }
-  const data = bubble.data as UserChatMessageResponseBody
 
-  data.undo = result.data.undo
-  data.undoTime = result.data.undoTime
-  const undoContent: ChatContentBlock[] = [{
+  bubble.undo = result.data.undo
+  bubble.undoTime = result.data.undoTime
+  const undoContent: UndoBlock[] = [{
     type: 'custom',
     slotKind: 'undo',
     value: globalProperties.$t('chat.view.undo.messageValue'),
-    tooltip:globalProperties.$t('chat.view.undo.time', {time:':' + globalProperties.$dayjs(data.undoTime).fromNow()})
+    tooltip:globalProperties.$t('chat.view.undo.time', {time:':' + globalProperties.$dayjs(bubble.undoTime).fromNow()})
   }]
-  data.metadata = {oldContent:bubble.data.content}
-  bubble.data.content = undoContent
+  bubble.metadata = {oldContent: bubble.content}
   bubble.content = undoContent
 }
 

@@ -19,7 +19,7 @@ import type {
   BlockDeltaContentMetadata,
   GenerateConversationName,
 } from '@/types/composables'
-import type {AgentMessageEntity, StreamAgentMessageEntity} from '@/types/apis'
+import type {StreamAgentMessageEntity} from '@/types/apis'
 import {findFirstTreeNode, getEnumValue} from '@loncra/client/commons'
 import {getConversationRuns} from "@/composables";
 import {AI_SERVER_AGENT_BLOCK_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
@@ -41,9 +41,9 @@ export function useAgentStream(
     const find = active.dataSource
       .elements
       .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
-      .find(s => Number(s?.data?.id) === assistantId)
-    if (find) {
-      return find.data as StreamAgentMessageEntity
+      .find(s => Number(s.id) === assistantId)
+    if (find && 'model' in find) {
+      return find as StreamAgentMessageEntity
     }
   }
 
@@ -103,17 +103,16 @@ export function useAgentStream(
       ?.dataSource
       .elements
       .find(s => s.key === String(sse.assistantMessageId))
-    if (!item || !item.data) {
+    if (!item || !('metadata' in item)) {
       return
     }
-    const message = item.data as AgentMessageEntity
-    if (!message.metadata) {
-      message.metadata = {}
+    if (!item.metadata) {
+      item.metadata = {}
     }
-    if (!message.metadata.tokenUsage) {
-      message.metadata.tokenUsage = []
+    if (!item.metadata.tokenUsage) {
+      item.metadata.tokenUsage = []
     }
-    const tokenUsage = message.metadata.tokenUsage as AgentTokenUsageContent[]
+    const tokenUsage = item.metadata.tokenUsage as AgentTokenUsageContent[]
     const find = tokenUsage.find(s => getEnumValue(s.usageType) === getEnumValue(sse.usageType))
     if (find) {
       find.inputTokens += sse.inputTokens
@@ -139,11 +138,10 @@ export function useAgentStream(
       const element = active.dataSource
         .elements
         .find(s => s.key === String(sse.assistantMessageId))
-      if (!element || !element.data) {
+      if (!element || !('status' in element)) {
         return
       }
-      const message = element.data as AgentMessageEntity
-      message.status = active.status
+      element.status = active.status
     } else if (sse.type === AI_SERVER_AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME) {
       const name = getEnumValue((sse as GenerateConversationName).metadata.name)
       active.name = name
@@ -213,7 +211,7 @@ export function useAgentStream(
       return
     }
 
-    runs.forEach(s => connect(Number(s?.data?.id)))
+    runs.forEach(s => connect(Number(s.id)))
 
   }
 
@@ -223,7 +221,7 @@ export function useAgentStream(
       return
     }
     const runs = getConversationRuns(active)
-    runs.forEach(s => disconnect(Number(s?.data?.id)))
+    runs.forEach(s => disconnect(Number(s.id)))
   }
 
   onUnmounted(disconnectIfRunning)

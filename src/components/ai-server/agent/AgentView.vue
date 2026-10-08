@@ -99,20 +99,20 @@ defineExpose({
         </template>
         <template #footer="{item}">
           <template v-if="item.role === CHAT_BUBBLE_TYPE.AI">
-            <a-space v-if="!STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((item.data as AgentMessageEntity).status))">
+            <a-space v-if="!STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue(item.status))">
               <a-button
                 variant="outlined"
                 v-if="item.content.some((c:AgentSseMessageContent) => c.type === AI_SERVER_AGENT_CONTENT_TYPE.ANSWER)"
                 size="small"
-                :color="(item.data as StreamAgentMessageEntity).copy ? 'cyan' : 'default'"
-                @click="copyText(item.data as StreamAgentMessageEntity)"
+                :color="item.copy ? 'cyan' : 'default'"
+                @click="copyText(item)"
               >
                 <template #icon>
-                  <icon-font :type="(item.data as StreamAgentMessageEntity).copy ? 'loncra-copy-check' : 'loncra-copy'" />
+                  <icon-font :type="item.copy ? 'loncra-copy-check' : 'loncra-copy'" />
                 </template>
               </a-button>
               <a-popover
-                v-if="(item?.data as AgentMessageEntity)?.metadata?.tokenUsage"
+                v-if="item.metadata?.tokenUsage"
                 :classes="{root:'w-60 max-w-[40vw]', content: 'max-h-[30vh] overflow-auto p-sm', title:'p-sm mb-0 border-b border-border-secondary border-solid', container: 'p-0'}"
               >
                 <template #title>
@@ -234,14 +234,14 @@ defineExpose({
                   <icon-font type="loncra-undo" />
                 </template>
               </a-button>-->
-              <a-tag variant="outlined" class="border-dashed" v-bind="getChatType(getEnumValue((item.data as AgentMessageEntity).type))">
-                {{getEnumName((item.data as AgentMessageEntity).type)}}
+              <a-tag variant="outlined" class="border-dashed" v-bind="getChatType(getEnumValue(item.type))">
+                {{getEnumName(item.type)}}
               </a-tag>
               <a-tag variant="outlined" color="blue">
                 <template #icon>
-                  <icon-font :type="(item.data as AgentMessageEntity).model.manufacturer?.metadata?.icon || 'loncra-file-exclamation-point'" />
+                  <icon-font :type="item.model?.manufacturer?.metadata?.icon || 'loncra-file-exclamation-point'" />
                 </template>
-                {{(item.data as AgentMessageEntity).model.manufacturer.name}}:{{(item.data as AgentMessageEntity).model.name}}
+                {{item.model?.manufacturer?.name}}:{{item.model?.name}}
               </a-tag>
             </a-space>
           </template>

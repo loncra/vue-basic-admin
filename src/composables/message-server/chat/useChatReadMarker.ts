@@ -38,11 +38,11 @@ export function useChatReadMarker(conversation: Ref<UserChatConversationActivePr
     if (items.length <= 0) {
       return
     }
-    for (const data of items.map((i) => i.data)) {
-      if (!data) {
+    for (const item of items) {
+      if (!('readable' in item) || item.id === undefined) {
         continue
       }
-      const id = Number(data.id)
+      const id = Number(item.id)
       // sentIds 拦截已提交但本地 readable 尚未被 socket 回包更新的消息，避免重复提交
       if (!sentIds.has(id)) {
         readingSet.add(id)

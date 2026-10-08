@@ -111,7 +111,11 @@ export function useAgentAssistantBubble(
         const toolBlock = block as AgentToolCallBlock
         ensureGroup(toolBlock.groupId || toolBlock.id).toolBlocks.push(toolBlock)
       } else if (type === AI_SERVER_AGENT_CONTENT_TYPE.ERROR) {
-        ensureGroup(block.id).errorBlock = block as AgentErrorBlock
+        const error = block as AgentErrorBlock & {metadata?: {message?: string}}
+        if (!error.value) {
+          error.value = error.metadata?.message ?? ''
+        }
+        ensureGroup(block.id).errorBlock = error
       }
     }
 

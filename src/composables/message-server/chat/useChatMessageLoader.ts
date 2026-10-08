@@ -9,10 +9,11 @@ import type {
   ServerConversationItem,
   UserChatConversationActiveProps,
 } from '@/types/composables'
-import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import {addBubbleListMessage, requireNonNullOrUndefined} from '@/utils'
+import type {ChatRole} from '@loncra/chat-core'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {textBubble} from '@loncra/chat-core'
 import {getEnumValue} from '@loncra/client/commons'
 
 /**
@@ -30,8 +31,8 @@ export function useChatMessageLoader(
 
   let pageLock = false
 
-  function resolveRole(d: UserChatMessageResponseBody): BubbleItemType['role'] {
-    let role: BubbleItemType['role'] =
+  function resolveRole(d: UserChatMessageResponseBody): ChatRole {
+    let role: ChatRole =
       principalStore.state.name ===
       (d.participant?.metadata?.details as {systemName: string})?.systemName
         ? CHAT_BUBBLE_TYPE.USER
@@ -162,8 +163,8 @@ export function useChatMessageLoader(
     const reduceSort = (a: ChatBubbleItem, b: ChatBubbleItem) => {
       const flag =
         tag === 'previous'
-          ? (a.data?.creationTime ?? 0) >= (b.data?.creationTime ?? 0)
-          : (a.data?.creationTime ?? 0) <= (b.data?.creationTime ?? 0)
+          ? (a.creationTime ?? 0) >= (b.creationTime ?? 0)
+          : (a.creationTime ?? 0) <= (b.creationTime ?? 0)
       return flag ? a : b
     }
     const bubbles = active.dataSource.elements
@@ -179,11 +180,9 @@ export function useChatMessageLoader(
       view.value?.jumpToMessage(String(anchor.key), false, tag === 'next' ? 'nearest' : 'end')
     }
     if (active.dataSource.last && tag === 'next') {
-      active.dataSource.elements.unshift({
-        key: globalProperties.$dayjs().unix(),
-        role: CHAT_BUBBLE_TYPE.SYSTEM,
-        content: globalProperties.$t('common.noMore'),
-      })
+      active.dataSource.elements.unshift(
+        textBubble(globalProperties.$dayjs().unix(), globalProperties.$t('common.noMore')),
+      )
       active.isOnLastPage = true
     }
   }
@@ -215,14 +214,17 @@ export function useChatMessageLoader(
           key = anchorBubble.key
         }
         if (systemMessage && anchorBubble) {
-          const anchorTime = anchorBubble.data?.creationTime ?? 0
-          const newBubble: ChatBubbleItem = {
-            key: 'system-anchor-message-' + globalProperties.$dayjs().unix(),
-            role: CHAT_BUBBLE_TYPE.SYSTEM,
-            content: systemMessage,
-            data: {creationTime: anchorTime - 1} as UserChatMessageResponseBody,
-          }
-          active.dataSource.elements.splice(anchorIndex, 0, newBubble)
+          const anchorTime = anchorBubble.creationTime ?? 0
+          active.dataSource.elements.splice(
+            anchorIndex,
+            0,
+            textBubble(
+              'system-anchor-message-' + globalProperties.$dayjs().unix(),
+              systemMessage,
+              'system',
+              anchorTime - 1,
+            ),
+          )
         }
       }
 

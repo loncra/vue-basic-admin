@@ -11,16 +11,14 @@ import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 import {type ComponentInternalInstance, h, type VNode} from "vue";
 import {Avatar, AvatarGroup, Tag} from "antdv-next";
 import {AuthServerService} from "@/apis";
-import type {BubbleItemType} from "@antdv-next/x/dist/bubble/interface";
 import type {
   BaseChatBubble,
   ChatBubbleItem,
-  ChatContentBlock,
   InstructionBlock,
   InstructionSlotProps,
-  TextBlock
 } from "@/types/composables";
-import {AGENT_INSTRUCTION_PREFIX, CHAT_BUBBLE_TYPE} from '@/constants';
+import {appendMessages, type ChatRole} from '@loncra/chat-core'
+import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
@@ -88,48 +86,12 @@ export function createAvatarNode(
  */
 export function addBubbleListMessage(
   body: BaseChatBubble,
-  role: BubbleItemType['role'],
+  role: ChatRole,
   bubbleList: ChatBubbleItem[],
   append: boolean = false,
   hide: boolean = false,
 ): void {
-  const content = body.content ?? []
-  const index = bubbleList.findIndex((b) => b.key === String(body.id))
-  if (index >= 0) {
-    bubbleList[index] = {
-      key: String(body.id),
-      role,
-      content,
-      data: body,
-      hide,
-    }
-    return
-  }
-
-  const items =
-    role === CHAT_BUBBLE_TYPE.SYSTEM
-      ? body.content.map((c) => ({
-        key: String(body.id),
-        role,
-        content: (c as TextBlock).value as unknown as ChatContentBlock,
-        data: body,
-        hide,
-      }))
-      : [
-        {
-          key: String(body.id),
-          role,
-          content,
-          data: body,
-          hide,
-        },
-      ]
-
-  if (!append) {
-    bubbleList.splice(0, 0, ...items)
-  } else {
-    bubbleList.push(...items)
-  }
+  appendMessages(body, role, bubbleList, append, hide)
 }
 
 /** 会话列表最后一条消息预览 */
@@ -156,7 +118,7 @@ export function getMessageContent(lastUserMessage: UserChatMessageEntity | undef
     if (block.type === 'text') {
       content += block.value || ''
     } else if (block.type === 'custom' && block.slotKind === 'files') {
-      for (const file of block.files || []) {
+      for (const file of block.value || []) {
         const contentType = file?.extraHeaders?.['Content-Type'] || ''
         if (contentType.startsWith('image/')) {
           content += '[' + i18n.global.t('attachment.type.image') + ']'

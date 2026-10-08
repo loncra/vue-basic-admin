@@ -12,6 +12,22 @@ import type {Ref} from 'vue'
 import type {AgentMessageLoaderApi} from '@/composables/ai-server/agent/useAgentMessageLoader.ts'
 import type {ThoughtChainItemType} from "@antdv-next/x";
 
+import type {
+  AgentAnswerBlock,
+  AgentDeltaBlock,
+  AgentErrorBlock,
+  AgentThinkBlock,
+  AgentToolCallBlock,
+} from '@loncra/chat-core'
+
+export type {
+  AgentAnswerBlock,
+  AgentDeltaBlock,
+  AgentErrorBlock,
+  AgentThinkBlock,
+  AgentToolCallBlock,
+}
+
 export interface AgentConversationItem extends AgentConversationEntity {
   editing: boolean,
   original?: string
@@ -141,33 +157,6 @@ export interface CustomizeContentMetadata extends AgentSseMessageContent {
 
 export interface BlockDeltaContentMetadata extends BlockRunningContentMetadata {
   value?: string
-}
-
-export interface AgentToolCallBlock extends BlockDeltaContentMetadata {
-  name:string
-  outputText?:string,
-  outputParts?:unknown[]
-  resultState?:string
-  hitlStatus:string,
-  userConfirmed?:boolean,
-  groupId:string
-  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.TOOL
-}
-
-export interface AgentThinkBlock extends BlockDeltaContentMetadata {
-  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.THINK,
-  expanded?:boolean
-}
-
-export interface AgentAnswerBlock extends BlockDeltaContentMetadata {
-  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.ANSWER
-}
-
-export interface AgentErrorBlock extends CustomizeContentMetadata {
-  type: typeof AI_SERVER_AGENT_CONTENT_TYPE.ERROR
-  metadata:{
-    message:string
-  }
 }
 
 export interface GenerateConversationName extends CustomizeContentMetadata {

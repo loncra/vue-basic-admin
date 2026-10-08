@@ -71,7 +71,7 @@ export function getConversationRuns(conversation:ActiveAgentConversationItem) {
   return conversation.dataSource
     .elements
     .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
-    .filter(s => STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((s.data as AgentMessageEntity).status)))
+    .filter(s => 'status' in s && STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue(s.status)))
 }
 
 export function provideAgentChatContext(options: ProvideAgentChatContextOptions): AgentChatContext {

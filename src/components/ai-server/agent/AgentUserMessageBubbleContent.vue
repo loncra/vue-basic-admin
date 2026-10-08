@@ -1,21 +1,21 @@
 <script setup lang="ts">
 
 import LSenderSoldBubbleContent from "@/components/basic/chat/SenderSlotBubbleContent.vue";
-import type {ChatBubbleItem, ChatContentBlock} from "@/types/composables";
-import type {StreamAgentMessageEntity} from "@/types/apis";
+import type {ChatContentBlock} from "@/types/composables";
+import type {AgentChatBubble} from '@loncra/chat-core'
 
 defineOptions({
   name: 'LAgentUserMessageBubbleContent',
 })
 
 defineProps<{
-  item: ChatBubbleItem
+  item: AgentChatBubble & {reedit?: boolean}
 }>()
 
 </script>
 
 <template>
-  <a-typography-text :delete="(item.data as StreamAgentMessageEntity).reedit" :type="(item.data as StreamAgentMessageEntity).reedit ? 'secondary' : 'default'">
+  <a-typography-text :delete="item.reedit" :type="item.reedit ? 'secondary' : 'default'">
     <l-sender-sold-bubble-content
       :content="(item.content as ChatContentBlock[]).filter(c => !(c.type === 'custom' && c.slotKind === 'files'))"
     >

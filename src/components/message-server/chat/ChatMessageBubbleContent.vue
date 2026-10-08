@@ -40,7 +40,7 @@ const emit = defineEmits<{
       <div v-if="block.type === 'custom' && block.slotKind === 'files'">
         <l-attachment-upload
           preview
-          v-model:value="block.files"
+          v-model:value="block.value"
         />
       </div>
 

@@ -39,10 +39,10 @@ export function createAgentBubbleListRole() {
     ...DEFAULT_BUBBLE_LIST_ROLE,
     ai: (data: ChatBubbleItem) => {
       const isContentEmpty = !data.content || (data.content as AgentSseMessageContent[]).length <= 0
-      const isRunning = data.data && STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((data?.data as AgentMessageEntity).status))
+      const isRunning = 'status' in data && STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue(data.status))
 
       return {
-        ...(typeof baseAi === 'function' ? baseAi(data) : baseAi),
+        ...baseAi,
         variant:"borderless",
         shape:"round",
         loading: isContentEmpty && isRunning,
@@ -154,8 +154,7 @@ export function useAgentView() {
   }
 
   function countTokenUsage(item:ChatBubbleItem, field?:'inputTokens' | 'outputTokens' | 'cachedTokens') {
-    const message = item.data as AgentMessageEntity
-    const contents = ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContent[])
+    const contents = ('metadata' in item ? (item.metadata?.tokenUsage || []) : []) as AgentTokenUsageContent[]
     if (field) {
       return contents.reduce((acc:number, cur) => acc + cur[field], 0)
     } else {
@@ -174,8 +173,7 @@ export function useAgentView() {
   }
 
   function eachTokenUsage(item:ChatBubbleItem, field:'inputTokens' | 'outputTokens' | 'cachedTokens'):IdValueMetadata<string, number>[] {
-    const message = item.data as AgentMessageEntity
-    const contents = ((message?.metadata?.tokenUsage || []) as AgentTokenUsageContent[])
+    const contents = ('metadata' in item ? (item.metadata?.tokenUsage || []) : []) as AgentTokenUsageContent[]
     return contents.map(s => ({id:getEnumName(s.usageType), value:s[field]}))
   }
 

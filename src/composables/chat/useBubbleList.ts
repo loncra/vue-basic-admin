@@ -1,5 +1,8 @@
 import {computed, type MaybeRefOrGetter, nextTick, onUnmounted, ref, toValue, watch,} from 'vue'
-import type {BubbleListRef, RoleType} from '@antdv-next/x/dist/bubble/interface'
+import type {BubbleItemType, BubbleListRef, RoleType} from '@antdv-next/x/dist/bubble/interface'
+import {bubbleListContent} from '@loncra/chat-core'
+import {STREAM_RUNNING_STATUS_VALUE} from '@/constants'
+import {getEnumValue} from '@loncra/client/commons'
 import type {
   ActiveChatSession,
   BubbleListCallbacks,
@@ -7,6 +10,29 @@ import type {
   ChatBubbleItem,
 } from '@/types/composables'
 import {throttle} from 'lodash-es'
+
+/**
+ * 只留下 ax-bubble 会读的字段。
+ * 消息 id、Agent status 与组件自己的 id、status 重名，不能摊到这一层。
+ * 业务字段留在 ChatBubbleItem 上，插槽按渲染下标取回。
+ */
+export function toAxBubbleItem(
+  item: ChatBubbleItem,
+  extra?: Partial<BubbleItemType>,
+): BubbleItemType {
+  const content = bubbleListContent(item)
+  const empty = typeof content === 'string' ? content.length === 0 : content.length === 0
+  const running = 'status' in item
+    && STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue(item.status))
+  const loading = Boolean(item.loading || extra?.loading || (empty && running))
+  return {
+    ...extra,
+    key: item.key,
+    role: item.role,
+    content,
+    ...(loading ? {loading: true} : {}),
+  }
+}
 
 export const DEFAULT_BUBBLE_LIST_ROLE = {
   user: {
@@ -69,7 +95,12 @@ export function useBubbleList(
     return !getSession().dataSource.first
   }
 
-  const bubbleListItems = computed(() => callbacks.renderItem(getItems()))
+  const rows = computed(() => callbacks.renderItem(getItems()))
+  const domainItems = computed(() => rows.value.map((row) => row.bubble))
+  const bubbleListItems = computed(() => rows.value.map((row) => toAxBubbleItem(
+    row.bubble,
+    row.rootClass ? {rootClass: row.rootClass} : undefined,
+  )))
 
   const handleThrottleBubbleScroll = throttle(
     throttleBubbleScroll,
@@ -168,12 +199,11 @@ export function useBubbleList(
     }
     const visible: ChatBubbleItem[] = []
     const children = content.children
-    for (let i = 0; i < children.length && i < bubbleListItems.value.length; i++) {
-      const item = bubbleListItems.value[i]
-      if (!item || item.role === 'divider') {
+    for (let i = 0; i < children.length && i < domainItems.value.length; i++) {
+      const bubble = domainItems.value[i]
+      if (!bubble || bubble.role === 'divider') {
         continue
       }
-      const bubble = item as ChatBubbleItem
       if (filter && !filter(bubble)) {
         continue
       }
@@ -249,6 +279,7 @@ export function useBubbleList(
   return {
     bubbleListRef,
     bubbleListItems,
+    domainItems,
     bubbleListRole: DEFAULT_BUBBLE_LIST_ROLE,
     showScrollToBottom,
     onBubbleScroll,

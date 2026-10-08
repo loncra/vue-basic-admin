@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type {AgentToolCallBlock, ChatBubbleItem,} from '@/types/composables'
+import type {AgentChatBubble} from '@loncra/chat-core'
+import type {AgentToolCallBlock} from '@/types/composables'
 import {STREAM_RUNNING_STATUS_VALUE} from '@/constants'
 import {Markdown as LMarkdown, MarkdownCodeRenderer as LMarkdownCodeRenderer} from '@loncra/antdv-chat'
 
@@ -12,7 +13,6 @@ import {
   isBlockRunning,
   useAgentAssistantBubble
 } from "@/composables";
-import type {AgentMessageEntity} from "@/types/apis";
 import {AI_SERVER_AGENT_TOOL_BLOCK_STATUS} from '@loncra/client/ai'
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
@@ -20,7 +20,7 @@ defineOptions({
   name: 'LAgentAssistantBubbleContent',
 })
 
-const model = defineModel<ChatBubbleItem>("item",{required: true})
+const model = defineModel<AgentChatBubble>("item",{required: true})
 
 const {
   toggleToolCallExpanded,
@@ -190,14 +190,14 @@ const {
         class="items-baseline"
         type="error"
         show-icon
-        :message="group.errorBlock.metadata.message"
+        :message="group.errorBlock.value"
       />
     </template>
   </a-flex>
 
   <!-- 空内容 → loading dots -->
   <span
-    v-else-if="STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((model?.data as AgentMessageEntity)?.status))"
+    v-else-if="STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue(model.status))"
         class="antd-bubble-dot"
   >
     <i class="antd-bubble-dot-item" />
@@ -207,6 +207,6 @@ const {
   <a-alert v-else
     type="warning"
     show-icon
-    :message="getEnumName((model?.data as AgentMessageEntity)?.status)"
+    :message="getEnumName(model.status)"
   />
 </template>

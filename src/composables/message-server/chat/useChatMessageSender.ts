@@ -280,7 +280,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
           }
           const attachmentBlock: AttachmentBlock = {
             id: slot.key,
-            files: files,
+            value: files,
             type: 'custom',
             slotKind: 'files',
           }
@@ -336,7 +336,7 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
           value: slot.value,
         })
       } else if (slot.type === 'custom' && slot.slotKind === 'files') {
-        result.push(createFilesSlot(convertUploadFiles(slot.files)))
+        result.push(createFilesSlot(convertUploadFiles(slot.value)))
       } else if (slot.type === 'custom' && slot.slotKind === 'reference') {
         refMessages.value = (slot as ReferenceBlock).value
       } else if (slot.type === 'custom' && slot.slotKind === 'instruction') {

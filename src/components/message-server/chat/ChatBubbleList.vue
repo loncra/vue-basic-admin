@@ -93,38 +93,38 @@ defineExpose({
             item.role === CHAT_BUBBLE_TYPE.USER
           "
           :title="
-            item.data.readableCount === 1
+            item.readableCount === 1
               ? globalProperties.$t('common.read.readable')
               : globalProperties.$t('common.read.unreadable')
           "
         >
-          <a-typography-text :type="item.data.readableCount === 1 ? 'secondary' : 'success'">
+          <a-typography-text :type="item.readableCount === 1 ? 'secondary' : 'success'">
             <icon-font
               class="icon"
-              :type="item.data.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'"
+              :type="item.readableCount === 1 ? 'loncra-eye-off' : 'loncra-eye'"
             />
           </a-typography-text>
         </a-tooltip>
         <a-popover
           v-else-if="
-            getEnumValue(conversation.item?.data?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT && item.data
+            getEnumValue(conversation.item?.data?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT && item.participant
           "
           :placement="item.role === CHAT_BUBBLE_TYPE.USER ? 'left' : 'right'"
           trigger="click"
         >
           <template #content>
-            <l-chat-message-read-table :message-id="item.data.id" />
+            <l-chat-message-read-table :message-id="item.id" />
           </template>
 
           <a-button
             :color="
-              Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCount
+              Math.abs(item.readableCount - item.readCount) < item.readCount
                 ? undefined
                 : 'lime'
             "
             size="small"
             :variant="
-              Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount
+              Math.abs(item.readableCount - item.readCount) >= item.readCount
                 ? 'filled'
                 : undefined
             "
@@ -132,16 +132,16 @@ defineExpose({
           >
             <a-space
               v-if="
-                Math.abs(item.data.readableCount - item.data.readCount) < item.data.readCount
+                Math.abs(item.readableCount - item.readCount) < item.readCount
               "
             >
               <a-badge status="processing" />
-              {{ Math.abs(item.data.readableCount - item.data.readCount) }} /
-              {{ item.data.readCount }}
+              {{ Math.abs(item.readableCount - item.readCount) }} /
+              {{ item.readCount }}
             </a-space>
             <template
               v-if="
-                Math.abs(item.data.readableCount - item.data.readCount) >= item.data.readCount
+                Math.abs(item.readableCount - item.readCount) >= item.readCount
               "
               #icon
             >
@@ -152,13 +152,13 @@ defineExpose({
       </a-flex>
     </template>
     <template #avatar="{ item }">
-      <l-user-avatar size="large" :user="item.data?.participant?.metadata?.details" />
+      <l-user-avatar size="large" :user="item.participant?.metadata?.details" />
     </template>
     <template #header="{ item }">
       <a-typography-text v-if="item.role === CHAT_BUBBLE_TYPE.AI">
         <template v-if="getEnumValue(conversation.item?.data?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.GROUP_CHAT">
           {{
-            AuthServerService.getPrincipalNameByUserDetails(item.data.participant.metadata.details)
+            AuthServerService.getPrincipalNameByUserDetails(item.participant.metadata.details)
           }}
         </template>
         <template v-if="getEnumValue(conversation.item?.data?.room?.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.PRIVATE_CHAT">
@@ -171,7 +171,7 @@ defineExpose({
     </template>
     <template #contentRender="{ item, role, content }">
       <a-dropdown
-        v-if="item.data && [CHAT_BUBBLE_TYPE.USER, CHAT_BUBBLE_TYPE.AI].includes(role)"
+        v-if="'undo' in item && [CHAT_BUBBLE_TYPE.USER, CHAT_BUBBLE_TYPE.AI].includes(role)"
         :menu="{ items: createMessageMenu(item, role) }"
         :trigger="['contextmenu']"
         @menuClick="onMessageMenuClick($event, item)"
@@ -184,7 +184,7 @@ defineExpose({
             <template #undo="{ text }">
               <a-space>
                 <a-typography-text delete type="secondary">
-                  <template v-if="principalStore.isCurrentPrincipal(item.data.principal)">
+                  <template v-if="principalStore.isCurrentPrincipal(item.principal)">
                     {{ globalProperties.$t('chat.view.selfUndo') }}
                   </template>
                   <template v-else>
@@ -193,9 +193,9 @@ defineExpose({
                 </a-typography-text>
 
                 <a-typography-link
-                  v-if="principalStore.isCurrentPrincipal(item.data.principal)"
+                  v-if="principalStore.isCurrentPrincipal(item.principal)"
                   href="javascript:;"
-                  @click="reedit(item.data)"
+                  @click="reedit(item)"
                 >
                   {{ globalProperties.$t('chat.view.reedit') }}
                 </a-typography-link>

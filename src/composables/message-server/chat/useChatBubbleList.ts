@@ -1,5 +1,6 @@
 import {type ComponentInternalInstance, getCurrentInstance, h, type Ref, ref, watch,} from 'vue'
 import type {
+  BubbleRenderRow,
   ChatBubbleItem,
   ChatBubbleListCallbacks,
   ChatContentBlock,
@@ -7,7 +8,6 @@ import type {
 } from '@/types/composables'
 import type {UserChatMessageResponseBody} from '@/types/apis'
 import type {RestResult} from '@loncra/client/commons'
-import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
 import type {MenuItemType} from 'antdv-next'
 import {Space, StatisticTimer} from 'antdv-next'
 import useApp from 'antdv-next/dist/app/useApp'
@@ -15,13 +15,14 @@ import {ChatMessageService} from '@loncra/client/message'
 import {requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE, YES_OR_NO_TYPE} from '@/constants'
 import {useChatReadMarker} from '@/composables/message-server/chat/useChatReadMarker.ts'
-import {DEFAULT_BUBBLE_LIST_ROLE,} from '@/composables/chat/useBubbleList.ts'
+import {DEFAULT_BUBBLE_LIST_ROLE} from '@/composables/chat/useBubbleList.ts'
+import {textBubble} from '@loncra/chat-core'
 import {renderIconFont} from '@/utils/commonUtils'
 import {getEnumValue} from '@loncra/client/commons'
 
 
 function getBubbleMessageTime(item: ChatBubbleItem): number {
-  return item.data?.creationTime ?? 0
+  return item.creationTime ?? 0
 }
 
 const TIME_DIVIDER_GAP_MS = 5 * 60 * 1000
@@ -43,28 +44,29 @@ export function useChatBubbleList(
 
   function buildBubbleListWithDividers(
     messages: ChatBubbleItem[]
-  ): BubbleItemType[] {
+  ): BubbleRenderRow[] {
     const sorted = [...messages.filter((s) => !s.hide)].sort(
       (a, b) => getBubbleMessageTime(a) - getBubbleMessageTime(b),
     )
-    const result: BubbleItemType[] = []
+    const result: BubbleRenderRow[] = []
     let lastDividerTime = 0
     for (const msg of sorted) {
       const msgTime = getBubbleMessageTime(msg)
       const needDivider =
         result.length === 0 || (msgTime > 0 && msgTime - lastDividerTime >= TIME_DIVIDER_GAP_MS)
       if (needDivider && msgTime > 0) {
-        result.push({
-          key: `divider-${String(msg.key)}-${msgTime}`,
-          role: 'divider',
-          content: globalProperties.$dayjs(msgTime).fromNow(),
-        })
+        const divider = textBubble(
+          `divider-${String(msg.key)}-${msgTime}`,
+          globalProperties.$dayjs(msgTime).fromNow(),
+          'divider',
+        )
+        result.push({bubble: divider})
         lastDividerTime = msgTime
       }
       result.push({
-        ...msg,
+        bubble: msg,
         rootClass: 'rounded-lg ' + (msg.flashPending ? 'bg-flash' : ''),
-      } as BubbleItemType)
+      })
     }
     return result
   }
@@ -78,7 +80,7 @@ export function useChatBubbleList(
       return
     }
     const readable = items.filter((item) =>
-      readMarker.isReadableMessage(item?.data as UserChatMessageResponseBody),
+      'readable' in item && readMarker.isReadableMessage(item),
     )
     readMarker.markVisible(readable)
   }
@@ -119,9 +121,11 @@ export function useChatBubbleList(
   }
 
   function createMessageMenu(item: ChatBubbleItem, role: string): MenuItemType[] {
-    const data = item.data as UserChatMessageResponseBody
+    if (!('undo' in item)) {
+      return []
+    }
     const items: MenuItemType[] = []
-    if (getEnumValue(data?.undo) === YES_OR_NO_TYPE.NO) {
+    if (getEnumValue(item.undo) === YES_OR_NO_TYPE.NO) {
       items.push({
         key: "reference",
         label: globalProperties.$t('chat.view.reference'),
@@ -132,9 +136,7 @@ export function useChatBubbleList(
         role === CHAT_BUBBLE_TYPE.USER &&
         globalProperties
           .$dayjs()
-          .isBefore(
-            globalProperties.$dayjs((item?.data as UserChatMessageResponseBody)?.undoableTime),
-          )
+          .isBefore(globalProperties.$dayjs(item.undoableTime))
       ) {
         const disabled = ref(false)
         const timer = h(StatisticTimer, {
@@ -143,7 +145,7 @@ export function useChatBubbleList(
           },
           onFinish: () => (disabled.value = true),
           type: 'countdown',
-          value: (item?.data as UserChatMessageResponseBody)?.undoableTime,
+          value: item.undoableTime,
           format: globalProperties.$t('chat.view.undo.countdown'),
         })
         // 组件的 children 走 slots（直接给数组会被 Vue 认成"非函数 default 槽"并 warn）
@@ -164,11 +166,13 @@ export function useChatBubbleList(
   }
 
   function onMessageMenuClick(e: {key: string}, item: ChatBubbleItem): void {
-    const data = item.data as UserChatMessageResponseBody
+    if (!('undo' in item)) {
+      return
+    }
     if (e.key === "reference") {
-      addRefMessage(data)
+      addRefMessage(item)
     } else if (e.key === "undo") {
-      onUndoMessage(data)
+      onUndoMessage(item)
     }
   }
 

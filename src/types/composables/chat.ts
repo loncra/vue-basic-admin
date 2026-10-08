@@ -1,74 +1,35 @@
-import type {UserChatMessageResponseBody} from '@/types/apis'
-import type {
-  IdValueMetadata,
-  NameValueEnumMetadata,
-  PageResult,
-  VersionEntityMetadata
-} from '@loncra/client/commons'
-import type {ObjectWriteResult} from '@loncra/client/resource'
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
-import type {BubbleItemType} from '@antdv-next/x/dist/bubble/interface'
+import type {IdValueMetadata} from '@loncra/client/commons'
+import type {ObjectWriteResult} from '@loncra/client/resource'
 import type {
-  AgentAnswerBlock,
-  AgentErrorBlock,
-  AgentThinkBlock,
-  AgentToolCallBlock,
-} from "@/types/composables";
+  ActiveChatSession as CoreActiveChatSession,
+  AgentChatBubble,
+  AgentContentBlock,
+  ChatBubbleBody,
+  ChatBubbleItem as CoreChatBubbleItem,
+  ImChatBubble,
+  ImContentBlock,
+  TextBlock,
+} from '@loncra/chat-core'
 
-export interface AttachmentBlock {
-  id: string
-  type: 'custom'
-  slotKind: 'files'
-  files: ObjectWriteResult[]
-}
+export type {
+  AttachmentBlock,
+  CallBlock,
+  InstructionBlock,
+  ReferenceBlock,
+  TextBlock,
+  UndoBlock,
+} from '@loncra/chat-core'
 
-export interface InstructionBlock {
-  id: string
-  type: 'custom'
-  slotKind: 'instruction'
-  value: IdValueMetadata<string, string>
-  prefix: string
-}
+/** IM 词槽与 Agent 词槽。两边共用的文本、附件、点名在两个联合里各出现一次。 */
+export type ChatContentBlock = ImContentBlock | AgentContentBlock
 
-export interface ReferenceBlock {
-  type: 'custom'
-  slotKind: 'reference'
-  value: UserChatMessageResponseBody[]
-}
+export type BaseChatBubble = ChatBubbleBody<ChatContentBlock>
 
-export interface CallBlock {
-  type: 'custom'
-  slotKind: 'call'
-  userChatCallId: number
-  caller: string
-  scene: NameValueEnumMetadata<number>
-  value: NameValueEnumMetadata<number>
-  status: NameValueEnumMetadata<number>
-}
+/** 一条 IM 消息、一条 Agent 消息，或一条纯文本展示行。 */
+export type ChatBubbleItem = ImChatBubble | AgentChatBubble | CoreChatBubbleItem<TextBlock>
 
-export interface UndoBlock {
-  slotKind: 'undo'
-  type: 'custom'
-  tooltip?: string
-  value: string
-}
-
-export interface TextBlock {
-  type: 'text'
-  value: string
-}
-
-export type ChatContentBlock =
-  | AttachmentBlock
-  | TextBlock
-  | ReferenceBlock
-  | UndoBlock
-  | InstructionBlock
-  | CallBlock
-  | AgentThinkBlock
-  | AgentToolCallBlock
-  | AgentAnswerBlock
-  | AgentErrorBlock
+export type ActiveChatSession = CoreActiveChatSession<ChatBubbleItem>
 
 export type FilesSlotProps = {
   slotKind: 'files'
@@ -87,38 +48,18 @@ export type CursorContext = {
   isAtLineStart: boolean
 }
 
-export interface BaseChatBubble extends VersionEntityMetadata {
-  content: ChatContentBlock[]
-}
-
-export type ChatBubbleItem = {
-  key: string | number
-  role: BubbleItemType['role']
-  content: ChatContentBlock[] | ChatContentBlock | string
-  data?: BaseChatBubble
-  hide?: boolean
-  flashPending?: boolean
-  /** ax-bubble loading；Agent 也可由 role 函数动态计算 */
-  loading?: boolean
-}
-
-/**
- * IM / Agent 活跃会话共同基类；LBubbleList 直接消费。
- * dataSource.elements 即为气泡列表（业务体挂在 ChatBubbleItem.data）。
- */
-export interface ActiveChatSession {
-  loading: boolean
-  isOnFirstPage?: boolean
-  isOnLastPage?: boolean
-  dataSource: PageResult<ChatBubbleItem>
-}
-
 export interface BubbleListProps {
   scrollToBottomThreshold: number
   throttleOnScrollWait: number
   /** 可见区回调节流；仅当提供 onVisibleItems 时生效 */
   throttleCollectVisibleWait: number
   topThreshold: number
+}
+
+/** 渲染行。bubble 是列表里的那条；rootClass 只给 ax-bubble 的外层。 */
+export interface BubbleRenderRow {
+  bubble: ChatBubbleItem
+  rootClass?: string
 }
 
 export interface BubbleListCallbacks {
@@ -129,7 +70,7 @@ export interface BubbleListCallbacks {
    * 参数为当前视口内全部非 divider 气泡，业务方自行过滤。
    */
   onVisibleItems?: (items: ChatBubbleItem[], scrollBox: HTMLElement) => void
-  renderItem:(items:ChatBubbleItem[]) => BubbleItemType[]
+  renderItem: (items: ChatBubbleItem[]) => BubbleRenderRow[]
 }
 
 /** IM 气泡列表配置（含时间分隔间隔） */
