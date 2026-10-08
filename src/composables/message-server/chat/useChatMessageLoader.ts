@@ -4,7 +4,6 @@ import type {PageResult, RestResult} from '@loncra/client/commons'
 import type {UserChatParticipantEntity} from '@loncra/client/message'
 import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 import type {
-  ChatBubbleItem,
   ChatViewController,
   ServerConversationItem,
   UserChatConversationActiveProps,
@@ -13,7 +12,16 @@ import {addBubbleListMessage, requireNonNullOrUndefined} from '@/utils'
 import type {ChatRole} from '@loncra/chat-core'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
-import {textBubble} from '@loncra/chat-core'
+import {
+  applyHistoryPage,
+  canLoadHistory,
+  locateAnchor,
+  openPageEdges,
+  pageEdgeBubble,
+  prependNoMoreIfLast,
+  stepPageNumber,
+  textBubble,
+} from '@loncra/chat-core'
 import {getEnumValue} from '@loncra/client/commons'
 
 /**
@@ -63,24 +71,7 @@ export function useChatMessageLoader(
         await ChatMessageService.histories(request, chatRoomId)
 
       const page = result?.data || DEFAULT_PAGE_RESULT_VALUE
-      const retained = clear ? [] : active.dataSource.elements
-      active.dataSource = {
-        ...active.dataSource,
-        ...page,
-        elements: retained,
-      }
-      // 到达端页则锁住；clear/首屏以当前页为准同步两端标志
-      if (clear) {
-        active.isOnFirstPage = page.first
-        active.isOnLastPage = page.last
-      } else {
-        if (page.first) {
-          active.isOnFirstPage = true
-        }
-        if (page.last) {
-          active.isOnLastPage = true
-        }
-      }
+      applyHistoryPage(active, page, clear)
       for (const d of page.elements || []) {
         addBubbleListMessage(d, resolveRole(d), active.dataSource.elements, !append)
       }
@@ -150,41 +141,26 @@ export function useChatMessageLoader(
     if (pageLock) {
       return
     }
-    if (tag === 'next' && (active.isOnLastPage || active.dataSource.last)) {
-      return
-    }
-    if (tag === 'previous' && (active.isOnFirstPage || active.dataSource.first)) {
+    if (!canLoadHistory(active, tag)) {
       return
     }
     const roomId = Number(active.item?.data?.room?.id)
     if (!roomId) {
       return
     }
-    const reduceSort = (a: ChatBubbleItem, b: ChatBubbleItem) => {
-      const flag =
-        tag === 'previous'
-          ? (a.creationTime ?? 0) >= (b.creationTime ?? 0)
-          : (a.creationTime ?? 0) <= (b.creationTime ?? 0)
-      return flag ? a : b
-    }
-    const bubbles = active.dataSource.elements
-    const anchor = bubbles.length > 0 ? bubbles.reduce(reduceSort) : undefined
+    const anchor = pageEdgeBubble(active.dataSource.elements, tag)
 
-    await loadPage(
-      roomId,
-      tag === 'next' ? ++active.dataSource.number : --active.dataSource.number,
-      tag === 'previous',
-    )
+    active.dataSource.number = stepPageNumber(active.dataSource.number, tag)
+    await loadPage(roomId, active.dataSource.number, tag === 'previous')
     await nextTick()
     if (anchor) {
       view.value?.jumpToMessage(String(anchor.key), false, tag === 'next' ? 'nearest' : 'end')
     }
-    if (active.dataSource.last && tag === 'next') {
-      active.dataSource.elements.unshift(
-        textBubble(globalProperties.$dayjs().unix(), globalProperties.$t('common.noMore')),
-      )
-      active.isOnLastPage = true
-    }
+    prependNoMoreIfLast(
+      active,
+      tag,
+      textBubble(globalProperties.$dayjs().unix(), globalProperties.$t('common.noMore')),
+    )
   }
 
   async function jumpToAnchorPage(
@@ -193,40 +169,24 @@ export function useChatMessageLoader(
     systemMessage?: string,
   ): Promise<void> {
     const active = conversationActive.value
-    active.isOnLastPage = false
-    active.isOnFirstPage = false
+    openPageEdges(active)
     active.loading = true
     try {
       await loadPage(Number(active.item?.data?.room?.id), pageNumber, false, true)
 
-      if (active.dataSource.elements.length <= 0) {
-        return
-      }
-
-      const anchorIndex = active.dataSource.elements.findIndex((b) => b.key === String(messageId))
-      let key: string | number | undefined
-
-      if (anchorIndex < 0) {
-        key = active.dataSource.elements.at(0)?.key
-      } else {
-        const anchorBubble = active.dataSource.elements[anchorIndex]
-        if (anchorBubble) {
-          key = anchorBubble.key
-        }
-        if (systemMessage && anchorBubble) {
-          const anchorTime = anchorBubble.creationTime ?? 0
-          active.dataSource.elements.splice(
-            anchorIndex,
-            0,
-            textBubble(
-              'system-anchor-message-' + globalProperties.$dayjs().unix(),
-              systemMessage,
-              'system',
-              anchorTime - 1,
-            ),
+      const anchorBubble = active.dataSource.elements.find((item) => item.key === String(messageId))
+      const key = locateAnchor(
+        active.dataSource.elements,
+        messageId,
+        systemMessage && anchorBubble
+          ? textBubble(
+            'system-anchor-message-' + globalProperties.$dayjs().unix(),
+            systemMessage,
+            'system',
+            (anchorBubble.creationTime ?? 0) - 1,
           )
-        }
-      }
+          : undefined,
+      )
 
       await nextTick()
       if (!view.value || key === undefined) {
