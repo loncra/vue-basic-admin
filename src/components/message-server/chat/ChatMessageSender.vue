@@ -9,10 +9,9 @@ import {createImDraftCodec, getDraft, putDraft, clearDraft} from '@/composables/
 import {useChatMessageSender} from "@/composables/message-server/chat";
 import {type ComponentInternalInstance, getCurrentInstance, ref, toRef} from "vue";
 import {
-  DraftSender as LDraftSender,
   type DraftBinding,
-  type DraftSenderExpose,
-  EmojiButton as LEmojiButton,
+  ImSender as LImSender,
+  type ImSenderExpose,
   type InstructionMeasure,
   type InstructionSenderHandle,
 } from '@loncra/antdv-chat'
@@ -67,7 +66,7 @@ const emit = defineEmits<{
   appliedSlots: [slots: SlotConfigType[]]
 }>()
 
-const draftSenderRef = ref<DraftSenderExpose>()
+const draftSenderRef = ref<ImSenderExpose>()
 const currentInstance = requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance())
 const configProviderStore = useConfigProviderStore()
 const principalStore = usePrincipalStore()
@@ -153,7 +152,6 @@ const {
   isSending,
   onPasteFiles,
   handleSubmit,
-  onSelectedEmoji,
   clear,
   convertContentBlockToSlotConfig,
   getSlotConfigValue,
@@ -178,14 +176,15 @@ defineExpose({
 </script>
 
 <template>
-  <!-- 输入区样式钩子：宿主的 .chat-sender-input（assets/style.css 那两条规则）靠官方 classes.input 注入；包内不再兜这个类名 -->
-  <l-draft-sender
+  <!-- 输入区样式钩子：宿主的 .chat-sender-input 靠 InstructionSender 的 inputClass 默认值注入 -->
+  <l-im-sender
     ref="draftSenderRef"
     :binding="binding"
     :read-live="readLive"
     :slots-of="slotsOf"
     :on-restore="onRestore"
     :save-source="refMessages"
+    :ref-messages="refMessages"
     :slot-config="props.slotConfig"
     :placeholder="placeholder"
     :sending="isSending"
@@ -195,31 +194,21 @@ defineExpose({
     :on-filter-data-source="props.filterInstruction"
     :sender-insert-instruction="onInsertInstruction"
     :create-instruction-slot="createInstructionSlot"
-    :classes="{input: 'chat-sender-input'}"
     @paste-file="onPasteFiles"
     @submit="handleSubmit"
     @change="(value, event, slotConfig) => emit('change', value, event, slotConfig)"
   >
-    <template v-if="refMessages.length > 0" #header>
-      <a-flex
-        gap="small"
-        wrap
-        class="w-full p-xs bg-layout border-b border-b-border-secondary rounded-t-xl"
-      >
-        <l-chat-message-reference
-          variant="outlined"
-          closable
-          @click="emit('jumpToReference', r)"
-          @close="() => refMessages = refMessages.filter(m => m.id !== r.id)"
-          :message="r"
-          :key="r.id"
-          v-for="r of refMessages"
-        />
-      </a-flex>
+    <template #reference="{message}">
+      <l-chat-message-reference
+        variant="outlined"
+        closable
+        :message="message"
+        @click="emit('jumpToReference', message)"
+        @close="() => refMessages = refMessages.filter(m => m.id !== message.id)"
+      />
     </template>
 
     <template #leftExtra>
-      <l-emoji-button type="text" :disabled="isSending" @selected="onSelectedEmoji"/>
       <slot name="leftExtra" />
     </template>
 
@@ -230,5 +219,5 @@ defineExpose({
     <template v-if="slots.instructionItemRender" #instructionItemRender="slotProps">
       <slot name="instructionItemRender" v-bind="slotProps" />
     </template>
-  </l-draft-sender>
+  </l-im-sender>
 </template>

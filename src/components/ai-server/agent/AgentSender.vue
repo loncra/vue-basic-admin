@@ -1,7 +1,9 @@
 <script setup lang="ts">
 
 import {
-  DraftSender as LDraftSender,
+  AgentSender as LAgentChatSender,
+  type AgentSenderChoice,
+  type AgentSenderWorkspace,
   type DraftBinding,
 } from '@loncra/antdv-chat'
 import type {DraftRestoreResult} from '@loncra/chat-core'
@@ -11,14 +13,15 @@ import type {MenuInfo} from "@v-c/menu";
 import type {AgentSenderFormProps} from "@/types/composables";
 import type {IdValueMetadata} from "@loncra/client/commons";
 import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
-import {type ComponentInternalInstance, getCurrentInstance} from 'vue'
+import {computed, type ComponentInternalInstance, getCurrentInstance} from 'vue'
 import {createAgentDraftCodec, clearDraft, getDraft, putDraft} from '@/composables/chat/draft'
 import {createInstructionSlot as buildInstructionSlot, requireNonNullOrUndefined} from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 
 defineOptions({
-  name: 'LAgentSender',
+  name: 'LAgentSenderHost',
+  inheritAttrs: false,
 })
 
 const props = defineProps<{
@@ -118,26 +121,51 @@ const {
   onCancel:() => emits("cancel"),
 })
 
-function slashSelectedKeys(
-  items: IdValueMetadata<string, string>[],
-  activeIndex: number,
-): string[] {
-  const item = items[activeIndex]
-  const group = item?.metadata?.group
-  if (!item || typeof group !== 'string' || !group) {
-    return []
-  }
-  return [group + ':' + item.id]
-}
+const globalProperties = currentInstance.appContext.config.globalProperties
 
-function onSlashMenuClick(
-  info: MenuInfo,
+const workspaceView = computed<AgentSenderWorkspace | undefined>(() => {
+  const options = workspaceOptions.value
+  if (!options) {
+    return undefined
+  }
+  return {
+    title: `${globalProperties.$t('agent.workspace.title')}: ${options.label}`,
+    color: options.color,
+    variant: 'outlined',
+    icon: options.icon,
+  }
+})
+
+const modelView = computed<AgentSenderChoice | undefined>(() => {
+  if (!currentModel.value) {
+    return undefined
+  }
+  return {
+    label: `${currentModel.value.manufacturer.name}:${currentModel.value.name}`,
+    items: state.value.modelOptions,
+    selectedKeys: [String(currentModel.value.id)],
+  }
+})
+
+const typeView = computed<AgentSenderChoice>(() => ({
+  label: currentType.value?.data?.value,
+  color: currentType.value.color,
+  items: state.value.typeOptions,
+  selectedKeys: [String(currentType.value?.data?.id ?? '')],
+}))
+
+function onCatalogClick(
+  key: string | number,
   pick: (item: IdValueMetadata<string, string>) => void,
 ): void {
-  const option = findCatalogItem(info.key)
+  const option = findCatalogItem(key)
   if (option) {
     pick(option)
   }
+}
+
+function onPlusKey(key: string | number): void {
+  onPlusMenuClick({key} as MenuInfo)
 }
 
 defineExpose({
@@ -150,9 +178,10 @@ defineExpose({
 </script>
 
 <template>
-  <!-- 输入区样式钩子：宿主的 .chat-sender-input（assets/style.css 那两条规则）靠官方 classes.input 注入；包内不再兜这个类名 -->
-  <l-draft-sender
+  <!-- 输入区样式钩子：宿主的 .chat-sender-input 靠 InstructionSender 的 inputClass 默认值注入 -->
+  <l-agent-chat-sender
     ref="senderRef"
+    v-bind="$attrs"
     :binding="binding"
     :read-live="readLive"
     :slots-of="slotsOf"
@@ -162,74 +191,29 @@ defineExpose({
     :on-filter-data-source="filterInstruction"
     :sender-insert-instruction="senderInsertInstruction"
     :create-instruction-slot="createInstructionSlot"
-    :classes="{input: 'chat-sender-input'}"
-    v-bind="$attrs"
-    @change="(value, event, slotConfig) => emits('change', value, event, slotConfig)"
+    :is-running="isRunning"
+    :workspace="workspaceView"
+    :catalog-prefix="AGENT_INSTRUCTION_PREFIX.TRIGGER"
+    :to-catalog-menu-items="toCatalogMenuItems"
+    :on-catalog-click="onCatalogClick"
+    :plus-items="plusMenuItems"
+    :on-plus-click="onPlusKey"
+    :model="modelView"
+    :type-choice="typeView"
+    :on-model-click="(key: string | number) => state.form.modelId = Number(key)"
+    :on-type-click="(key: string | number) => state.form.type = Number(key)"
+    @change="(value: string, event: Event | undefined, slotConfig: SlotConfigType[] | undefined) => emits('change', value, event, slotConfig)"
     @submit="handleSubmit"
     @cancel="handleCancel"
   >
-    <template #header v-if="workspaceOptions">
-      <ax-sender-header title=" " :closable="false" open>
-        <template #title>
-          <a-tag v-bind="workspaceOptions">
-            {{$t('agent.workspace.title')}}: {{workspaceOptions.label}}
-          </a-tag>
-        </template>
-      </ax-sender-header>
+    <template #plusIcon>
+      <icon-font type="loncra-plus"/>
     </template>
-    <template #instructionListRender="{items, prefix, activeIndex, pick}">
-      <a-menu
-        v-if="prefix === AGENT_INSTRUCTION_PREFIX.TRIGGER"
-        class="border-0! bg-transparent! min-w-44"
-        :items="toCatalogMenuItems(items)"
-        :selectable="false"
-        :selected-keys="slashSelectedKeys(items, activeIndex)"
-        @click="(info: MenuInfo) => onSlashMenuClick(info, pick)"
-      />
+    <template v-if="currentModel" #modelIcon>
+      <icon-font :type="currentModel.icon || 'loncra-sticker'" />
     </template>
-    <template #defaultButton="{components}">
-      <component
-        v-if="isRunning"
-        :is="components.ClearButton"
-        :disabled="false"
-        @click="senderRef?.clear()"
-      />
-      <component
-        :is="isRunning ? components.LoadingButton : components.SendButton"
-        :disabled="false"
-        type="primary"
-      />
+    <template #typeIcon>
+      <icon-font :type="currentType.icon" />
     </template>
-    <template #leftExtra>
-      <a-dropdown
-        :menu="{ items: plusMenuItems }"
-        :trigger="['click']"
-        :disabled="plusMenuItems.length === 0 || isRunning"
-        placement="topLeft"
-        @menu-click="onPlusMenuClick"
-      >
-        <a-button shape="circle" size="small" :disabled="plusMenuItems.length === 0 || isRunning">
-          <template #icon>
-            <icon-font type="loncra-plus"/>
-          </template>
-        </a-button>
-      </a-dropdown>
-      <a-dropdown v-if="currentModel" @menu-click="(info:MenuInfo) => state.form.modelId = Number(info.key)" :menu="{ selectable: true, items: state.modelOptions, defaultSelectedKeys:[String(currentModel.id)]}">
-        <a-button color="primary" variant="outlined" size="small" >
-          <template #icon>
-            <icon-font :type="currentModel.icon || 'loncra-sticker'" />
-          </template>
-          {{currentModel.manufacturer.name}}:{{currentModel.name}}
-        </a-button>
-      </a-dropdown>
-      <a-dropdown @menu-click="(info:MenuInfo) => state.form.type = Number(info.key)" :menu="{selectable: true, items: state.typeOptions, defaultSelectedKeys:[String(currentType?.data?.id)]}">
-        <a-button :color="currentType.color" variant="dashed" type="text" size="small" >
-          <template #icon>
-            <icon-font :type="currentType.icon" />
-          </template>
-          {{currentType?.data?.value}}
-        </a-button>
-      </a-dropdown>
-    </template>
-  </l-draft-sender>
+  </l-agent-chat-sender>
 </template>

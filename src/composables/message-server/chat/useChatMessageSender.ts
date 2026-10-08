@@ -314,10 +314,6 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     }
   }
 
-  function onSelectedEmoji(emoji: string): void {
-    getSender()?.insert([{type: 'text', value: emoji}], 'cursor')
-  }
-
   function clear(): void {
     const sender = getSender()
     if (!sender) {
@@ -373,7 +369,6 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     isSending,
     onPasteFiles,
     handleSubmit,
-    onSelectedEmoji,
     clear,
     convertContentBlockToSlotConfig,
     getSlotConfigValue,
