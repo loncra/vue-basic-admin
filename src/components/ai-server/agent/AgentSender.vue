@@ -4,8 +4,8 @@ import {
   AgentSender as LAgentChatSender,
   type AgentSenderChoice,
   type AgentSenderWorkspace,
-  type DraftBinding,
-} from '@loncra/antdv-chat'
+  createAgentDraftBinding,
+} from '@loncra/antdv-chat-pro'
 import type {DraftRestoreResult} from '@loncra/chat-core'
 import type {SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import {useAgentSender} from "@/composables";
@@ -14,7 +14,6 @@ import type {AgentSenderFormProps} from "@/types/composables";
 import type {IdValueMetadata} from "@loncra/client/commons";
 import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import {computed, type ComponentInternalInstance, getCurrentInstance} from 'vue'
-import {createAgentDraftCodec, clearDraft, getDraft, putDraft} from '@/composables/chat/draft'
 import {createInstructionSlot as buildInstructionSlot, requireNonNullOrUndefined} from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
@@ -45,45 +44,14 @@ function principalName(): string | undefined {
   return name ? name : undefined
 }
 
-function draftCodec() {
-  return createAgentDraftCodec({
+const binding = createAgentDraftBinding({
+  principal: principalName,
+  targetId: () => props.targetId,
+  factories: {
     restoreInstructionSlot: (block) =>
       buildInstructionSlot(block, configProviderStore, currentInstance),
-  })
-}
-
-const binding: DraftBinding<SlotConfigType[]> = {
-  key: () => {
-    const principal = principalName()
-    return principal && props.targetId ? `${principal}:agent:${props.targetId}` : undefined
   },
-  async save(live) {
-    const principal = principalName()
-    if (!principal || !props.targetId) {
-      return
-    }
-    const codec = draftCodec()
-    await putDraft(codec.toRecord(live, {principal, targetId: props.targetId}), codec.collectBlobs(live))
-  },
-  async load() {
-    const principal = principalName()
-    if (!principal || !props.targetId) {
-      return null
-    }
-    const stored = await getDraft('agent', principal, props.targetId)
-    if (!stored || stored.record.scope !== 'agent') {
-      return null
-    }
-    return draftCodec().fromRecord(stored.record, stored.blobs)
-  },
-  async clear() {
-    const principal = principalName()
-    if (!principal || !props.targetId) {
-      return
-    }
-    await clearDraft('agent', principal, props.targetId)
-  },
-}
+})
 
 function readLive(): SlotConfigType[] {
   return senderRef.value?.getSlotConfigValue() ?? []

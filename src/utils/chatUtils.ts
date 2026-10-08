@@ -12,12 +12,9 @@ import {type ComponentInternalInstance, h, type VNode} from "vue";
 import {Avatar, AvatarGroup, Tag} from "antdv-next";
 import {AuthServerService} from "@/apis";
 import type {
-  BaseChatBubble,
-  ChatBubbleItem,
   InstructionBlock,
   InstructionSlotProps,
 } from "@/types/composables";
-import {appendMessages, type ChatRole} from '@loncra/chat-core'
 import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
@@ -78,20 +75,6 @@ export function createAvatarNode(
     )
   }
   return h(Avatar, {size}, {default: () => defaultLabel.substring(0, 1)})
-}
-
-/**
- * 将一条消息合入气泡列表（去重 + 系统消息拆条 + 头/尾插）。
- * 纯数组变换，无响应式依赖；由 useChatMessageLoader / useChatSocketEvents / 发送流程复用。
- */
-export function addBubbleListMessage(
-  body: BaseChatBubble,
-  role: ChatRole,
-  bubbleList: ChatBubbleItem[],
-  append: boolean = false,
-  hide: boolean = false,
-): void {
-  appendMessages(body, role, bubbleList, append, hide)
 }
 
 /** 会话列表最后一条消息预览 */

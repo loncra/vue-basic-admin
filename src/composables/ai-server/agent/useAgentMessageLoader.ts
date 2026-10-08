@@ -4,12 +4,13 @@ import type {
   ActiveAgentConversationItem,
   AgentViewController,
 } from '@/types/composables'
-import {addBubbleListMessage, requireNonNullOrUndefined} from '@/utils'
-import type {ChatRole} from '@loncra/chat-core'
+import {requireNonNullOrUndefined} from '@/utils'
 import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {
+  appendMessages,
   applyHistoryPage,
   canLoadHistory,
+  type ChatRole,
   locateAnchor,
   openPageEdges,
   prependNoMoreIfLast,
@@ -64,7 +65,7 @@ export function useAgentMessageLoader(
       }
       applyHistoryPage(active, result.data, clear)
       for (const d of result.data.elements || []) {
-        addBubbleListMessage(d, resolveBubbleRole(d), active.dataSource.elements)
+        appendMessages(d, resolveBubbleRole(d), active.dataSource.elements)
       }
     } finally {
       pageLock = false

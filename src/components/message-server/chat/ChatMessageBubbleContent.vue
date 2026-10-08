@@ -7,7 +7,7 @@ import {useSlots} from "vue";
 import {getCallIcon, getParticipantBadgeStatus} from "@/utils/chatCallUtils.ts";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useChatCallModalExpose} from "@/composables";
-import {SenderSlotBubbleContent as LSenderSoldBubbleContent} from '@loncra/antdv-chat'
+import {SenderSlotBubbleContent as LSenderSoldBubbleContent} from '@loncra/antdv-chat-pro'
 import {
   MESSAGE_SERVER_CHAT_CALL_SCENE,
   MESSAGE_SERVER_USER_CHAT_CALL_PARTICIPANT_STATUS

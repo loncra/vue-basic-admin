@@ -34,6 +34,7 @@
     "@codemirror/theme-one-dark": "^6.1.3",
     "@loncra/antdv": "file:../packages/antdv",
     "@loncra/antdv-chat": "file:../packages/antdv-chat",
+    "@loncra/antdv-chat-pro": "file:../packages/antdv-chat-pro",
     "@loncra/chat-core": "file:../packages/chat-core",
     "@loncra/antdv-pro": "file:../packages/antdv-pro",
     "@loncra/client": "file:../packages/client",

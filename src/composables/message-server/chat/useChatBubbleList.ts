@@ -1,5 +1,5 @@
 import {type ComponentInternalInstance, getCurrentInstance, h, type Ref, ref, watch,} from 'vue'
-import type {BubbleListItem, BubbleRenderRow} from '@loncra/antdv-chat'
+import type {BubbleListItem, BubbleRenderRow} from '@loncra/antdv-chat-pro'
 import type {
   ChatBubbleItem,
   ChatBubbleListCallbacks,

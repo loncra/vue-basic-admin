@@ -8,13 +8,14 @@ import type {
   ServerConversationItem,
   UserChatConversationActiveProps,
 } from '@/types/composables'
-import {addBubbleListMessage, requireNonNullOrUndefined} from '@/utils'
-import type {ChatRole} from '@loncra/chat-core'
+import {requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
 import {
+  appendMessages,
   applyHistoryPage,
   canLoadHistory,
+  type ChatRole,
   locateAnchor,
   openPageEdges,
   pageEdgeBubble,
@@ -73,7 +74,7 @@ export function useChatMessageLoader(
       const page = result?.data || DEFAULT_PAGE_RESULT_VALUE
       applyHistoryPage(active, page, clear)
       for (const d of page.elements || []) {
-        addBubbleListMessage(d, resolveRole(d), active.dataSource.elements, !append)
+        appendMessages(d, resolveRole(d), active.dataSource.elements, !append)
       }
     } finally {
       pageLock = false

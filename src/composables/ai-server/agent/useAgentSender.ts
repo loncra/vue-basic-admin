@@ -17,11 +17,11 @@ import {
   AI_SERVER_PLUGIN_TARGET_TYPE,
   ModelSettingService
 } from "@loncra/client/ai";
-import {
-  type DraftSenderExpose,
-  type InstructionItem,
-  type InstructionMeasure,
-  type InstructionSenderHandle,
+import type {DraftSenderExpose} from '@loncra/antdv-chat-pro'
+import type {
+  InstructionItem,
+  InstructionMeasure,
+  InstructionSenderHandle,
 } from '@loncra/antdv-chat'
 import {renderIconFont} from '@/utils/commonUtils'
 import type {

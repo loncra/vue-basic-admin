@@ -13,7 +13,7 @@ import LChatMessageBubbleContent
   from '@/components/message-server/chat/ChatMessageBubbleContent.vue'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {getEnumValue} from '@loncra/client/commons'
-import {BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat'
+import {BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat-pro'
 
 defineOptions({
   name: 'LChatBubbleList',

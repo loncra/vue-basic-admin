@@ -7,7 +7,7 @@ import LAgentUserMessageBubbleContent
   from '@/components/ai-server/agent/AgentUserMessageBubbleContent.vue'
 import LAgentAssistantBubbleContent
   from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
-import {BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat'
+import {BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat-pro'
 import {createAgentBubbleListRole, isAgentBubbleLoading, useAgentView} from '@/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
 import type {AgentSseMessageContent} from "@/types/composables";

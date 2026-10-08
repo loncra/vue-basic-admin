@@ -23,6 +23,7 @@ import type {StreamAgentMessageEntity} from '@/types/apis'
 import {findFirstTreeNode, getEnumValue} from '@loncra/client/commons'
 import {getConversationRuns} from "@/composables";
 import {AI_SERVER_AGENT_BLOCK_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
+import {updateSessionMessage} from '@loncra/antdv-chat-pro'
 
 /**
  * 订阅助手 SSE
@@ -66,61 +67,59 @@ export function useAgentStream(
     }
 
     const sseData:AgentSseMessageContent = JSON.parse(chunk.data)
-    const bubble = active.dataSource
-      .elements
-      .find(item => item.key === String(sseData.assistantMessageId))
-    if (!bubble) {
-      return
-    }
-    if (!bubble.content) {
-      bubble.content = []
-    }
-
-    const ALL_CONTENT_TYPES = Object.values(AI_SERVER_AGENT_CONTENT_TYPE) as string[]
-    if (!ALL_CONTENT_TYPES.includes(sseData.type)) {
-      return
-    }
-
-    if (STREAM_APPEND_TYPES.includes(sseData.type)) {
-      const content = bubble.content as AgentSseMessageContent[]
-      if (!content.some(s => s.id === sseData.id && sseData.type === s.type)) {
-        content.push(sseData)
-        if (getEnumValue(sseData.type) === AI_SERVER_AGENT_CONTENT_TYPE.THINK) {
-          (sseData as AgentThinkBlock).expanded = true
-        }
-      } else {
-        appendContent(sseData as BlockDeltaContentMetadata, content)
+    updateSessionMessage(active.dataSource.elements, String(sseData.assistantMessageId), (bubble) => {
+      if (!bubble.content) {
+        bubble.content = []
       }
-    } else if (UPDATE_CONVERSATION_TYPES.includes(sseData.type)) {
-      updateConversation(sseData)
-    } else if (TOKEN_USAGE_TYPE === sseData.type) {
-      updateTokenUsage(sseData as AgentTokenUsageContent)
-    }
+
+      const ALL_CONTENT_TYPES = Object.values(AI_SERVER_AGENT_CONTENT_TYPE) as string[]
+      if (!ALL_CONTENT_TYPES.includes(sseData.type)) {
+        return
+      }
+
+      if (STREAM_APPEND_TYPES.includes(sseData.type)) {
+        const content = bubble.content as AgentSseMessageContent[]
+        if (!content.some(s => s.id === sseData.id && sseData.type === s.type)) {
+          content.push(sseData)
+          if (getEnumValue(sseData.type) === AI_SERVER_AGENT_CONTENT_TYPE.THINK) {
+            (sseData as AgentThinkBlock).expanded = true
+          }
+        } else {
+          appendContent(sseData as BlockDeltaContentMetadata, content)
+        }
+      } else if (UPDATE_CONVERSATION_TYPES.includes(sseData.type)) {
+        updateConversation(sseData)
+      } else if (TOKEN_USAGE_TYPE === sseData.type) {
+        updateTokenUsage(sseData as AgentTokenUsageContent)
+      }
+    })
   }
 
   function updateTokenUsage(sse: AgentTokenUsageContent) {
-    const item = conversationActive.value
-      ?.dataSource
-      .elements
-      .find(s => s.key === String(sse.assistantMessageId))
-    if (!item || !('metadata' in item)) {
+    const elements = conversationActive.value?.dataSource.elements
+    if (!elements) {
       return
     }
-    if (!item.metadata) {
-      item.metadata = {}
-    }
-    if (!item.metadata.tokenUsage) {
-      item.metadata.tokenUsage = []
-    }
-    const tokenUsage = item.metadata.tokenUsage as AgentTokenUsageContent[]
-    const find = tokenUsage.find(s => getEnumValue(s.usageType) === getEnumValue(sse.usageType))
-    if (find) {
-      find.inputTokens += sse.inputTokens
-      find.outputTokens += sse.outputTokens
-      find.cachedTokens += sse.cachedTokens
-    } else {
-      tokenUsage.push(sse)
-    }
+    updateSessionMessage(elements, String(sse.assistantMessageId), (item) => {
+      if (!('metadata' in item)) {
+        return
+      }
+      if (!item.metadata) {
+        item.metadata = {}
+      }
+      if (!item.metadata.tokenUsage) {
+        item.metadata.tokenUsage = []
+      }
+      const tokenUsage = item.metadata.tokenUsage as AgentTokenUsageContent[]
+      const find = tokenUsage.find(s => getEnumValue(s.usageType) === getEnumValue(sse.usageType))
+      if (find) {
+        find.inputTokens += sse.inputTokens
+        find.outputTokens += sse.outputTokens
+        find.cachedTokens += sse.cachedTokens
+      } else {
+        tokenUsage.push(sse)
+      }
+    })
   }
 
   function updateConversation(sse: AgentSseMessageContent) {
@@ -135,13 +134,15 @@ export function useAgentStream(
       if (item) {
         item.status = status
       }
-      const element = active.dataSource
-        .elements
-        .find(s => s.key === String(sse.assistantMessageId))
-      if (!element || !('status' in element)) {
+      if (status === undefined) {
         return
       }
-      element.status = active.status
+      updateSessionMessage(active.dataSource.elements, String(sse.assistantMessageId), (element) => {
+        if (!('status' in element)) {
+          return
+        }
+        element.status = status
+      })
     } else if (sse.type === AI_SERVER_AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME) {
       const name = getEnumValue((sse as GenerateConversationName).metadata.name)
       active.name = name

@@ -18,7 +18,8 @@ import {
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
-import {addBubbleListMessage, isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
+import {isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
+import {appendMessages} from '@loncra/chat-core'
 import {useChatContext} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
@@ -97,7 +98,7 @@ async function onSendMessage(content: ChatContentBlock[]) {
       return
     }
     const messageBody: UserChatMessageResponseBody = result.data
-    addBubbleListMessage(messageBody, CHAT_BUBBLE_TYPE.USER, conversation.value.dataSource.elements)
+    appendMessages(messageBody, CHAT_BUBBLE_TYPE.USER, conversation.value.dataSource.elements)
     // 发送成功再清 IDB：失败保留，刷新后还能重试。
     await clearPersistedDraft()
     senderRef.value?.clear()

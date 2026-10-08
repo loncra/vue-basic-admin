@@ -10,7 +10,7 @@ import type {ChatSocketEventsOptions} from '@/types/composables'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
-import {addBubbleListMessage} from '@/utils'
+import {appendMessages} from '@loncra/chat-core'
 import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from '@/constants'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 import {getEnumValue} from '@loncra/client/commons'
@@ -47,7 +47,7 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
     const active = conversationActive.value
     if (active.item?.data?.room?.id === result.data.userChatRoomId && hasView()) {
       const role = getMessageRole(result.data)
-      addBubbleListMessage(result.data, role, active.dataSource.elements, false, !active.isOnFirstPage)
+      appendMessages(result.data, role, active.dataSource.elements, false, !active.isOnFirstPage)
     }
     conversations.moveToTopByRoomId(result.data.userChatRoomId, (c) => {
       c.lastUserMessage = result.data as UserChatMessageEntity

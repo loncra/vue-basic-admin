@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {SenderSlotBubbleContent as LSenderSoldBubbleContent} from '@loncra/antdv-chat'
+import {SenderSlotBubbleContent as LSenderSoldBubbleContent} from '@loncra/antdv-chat-pro'
 import type {ChatContentBlock} from "@/types/composables";
 import type {AgentChatBubble} from '@loncra/chat-core'
 

@@ -1,7 +1,7 @@
 import type {UploadFile} from 'antdv-next/dist/upload/interface'
 import type {IdValueMetadata} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
-import type {BubbleListProps} from '@loncra/antdv-chat'
+import type {BubbleListProps} from '@loncra/antdv-chat-pro'
 import type {
   ActiveChatSession as CoreActiveChatSession,
   AgentChatBubble,
@@ -53,7 +53,7 @@ export type {
   BubbleListCallbacks,
   BubbleListProps,
   BubbleRenderRow,
-} from '@loncra/antdv-chat'
+} from '@loncra/antdv-chat-pro'
 
 /** IM 气泡列表配置（含时间分隔间隔） */
 export type ChatBubbleListProps = BubbleListProps & {

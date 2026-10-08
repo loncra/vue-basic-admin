@@ -4,21 +4,19 @@ import type {ChatContentBlock} from "@/types/composables";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import type {IdValueMetadata} from "@loncra/client/commons";
 import type {DraftRestoreResult} from '@loncra/chat-core'
-import type {ImDraftLive} from '@/composables/chat/draft'
-import {createImDraftCodec, getDraft, putDraft, clearDraft} from '@/composables/chat/draft'
-import {useChatMessageSender} from "@/composables/message-server/chat";
-import {type ComponentInternalInstance, getCurrentInstance, ref, toRef} from "vue";
 import {
-  type DraftBinding,
+  createImDraftBinding,
   ImSender as LImSender,
+  type ImDraftLive,
   type ImSenderExpose,
-  type InstructionMeasure,
-  type InstructionSenderHandle,
-} from '@loncra/antdv-chat'
+} from '@loncra/antdv-chat-pro'
+import type {InstructionMeasure, InstructionSenderHandle} from '@loncra/antdv-chat'
 import LChatMessageReference from "@/components/message-server/chat/ChatMessageReference.vue";
 import {createInstructionSlot as buildInstructionSlot, requireNonNullOrUndefined} from '@/utils'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
+import {useChatMessageSender} from "@/composables/message-server/chat";
+import {type ComponentInternalInstance, getCurrentInstance, ref, toRef} from "vue";
 
 defineOptions({
   name: 'LChatMessageSender',
@@ -76,46 +74,15 @@ function principalName(): string | undefined {
   return name ? name : undefined
 }
 
-function draftCodec() {
-  return createImDraftCodec({
+const binding = createImDraftBinding({
+  principal: principalName,
+  targetId: () => props.targetId,
+  factories: {
     restoreFilesSlot: (files, key) => createFilesSlot(files, key),
     restoreInstructionSlot: (block) =>
       buildInstructionSlot(block, configProviderStore, currentInstance),
-  })
-}
-
-const binding: DraftBinding<ImDraftLive> = {
-  key: () => {
-    const principal = principalName()
-    return principal && props.targetId ? `${principal}:im:${props.targetId}` : undefined
   },
-  async save(live) {
-    const principal = principalName()
-    if (!principal || !props.targetId) {
-      return
-    }
-    const codec = draftCodec()
-    await putDraft(codec.toRecord(live, {principal, targetId: props.targetId}), codec.collectBlobs(live))
-  },
-  async load() {
-    const principal = principalName()
-    if (!principal || !props.targetId) {
-      return null
-    }
-    const stored = await getDraft('im', principal, props.targetId)
-    if (!stored || stored.record.scope !== 'im') {
-      return null
-    }
-    return draftCodec().fromRecord(stored.record, stored.blobs)
-  },
-  async clear() {
-    const principal = principalName()
-    if (!principal || !props.targetId) {
-      return
-    }
-    await clearDraft('im', principal, props.targetId)
-  },
-}
+})
 
 function readLive(): ImDraftLive {
   return {

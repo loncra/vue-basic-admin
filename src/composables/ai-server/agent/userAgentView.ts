@@ -14,8 +14,8 @@ import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {nextTick, ref, watch} from 'vue'
 import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
-import type {AgentChatBubble} from '@loncra/chat-core'
-import type {BubbleList as LBubbleList, BubbleListExpose} from '@loncra/antdv-chat'
+import {appendMessages, type AgentChatBubble} from '@loncra/chat-core'
+import type {BubbleList as LBubbleList, BubbleListExpose} from '@loncra/antdv-chat-pro'
 import useApp from 'antdv-next/dist/app/useApp'
 import {
   DEFAULT_BUBBLE_LIST_ROLE,
@@ -24,7 +24,6 @@ import {
   useAgentChatContext,
 } from '@/composables'
 import {AGENT_CHAT_TYPE_STYLE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
-import {addBubbleListMessage} from '@/utils'
 import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
@@ -142,8 +141,8 @@ export function useAgentView() {
           parentId: result.data.userMessageId,
         }
 
-        addBubbleListMessage(userMessage, CHAT_BUBBLE_TYPE.USER, conversationActive.value.dataSource.elements, true)
-        addBubbleListMessage(assistantMessage, CHAT_BUBBLE_TYPE.AI, conversationActive.value.dataSource.elements, true)
+        appendMessages(userMessage, CHAT_BUBBLE_TYPE.USER, conversationActive.value.dataSource.elements, true)
+        appendMessages(assistantMessage, CHAT_BUBBLE_TYPE.AI, conversationActive.value.dataSource.elements, true)
         stream.connect(result.data.assistantMessageId)
         await nextTick()
       }
