@@ -4,8 +4,7 @@ import type {
   UserChatMessageResponseBody
 } from '@/types/apis'
 import type {RestResult} from '@loncra/client/commons'
-import type {UserChatConversationEntity} from '@loncra/client/message'
-import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
+import {MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 import type {ChatSocketEventsOptions} from '@/types/composables'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
@@ -71,16 +70,7 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
     if (!conversations.findByRoomId(result.data)) {
       return
     }
-    const conversationResult: RestResult<
-      UserChatConversationEntity | UserChatConversationResponseBody
-    > = await ChatMessageService.getConversation(result.data, true)
-    if (!conversationResult.data) {
-      return
-    }
-    const find = conversations.replaceByRoomId(
-      result.data,
-      conversationResult.data as UserChatConversationResponseBody,
-    )
+    const find = await conversations.refreshByRoomId(result.data)
     if (!find) {
       return
     }
@@ -99,11 +89,7 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
   }
 
   async function onConversationRefresh(): Promise<void> {
-    const chatRoomResult: RestResult<UserChatConversationResponseBody[]> =
-      await ChatMessageService.my()
-    if (chatRoomResult.data) {
-      conversations.setAll(chatRoomResult.data)
-    }
+    await conversations.load()
     const active = conversationActive.value
     if (!active.item) {
       return
