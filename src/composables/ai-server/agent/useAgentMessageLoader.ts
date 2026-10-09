@@ -1,29 +1,16 @@
 import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
-import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref,} from 'vue'
-import type {
-  ActiveAgentConversationItem,
-  AgentViewController,
-} from '@/types/composables'
+import type {AgentMessageEntity} from '@loncra/client/ai'
+import {type ComponentInternalInstance, getCurrentInstance, type Ref} from 'vue'
+import type {ActiveAgentConversationItem, AgentViewController} from '@/types/composables'
 import {requireNonNullOrUndefined} from '@/utils'
-import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
-import {
-  appendMessages,
-  applyHistoryPage,
-  canLoadHistory,
-  type ChatRole,
-  locateAnchor,
-  openPageEdges,
-  prependNoMoreIfLast,
-  stepPageNumber,
-  textBubble,
-} from '@loncra/chat-core'
-import {AgentService} from '@/apis'
-import type {AgentMessageEntity} from '@/types/apis'
-import type {PageResult, RestResult} from '@loncra/client/commons'
-import {getEnumValue} from '@loncra/client/commons'
+import {CHAT_BUBBLE_TYPE} from '@/constants'
+import {type ChatRole} from '@loncra/chat-core'
+import {useAgentHistory} from '@loncra/antdv-chat-pro'
+import {getEnumValue, type NameValueEnumMetadata} from '@loncra/client/commons'
 
 /**
  * 智能体活跃会话的消息分页、锚点跳转与会话切换。
+ * 请求和分页在 useAgentHistory。这里只提供文案、角色、是否工作区会话，以及滚动。
  */
 export function useAgentMessageLoader(
   conversationActive: Ref<ActiveAgentConversationItem | undefined>,
@@ -32,8 +19,6 @@ export function useAgentMessageLoader(
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
-
-  let pageLock = false
 
   function resolveBubbleRole(message: AgentMessageEntity): ChatRole {
     const role = getEnumValue(message.role)
@@ -46,147 +31,20 @@ export function useAgentMessageLoader(
     return CHAT_BUBBLE_TYPE.USER
   }
 
-  async function loadPage(
-    number: number,
-    clear: boolean = false,
-  ): Promise<void> {
-    const active = conversationActive.value
-    if (!active || pageLock) {
-      return
-    }
-    try {
-      pageLock = true
-      const result: RestResult<PageResult<AgentMessageEntity>> = await AgentService.histories(
-        {number, size: active.dataSource.size || DEFAULT_PAGE_RESULT_VALUE.size},
-        Number(active.id),
-      )
-      if (!result.data) {
-        return
-      }
-      applyHistoryPage(active, result.data, clear)
-      for (const d of result.data.elements || []) {
-        appendMessages(d, resolveBubbleRole(d), active.dataSource.elements)
-      }
-    } finally {
-      pageLock = false
-    }
-  }
-
-  async function loadMore(tag: 'next' | 'previous'): Promise<void> {
-    await nextTick()
-    const active = conversationActive.value
-    if (!active || active.loading || pageLock) {
-      return
-    }
-    if (!canLoadHistory(active, tag)) {
-      return
-    }
-    // 锚点滚动恢复保持关闭，不调用 pageEdgeBubble。
-
-    active.dataSource.number = stepPageNumber(active.dataSource.number, tag)
-    await loadPage(active.dataSource.number)
-    await nextTick()
-    prependNoMoreIfLast(
-      active,
-      tag,
-      textBubble(globalProperties.$dayjs().unix(), globalProperties.$t('common.noMore')),
-    )
-  }
-
-  async function positioningMessage(messageId: number): Promise<void> {
-    const active = conversationActive.value
-    if (!active) {
-      return
-    }
-    try {
-      active.loading = true
-      const result: RestResult<number> = await AgentService.positioningMessagePageNumber(
-        Number(active.id),
-        messageId,
-        active.dataSource.size || DEFAULT_PAGE_RESULT_VALUE.size,
-      )
-      if (result.data) {
-        await jumpToAnchorPage(messageId, result.data)
-      }
-    } finally {
-      active.loading = false
-    }
-  }
-
-  async function jumpToAnchorPage(
-    messageId: number,
-    pageNumber: number,
-    systemMessage?: string,
-  ): Promise<void> {
-    const active = conversationActive.value
-    if (!active) {
-      return
-    }
-    openPageEdges(active)
-    active.loading = true
-    try {
-      await loadPage(pageNumber, true)
-
-      const anchorBubble = active.dataSource.elements.find((item) => item.key === String(messageId))
-      const key = locateAnchor(
-        active.dataSource.elements,
-        messageId,
-        systemMessage && anchorBubble
-          ? textBubble(
-            'system-anchor-message-' + globalProperties.$dayjs().unix(),
-            systemMessage,
-            'system',
-            (anchorBubble.creationTime ?? 0) - 1,
-          )
-          : undefined,
-      )
-
-      await nextTick()
-      if (!view.value || key === undefined) {
-        return
-      }
-      view.value.jumpToMessage(String(key))
-    } finally {
-      active.loading = false
-    }
-  }
-
-  async function switchConversation(
-    conversation: Ref<ActiveAgentConversationItem | undefined>,
-    messageId?: number,
-    reload: boolean = false,
-  ): Promise<void> {
-    if (
-      !conversation.value ||
-      getEnumValue(conversation.value.type) !== AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION
-    ) {
-      return
-    }
-
-    if (!messageId) {
-      const active = conversation.value
-      active.loading = true
-      try {
-        active.isOnFirstPage = true
-        active.isOnLastPage = false
-        await loadPage(1, reload)
-        await nextTick()
-        view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
-      } finally {
-        active.loading = false
-      }
-    } else {
-      await positioningMessage(messageId)
-    }
-  }
-
-  return {
-    loadPage,
-    loadMore,
-    switchConversation,
-    jumpToAnchorPage,
-    positioningMessage,
-  }
+  return useAgentHistory(conversationActive, {
+    noMoreText: () => globalProperties.$t('common.noMore'),
+    nowUnix: () => globalProperties.$dayjs().unix(),
+    resolveRole: resolveBubbleRole,
+    isWorkspace: (conversation) =>
+      getEnumValue(conversation.type as NameValueEnumMetadata<number> | number)
+      === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION,
+    scrollToBottom: () => {
+      view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
+    },
+    jumpToMessage: (key) => {
+      view.value?.jumpToMessage(key)
+    },
+  })
 }
 
 export type AgentMessageLoaderApi = ReturnType<typeof useAgentMessageLoader>

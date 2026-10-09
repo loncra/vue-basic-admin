@@ -13,13 +13,13 @@ import type {
 import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
 import type {UserChatParticipantEntity} from "@loncra/client/message";
 import {
-  ChatMessageService,
   MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS,
   MESSAGE_SERVER_USER_CHAT_ROOM_TYPE
 } from "@loncra/client/message";
 import {AuthServerService} from "@/apis";
 import {isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {appendMessages} from '@loncra/chat-core'
+import {sendImMessage} from '@loncra/antdv-chat-pro'
 import {useChatContext} from "@/composables/message-server/chat";
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
@@ -93,7 +93,7 @@ async function onSendMessage(content: ChatContentBlock[]) {
   }
   conversation.value.sending = true
   try {
-    const result = await ChatMessageService.send(content, String(userChatRoomId))
+    const result = await sendImMessage(String(userChatRoomId), content)
     if (!result.data) {
       return
     }

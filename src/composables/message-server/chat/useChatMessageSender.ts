@@ -175,6 +175,33 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     return []
   }
 
+  // 编辑器每次击键都会重绘原子槽。附件芯片跟着重绘时，浏览器会把光标拽回芯片后那一格。
+  // 文件、禁用、语言、主题都没变就复用同一份 props，槽标 $stable，这次重绘不碰 DOM。
+  const fileChipViews = new Map<string, {
+    files: UploadFile<ObjectWriteResult>[]
+    disabled: boolean
+    localeKey: string
+    locale: object | undefined
+    theme: typeof configProviderStore.antdv.themeConfig.value
+    componentSize: typeof configProviderStore.antdv.state.componentSize
+    onUpdate: (next: AttachmentValue) => void
+    bindRef: (inst: unknown) => void
+  }>()
+
+  function sameFileRefs(
+    left: UploadFile<ObjectWriteResult>[],
+    right: UploadFile<ObjectWriteResult>[],
+  ): boolean {
+    return left.length === right.length && left.every((file, index) => file === right[index])
+  }
+
+  function filesValueOf(value: unknown, item: SlotConfigType): UploadFile<ObjectWriteResult>[] {
+    if (Array.isArray(value) && value.every(isUploadFile)) {
+      return value
+    }
+    return resolveFilesValue(value, item)
+  }
+
   function fileCustomRender(
     value: UploadFile<ObjectWriteResult>[],
     onChange: (value: AttachmentValue) => void,
@@ -182,27 +209,55 @@ export function useChatMessageSender(params: UseChatMessageSenderParams) {
     item: SlotConfigType,
   ) {
     const slotKey = 'key' in item && item.key ? item.key : ''
-    const files = resolveFilesValue(value, item)
+    const files = filesValueOf(value, item)
+    const disabled = isSending.value
+    const localeKey = configProviderStore.antdv.state.locale
+    const theme = configProviderStore.antdv.themeConfig.value
+    const componentSize = configProviderStore.antdv.state.componentSize
+    let view = fileChipViews.get(slotKey)
+    if (
+      !view
+      || view.disabled !== disabled
+      || view.localeKey !== localeKey
+      || view.theme !== theme
+      || view.componentSize !== componentSize
+      || !sameFileRefs(view.files, files)
+    ) {
+      view = {
+        files,
+        disabled,
+        localeKey,
+        locale: configProviderStore.antdvLocaleMessage(),
+        theme,
+        componentSize,
+        onUpdate: (next: AttachmentValue) => handleFilesSlotChange(item, next, onChange),
+        bindRef: (inst: unknown) => bindUploadRef(slotKey, inst),
+      }
+      fileChipViews.set(slotKey, view)
+    }
+    const chip = view
+    const slots = {
+      default: () =>
+        h(LAttachmentUpload, {
+          bucket: 'temp',
+          disabled: chip.disabled,
+          uploadOptions: getUploadOptions(),
+          ref: chip.bindRef,
+          value: chip.files,
+          multiple: true,
+          maxCount: chip.files.length,
+          'onUpdate:value': chip.onUpdate,
+        }),
+      $stable: true,
+    }
     const node = h(
       AxConfigProvider,
       {
-        locale: configProviderStore.antdvLocaleMessage(),
-        componentSize: configProviderStore.antdv.state.componentSize,
-        theme: configProviderStore.antdv.themeConfig.value,
+        locale: chip.locale,
+        componentSize: chip.componentSize,
+        theme: chip.theme,
       },
-      {
-        default: () =>
-          h(LAttachmentUpload, {
-            bucket: 'temp',
-            disabled: isSending.value,
-            uploadOptions: getUploadOptions(),
-            ref: (inst: unknown) => bindUploadRef(slotKey, inst),
-            value: files,
-            multiple: true,
-            maxCount: files.length,
-            'onUpdate:value': (next: AttachmentValue) => handleFilesSlotChange(item, next, onChange),
-          }),
-      },
+      slots,
     )
     node.appContext = currentInstance.appContext
     return node

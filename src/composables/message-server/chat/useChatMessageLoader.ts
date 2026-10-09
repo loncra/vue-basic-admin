@@ -1,33 +1,17 @@
-import {type ComponentInternalInstance, getCurrentInstance, nextTick, type Ref} from 'vue'
-import type {UserChatMessageResponseBody} from '@/types/apis'
-import type {PageResult, RestResult} from '@loncra/client/commons'
-import type {UserChatParticipantEntity} from '@loncra/client/message'
-import {ChatMessageService, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
-import type {
-  ChatViewController,
-  ServerConversationItem,
-  UserChatConversationActiveProps,
-} from '@/types/composables'
+import {type ComponentInternalInstance, getCurrentInstance, type Ref} from 'vue'
+import type {UserChatMessageResponseBody} from '@loncra/client/message'
+import {MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
+import type {ChatViewController, UserChatConversationActiveProps} from '@/types/composables'
 import {requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {CHAT_BUBBLE_TYPE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
-import {
-  appendMessages,
-  applyHistoryPage,
-  canLoadHistory,
-  type ChatRole,
-  locateAnchor,
-  openPageEdges,
-  pageEdgeBubble,
-  prependNoMoreIfLast,
-  stepPageNumber,
-  textBubble,
-} from '@loncra/chat-core'
+import {CHAT_BUBBLE_TYPE} from '@/constants'
+import {type ChatRole} from '@loncra/chat-core'
+import {useImHistory} from '@loncra/antdv-chat-pro'
 import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 活跃会话的消息分页、锚点跳转与会话切换。
- * 气泡单轨：dataSource.elements 为 ChatBubbleItem[]；分页防重入用内聚 pageLock。
+ * 请求和分页在 useImHistory。这里只提供文案、角色、滚动，以及切走前的草稿落盘。
  */
 export function useChatMessageLoader(
   conversationActive: Ref<UserChatConversationActiveProps>,
@@ -38,238 +22,39 @@ export function useChatMessageLoader(
   ).appContext.config.globalProperties
   const principalStore = usePrincipalStore()
 
-  let pageLock = false
-
-  function resolveRole(d: UserChatMessageResponseBody): ChatRole {
+  function resolveRole(message: UserChatMessageResponseBody): ChatRole {
     let role: ChatRole =
       principalStore.state.name ===
-      (d.participant?.metadata?.details as {systemName: string})?.systemName
+      (message.participant?.metadata?.details as {systemName: string})?.systemName
         ? CHAT_BUBBLE_TYPE.USER
         : CHAT_BUBBLE_TYPE.AI
-    if (getEnumValue(d.type) === MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.SYSTEM) {
+    if (getEnumValue(message.type) === MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.SYSTEM) {
       role = CHAT_BUBBLE_TYPE.SYSTEM
     }
     return role
   }
 
-  async function loadPage(
-    chatRoomId: number,
-    number: number,
-    append: boolean = false,
-    clear: boolean = false,
-  ): Promise<void> {
-    const active = conversationActive.value
-    if (pageLock) {
-      return
-    }
-    const request = {
-      number,
-      withoutReadableAnchor: active.readableAnchorLoading,
-    }
-    try {
-      pageLock = true
-      const result: RestResult<PageResult<UserChatMessageResponseBody>> =
-        await ChatMessageService.histories(request, chatRoomId)
-
-      const page = result?.data || DEFAULT_PAGE_RESULT_VALUE
-      applyHistoryPage(active, page, clear)
-      for (const d of page.elements || []) {
-        appendMessages(d, resolveRole(d), active.dataSource.elements, !append)
+  return useImHistory(conversationActive, {
+    noMoreText: () => globalProperties.$t('common.noMore'),
+    nowUnix: () => globalProperties.$dayjs().unix(),
+    readableSystemMessage: () => globalProperties.$t('chat.view.readable.systemMessage'),
+    resolveRole,
+    beforeSwitch: async () => {
+      const active = conversationActive.value
+      if (active.item?.data && view.value) {
+        // 先写回列表项（内存「[草稿]」），再 flush。此时 sender 上的房间 id 仍是旧的。
+        // 换 item 后按房间 key 重建，新实例自己还原。
+        active.item.data.draft = view.value.getSenderSlotConfigValue()
+        await view.value.persistSenderDraft()
       }
-    } finally {
-      pageLock = false
-    }
-  }
-
-  async function loadParticipant(roomId: number): Promise<void> {
-    const result: RestResult<UserChatParticipantEntity[]> =
-      await ChatMessageService.findRoomParticipant(roomId)
-    if (result.data) {
-      conversationActive.value.participants = result.data
-    }
-  }
-
-  async function switchConversation(
-    item: ServerConversationItem,
-    messageId?: number,
-    reload: boolean = false,
-  ): Promise<void> {
-    const active = conversationActive.value
-    if (active.loading) {
-      return
-    }
-    if (active.item?.data && view.value) {
-      // 先写回列表项（内存「[草稿]」），再 flush。此时 sender 上的房间 id 仍是旧的。
-      // 换 item 后按房间 key 重建，新实例自己还原。
-      active.item.data.draft = view.value.getSenderSlotConfigValue()
-      await view.value.persistSenderDraft()
-    }
-    if (active.item?.key === item.key && !reload) {
-      active.item = {...active.item, ...item}
-      return
-    }
-    active.loading = true
-    active.drawerOpen = false
-    try {
-      active.item = item
-      active.isOnFirstPage = true
-      active.isOnLastPage = false
-      active.dataSource = {...DEFAULT_PAGE_RESULT_VALUE, elements: []}
-      if (!active.item?.data?.room) {
-        return
-      }
-      await loadParticipant(Number(active.item?.data?.room?.id))
-      if (!messageId) {
-        await loadPage(Number(active.item.data.room.id), 1, false, reload)
-        await nextTick()
-        view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
-      } else {
-        await positioningMessage(messageId, Number(active.item.data.room.id))
-      }
-    } finally {
-      active.loading = false
-    }
-  }
-
-  async function loadMore(tag: 'next' | 'previous'): Promise<void> {
-    await nextTick()
-    const active = conversationActive.value
-    if (pageLock) {
-      return
-    }
-    if (!canLoadHistory(active, tag)) {
-      return
-    }
-    const roomId = Number(active.item?.data?.room?.id)
-    if (!roomId) {
-      return
-    }
-    const anchor = pageEdgeBubble(active.dataSource.elements, tag)
-
-    active.dataSource.number = stepPageNumber(active.dataSource.number, tag)
-    await loadPage(roomId, active.dataSource.number, tag === 'previous')
-    await nextTick()
-    if (anchor) {
-      view.value?.jumpToMessage(String(anchor.key), false, tag === 'next' ? 'nearest' : 'end')
-    }
-    prependNoMoreIfLast(
-      active,
-      tag,
-      textBubble(globalProperties.$dayjs().unix(), globalProperties.$t('common.noMore')),
-    )
-  }
-
-  async function jumpToAnchorPage(
-    messageId: number,
-    pageNumber: number,
-    systemMessage?: string,
-  ): Promise<void> {
-    const active = conversationActive.value
-    openPageEdges(active)
-    active.loading = true
-    try {
-      await loadPage(Number(active.item?.data?.room?.id), pageNumber, false, true)
-
-      const anchorBubble = active.dataSource.elements.find((item) => item.key === String(messageId))
-      const key = locateAnchor(
-        active.dataSource.elements,
-        messageId,
-        systemMessage && anchorBubble
-          ? textBubble(
-            'system-anchor-message-' + globalProperties.$dayjs().unix(),
-            systemMessage,
-            'system',
-            (anchorBubble.creationTime ?? 0) - 1,
-          )
-          : undefined,
-      )
-
-      await nextTick()
-      if (!view.value || key === undefined) {
-        return
-      }
-      view.value.jumpToMessage(String(key))
-    } finally {
-      active.loading = false
-    }
-  }
-
-  function showReadableAnchorButton(): boolean {
-    return (
-      !conversationActive.value.loading &&
-      !!conversationActive.value.dataSource?.metadata?.readableAnchorId
-    )
-  }
-
-  async function toReadableAnchor(): Promise<void> {
-    const active = conversationActive.value
-    if (!active.item) {
-      return
-    }
-    if (!active.dataSource?.metadata?.readableAnchorPage) {
-      return
-    }
-    const readableAnchorId = active.dataSource?.metadata?.readableAnchorId
-    if (!readableAnchorId) {
-      return
-    }
-    active.readableAnchorLoading = true
-    await jumpToAnchorPage(
-      Number(readableAnchorId),
-      Number(active.dataSource?.metadata?.readableAnchorPage),
-      globalProperties.$t('chat.view.readable.systemMessage'),
-    )
-  }
-
-  async function jumpToHistoryMessage(data: UserChatMessageResponseBody): Promise<void> {
-    const active = conversationActive.value
-    if (!active.item) {
-      return
-    }
-    active.drawerOpen = false
-    await nextTick()
-    const index = active.dataSource.elements.findIndex((d) => d.key === String(data.id))
-    if (index >= 0) {
-      const anchorBubble = active.dataSource.elements[index]
-      if (!anchorBubble) {
-        return
-      }
-      view.value?.jumpToMessage(String(anchorBubble.key))
-      return
-    }
-    await positioningMessage(Number(data.id), Number(active.item?.data?.room?.id))
-  }
-
-  async function positioningMessage(messageId: number, roomId: number): Promise<void> {
-    const active = conversationActive.value
-    if (!active.item) {
-      return
-    }
-    try {
-      active.loading = true
-      const result: RestResult<number> = await ChatMessageService.positioningMessagePageNumber(
-        roomId,
-        messageId,
-        active.dataSource.size,
-      )
-      if (result.data) {
-        await jumpToAnchorPage(messageId, result.data)
-      }
-    } finally {
-      active.loading = false
-    }
-  }
-
-  return {
-    loadPage,
-    switchConversation,
-    loadMore,
-    jumpToAnchorPage,
-    showReadableAnchorButton,
-    loadParticipant,
-    toReadableAnchor,
-    jumpToHistoryMessage,
-  }
+    },
+    scrollToBottom: () => {
+      view.value?.scrollTo({top: 'bottom', behavior: 'smooth'})
+    },
+    jumpToMessage: (key, flashPending, block) => {
+      view.value?.jumpToMessage(key, flashPending, block)
+    },
+  })
 }
 
 export type ChatMessageLoaderApi = ReturnType<typeof useChatMessageLoader>

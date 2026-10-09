@@ -10,12 +10,11 @@ import type {
 } from '@/types/composables'
 import type {AgentMessageEntity, StreamAgentMessageEntity} from '@/types/apis'
 import type {IdValueMetadata, RestResult} from '@loncra/client/commons'
-import {AgentService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {nextTick, ref, watch} from 'vue'
 import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
 import {appendMessages, type AgentChatBubble} from '@loncra/chat-core'
-import type {BubbleList as LBubbleList, BubbleListExpose} from '@loncra/antdv-chat-pro'
+import {interruptAgent, sendAgentChat, type BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat-pro'
 import useApp from 'antdv-next/dist/app/useApp'
 import {
   DEFAULT_BUBBLE_LIST_ROLE,
@@ -98,7 +97,7 @@ export function useAgentView() {
         ...value,
         agentConversationId: conversationActive.value.id,
       }
-      const result: RestResult<AgentChatResponseBody> = await AgentService.chat(form)
+      const result: RestResult<AgentChatResponseBody> = await sendAgentChat(form)
       if (!result.data?.conversation) {
         return
       }
@@ -161,7 +160,7 @@ export function useAgentView() {
     }
     const runs = getConversationRuns(conversationActive.value)
     for (const run of runs) {
-      await AgentService.interrupt(Number(run.key))
+      await interruptAgent(Number(run.key))
     }
   }
 
