@@ -1,8 +1,4 @@
 export {
-  useAgentConversation
-} from './useAgentConversation.ts'
-
-export {
   useAgentSender
 } from './useAgentSender.ts'
 

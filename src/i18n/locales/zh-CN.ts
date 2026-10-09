@@ -2,6 +2,7 @@ import zhCN from 'antdv-next/locale/zh_CN'
 import loncraZhCN from '@loncra/antdv/locale/zh_CN'
 import loncraAntdvProZhCN from '@loncra/antdv-pro/locale/zh_CN'
 import loncraAntdvChatZhCN from '@loncra/antdv-chat/locale/zh_CN'
+import loncraAntdvChatProZhCN from '@loncra/antdv-chat-pro/locale/zh_CN'
 import type {LanguagePack} from '@/i18n'
 import 'dayjs/locale/zh-cn'
 
@@ -10,7 +11,7 @@ const locale: LanguagePack = {
   fallbackLocale: true,
   name: '简体中文',
   dayjs: 'zh-CN',
-  antDesign: {...zhCN, ...loncraZhCN, ...loncraAntdvProZhCN, ...loncraAntdvChatZhCN},
+  antDesign: {...zhCN, ...loncraZhCN, ...loncraAntdvProZhCN, ...loncraAntdvChatZhCN, ...loncraAntdvChatProZhCN},
   boot: {
     prepare: '正在连接服务…',
     routes: '正在加载功能…',
@@ -695,17 +696,13 @@ const locale: LanguagePack = {
     conversation:{
       delete:'删除会话',
       newMessage:'有{count}条未读消息',
-      draft:'草稿',
-      mention:'{count}条消息中提到了你'
     },
     everyone:'所有人',
     pinned:{
       action:'置顶聊天',
-      cancel:'取消置顶聊天'
     },
     muted:{
       action:'消息免打扰',
-      cancel:'取消免打扰'
     },
     history: '聊天记录',
     view:{
@@ -769,7 +766,6 @@ const locale: LanguagePack = {
       total:'词元消耗统计',
     },
     hub:{
-      text:'插件市场',
       mcp:'MCP 插件',
       skill:'技能插件',
       myPlugin:'我的插件',
@@ -793,10 +789,8 @@ const locale: LanguagePack = {
         empty:'暂无工作空间',
       },
     },
-    creation:'创建智能体',
     workspace:{
       title:'工作空间',
-      createPlaceholder:'工作空间名称',
     },
     think:'深度思考',
     toolCall:{

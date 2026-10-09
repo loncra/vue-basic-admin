@@ -13,7 +13,7 @@ import type {
   UserChatParticipantEntity
 } from '@loncra/client/message'
 import type {LocalAudioTrack, LocalVideoTrack, Room} from 'livekit-client'
-import type {ChatConversationsApi} from '@/composables/message-server/chat/useChatConversations.ts'
+import type {ImConversationsApi} from '@loncra/antdv-chat-pro'
 import type {ChatMessageLoaderApi} from '@/composables/message-server/chat/useChatMessageLoader.ts'
 import {
   CHAAT_ROOM_VIEW_MODAL_TYPE,
@@ -102,7 +102,7 @@ export interface ProvideUserChatContextOptions {
 
 export interface UserChatContext {
   conversationActive: Ref<UserChatConversationActiveProps>
-  conversations: ChatConversationsApi
+  conversations: ImConversationsApi<UserChatConversationResponseBody>
   loader: ChatMessageLoaderApi
   activateConversation: (
     body: UserChatConversationResponseBody | undefined,
@@ -220,7 +220,7 @@ export interface UseChatMessageSenderParams {
 
 export interface ChatSocketEventsOptions {
   conversationActive: Ref<UserChatConversationActiveProps>
-  conversations: ChatConversationsApi
+  conversations: ImConversationsApi<UserChatConversationResponseBody>
   hasView: () => boolean
   refreshActiveHeader: (item: ServerConversationItem | undefined) => void
   activateConversation: (

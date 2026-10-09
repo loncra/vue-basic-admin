@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
-
 import {AuthServerService} from "@/apis";
-import {AttachmentService} from "@loncra/client/resource";
 import {
   type ComponentInternalInstance,
   computed,
@@ -14,7 +11,6 @@ import {
   type VNode
 } from "vue";
 import type {UserChatConversationResponseBody} from "@/types/apis";
-import type {ConversationItemType, ItemType} from "@antdv-next/x/dist/conversations/interface";
 import {
   createAvatarNode,
   getDraftContent,
@@ -23,17 +19,14 @@ import {
 } from "@/utils";
 import type {ServerConversationItem} from "@/types/composables";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, YES_OR_NO_TYPE} from '@/constants';
-import type {MenuItemType} from "antdv-next";
-import useApp from "antdv-next/dist/app/useApp";
-import {useChatContext, useConversationActions} from "@/composables/message-server/chat";
-import {getEnumValue} from "@loncra/client/commons"
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from '@/constants';
+import {useChatContext} from "@/composables/message-server/chat";
+import {ImConversationList, type ImConversationHost} from '@loncra/antdv-chat-pro'
+import {renderIconFont} from '@/utils/commonUtils'
 
 defineOptions({
   name: 'LChatConversation',
 })
-
-const {modal} = useApp()
 
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
@@ -42,59 +35,26 @@ const setMessageExtraContent = inject<((node: VNode) => void) | undefined>(MY_ME
 
 const messageServerStore = useMessageServerStore()
 const {conversations, conversationActive, loader} = useChatContext()
-const conversationActions = useConversationActions()
 
 const moreButtonActive = ref(false)
-const searchValue = ref<string>('')
+const emptyOpenKeys: string[] = []
 
 const activeKey = computed(() => conversationActive.value.item?.key ?? "")
 
 const emit = defineEmits<{
-  delete: [item:UserChatConversationResponseBody]
+  delete: [item: UserChatConversationResponseBody]
 }>()
 
-const DEFAULT_MENU_ITEMS = computed<MenuItemType[]>(() => [
-  {
-    type: "divider",
-  },
-  {
-    label: globalProperties.$t("common.delete.text"),
-    key: 'delete',
-    icon:() => renderIconFont('loncra-archive-x', 'text-lg'),
-    danger: true,
-  },
-])
-
-function createMenu(item:UserChatConversationResponseBody):MenuItemType[] {
-  const temp = [...DEFAULT_MENU_ITEMS.value]
-  if (getEnumValue(item.muted) === YES_OR_NO_TYPE.NO) {
-    temp.unshift({
-      label: globalProperties.$t("chat.muted.action"),
-      key: 'muted',
-      icon:renderIconFont('loncra-megaphone-off', 'text-lg'),
-    })
-  } else {
-    temp.unshift({
-      label: globalProperties.$t("chat.muted.cancel"),
-      key: 'muted',
-      icon:renderIconFont('loncra-megaphone', 'text-lg'),
-    })
-  }
-  if (getEnumValue(item.pinned) === YES_OR_NO_TYPE.NO) {
-    temp.unshift({
-      label: globalProperties.$t("chat.pinned.action"),
-      key: 'pinned',
-      icon:renderIconFont('loncra-heart', 'text-lg'),
-    })
-  } else {
-    temp.unshift({
-      label: globalProperties.$t("chat.pinned.cancel"),
-      key: 'pinned',
-      icon:renderIconFont('loncra-heart-off', 'text-lg'),
-    })
-  }
-  return temp;
-}
+const host = computed<ImConversationHost>(() => ({
+  timeText: (unix) => globalProperties.$dayjs(unix).fromNow(),
+  unreadCount: (id) => messageServerStore.getUserChatUnreadQuantity(Number(id)),
+  principalName: (participant) => AuthServerService.getPrincipalNameByUserDetails(participant.metadata.details),
+  messagePreview: (lastUserMessage, conversation) => getMessageContent(
+    lastUserMessage as UserChatConversationResponseBody['lastUserMessage'],
+    conversation as UserChatConversationResponseBody,
+  ),
+  draftPreview: (draft) => getDraftContent(draft as UserChatConversationResponseBody['draft']),
+}))
 
 function onMoreClick(item: ServerConversationItem) {
   if (!item.data) {
@@ -104,11 +64,11 @@ function onMoreClick(item: ServerConversationItem) {
   conversationActive.value.drawerOpen = !conversationActive.value.drawerOpen
 }
 
-function createMoreButton(activeConversationItem:ServerConversationItem) {
+function createMoreButton(activeConversationItem: ServerConversationItem) {
   return h(
     resolveComponent('AButton'),
     {
-      type:'text',
+      type: 'text',
       icon: () => renderIconFont(moreButtonActive.value ? 'loncra-panel-right-close' : 'loncra-panel-left-close'),
       size: 'small',
       onClick: () => onMoreClick(activeConversationItem),
@@ -116,24 +76,24 @@ function createMoreButton(activeConversationItem:ServerConversationItem) {
   )
 }
 
-function onConversationsActiveChange(value: string, item: ItemType | undefined, messageId?:number): void {
-  if (!item || !(item as ConversationItemType)) {
-    return;
+function onActive(value: string, messageId?: number): void {
+  const data = conversations.sortedDataSource.value.find((item) => String(item.id) === value)
+  if (!data) {
+    return
   }
-  const conversationItem = item as ConversationItemType
-  const activeConversationItem:ServerConversationItem = {
+  const activeConversationItem: ServerConversationItem = {
     key: value,
-    label: typeof conversationItem.label === 'string' ? conversationItem.label : String(conversationItem.label ?? ''),
-    data: conversationItem.data as UserChatConversationResponseBody,
+    label: data.name,
+    data,
   }
   changeMessageExtraContent(activeConversationItem)
-  if (!messageId && (conversationItem.data.mentions || []).length > 0) {
-    messageId = conversationItem.data.mentions.at(0).messageId
+  if (!messageId && (data.mentions || []).length > 0) {
+    messageId = data.mentions!.at(0)?.messageId
   }
   loader.switchConversation(activeConversationItem, messageId)
 }
 
-function changeMessageExtraContent(activeConversationItem:ServerConversationItem | undefined) {
+function changeMessageExtraContent(activeConversationItem: ServerConversationItem | undefined) {
   if (!activeConversationItem) {
     setMessageExtraContent?.(h('span'))
     return null
@@ -145,142 +105,25 @@ function changeMessageExtraContent(activeConversationItem:ServerConversationItem
   const node: VNode = h(
     space,
     {},
-    { default: () => [label, avatar, button] }
+    {default: () => [label, avatar, button]},
   )
-
   setMessageExtraContent?.(node)
 }
 
-async function onMenuClick(e: { key: string}, item:UserChatConversationResponseBody) {
-  if (e.key === 'delete') {
-    modal.confirm({
-      title: globalProperties.$t('common.delete.confirmTitle'),
-      content:globalProperties.$t('common.delete.confirmSingle'),
-      onOk: () => doDelete(item),
-    })
-  } else if (e.key === 'pinned') {
-    const data = await conversationActions.togglePinned([Number(item.id)])
-    conversations.patchFlags(data)
-  } else if (e.key === 'muted') {
-    const data = await conversationActions.toggleMuted([Number(item.id)])
-    conversations.patchFlags(data)
-  }
-}
-
-async function doDelete(item: UserChatConversationResponseBody) {
-  const success = await conversationActions.removeConversations([Number(item.id)])
-  if (success) {
-    emit("delete", item)
-  }
-}
-
-const conversationCount = computed(() => conversations.dataSource.value.length)
-
-const conversationItems = computed(() =>
-  conversations.sortedDataSource.value
-    .filter(s => searchValue.value === '' ? s : s.name.includes(searchValue.value))
-    .map(r => ({
-      label: r.name,
-      key: String(r.id),
-      data: r
-    })),
-)
-
 defineExpose({
-  changeMessageExtraContent
+  changeMessageExtraContent,
 })
 
 </script>
 
 <template>
-  <a-flex vertical class="h-full min-h-0 overflow-hidden" >
-    <div class="shrink-0 p-sm">
-      <a-input v-model:value="searchValue">
-        <template #suffix>
-          <icon-font class="text-text-quaternary" type="loncra-user-search"/>
-        </template>
-      </a-input>
-    </div>
-    <ax-conversations
-      :activeKey="activeKey"
-      :classes="{item:'p-xs! h-auto! min-h-auto! rounded-none!'}"
-      :items="conversationItems"
-      :onActiveChange="onConversationsActiveChange"
-      v-if="conversationCount > 0"
-      class="min-h-0 size-full flex-[1_1_0] p-0! gap-0!">
-      <template #iconRender="{ item }">
-        <a-flex justify="center" align="center" :class="'h-full relative ' + (getEnumValue(item.data.muted) === YES_OR_NO_TYPE.YES ? 'opacity-80' : '')">
-          <a-badge size="small" :dot="getEnumValue(item.data.muted) === YES_OR_NO_TYPE.YES" :count="messageServerStore.getUserChatUnreadQuantity(item.key)" >
-            <a-avatar-group :max="{count: 3}" v-if="(item.data.cover || []).length > 0" size="large" class="[&>*:not(:first-child)]:-ms-8!">
-              <a-avatar v-for="c in item.data.cover" :key="c.objectName" :src="AttachmentService.query(c.bucketName, c.objectName)" />
-            </a-avatar-group>
-            <a-avatar v-else size="large">
-              {{ item?.label.substring(0,1) }}
-            </a-avatar>
-          </a-badge>
-          <div v-if="getEnumValue(item.data.pinned) === YES_OR_NO_TYPE.YES" class="inline-block absolute top-0 left-0 pl-xxs pr-xxs opacity-80 border border-solid border-warning-border bg-warning rounded-full">
-            <icon-font class="text-md text-white" type="loncra-heart" />
-          </div>
-          <div v-if="getEnumValue(item.data.muted) === YES_OR_NO_TYPE.YES" class="inline-block absolute bottom-0 left-0 pl-xxs pr-xxs border border-dashed opacity-80 bg-elevated rounded-full">
-            <icon-font class="text-md text-error" :type="(item.data.mentions || []).length > 0 ? 'loncra-at-sign' : 'loncra-megaphone-off'" />
-          </div>
-        </a-flex>
-      </template>
-      <template #labelRender="{item}">
-        <a-dropdown :menu="{ items:createMenu(item.data) }" :trigger="['contextmenu']" @menuClick="onMenuClick($event, item.data)">
-          <a-flex vertical>
-            <a-flex gap="small">
-              <a-typography-text ellipsis class="flex-1">
-                {{ item?.label }}
-              </a-typography-text>
-              <a-typography-text type="secondary" v-if="item?.data?.lastUserMessage">
-                {{
-                  globalProperties.$dayjs(item?.data?.lastUserMessage.creationTime).fromNow()
-                }}
-              </a-typography-text>
-            </a-flex>
-            <template v-if="(item.data.mentions || []).length > 0">
-              <a-popover>
-                <template #content>
-                  <a-flex vertical gap="small" class="overflow-y-auto max-h-60">
-                    <a-space v-for="m of item.data.mentions" :key="m.messageId">
-                      <a-typography-text type="secondary">
-                        {{globalProperties.$dayjs(m.creationTime).fromNow()}}
-                      </a-typography-text>
-                      <span>
-                        {{
-                          globalProperties.$t(
-                            'chat.notification.mention',
-                            {principal:AuthServerService.getPrincipalNameByUserDetails(m.participant.metadata.details) + ' '}
-                          )
-                        }}
-                      </span>
-                      <a-button type="link" size="small" @click="onConversationsActiveChange(item.key, item, m.messageId)">
-                        {{globalProperties.$t('common.detail')}}
-                      </a-button>
-                    </a-space>
-                  </a-flex>
-                </template>
-                <a-typography-text ellipsis type="secondary">
-                  <a-typography-text type="danger">
-                    [{{globalProperties.$t('chat.conversation.mention',{count: item.data.mentions.length})}}]
-                  </a-typography-text>
-                  {{ getMessageContent(item?.data?.lastUserMessage, item.data) }}
-                </a-typography-text>
-              </a-popover>
-            </template>
-            <a-typography-text ellipsis v-else-if="item?.data?.draft && item?.data?.draft.length > 0" type="danger">
-              [{{globalProperties.$t('chat.conversation.draft')}}]:{{ getDraftContent(item?.data?.draft) }}
-            </a-typography-text>
-            <a-typography-text ellipsis v-else-if="item?.data?.lastUserMessage" type="secondary">
-              {{ getMessageContent(item?.data?.lastUserMessage, item.data) }}
-            </a-typography-text>
-          </a-flex>
-        </a-dropdown>
-      </template>
-    </ax-conversations>
-    <a-flex v-else justify="center" align="center" class="size-full">
-      <a-empty/>
-    </a-flex>
-  </a-flex>
+  <im-conversation-list
+    :items="conversations.sortedDataSource.value"
+    :selected-keys="activeKey ? [activeKey] : []"
+    :open-keys="emptyOpenKeys"
+    :host="host"
+    @active="onActive"
+    @flags="conversations.patchFlags"
+    @delete="emit('delete', $event)"
+  />
 </template>

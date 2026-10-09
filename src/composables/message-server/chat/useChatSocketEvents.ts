@@ -17,7 +17,7 @@ import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 集中 chat 模块的 socket 事件接线（新消息 / 新建会话 / 按房间刷新 / 全量刷新）。
- * 基于 useSocketSubscriptions 自动清理，数据层变更委托 useChatConversations，
+ * 基于 useSocketSubscriptions 自动清理，数据层变更委托 useImConversations，
  * UI 编排（头部刷新 / 重新激活）通过回调注入。
  */
 export function useChatSocketEvents(options: ChatSocketEventsOptions) {

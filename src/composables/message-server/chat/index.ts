@@ -1,5 +1,4 @@
 
-export {useChatConversations, type ChatConversationsApi} from './useChatConversations.ts'
 export {useConversationActions, type ConversationActionsApi} from './useConversationActions.ts'
 export {
   useChatMessageLoader,

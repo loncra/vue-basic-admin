@@ -1,175 +1,67 @@
 <script setup lang="ts">
-import {useAgentConversation} from '@/composables/ai-server/agent/useAgentConversation.ts'
+import {type ComponentInternalInstance, computed, getCurrentInstance} from 'vue'
 import {requireNonNullOrUndefined} from '@/utils'
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {type ComponentInternalInstance, getCurrentInstance} from "vue";
-import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
-import {getEnumValue} from '@loncra/client/commons'
+import {ensureConversationDraftTree, useAgentChatContext} from '@/composables'
+import {
+  AgentConversationList,
+  useAgentConversations,
+  type AgentConversationActions,
+  type AgentConversationHost,
+} from '@loncra/antdv-chat-pro'
+import type {AgentConversationItem} from '@/types/composables'
 
 defineOptions({
   name: 'LAgentConversation',
 })
 
-const configProviderStore = useConfigProviderStore()
-
 const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
   getCurrentInstance(),
 ).appContext.config.globalProperties
 
-const {
-  conversations,
-  menuOptions,
-  loading,
-  createMenu,
-  getAgentChatStatusStyle,
-  startCreateWorkspace,
-  cancelEditWorkspace,
-  confirmEditWorkspace,
-  onConversationMenuClick,
-} = useAgentConversation({
-  onActivateConversation:() => emits('buttonClick','agentView')
-})
+const {conversations, menuOptions, activateConversation} = useAgentChatContext()
 
 const emits = defineEmits<{
-  buttonClick:[view:string]
+  buttonClick: [view: string]
 }>()
+
+const host = computed<AgentConversationHost>(() => ({
+  timeText: (unix) => globalProperties.$dayjs(unix).fromNow(),
+  onOpen: (item) => {
+    void activateConversation(item as AgentConversationItem)
+    emits('buttonClick', 'agentView')
+  },
+  onOpenPluginMarket: () => emits('buttonClick', 'agentHubView'),
+  afterLoad: (items) => ensureConversationDraftTree(items as AgentConversationItem[]),
+}))
+
+const {
+  loading,
+  startCreate,
+  startRename,
+  cancelEdit,
+  confirmEdit,
+  remove,
+} = useAgentConversations(conversations, host.value)
+
+const actions: AgentConversationActions = {
+  startCreate,
+  startRename,
+  cancelEdit,
+  confirmEdit,
+  remove,
+}
 
 </script>
 
 <template>
-  <a-flex
-    vertical
-    class="h-full min-h-0 overflow-hidden"
-  >
-   <a-flex
-      vertical
-      class="p-md"
-    >
-      <a-button block type="primary" @click="emits('buttonClick','agentHubView')">
-        <template #icon>
-          <icon-font type="loncra-store"/>
-        </template>
-        {{ $t('agent.hub.text') }}
-      </a-button>
-    </a-flex>
-
-    <a-divider plain titlePlacement="start" class="mt-0 mb-0">
-      <a-space>
-        <icon-font type="loncra-folder"/>
-        <span>{{ $t('agent.workspace.title') }}</span>
-        <a-space-compact>
-          <a-button size="small" type="text" @click="startCreateWorkspace">
-            <icon-font type="loncra-plus"/>
-          </a-button>
-        </a-space-compact>
-      </a-space>
-    </a-divider>
-
-    <div class="overflow-y-auto flex-[1_1_0]">
-      <a-spin :spinning="loading" class="size-full-spin">
-        <a-menu
-          root-class="border-none agent-side-menu"
-          :items="conversations"
-          v-model:open-keys="menuOptions.openKeys"
-          v-model:selected-keys="menuOptions.selectedKeys"
-          @click="onConversationMenuClick"
-          :inline-indent="configProviderStore.getToken().size"
-          mode="inline"
-        >
-          <template #iconRender="item">
-            <template v-if="!item.editing">
-              <icon-font
-                v-if="getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE"
-                type="loncra-folder-cog"
-                class="text-primary"
-              />
-              <icon-font
-                v-else-if="getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE"
-                type="loncra-folder-closed"
-                class="text-success"
-              />
-              <icon-font
-                v-else-if="getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION"
-                :type="getAgentChatStatusStyle(item.status).icon"
-                :class="getAgentChatStatusStyle(item.status).textClass"
-                :spin="getAgentChatStatusStyle(item.status).spin"
-              />
-            </template>
-          </template>
-
-          <template #labelRender="item">
-            <a-space-compact
-              v-if="item.editing"
-              block
-              @click.stop
-              @mousedown.stop
-            >
-              <a-input
-                v-model:value="item.name"
-                :placeholder="$t('agent.workspace.createPlaceholder')"
-                :disabled="loading"
-                @pressEnter="confirmEditWorkspace(item)"
-              />
-              <a-button
-                type="primary"
-                :loading="loading"
-                @click="confirmEditWorkspace(item)"
-              >
-                <template #icon>
-                  <icon-font type="loncra-check"/>
-                </template>
-              </a-button>
-              <a-button
-                type="primary"
-                danger
-                :disabled="loading"
-                @click="cancelEditWorkspace(item)"
-              >
-                <template #icon>
-                  <icon-font type="loncra-x"/>
-                </template>
-              </a-button>
-            </a-space-compact>
-            <a-flex
-              v-else
-              class="group min-w-0 w-full"
-              justify="space-between"
-              align="center"
-            >
-              <a-typography-text
-                class="min-w-0 flex-1"
-                :ellipsis="{ tooltip: {title:item.name, mouseEnterDelay: 1}}"
-              >
-                {{ item.name }}
-              </a-typography-text>
-              <span class="relative inline-flex shrink-0 items-center justify-end">
-                <a-typography-text
-                  v-if="getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION"
-                  type="secondary"
-                  class="whitespace-nowrap text-sm transition-opacity duration-300 opacity-100 group-hover:absolute group-hover:opacity-0 group-hover:pointer-events-none"
-                >
-                  {{ globalProperties.$dayjs(item.creationTime).fromNow() }}
-                </a-typography-text>
-                <a-dropdown
-                  :menu="createMenu(item)"
-                >
-                  <a-button
-                    type="text"
-                    size="small"
-                    class="absolute opacity-0 transition-opacity duration-300 group-hover:static group-hover:opacity-100"
-                    @click.stop
-                    @mousedown.stop
-                  >
-                    <template #icon>
-                      <icon-font type="loncra-ellipsis"/>
-                    </template>
-                  </a-button>
-                </a-dropdown>
-              </span>
-            </a-flex>
-          </template>
-        </a-menu>
-      </a-spin>
-    </div>
-  </a-flex>
+  <agent-conversation-list
+    :items="conversations"
+    :loading="loading"
+    :selected-keys="menuOptions.selectedKeys"
+    :open-keys="menuOptions.openKeys"
+    :host="host"
+    :actions="actions"
+    @update:selected-keys="(keys: string[]) => menuOptions.selectedKeys = keys"
+    @update:open-keys="(keys: string[]) => menuOptions.openKeys = keys"
+  />
 </template>

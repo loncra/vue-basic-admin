@@ -1,7 +1,6 @@
+import {deleteImConversations, muteImConversations, pinImConversations} from '@loncra/antdv-chat-pro'
 import useApp from 'antdv-next/dist/app/useApp'
-import type {RestResult} from '@loncra/client/commons'
 import type {BasicUserChatConversation} from '@loncra/client/message'
-import {ChatMessageService} from '@loncra/client/message'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 
 /**
@@ -14,22 +13,18 @@ export function useConversationActions() {
   const messageServerStore = useMessageServerStore()
 
   async function togglePinned(ids: number[]): Promise<BasicUserChatConversation[]> {
-    const result: RestResult<BasicUserChatConversation[]> =
-      await ChatMessageService.pinnedConversation(ids)
-    return result.data ?? []
+    return pinImConversations(ids)
   }
 
   async function toggleMuted(ids: number[]): Promise<BasicUserChatConversation[]> {
-    const result: RestResult<BasicUserChatConversation[]> =
-      await ChatMessageService.mutedConversation(ids)
-    const data = result.data ?? []
+    const data = await muteImConversations(ids)
     data.forEach(d => messageServerStore.setUserChatMessageMutedValue(Number(d.id), d.muted))
     return data
   }
 
   async function removeConversations(ids: number[]): Promise<boolean> {
     try {
-      const result: RestResult<void> = await ChatMessageService.deleteConversation(ids)
+      const result = await deleteImConversations(ids)
       message.success(result.message)
       return true
     } catch (e) {

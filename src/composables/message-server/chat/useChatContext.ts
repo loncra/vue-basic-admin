@@ -7,7 +7,7 @@ import type {
 } from '@/types/composables'
 import type {UserChatConversationResponseBody} from '@/types/apis'
 import {DEFAULT_PAGE_RESULT_VALUE, USER_CHAT_CONTEXT_PROVIDE_KEY} from '@/constants'
-import {useChatConversations} from '@/composables/message-server/chat/useChatConversations.ts'
+import {useImConversations} from '@loncra/antdv-chat-pro'
 import {useChatMessageLoader} from '@/composables/message-server/chat/useChatMessageLoader.ts'
 import {useChatSocketEvents} from '@/composables/message-server/chat/useChatSocketEvents.ts'
 
@@ -32,7 +32,7 @@ export function provideUserChatContext(options: ProvideUserChatContextOptions): 
   const conversationActive = ref<UserChatConversationActiveProps>(
     createDefaultActive(),
   ) as Ref<UserChatConversationActiveProps>
-  const conversations = useChatConversations()
+  const conversations = useImConversations<UserChatConversationResponseBody>()
   const loader = useChatMessageLoader(conversationActive, options.view)
 
   async function activateConversation(

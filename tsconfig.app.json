@@ -22,6 +22,8 @@
       "@loncra/antdv-chat/locale/zh_CN": ["../packages/antdv-chat/src/locale/zh_CN.ts"],
       "@loncra/antdv-chat/locale/en_US": ["../packages/antdv-chat/src/locale/en_US.ts"],
       "@loncra/antdv-chat-pro": ["../packages/antdv-chat-pro/src/index.ts"],
+      "@loncra/antdv-chat-pro/locale/zh_CN": ["../packages/antdv-chat-pro/src/locale/zh_CN.ts"],
+      "@loncra/antdv-chat-pro/locale/en_US": ["../packages/antdv-chat-pro/src/locale/en_US.ts"],
       "@loncra/chat-core": ["../packages/chat-core/src/index.ts"],
       "@loncra/chat-core/dexie": ["../packages/chat-core/src/dexie/index.ts"],
       "dexie": ["./node_modules/dexie"],
