@@ -3,7 +3,7 @@
 import LChatMessageSender from "@/components/message-server/chat/ChatMessageSender.vue";
 import type {ChatContentBlock, UndoBlock} from "@/types/composables";
 import type {InstructionMeasure} from '@loncra/antdv-chat'
-import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance, nextTick, ref, watch} from "vue";
 import type {ConversationItemType} from "@antdv-next/x/dist/conversations/interface";
 import type {
   UserChatConversationResponseBody,
@@ -19,12 +19,14 @@ import {
 import {AuthServerService} from "@/apis";
 import {isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {appendMessages} from '@loncra/chat-core'
-import {sendImMessage} from '@loncra/antdv-chat-pro'
-import {useChatContext} from "@/composables/message-server/chat";
+import {sendImMessage, ImBubbleList as LImBubbleList, type BubbleListExpose, type BubbleListItem, type ImBubbleHost} from '@loncra/antdv-chat-pro'
+import {useChatContext, useChatReadMarker} from "@/composables/message-server/chat";
+import {useSocketStore} from '@/stores/socketStore.ts'
+import {getMessageContent} from '@/utils/chatUtils.ts'
+import LChatCallBlock from '@/components/message-server/chat/ChatCallBlock.vue'
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, CHAT_EVERYONE_ID, SOCKET_EVENT_TYPE} from '@/constants';
-import LChatBubbleList from "@/components/message-server/chat/ChatBubbleList.vue";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 
 import {usePrincipalStore} from "@/stores/principalStore.ts";
@@ -42,9 +44,42 @@ const globalProperties =
 
 const {conversationActive: conversation, conversations} = useChatContext()
 const principalStore = usePrincipalStore()
+const socketStore = useSocketStore()
 const {on} = useSocketSubscriptions()
+const readMarker = useChatReadMarker(conversation)
+const host = computed<ImBubbleHost>(() => ({
+  timeText: (time) => globalProperties.$dayjs(time).fromNow(),
+  principalName: (details) => details == null
+    ? ''
+    : AuthServerService.getPrincipalNameByUserDetails(details),
+  selfName: principalStore.state.name,
+  messagePreview: (message) => getMessageContent(message),
+  subscribeReadUpdate: (handler) => socketStore.subscribe(
+    SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ_UPDATE,
+    (payload) => {
+      const result = parseSocketRestPayload<IdValueMetadata<number, number>[]>(payload)
+      handler(result.data ?? [])
+    },
+  ),
+}))
 
-const chatBubbleList = ref<InstanceType<typeof LChatBubbleList>>()
+function onVisibleItems(items: BubbleListItem[]) {
+  if (document.visibilityState !== 'visible' || !document.hasFocus()) {
+    return
+  }
+  const readable = items.filter((item) =>
+    'readable' in item && readMarker.isReadableMessage(item as unknown as UserChatMessageResponseBody),
+  )
+  readMarker.markVisible(readable as unknown as Parameters<typeof readMarker.markVisible>[0])
+}
+
+watch(() => conversation.value.item?.key, () => readMarker.reset())
+
+const chatBubbleList = ref<InstanceType<typeof LImBubbleList>>()
+
+function bubbleList(): BubbleListExpose | undefined {
+  return chatBubbleList.value as unknown as BubbleListExpose | undefined
+}
 const senderRef = ref<InstanceType<typeof LChatMessageSender>>()
 const refMessages = ref<UserChatMessageResponseBody[]>([])
 
@@ -107,7 +142,7 @@ async function onSendMessage(content: ChatContentBlock[]) {
       conversation.value.item.data.draft = []
     }
     await nextTick()
-    chatBubbleList.value?.scrollTo({ top: "bottom", behavior: "smooth" });
+    bubbleList()?.scrollTo({ top: "bottom", behavior: "smooth" });
   } finally {
     conversation.value.sending = false
   }
@@ -252,11 +287,11 @@ async function onChatMessageUndo(result: RestResult<UserChatMessageEntity>) {
   bubble.content = undoContent
 }
 
-function onReedit(content:ChatContentBlock[]) {
-  if (!senderRef.value || !conversation.value?.item?.data) {
+function onReedit(content: unknown) {
+  if (!Array.isArray(content) || !senderRef.value || !conversation.value?.item?.data) {
     return
   }
-  conversation.value.item.data.draft = senderRef.value.convertContentBlockToSlotConfig(content)
+  conversation.value.item.data.draft = senderRef.value.convertContentBlockToSlotConfig(content as ChatContentBlock[])
 }
 
 function onReferenceMessage(message:UserChatMessageResponseBody) {
@@ -282,19 +317,19 @@ on(
 )
 
 defineExpose({
-  getScrollBox: () => chatBubbleList.value?.getScrollBox(),
+  getScrollBox: () => bubbleList()?.getScrollBox(),
   jumpToMessage:(
     key: string,
     flashPending: boolean = true,
     block:ScrollLogicalPosition = "nearest",
     behavior:ScrollBehavior = "auto",
-  ) => chatBubbleList.value?.jumpToMessage(key, flashPending,block,behavior),
+  ) => bubbleList()?.jumpToMessage(key, flashPending,block,behavior),
   scrollTo: (options: {
     key?: string | number;
     top?: number | "bottom" | "top";
     behavior?: ScrollBehavior;
     block?: ScrollLogicalPosition;
-  }) => chatBubbleList.value?.scrollTo(options),
+  }) => bubbleList()?.scrollTo(options),
   getSenderSlotConfigValue:() => senderRef?.value?.getSlotConfigValue() || [],
   persistSenderDraft,
 })
@@ -306,15 +341,22 @@ defineExpose({
     flex="1"
     class="h-full min-h-0 overflow-hidden"
   >
-    <l-chat-bubble-list
-      @reedit="onReedit"
-      @reference-message="onReferenceMessage"
+    <l-im-bubble-list
       ref="chatBubbleList"
+      :session="conversation"
+      :host="host"
+      :room-type="conversation.item?.data?.room?.type"
+      @visible-items="onVisibleItems"
+      @reedit="onReedit"
+      @reference="onReferenceMessage"
     >
+      <template #call="{block}">
+        <l-chat-call-block :block="block" />
+      </template>
       <template #bubbleListAfter v-if="$slots.bubbleListAfter">
         <slot name="bubbleListAfter" />
       </template>
-    </l-chat-bubble-list>
+    </l-im-bubble-list>
     <div class="shrink-0 p-sm border-t border-t-border-secondary">
       <!-- :key 按房间重建。草稿由 DraftSender 自己防抖和还原，不要把输入写回 :slot-config。 -->
       <l-chat-message-sender
@@ -329,7 +371,7 @@ defineExpose({
         :upload-options="conversation.item.data?.room?.id ? {param:{prefix:'user_chat_room/' + conversation.item.data.room.id}} : undefined"
         :placeholder="placeholderText"
         :disabled="getEnumValue(conversation.item.data.status) !== MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED"
-        @jump-to-reference="(body) => chatBubbleList?.jumpToMessage(String(body.id))"
+        @jump-to-reference="(body) => bubbleList()?.jumpToMessage(String(body.id))"
         @submit="onSendMessage"
         @applied-slots="onAppliedSlots"
         :sender-insert-instruction="onSenderInsertInstruction"

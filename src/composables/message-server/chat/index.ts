@@ -11,10 +11,6 @@ export {
 } from './useChatContext.ts'
 export {useChatReadMarker, type ChatReadMarkerApi} from './useChatReadMarker.ts'
 export {
-  useChatBubbleList,
-  type ChatBubbleListApi,
-} from './useChatBubbleList.ts'
-export {
   useChatRoomSettings,
   type ChatRoomSettingsApi,
 } from './useChatRoomSettings.ts'

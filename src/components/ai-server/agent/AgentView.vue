@@ -1,18 +1,8 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
 import LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
-import LAgentUserMessageBubbleContent
-  from '@/components/ai-server/agent/AgentUserMessageBubbleContent.vue'
-import LAgentAssistantBubbleContent
-  from '@/components/ai-server/agent/AgentAssistantBubbleContent.vue'
-import {BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat-pro'
-import {createAgentBubbleListRole, isAgentBubbleLoading, useAgentView} from '@/composables'
-import type {AgentMessageEntity, StreamAgentMessageEntity} from "@/types/apis";
-import type {AgentSseMessageContent} from "@/types/composables";
-import {AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
-import {getEnumName, getEnumValue} from "@loncra/client/commons"
+import {AgentBubbleList as LAgentBubbleList, type BubbleListExpose} from '@loncra/antdv-chat-pro'
+import {useAgentView} from '@/composables'
 
 defineOptions({
   name: 'LAgentView',
@@ -23,16 +13,8 @@ const {
   onSenderCancel,
   principalStore,
   conversationActive,
-  loader,
-  countTokenUsage,
-  eachTokenUsage,
-  calcConversationCacheHitRate,
+  stream,
   bubbleListRef,
-  currentReedit,
-  onSenderChange,
-  onReedit,
-  getChatType,
-  copyText,
   senderRef,
   getSenderSlotConfigValue,
   persistSenderDraft,
@@ -47,8 +29,8 @@ const hasMessages = computed(
   () => (conversationActive.value?.dataSource.elements.length ?? 0) > 0,
 )
 
-function onLoadPage(tag: 'next' | 'previous') {
-  void loader.loadMore(tag)
+function onResume(id: number) {
+  stream.connect(id, false)
 }
 
 defineExpose({
@@ -73,187 +55,22 @@ defineExpose({
 <template>
   <a-flex vertical flex="1" class="h-full min-h-0 overflow-hidden">
     <a-flex class="h-full min-h-0 overflow-hidden relative flex-[1_1_0]">
-      <l-bubble-list
+      <l-agent-bubble-list
         v-if="conversationActive && hasMessages"
         ref="bubbleListRef"
         :session="conversationActive"
-        :role="createAgentBubbleListRole()"
-        :is-loading="isAgentBubbleLoading"
-        @load-page="onLoadPage"
+        :user="principalStore.state.details.metadata"
+        @resume="onResume"
       >
-        <template #avatar="{ item }">
-          <l-user-avatar
-            v-if="item.role === CHAT_BUBBLE_TYPE.USER"
-            size="large"
-            :user="principalStore.state.details.metadata"
-          />
-          <a-avatar v-else>
+        <template #assistantAvatar>
+          <a-avatar>
             <icon-font type="icon-xiaojiage-a" />
           </a-avatar>
-        </template>
-        <template #contentRender="{ item }">
-          <l-agent-assistant-bubble-content
-            v-if="item.role === CHAT_BUBBLE_TYPE.AI"
-            :item="item"
-          />
-          <l-agent-user-message-bubble-content
-            v-else
-            :item="item"
-          />
-        </template>
-        <template #footer="{item}">
-          <template v-if="item.role === CHAT_BUBBLE_TYPE.AI">
-            <a-space v-if="!STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue(item.status))">
-              <a-button
-                variant="outlined"
-                v-if="item.content.some((c:AgentSseMessageContent) => c.type === AI_SERVER_AGENT_CONTENT_TYPE.ANSWER)"
-                size="small"
-                :color="item.copy ? 'cyan' : 'default'"
-                @click="copyText(item)"
-              >
-                <template #icon>
-                  <icon-font :type="item.copy ? 'loncra-copy-check' : 'loncra-copy'" />
-                </template>
-              </a-button>
-              <a-popover
-                v-if="item.metadata?.tokenUsage"
-                :classes="{root:'w-60 max-w-[40vw]', content: 'max-h-[30vh] overflow-auto p-sm', title:'p-sm mb-0 border-b border-border-secondary border-solid', container: 'p-0'}"
-              >
-                <template #title>
-                  <a-flex
-                    justify="space-between"
-                    align="center"
-                  >
-                    <span>
-                      {{$t('agent.token.total')}}
-                    </span>
-                    <span>
-                      {{countTokenUsage(item)}}
-                    </span>
-                  </a-flex>
-                </template>
-                <template #content >
-                  <a-flex
-                    vertical
-                    gap="small"
-                  >
-                    <a-flex
-                      justify="space-between"
-                      align="center"
-                    >
-                      <a-badge color="blue" :text="$t('agent.token.input')" />
-                      <span>
-                        {{countTokenUsage(item, 'inputTokens')}}
-                      </span>
-                    </a-flex>
-                    <template v-if="eachTokenUsage(item, 'inputTokens').length > 1">
-                      <a-flex
-                        :key="v.id"
-                        class="ml-sm pl-xxs text-xs"
-                        v-for="v of eachTokenUsage(item, 'inputTokens')"
-                        justify="space-between"
-                        align="center"
-                      >
-                        <span>
-                          {{v.id}}
-                        </span>
-                        <span>
-                          {{v.value}}
-                        </span>
-                      </a-flex>
-                      <a-divider class="m-0" />
-                    </template>
-
-                    <a-flex
-                      justify="space-between"
-                      align="center"
-                    >
-                      <a-badge color="magenta" :text="$t('agent.token.output')" />
-                      <span>
-                        {{countTokenUsage(item, 'outputTokens')}}
-                      </span>
-                    </a-flex>
-                    <template v-if="eachTokenUsage(item, 'outputTokens').length > 1">
-                      <a-flex
-                        :key="v.id"
-                        class="ml-sm pl-xxs text-xs"
-                        v-for="v of eachTokenUsage(item, 'outputTokens')"
-                        justify="space-between"
-                        align="center"
-                      >
-                        <span>
-                          {{v.id}}
-                        </span>
-                        <span>
-                          {{v.value}}
-                        </span>
-                      </a-flex>
-                      <a-divider class="m-0" />
-                    </template>
-
-                    <a-flex
-                      justify="space-between"
-                      align="center"
-                    >
-                      <a-badge color="yellow" :text="$t('agent.token.cache')" />
-                      <span>
-                        {{countTokenUsage(item, 'cachedTokens')}}
-                      </span>
-                    </a-flex>
-                    <template v-if="eachTokenUsage(item, 'cachedTokens').length > 1">
-                      <a-flex
-                        :key="v.id"
-                        class="ml-sm pl-xxs text-xs"
-                        v-for="v of eachTokenUsage(item, 'cachedTokens')"
-                        justify="space-between"
-                        align="center"
-                      >
-                        <span>
-                          {{v.id}}
-                        </span>
-                        <span>
-                          {{v.value}}
-                        </span>
-                      </a-flex>
-                    </template>
-
-                    <a-divider class="m-0" />
-                    <a-badge color="green" :text="$t('agent.token.cacheHitRate')" />
-                    <a-progress size="small" status="active" :percent="calcConversationCacheHitRate(item)" />
-                  </a-flex>
-                </template>
-                <a-button size="small" variant="dashed">
-                  <template #icon>
-                    <icon-font type="loncra-database-zap" />
-                  </template>
-                  {{ $t('agent.token.text') }}:{{countTokenUsage(item)}}
-                </a-button>
-              </a-popover>
-            </a-space>
-          </template>
-          <template v-if="item.role === CHAT_BUBBLE_TYPE.USER">
-            <a-space v-if="item.data">
-<!--              <a-button :disabled="(item.data as StreamAgentMessageEntity).reedit" size="small" @click="onReedit(item.data as StreamAgentMessageEntity)">
-                <template #icon>
-                  <icon-font type="loncra-undo" />
-                </template>
-              </a-button>-->
-              <a-tag variant="outlined" class="border-dashed" v-bind="getChatType(getEnumValue(item.type))">
-                {{getEnumName(item.type)}}
-              </a-tag>
-              <a-tag variant="outlined" color="blue">
-                <template #icon>
-                  <icon-font :type="item.model?.manufacturer?.metadata?.icon || 'loncra-file-exclamation-point'" />
-                </template>
-                {{item.model?.manufacturer?.name}}:{{item.model?.name}}
-              </a-tag>
-            </a-space>
-          </template>
         </template>
         <template v-if="$slots.bubbleListAfter" #bubbleListAfter>
           <slot name="bubbleListAfter" />
         </template>
-      </l-bubble-list>
+      </l-agent-bubble-list>
       <a-flex v-else justify="center" align="center" class="size-full">
         <ax-welcome
           variant="borderless"
@@ -274,7 +91,6 @@ defineExpose({
         :target-id="conversationActive?.id == null ? '' : String(conversationActive.id)"
         :slot-config="conversationActive?.draft"
         @applied-slots="onAppliedSlots"
-        @change="onSenderChange"
         @submit="onSenderSubmit"
         @cancel="onSenderCancel"
       />

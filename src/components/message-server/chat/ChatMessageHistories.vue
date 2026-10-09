@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {type ComponentInternalInstance, getCurrentInstance, toRef} from "vue";
+import {type ComponentInternalInstance, computed, getCurrentInstance, toRef} from "vue";
 import type {UserChatMessageResponseBody} from "@/types/apis";
 import {
   AttachmentMasonry as LAttachmentMasonry,
@@ -8,8 +8,10 @@ import {
 } from '@loncra/antdv-pro';
 import {AuthServerService} from "@/apis";
 import {requireNonNullOrUndefined} from "@/utils";
-import LChatMessageBubbleContent
-  from "@/components/message-server/chat/ChatMessageBubbleContent.vue";
+import {ImBubbleContent as LImBubbleContent} from '@loncra/antdv-chat-pro'
+import {getMessageContent} from '@/utils/chatUtils.ts'
+import {usePrincipalStore} from '@/stores/principalStore.ts'
+import LChatCallBlock from '@/components/message-server/chat/ChatCallBlock.vue'
 import {useChatHistories} from "@/composables/message-server/chat";
 
 defineOptions({
@@ -25,6 +27,16 @@ const props = withDefaults(defineProps<{
 const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
+
+const principalStore = usePrincipalStore()
+const bubbleHost = computed(() => ({
+  timeText: (time: number) => globalProperties.$dayjs(time).fromNow(),
+  principalName: (details: Parameters<typeof AuthServerService.getPrincipalNameByUserDetails>[0] | undefined) =>
+    details == null ? '' : AuthServerService.getPrincipalNameByUserDetails(details),
+  selfName: principalStore.state.name,
+  messagePreview: (message: UserChatMessageResponseBody) => getMessageContent(message),
+  subscribeReadUpdate: () => () => undefined,
+}))
 
 const emit = defineEmits<{
   click: [data: UserChatMessageResponseBody]
@@ -96,7 +108,17 @@ const {
 
                   </a-flex>
                   <div>
-                    <l-chat-message-bubble-content :content="data.content" />
+                    <l-im-bubble-content
+                      :content="data.content"
+                      :principal="data.principal"
+                      :host="bubbleHost"
+                      :on-jump="() => undefined"
+                      :on-reedit="() => undefined"
+                    >
+                      <template #call="{block}">
+                        <l-chat-call-block :block="block" />
+                      </template>
+                    </l-im-bubble-content>
                   </div>
                 </a-flex>
               </a-flex>

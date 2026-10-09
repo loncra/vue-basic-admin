@@ -20,8 +20,6 @@ export {
 } from './useAgentStream.ts'
 
 export {
-  createAgentBubbleListRole,
-  isAgentBubbleLoading,
   useAgentView,
 } from './userAgentView.ts'
 

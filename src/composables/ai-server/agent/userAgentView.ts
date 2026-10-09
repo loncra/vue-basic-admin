@@ -2,71 +2,35 @@ import type {
   AgentChatRequestBody,
   AgentChatResponseBody,
   AgentSenderFormProps,
-  AgentSseMessageContent,
-  AgentTokenUsageContent,
-  BlockDeltaContentMetadata,
-  ChatBubbleItem,
   ChatContentBlock,
 } from '@/types/composables'
-import type {AgentMessageEntity, StreamAgentMessageEntity} from '@/types/apis'
-import type {IdValueMetadata, RestResult} from '@loncra/client/commons'
+import type {AgentMessageEntity} from '@/types/apis'
+import type {RestResult} from '@loncra/client/commons'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {nextTick, ref, watch} from 'vue'
+import {nextTick, ref} from 'vue'
 import type LAgentSender from '@/components/ai-server/agent/AgentSender.vue'
-import {appendMessages, type AgentChatBubble} from '@loncra/chat-core'
-import {interruptAgent, sendAgentChat, type BubbleList as LBubbleList, type BubbleListExpose} from '@loncra/antdv-chat-pro'
+import {appendMessages} from '@loncra/chat-core'
+import {interruptAgent, sendAgentChat, type AgentBubbleList as LAgentBubbleList, type BubbleListExpose} from '@loncra/antdv-chat-pro'
 import useApp from 'antdv-next/dist/app/useApp'
 import {
-  DEFAULT_BUBBLE_LIST_ROLE,
   getConversationRuns,
   setConversationDraft,
   useAgentChatContext,
 } from '@/composables'
-import {AGENT_CHAT_TYPE_STYLE, CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@/constants'
-import type {RoleType} from "@antdv-next/x/dist/bubble/interface";
+import {CHAT_BUBBLE_TYPE} from '@/constants'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
-import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
-import {renderIconFont} from '@/utils/commonUtils'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
+import {AI_SERVER_AGENT_CHAT_STATUS} from '@loncra/client/ai'
 
-
-export function isAgentBubbleLoading(item: object): boolean {
-  if (!('status' in item)) {
-    return false
-  }
-  return STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue((item as AgentChatBubble).status))
-}
-
-/** Agent 气泡 role：ai 项按状态动态挂 loading */
-export function createAgentBubbleListRole() {
-  const baseAi = DEFAULT_BUBBLE_LIST_ROLE.ai
-  return {
-    ...DEFAULT_BUBBLE_LIST_ROLE,
-    ai: (data: ChatBubbleItem) => {
-      const isContentEmpty = !data.content || (data.content as AgentSseMessageContent[]).length <= 0
-      const isRunning = 'status' in data && STREAM_RUNNING_STATUS_VALUE.includes(getEnumValue(data.status))
-
-      return {
-        ...baseAi,
-        variant:"borderless",
-        shape:"round",
-        loading: isContentEmpty && isRunning,
-      }
-    } ,
-  } as RoleType
-}
 
 export function useAgentView() {
-  const {conversationActive, conversations, activateConversation, loader, stream} = useAgentChatContext()
+  const {conversationActive, conversations, activateConversation, stream} = useAgentChatContext()
   const principalStore = usePrincipalStore()
-  const bubbleListRef = ref<InstanceType<typeof LBubbleList>>()
+  const bubbleListRef = ref<InstanceType<typeof LAgentBubbleList>>()
 
   function bubbleList(): BubbleListExpose | undefined {
     return bubbleListRef.value as BubbleListExpose | undefined
   }
   const senderRef = ref<InstanceType<typeof LAgentSender>>()
-
-  const currentReedit = ref<StreamAgentMessageEntity>()
 
   const {message} = useApp()
 
@@ -164,120 +128,16 @@ export function useAgentView() {
     }
   }
 
-  function countTokenUsage(item:ChatBubbleItem, field?:'inputTokens' | 'outputTokens' | 'cachedTokens') {
-    const contents = ('metadata' in item ? (item.metadata?.tokenUsage || []) : []) as AgentTokenUsageContent[]
-    if (field) {
-      return contents.reduce((acc:number, cur) => acc + cur[field], 0)
-    } else {
-      return contents.reduce((acc:number, cur) => acc + cur.inputTokens + cur.outputTokens, 0)
-    }
-  }
-  function calcConversationCacheHitRate(item:ChatBubbleItem): number {
-    let totalInput = 0, totalCached = 0
-    totalInput += countTokenUsage(item, 'inputTokens')
-    totalCached += countTokenUsage(item, 'cachedTokens')
-    const denominator = totalInput + totalCached
-    if (denominator === 0) {
-      return 0
-    }
-    return Math.round((totalCached / denominator) * 100)
-  }
-
-  function eachTokenUsage(item:ChatBubbleItem, field:'inputTokens' | 'outputTokens' | 'cachedTokens'):IdValueMetadata<string, number>[] {
-    const contents = ('metadata' in item ? (item.metadata?.tokenUsage || []) : []) as AgentTokenUsageContent[]
-    return contents.map(s => ({id:getEnumName(s.usageType), value:s[field]}))
-  }
-
-  async function copyText(item:StreamAgentMessageEntity) {
-    try {
-      const text = item.content
-        .filter(s => getEnumValue(s.type) === AI_SERVER_AGENT_CONTENT_TYPE.ANSWER)
-        .map(s => (s as BlockDeltaContentMetadata).value)
-        .at(-1)
-      await navigator.clipboard.writeText(text || "");
-      item.copy = true;
-    } catch {
-      // 复制失败处理
-    }
-  }
-
-  function onReedit(entity: StreamAgentMessageEntity) {
-    if (currentReedit.value) {
-      currentReedit.value.reedit = false
-    }
-    entity.reedit = true
-    currentReedit.value = entity
-    if (!conversationActive.value) {
-      return
-    }
-    setConversationDraft(
-      conversations.value,
-      conversationActive,
-      conversationActive.value.id,
-      [...(entity.content ?? [])],
-    )
-  }
-
-  watch(
-    () => conversationActive.value?.id,
-    () => {
-      if (!currentReedit.value) {
-        return
-      }
-      currentReedit.value.reedit = false
-      currentReedit.value = undefined
-    },
-  )
-
   function getSenderSlotConfigValue(): ChatContentBlock[] {
     return (senderRef.value?.getSlotConfigValue() || []) as ChatContentBlock[]
-  }
-
-  function onSenderChange(
-    _value:string,
-    _event?:Event,
-    _slotConfigType?:SlotConfigType[]
-  ) {
-    if (_slotConfigType && _slotConfigType?.length > 0) {
-      return
-    }
-    if (!currentReedit.value) {
-      return
-    }
-
-    currentReedit.value.reedit = false
-    currentReedit.value = undefined
-  }
-
-  function getChatType(type:number) {
-    const style = AGENT_CHAT_TYPE_STYLE[String(type) as keyof typeof AGENT_CHAT_TYPE_STYLE]
-    if (!style) {
-      return {
-        color:'default',
-        icon:renderIconFont('loncra-file-exclamation-point', 'align'),
-      }
-    } else {
-      return {
-        color:style.color,
-        icon:renderIconFont(style.icon, 'align'),
-      }
-    }
   }
 
   return {
     bubbleListRef,
     senderRef,
-    calcConversationCacheHitRate,
-    copyText,
-    onReedit,
-    eachTokenUsage,
-    countTokenUsage,
-    currentReedit,
     conversationActive,
     principalStore,
-    getChatType,
-    loader,
-    onSenderChange,
+    stream,
     onSenderSubmit,
     onSenderCancel,
     getSenderSlotConfigValue,
