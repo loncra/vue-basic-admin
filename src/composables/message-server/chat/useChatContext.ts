@@ -68,6 +68,7 @@ export function provideUserChatContext(options: ProvideUserChatContextOptions): 
     hasView: () => !!options.view.value,
     refreshActiveHeader: options.refreshActiveHeader,
     activateConversation,
+    loadParticipant: (roomId) => loader.loadParticipant(roomId),
   })
 
   const context: UserChatContext = {

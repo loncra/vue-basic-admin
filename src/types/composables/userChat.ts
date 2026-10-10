@@ -4,8 +4,7 @@ import type {
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from '@/types/apis'
-import type {SystemUserContactItem} from '@loncra/antdv-pro'
-import type {RestResult, TimeProperties} from '@loncra/client/commons'
+import type {TimeProperties} from '@loncra/client/commons'
 import type {
   UserChatCallEntity,
   UserChatCallParticipantEntity,
@@ -16,7 +15,6 @@ import type {LocalAudioTrack, LocalVideoTrack, Room} from 'livekit-client'
 import type {ImConversationsApi} from '@loncra/antdv-chat-pro'
 import type {ChatMessageLoaderApi} from '@/composables/message-server/chat/useChatMessageLoader.ts'
 import {
-  CHAAT_ROOM_VIEW_MODAL_TYPE,
   CHAT_CALL_PRIVATE_ROLE_TYPE,
   CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
   CHAT_CALL_UI_MODE
@@ -30,11 +28,6 @@ import type {
 export type ChatCallUiMode =
   | typeof CHAT_CALL_UI_MODE.EXPANDED
   | typeof CHAT_CALL_UI_MODE.MINIMIZED
-
-export type ChatRoomViewModalOpenType =
-  | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.ADD_PARTICIPANT
-  | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.MEMBER_SETTING
-  | typeof CHAAT_ROOM_VIEW_MODAL_TYPE.HISTORIES
 
 export interface ServerConversationItem {
   key: string
@@ -226,15 +219,7 @@ export interface ChatSocketEventsOptions {
   activateConversation: (
     body: UserChatConversationResponseBody | undefined,
   ) => Promise<void> | void
-}
-
-export interface ChatRoomSettingsCallbacks {
-  onAddParticipant: (
-    info: SystemUserContactItem[],
-    result: RestResult<UserChatConversationResponseBody>,
-  ) => void
-  onDeleteConversation: (body: UserChatConversationResponseBody) => void
-  onHistoryClick: (data: UserChatMessageResponseBody) => void
+  loadParticipant: (roomId: number) => Promise<void>
 }
 
 export interface UseChatNotificationParam {

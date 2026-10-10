@@ -11,14 +11,9 @@ export {
 } from './useChatContext.ts'
 export {useChatReadMarker, type ChatReadMarkerApi} from './useChatReadMarker.ts'
 export {
-  useChatRoomSettings,
-  type ChatRoomSettingsApi,
-} from './useChatRoomSettings.ts'
-export {
   useChatMessageSender,
   type ChatMessageSenderApi,
 } from './useChatMessageSender.ts'
-export {useChatHistories, type ChatHistoriesApi} from './useChatHistories.ts'
 export {
   useChatCallModalExpose,
   provideChatCallExpose,

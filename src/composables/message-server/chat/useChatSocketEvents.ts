@@ -4,7 +4,7 @@ import type {
   UserChatMessageResponseBody
 } from '@/types/apis'
 import type {RestResult} from '@loncra/client/commons'
-import {MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
+import {MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
 import type {ChatSocketEventsOptions} from '@/types/composables'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
@@ -20,7 +20,7 @@ import {getEnumValue} from '@loncra/client/commons'
  * UI 编排（头部刷新 / 重新激活）通过回调注入。
  */
 export function useChatSocketEvents(options: ChatSocketEventsOptions) {
-  const {conversationActive, conversations, hasView, refreshActiveHeader, activateConversation} =
+  const {conversationActive, conversations, hasView, refreshActiveHeader, activateConversation, loadParticipant} =
     options
   const principalStore = usePrincipalStore()
   const messageServerStore = useMessageServerStore()
@@ -88,6 +88,18 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
     }
   }
 
+  function onParticipantRefresh(result: RestResult<number>): void {
+    const conversation = conversationActive.value.item?.data
+    const roomId = conversation?.room?.id
+    if (!conversation || roomId == null || roomId !== result.data) {
+      return
+    }
+    if (getEnumValue(conversation.status) !== MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED) {
+      return
+    }
+    loadParticipant(Number(roomId))
+  }
+
   async function onConversationRefresh(): Promise<void> {
     await conversations.load()
     const active = conversationActive.value
@@ -108,6 +120,9 @@ export function useChatSocketEvents(options: ChatSocketEventsOptions) {
     onConversationRefreshByRoomId(parseSocketRestPayload<number>(payload)),
   )
   on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH, () => onConversationRefresh())
+  on(SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID, (payload) =>
+    onParticipantRefresh(parseSocketRestPayload<number>(payload)),
+  )
 
   return {onConversationRefresh}
 }

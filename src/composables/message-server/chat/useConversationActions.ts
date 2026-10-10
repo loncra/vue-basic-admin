@@ -4,8 +4,7 @@ import type {BasicUserChatConversation} from '@loncra/client/message'
 import {useMessageServerStore} from '@/stores/messageServerStore.ts'
 
 /**
- * 会话的置顶 / 免打扰 / 删除动作。
- * 去重 ChatConversation（右键菜单）与 ChatRoomView（设置面板）中重复的接口调用与提示逻辑。
+ * 会话列表右键菜单的置顶、免打扰和删除。
  * 仅负责发请求与统一副作用（未读刷新 / 错误提示），本地状态由调用方按返回结果应用。
  */
 export function useConversationActions() {

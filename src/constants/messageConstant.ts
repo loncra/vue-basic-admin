@@ -18,12 +18,6 @@ export const USER_CHAT_CONTEXT_PROVIDE_KEY = "userChatContext"
 export const CHAT_CALL_MODEL_EXPOSE_PROVIDE_KEY = "chatCallModalExpose"
 export const CHAT_CALL_MEDIA_PROVIDE_KEY = "chatCallMedia"
 
-export const CHAAT_ROOM_VIEW_MODAL_TYPE = {
-  ADD_PARTICIPANT: 'addParticipant',
-  MEMBER_SETTING: 'memberSetting',
-  HISTORIES: 'histories',
-} as const
-
 /** Socket.IO 事件名 */
 export const SOCKET_EVENT_TYPE = {
   CONNECT: 'connect',

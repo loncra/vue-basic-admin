@@ -694,17 +694,9 @@ const locale: LanguagePack = {
       mention:'{principal} 在消息中提到了你'
     },
     conversation:{
-      delete:'删除会话',
       newMessage:'有{count}条未读消息',
     },
     everyone:'所有人',
-    pinned:{
-      action:'置顶聊天',
-    },
-    muted:{
-      action:'消息免打扰',
-    },
-    history: '聊天记录',
     view:{
       reference:'引用',
       reedit:'重新编辑',
@@ -726,33 +718,6 @@ const locale: LanguagePack = {
       readable:{
         jumpTo:'跳转至最早未读消息',
         systemMessage:'以下为最早未读消息'
-      }
-    },
-    roomView:{
-      addParticipant: '发起群聊',
-      memberManager:'成员管理',
-      histories:{
-        title:'与 {name} 的聊天记录',
-        positioning:'定位到聊天为止'
-      },
-      exitRoom:{
-        title:'退群确认',
-        content: '确定要退出 {name} 群聊吗?',
-        action:'退出群聊'
-      },
-      disbandRoom:{
-        title:'解散确认',
-        content: '确定要解散 {name} 群聊吗?',
-        action:'解散群聊'
-      },
-      modal:{
-        changeMember:'设置为成员',
-        changeCoOwner:'设置为群管',
-        removeMember:{
-          confirmTitle:'移除成员确认',
-          content:'确定要移除{count}个选中成员吗？',
-          action:'移除成员'
-        }
       }
     },
   },

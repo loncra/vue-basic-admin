@@ -703,17 +703,9 @@ const locale: LanguagePack = {
       mention: '{principal} mentioned you in the message',
     },
     conversation: {
-      delete: 'Delete conversation',
       newMessage: 'There are {count} unread messages',
     },
     everyone: 'Everyone',
-    pinned: {
-      action: 'Pin chat',
-    },
-    muted: {
-      action: 'Mute notifications',
-    },
-    history: 'Chat history',
     view: {
       reference: 'Reference',
       reedit: 'Re-edit',
@@ -735,33 +727,6 @@ const locale: LanguagePack = {
       readable: {
         jumpTo: 'Jump to the earliest unread message',
         systemMessage: 'The following are the earliest unread messages',
-      },
-    },
-    roomView: {
-      addParticipant: 'Start group chat',
-      memberManager: 'Manage members',
-      histories: {
-        title: 'Chat histories with {name}',
-        positioning: 'Locate to this chat position',
-      },
-      exitRoom: {
-        title: 'Leave group confirmation',
-        content: 'Are you sure you want to leave {name}?',
-        action: 'Leave group',
-      },
-      disbandRoom: {
-        title: 'Disband group confirmation',
-        content: 'Are you sure you want to disband {name}?',
-        action: 'Disband group',
-      },
-      modal: {
-        changeMember: 'Set as member',
-        changeCoOwner: 'Set as co-admin',
-        removeMember: {
-          confirmTitle: 'Remove members confirmation',
-          content: 'Remove {count} selected member(s)?',
-          action: 'Remove members',
-        },
       },
     },
   },

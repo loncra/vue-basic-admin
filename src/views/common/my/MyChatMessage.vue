@@ -1,27 +1,29 @@
 <script setup lang="ts">
 import {
   type ComponentInternalInstance,
+  computed,
   getCurrentInstance,
   nextTick,
   onMounted,
   type Ref,
   ref
 } from "vue";
-import type {
-  UserChatConversationResponseBody,
-  UserChatMessageResponseBody
-} from "@/types/apis";
+import type {UserChatConversationResponseBody} from "@/types/apis";
 import type {SystemUserContactItem} from "@loncra/antdv-pro";
 import type {IdNameValueMetadata, RestResult} from "@loncra/client/commons";
 import type {PlatformUser} from "@loncra/client/auth";
+import type {BasicUserChatConversation} from "@loncra/client/message";
 import {requireNonNullOrUndefined} from "@/utils";
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore";
+import {useMessageServerStore} from "@/stores/messageServerStore.ts";
+import {getMessageContent} from "@/utils/chatUtils.ts";
 import LChatConversation from "@/components/message-server/chat/ChatConversation.vue";
 import LChatContact from "@/components/message-server/chat/ChatContact.vue";
 import LChatView from "@/components/message-server/chat/ChatView.vue";
+import LChatCallBlock from "@/components/message-server/chat/ChatCallBlock.vue";
 import type {ChatViewController, ServerConversationItem} from "@/types/composables";
-import LChatRoomView from "@/components/message-server/chat/ChatRoomView.vue";
+import {ImRoomSettings, type ImHost} from "@loncra/antdv-chat-pro";
 import {provideUserChatContext} from "@/composables/message-server/chat";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
@@ -35,6 +37,16 @@ const globalProperties =
     .globalProperties
 
 const principalStore = usePrincipalStore()
+const messageServerStore = useMessageServerStore()
+const roomHost = computed<ImHost>(() => ({
+  selfName: principalStore.state.name,
+  principalName: (details) => details == null
+    ? ''
+    : AuthServerService.getPrincipalNameByUserDetails(details),
+  timeText: (unix) => globalProperties.$dayjs(unix).fromNow(),
+  messagePreview: (message) => getMessageContent(message),
+  subscribeReadUpdate: () => () => undefined,
+}))
 
 const segmented = ref<{
   value: string
@@ -83,18 +95,15 @@ function onConversationDelete(body: UserChatConversationResponseBody) {
   }
 }
 
-async function onAddParticipant(
-  _user: SystemUserContactItem[],
-  restResult: RestResult<UserChatConversationResponseBody>,
-) {
-  if (!restResult.data) {
-    return
-  }
-  await activateConversation(restResult.data)
+function onMuted(body: BasicUserChatConversation) {
+  messageServerStore.setUserChatMessageMutedValue(Number(body.id), body.muted)
 }
 
-function onHistoryClick(data: UserChatMessageResponseBody) {
-  loader.jumpToHistoryMessage(data)
+async function onAdded(result: RestResult<UserChatConversationResponseBody>) {
+  if (!result.data) {
+    return
+  }
+  await activateConversation(result.data)
 }
 
 async function mounted() {
@@ -191,11 +200,21 @@ onMounted(mounted)
             :mask="false"
             @close="conversationActive.drawerOpen = false"
           >
-            <l-chat-room-view
-              @delete-conversation="onConversationDelete"
-              @add-participant="onAddParticipant"
-              @history-click="onHistoryClick"
-              :contact-data-source="options.contactDataSource" />
+            <div class="h-full min-h-0">
+              <ImRoomSettings
+                :conversation="conversationActive.item.data"
+                :participants="conversationActive.participants"
+                :contacts="options.contactDataSource"
+                :host="roomHost"
+                @muted="onMuted"
+                @delete="onConversationDelete"
+                @added="onAdded"
+              >
+                <template #call="{block}">
+                  <l-chat-call-block :block="block" />
+                </template>
+              </ImRoomSettings>
+            </div>
           </a-drawer>
         </div>
         <a-flex v-else vertical class="size-full" justify="center" align="center">
