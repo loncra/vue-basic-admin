@@ -23,7 +23,7 @@ import LChatContact from "@/components/message-server/chat/ChatContact.vue";
 import LChatView from "@/components/message-server/chat/ChatView.vue";
 import LChatCallBlock from "@/components/message-server/chat/ChatCallBlock.vue";
 import type {ChatViewController, ServerConversationItem} from "@/types/composables";
-import {ImRoomSettings, type ImHost} from "@loncra/antdv-chat-pro";
+import {ImRoomSettings, type ImChatHost} from "@loncra/antdv-chat-pro";
 import {provideUserChatContext} from "@/composables/message-server/chat";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
@@ -38,7 +38,7 @@ const globalProperties =
 
 const principalStore = usePrincipalStore()
 const messageServerStore = useMessageServerStore()
-const roomHost = computed<ImHost>(() => ({
+const roomHost = computed<ImChatHost>(() => ({
   selfName: principalStore.state.name,
   principalName: (details) => details == null
     ? ''

@@ -19,7 +19,7 @@ import {
 import {AuthServerService} from "@/apis";
 import {isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {appendMessages} from '@loncra/chat-core'
-import {sendImMessage, ImBubbleList as LImBubbleList, type BubbleListExpose, type BubbleListItem, type ImHost} from '@loncra/antdv-chat-pro'
+import {sendImMessage, ImBubbleList as LImBubbleList, type BubbleListExpose, type BubbleListItem, type ImChatHost} from '@loncra/antdv-chat-pro'
 import {useChatContext, useChatReadMarker} from "@/composables/message-server/chat";
 import {useSocketStore} from '@/stores/socketStore.ts'
 import {getMessageContent} from '@/utils/chatUtils.ts'
@@ -47,7 +47,7 @@ const principalStore = usePrincipalStore()
 const socketStore = useSocketStore()
 const {on} = useSocketSubscriptions()
 const readMarker = useChatReadMarker(conversation)
-const host = computed<ImHost>(() => ({
+const host = computed<ImChatHost>(() => ({
   timeText: (time) => globalProperties.$dayjs(time).fromNow(),
   principalName: (details) => details == null
     ? ''
