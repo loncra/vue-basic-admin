@@ -11,6 +11,3 @@ export * from './commonUtils'
 
 // 聊天工具
 export * from './chatUtils'
-
-// 聊天通话工具
-export * from './chatCallUtils'

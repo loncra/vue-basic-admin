@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import HomeLayout from '@/components/layout/HomeLayout.vue'
-import LChatCallModel from "@/components/message-server/chat/ChatCallModel.vue";
 import {useChatNotification} from "@/composables";
 import {toRef} from "vue";
 import {TIME_UNIT_TYPE} from '@/constants';
 import type {TimeProperties} from "@loncra/client/commons";
+import {ImCallWindow, registerImCallMedia} from '@loncra/antdv-chat-pro/im/call'
+import {createLiveKitCallMedia} from '@loncra/antdv-chat-pro/im/call/livekit'
 
 defineOptions({
   name: 'IndexHome',
 })
+
+registerImCallMedia(createLiveKitCallMedia)
 
 const props = withDefaults(defineProps<{
   closeTimeValue?: TimeProperties
@@ -30,6 +33,6 @@ useChatNotification({
 <template>
   <div>
     <home-layout/>
-    <l-chat-call-model />
+    <ImCallWindow />
   </div>
 </template>

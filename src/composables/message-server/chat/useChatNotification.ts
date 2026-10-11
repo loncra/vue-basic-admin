@@ -1,12 +1,13 @@
-import {provideChatCallExpose, useSocketSubscriptions} from "@/composables";
+import {useSocketSubscriptions} from "@/composables";
 import type {UseChatNotificationParam} from "@/types/composables";
 import {SOCKET_EVENT_TYPE, SYSTEM_ROUTE, YES_OR_NO_TYPE} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
 import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
+import {getEnumName, getEnumValue, isEnumValue} from "@loncra/client/commons"
 import type {PlatformUser} from "@loncra/client/auth";
-import type {UserChatCallResponseBody, UserChatConversationEntity} from "@loncra/client/message";
-import {ChatMessageService, MESSAGE_SERVER_MESSAGE_GROUP} from "@loncra/client/message";
+import type {UserChatCallEntity, UserChatCallParticipantEntity, UserChatCallResponseBody, UserChatConversationEntity} from "@loncra/client/message";
+import {ChatMessageService, MESSAGE_SERVER_CHAT_CALL_TYPE, MESSAGE_SERVER_MESSAGE_GROUP} from "@loncra/client/message";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {AuthServerService} from "@/apis";
 import {
@@ -21,23 +22,37 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {Flex} from "antdv-next";
-import {getCallIcon} from "@/utils/chatCallUtils.ts";
-import {renderIconFont} from '@/utils/commonUtils'
-import {getEnumName, getEnumValue} from "@loncra/client/commons"
+import {AudioOutlined, VideoCameraOutlined} from '@antdv-next/icons'
+import {fillLocale} from '@loncra/antdv'
+import {ImCallActions, provideImChatCall, useLocale} from '@loncra/antdv-chat-pro/im/call'
 
 
 export function useChatNotification(config: UseChatNotificationParam) {
   const {on} = useSocketSubscriptions()
   const {destroy, info, createNotificationDescription} = useAppNotification()
-
-  const chatCallExport = provideChatCallExpose(config.chatCallConfig)
-
   const messageServerStore = useMessageServerStore()
   const principalStore = usePrincipalStore()
   const configProviderStore = useConfigProviderStore()
   const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
     getCurrentInstance(),
   ).appContext.config.globalProperties
+
+  const callLocale = useLocale('ImCall')
+  const session = provideImChatCall({
+    selfName: principalStore.state.name,
+    principalName: (details) => details ? AuthServerService.getPrincipalNameByUserDetails(details) : '',
+    closeTimeValue: config.chatCallConfig.closeTimerValue,
+  })
+  const acceptCall = session.accept.bind(session)
+  const rejectCall = session.reject.bind(session)
+  session.accept = async (callId) => {
+    await acceptCall(callId)
+    await messageServerStore.fetchUnreadQuantity()
+  }
+  session.reject = async (callId) => {
+    await rejectCall(callId)
+    await messageServerStore.fetchUnreadQuantity()
+  }
 
   async function onChatMessageReceived(
     result: RestResult<UserChatMessageResponseBody>,
@@ -102,20 +117,6 @@ export function useChatNotification(config: UseChatNotificationParam) {
 
   }
 
-  function createExtraIconTitle(title: string, icon: string) {
-    return h(
-      Flex,
-      {
-        align: 'center',
-        justify: 'space-between',
-      },
-      () => [
-        h('span', {}, title),
-        renderIconFont(icon)
-      ]
-    )
-  }
-
   async function onChatCallReceived(result: RestResult<IdValueMetadata<number, PlatformUser>>) {
     if (!result.data) {
       return
@@ -126,25 +127,24 @@ export function useChatNotification(config: UseChatNotificationParam) {
     }
 
     const callEntity = result.data.metadata as unknown as UserChatCallResponseBody
-    const description = globalProperties.$t(
-      'chat.call.invitation',
-      {
-        user: AuthServerService.getPrincipalNameByUserDetails(user),
-        type: getEnumName(callEntity.type)
-      }
-    )
+    const description = fillLocale(callLocale.value.invitation, {
+      user: AuthServerService.getPrincipalNameByUserDetails(user),
+      type: getEnumName(callEntity.type),
+    })
     const key = MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT_CALL + "_" + String(callEntity.id)
+    const TypeIcon = isEnumValue(callEntity.type, MESSAGE_SERVER_CHAT_CALL_TYPE.VIDEO)
+      ? VideoCameraOutlined
+      : AudioOutlined
     await info({
-        title: createExtraIconTitle(getEnumName(callEntity.type), String(getCallIcon(callEntity.type))),
+        title: h(Flex, {align: 'center', justify: 'space-between'}, () => [
+          h('span', {}, getEnumName(callEntity.type)),
+          h(TypeIcon),
+        ]),
         duration: false,
         description: createNotificationDescription(description),
         icon: createUserAvatarNode(user, 'large'),
         closable: false,
-        actions: chatCallExport.createChatCallAction(
-          Number(callEntity.id),
-          (key, id, loading) => chatCallExport.acceptCall(key, callEntity, loading),
-          (key, id, loading) => chatCallExport.rejectedCall(key, callEntity, loading)
-        )
+        actions: h(ImCallActions, {callId: Number(callEntity.id)}),
       },
       MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT_CALL,
       key
@@ -170,5 +170,45 @@ export function useChatNotification(config: UseChatNotificationParam) {
   on(
     SOCKET_EVENT_TYPE.CHAT_CALL,
     (payload) => onChatCallReceived(parseSocketRestPayload<IdValueMetadata<number, PlatformUser>>(payload))
+  )
+
+  on(
+    SOCKET_EVENT_TYPE.CHAT_CALL_UPDATE,
+    (payload) => {
+      const result = parseSocketRestPayload<UserChatCallEntity>(payload)
+      if (result.data) {
+        session.onCallUpdate(result.data)
+      }
+    },
+  )
+
+  on(
+    SOCKET_EVENT_TYPE.CHAT_CALL_COMPLETED,
+    (payload) => {
+      const result = parseSocketRestPayload<UserChatCallEntity>(payload)
+      if (result.data) {
+        session.onCallCompleted(result.data)
+      }
+    },
+  )
+
+  on(
+    SOCKET_EVENT_TYPE.CHAT_CALL_PARTICIPANT_UPDATE,
+    (payload) => {
+      const result = parseSocketRestPayload<UserChatCallParticipantEntity>(payload)
+      if (result.data) {
+        session.onParticipantUpdate(result.data)
+      }
+    },
+  )
+
+  on(
+    SOCKET_EVENT_TYPE.CHAT_CALL_CONFIRM,
+    (payload) => {
+      const result = parseSocketRestPayload<UserChatCallParticipantEntity>(payload)
+      if (result.data) {
+        void session.onCallConfirm(result.data)
+      }
+    },
   )
 }

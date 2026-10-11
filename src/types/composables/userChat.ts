@@ -1,33 +1,18 @@
-import type {CSSProperties, MaybeRef, Raw, Ref, VNode} from 'vue'
+import type {MaybeRef, Ref} from 'vue'
 import type {SenderRef, SlotConfigType} from '@antdv-next/x/dist/sender/interface'
 import type {
   UserChatConversationResponseBody,
   UserChatMessageResponseBody
 } from '@/types/apis'
 import type {TimeProperties} from '@loncra/client/commons'
-import type {
-  UserChatCallEntity,
-  UserChatCallParticipantEntity,
-  UserChatCallResponseBody,
-  UserChatParticipantEntity
-} from '@loncra/client/message'
-import type {LocalAudioTrack, LocalVideoTrack, Room} from 'livekit-client'
+import type {UserChatParticipantEntity} from '@loncra/client/message'
 import type {ImConversationsApi} from '@loncra/antdv-chat-pro'
 import type {ChatMessageLoaderApi} from '@/composables/message-server/chat/useChatMessageLoader.ts'
-import {
-  CHAT_CALL_PRIVATE_ROLE_TYPE,
-  CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE,
-  CHAT_CALL_UI_MODE
-} from '@/constants'
 import type {
   ActiveChatSession,
   ChatBubbleItem,
   ChatContentBlock,
 } from '@/types/composables/chat.ts'
-
-export type ChatCallUiMode =
-  | typeof CHAT_CALL_UI_MODE.EXPANDED
-  | typeof CHAT_CALL_UI_MODE.MINIMIZED
 
 export interface ServerConversationItem {
   key: string
@@ -42,34 +27,6 @@ export interface UserChatConversationActiveProps extends ActiveChatSession {
   readableAnchorLoading?: boolean
   participants: UserChatParticipantEntity[]
 }
-
-export type ChatCallPrivateSplitScreenType =
-  | typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.DEFAULT
-  | typeof CHAT_CALL_PRIVATE_SPLIT_SCREEN_TYPE.LEFT_RIGHT
-
-export interface VideoMetrics {
-  width: number
-  height: number
-  aspect: number
-}
-
-export interface LayoutConstraints {
-  maxWidth: number
-  maxHeight: number
-}
-
-export type CallPanelStyle = Pick<CSSProperties, 'width' | 'height'>
-
-export interface CallLayoutSpec {
-  modalWidth: number
-  modalHeight: number
-  local: CallPanelStyle
-  remote: CallPanelStyle
-}
-
-export type ChatCallPrivateRoleType =
-  | typeof CHAT_CALL_PRIVATE_ROLE_TYPE.LOCAL
-  | typeof CHAT_CALL_PRIVATE_ROLE_TYPE.REMOTE
 
 export interface ChatViewController {
   jumpToMessage(
@@ -113,94 +70,6 @@ export interface ChatBubbleListCallbacks {
 
 export interface UseChatCallModalParams {
   closeTimerValue: Ref<TimeProperties>
-}
-
-export interface ChatCallModalProps {
-  title: string
-  width?: number
-  height?: number
-  fullscreen?: boolean
-  uiMode?: ChatCallUiMode
-  loading: boolean
-}
-
-export interface ChatCallModalInnerProps extends ChatCallModalProps {
-  open: boolean
-  closeTimerValue?: number
-}
-
-export interface ChatCallModalContext {
-  modal: ChatCallModalProps
-  room?: Raw<Room>
-  userChatCall?: UserChatCallResponseBody
-  previewTrack?: {
-    video?: Raw<LocalVideoTrack>
-    audio?: Raw<LocalAudioTrack>
-  }
-  leftButton?: VNode[]
-}
-
-export interface ChatCallModelExpose {
-  context: ChatCallModalContext
-  openChatCallModal: (title: string, _userChatCall: UserChatCallResponseBody) => void
-  handleCancel: () => void
-  acceptCall: (
-    key: string,
-    callEntity: UserChatCallResponseBody,
-    loading: Ref<boolean>,
-  ) => void
-  rejectedCall: (
-    key: string,
-    callEntity: UserChatCallEntity,
-    loading: Ref<boolean>,
-  ) => void
-  acceptCallByChatCallId: (
-    key: string,
-    userChatCallId: number,
-    loading: Ref<boolean>,
-  ) => void
-  rejectedCallByChatCallId: (
-    key: string,
-    userChatCallId: number,
-    loading: Ref<boolean>,
-  ) => void
-  createChatCallAction: (
-    userChatCallId: number,
-    onAccept: (key: string, id: number, loading: Ref<boolean>) => void,
-    onRejected: (key: string, id: number, loading: Ref<boolean>) => void,
-  ) => VNode
-  updateParticipant: (participant: UserChatCallParticipantEntity) => void
-  setCallFullscreen: (active: boolean) => void
-  setCallUiMode: (mode: ChatCallUiMode) => void
-  toggleCallMinimize: () => Promise<void>
-}
-
-export interface CallMediaState {
-  microphoneEnabled: boolean
-  cameraEnabled: boolean
-}
-
-export interface ChatCallMediaExpose {
-  localParticipantVideoRef: Ref<HTMLVideoElement | undefined>
-  remoteParticipantVideoRef: Ref<HTMLVideoElement | undefined>
-  streamMetrics: Ref<{local?: VideoMetrics; remote?: VideoMetrics}>
-  mediaOptions: Ref<CallMediaState>
-  remoteMediaState: Ref<CallMediaState>
-  startLocalPreview: () => Promise<void>
-  reattachVideoElements: () => Promise<void>
-  toggleMicrophone: () => Promise<void>
-  toggleCamera: () => Promise<void>
-  bindVideoMetrics: (el: HTMLVideoElement | undefined, role: ChatCallPrivateRoleType) => void
-  refreshStreamMetrics: (role: ChatCallPrivateRoleType) => void
-}
-
-export interface TargetParticipant extends UserChatCallParticipantEntity {
-  badgeStatus: string
-}
-
-export interface PrivateLayoutOptions {
-  targetFullWindow: boolean
-  splitScreenType: ChatCallPrivateSplitScreenType
 }
 
 export interface UseChatMessageSenderParams {

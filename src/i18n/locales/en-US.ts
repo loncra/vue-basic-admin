@@ -686,19 +686,6 @@ const locale: LanguagePack = {
       symbols: 'Symbols',
       flags: 'Flags',
     },
-    call: {
-      video: {
-        action: 'Video call',
-        title: 'Video call with {user}',
-      },
-      voice: {
-        action: 'Voice call',
-        title: 'Voice call with {user}',
-      },
-      invitation: '{user} invites you {type}',
-      closeCountdown: 'The call has ended and will automatically close after s seconds',
-      reconnectTimeCountdown: '(The call will automatically end after s seconds)',
-    },
     notification: {
       mention: '{principal} mentioned you in the message',
     },

@@ -21,7 +21,6 @@ import {getMessageContent} from "@/utils/chatUtils.ts";
 import LChatConversation from "@/components/message-server/chat/ChatConversation.vue";
 import LChatContact from "@/components/message-server/chat/ChatContact.vue";
 import LChatView from "@/components/message-server/chat/ChatView.vue";
-import LChatCallBlock from "@/components/message-server/chat/ChatCallBlock.vue";
 import type {ChatViewController, ServerConversationItem} from "@/types/composables";
 import {ImRoomSettings, type ImChatHost} from "@loncra/antdv-chat-pro";
 import {provideUserChatContext} from "@/composables/message-server/chat";
@@ -209,11 +208,7 @@ onMounted(mounted)
                 @muted="onMuted"
                 @delete="onConversationDelete"
                 @added="onAdded"
-              >
-                <template #call="{block}">
-                  <l-chat-call-block :block="block" />
-                </template>
-              </ImRoomSettings>
+              />
             </div>
           </a-drawer>
         </div>

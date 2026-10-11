@@ -20,10 +20,10 @@ import {AuthServerService} from "@/apis";
 import {isInstructionSlot, requireNonNullOrUndefined} from "@/utils";
 import {appendMessages} from '@loncra/chat-core'
 import {sendImMessage, ImBubbleList as LImBubbleList, type BubbleListExpose, type BubbleListItem, type ImChatHost} from '@loncra/antdv-chat-pro'
+import {ImCallButton} from '@loncra/antdv-chat-pro/im/call'
 import {useChatContext, useChatReadMarker} from "@/composables/message-server/chat";
 import {useSocketStore} from '@/stores/socketStore.ts'
 import {getMessageContent} from '@/utils/chatUtils.ts'
-import LChatCallBlock from '@/components/message-server/chat/ChatCallBlock.vue'
 import {useSocketSubscriptions} from "@/composables/useSocketSubscriptions.ts";
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import {CHAT_BUBBLE_TYPE, CHAT_EVERYONE_ID, SOCKET_EVENT_TYPE} from '@/constants';
@@ -32,7 +32,6 @@ import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import type {SenderRef, SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {getEnumValue} from "@loncra/client/commons"
-import LChatCallButton from "@/components/message-server/chat/ChatCallButton.vue";
 
 defineOptions({
   name: 'LChatView',
@@ -350,9 +349,6 @@ defineExpose({
       @reedit="onReedit"
       @reference="onReferenceMessage"
     >
-      <template #call="{block}">
-        <l-chat-call-block :block="block" />
-      </template>
       <template #bubbleListAfter v-if="$slots.bubbleListAfter">
         <slot name="bubbleListAfter" />
       </template>
@@ -398,10 +394,11 @@ defineExpose({
           </a-space>
         </template>
         <template #leftExtra v-if="getEnumValue(conversation?.item?.data?.room.type) === MESSAGE_SERVER_USER_CHAT_ROOM_TYPE.PRIVATE_CHAT">
-          <l-chat-call-button
-            :participants="conversation.participants"
-            :conversation="conversation.item"
+          <ImCallButton
             type="text"
+            :room-id="Number(conversation.item?.data?.room.id)"
+            :peer-name="conversation.item?.label ?? ''"
+            :principals="conversation.participants.map((participant) => participant.principal)"
           />
         </template>
       </l-chat-message-sender>

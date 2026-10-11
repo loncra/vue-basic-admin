@@ -677,19 +677,6 @@ const locale: LanguagePack = {
       symbols:'符号',
       flags:'旗帜',
     },
-    call: {
-      video:{
-        action:'视频通话',
-        title: '与 {user} 视频通话'
-      },
-      voice:{
-        action:'语音通话',
-        title: '与 {user} 语音通话'
-      },
-      invitation:'{user} 邀请您 {type}',
-      closeCountdown:'通话已结束 s 秒后自动关闭',
-      reconnectTimeCountdown:'(s 秒后将自动结束通话)',
-    },
     notification:{
       mention:'{principal} 在消息中提到了你'
     },

@@ -15,19 +15,6 @@ export {
   type ChatMessageSenderApi,
 } from './useChatMessageSender.ts'
 export {
-  useChatCallModalExpose,
-  provideChatCallExpose,
-} from './useChatCallModal.ts'
-export {
   useChatNotification
 } from './useChatNotification.ts'
-
-export {
-  provideChatCallMedia,
-  useChatCallMediaExpose,
-} from './useChatCallMedia.ts'
-
-export {
-  usePrivateChatCallLayout
-} from './usePrivateChatCallLayout.ts'
 
