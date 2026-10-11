@@ -12,7 +12,6 @@ export {
 } from '@loncra/client/message'
 
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
-export const USER_CHAT_CONTEXT_PROVIDE_KEY = "userChatContext"
 
 /** Socket.IO 事件名 */
 export const SOCKET_EVENT_TYPE = {

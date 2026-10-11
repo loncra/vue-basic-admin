@@ -1,130 +1,59 @@
 import type {
   UserChatConversationResponseBody,
   UserChatMessageEntity,
-  UserChatMessageResponseBody
+  UserChatMessageResponseBody,
 } from '@/types/apis'
-import type {RestResult} from '@loncra/client/commons'
-import {MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from '@loncra/client/message'
-import type {ChatSocketEventsOptions} from '@/types/composables'
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
-import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {useMessageServerStore} from '@/stores/messageServerStore.ts'
-import {appendMessages} from '@loncra/chat-core'
-import {CHAT_BUBBLE_TYPE, SOCKET_EVENT_TYPE} from '@/constants'
+import {SOCKET_EVENT_TYPE} from '@/constants'
 import {parseSocketRestPayload} from '@/types/socket.ts'
-import {getEnumValue} from '@loncra/client/commons'
+import type {ImChatExpose} from '@loncra/antdv-chat-pro'
 
-/**
- * 集中 chat 模块的 socket 事件接线（新消息 / 新建会话 / 按房间刷新 / 全量刷新）。
- * 基于 useSocketSubscriptions 自动清理，数据层变更委托 useImConversations，
- * UI 编排（头部刷新 / 重新激活）通过回调注入。
- */
-export function useChatSocketEvents(options: ChatSocketEventsOptions) {
-  const {conversationActive, conversations, hasView, refreshActiveHeader, activateConversation, loadParticipant} =
-    options
-  const principalStore = usePrincipalStore()
-  const messageServerStore = useMessageServerStore()
+export function useChatSocketEvents(getChat: () => ImChatExpose | undefined) {
   const {on} = useSocketSubscriptions()
 
-  function getMessageRole(message:UserChatMessageResponseBody | UserChatMessageEntity) {
-
-    if (getEnumValue(message.type) === MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.USER) {
-      return CHAT_BUBBLE_TYPE.AI
-    } else if (getEnumValue(message.type) === MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.SYSTEM) {
-      return CHAT_BUBBLE_TYPE.SYSTEM
-    } else {
-      return message.principal === principalStore.state.name ? CHAT_BUBBLE_TYPE.USER : CHAT_BUBBLE_TYPE.AI
+  on(SOCKET_EVENT_TYPE.CHAT_MESSAGE, (payload) => {
+    const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
+    if (result.data) {
+      getChat()?.applyIncomingMessage(result.data)
     }
-  }
-
-  async function onChatMessageReceived(
-    result: RestResult<UserChatMessageResponseBody | UserChatMessageEntity>,
-  ): Promise<void> {
-    if (!result.data || (result.data.principal === principalStore.state.name && getEnumValue(result.data.type) === MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.USER)) {
-      return
+  })
+  on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE, (payload) => {
+    const result = parseSocketRestPayload<UserChatConversationResponseBody>(payload)
+    if (result.data) {
+      void getChat()?.addConversation(result.data)
     }
-    const active = conversationActive.value
-    if (active.item?.data?.room?.id === result.data.userChatRoomId && hasView()) {
-      const role = getMessageRole(result.data)
-      appendMessages(result.data, role, active.dataSource.elements, false, !active.isOnFirstPage)
+  })
+  on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH_BY_ROOM_ID, (payload) => {
+    const result = parseSocketRestPayload<number>(payload)
+    if (result.data) {
+      void getChat()?.refreshConversationByRoom(result.data)
     }
-    conversations.moveToTopByRoomId(result.data.userChatRoomId, (c) => {
-      c.lastUserMessage = result.data as UserChatMessageEntity
-    })
-  }
-
-  async function onChatConversationReceived(
-    result: RestResult<UserChatConversationResponseBody>,
-  ) {
-    if (!result.data) {
-      return
+  })
+  on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH, () => {
+    void getChat()?.refreshConversations()
+  })
+  on(SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID, (payload) => {
+    const result = parseSocketRestPayload<number>(payload)
+    if (result.data) {
+      void getChat()?.refreshParticipants(result.data)
     }
-    await messageServerStore.fetchUnreadQuantity()
-    conversations.unshiftIfAbsent(result.data)
-  }
-
-  async function onConversationRefreshByRoomId(result: RestResult<number>): Promise<void> {
-    if (!result.data) {
-      return
+  })
+  on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ, (payload) => {
+    const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
+    if (result.data) {
+      getChat()?.applyMessageUpdate(result.data)
     }
-    if (!conversations.findByRoomId(result.data)) {
-      return
+  })
+  on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_UPDATE, (payload) => {
+    const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
+    if (result.data) {
+      getChat()?.applyMessageUpdate(result.data)
     }
-    const find = await conversations.refreshByRoomId(result.data)
-    if (!find) {
-      return
+  })
+  on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO, (payload) => {
+    const result = parseSocketRestPayload<UserChatMessageEntity>(payload)
+    if (result.data) {
+      getChat()?.applyMessageUndo(result.data)
     }
-    const active = conversationActive.value
-    if (!active.item || !active.item?.data) {
-      return
-    }
-    if (active.item?.data?.room?.id === result.data) {
-      active.item = {
-        label: find.name,
-        key: String(find.id),
-        data: find,
-      }
-      refreshActiveHeader(active.item)
-    }
-  }
-
-  function onParticipantRefresh(result: RestResult<number>): void {
-    const conversation = conversationActive.value.item?.data
-    const roomId = conversation?.room?.id
-    if (!conversation || roomId == null || roomId !== result.data) {
-      return
-    }
-    if (getEnumValue(conversation.status) !== MESSAGE_SERVER_USER_CHAT_CONVERSATION_STATUS.ENABLED) {
-      return
-    }
-    loadParticipant(Number(roomId))
-  }
-
-  async function onConversationRefresh(): Promise<void> {
-    await conversations.load()
-    const active = conversationActive.value
-    if (!active.item) {
-      return
-    }
-    const find = conversations.findById(active.item?.data?.id)
-    await activateConversation(find)
-  }
-
-  on(SOCKET_EVENT_TYPE.CHAT_MESSAGE, (payload) =>
-    onChatMessageReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload)),
-  )
-  on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE, (payload) =>
-    onChatConversationReceived(parseSocketRestPayload<UserChatConversationResponseBody>(payload)),
-  )
-  on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH_BY_ROOM_ID, (payload) =>
-    onConversationRefreshByRoomId(parseSocketRestPayload<number>(payload)),
-  )
-  on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH, () => onConversationRefresh())
-  on(SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID, (payload) =>
-    onParticipantRefresh(parseSocketRestPayload<number>(payload)),
-  )
-
-  return {onConversationRefresh}
+  })
 }
-
-export type ChatSocketEventsApi = ReturnType<typeof useChatSocketEvents>

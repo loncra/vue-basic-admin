@@ -1,31 +1,33 @@
 <script setup lang="ts">
 import {
   type ComponentInternalInstance,
-  computed,
   getCurrentInstance,
+  h,
+  inject,
   nextTick,
+  onActivated,
   onMounted,
-  type Ref,
-  ref
+  ref,
+  resolveComponent,
+  type VNode,
 } from "vue";
 import type {UserChatConversationResponseBody} from "@/types/apis";
 import type {SystemUserContactItem} from "@loncra/antdv-pro";
-import type {IdNameValueMetadata, RestResult} from "@loncra/client/commons";
+import type {IdNameValueMetadata, IdValueMetadata, RestResult} from "@loncra/client/commons";
 import type {PlatformUser} from "@loncra/client/auth";
 import type {BasicUserChatConversation} from "@loncra/client/message";
-import {requireNonNullOrUndefined} from "@/utils";
+import {createAvatarNode, getDraftContent, getMessageContent, requireNonNullOrUndefined} from "@/utils";
+import {renderIconFont} from '@/utils/commonUtils'
 import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {getMessageContent} from "@/utils/chatUtils.ts";
-import LChatConversation from "@/components/message-server/chat/ChatConversation.vue";
-import LChatContact from "@/components/message-server/chat/ChatContact.vue";
-import LChatView from "@/components/message-server/chat/ChatView.vue";
-import type {ChatViewController, ServerConversationItem} from "@/types/composables";
-import {ImRoomSettings, type ImChatHost} from "@loncra/antdv-chat-pro";
-import {provideUserChatContext} from "@/composables/message-server/chat";
+import {useSocketStore} from '@/stores/socketStore.ts'
+import {parseSocketRestPayload} from '@/types/socket.ts'
+import {ImChat as LIm, type ImChatExpose, type ImPageHost} from "@loncra/antdv-chat-pro";
+import {useChatSocketEvents} from "@/composables/message-server/chat";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
 import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, SOCKET_EVENT_TYPE} from '@/constants'
 
 defineOptions({
   name: 'MyChatMessageHome',
@@ -37,95 +39,112 @@ const globalProperties =
 
 const principalStore = usePrincipalStore()
 const messageServerStore = useMessageServerStore()
-const roomHost = computed<ImChatHost>(() => ({
-  selfName: principalStore.state.name,
+const setExtraContent = inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
+const chatRef = ref<ImChatExpose>()
+const roomOpen = ref(false)
+const activeConversation = ref<UserChatConversationResponseBody>()
+
+const socketStore = useSocketStore()
+const host: ImPageHost = {
+  get selfName() {
+    return principalStore.state.name
+  },
   principalName: (details) => details == null
     ? ''
     : AuthServerService.getPrincipalNameByUserDetails(details),
   timeText: (unix) => globalProperties.$dayjs(unix).fromNow(),
-  messagePreview: (message) => getMessageContent(message),
-  subscribeReadUpdate: () => () => undefined,
-}))
-
-const segmented = ref<{
-  value: string
-  data: Record<string, unknown>[]
-}>({
-  value: 'conversation',
-  data: [{
-    value: 'conversation',
-    iconText: 'loncra-message-square-more'
-  }, {
-    value: 'contact',
-    iconText: 'loncra-contact'
-  }]
-})
+  messagePreview: (message, conversation) => getMessageContent(message, conversation),
+  draftPreview: (draft) => getDraftContent(draft),
+  unreadCount: (id) => messageServerStore.getUserChatUnreadQuantity(Number(id)),
+  refreshUnread: async () => {
+    await messageServerStore.fetchUnreadQuantity()
+  },
+  subscribeReadUpdate: (handler) => socketStore.subscribe(
+    SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ_UPDATE,
+    (payload) => {
+      const result = parseSocketRestPayload<IdValueMetadata<number, number>[]>(payload)
+      handler(result.data ?? [])
+    },
+  ),
+}
 
 const options = ref<{
   contactDataSource: SystemUserContactItem[]
   loading: boolean
 }>({
   contactDataSource: [],
-  loading: false
+  loading: false,
 })
 
 const {getNotificationKey, destroy} = useAppNotification()
 
-const chatViewRef = ref<ChatViewController>()
-const conversationRef = ref<InstanceType<typeof LChatConversation>>()
+useChatSocketEvents(() => chatRef.value)
 
-const {conversationActive, conversations, loader, activateConversation, refreshConversations} =
-  provideUserChatContext({
-    view: chatViewRef as Ref<ChatViewController | undefined>,
-    refreshActiveHeader: (item: ServerConversationItem | undefined) =>
-      conversationRef.value?.changeMessageExtraContent(item),
-  })
-
-async function onContactSelected(value: UserChatConversationResponseBody) {
-  const target = conversations.upsertToTop(value)
-  segmented.value.value = 'conversation'
-  await activateConversation(target)
+function paintHeader() {
+  const conversation = activeConversation.value
+  if (!setExtraContent) {
+    return
+  }
+  if (!conversation) {
+    setExtraContent(h('span'))
+    return
+  }
+  const name = conversation.name || ''
+  const button = resolveComponent('AButton')
+  const space = resolveComponent('ASpace')
+  setExtraContent(h(space, {}, {
+    default: () => [
+      h('span', {}, {default: () => name}),
+      createAvatarNode(conversation.cover || [], name),
+      h(button, {
+        type: 'text',
+        size: 'small',
+        icon: () => renderIconFont(roomOpen.value ? 'loncra-panel-right-close' : 'loncra-panel-left-close'),
+        onClick: () => {
+          roomOpen.value = !roomOpen.value
+          chatRef.value?.setRoomSettingsOpen(roomOpen.value)
+          paintHeader()
+        },
+      }),
+    ],
+  }))
 }
 
-function onConversationDelete(body: UserChatConversationResponseBody) {
-  conversations.remove(body.id)
-  if (conversationActive.value.item?.data?.id === body.id) {
-    activateConversation(undefined)
+function onActive(conversation: UserChatConversationResponseBody | undefined) {
+  if (!conversation || conversation.id !== activeConversation.value?.id) {
+    roomOpen.value = false
   }
+  activeConversation.value = conversation
+  paintHeader()
 }
 
 function onMuted(body: BasicUserChatConversation) {
   messageServerStore.setUserChatMessageMutedValue(Number(body.id), body.muted)
 }
 
-async function onAdded(result: RestResult<UserChatConversationResponseBody>) {
-  if (!result.data) {
-    return
-  }
-  await activateConversation(result.data)
-}
+let booted = false
 
 async function mounted() {
-  const keys:unknown | null = getNotificationKey(MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT)
+  const keys: unknown | null = getNotificationKey(MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT)
   if (keys) {
     const messageNotificationKeys = keys as Set<string>
     messageNotificationKeys.forEach(destroy)
   }
   options.value.loading = true
   try {
-    await refreshConversations()
+    await chatRef.value?.refreshConversations()
     const contactResult: RestResult<IdNameValueMetadata<PlatformUser[]>[]> =
       await AuthServerService.systemUsers({number: -1}, true, false)
     if (contactResult.data) {
       const list: SystemUserContactItem[] = []
-      for (const r of contactResult.data) {
-        r.value.forEach((v) =>
+      for (const row of contactResult.data) {
+        row.value.forEach((user) =>
           list.push({
-            key: String(v.id),
-            label: v.realName || v.username,
-            group: r.name,
-            disabled: principalStore.isCurrentPrincipal(v.systemName),
-            data: v,
+            key: String(user.id),
+            label: user.realName || user.username,
+            group: row.name,
+            disabled: principalStore.isCurrentPrincipal(user.systemName),
+            data: user,
           }),
         )
       }
@@ -134,88 +153,46 @@ async function mounted() {
   } finally {
     options.value.loading = false
   }
-  await nextTick()
-  const find = conversations.findById(Number(globalProperties.$route.query.conversationId))
-  if (find) {
-    await activateConversation(find, Number(globalProperties.$route.query.messageId))
+  booted = true
+  await openFromRoute()
+}
+
+async function openFromRoute(scrollBottom = false) {
+  const id = Number(globalProperties.$route.query.conversationId)
+  if (Number.isFinite(id)) {
+    const messageId = Number(globalProperties.$route.query.messageId)
+    await chatRef.value?.openConversation(id, Number.isFinite(messageId) ? messageId : undefined)
   }
+  if (!scrollBottom) {
+    return
+  }
+  await nextTick()
+  chatRef.value?.scrollToBottom()
 }
 
 onMounted(mounted)
+
+onActivated(() => {
+  if (!booted) {
+    return
+  }
+  void openFromRoute(true)
+})
 </script>
 
 <template>
   <div class="h-full min-h-0">
-    <a-splitter class="h-full min-h-0">
-      <a-splitter-panel class="h-full p-0 overflow-hiddenl" default-size="20%" min="15%" max="25%">
-        <a-spin :spinning="options.loading" class="size-full-spin">
-          <a-flex vertical class="size-full min-h-0">
-            <l-chat-conversation
-              ref="conversationRef"
-              @delete="onConversationDelete"
-              v-if="segmented.value === 'conversation'"
-            />
-            <l-chat-contact
-              @selected="onContactSelected"
-              v-model:loading="options.loading"
-              v-else-if="segmented.value === 'contact'"
-              v-model:data-source="options.contactDataSource"
-            />
-            <div class="shrink-0 p-xs bg-layout -ml-1px">
-              <a-segmented v-model:value="segmented.value" block :options="segmented.data"
-                           @change="(key:string )=> segmented.value = key ">
-                <template #iconRender="{ iconText }">
-                  <icon-font class="icon align" :type="iconText"/>
-                </template>
-              </a-segmented>
-            </div>
-          </a-flex>
-        </a-spin>
-      </a-splitter-panel>
-      <a-splitter-panel class="h-full min-h-0 overflow-hidden">
-        <div class="h-full min-h-0 overflow-hidden relative" v-if="conversationActive.item">
-          <a-spin :spinning="conversationActive.loading" class="size-full-spin">
-            <l-chat-view ref="chatViewRef">
-              <template #bubbleListAfter>
-                <a-button
-                  @click="loader.toReadableAnchor()"
-                  v-if="loader.showReadableAnchorButton()"
-                  class="shadow-card absolute top-2 mt-sm left-1/2 -translate-x-1/2 animate-bounce"
-                >
-                  <template #icon>
-                    <icon-font type="loncra-hard-drive-upload"/>
-                  </template>
-                  <span>{{globalProperties.$t('chat.view.readable.jumpTo')}}</span>
-                </a-button>
-              </template>
-            </l-chat-view>
-          </a-spin>
-          <a-drawer
-            v-if="conversationActive.item.data"
-            v-model:open="conversationActive.drawerOpen"
-            placement="right"
-            :get-container="false"
-            :closable="false"
-            :mask="false"
-            @close="conversationActive.drawerOpen = false"
-          >
-            <div class="h-full min-h-0">
-              <ImRoomSettings
-                :conversation="conversationActive.item.data"
-                :participants="conversationActive.participants"
-                :contacts="options.contactDataSource"
-                :host="roomHost"
-                @muted="onMuted"
-                @delete="onConversationDelete"
-                @added="onAdded"
-              />
-            </div>
-          </a-drawer>
-        </div>
-        <a-flex v-else vertical class="size-full" justify="center" align="center">
-          <a-empty/>
-        </a-flex>
-      </a-splitter-panel>
-    </a-splitter>
+    <l-im
+      ref="chatRef"
+      class="h-full min-h-0"
+      :host="host"
+      :contacts="options.contactDataSource"
+      :loading="options.loading"
+      @update:contacts="(value: SystemUserContactItem[]) => options.contactDataSource = value"
+      @update:loading="(value: boolean) => options.loading = value"
+      @active="onActive"
+      @muted="onMuted"
+    />
   </div>
+
 </template>

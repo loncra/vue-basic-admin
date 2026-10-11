@@ -1,10 +1,9 @@
-import {useSocketSubscriptions} from "@/composables";
-import type {UseChatNotificationParam} from "@/types/composables";
+import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
 import {SOCKET_EVENT_TYPE, SYSTEM_ROUTE, YES_OR_NO_TYPE} from '@/constants';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
-import type {IdValueMetadata, RestResult} from "@loncra/client/commons";
-import {getEnumName, getEnumValue, isEnumValue} from "@loncra/client/commons"
+import type {IdValueMetadata, RestResult, TimeProperties} from "@loncra/client/commons";
+import {getEnumName, isEnumValue} from "@loncra/client/commons"
 import type {PlatformUser} from "@loncra/client/auth";
 import type {UserChatCallEntity, UserChatCallParticipantEntity, UserChatCallResponseBody, UserChatConversationEntity} from "@loncra/client/message";
 import {ChatMessageService, MESSAGE_SERVER_CHAT_CALL_TYPE, MESSAGE_SERVER_MESSAGE_GROUP} from "@loncra/client/message";
@@ -17,7 +16,7 @@ import {
   requireNonNullOrUndefined,
 } from "@/utils";
 
-import {type ComponentInternalInstance, getCurrentInstance, h} from "vue";
+import {type ComponentInternalInstance, getCurrentInstance, h, type Ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from "@/composables/useAppNotification.ts";
@@ -27,7 +26,9 @@ import {fillLocale} from '@loncra/antdv'
 import {ImCallActions, provideImChatCall, useLocale} from '@loncra/antdv-chat-pro/im/call'
 
 
-export function useChatNotification(config: UseChatNotificationParam) {
+export function useChatNotification(config: {
+  chatCallConfig: {closeTimerValue: Ref<TimeProperties>}
+}) {
   const {on} = useSocketSubscriptions()
   const {destroy, info, createNotificationDescription} = useAppNotification()
   const messageServerStore = useMessageServerStore()
@@ -63,9 +64,6 @@ export function useChatNotification(config: UseChatNotificationParam) {
     }
 
     await messageServerStore.fetchUnreadQuantity()
-    if (globalProperties.$route.name === SYSTEM_ROUTE.MY_CHAT_MESSAGE) {
-      return
-    }
 
     const conversationResult: RestResult<UserChatConversationEntity | UserChatConversationResponseBody> = await ChatMessageService.getConversation(result.data.userChatRoomId, true)
     if (!conversationResult.data) {
@@ -77,7 +75,7 @@ export function useChatNotification(config: UseChatNotificationParam) {
     let description: string = getMessageContent(result.data, body)
     let duration = configProviderStore.state.notificationConfig.duration;
     let messageId = undefined
-    if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE && getEnumValue(body.muted) !== YES_OR_NO_TYPE.NO) {
+    if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE && isEnumValue(body.muted, YES_OR_NO_TYPE.YES)) {
       return
     } else if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION) {
       const message = result.data
@@ -102,14 +100,23 @@ export function useChatNotification(config: UseChatNotificationParam) {
         title: body.name,
         duration: duration,
         description: createNotificationDescription(description),
-        icon: createAvatarNode(body.cover, body.name, 'large', '[&>*:not(:first-child)]:-ms-8!'),
+        icon: createAvatarNode(
+          Array.isArray(body.cover) ? body.cover : [],
+          body.name || '',
+          'large',
+          '[&>*:not(:first-child)]:-ms-8!',
+        ),
         classes: {
           root: 'cursor-pointer',
         },
-        onClick: () => globalProperties.$router.push({
-          name: SYSTEM_ROUTE.MY_CHAT_MESSAGE,
-          query: {conversationId: body.id, messageId}
-        })
+        onClick: () => {
+          void globalProperties.$router.push({
+            name: SYSTEM_ROUTE.MY_CHAT_MESSAGE,
+            query: {conversationId: body.id, messageId},
+          }).then(() => {
+            destroy(notificationKey)
+          })
+        },
       },
       MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT,
       notificationKey
