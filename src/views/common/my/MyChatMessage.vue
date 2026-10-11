@@ -25,7 +25,7 @@ import {useSocketStore} from '@/stores/socketStore.ts'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 import {ImChat as LIm, type ImChatExpose, type ImPageHost} from "@loncra/antdv-chat-pro";
 import {useChatSocketEvents} from "@/composables/message-server/chat";
-import {useAppNotification} from "@/composables/useAppNotification.ts";
+import {useAppNotification} from '@loncra/antdv-pro'
 import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, SOCKET_EVENT_TYPE} from '@/constants'
 

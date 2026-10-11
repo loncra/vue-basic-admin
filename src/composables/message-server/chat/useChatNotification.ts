@@ -19,7 +19,7 @@ import {
 import {type ComponentInternalInstance, getCurrentInstance, h, type Ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
-import {useAppNotification} from "@/composables/useAppNotification.ts";
+import {useAppNotification} from '@loncra/antdv-pro'
 import {Flex} from "antdv-next";
 import {AudioOutlined, VideoCameraOutlined} from '@antdv-next/icons'
 import {fillLocale} from '@loncra/antdv'
