@@ -2,6 +2,7 @@ import {ref} from 'vue'
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
+  AuthServerService,
   type EnterpriseMemberEntity,
 } from '@loncra/client/auth'
 import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from '@loncra/client/commons'
@@ -12,7 +13,6 @@ import {
   type ToolbarActionContext,
   type ToolbarActionDefinition,
 } from '@loncra/antdv-pro'
-import {AuthServerService} from '@/apis'
 import {isBusinessSuccess} from '@/requests'
 import i18n from '@/i18n'
 import {usePrincipalStore} from '@/stores/principalStore'

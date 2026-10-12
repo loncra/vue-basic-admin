@@ -5,7 +5,7 @@ import {type CrudFormCore, defineFormPage, type UserSelectOption} from '@loncra/
 import {Tooltip, Typography} from 'antdv-next'
 import {h} from 'vue'
 import i18n from '@/i18n'
-import {AuthServerService} from '@/apis'
+import {AuthServerService} from '@loncra/client/auth'
 import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, YES_OR_NO_TYPE} from '@/constants'
 import {emailCore, emailMessageService} from './email.page'
 

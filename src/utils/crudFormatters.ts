@@ -1,5 +1,5 @@
 import {h} from 'vue'
-import {Badge, type BadgeProps, Space, Tooltip, type AvatarProps, TypographyText} from 'antdv-next'
+import {type AvatarProps, Badge, type BadgeProps, Space, Tooltip, TypographyText} from 'antdv-next'
 import {
   AuthServerService as AuthServerClient,
   type PlatformUser,
@@ -7,12 +7,7 @@ import {
 } from '@loncra/client/auth'
 import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from '@loncra/client/commons'
 import type {VNode} from '@loncra/antdv'
-import {
-  type FormatContext,
-  iconNameCell,
-  UserAvatar,
-  type ValueFormatter,
-} from '@loncra/antdv-pro'
+import {iconNameCell, UserAvatar, type ValueFormatter,} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {renderIconFont} from '@/utils/commonUtils'
@@ -67,17 +62,10 @@ interface PrincipalNameArgs {
   self?: boolean
 }
 
-/**
- * 用户的显示名：**底层仍是 client 的实现**（`realName || nickname || username`，见
- * `packages/client/src/commons/api/authServerService.ts`），这里只补宿主的兜底文案（i18n 的「未命名」）
- * —— 与宿主旧 `apis/auth-server/authServerService.ts` 那层覆写是同一个口径，所以 CRUD 侧
- * 不再依赖那个文件（IM 还在用它，等 IM 迁移时一起收）。
- */
+/** 用户显示名。没有真实姓名、昵称、用户名时用 client 的默认值。 */
 export function getPrincipalName(user: unknown): string {
-  // `unknown` → client 的入参：调用点要么是实体本身、要么是 `record.member`，都是用户对象
   return AuthServerClient.getPrincipalNameByUserDetails(
     user as PlatformUser | UserMetadata | undefined | null,
-    i18n.global.t('common.unname'),
   )
 }
 

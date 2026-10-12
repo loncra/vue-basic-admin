@@ -4,17 +4,14 @@ import type {
   UserChatMessageEntity
 } from "@/types/apis";
 import type {IdValueMetadata} from "@loncra/client/commons";
-import type {PlatformUser, UserMetadata} from "@loncra/client/auth";
+import {getEnumName, getEnumValue} from "@loncra/client/commons"
+import {AuthServerService, type PlatformUser, type UserMetadata} from "@loncra/client/auth";
 import type {FileObject, ObjectWriteResult} from "@loncra/client/resource";
 import {AttachmentService} from "@loncra/client/resource";
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
 import {type ComponentInternalInstance, h, type VNode} from "vue";
 import {Avatar, AvatarGroup, Tag} from "antdv-next";
-import {AuthServerService} from "@/apis";
-import type {
-  InstructionBlock,
-  InstructionSlotProps,
-} from "@/types/composables";
+import type {InstructionBlock, InstructionSlotProps,} from "@/types/composables";
 import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
@@ -25,7 +22,6 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
 import {renderIconFont} from '@/utils/commonUtils'
-import {getEnumName, getEnumValue} from "@loncra/client/commons"
 
 
 const instructionIconMap:Record<string, string> = {

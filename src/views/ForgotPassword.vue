@@ -5,14 +5,14 @@ import LLogo from "@/components/Logo.vue";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 import {VALID_REGX} from '@/constants';
-import {AuthServerService, ResourceServerService} from "@/apis";
+import {ResourceServerService} from "@/apis";
 import type {
   IdNameValueMetadata,
   IdValueMetadata,
   PageRequest,
   RestResult
 } from "@loncra/client/commons";
-import type {PlatformUser} from "@loncra/client/auth";
+import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
 import type {CaptchaToken} from "@loncra/client/resource";
 import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import useApp from "antdv-next/dist/app/useApp";

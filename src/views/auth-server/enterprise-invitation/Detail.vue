@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import type {EnterpriseInvitationEntity} from '@loncra/client/auth'
+import {AuthServerService} from '@loncra/client/auth'
 import {CrudDetailPage} from '@loncra/antdv-pro'
-import {AuthServerService} from '@/apis'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'

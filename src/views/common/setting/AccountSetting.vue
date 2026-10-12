@@ -16,8 +16,7 @@ import {
   Form as LForm,
   UserAvatar as LUserAvatar
 } from '@loncra/antdv-pro'
-import {AuthServerService} from "@/apis";
-import {AvatarServerService} from "@loncra/client/auth";
+import {AuthServerService, AvatarServerService} from "@loncra/client/auth";
 import {BasicImage as LBasicImage} from '@loncra/antdv'
 import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 

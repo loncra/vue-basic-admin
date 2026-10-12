@@ -2,7 +2,7 @@
 import {App} from 'antdv-next'
 import {AUDIT_STATUS_VALUE, getEnumName} from '@loncra/client/commons'
 import {Form as LForm, UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
-import {AuthServerService} from '@/apis'
+import {AuthServerService} from '@loncra/client/auth'
 import {
   closeAudit,
   enterpriseMemberAudit,

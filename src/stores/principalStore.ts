@@ -1,6 +1,5 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
-import {AuthServerService} from '@/apis'
 import type {
   AuthCredentials,
   AuthenticationInfo,
@@ -8,15 +7,19 @@ import type {
   PersonalEnterprise,
   PrepareData
 } from '@loncra/client/auth'
-import {AUTH_SERVER_AUTHENTICATION_TYPE, EnterpriseService} from '@loncra/client/auth'
+import {
+  AUTH_SERVER_AUTHENTICATION_TYPE,
+  AuthServerService,
+  EnterpriseService
+} from '@loncra/client/auth'
 import type {UserPluginInstallResult} from '@loncra/client/ai'
 import {AiUserPluginInstallService} from '@loncra/client/ai'
 import type {RestResult} from '@loncra/client/commons'
+import {getEnumValue} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
 import {isBusinessSuccess} from '@/requests'
 import {STORE} from '@/constants'
 import {clearPrincipalDrafts} from '@loncra/chat-core/dexie'
-import {getEnumValue} from '@loncra/client/commons'
 
 /**
  * 重置状态常量

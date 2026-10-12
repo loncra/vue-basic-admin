@@ -4,11 +4,20 @@ import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
 import type {IdValueMetadata, RestResult, TimeProperties} from "@loncra/client/commons";
 import {getEnumName, isEnumValue} from "@loncra/client/commons"
-import type {PlatformUser} from "@loncra/client/auth";
-import type {UserChatCallEntity, UserChatCallParticipantEntity, UserChatCallResponseBody, UserChatConversationEntity} from "@loncra/client/message";
-import {ChatMessageService, MESSAGE_SERVER_CHAT_CALL_TYPE, MESSAGE_SERVER_MESSAGE_GROUP, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from "@loncra/client/message";
+import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
+import type {
+  UserChatCallEntity,
+  UserChatCallParticipantEntity,
+  UserChatCallResponseBody,
+  UserChatConversationEntity
+} from "@loncra/client/message";
+import {
+  ChatMessageService,
+  MESSAGE_SERVER_CHAT_CALL_TYPE,
+  MESSAGE_SERVER_MESSAGE_GROUP,
+  MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE
+} from "@loncra/client/message";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {AuthServerService} from "@/apis";
 import {
   createAvatarNode,
   createUserAvatarNode,

@@ -3,18 +3,18 @@
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import {renderIconFont} from '@/utils/commonUtils'
-import {AuthServerService} from "@/apis";
 import type {EnterpriseInvitationDetail} from "@loncra/client/auth";
 import {
   AUTH_SERVER_USER_STATUS_TYPE,
+  AuthServerService,
   EnterpriseService
 } from "@loncra/client/auth";
 import type {RestResult} from "@loncra/client/commons";
+import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from "@loncra/client/commons"
 import {ICON_SELECT_AVATAR_MODE_VALUE, SYSTEM_ROUTE} from '@/constants';
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from "@loncra/client/commons"
 
 const {dateTimeFormat} = useDateFormat()
 

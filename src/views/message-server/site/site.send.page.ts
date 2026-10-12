@@ -10,7 +10,7 @@ import {
 import {Select, SpaceAddon, SpaceCompact, Switch, Typography} from 'antdv-next'
 import {h} from 'vue'
 import i18n from '@/i18n'
-import {AuthServerService} from '@/apis'
+import {AuthServerService} from '@loncra/client/auth'
 import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, YES_OR_NO_TYPE} from '@/constants'
 import {siteCore, siteMessageService} from './site.page'
 

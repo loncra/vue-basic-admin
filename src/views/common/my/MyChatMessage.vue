@@ -17,19 +17,23 @@ import type {
   UserChatMessageResponseBody
 } from "@/types/apis";
 import type {SystemUserContactItem} from "@loncra/antdv-pro";
+import {useAppNotification} from '@loncra/antdv-pro'
 import type {IdNameValueMetadata, IdValueMetadata, RestResult} from "@loncra/client/commons";
-import type {PlatformUser} from "@loncra/client/auth";
+import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
 import type {BasicUserChatConversation} from "@loncra/client/message";
-import {createAvatarNode, getDraftContent, getMessageContent, requireNonNullOrUndefined} from "@/utils";
+import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
+import {
+  createAvatarNode,
+  getDraftContent,
+  getMessageContent,
+  requireNonNullOrUndefined
+} from "@/utils";
 import {renderIconFont} from '@/utils/commonUtils'
-import {AuthServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {useSocketStore} from '@/stores/socketStore.ts'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 import {ImChat as LIm, type ImChatExpose, type ImPageHost} from "@loncra/antdv-chat-pro";
-import {useAppNotification} from '@loncra/antdv-pro'
-import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, SOCKET_EVENT_TYPE} from '@/constants'
 import {useSocketSubscriptions} from "@/composables";
 
