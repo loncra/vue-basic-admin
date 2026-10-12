@@ -5,12 +5,8 @@ import type {
   ChatContentBlock,
   ProvideAgentChatContextOptions,
 } from '@/types/composables'
-import {
-  AGENT_CHAT_CONTEXT_PROVIDE_KEY,
-  CHAT_BUBBLE_TYPE,
-  DEFAULT_PAGE_RESULT_VALUE,
-  STREAM_RUNNING_STATUS_VALUE
-} from '@/constants'
+import {AGENT_CHAT_CONTEXT_PROVIDE_KEY, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {CHAT_BUBBLE_TYPE, STREAM_RUNNING_STATUS_VALUE} from '@loncra/client/ai'
 import {inject, provide, ref, type Ref} from 'vue'
 import {useAgentMessageLoader, useAgentStream} from '@/composables'
 import {filterTreeDeep, findFirstTreeNode, unmergeTree, getEnumValue} from '@loncra/client/commons'

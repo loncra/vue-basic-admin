@@ -5,7 +5,7 @@ import {CrudHomePage as LCrudHomePage, Form as LForm, type CrudHomePageExpose} f
 import type {SkillPackageEntity} from '@loncra/client/ai'
 import {getEnumValue} from '@loncra/client/commons'
 import LAgentHubSkillReleaseChangeLog from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
-import {DATA_STATUS} from '@/constants'
+import {DATA_STATUS} from '@loncra/client/commons'
 import {skillPackageService} from './skill-package.page'
 import {skillPackageHomePage, skillSnapshot} from './skill-package.home.page'
 

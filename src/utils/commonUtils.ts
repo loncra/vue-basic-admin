@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 import {type DateLike, dayjsFormat} from '@loncra/antdv-pro'
 import {getEnumValue, type NameValueEnumMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
-import {YES_OR_NO_TYPE} from '@/constants'
+import {YES_OR_NO_TYPE} from '@loncra/client/commons'
 import type {DefaultCrudEntity, PageSearchConfig, SearchableColumnType} from '@loncra/antdv-pro';
 
 /**

@@ -1,5 +1,6 @@
 import type {RouteRecordRaw} from 'vue-router'
-import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE} from '@/constants'
+import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 /** 企业角色相关路由 */
 const router: RouteRecordRaw[] = [

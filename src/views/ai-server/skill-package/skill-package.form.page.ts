@@ -15,13 +15,9 @@ import {
 import {defineFormPage} from '@loncra/antdv-pro'
 import type {IconfontJson} from '@/types/composables'
 import {loadIcon, renderIconFont} from '@/utils'
-import {
-  ICON_SELECT_MODE,
-  SKILL_GROUP_CODE_PREFIX,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-  TIME_UNIT_TYPE,
-} from '@/constants'
+import {ICON_SELECT_MODE} from '@loncra/antdv'
+import {SKILL_GROUP_CODE_PREFIX} from '@loncra/client/ai'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, TIME_UNIT_TYPE} from '@loncra/client/commons'
 import {skillPackageCore} from './skill-package.page'
 
 /**

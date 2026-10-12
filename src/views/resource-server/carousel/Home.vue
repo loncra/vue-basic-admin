@@ -17,12 +17,8 @@ import {ResourceServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import {BasicImage as LBasicImage} from '@loncra/antdv'
-import {
-  DATA_STATUS,
-  RESOURCE_SERVER_CAROUSEL_AUTHORITY,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME
-} from '@/constants';
+import {DATA_STATUS, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {RESOURCE_SERVER_CAROUSEL_AUTHORITY} from '@loncra/client/resource';
 import {CAROUSEL_TYPE_FILTER, carouselService} from './carousel.page'
 import {carouselHomePage, carouselPreviewReloader} from './carousel.home.page'
 

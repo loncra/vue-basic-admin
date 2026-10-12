@@ -1,7 +1,7 @@
 import type {DictionaryTypeEntity, DictionaryTypeSavePayload} from '@loncra/client/resource'
 import {DictionaryTypeService} from '@loncra/client/resource'
 import type {CrudPageCore} from '@loncra/antdv-pro'
-import {OPERATION_DATA_TRACE_TABLE} from '@/constants'
+import {OPERATION_DATA_TRACE_TABLE} from '@loncra/client/commons'
 
 /**
  * 字典类型的 service。`Home.vue` 里的新增/修改弹层（表单声明 `dictionary-type.form.page.ts`）

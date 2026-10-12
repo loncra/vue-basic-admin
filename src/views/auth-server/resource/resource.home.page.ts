@@ -4,12 +4,9 @@ import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
 import {defineHomePage} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
-import {
-  AUTH_SERVER_RESOURCE_AUTHORITY,
-  AUTH_SERVER_RESOURCE_ROUTE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME
-} from '@/constants'
+import {AUTH_SERVER_RESOURCE_ROUTE} from '@/constants'
+import {AUTH_SERVER_RESOURCE_AUTHORITY} from '@loncra/client/auth'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {defineSearchProps} from '@/utils'
 import type {DragPreviewContent, RecordActionContext} from '@loncra/antdv-pro'
 import {renderIconName, RESOURCE_VARIANT, resourceCore} from './resource.page'

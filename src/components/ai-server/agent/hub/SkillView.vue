@@ -9,11 +9,8 @@ import {
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import type {PageRequest, RestResult, TotalPage} from '@loncra/client/commons'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
-import {
-  DATA_DICTIONARY_ALL_CODE,
-  DEFAULT_PAGE_RESULT_VALUE,
-  SKILL_GROUP_CODE_PREFIX
-} from '@/constants'
+import {DATA_DICTIONARY_ALL_CODE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {SKILL_GROUP_CODE_PREFIX} from '@loncra/client/ai'
 import {addAllDataDictionary, requireNonNullOrUndefined} from '@/utils'
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
 import LAgentHubSkillReleaseChangeLog

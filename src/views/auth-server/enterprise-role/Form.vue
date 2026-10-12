@@ -5,7 +5,7 @@ import type {EnterpriseRoleSavePayload, ResourceEntity} from '@loncra/client/aut
 import {CrudFormPage, CrudHomePage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@/constants'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
 import {
   fetchEnterpriseResources,

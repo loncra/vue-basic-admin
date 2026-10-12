@@ -1,7 +1,8 @@
 // 导入 Ant Design Vue Next 组件和图标（antdv-next 无 List 组件，Chat.vue 中已用 div 替代）
 import type {IconfontJson} from '@/types/composables'
 import type {DataDictionaryMetadata} from "@loncra/client/resource";
-import {DATA_DICTIONARY_ALL_CODE, DATA_DICTIONARY_ALL_VALUE, VALUE_TYPE} from '@/constants';
+import {DATA_DICTIONARY_ALL_CODE, DATA_DICTIONARY_ALL_VALUE} from '@/constants'
+import {VALUE_TYPE} from '@loncra/client/commons';
 
 import i18n from '@/i18n'
 

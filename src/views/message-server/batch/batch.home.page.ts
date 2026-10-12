@@ -1,6 +1,6 @@
 import {defineHomePage, executeStatusCell} from '@loncra/antdv-pro'
 import type {BatchMessageEntity} from '@loncra/client/message'
-import {MESSAGE_SERVER_BATCH_AUTHORITY,} from '@/constants'
+import {MESSAGE_SERVER_BATCH_AUTHORITY} from '@loncra/client/message'
 import {defineSearchProps} from '@/utils'
 import {batchCore} from './batch.page'
 

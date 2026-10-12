@@ -1,12 +1,8 @@
 import type {DataDictionaryEntity, DataDictionarySavePayload} from '@loncra/client/resource'
 import {DataDictionaryService} from '@loncra/client/resource'
 import type {CrudPageCore} from '@loncra/antdv-pro'
-import {
-  OPERATION_DATA_TRACE_TABLE,
-  RESOURCE_SERVER_DATA_DICTIONARY_ROUTE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE} from '@/constants'
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 /**
  * 字典数据的 service。`Home.vue` 里的排序（`sort`）是**实例方法** ⇒ 导出，别重复 `new`。

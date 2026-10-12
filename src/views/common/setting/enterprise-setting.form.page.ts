@@ -1,7 +1,8 @@
 import type {EnterpriseEntity, EnterprisePayload} from '@loncra/client/auth'
 import {EnterpriseService} from '@loncra/client/auth'
 import {type CrudFormCore, defineFormPage} from '@loncra/antdv-pro'
-import {ICON_SELECT_MODE, OPERATION_DATA_TRACE_TABLE} from '@/constants'
+import {ICON_SELECT_MODE} from '@loncra/antdv'
+import {OPERATION_DATA_TRACE_TABLE} from '@loncra/client/commons'
 import {renderIconFont} from '@/utils'
 
 /**

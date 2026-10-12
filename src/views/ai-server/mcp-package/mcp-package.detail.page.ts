@@ -6,7 +6,8 @@ import {
 } from '@loncra/client/ai'
 import {getEnumName} from '@loncra/client/commons'
 import {defineDetailPage} from '@loncra/antdv-pro'
-import {MCP_CLIENT_HTTP_TYPE_VALUE, TIME_UNIT_TYPE, YES_OR_NO_TYPE} from '@/constants'
+import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
+import {TIME_UNIT_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
 /** 宿主在 client 实体上补的三张「键值表」行数据（`@/types/apis`）—— 只在摊数据时要 */
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
 import {mcpPackageCore} from './mcp-package.page'

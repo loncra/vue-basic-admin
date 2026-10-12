@@ -1,12 +1,8 @@
 import type {EnterpriseMemberEntity, EnterpriseMemberSavePayload} from '@loncra/client/auth'
 import {EnterpriseMemberService} from '@loncra/client/auth'
 import type {CrudPageCore} from '@loncra/antdv-pro'
-import {
-  AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE,
-  OPERATION_DATA_TRACE_TABLE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_MEMBER_ROUTE} from '@/constants'
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 export const enterpriseMemberService = new EnterpriseMemberService()
 

@@ -10,13 +10,9 @@ import {ResourceServerService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
 import router from '@/routers'
-import {
-  AI_SERVER_MODEL_SETTING_AUTHORITY,
-  AI_SERVER_MODEL_SETTING_ROUTE,
-  MODEL_SETTING_MANUFACTURER_CODE_PREFIX,
-  MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  SYSTEM_CONSTANT,
-} from '@/constants'
+import {AI_SERVER_MODEL_SETTING_ROUTE, MODEL_SETTING_MANUFACTURER_CODE_QUERY} from '@/constants'
+import {AI_SERVER_MODEL_SETTING_AUTHORITY, MODEL_SETTING_MANUFACTURER_CODE_PREFIX} from '@loncra/client/ai'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {modelSettingService} from './model-setting.page'
 import {modelSettingHomePage, selectedManufacturer} from './model-setting.home.page'
 

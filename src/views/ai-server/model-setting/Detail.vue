@@ -12,15 +12,13 @@ import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
+import {AI_SERVER_MODEL_SETTING_ROUTE, MODEL_SETTING_MANUFACTURER_CODE_QUERY} from '@/constants'
 import {
-  AI_SERVER_MODEL_SETTING_ROUTE,
   MODEL_DEFAULT_OPTIONS_KEY,
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
   MODEL_GENERATE_OPTION_KEYS,
-  MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+} from '@loncra/client/ai'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {modelSettingDetailPage} from './model-setting.detail.page'
 
 /**

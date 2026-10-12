@@ -2,8 +2,6 @@ export const APP_RELOAD_PROVIDE_KEY = 'reload'
 export const LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY = "closeContentTab"
 export const LAYOUT_PANE_TITLE_PROVIDE_KEY = "paneTitle"
 
-export {OPERATION_DATA_TRACE_TABLE, SYSTEM_CONSTANT, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
-
 /**
  * **系统级基础页面的路由名**（`routers/index.ts` 里 `childrenRoutes` / `routes` 那些不属于任何业务模块的页面）。
  *
@@ -95,22 +93,6 @@ export const VALID_REGX = {
   ILLEGAL_FILE_OR_FOLDER_NAME: /[\u0000-\u001f\u007f/\\<>"|?*]/
 } as const
 
-export const RESERVED_FILE_OR_FOLDER_NAME = new Set(['.', '..'])
-export const FILE_OR_FOLDER_NAME_MAX_LENGTH = 255
-/**
- * http 请求方法
- */
-export const HTTP_REQUEST_METHOD = {
-  GET: 'GET',
-  HEAD: 'HEAD',
-  POST: 'POST',
-  PUT: 'PUT',
-  PATCH: 'PATCH',
-  DELETE: 'DELETE',
-  OPTIONS: 'OPTIONS',
-  TRACE: 'TRACE',
-}
-
 export const DATE_TIME_FORMAT = {
   POST_TIMESTAMP_FORMAT: import.meta.env.VITE_APP_POST_TIMESTAMP_FORMAT,
   POST_TIME_FORMAT: import.meta.env.VITE_APP_POST_TIME_FORMAT
@@ -124,22 +106,4 @@ export const DEFAULT_PAGE_RESULT_VALUE = {
   size: 10,
   metadata:{}
 }
-
-export const DEFAULT_OPERATE_CATEGORY = {
-  SYSTEM:10,
-  CUSTOMIZE:20,
-} as const
-
-export const CHAT_BUBBLE_TYPE = {
-  AI:'ai',
-  SYSTEM:'system',
-  USER:'user',
-  DIVIDER:"divider"
-} as const
-
-export {
-  AVATAR_SCHEMES,
-  ICON_SELECT_AVATAR_MODE_VALUE,
-  ICON_SELECT_MODE,
-} from '@loncra/antdv'
 

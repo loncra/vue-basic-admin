@@ -1,7 +1,8 @@
 import axios, {type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig} from 'axios'
 import router, {saveRequestPathThenToAuth} from '@/routers'
 import {message} from 'antdv-next'
-import {AUTH_SERVER_AUTHENTICATION_TYPE_PARAM, HTTP} from '@/constants'
+import {HTTP} from '@/constants'
+import {AUTH_SERVER_AUTHENTICATION_TYPE_PARAM} from '@loncra/client/auth'
 import {BusinessError, isBusinessSuccess, isResultSuccess, type RestResult} from '@loncra/client/commons'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useBootstrapStore} from "@/stores/bootStore.ts";

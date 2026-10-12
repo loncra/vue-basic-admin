@@ -1,12 +1,8 @@
 import {CarouselService} from '@loncra/client/resource'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import type {CarouselEntity, CarouselSavePayload} from '@/types/apis'
-import {
-  OPERATION_DATA_TRACE_TABLE,
-  RESOURCE_SERVER_CAROUSEL_ROUTE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {RESOURCE_SERVER_CAROUSEL_ROUTE} from '@/constants'
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 /**
  * 页面 service。声明用它取数；旧 `Form.vue` 里那个 `new CarouselService()` 收进来一处写。

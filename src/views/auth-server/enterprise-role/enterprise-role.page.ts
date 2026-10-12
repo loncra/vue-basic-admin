@@ -1,12 +1,8 @@
 import type {EnterpriseRoleEntity, EnterpriseRoleSavePayload} from '@loncra/client/auth'
 import {EnterpriseRoleService} from '@loncra/client/auth'
 import type {CrudPageCore} from '@loncra/antdv-pro'
-import {
-  AUTH_SERVER_ENTERPRISE_ROLE_ROUTE,
-  OPERATION_DATA_TRACE_TABLE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE} from '@/constants'
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 export const enterpriseRoleService = new EnterpriseRoleService()
 

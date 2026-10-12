@@ -1,10 +1,7 @@
 import {defineHomePage} from '@loncra/antdv-pro'
 import type {EnterpriseEntity, EnterprisePayload} from '@loncra/client/auth'
-import {
-  AUTH_SERVER_ENTERPRISE_AUTHORITY,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_AUTHORITY} from '@loncra/client/auth'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {defineSearchProps} from '@/utils'
 import {enterpriseCore} from './enterprise.page'
 

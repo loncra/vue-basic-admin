@@ -1,5 +1,6 @@
 import type {RouteRecordRaw} from 'vue-router'
-import {MCP_PACKAGE_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
+import {MCP_PACKAGE_ROUTE} from '@/constants'
+import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 const router: RouteRecordRaw[] = [
   {

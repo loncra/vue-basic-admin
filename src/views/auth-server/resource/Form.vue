@@ -5,7 +5,7 @@ import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@/constants'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {resourceCore} from './resource.page'
 import {resourceFormPage} from './resource.form.page'
 

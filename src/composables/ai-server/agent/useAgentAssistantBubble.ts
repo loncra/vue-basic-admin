@@ -10,7 +10,7 @@ import type {
   ChatBubbleItem,
   ThoughtChainItemDataType
 } from "@/types/composables";
-import {AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE, BLOCK_RUNNING_STATUS_VALUE} from '@/constants';
+import {AGENT_TOOL_BLOCK_CONFIRM_STATUS_VALUE, BLOCK_RUNNING_STATUS_VALUE} from '@loncra/client/ai';
 import {computed, reactive} from "vue";
 import type {ThoughtChainItemType} from "@antdv-next/x";
 import type {RestResult} from "@loncra/client/commons";

@@ -5,7 +5,8 @@ import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/an
 import type {DataDictionaryEntity} from '@loncra/client/resource'
 import type {FilterRequest, RestResult, TreeSortMetadata} from '@loncra/client/commons'
 import router from '@/routers'
-import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE, SYSTEM_CONSTANT} from '@/constants'
+import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE} from '@/constants'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {dataDictionaryService} from './data-dictionary.page'
 import {dataDictionaryHomePage} from './data-dictionary.home.page'
 

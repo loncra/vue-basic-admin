@@ -6,7 +6,7 @@ import type {CarouselSavePayload} from '@/types/apis'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@/constants'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {carouselCore} from './carousel.page'
 import {carouselFormPage} from './carousel.form.page'
 

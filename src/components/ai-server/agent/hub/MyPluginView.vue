@@ -5,7 +5,8 @@ import {AI_SERVER_PLUGIN_TARGET_TYPE, AiUserPluginInstallService} from '@loncra/
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
 import LAgentHubSkillReleaseChangeLog
   from '@/components/ai-server/agent/hub/SkillReleaseChangeLog.vue'
-import {DEFAULT_PAGE_RESULT_VALUE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@/constants'
+import {DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import type {McpPackageEntity} from '@/types/apis'
 import type {IdValueMetadata, RestResult, TotalPage} from '@loncra/client/commons'
 import {requireNonNullOrUndefined} from '@/utils'

@@ -15,7 +15,7 @@ import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {renderIconFont} from '@/utils'
-import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@/constants'
+import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
 /** 宿主在 client 实体上补的三张「键值表」行数据（`@/types/apis`）—— 插槽作用域是 client 类型，写它要收窄 */
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
 import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyTable.vue'

@@ -8,7 +8,7 @@ import type {
 import {DictionaryTypeService} from '@loncra/client/resource'
 import {defineFormPage} from '@loncra/antdv-pro'
 import router from '@/routers'
-import {VALUE_TYPE} from '@/constants'
+import {VALUE_TYPE} from '@loncra/client/commons'
 import {dataDictionaryCore} from './data-dictionary.page'
 
 const typeService = new DictionaryTypeService()

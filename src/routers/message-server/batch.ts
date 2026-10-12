@@ -1,5 +1,6 @@
 import type {RouteRecordRaw} from 'vue-router'
-import {MESSAGE_SERVER_BATCH_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
+import {MESSAGE_SERVER_BATCH_ROUTE} from '@/constants'
+import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 /** 批量消息相关路由 */
 const router: RouteRecordRaw[] = [

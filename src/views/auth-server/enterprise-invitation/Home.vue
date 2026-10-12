@@ -12,7 +12,7 @@ import {
 import {renderIconFont, requireNonNullOrUndefined} from '@/utils'
 import LEnterpriseInvitationModal from '@/views/auth-server/enterprise-invitation/Form.vue'
 import LEnterpriseMemberAuditModal from '@/views/auth-server/enterprise-invitation/Audit.vue'
-import {AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY} from '@loncra/client/auth'
 import {
   enterpriseMemberAudit,
   enterpriseMemberHomePage,

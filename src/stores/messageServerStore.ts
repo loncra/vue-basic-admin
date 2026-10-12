@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
-import {STORE, YES_OR_NO_TYPE} from '@/constants';
+import {STORE} from '@/constants'
+import {YES_OR_NO_TYPE} from '@loncra/client/commons';
 import {computed, ref} from "vue";
 import type {MyMessageState} from "@/types/apis";
 import type {IdNameMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";

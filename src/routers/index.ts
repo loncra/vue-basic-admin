@@ -9,11 +9,8 @@ import {usePrincipalStore} from '@/stores/principalStore.ts'
 import type {ResourceEntity} from "@loncra/client/auth";
 import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
-import {
-  AUTHENTICATION_MEMBER_TYPE,
-  RESOURCE_SERVER_USER_EXPORT_ROUTE,
-  SYSTEM_ROUTE
-} from '@/constants';
+import {RESOURCE_SERVER_USER_EXPORT_ROUTE, SYSTEM_ROUTE} from '@/constants'
+import {AUTHENTICATION_MEMBER_TYPE} from '@loncra/client/auth';
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'
 import {unmergeTree} from '@loncra/client/commons'

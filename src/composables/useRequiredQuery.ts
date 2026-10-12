@@ -1,7 +1,8 @@
 import {inject, onMounted} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import i18n from '@/i18n'
-import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, SYSTEM_CONSTANT, SYSTEM_ROUTE} from '@/constants'
+import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY, SYSTEM_ROUTE} from '@/constants'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 
 /** 「至少一个」还是「全部必须有」 */
 export interface RequiredQueryOptions {

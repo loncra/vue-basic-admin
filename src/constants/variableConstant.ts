@@ -1,14 +1,3 @@
-export {
-  DATA_RELEASE_STATUS,
-  DATA_STATUS,
-  EXECUTE_STATUS_TYPE,
-  EXECUTE_TYPE_RETRY_STATUS,
-  SYSTEM_ENUM_TYPE,
-  TIME_UNIT_TYPE,
-  VALUE_TYPE,
-  YES_OR_NO_TYPE,
-} from '@loncra/client/commons'
-
 /** Agent 点名：TRIGGER 开弹层；MCP/SKILL 写入 instruction 槽 prefix */
 export const AGENT_INSTRUCTION_PREFIX = {
   TRIGGER: '/',

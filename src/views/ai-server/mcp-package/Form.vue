@@ -17,12 +17,8 @@ import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyT
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
-import {
-  MCP_CLIENT_HTTP_TYPE_VALUE,
-  SYSTEM_CONSTANT,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
+import {SYSTEM_CONSTANT, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {mcpPackageCore} from './mcp-package.page'
 import {mcpPackageFormPage} from './mcp-package.form.page'
 

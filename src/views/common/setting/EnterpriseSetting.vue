@@ -6,8 +6,8 @@ import {EditOutlined, FileAddOutlined} from "@antdv-next/icons";
 import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
-  ICON_SELECT_AVATAR_MODE_VALUE,
-} from '@/constants';
+} from '@/constants'
+import {ICON_SELECT_AVATAR_MODE_VALUE} from '@loncra/antdv';
 import type {PersonalEnterprise} from "@loncra/client/auth";
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE,

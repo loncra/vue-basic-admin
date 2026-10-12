@@ -14,11 +14,10 @@ import {
   DATA_STATUS,
   EXECUTE_STATUS_TYPE,
   EXECUTE_TYPE_RETRY_STATUS,
-  SKILL_GROUP_CODE_PREFIX,
-  SKILL_PACKAGE_AUTHORITY,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
-} from '@/constants'
+} from '@loncra/client/commons'
+import {SKILL_GROUP_CODE_PREFIX, SKILL_PACKAGE_AUTHORITY} from '@loncra/client/ai'
 import {skillPackageCore, skillPackageService} from './skill-package.page'
 
 /**

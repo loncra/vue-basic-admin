@@ -1,5 +1,6 @@
 import type {RouteRecordRaw} from 'vue-router'
-import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE, SYSTEM_MODULE_NAME} from '@/constants'
+import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE} from '@/constants'
+import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 /** 数据字典相关路由 */
 const router: RouteRecordRaw[] = [

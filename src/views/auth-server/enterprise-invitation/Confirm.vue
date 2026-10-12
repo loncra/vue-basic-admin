@@ -11,7 +11,8 @@ import {
 } from "@loncra/client/auth";
 import type {RestResult} from "@loncra/client/commons";
 import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from "@loncra/client/commons"
-import {ICON_SELECT_AVATAR_MODE_VALUE, SYSTEM_ROUTE} from '@/constants';
+import {SYSTEM_ROUTE} from '@/constants'
+import {ICON_SELECT_AVATAR_MODE_VALUE} from '@loncra/antdv';
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {usePrincipalStore} from "@/stores/principalStore.ts";

@@ -6,11 +6,8 @@ import {onMounted, ref} from 'vue'
 import type {McpPackageEntity} from '@/types/apis'
 import type {PageRequest, RestResult, TotalPage} from '@loncra/client/commons'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
-import {
-  DATA_DICTIONARY_ALL_CODE,
-  DEFAULT_PAGE_RESULT_VALUE,
-  MCP_GROUP_CODE_PREFIX
-} from '@/constants'
+import {DATA_DICTIONARY_ALL_CODE, DEFAULT_PAGE_RESULT_VALUE} from '@/constants'
+import {MCP_GROUP_CODE_PREFIX} from '@loncra/client/ai'
 import {addAllDataDictionary} from '@/utils'
 import LAgentHubPluginInfoCard from '@/components/ai-server/agent/hub/PluginInfoCard.vue'
 

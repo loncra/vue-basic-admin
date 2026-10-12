@@ -1,13 +1,9 @@
 import type {McpPackageEntity, McpPackageSavePayload} from '@loncra/client/ai'
 import {AiMcpPackageService} from '@loncra/client/ai'
 import type {CrudPageCore} from '@loncra/antdv-pro'
-import {
-  MCP_GROUP_CODE_PREFIX,
-  MCP_PACKAGE_ROUTE,
-  OPERATION_DATA_TRACE_TABLE,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {MCP_PACKAGE_ROUTE} from '@/constants'
+import {MCP_GROUP_CODE_PREFIX} from '@loncra/client/ai'
+import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
 /**
  * 页面 service。声明用它取数；列表动作（`release` / `revoke`）是**实例方法**，

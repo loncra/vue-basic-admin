@@ -10,16 +10,16 @@ import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {
   AI_SERVER_MODEL_SETTING_ROUTE,
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
+  MODEL_SETTING_MANUFACTURER_CODE_QUERY,
+} from '@/constants'
+import {
   MODEL_DEFAULT_OPTIONS_KEY,
   MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
   MODEL_GENERATE_OPTION_KEYS,
   MODEL_GENERATE_OPTION_NUMBER_KEYS,
   MODEL_GENERATE_OPTION_STRING_KEYS,
-  MODEL_SETTING_MANUFACTURER_CODE_QUERY,
-  SYSTEM_CONSTANT,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+} from '@loncra/client/ai'
+import {SYSTEM_CONSTANT, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {modelSettingFormPage} from './model-setting.form.page'
 
 /**

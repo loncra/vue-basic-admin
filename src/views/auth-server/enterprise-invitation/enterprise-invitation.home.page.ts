@@ -10,9 +10,8 @@ import {defineSearchProps, renderIconFont} from '@/utils'
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE_PARAM,
   AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+} from '@loncra/client/auth'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {
   enterpriseInvitationCore,
   expirationCell,

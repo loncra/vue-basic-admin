@@ -17,12 +17,8 @@ import {isBusinessSuccess} from '@/requests'
 import i18n from '@/i18n'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {defineSearchProps, renderIconFont} from '@/utils'
-import {
-  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
-  AUTH_SERVER_SYSTEM_USER_AUTHORITY,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY, AUTH_SERVER_SYSTEM_USER_AUTHORITY} from '@loncra/client/auth'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {
   ENTERPRISE_MEMBER_VARIANT,
   enterpriseMemberCore,

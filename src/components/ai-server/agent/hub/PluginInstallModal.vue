@@ -6,7 +6,7 @@ import {
 } from '@loncra/client/ai'
 import {Form as LForm} from '@loncra/antdv-pro'
 import {useAgentChatContext} from '@/composables'
-import {AGENT_WORKSPACE_TYPE_VALUE} from '@/constants'
+import {AGENT_WORKSPACE_TYPE_VALUE} from '@loncra/client/ai'
 import type {RestResult} from '@loncra/client/commons'
 import {requireNonNullOrUndefined} from '@/utils'
 import useApp from 'antdv-next/dist/app/useApp'

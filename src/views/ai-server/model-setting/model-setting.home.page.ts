@@ -3,11 +3,8 @@ import {defineHomePage, iconNameCell} from '@loncra/antdv-pro'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import type {ModelSettingEntity, ModelSettingSavePayload} from '@loncra/client/ai'
 import {defineSearchProps, renderIconFont} from '@/utils'
-import {
-  AI_SERVER_MODEL_SETTING_AUTHORITY,
-  SYSTEM_ENUM_TYPE,
-  SYSTEM_MODULE_NAME,
-} from '@/constants'
+import {AI_SERVER_MODEL_SETTING_AUTHORITY} from '@loncra/client/ai'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {modelSettingCore} from './model-setting.page'
 
 /**

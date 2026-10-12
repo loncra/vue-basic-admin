@@ -14,10 +14,8 @@ import useApp from 'antdv-next/dist/app/useApp'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
-import {
-  APP_RELOAD_PROVIDE_KEY,
-  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
-} from '@/constants'
+import {APP_RELOAD_PROVIDE_KEY} from '@/constants'
+import {AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY} from '@loncra/client/auth'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {enterpriseRoleHomePage} from '@/views/auth-server/enterprise-role/enterprise-role.home.page'
 import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'

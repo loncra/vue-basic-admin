@@ -1,5 +1,6 @@
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
-import {SOCKET_EVENT_TYPE, SYSTEM_ROUTE, YES_OR_NO_TYPE} from '@/constants';
+import {SOCKET_EVENT_TYPE, SYSTEM_ROUTE} from '@/constants'
+import {YES_OR_NO_TYPE} from '@loncra/client/commons';
 import {parseSocketRestPayload} from "@/types/socket.ts";
 import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
 import type {IdValueMetadata, RestResult, TimeProperties} from "@loncra/client/commons";

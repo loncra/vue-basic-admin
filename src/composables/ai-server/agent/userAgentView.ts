@@ -17,7 +17,7 @@ import {
   setConversationDraft,
   useAgentChatContext,
 } from '@/composables'
-import {CHAT_BUBBLE_TYPE} from '@/constants'
+import {CHAT_BUBBLE_TYPE} from '@loncra/client/ai'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import {AI_SERVER_AGENT_CHAT_STATUS} from '@loncra/client/ai'
 

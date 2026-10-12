@@ -1,12 +1,8 @@
 import {onUnmounted, type Ref} from 'vue'
 import type {SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
-import {
-  CHAT_BUBBLE_TYPE,
-  STREAM_APPEND_TYPES,
-  TOKEN_USAGE_TYPE,
-  UPDATE_CONVERSATION_TYPES
-} from '@/constants'
+import {TOKEN_USAGE_TYPE} from '@/constants'
+import {CHAT_BUBBLE_TYPE, STREAM_APPEND_TYPES, UPDATE_CONVERSATION_TYPES} from '@loncra/client/ai'
 import type {
   ActiveAgentConversationItem,
   AgentConversationItem,

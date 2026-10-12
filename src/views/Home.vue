@@ -2,7 +2,7 @@
 import HomeLayout from '@/components/layout/HomeLayout.vue'
 import {useChatNotification} from "@/composables";
 import {toRef} from "vue";
-import {TIME_UNIT_TYPE} from '@/constants';
+import {TIME_UNIT_TYPE} from '@loncra/client/commons';
 import type {TimeProperties} from "@loncra/client/commons";
 import {ImCallWindow, registerImCallMedia} from '@loncra/antdv-chat-pro/im/call'
 import {createLiveKitCallMedia} from '@loncra/antdv-chat-pro/im/call/livekit'

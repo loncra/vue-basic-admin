@@ -6,9 +6,9 @@ import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue"
 import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
-  AUTHENTICATION_MEMBER_TYPE,
-  ICON_SELECT_AVATAR_MODE_VALUE
-} from '@/constants';
+} from '@/constants'
+import {AUTHENTICATION_MEMBER_TYPE} from '@loncra/client/auth'
+import {ICON_SELECT_AVATAR_MODE_VALUE} from '@loncra/antdv';
 import {requireNonNullOrUndefined} from "@/utils";
 import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {renderIconFont} from '@/utils/commonUtils'

@@ -13,7 +13,7 @@ import {
 } from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@/constants'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {skillPackageCore} from './skill-package.page'
 import {skillPackageFormPage} from './skill-package.form.page'
 
