@@ -15,7 +15,7 @@ import type {RestResult} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
 import {isBusinessSuccess} from '@/requests'
 import {STORE} from '@/constants'
-import {clearPrincipal} from '@/composables/chat/draft'
+import {clearPrincipalDrafts} from '@loncra/chat-core/dexie'
 import {getEnumValue} from '@loncra/client/commons'
 
 /**
@@ -211,7 +211,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
    * 重置状态，并清掉该用户本机草稿
    */
   async function $reset(): Promise<void> {
-    // RESET 会清掉 name；先记下 principal，否则 clearPrincipal 清不到该用户的草稿。
+    // RESET 会清掉 name；先记下 principal，否则 clearPrincipalDrafts 清不到该用户的草稿。
     const principal = state.value.name
     state.value = {...RESET}
     pluginInstalls.value = []
@@ -220,7 +220,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
       return
     }
     try {
-      await clearPrincipal(principal)
+      await clearPrincipalDrafts(principal)
     } catch {
       // IndexedDB 清库失败不阻断登出
     }
