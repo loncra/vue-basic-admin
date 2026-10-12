@@ -11,7 +11,11 @@ import {
   resolveComponent,
   type VNode,
 } from "vue";
-import type {UserChatConversationResponseBody} from "@/types/apis";
+import type {
+  UserChatConversationResponseBody,
+  UserChatMessageEntity,
+  UserChatMessageResponseBody
+} from "@/types/apis";
 import type {SystemUserContactItem} from "@loncra/antdv-pro";
 import type {IdNameValueMetadata, IdValueMetadata, RestResult} from "@loncra/client/commons";
 import type {PlatformUser} from "@loncra/client/auth";
@@ -24,10 +28,10 @@ import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {useSocketStore} from '@/stores/socketStore.ts'
 import {parseSocketRestPayload} from '@/types/socket.ts'
 import {ImChat as LIm, type ImChatExpose, type ImPageHost} from "@loncra/antdv-chat-pro";
-import {useChatSocketEvents} from "@/composables/message-server/chat";
 import {useAppNotification} from '@loncra/antdv-pro'
 import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, SOCKET_EVENT_TYPE} from '@/constants'
+import {useSocketSubscriptions} from "@/composables";
 
 defineOptions({
   name: 'MyChatMessageHome',
@@ -37,6 +41,8 @@ const globalProperties =
   requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
     .globalProperties
 
+
+let booted = false
 const principalStore = usePrincipalStore()
 const messageServerStore = useMessageServerStore()
 const setExtraContent = inject<((node: VNode) => void) | undefined>(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY)
@@ -78,7 +84,53 @@ const options = ref<{
 
 const {getNotificationKey, destroy} = useAppNotification()
 
-useChatSocketEvents(() => chatRef.value)
+const {on} = useSocketSubscriptions()
+
+on(SOCKET_EVENT_TYPE.CHAT_MESSAGE, (payload) => {
+  const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
+  if (result.data) {
+    chatRef.value?.applyIncomingMessage(result.data)
+  }
+})
+on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE, (payload) => {
+  const result = parseSocketRestPayload<UserChatConversationResponseBody>(payload)
+  if (result.data) {
+    void chatRef.value?.addConversation(result.data)
+  }
+})
+on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH_BY_ROOM_ID, (payload) => {
+  const result = parseSocketRestPayload<number>(payload)
+  if (result.data) {
+    void chatRef.value?.refreshConversationByRoom(result.data)
+  }
+})
+on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH, () => {
+  void chatRef.value?.refreshConversations()
+})
+on(SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID, (payload) => {
+  const result = parseSocketRestPayload<number>(payload)
+  if (result.data) {
+    void chatRef.value?.refreshParticipants(result.data)
+  }
+})
+on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ, (payload) => {
+  const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
+  if (result.data) {
+    chatRef.value?.applyMessageUpdate(result.data)
+  }
+})
+on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_UPDATE, (payload) => {
+  const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
+  if (result.data) {
+    chatRef.value?.applyMessageUpdate(result.data)
+  }
+})
+on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO, (payload) => {
+  const result = parseSocketRestPayload<UserChatMessageEntity>(payload)
+  if (result.data) {
+    chatRef.value?.applyMessageUndo(result.data)
+  }
+})
 
 function paintHeader() {
   const conversation = activeConversation.value
@@ -121,8 +173,6 @@ function onActive(conversation: UserChatConversationResponseBody | undefined) {
 function onMuted(body: BasicUserChatConversation) {
   messageServerStore.setUserChatMessageMutedValue(Number(body.id), body.muted)
 }
-
-let booted = false
 
 async function mounted() {
   const keys: unknown | null = getNotificationKey(MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT)

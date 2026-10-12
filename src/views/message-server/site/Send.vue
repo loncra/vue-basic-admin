@@ -3,7 +3,7 @@ import type {RestResult} from '@loncra/client/commons'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {useRouter} from 'vue-router'
 import {MESSAGE_SERVER_SITE_ROUTE} from '@/constants'
-import {navigateAfterMessageSend} from '@/composables/message-server/useMessageSendFlow'
+import {navigateAfterMessageSend} from '@/views/message-server/useMessageSendFlow.ts'
 import {siteSendFormPage} from './site.send.page'
 
 defineOptions({

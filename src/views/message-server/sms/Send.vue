@@ -8,7 +8,7 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import i18n from '@/i18n'
 import {MESSAGE_SERVER_SMS_ROUTE} from '@/constants'
-import {navigateAfterMessageSend} from '@/composables/message-server/useMessageSendFlow'
+import {navigateAfterMessageSend} from '@/views/message-server/useMessageSendFlow.ts'
 import {type SmsSendForm, smsSendFormPage} from './sms.send.page'
 
 defineOptions({

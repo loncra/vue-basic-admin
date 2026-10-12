@@ -6,7 +6,7 @@ import type {IdValueMetadata, RestResult, TimeProperties} from "@loncra/client/c
 import {getEnumName, isEnumValue} from "@loncra/client/commons"
 import type {PlatformUser} from "@loncra/client/auth";
 import type {UserChatCallEntity, UserChatCallParticipantEntity, UserChatCallResponseBody, UserChatConversationEntity} from "@loncra/client/message";
-import {ChatMessageService, MESSAGE_SERVER_CHAT_CALL_TYPE, MESSAGE_SERVER_MESSAGE_GROUP} from "@loncra/client/message";
+import {ChatMessageService, MESSAGE_SERVER_CHAT_CALL_TYPE, MESSAGE_SERVER_MESSAGE_GROUP, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE} from "@loncra/client/message";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {AuthServerService} from "@/apis";
 import {
@@ -64,6 +64,10 @@ export function useChatNotification(config: {
     }
 
     await messageServerStore.fetchUnreadQuantity()
+
+    if (isEnumValue(result.data.type, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.CALL)) {
+      return
+    }
 
     const conversationResult: RestResult<UserChatConversationEntity | UserChatConversationResponseBody> = await ChatMessageService.getConversation(result.data.userChatRoomId, true)
     if (!conversationResult.data) {
@@ -151,7 +155,7 @@ export function useChatNotification(config: {
         description: createNotificationDescription(description),
         icon: createUserAvatarNode(user, 'large'),
         closable: false,
-        actions: h(ImCallActions, {callId: Number(callEntity.id)}),
+        actions: h(ImCallActions, {callId: Number(callEntity.id), session}),
       },
       MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT_CALL,
       key

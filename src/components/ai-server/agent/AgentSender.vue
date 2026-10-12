@@ -175,13 +175,13 @@ defineExpose({
     @cancel="handleCancel"
   >
     <template #plusIcon>
-      <icon-font type="loncra-plus"/>
+      <icon-font class="icon" type="loncra-plus"/>
     </template>
     <template v-if="currentModel" #modelIcon>
-      <icon-font :type="currentModel.icon || 'loncra-sticker'" />
+      <icon-font class="icon" :type="currentModel.icon || 'loncra-sticker'" />
     </template>
     <template #typeIcon>
-      <icon-font :type="currentType.icon" />
+      <icon-font class="icon" :type="currentType.icon" />
     </template>
   </l-agent-chat-sender>
 </template>
