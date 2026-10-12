@@ -110,6 +110,7 @@ const modelView = computed<AgentSenderChoice | undefined>(() => {
   }
   return {
     label: `${currentModel.value.manufacturer.name}:${currentModel.value.name}`,
+    icon: currentModel.value.icon,
     items: state.value.modelOptions,
     selectedKeys: [String(currentModel.value.id)],
   }
@@ -173,15 +174,5 @@ defineExpose({
     @change="(value: string, event: Event | undefined, slotConfig: SlotConfigType[] | undefined) => emits('change', value, event, slotConfig)"
     @submit="handleSubmit"
     @cancel="handleCancel"
-  >
-    <template #plusIcon>
-      <icon-font class="icon" type="loncra-plus"/>
-    </template>
-    <template v-if="currentModel" #modelIcon>
-      <icon-font class="icon" :type="currentModel.icon || 'loncra-sticker'" />
-    </template>
-    <template #typeIcon>
-      <icon-font class="icon" :type="currentType.icon" />
-    </template>
-  </l-agent-chat-sender>
+  />
 </template>
