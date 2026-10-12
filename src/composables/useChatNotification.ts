@@ -49,8 +49,12 @@ export function useChatNotification(config: {
 
   const callLocale = useLocale('ImCall')
   const session = provideImChatCall({
-    selfName: principalStore.state.name,
-    principalName: (details) => details ? AuthServerService.getPrincipalNameByUserDetails(details) : '',
+    get self() {
+      return {
+        ...principalStore.state.details.metadata,
+        systemName: principalStore.state.name,
+      }
+    },
     closeTimeValue: config.chatCallConfig.closeTimerValue,
   })
   const acceptCall = session.accept.bind(session)

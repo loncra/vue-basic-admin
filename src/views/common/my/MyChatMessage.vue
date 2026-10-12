@@ -56,12 +56,12 @@ const activeConversation = ref<UserChatConversationResponseBody>()
 
 const socketStore = useSocketStore()
 const host: ImPageHost = {
-  get selfName() {
-    return principalStore.state.name
+  get self() {
+    return {
+      ...principalStore.state.details.metadata,
+      systemName: principalStore.state.name,
+    }
   },
-  principalName: (details) => details == null
-    ? ''
-    : AuthServerService.getPrincipalNameByUserDetails(details),
   timeText: (unix) => globalProperties.$dayjs(unix).fromNow(),
   messagePreview: (message, conversation) => getMessageContent(message, conversation),
   draftPreview: (draft) => getDraftContent(draft),
