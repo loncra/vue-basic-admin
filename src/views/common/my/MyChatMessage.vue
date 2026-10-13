@@ -235,7 +235,7 @@ onActivated(() => {
 </script>
 
 <template>
-  <div class="h-full min-h-0">
+  <div class="h-full min-h-120">
     <l-im
       ref="chatRef"
       class="h-full min-h-0"
