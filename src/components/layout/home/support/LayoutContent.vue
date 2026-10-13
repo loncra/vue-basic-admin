@@ -496,7 +496,7 @@ onUnmounted(() => routeCacheVersions.value = {})
       -->
       <a-flex vertical flex="1" class="pr-md pl-md">
         <a-spin
-          class="size-full-spin"
+          class="loncra-common-full-spin"
           :spinning="isRoutePageLoading(globalProperties.$route.fullPath)"
           :description="globalProperties.$t('layoutContent.loading')"
         >
@@ -517,7 +517,7 @@ onUnmounted(() => routeCacheVersions.value = {})
               - **配套**：`assets/style.css` 里那条"挂页面卡片的 CSS 进入动画"已**注释掉**（否则与这里的
                 transition **双层叠加** ⇒ 抖动）。要退回去：把那条注释换回来 + 删掉这里的 `<transition>`
                 （备份在 `.codebuddy/backup-2026-09-30-fade-transform-back/`）。
-              - **一旦复现**（判据：`document.querySelectorAll('.size-full-spin .ant-spin-container > *').length > 1`，
+              - **一旦复现**（判据：`document.querySelectorAll('.loncra-common-full-spin .ant-spin-container > *').length > 1`，
                 或 Vue DevTools 里同时挂着两个页面组件）⇒ **第一件事就是回退这层 `<transition>`**，
                 别去改 keep-alive / `:key`。
             -->

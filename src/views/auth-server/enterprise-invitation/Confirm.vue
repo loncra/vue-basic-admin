@@ -151,7 +151,7 @@ onMounted(mounted)
       <template #extra>
         {{ globalProperties.$t('authServer.enterpriseInvitation.confirm') }}
       </template>
-      <a-spin :spinning="options.loading" class="size-full-spin">
+      <a-spin :spinning="options.loading" class="loncra-common-full-spin">
         <a-flex gap="middle" vertical>
           <template v-if="!options.detail.invitee">
             <a-flex gap="middle" vertical class="w-full">
