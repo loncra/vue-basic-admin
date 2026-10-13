@@ -1,41 +1,43 @@
 <script setup lang="ts">
-
+import {onMounted} from 'vue'
+import {AgentChat as LAgent, type AgentSession, interruptAgent} from '@loncra/antdv-chat-pro'
+import {getConversationRuns, useAgentStream} from '@/composables'
+import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
-import LAgentConversation from "@/components/ai-server/agent/AgentConversation.vue";
-import LAgentView from "@/components/ai-server/agent/AgentView.vue";
-import {provideAgentChatContext} from "@/composables";
-import type {ActiveAgentConversationItem} from "@/types/composables";
-import {onMounted, ref} from "vue";
-import LAgentHubView from "@/components/ai-server/agent/AgentHubView.vue";
-import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {AI_SERVER_AGENT_CONVERSATION_TYPE} from '@loncra/client/ai'
-import {getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
   name: 'CommonAiAgent',
 })
 
-const agentViewRef = ref<InstanceType<typeof LAgentView>>()
+let current: AgentSession | undefined
+const stream = useAgentStream(() => current)
+const principalStore = usePrincipalStore()
 
-const {conversationActive} = provideAgentChatContext({
-  view:agentViewRef
-})
-
-function onSenderSubmit(body: ActiveAgentConversationItem) {
-  console.log('onSenderSubmit', body)
+function onActive(session: AgentSession) {
+  stream.disconnectIfRunning()
+  current = session
+  for (const run of getConversationRuns(session)) {
+    stream.connect(Number(run.id), false)
+  }
 }
 
-const currentView = ref<string>()
-const principalStore = usePrincipalStore()
+function onResume(assistantMessageId: number) {
+  stream.connect(assistantMessageId, false)
+}
+
+async function onCancel(session: AgentSession) {
+  for (const run of getConversationRuns(session)) {
+    await interruptAgent(Number(run.key))
+  }
+}
 
 onMounted(() => {
   void principalStore.loadPluginInstalls()
 })
-
 </script>
 
 <template>
-  <div class="h-full min-h-0">
+  <div class="h-full min-h-120">
     <l-data-loading-card-plan
       :spin="false"
       :classes="{
@@ -44,35 +46,19 @@ onMounted(() => {
         body:'flex flex-1 min-h-0 p-0! overflow-hidden'
       }"
     >
-      <template #extra v-if="conversationActive && getEnumValue(conversationActive.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.WORKSPACE_CONVERSATION">
-        {{conversationActive?.name}}
-      </template>
-      <div class="min-h-0 size-full overflow-hidden">
-        <a-splitter class="ai-agent-splitter h-full min-h-0">
-          <a-splitter-panel
-            class="h-full p-0 overflow-hidden"
-            default-size="20%"
-            min="15%"
-            max="25%"
-            :collapsible="{ end: true }"
-          >
-            <l-agent-conversation @button-click="(view) => currentView = view" />
-          </a-splitter-panel>
-          <a-splitter-panel
-            class="h-full min-h-0 overflow-hidden"
-          >
-            <l-agent-view
-              v-if="currentView === 'agentView'"
-              ref="agentViewRef"
-              @sender-submit="onSenderSubmit"
-            />
-
-            <l-agent-hub-view
-              v-else-if="currentView === 'agentHubView'"
-            />
-          </a-splitter-panel>
-        </a-splitter>
-      </div>
+      <l-agent
+        :installs="principalStore.pluginInstalls"
+        :self="{...principalStore.state.details.metadata, systemName: principalStore.state.name}"
+        @active="onActive"
+        @resume="onResume"
+        @cancel="onCancel"
+        @installed="principalStore.upsertPluginInstall"
+        @uninstalled="principalStore.removePluginInstall"
+      >
+        <template #agentAvatar>
+          <icon-font type="icon-xiaojiage-a" />
+        </template>
+      </l-agent>
     </l-data-loading-card-plan>
   </div>
 </template>

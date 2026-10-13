@@ -1,14 +1,11 @@
-import {onUnmounted, type Ref} from 'vue'
+import {onUnmounted} from 'vue'
 import type {SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
 import {TOKEN_USAGE_TYPE} from '@/constants'
 import {CHAT_BUBBLE_TYPE, STREAM_APPEND_TYPES, UPDATE_CONVERSATION_TYPES} from '@loncra/client/ai'
 import type {
-  ActiveAgentConversationItem,
-  AgentConversationItem,
   AgentSseMessageContent,
   AgentStatusChangeSse,
-  AgentStreamApi,
   AgentThinkBlock,
   AgentTokenUsageContent,
   AgentToolCallBlock,
@@ -16,35 +13,30 @@ import type {
   GenerateConversationName,
 } from '@/types/composables'
 import type {StreamAgentMessageEntity} from '@/types/apis'
-import {findFirstTreeNode, getEnumValue} from '@loncra/client/commons'
-import {getConversationRuns} from "@/composables";
+import {getEnumValue} from '@loncra/client/commons'
+import {getConversationRuns} from '@/composables'
 import {AI_SERVER_AGENT_BLOCK_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
+import type {AgentSession} from '@loncra/antdv-chat-pro'
 import {updateSessionMessage} from '@loncra/antdv-chat-pro'
 
 /**
- * 订阅助手 SSE
+ * 订阅助手 SSE。增量写进调用方传入的会话对象。
  */
-export function useAgentStream(
-  conversationActive: Ref<ActiveAgentConversationItem | undefined>,
-  conversations: Ref<AgentConversationItem[]>
-): AgentStreamApi {
-
-  function getStreamAgentMessageEntity(assistantId:number): StreamAgentMessageEntity | undefined {
-    const active = conversationActive.value
+export function useAgentStream(current: () => AgentSession | undefined) {
+  function getStreamAgentMessageEntity(assistantId: number): StreamAgentMessageEntity | undefined {
+    const active = current()
     if (!active) {
       return
     }
-
-    const find = active.dataSource
-      .elements
-      .filter(s => s.role === CHAT_BUBBLE_TYPE.AI)
-      .find(s => Number(s.id) === assistantId)
+    const find = active.dataSource.elements
+      .filter((item) => item.role === CHAT_BUBBLE_TYPE.AI)
+      .find((item) => Number(item.id) === assistantId)
     if (find && 'model' in find) {
-      return find as StreamAgentMessageEntity
+      return find as unknown as StreamAgentMessageEntity
     }
   }
 
-  function disconnect(assistantId:number): void {
+  function disconnect(assistantId: number): void {
     const stream = getStreamAgentMessageEntity(assistantId)
     if (!stream) {
       return
@@ -56,26 +48,23 @@ export function useAgentStream(
     }
   }
 
-  function onEvent(chunk: Partial<SSEOutput>, assistantId:number) {
-    const active = conversationActive.value
-    if (!active) {
+  function onEvent(chunk: Partial<SSEOutput>) {
+    const active = current()
+    if (!active || chunk.data == null) {
       return
     }
-
-    const sseData:AgentSseMessageContent = JSON.parse(chunk.data)
+    const sseData: AgentSseMessageContent = JSON.parse(chunk.data)
     updateSessionMessage(active.dataSource.elements, String(sseData.assistantMessageId), (bubble) => {
       if (!bubble.content) {
         bubble.content = []
       }
-
-      const ALL_CONTENT_TYPES = Object.values(AI_SERVER_AGENT_CONTENT_TYPE) as string[]
-      if (!ALL_CONTENT_TYPES.includes(sseData.type)) {
+      const contentTypes = Object.values(AI_SERVER_AGENT_CONTENT_TYPE) as string[]
+      if (!contentTypes.includes(sseData.type)) {
         return
       }
-
       if (STREAM_APPEND_TYPES.includes(sseData.type)) {
-        const content = bubble.content as AgentSseMessageContent[]
-        if (!content.some(s => s.id === sseData.id && sseData.type === s.type)) {
+        const content = bubble.content as unknown as AgentSseMessageContent[]
+        if (!content.some((item) => item.id === sseData.id && sseData.type === item.type)) {
           content.push(sseData)
           if (getEnumValue(sseData.type) === AI_SERVER_AGENT_CONTENT_TYPE.THINK) {
             (sseData as AgentThinkBlock).expanded = true
@@ -92,26 +81,24 @@ export function useAgentStream(
   }
 
   function updateTokenUsage(sse: AgentTokenUsageContent) {
-    const elements = conversationActive.value?.dataSource.elements
+    const elements = current()?.dataSource.elements
     if (!elements) {
       return
     }
     updateSessionMessage(elements, String(sse.assistantMessageId), (item) => {
-      if (!('metadata' in item)) {
-        return
+      const row = item as {metadata?: {tokenUsage?: AgentTokenUsageContent[]}}
+      if (!row.metadata) {
+        row.metadata = {}
       }
-      if (!item.metadata) {
-        item.metadata = {}
+      if (!row.metadata.tokenUsage) {
+        row.metadata.tokenUsage = []
       }
-      if (!item.metadata.tokenUsage) {
-        item.metadata.tokenUsage = []
-      }
-      const tokenUsage = item.metadata.tokenUsage as AgentTokenUsageContent[]
-      const find = tokenUsage.find(s => getEnumValue(s.usageType) === getEnumValue(sse.usageType))
-      if (find) {
-        find.inputTokens += sse.inputTokens
-        find.outputTokens += sse.outputTokens
-        find.cachedTokens += sse.cachedTokens
+      const tokenUsage = row.metadata.tokenUsage
+      const found = tokenUsage.find((item) => getEnumValue(item.usageType) === getEnumValue(sse.usageType))
+      if (found) {
+        found.inputTokens += sse.inputTokens
+        found.outputTokens += sse.outputTokens
+        found.cachedTokens += sse.cachedTokens
       } else {
         tokenUsage.push(sse)
       }
@@ -119,17 +106,13 @@ export function useAgentStream(
   }
 
   function updateConversation(sse: AgentSseMessageContent) {
-    const active = conversationActive.value
+    const active = current()
     if (!active || String(active.id) !== sse.id) {
       return
     }
-    const item = findFirstTreeNode(s => s.id === active.id, conversations.value);
     if (sse.type === AI_SERVER_AGENT_CONTENT_TYPE.AGENT_STATUS_CHANGE) {
       const status = getEnumValue((sse as AgentStatusChangeSse).status)
       active.status = status
-      if (item) {
-        item.status = status
-      }
       if (status === undefined) {
         return
       }
@@ -140,25 +123,20 @@ export function useAgentStream(
         element.status = status
       })
     } else if (sse.type === AI_SERVER_AGENT_CONTENT_TYPE.GENERATE_CONVERSATION_NAME) {
-      const name = getEnumValue((sse as GenerateConversationName).metadata.name)
-      active.name = name
-      if (item) {
-        item.name = name
-      }
+      active.name = getEnumValue((sse as GenerateConversationName).metadata.name)
     }
   }
 
-  function appendContent(chunk: BlockDeltaContentMetadata, content: AgentSseMessageContent[]){
-    const find = content.find(s => s.id === chunk.id && s.type === chunk.type)
-    if (!find) {
+  function appendContent(chunk: BlockDeltaContentMetadata, content: AgentSseMessageContent[]) {
+    const found = content.find((item) => item.id === chunk.id && item.type === chunk.type)
+    if (!found) {
       return
     }
-    const text = find as BlockDeltaContentMetadata
+    const text = found as BlockDeltaContentMetadata
     if (!text.value) {
-      text.value = ""
+      text.value = ''
     }
-
-    text.value += (chunk as BlockDeltaContentMetadata).value || ""
+    text.value += chunk.value || ''
     if (chunk.status) {
       text.status = chunk.status
     }
@@ -169,21 +147,17 @@ export function useAgentStream(
       (text as AgentThinkBlock).expanded = false
     }
     if (chunk.type === AI_SERVER_AGENT_CONTENT_TYPE.TOOL) {
-      const findToolCall = find as AgentToolCallBlock
-      const chunkToolCall = chunk as AgentToolCallBlock
-      if (chunkToolCall.outputText) {
-        findToolCall.outputText = (findToolCall.outputText || "") + chunkToolCall.outputText
+      const tool = found as AgentToolCallBlock
+      const incoming = chunk as AgentToolCallBlock
+      if (incoming.outputText) {
+        tool.outputText = (tool.outputText || '') + incoming.outputText
       }
-      if (chunkToolCall.userConfirmed !== undefined) {
-        findToolCall.userConfirmed = chunkToolCall.userConfirmed
+      if (incoming.userConfirmed !== undefined) {
+        tool.userConfirmed = incoming.userConfirmed
       }
-      findToolCall.resultState = chunkToolCall.resultState || findToolCall.resultState
-      findToolCall.hitlStatus = chunkToolCall.hitlStatus || findToolCall.hitlStatus
+      tool.resultState = incoming.resultState || tool.resultState
+      tool.hitlStatus = incoming.hitlStatus || tool.hitlStatus
     }
-  }
-
-  function onError(error:Error) {
-    console.error(error)
   }
 
   function connect(assistantId: number, loadHistory: boolean = true): void {
@@ -192,33 +166,22 @@ export function useAgentStream(
       return
     }
     streamEntity.stream = AgentService.loadStream(assistantId, {
-      onUpdate: (chunk: Partial<SSEOutput>) => onEvent(chunk, assistantId),
+      onUpdate: (chunk: Partial<SSEOutput>) => onEvent(chunk),
       onSuccess: () => disconnect(assistantId),
-      onError: onError,
+      onError: (error: Error) => {
+        console.error(error)
+      },
     }, loadHistory)
   }
 
-  function reconnectIfRunning(): void {
-    const active = conversationActive.value
+  function disconnectIfRunning(): void {
+    const active = current()
     if (!active) {
       return
     }
-    const runs = getConversationRuns(active);
-    if (runs.length <= 0) {
-      return
+    for (const run of getConversationRuns(active)) {
+      disconnect(Number(run.id))
     }
-
-    runs.forEach(s => connect(Number(s.id)))
-
-  }
-
-  function disconnectIfRunning() {
-    const active = conversationActive.value
-    if (!active) {
-      return
-    }
-    const runs = getConversationRuns(active)
-    runs.forEach(s => disconnect(Number(s.id)))
   }
 
   onUnmounted(disconnectIfRunning)
@@ -227,8 +190,5 @@ export function useAgentStream(
     connect,
     disconnectIfRunning,
     disconnect,
-    reconnectIfRunning,
   }
 }
-
-export type AgentStreamComposableApi = ReturnType<typeof useAgentStream>

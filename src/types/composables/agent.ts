@@ -9,7 +9,6 @@ import type {
 } from '@/types/composables/chat.ts'
 import type {Ref} from 'vue'
 
-import type {AgentMessageLoaderApi} from '@/composables/ai-server/agent/useAgentMessageLoader.ts'
 import type {ThoughtChainItemType} from "@antdv-next/x";
 
 import type {
@@ -40,8 +39,7 @@ export interface ActiveAgentConversationItem
 
 export type AgentStreamApi = {
   connect: (assistantId: number, loadHistory?: boolean) => void
-  disconnect: (assistantId:number) => void
-  reconnectIfRunning: () => void
+  disconnect: (assistantId: number) => void
   disconnectIfRunning: () => void
 }
 
@@ -56,7 +54,6 @@ export interface AgentChatContext {
     conversation: AgentConversationItem,
     messageId?: number,
   ) => void | Promise<ActiveAgentConversationItem | undefined>
-  loader: AgentMessageLoaderApi
   stream: AgentStreamApi
 }
 
