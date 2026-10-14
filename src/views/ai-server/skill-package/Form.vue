@@ -3,17 +3,16 @@ import {ref} from 'vue'
 import {useRoute} from 'vue-router'
 import type {GitSkillSourceMetadata, SkillPackageSavePayload} from '@loncra/client/ai'
 import {AI_SERVER_SKILL_SOURCE_TYPE} from '@loncra/client/ai'
-import {getEnumValue} from '@loncra/client/commons'
+import {getEnumValue, SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {
   ATTACHMENT_UPLOAD_MODE,
+  AttachmentUpload as LAttachmentUpload,
   type AttachmentUploadExpose,
   CrudFormPage,
-  FileEditor as LFileEditor,
-  AttachmentUpload as LAttachmentUpload,
 } from '@loncra/antdv-pro'
+import {FileEditor as LFileEditor} from '@loncra/antdv-chat-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {skillPackageCore} from './skill-package.page'
 import {skillPackageFormPage} from './skill-package.form.page'
 
