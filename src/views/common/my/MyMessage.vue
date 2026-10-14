@@ -38,6 +38,7 @@ provide(MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, (comp:VNode) => extraContent.value
 
 function onSegmented(value:string) {
   segmented.value.value = value;
+  extraContent.value = undefined
   globalProperties.$router.push({ name: value });
 }
 
