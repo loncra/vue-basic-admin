@@ -1,7 +1,7 @@
 @layer theme, base, antd, components, utilities;
 
 @import "tailwindcss";
-@import "@antdv-next/tailwind/theme.css";
+@import "@antdv-next/tailwind/compat.css";
 
 
 @theme {
