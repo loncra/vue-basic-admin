@@ -91,6 +91,7 @@ export default defineConfig(({ mode }) => {
         'dayjs',
         'vue',
         'antdv-next',
+        '@antdv-next/cssinjs',
         'p-limit',
         '@tiptap/core',
         '@tiptap/pm',

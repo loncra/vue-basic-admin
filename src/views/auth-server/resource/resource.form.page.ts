@@ -80,7 +80,7 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
       // `IconSelect` 只把 `type` 递给它 ⇒ 这里包一层把 `align`（图标字体对齐类）带上 ✓
       props: () => ({
         options: iconOptions.value,
-        iconRender: (type: string) => renderIconFont(type, 'align'),
+        iconRender: (type: string) => renderIconFont(type),
       }),
     },
     {

@@ -117,7 +117,7 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
         class: 'w-full',
         mode: ICON_SELECT_MODE.AVATAR,
         // 与 `skill-package.form.page.ts` 同一个口径：`align` 是宿主的图标字体微调类
-        iconRender: (type: string) => renderIconFont(type, 'align'),
+        iconRender: (type: string) => renderIconFont(type),
         options: iconOptions.value,
       }),
     },

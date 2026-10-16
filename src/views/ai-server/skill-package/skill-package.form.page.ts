@@ -124,7 +124,7 @@ export const skillPackageFormPage = defineFormPage(skillPackageCore, {
         mode: ICON_SELECT_MODE.AVATAR,
         // 宿主的 `renderIconFont(type, classes)` 第二参是类名 ⇒ 包一层把 `align` 带上
         // （`IconSelect` 的 `iconRender` 只收 `type` 一个参数）
-        iconRender: (type: string) => renderIconFont(type, 'align'),
+        iconRender: (type: string) => renderIconFont(type),
         options: iconOptions.value,
       }),
     },
