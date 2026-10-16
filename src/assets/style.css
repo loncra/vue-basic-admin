@@ -191,7 +191,7 @@
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:not(.ant-tabs-tab-active):hover {
-    @apply bg-(--ant-color-fill-secondary) text-main;
+    @apply bg-fill-secondary text-main;
   }
 
   .layout-content-operation .tool-bar .ant-tabs-nav-list .ant-tabs-tab:not(.ant-tabs-tab-active):active,
@@ -205,7 +205,7 @@
   .ant-tabs-nav-list
   .ant-tabs-tab:not(.ant-tabs-tab-active)
   .ant-tabs-tab-remove:focus:not(:focus-visible) {
-    @apply bg-(--ant-color-fill) text-main;
+    @apply bg-fill text-main;
   }
 
   /* 选中项底纹由 ink-bar 滑动呈现，tab 本身透明叠在上方 */
@@ -242,45 +242,14 @@
     @apply text-inherit;
   }
 
-  .antd-sender-input.antd-sender-input-slot.chat-sender-input > .antd-sender-slot:not(.antd-sender-slot-content) {
-    @apply h-auto! align-bottom! my-0!
-  }
-
-  .antd-sender-input.antd-sender-input-slot.chat-sender-input[contenteditable="false"] {
-    @apply opacity-50 cursor-not-allowed!
-  }
-
-  .x-markdown .antd-code-highlighter .antd-code-highlighter-content .antd-code-highlighter-code pre {
-    @apply p-xxs!;
-  }
-  .x-markdown .antd-code-highlighter .antd-code-highlighter-content .antd-code-highlighter-code pre code {
-    @apply whitespace-pre! break-normal! leading-[1.5em]! bg-transparent! m-0! p-xs! rounded-none! border-0!;
-  }
-
-  .antd-think-status-wrapper .antd-think-status-down-icon {
-    @apply text-xs! text-text-quaternary ;
-  }
-  /* ========== 思考链内容弱化：一次性把 p/ol/ul/li/标题/引用等全部变灰变小 ========== */
-
-  .antd-think-content .x-markdown ol li::marker,
-  .antd-think-content .x-markdown ul li::marker,
-  .antd-think-content .x-markdown * {
-    @apply text-text-tertiary!
-  }
-
-  /* 防止 thought-chain 内容溢出 */
-  .antd-thought-chain-node-box {
-    @apply min-w-0;
-  }
-
   .ant-table-row-expand-icon {
     @apply mb-xxs
   }
   .ant-table-expanded-row-fixed {
-    @apply mt-[calc(var(--ant-margin)*-1)] mb-[calc(var(--ant-margin)*-1)] pl-xs pr-xs
+    @apply -mt-(--ant-margin) -mb-(--ant-margin) pl-xs pr-xs
   }
   .ant-table-expanded-row-fixed::after {
-    @apply border-e-0 end-0
+    @apply border-e-0 inset-e-0
   }
   .ant-table-expanded-row-fixed .ant-table-title,
   .ant-table-expanded-row-fixed .ant-table-wrapper .ant-table{
