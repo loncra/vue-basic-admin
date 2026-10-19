@@ -68,7 +68,7 @@ onActivated(activated)
       :spin="false"
       :classes="{
         root:'min-h-0 flex flex-col h-full shadow-ter',
-        header: 'shrink-0',
+        header: 'shrink-0 relative',
         body:'flex flex-1 min-h-0 p-0! overflow-hidden'
       }"
     >
