@@ -488,39 +488,15 @@ onUnmounted(() => routeCacheVersions.value = {})
           </a-tabs>
         </div>
       </a-flex>
-      <!--
-        `min-h-0` 不能省：`flex="1"` 这层是 flex item，默认 `min-height: auto` ⇒ 内层很高的
-        内容（卡片 body 的最小高 / 很长的列表）会把它**顶高**而不是被压缩 ⇒ 内容区比可视区高、
-        整页溢出（2026-09-30 实测：可视 334px 里塞了 537px 的内容）。仓里其它地方都是
-        `h-full min-h-0` 成对出现，这里就是漏了。
-      -->
+
       <a-flex vertical flex="1" class="pr-md pl-md">
         <a-spin
-          class="loncra-common-full-spin"
+          class="size-full-spin"
           :spinning="isRoutePageLoading(globalProperties.$route.fullPath)"
           :description="globalProperties.$t('layoutContent.loading')"
         >
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
-            <!--
-              ⚠️ **这层炸过一次、又验回来过，动它之前先读这段**（2026-09-30 现状：**已恢复 `<transition>`**）：
-              - 冲突机制（源码级）：`<transition mode="out-in">` 要求"独占持有旧 child、等它 leave 收尾"，
-                而 `<keep-alive>` 停用实例时走的是
-                **`move(vnode, storageContainer, null, MoveType.LEAVE)`**（Vue 3.5.43 `@vue/runtime-core`
-                的 `sharedContext.deactivate`）—— 把**同一个节点**直接搬进游离容器。两边攥一个节点 ⇒
-                收尾/搬迁错位 ⇒ 旧页面**留在内容容器里**并逐次累积（2026-09-23 用"内容容器子节点数 +
-                过渡类名 + 节点归属组件链"实测到过：一次导航两次 enter、leave 与 enter 同时进行）。
-              - 但当时的**触发条件**是另一个 bug：`activateTab` 对同一路径重复 `$router.push`
-                （日志一次路由变化打了 4 条）。该守卫当天已修（见本文件 `activateTab` 的 else 分支）。
-              - 2026-09-30 用户拿"活样本"（`views/common/my/MyMessage.vue` 的站内信/会话子 tab，
-                至今仍是 transition + keep-alive + 带 `:key` 的三件套）连续快速来回切、并在过渡没播完时
-                继续切 ⇒ **没复现** ⇒ 恢复 `out-in` 试用（观感比 CSS 版顺：旧页会先淡出）。
-              - **配套**：`assets/style.css` 里那条"挂页面卡片的 CSS 进入动画"已**注释掉**（否则与这里的
-                transition **双层叠加** ⇒ 抖动）。要退回去：把那条注释换回来 + 删掉这里的 `<transition>`
-                （备份在 `.codebuddy/backup-2026-09-30-fade-transform-back/`）。
-              - **一旦复现**（判据：`document.querySelectorAll('.loncra-common-full-spin .ant-spin-container > *').length > 1`，
-                或 Vue DevTools 里同时挂着两个页面组件）⇒ **第一件事就是回退这层 `<transition>`**，
-                别去改 keep-alive / `:key`。
-            -->
+
             <transition name="fade-transform" mode="out-in">
               <keep-alive v-if="Component">
                 <component :is="Component" :key="getRouteCacheKey(route)"/>

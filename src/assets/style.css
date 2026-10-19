@@ -57,6 +57,14 @@
 }
 
 @layer components {
+  .size-full-spin {
+    @apply size-full min-h-0;
+  }
+
+  .size-full-spin > .ant-spin-container {
+    @apply size-full min-h-0 flex flex-col;
+  }
+
   .fade-transform-enter-from,
   .fade-transform-leave-to {
     @apply translate-y-5 opacity-0;

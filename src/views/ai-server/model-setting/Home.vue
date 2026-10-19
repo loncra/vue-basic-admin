@@ -134,7 +134,7 @@ onMounted(mounted)
               </a-space>
             </a-flex>
             <div class="min-h-0 flex-1 overflow-y-auto">
-              <a-spin :spinning="manufacturersLoading" class="loncra-common-full-spin">
+              <a-spin :spinning="manufacturersLoading" class="size-full-spin">
                 <a-menu
                   root-class="border-none"
                   mode="inline"

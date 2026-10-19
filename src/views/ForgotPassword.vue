@@ -230,7 +230,7 @@ function isSelect(user: PlatformUser, type: string) {
       </template>
       <a-flex class="size-full">
 
-        <a-spin :spinning="loading" class="loncra-common-full-spin">
+        <a-spin :spinning="loading" class="size-full-spin">
           <a-flex gap="middle" vertical class="w-full">
 
             <template v-if="step === 1">
