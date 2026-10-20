@@ -39,7 +39,7 @@ const table = ref<CrudHomePageExpose<DictionaryTypeEntity>>()
  * 卡片头的下边框看不见；去掉负边距即可（`p-0!` 也不会再遮住它）。
  * ⚠️ 别用 `variant="borderless"`：那个 prop 名被 `CrudHomePage` 的**页面形态名**占了。
  */
-const cardClasses = {root: 'rounded-none! border-0!', header: 'mb-0!', body: 'p-0!'}
+const cardClasses = {card: {root: 'rounded-none! border-0!', header: 'mb-0!', body: 'p-0!'}}
 const rows = ref<DictionaryTypeEntity[]>([])
 const openKeys = ref<number[]>([])
 /** 选中行高亮用的 id */
