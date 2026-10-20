@@ -12,7 +12,7 @@ import {
   AttachmentMasonry as LAttachmentMasonry
 } from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
-import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
+import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
 
 defineOptions({
   // 与 `FileManagerHome.vue` 曾经**撞同一个名**（`CommonUserExport` ⇒ keep-alive 会当成同一个组件）⇒ 按房规改
@@ -106,11 +106,11 @@ onMounted(() => loadDataSource())
 
 <template>
   <div>
-    <l-data-loading-card-plan :loading="loading" :classes="{body:'max-h-150 overflow-auto'}">
+    <l-data-loading-card :loading="loading" :classes="{body:'max-h-150 overflow-auto'}">
       <template #extra>
         <l-action-button :actions="actions"/>
       </template>
       <l-attachment-masonry v-model:data-source="dataSource" :check-value="checkValue" />
-    </l-data-loading-card-plan>
+    </l-data-loading-card>
   </div>
 </template>

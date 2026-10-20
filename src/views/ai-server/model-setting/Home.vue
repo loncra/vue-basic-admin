@@ -8,7 +8,7 @@ import type {ModelSettingEntity} from '@loncra/client/ai'
 import type {FilterRequest, RestResult, TreeSortMetadata} from '@loncra/client/commons'
 import {ResourceServerService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
+import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
 import router from '@/routers'
 import {AI_SERVER_MODEL_SETTING_ROUTE, MODEL_SETTING_MANUFACTURER_CODE_QUERY} from '@/constants'
 import {AI_SERVER_MODEL_SETTING_AUTHORITY, MODEL_SETTING_MANUFACTURER_CODE_PREFIX} from '@loncra/client/ai'
@@ -121,7 +121,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-data-loading-card-plan :classes="{body: 'pt-1 pr-0 pl-0 pb-0'}">
+    <l-data-loading-card :classes="{body: 'pt-1 pr-0 pl-0 pb-0'}">
       <a-splitter>
         <a-splitter-panel default-size="20%" min="15%" max="25%">
           <a-flex vertical class="h-full min-h-0">
@@ -181,6 +181,6 @@ onMounted(mounted)
           </l-crud-home-page>
         </a-splitter-panel>
       </a-splitter>
-    </l-data-loading-card-plan>
+    </l-data-loading-card>
   </div>
 </template>

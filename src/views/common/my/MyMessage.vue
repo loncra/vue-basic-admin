@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
+import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
 import {
   type ComponentInternalInstance,
   getCurrentInstance,
@@ -64,7 +64,7 @@ onActivated(activated)
 
 <template>
   <div class="h-full min-h-0">
-    <l-data-loading-card-plan
+    <l-data-loading-card
       :spin="false"
       :classes="{
         root:'min-h-0 flex flex-col h-full shadow-ter',
@@ -95,6 +95,6 @@ onActivated(activated)
           </transition>
         </router-view>
       </div>
-    </l-data-loading-card-plan>
+    </l-data-loading-card>
   </div>
 </template>

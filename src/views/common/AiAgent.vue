@@ -3,7 +3,7 @@ import {onMounted} from 'vue'
 import {AgentChat as LAgent, type AgentSession, interruptAgent} from '@loncra/antdv-chat-pro'
 import {getConversationRuns, useAgentStream} from '@/composables'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {DataLoadingCardPlan as LDataLoadingCardPlan} from '@loncra/antdv-pro'
+import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
 
 defineOptions({
   name: 'CommonAiAgent',
@@ -38,7 +38,7 @@ onMounted(() => {
 
 <template>
   <div class="h-full min-h-120">
-    <l-data-loading-card-plan
+    <l-data-loading-card
       :spin="false"
       :classes="{
         root:'min-h-0 flex flex-col h-full shadow-ter',
@@ -59,6 +59,6 @@ onMounted(() => {
           <icon-font type="icon-xiaojiage-a" />
         </template>
       </l-agent>
-    </l-data-loading-card-plan>
+    </l-data-loading-card>
   </div>
 </template>

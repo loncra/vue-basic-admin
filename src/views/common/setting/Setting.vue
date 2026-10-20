@@ -2,7 +2,7 @@
 import {renderIconFont} from '@/utils/commonUtils.ts'
 import {
   ConfigProviderSetting as LConfigProviderSetting,
-  DataLoadingCardPlan as LDataLoadingCardPlan
+  DataLoadingCard as LDataLoadingCard
 } from '@loncra/antdv-pro'
 import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
@@ -77,7 +77,7 @@ const createSuccessOptions = computed(() => [
     内层 `w-130` 只约束它自己那一段（看起来就"卡比内容宽、右边空一片"，2026-09-30 用户报）。
   -->
   <div class="mx-auto my-0 w-fit max-w-250">
-    <l-data-loading-card-plan
+    <l-data-loading-card
       :tab-list="tabList"
       :title="false"
       :active-tab-key="activeTabKey"
@@ -144,6 +144,6 @@ const createSuccessOptions = computed(() => [
       <template v-if="activeTabKey === 'enterpriseSetting'">
         <l-enterprise-setting />
       </template>
-    </l-data-loading-card-plan>
+    </l-data-loading-card>
   </div>
 </template>

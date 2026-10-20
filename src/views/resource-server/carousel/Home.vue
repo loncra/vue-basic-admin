@@ -3,7 +3,7 @@
 import {
   ActionButton as LActionButton,
   CrudCardGridPage as LCrudCardGridPage,
-  DataLoadingCardPlan as LDataLoadingCardPlan,
+  DataLoadingCard as LDataLoadingCard,
   isObjectWriteResult,
   useDateFormat,
 } from '@loncra/antdv-pro';
@@ -139,10 +139,10 @@ async function activated(): Promise<void> {
 <template>
   <div>
     <!--
-      生命周期交给壳：`onMounted` / `onActivated` 是 `DataLoadingCardPlan` 的两个口
+      生命周期交给壳：`onMounted` / `onActivated` 是 `DataLoadingCard` 的两个口
       （它负责编排 + 统一 `loading`）⇒ 页面不再自己写 `onMounted` / `onActivated`。
     -->
-    <l-data-loading-card-plan :on-mounted="load" :on-activated="activated">
+    <l-data-loading-card :on-mounted="load" :on-activated="activated">
       <a-tabs
         v-model:active-key="tabActiveKey"
         centered
@@ -249,6 +249,6 @@ async function activated(): Promise<void> {
           </a-space>
         </template>
       </a-tabs>
-    </l-data-loading-card-plan>
+    </l-data-loading-card>
   </div>
 </template>
