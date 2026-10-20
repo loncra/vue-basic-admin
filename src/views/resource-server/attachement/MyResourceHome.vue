@@ -106,7 +106,7 @@ onMounted(() => loadDataSource())
 
 <template>
   <div>
-    <l-data-loading-card :loading="loading" :classes="{body:'max-h-150 overflow-auto'}">
+    <l-data-loading-card :loading="loading" :classes="{card: {body:'max-h-150 overflow-auto'}}">
       <template #extra>
         <l-action-button :actions="actions"/>
       </template>

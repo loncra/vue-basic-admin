@@ -121,7 +121,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-data-loading-card :classes="{body: 'pt-1 pr-0 pl-0 pb-0'}">
+    <l-data-loading-card :classes="{card: {header: 'mb-0!', body: 'p-0!'}}">
       <a-splitter>
         <a-splitter-panel default-size="20%" min="15%" max="25%">
           <a-flex vertical class="h-full min-h-0">
