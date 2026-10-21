@@ -2,7 +2,11 @@ import type {PersonalUserEntity} from '@loncra/client/auth'
 import {PersonalUserService} from '@loncra/client/auth'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import {AUTH_SERVER_PERSONAL_USER_ROUTE} from '@/constants'
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {
+  OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from '@loncra/client/commons'
 
 export const personalUserService = new PersonalUserService()
 
@@ -17,6 +21,7 @@ export const personalUserCore: CrudPageCore<PersonalUserEntity> = {
   i18nPrefix: 'authServer.personalUser',
   routes: {
     home: AUTH_SERVER_PERSONAL_USER_ROUTE.HOME,
+    detail: AUTH_SERVER_PERSONAL_USER_ROUTE.DETAIL
   },
   operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.PERSONAL_USER,
   fields: {
