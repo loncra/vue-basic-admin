@@ -9,10 +9,10 @@ import type {RestResult} from "@loncra/client/commons";
 import type {ResolvedAction} from '@loncra/antdv-pro';
 import {
   ActionButton as LActionButton,
-  AttachmentMasonry as LAttachmentMasonry
+  AttachmentMasonry as LAttachmentMasonry,
+  DataLoadingCard as LDataLoadingCard
 } from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
-import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
 
 defineOptions({
   // 与 `FileManagerHome.vue` 曾经**撞同一个名**（`CommonUserExport` ⇒ keep-alive 会当成同一个组件）⇒ 按房规改
@@ -110,7 +110,7 @@ onMounted(() => loadDataSource())
       <template #extra>
         <l-action-button :actions="actions"/>
       </template>
-      <l-attachment-masonry v-model:data-source="dataSource" :check-value="checkValue" />
+      <l-attachment-masonry :data-source="dataSource" :check-value="checkValue" />
     </l-data-loading-card>
   </div>
 </template>
