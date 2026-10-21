@@ -10,6 +10,7 @@ import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants'
 import {auditEventDetailPage} from './audit-event.detail.page'
+import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
 /**
  * 审计事件详情页薄壳（「认证事件」与「操作数据轨迹」两个列表共用）：字段、显示优先级、跨列数、
@@ -23,6 +24,7 @@ defineOptions({
 
 const {t} = useI18n()
 const route = useRoute()
+const configProvider = useConfigProviderStore()
 const detailRef = ref<{entity?: AuditEventEntity}>()
 
 /**
@@ -128,8 +130,9 @@ function sectionsOf(entity: AuditEventEntity): DetailSection[] {
           </a-divider>
           <a-descriptions
             bordered
+            :layout="configProvider.antdv.state.detailLayout"
             :column="{xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 1}"
-            class="margin-top-lg"
+            class="mt-lg"
           >
             <a-descriptions-item v-for="(value, key) in section.source" :key="key" :label="key">
               {{ value }}
