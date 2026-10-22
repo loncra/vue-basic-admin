@@ -27,7 +27,11 @@ export const CAROUSEL_TYPE_FILTER = 'filter_[type_eq]'
 export const carouselCore: CrudPageCore<CarouselSavePayload, CarouselEntity> = {
   service: carouselService,
   i18nPrefix: 'resourceServer.carousel',
-  routes: {home: RESOURCE_SERVER_CAROUSEL_ROUTE.HOME},
+  routes: {
+    home: RESOURCE_SERVER_CAROUSEL_ROUTE.HOME,
+    edit: RESOURCE_SERVER_CAROUSEL_ROUTE.EDIT,
+    add: RESOURCE_SERVER_CAROUSEL_ROUTE.ADD,
+  },
 
   /** 操作记录（旧 Form 传过 `OPERATION_DATA_TRACE_TABLE.CAROUSEL` ⇒ 收进 core） */
   operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.CAROUSEL,
