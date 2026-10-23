@@ -130,9 +130,12 @@ async function load(): Promise<void> {
   carouselPreviewReloader.value = reloadActivePreview
 }
 
-/** 切回页面：刷当前 tab 的预览（**网格自己刷**：`refreshOnActivate` 默认开） */
+/** 切回页面：刷当前 tab 的预览 + 当前网格（网格是异步建 tab 后才挂的，keep-alive 激活的首轮它不在场，
+ *  组件内置的 `refreshOnActivate` 首次激活守卫会把唯一一次激活吞掉 ⇒ 切回刷新由页面自己兜） */
+const gridRef = ref<{fetchDataSource: () => Promise<void>}>()
+
 async function activated(): Promise<void> {
-  await reloadActivePreview()
+  await Promise.all([reloadActivePreview(), gridRef.value?.fetchDataSource()])
 }
 </script>
 
@@ -184,6 +187,7 @@ async function activated(): Promise<void> {
             -->
             <l-crud-card-grid-page
               v-if="tabActiveKey === item.key"
+              ref="gridRef"
               :key="item.key"
               :page="carouselHomePage"
               v-model:query="item.query"
