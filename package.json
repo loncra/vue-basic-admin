@@ -19,9 +19,9 @@
   },
   "dependencies": {
     "@antdv-next/icons": "^1.1.1",
-    "@antdv-next/x": "^1.2.5",
+    "@antdv-next/x": "^1.2.6",
     "@antdv-next/x-card": "^0.0.1",
-    "@antdv-next/x-markdown": "^0.2.0",
+    "@antdv-next/x-markdown": "^0.3.0",
     "@antdv-next/x-sdk": "^0.0.4",
     "@codemirror/lang-css": "^6.3.1",
     "@codemirror/lang-html": "^6.4.12",
