@@ -497,7 +497,7 @@ onUnmounted(() => routeCacheVersions.value = {})
         >
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
 
-            <transition name="fade-transform" mode="out-in">
+            <transition name="fade-transform">
               <keep-alive v-if="Component">
                 <component :is="Component" :key="getRouteCacheKey(route)"/>
               </keep-alive>

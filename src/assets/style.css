@@ -79,10 +79,6 @@
     @apply transition-all duration-500 ease-in-out;
   }
 
-  .fade-transform-leave-active {
-    @apply transition-all duration-500;
-  }
-
   /* 数值与老的 `.fade-transform`（`translate-y-5` + `duration-500 ease-in-out`）保持一致，观感不降级 */
   @keyframes layout-route-enter {
     from {
