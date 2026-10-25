@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs'
 import {fileURLToPath, URL} from 'node:url'
 
 import {defineConfig, loadEnv, type Plugin} from 'vite'
@@ -32,6 +33,42 @@ function highlightJsCoreEsmInterop(): Plugin {
   }
 }
 
+/**
+ * x 包 `SlotTextAreaProseMirror` 用 Vue 全局 `render()` 把词槽芯片渲染进 ProseMirror DOM，
+ * 脱离 app 上下文 ⇒ 芯片子树 inject 全部失效，cssinjs / icons 样式退回"未分层"插入
+ * （非分层规则恒赢所有层）⇒ 芯片一挂载，全站字体/颜色样式错乱。
+ * 这里在渲染前把主树的 appContext 挂到芯片 vnode 上，让 inject 恢复。
+ * x 上游修复（render 前继承 appContext）落地后可删除本插件与 esbuild 补丁。
+ */
+function patchSlotRenderCode(code: string): string {
+  if (code.includes('__slotAppContext')) return code
+  return code
+    .replace(
+      'defineComponent, nextTick, onBeforeUnmount, onMounted, ref, render, watch } from "vue"',
+      'defineComponent, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, render, watch } from "vue"',
+    )
+    .replace(
+      'setup(_, { expose }) {',
+      'setup(_, { expose }) {\n\t\tconst __slotInstance = getCurrentInstance()\n\t\tconst __slotAppContext = __slotInstance ? Object.assign({}, __slotInstance.appContext, { provides: __slotInstance.provides }) : void 0\n\t\tconst __render = (vnode, dom) => { if (vnode && __slotAppContext && vnode.appContext !== __slotAppContext) vnode.appContext = __slotAppContext; render(vnode, dom) }',
+    )
+    .replace(/(?<![\w$.])render\((child, dom|null, dom|createVNode\(Skill_default)/g, '__render($1')
+}
+
+function patchAntdvXSlotRenderAppContext(): Plugin {
+  return {
+    name: 'patch-antdv-x-slot-render-app-context',
+    enforce: 'pre',
+    transform(code, id) {
+      const file = id.split('?')[0].replace(/\\/g, '/')
+      if (!file.includes('@antdv-next/x/dist/sender/components/SlotTextAreaProseMirror.js')) {
+        return null
+      }
+      const patched = patchSlotRenderCode(code)
+      return patched === code ? null : { code: patched, map: null }
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   // 加载环境变量
@@ -42,6 +79,7 @@ export default defineConfig(({ mode }) => {
     envPrefix: ['VITE_', 'TAURI_'],
     plugins: [
       highlightJsCoreEsmInterop(),
+      patchAntdvXSlotRenderAppContext(),
       vue(), vueJsx(), tailwindcss(), Components({ resolvers: [AntdvNextResolver(), AntdvNextXResolver()] })
     ],
     server: {
@@ -92,6 +130,7 @@ export default defineConfig(({ mode }) => {
         'vue',
         'antdv-next',
         '@antdv-next/cssinjs',
+        '@antdv-next/icons',
         'p-limit',
         '@tiptap/core',
         '@tiptap/pm',
@@ -153,6 +192,23 @@ export default defineConfig(({ mode }) => {
         'highlight.js/lib/core',
         'p-limit',
       ],
+      /**
+       * 依赖优化器不执行 vite 的 transform 钩子，补丁必须走 esbuild 的 onLoad：
+       * 在预打包读入 SlotTextAreaProseMirror.js 时就地打上 appContext 补丁。
+       */
+      esbuildOptions: {
+        plugins: [
+          {
+            name: 'patch-antdv-x-slot-render-app-context-esbuild',
+            setup(build: {onLoad: (options: {filter: RegExp}, callback: (args: {path: string}) => {contents: string, loader: 'js'}) => void}) {
+              build.onLoad({filter: /SlotTextAreaProseMirror\.js$/}, (args: {path: string}) => {
+                const code = patchSlotRenderCode(readFileSync(args.path, 'utf8'))
+                return {contents: code, loader: 'js' as const}
+              })
+            },
+          },
+        ],
+      },
     },
   }
 

@@ -3,32 +3,19 @@ import type {
   UserChatConversationResponseBody,
   UserChatMessageEntity
 } from "@/types/apis";
-import type {IdValueMetadata} from "@loncra/client/commons";
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
 import {AuthServerService, type PlatformUser, type UserMetadata} from "@loncra/client/auth";
 import type {FileObject, ObjectWriteResult} from "@loncra/client/resource";
 import {AttachmentService} from "@loncra/client/resource";
 import type {AvatarSize} from "antdv-next/dist/avatar/AvatarContext";
-import {type ComponentInternalInstance, h, type VNode} from "vue";
-import {Avatar, AvatarGroup, Tag} from "antdv-next";
-import type {InstructionBlock, InstructionSlotProps,} from "@/types/composables";
-import {AGENT_INSTRUCTION_PREFIX} from '@/constants';
+import {h, type VNode} from "vue";
+import {Avatar, AvatarGroup} from "antdv-next";
 import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
-import {XProvider as AxConfigProvider} from "@antdv-next/x";
-import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
 import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
-import {renderIconFont} from '@/utils/commonUtils'
-
-
-const instructionIconMap:Record<string, string> = {
-  "@":"loncra-at-sign",
-  [AGENT_INSTRUCTION_PREFIX.MCP]:"loncra-plug-zap",
-  [AGENT_INSTRUCTION_PREFIX.SKILL]:"loncra-sparkles",
-}
 
 export function createUserAvatarNode(
   user:PlatformUser | UserMetadata,
@@ -209,84 +196,3 @@ function fileToTypeLabel(
   return `[${i18n.global.t('attachment.type.unknown')}]`
 }
 
-export function getSendInstructionIcon(prefix:string, vnode?:boolean):string | undefined | VNode {
-  const string = instructionIconMap[prefix]
-  if (!string) {
-    return string
-  }
-
-  if (!vnode) {
-    return string;
-  } else {
-    return renderIconFont(string) ?? undefined
-  }
-}
-
-/**
- * 指令芯片判定。`@loncra/antdv` 不再提供：芯片长什么样、带什么 metadata 是宿主的事。
- * 提交组装（useChatMessageSender / useAgentSender）与草稿持久化共用这一份，别各写一遍。
- */
-export function isInstructionSlot(
-  slot: unknown,
-): slot is {type: 'custom'; props: InstructionSlotProps} {
-  if (!slot || typeof slot !== 'object') {
-    return false
-  }
-  const value = slot as {type?: string; props?: {slotKind?: unknown}}
-  return value.type === 'custom' && value.props?.slotKind === 'instruction'
-}
-
-export function createInstructionSlot(
-  slot:InstructionBlock,
-  configProviderStore:ReturnType<typeof useConfigProviderStore>,
-  currentInstance:ComponentInternalInstance,
-): SlotConfigType {
-  return {
-    type: 'custom',
-    key: slot.id,
-    props: {slotKind: 'instruction', defaultValue: slot.value, prefix:slot.prefix},
-    customRender:(
-      value: IdValueMetadata<string, string>,
-      onChange: (value: IdValueMetadata<string, string>) => void,
-      _props: {disabled?: boolean; readOnly?: boolean},
-      item: SlotConfigType,
-    ) =>  instructionCustomRender(value, _props, item, configProviderStore, currentInstance),
-  }
-}
-
-function instructionCustomRender(
-  value: IdValueMetadata<string, string>,
-  _props: {disabled?: boolean; readOnly?: boolean},
-  item: SlotConfigType,
-  configProviderStore:ReturnType<typeof useConfigProviderStore>,
-  currentInstance:ComponentInternalInstance,
-){
-  const slotKey = 'key' in item && item.key ? item.key : ''
-  const prefix = ((item as {props:Record<string, unknown>}).props as { prefix?: string })?.prefix ?? ''
-  const iconType = getSendInstructionIcon(prefix, false) as string | undefined
-  const node = h(
-    AxConfigProvider,
-    {
-      // antdv 的 locale / 主题取自宿主那份配置实例；
-      // （`XProvider` 的 props 里没有 `componentSize`，原来传了也是空转）
-      locale: configProviderStore.antdvLocaleMessage(),
-      theme: configProviderStore.antdv.themeConfig.value,
-    },
-    {
-      default: () =>
-        h(
-          Tag,
-          {
-            key: slotKey,
-            variant: 'outlined'
-          },
-          {
-            icon: iconType ? () => renderIconFont(iconType) : undefined,
-            default: () => value.value
-          }
-        ),
-    },
-  )
-  node.appContext = currentInstance.appContext
-  return node
-}
