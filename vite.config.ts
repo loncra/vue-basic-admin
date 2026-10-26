@@ -51,6 +51,14 @@ function patchSlotRenderCode(code: string): string {
       'setup(_, { expose }) {\n\t\tconst __slotInstance = getCurrentInstance()\n\t\tconst __slotAppContext = __slotInstance ? Object.assign({}, __slotInstance.appContext, { provides: __slotInstance.provides }) : void 0\n\t\tconst __render = (vnode, dom) => { if (vnode && __slotAppContext && vnode.appContext !== __slotAppContext) vnode.appContext = __slotAppContext; render(vnode, dom) }',
     )
     .replace(/(?<![\w$.])render\((child, dom|null, dom|createVNode\(Skill_default)/g, '__render($1')
+    .replace(
+      'if (config.value) nodes.push(senderSchema.text(config.value));',
+      'if (config.value) String(config.value).replace(/\\r/g, "").split("\\n").forEach((line, index, lines) => { if (line) nodes.push(senderSchema.text(line)); if (index < lines.length - 1) nodes.push(senderSchema.nodes.hardBreak.create()); });',
+    )
+    .replace(
+      'if (config.value) result.push({\r\n\t\t\t\tkind: "text",\r\n\t\t\t\tvalue: config.value\r\n\t\t\t});',
+      'if (config.value) String(config.value).replace(/\\r/g, "").split("\\n").forEach((line, index, lines) => { if (line) result.push({ kind: "text", value: line }); if (index < lines.length - 1) result.push({ kind: "text", value: "\\n" }); });',
+    )
 }
 
 /**
@@ -63,10 +71,10 @@ function patchSlotRenderCode(code: string): string {
  */
 const depPatchPlugins = [
   {
-    name: 'patch-antdv-x-slot-render-app-context',
+    name: 'patch-antdv-next-x-sender',
     transform(code: string, id: string) {
       const file = id.split('?')[0].replace(/\\/g, '/')
-      if (!file.includes('@antdv-next/x/dist/sender/components/SlotTextAreaProseMirror.js')) return null
+      if (!file.includes('@antdv-next/x/dist/sender/components/')) return null
       const patched = patchSlotRenderCode(code)
       return patched === code ? null : { code: patched, map: null }
     },
