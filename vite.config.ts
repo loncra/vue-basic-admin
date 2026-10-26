@@ -1,4 +1,3 @@
-import {readFileSync} from 'node:fs'
 import {fileURLToPath, URL} from 'node:url'
 
 import {defineConfig, loadEnv, type Plugin} from 'vite'
@@ -54,20 +53,25 @@ function patchSlotRenderCode(code: string): string {
     .replace(/(?<![\w$.])render\((child, dom|null, dom|createVNode\(Skill_default)/g, '__render($1')
 }
 
-function patchAntdvXSlotRenderAppContext(): Plugin {
-  return {
+/**
+ * rolldown 预构建在读取依赖时应用这里的 transform 补丁。
+ * 注意：`optimizeDeps.esbuildOptions` 在 rolldown-vite 下是被忽略的废弃项，补丁挂在那里不会生效。
+ * x 包 `SlotTextAreaProseMirror` 用全局 `render()` 渲染词槽芯片，脱离 app 上下文，
+ * 导致芯片样式未分层插入、全站样式错乱 → 补挂 appContext + provides 链。
+ * tiptap 的上传占位替换缺陷已在本地 fork（../antdv-next-tiptap，alias 直连）源码修复，无需补丁。
+ * x 上游修复后可删除。
+ */
+const depPatchPlugins = [
+  {
     name: 'patch-antdv-x-slot-render-app-context',
-    enforce: 'pre',
-    transform(code, id) {
+    transform(code: string, id: string) {
       const file = id.split('?')[0].replace(/\\/g, '/')
-      if (!file.includes('@antdv-next/x/dist/sender/components/SlotTextAreaProseMirror.js')) {
-        return null
-      }
+      if (!file.includes('@antdv-next/x/dist/sender/components/SlotTextAreaProseMirror.js')) return null
       const patched = patchSlotRenderCode(code)
       return patched === code ? null : { code: patched, map: null }
     },
-  }
-}
+  },
+]
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -79,7 +83,6 @@ export default defineConfig(({ mode }) => {
     envPrefix: ['VITE_', 'TAURI_'],
     plugins: [
       highlightJsCoreEsmInterop(),
-      patchAntdvXSlotRenderAppContext(),
       vue(), vueJsx(), tailwindcss(), Components({ resolvers: [AntdvNextResolver(), AntdvNextXResolver()] })
     ],
     server: {
@@ -112,6 +115,10 @@ export default defineConfig(({ mode }) => {
         '@loncra/antdv-chat': fileURLToPath(new URL('../packages/antdv-chat/src', import.meta.url)),
         '@loncra/antdv-chat-pro': fileURLToPath(new URL('../packages/antdv-chat-pro/src', import.meta.url)),
         '@loncra/chat-core': fileURLToPath(new URL('../packages/chat-core/src', import.meta.url)),
+        // tiptap 编辑器用本地 fork（修复上传占位替换在空文档/节点视图失效场景下静默失败）。
+        // css 条目必须排在裸名前面：对象别名按前缀替换，裸名会先把子路径吞掉。
+        'antdv-next-tiptap/index.css': fileURLToPath(new URL('../antdv-next-tiptap/dist/index.css', import.meta.url)),
+        'antdv-next-tiptap': fileURLToPath(new URL('../antdv-next-tiptap', import.meta.url)),
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         // 源码别名后 peer 不再沿管理端 node_modules 往上找，显式指回本应用。
         'p-limit': fileURLToPath(new URL('./node_modules/p-limit', import.meta.url)),
@@ -186,28 +193,17 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       exclude: ['@loncra/client', '@loncra/antdv', '@loncra/antdv-pro', '@loncra/antdv-chat', '@loncra/antdv-chat-pro', '@loncra/chat-core'],
       include: [
-        'antdv-next-tiptap',
         'lowlight',
         'highlight.js',
         'highlight.js/lib/core',
         'p-limit',
       ],
       /**
-       * 依赖优化器不执行 vite 的 transform 钩子，补丁必须走 esbuild 的 onLoad：
-       * 在预打包读入 SlotTextAreaProseMirror.js 时就地打上 appContext 补丁。
+       * rolldown 预构建在读取依赖时应用 depPatchPlugins（见文件顶部说明）。
+       * 注意：`optimizeDeps.esbuildOptions` 在 rolldown-vite 下是被忽略的废弃项，补丁挂在那里不会生效。
        */
-      esbuildOptions: {
-        plugins: [
-          {
-            name: 'patch-antdv-x-slot-render-app-context-esbuild',
-            setup(build: {onLoad: (options: {filter: RegExp}, callback: (args: {path: string}) => {contents: string, loader: 'js'}) => void}) {
-              build.onLoad({filter: /SlotTextAreaProseMirror\.js$/}, (args: {path: string}) => {
-                const code = patchSlotRenderCode(readFileSync(args.path, 'utf8'))
-                return {contents: code, loader: 'js' as const}
-              })
-            },
-          },
-        ],
+      rolldownOptions: {
+        plugins: depPatchPlugins,
       },
     },
   }
