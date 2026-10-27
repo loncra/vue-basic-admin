@@ -242,7 +242,6 @@ onActivated(() => {
       :host="host"
       :contacts="options.contactDataSource"
       :loading="options.loading"
-      @update:contacts="(value: SystemUserContactItem[]) => options.contactDataSource = value"
       @update:loading="(value: boolean) => options.loading = value"
       @active="onActive"
       @muted="onMuted"
