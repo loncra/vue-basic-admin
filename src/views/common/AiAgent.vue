@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted} from 'vue'
+import {onMounted, ref} from 'vue'
 import {AgentChat as LAgent, type AgentSession} from '@loncra/antdv-chat-pro'
 import {AgentService} from '@loncra/client/ai'
 import {getConversationRuns, useAgentStream} from '@/composables'
@@ -10,14 +10,14 @@ defineOptions({
   name: 'CommonAiAgent',
 })
 
-let current: AgentSession | undefined
-const stream = useAgentStream(() => current)
+const current = ref<AgentSession>()
+const stream = useAgentStream(() => current.value)
 const principalStore = usePrincipalStore()
 
-function onActive(session: AgentSession) {
+function onActive(session?: AgentSession) {
   stream.disconnectIfRunning()
-  current = session
-  for (const run of getConversationRuns(session)) {
+  current.value = session
+  for (const run of getConversationRuns(session as AgentSession)) {
     stream.connect(Number(run.id), false)
   }
 }
@@ -49,6 +49,7 @@ onMounted(() => {
         }
       }"
     >
+      <template #extra>{{ current?.name ?? '' }}</template>
       <l-agent
         :installs="principalStore.pluginInstalls"
         :self="{...principalStore.state.details.metadata, systemName: principalStore.state.name}"

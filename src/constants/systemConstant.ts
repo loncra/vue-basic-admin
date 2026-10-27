@@ -98,12 +98,5 @@ export const DATE_TIME_FORMAT = {
   POST_TIME_FORMAT: import.meta.env.VITE_APP_POST_TIME_FORMAT
 } as const
 
-export const DEFAULT_PAGE_RESULT_VALUE = {
-  elements: [],
-  first: true,
-  last: true,
-  number: 1,
-  size: 10,
-  metadata:{}
-}
+
 
