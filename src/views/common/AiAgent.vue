@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {onMounted} from 'vue'
-import {AgentChat as LAgent, type AgentSession, interruptAgent} from '@loncra/antdv-chat-pro'
+import {AgentChat as LAgent, type AgentSession} from '@loncra/antdv-chat-pro'
+import {AgentService} from '@loncra/client/ai'
 import {getConversationRuns, useAgentStream} from '@/composables'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
@@ -27,7 +28,7 @@ function onResume(assistantMessageId: number) {
 
 async function onCancel(session: AgentSession) {
   for (const run of getConversationRuns(session)) {
-    await interruptAgent(Number(run.key))
+    await AgentService.interrupt(Number(run.key))
   }
 }
 
