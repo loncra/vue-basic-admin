@@ -160,6 +160,12 @@ function customSlotToText(slot: Extract<SlotConfigType, {type: 'custom'}>): stri
     const files = props?.defaultValue as UploadFile<ObjectWriteResult>[] | undefined
     return filesToTypeLabels(files)
   }
+  if (slotKind === 'instruction') {
+    const defaultValue = props?.defaultValue as {value?: unknown} | undefined
+    const prefix = typeof props?.prefix === 'string' ? props.prefix : ''
+    const text = defaultValue?.value == null ? '' : String(defaultValue.value)
+    return prefix + text
+  }
   return ''
 }
 
