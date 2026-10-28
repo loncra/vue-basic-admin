@@ -11,7 +11,6 @@ import {ActionButton, AttachmentMasonry, DataLoadingCard} from '@loncra/antdv-pr
 import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({
-  // 与 `FileManagerHome.vue` 曾经**撞同一个名**（`CommonUserExport` ⇒ keep-alive 会当成同一个组件）⇒ 按房规改
   name: 'ResourceServerMyResourceHome',
 })
 

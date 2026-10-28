@@ -7,18 +7,10 @@ import {defineSearchProps, renderIconFont} from '@/utils'
 import {MESSAGE_SERVER_EMAIL_ROUTE} from '@/constants'
 import {emailCore} from './email.page'
 
-/** 工具栏：发邮件（旧表 `actionButtons` 那一个按钮） */
 function goSend(): void {
   void router.push({name: MESSAGE_SERVER_EMAIL_ROUTE.SEND})
 }
 
-/**
- * 邮件消息列表（`Home.vue`）。核心在 `email.page.ts`，这里只写列表形态。
- *
- * 照抄旧 `EmailTable.vue` 的 8 列（含搜索组件与表达式）；状态列与短信同款
- * （**统一用 pro 的 `executeStatusCell()`**）。旧表里那段 `column.dataIndex === 'channel'`
- * 的分支是**死代码**（邮件没有 channel 列）⇒ 不搬。
- */
 export const emailHomePage = defineHomePage<EmailMessageEntity>(emailCore, {
   authority: {
     detail: MESSAGE_SERVER_EMAIL_AUTHORITY.GET,
@@ -63,7 +55,6 @@ export const emailHomePage = defineHomePage<EmailMessageEntity>(emailCore, {
       key: 'retryCount',
       width: 80,
       ellipsis: true,
-      // 旧表显示"重试次数 / 上限"（`maxRetryCount` 不是列 key ⇒ 用 render 拼）
       render: (_value, record) => `${record.retryCount ?? ''} / ${record.maxRetryCount ?? ''}`,
     },
     {key: 'retryTime', width: 210, ellipsis: true},

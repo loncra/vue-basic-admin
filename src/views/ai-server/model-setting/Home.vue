@@ -34,7 +34,6 @@ const dragEnabled = computed(() =>
   principalStore.hasPermission(AI_SERVER_MODEL_SETTING_AUTHORITY.SORT),
 )
 
-/** 左树：厂商 = 数据字典（`manufacturerCode`） */
 const manufacturerMenuItems = computed(() =>
   manufacturers.value.map((item) => ({
     key: item.code,
@@ -68,7 +67,6 @@ async function loadManufacturers(): Promise<void> {
   }
 }
 
-/** 对齐字典页：仅从 Form 返回的 query 恢复选中，左侧点击不改 URL */
 async function activated(manufacturerCode?: string | null): Promise<void> {
   if (!manufacturerCode) {
     return
@@ -83,7 +81,6 @@ async function activated(manufacturerCode?: string | null): Promise<void> {
   selectManufacturer(target)
 }
 
-/** 拖拽幽灵内容（`@drag` 与 `@drop` 都用宿主自己的状态，所以留在壳里） */
 function formatDragPreview(record: ModelSettingEntity): string {
   return record.name
 }
@@ -95,7 +92,6 @@ async function onDrop(
   void message.success(result.message)
 }
 
-/** 新增要带上当前厂商（pro 的默认跳转只拼 `{id}`）⇒ 壳绑 `@add` 接管 */
 function onAdd(): void {
   const manufacturer = selectedManufacturer.value
   if (!manufacturer) {

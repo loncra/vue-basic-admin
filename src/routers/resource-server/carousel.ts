@@ -2,7 +2,6 @@ import type {RouteRecordRaw} from 'vue-router'
 import {RESOURCE_SERVER_CAROUSEL_ROUTE} from '@/constants'
 import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
-/** 数据字典相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/resource-server/carousel',

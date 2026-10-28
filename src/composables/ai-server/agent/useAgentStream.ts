@@ -24,9 +24,6 @@ import {getConversationRuns} from '@/composables'
 import type {AgentSession} from '@loncra/antdv-chat-pro'
 import {updateSessionMessage} from '@loncra/antdv-chat-pro'
 
-/**
- * 订阅助手 SSE。增量写进调用方传入的会话对象。
- */
 export function useAgentStream(current: () => AgentSession | undefined) {
   function getStreamAgentMessageEntity(assistantId: number): StreamAgentMessageEntity | undefined {
     const active = current()

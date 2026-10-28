@@ -2,7 +2,6 @@ import type {RouteRecordRaw} from 'vue-router'
 import {AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE} from '@/constants'
 import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
-/** 企业邀请相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/auth-server/enterprise/invitation',
@@ -14,7 +13,6 @@ const router: RouteRecordRaw[] = [
     },
   },
   {
-    // 企业邀请确认
     path: import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH + '/:id',
     name: AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE.CONFIRM,
     component: import('@/views/auth-server/enterprise-invitation/Confirm.vue'),

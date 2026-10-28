@@ -10,7 +10,6 @@ import {getEnumValue} from '@loncra/client/commons'
 import {defineSearchProps} from '@/utils'
 import {renderIconName, RESOURCE_VARIANT, resourceCore} from './resource.page'
 
-/** 加子级：跳到 addChild 路由，把当前行当父级（`run` 只接线，实现放这儿） */
 function addChild(ctx: RecordActionContext<ResourceEntity>): void {
   const record = ctx.record
   if (record) {
@@ -21,7 +20,6 @@ function addChild(ctx: RecordActionContext<ResourceEntity>): void {
   }
 }
 
-/** 资源列表（`Home.vue`）。核心在 `resource.page.ts`，这里只写列表形态。 */
 export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEntity>(resourceCore, {
   authority: {
     add: AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
@@ -38,13 +36,10 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
         AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN,
     }),
   },
-  // 树表拖拽排序；提交在页面壳里（@tree-drop）。
-  // 幽灵内容 = 资源名（缺省是主键，会显示成一串 id）
   drag: (record) => renderIconName(record.name, record) as DragPreviewContent,
   columns: [
     {key: 'name', width: 450, render: renderIconName, search: defineSearchProps('input')},
     {key: 'authority', width: 250, search: defineSearchProps('input')},
-    // 当选择器用的时候（variant: 'picker'）不展示来源
     {
       key: 'sources',
       width: 300,
@@ -68,7 +63,6 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
       icon: () => renderIconFont('loncra-list-tree'),
       run: addChild,
     },
-    // 选择器形态只留 addChild；整页才有编辑/删除
     ...(ctx.variant === RESOURCE_VARIANT.PICKER ? [] : [{id: 'edit'}, {id: 'delete'}]),
   ],
 })

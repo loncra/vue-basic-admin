@@ -22,22 +22,6 @@ import i18n from '@/i18n'
 import {useSocketStore} from "@/stores/socketStore.ts";
 import {useBootstrapStore} from "@/stores/bootStore.ts";
 
-/**
- * ⚠️ **本文件（及其它 `routers/**` ）不许再出现静态 `import … .vue`**（2026-09-30 用户定的口径）：
- * 所有页面组件一律 `component: () => import('@/views/….vue')`，**包括框架级常驻页**
- * （`Home` / `Workbench` / `MyMessage` / `Setting` / `Agent` / `my/*`）。两条理由：
- *
- * ① 页面模块会**静态带入声明文件**（`*.page.ts` 顶层 `new XxxService()` 是本仓常态）；
- *    虽然 service 层已经改成 URL 惰性求值（`DetailSearchRestfulService.resolvedBaseUrl`，
- *    构造期不碰 `getClient()`），但"别把页面拖进首屏 eager 图"仍然是更稳的一条；
- * ② 首屏只装当前路由真正要的东西（少一批 chunk）。
- *
- * 代价：切到这些常驻 tab 时多一次 chunk 请求（首访；之后被浏览器缓存）。
- */
-/**
- * 首页的子路由配置
- * 这些路由会作为 Home 组件的子路由显示
- */
 const childrenRoutes: RouteRecordRaw[] = [
   {
     path: '/error/403',
@@ -130,25 +114,18 @@ const childrenRoutes: RouteRecordRaw[] = [
   },
 ]
 
-/**
- * 基础路由配置
- * 定义应用的核心路由结构
- */
 const routes: RouteRecordRaw[] = [
   {
-    // 根路径，重定向到工作台
     path: '/',
     name: SYSTEM_ROUTE.ROOT,
     redirect: {name: SYSTEM_ROUTE.WORKBENCH},
   },
   {
-    // 认证页面路由
     path: '/' + SYSTEM_ROUTE.AUTH + '/:authenticationType(console|personal)?',
     name: SYSTEM_ROUTE.AUTH,
     component: () => import('@/views/Auth.vue')
   },
   {
-    // 忘记密码路由
     path: '/forgot/password',
     name: SYSTEM_ROUTE.FORGOT_PASSWORD,
     component: () => import('@/views/ForgotPassword.vue')
@@ -162,22 +139,13 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    // 首页路由，包含子路由
     path: '/' + SYSTEM_ROUTE.HOME_PAGE,
     name: SYSTEM_ROUTE.HOME_PAGE,
     component: () => import('@/views/Home.vue'),
     children: childrenRoutes
-  }/*,
-  {
-    path: "/:pathMatch(.*)*",
-    name: 'not_found',
-    redirect: "/error/404"
-  }*/
+  }
 ]
 
-/**
- * 使用 Vite 的 glob 功能动态导入目录下的路由配置文件
- */
 const modules = import.meta.glob('@/routers/**/*.ts') as Record<
   string,
   () => Promise<{ default: RouteRecordRaw[] }>
@@ -191,10 +159,6 @@ const initialState = ref<boolean>(false)
 
 export const routeI18n: RouteTitleMap = Object.assign({}, ...Object.values(i18nModules))
 
-/**
- * 创建 Vue Router 实例
- * 使用 HTML5 History 模式
- */
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: routes,
@@ -242,32 +206,22 @@ export function getRouteTitle(name: RouteRecordName): string {
   return i18n.global.t('common.unname')
 }
 
-/**
- * 清除所有动态路由并重新添加基础路由
- * 用于登录 / 登出 / 切换企业后重建路由表
- */
 export const clearDynamicRoutes = (): void => {
   initialState.value = false
   router.clearRoutes()
   routes.forEach((r) => router.addRoute(r))
 }
 
-/**
- * @param serviceName 已启动的服务名；传 undefined 表示不过滤（后端未给出服务清单时降级用）
- */
 const loadServiceRoutes = async (serviceName?: string[]): Promise<RouteRecordRaw[]> => {
   const promises = []
 
-  // 遍历所有路由模块
   for (const key in modules) {
     if (key.includes('.i18n.ts') || key.includes('/routers/i18n/')) {
       continue
     }
-    // 目录的 index.ts 只是聚合导出，不是路由定义
     if (key.endsWith('/index.ts')) {
       continue
     }
-    // 忽略大小写匹配，避免后端返回的命名风格与目录名不一致
     if (serviceName && !serviceName.some(path => key.toLowerCase().includes(path.toLowerCase()))) {
       continue
     }
@@ -277,13 +231,10 @@ const loadServiceRoutes = async (serviceName?: string[]): Promise<RouteRecordRaw
       continue
     }
 
-    // 收集需要加载的路由模块
     promises.push(fn())
   }
   const importRoutes: RouteRecordRaw[] = []
-  // 等待所有路由模块加载完成
   const routeModules = await Promise.all(promises)
-  // 将加载的路由添加到路由中（添加到 home 路由的子路由中）
   for (const module of routeModules) {
     if (!module.default || !Array.isArray(module.default)) {
       continue
@@ -293,15 +244,6 @@ const loadServiceRoutes = async (serviceName?: string[]): Promise<RouteRecordRaw
   return importRoutes
 }
 
-/**
- * 动态加载插件服务的路由
- * 根据提供的插件服务名称，加载对应的路由配置文件并添加到路由中
- *
- * @param route
- * @param menus
- *
- * @returns Promise 对象，路由加载完成后解析
- */
 const applyRouteMetaToMenu = (
   route: RouteRecordRaw,
   menus: ResourceEntity[],
@@ -319,13 +261,6 @@ const applyRouteMetaToMenu = (
   }
 }
 
-/**
- * 按后端已启动的服务装配动态路由。
- * 服务未启动 ⇒ 对应目录下的路由模块不注册，访问时走 404。
- *
- * 后端没给出服务清单（pluginServices 为空）时不能把功能全砍掉，
- * 降级为注册全部服务路由并告警 —— 否则整个后台只剩核心页。
- */
 export const registerServiceRoutes = async (serviceName: string[]): Promise<RouteRecordRaw[]> => {
   const services = serviceName.length > 0 ? serviceName : undefined
   if (import.meta.env.DEV) {
@@ -341,10 +276,6 @@ export const registerServiceRoutes = async (serviceName: string[]): Promise<Rout
   return importRoutes
 }
 
-/**
- * 拉取当前用户的菜单资源并合并进路由 meta（标题 / 图标 / 所属应用）。
- * 仅应在已认证时调用，避免未登录时 401 与启动流程抢方向盘。
- */
 export const applyMenusToRoutes = async (importRoutes: RouteRecordRaw[]): Promise<void> => {
   const menuPrincipalStore = useMenuPrincipalStore()
   const menus = await menuPrincipalStore.getPrincipalResources([
@@ -385,7 +316,6 @@ export const getAuthRouterParam =  (
 }
 
 const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
-  // 获取认证状态
   const principalStore = usePrincipalStore()
   const socketStore = useSocketStore()
   const menuPrincipalStore = useMenuPrincipalStore()
@@ -395,17 +325,13 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
     await principalStore.logout()
     clearDynamicRoutes()
     menuPrincipalStore.reset()
-    return // 继续导航
+    return
   } else if (routes.some(route => route.name === to.name)) {
     return
   }
 
-  // 路由表装配期间（首次启动 / 登录后重建）必须等，否则会误判为未登录而闪登录页
   await useBootstrapStore().waitReady()
 
-  // to 是等待「之前」解析的：若当时路由还没注册，matched 是空的，
-  // 必须返回 location 触发一次重新解析，才能用上新注册的路由（replace 不产生多余历史记录）。
-  // redirectedFrom 判断保证只重解析一次，避免路径真的不存在时无限重定向。
   if (to.matched.length === 0 && !to.redirectedFrom) {
     return {...to, replace: true}
   }
@@ -414,38 +340,23 @@ const onBeforeEach: NavigationGuardWithThis<unknown> = async (to) => {
   const requiresFullyAuth =
     (to.meta.requiresFullyAuth || false) && !principalStore.isFullyAuthenticated
 
-  // 处理需要认证但未认证的请求
   if (requiresAuth || requiresFullyAuth) {
     return saveRequestPathThenToAuth(to.fullPath, String(to.meta.authenticationType || principalStore.state.type))
   }
 
-  /*if (principalStore.isAuthenticated) {
-    socketStore.ensureConnected()
-  }*/
 
   menuPrincipalStore.setRouteEnterLoading(to.fullPath, true)
-  // 默认继续导航
   return true
 }
 
-/**
- * 路由导航后置守卫：面包屑、路由进入 loading 清理
- */
 const onAfterEach = (to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
   const menuPrincipalStore = useMenuPrincipalStore()
   menuPrincipalStore.resetCurrentBreadcrumbs(to, router)
-  // 推迟一帧再清 loading，避免与 beforeEach 同一宏任务内立刻清掉，界面来不及绘制 tab 图标 spin
   nextTick(() => menuPrincipalStore.setRouteEnterLoading(to.fullPath, false))
 }
 
-/**
- * 添加导航卫士
- */
 router.beforeEach(onBeforeEach)
 
-/**
- * 注册路由后置守卫
- */
 router.afterEach(onAfterEach)
 
 watch(

@@ -18,10 +18,6 @@ import i18n from '@/i18n'
 import {defineSearchProps, renderIconFont} from '@/utils'
 import {skillPackageCore, skillPackageService} from './skill-package.page'
 
-/**
- * 快照弹层：行内动作 `snapshot` 要打开**壳里的**弹层（表单与校验在壳里，壳才有 `l-form` 的 ref），
- * 所以状态从声明导出、壳只负责渲染与提交 —— 与 `enterprise-invitation` 的分享弹层同款接缝。
- */
 export const skillSnapshot = ref({
   open: false,
   packageId: undefined as number | undefined,
@@ -29,29 +25,22 @@ export const skillSnapshot = ref({
   form: {releaseVersion: '', changelog: ''},
 })
 
-/** 可发布的：新建 / 已撤销，且**有版本**（没有版本发布不了） */
 function releasable(items: SkillPackageEntity[]) {
   return items.filter(
     (item) => DATA_RELEASE_STATUS.includes(getEnumValue(item.status)) && Boolean(item.latestVersion),
   )
 }
 
-/** 可撤销的：已发布 */
 function revocable(items: SkillPackageEntity[]) {
   return items.filter((item) => getEnumValue(item.status) === DATA_STATUS.RELEASE)
 }
 
-/** 可重跑的：待执行 / 失败 / 未知 */
 function reingestable(items: SkillPackageEntity[]) {
   return items.filter((item) =>
     EXECUTE_TYPE_RETRY_STATUS.includes(getEnumValue(item.executeStatus ?? 0)),
   )
 }
 
-/**
- * 发布：确认框 → 调接口 → 提示 → **刷新列表**（发布后行状态变了，不刷新用户看到的是旧状态）。
- * `fetchDataSource` 由集合组件注入（`ctx.app.collection`），声明里不需要壳的 ref。
- */
 function releasePackages(ctx: ActionContext<SkillPackageEntity>, ids: number[]): void {
   if (ids.length === 0) {
     return
@@ -70,7 +59,6 @@ function releasePackages(ctx: ActionContext<SkillPackageEntity>, ids: number[]):
   })
 }
 
-/** 撤销：同发布 */
 function revokePackages(ctx: ActionContext<SkillPackageEntity>, ids: number[]): void {
   if (ids.length === 0) {
     return
@@ -89,7 +77,6 @@ function revokePackages(ctx: ActionContext<SkillPackageEntity>, ids: number[]): 
   })
 }
 
-/** 重跑：同发布（后端重新解析技能包内容） */
 function reingestPackages(ctx: ActionContext<SkillPackageEntity>, ids: number[]): void {
   if (ids.length === 0) {
     return
@@ -108,14 +95,12 @@ function reingestPackages(ctx: ActionContext<SkillPackageEntity>, ids: number[])
   })
 }
 
-/** 打开快照弹层（每次进来都是空表单；提交在壳里，见 `Home.vue`） */
 function openSnapshot(ctx: RecordActionContext<SkillPackageEntity>): void {
   skillSnapshot.value.packageId = Number(ctx.record?.id)
   skillSnapshot.value.form = {releaseVersion: '', changelog: ''}
   skillSnapshot.value.open = true
 }
 
-/** 技能包列表（`Home.vue`）。核心在 `skill-package.page.ts`，这里只写列表形态。 */
 export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, SkillPackageEntity>(
   skillPackageCore,
   {
@@ -131,7 +116,6 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         key: 'name',
         width: 320,
         search: defineSearchProps('input'),
-        // 名称前带包图标：宿主注册的 `iconName` formatter（布局仍归 pro 的 `iconNameCell`）
         format: {name: 'iconName', args: {size: 'large'}},
       },
       {key: 'packageKey', width: 160, search: defineSearchProps('input')},
@@ -144,15 +128,12 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         key: 'executeStatus',
         width: 120,
         search: defineSearchProps('select'),
-        // 执行状态统一用 pro 的 `executeStatusCell()`（原来这里是宿主手写的一份，
-        // 且它的 `if (!record.executeStatus)` 会把 `PROCESSING`（值 = 0）连同徽标一起吞掉）
         render: executeStatusCell(),
       },
       {key: 'latestVersion', width: 120, search: defineSearchProps('input')},
       {
         key: 'category',
         width: 150,
-        // pro 默认按列 key 拼查询名，拼不出 `category.code`
         search: defineSearchProps('select', {queryName: 'filter_[category.code_jeq]'}),
       },
     ],

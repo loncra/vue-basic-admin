@@ -5,15 +5,6 @@ import {defineSearchProps, postTimestampFormat} from '@/utils'
 import i18n from '@/i18n'
 import {authenticationCore} from './authentication.page'
 
-/**
- * 认证事件列表（`AuthenticationHome.vue`）。核心在 `authentication.page.ts`，这里只写列表形态。
- *
- * - `ip` / `deviceIdentified` / `system` 的数据不在顶层字段，在 `data.details.requestDetails.*`
- *   ⇒ 列 key 直接写**路径**（pro 按 `readPath` 取值，不需要 `render`，也不需要新 formatter）；
- *   路径不是实体字段 ⇒ `labelKey` 只能留在列上。
- * - `type` 的显示来自 `data.details.requestDetails.type`，而后端查询键仍是 `type`
- *   ⇒ 搜索显式写 `queryName`（路径默认会拼成 `filter_[data..._eq]`，与旧页面不一致）。
- */
 export const authenticationHomePage = defineHomePage<AuditEventEntity, AuditEventEntity>(
   authenticationCore,
   {
@@ -21,21 +12,12 @@ export const authenticationHomePage = defineHomePage<AuditEventEntity, AuditEven
     columns: [
       {
         key: 'timestamp',
-        // ⚠️ 必须显式给 `labelKey`：不带的话会兜底成 `${i18nPrefix}.${key}` =
-        // `authServer.authenticationEvent.timestamp`（语言包里没有这段 ✗ ⇒ 表头显示 key）
         labelKey: 'Crud.operationTrace.time',
         width: 210,
         format: 'dateTime',
-        // 不用 defineSearchProps('date')：它的 placeholder 写死是 'search.placeholder.date'，
-        // 旧页面用的是 'search.placeholder.input'；要跟随语言，props 必须是函数形态
         search: {
           component: 'date',
           queryName: 'after',
-          /**
-           * ⚠️ `defaultValue` 是**原样进 query** 的（`QueryTable.tsx:375` 直接 `patchQuery`）⇒
-           * 必须给**要发出去的值**：`postTimestampFormat(...)` 的结果（与详情跳转、操作日志列表
-           * 同一个格式），不能给 Dayjs 对象 ✗。
-           */
           defaultValue: postTimestampFormat(dayjs().startOf('d')),
           props: () => ({
             allowClear: false,

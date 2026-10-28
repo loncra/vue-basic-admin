@@ -26,18 +26,10 @@ import {BasicImage} from '@loncra/antdv'
 import {CAROUSEL_TYPE_FILTER, carouselService} from './carousel.page'
 import {carouselHomePage, carouselPreviewReloader} from './carousel.home.page'
 
-/**
- * 每个 tab 的模型：**只有页面结构要用的东西**。
- *
- * 旧实现还在这里放 `selectedItems` / `isLoading` —— 那是网格自己的状态（走
- * `v-model:selected-items` / 内部 `loading`），页面不该再持一份。
- */
 interface CarouselTab {
   key: string
   label: string
-  /** 该 tab 的查询条件（`v-model:query`）：与声明里的"新增"动作同源（动作从它里面取类型） */
   query: PageRequest
-  /** 预览轮播的数据：该类型"已发布"的那一批（`number: -1`，不分页） */
   preview: CarouselEntity[]
   previewLoading: boolean
 }
@@ -54,11 +46,6 @@ const principalStore = usePrincipalStore()
 const tabs = ref<CarouselTab[]>([])
 const tabActiveKey = ref<string>()
 
-/**
- * 拖拽开关：按权限。**这是页面的策略，不是声明能表达的** ——
- * `drag` 的函数形态是"幽灵内容"（不是布尔），pro 也没给拖拽接权限
- * ⇒ 壳用 `$attrs` 传下去（门面把 attrs 排在最后 ⇒ 就是`接管`）。
- */
 const dragEnabled = computed(() =>
   principalStore.hasPermission(RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE),
 )
@@ -82,7 +69,6 @@ const statusSetting = {
   }
 } as const
 
-/** 预览：把"该类型已发布"的全部拉回来 */
 async function loadPreview(tab: CarouselTab): Promise<void> {
   tab.previewLoading = true
   try {
@@ -97,7 +83,6 @@ async function loadPreview(tab: CarouselTab): Promise<void> {
   }
 }
 
-/** 重载**当前 tab** 的预览：声明里的动作 / 落库口干完活要通过 `carouselPreviewReloader` 调它 */
 async function reloadActivePreview(): Promise<void> {
   const tab = tabs.value.find((item) => item.key === tabActiveKey.value)
   if (tab) {
@@ -105,13 +90,6 @@ async function reloadActivePreview(): Promise<void> {
   }
 }
 
-/**
- * 首屏：拉类型枚举 → 建 tab（每个 tab 一个查询条件）→ 载入第一个 tab 的预览。
- *
- * ⚠️ 这份枚举是**页面结构**（tab 分组）用的，不是"网格的来源"：tab 必须先于网格存在，
- * 而网格在 tab 里面 ⇒ 用不了"网格加载回来的桶"那条接缝（卡片网格也不上报桶），只能由壳拉一次。
- * `#item` 里显示的枚举（状态名）用的是值自带的元数据（`getEnumName`），不需要桶。
- */
 async function load(): Promise<void> {
   const enums: RestResult<EnumBucketsResponseBody> = await ResourceServerService.getServiceEnumerates({
     [SYSTEM_MODULE_NAME.RESOURCE_SERVER]: [{id: SYSTEM_ENUM_TYPE.CAROUSEL_TYPE_ENUM}],
@@ -130,12 +108,9 @@ async function load(): Promise<void> {
   }))
   tabActiveKey.value = tabs.value.at(0)?.key
   await reloadActivePreview()
-  // 声明里的动作要靠它刷预览（见 `carousel.home.page.ts` 的说明）
   carouselPreviewReloader.value = reloadActivePreview
 }
 
-/** 切回页面：刷当前 tab 的预览 + 当前网格（网格是异步建 tab 后才挂的，keep-alive 激活的首轮它不在场，
- *  组件内置的 `refreshOnActivate` 首次激活守卫会把唯一一次激活吞掉 ⇒ 切回刷新由页面自己兜） */
 const gridRef = ref<{fetchDataSource: () => Promise<void>}>()
 
 async function activated(): Promise<void> {

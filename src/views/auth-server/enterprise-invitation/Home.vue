@@ -26,20 +26,10 @@ defineOptions({
   name: 'AuthServerEnterpriseInvitationHome',
 })
 
-/** 表格实例（`@success` 之后刷新它） */
 const table = ref<CrudHomePageExpose<EnterpriseInvitationEntity>>()
 
-/** 展开行里那张审核表的 key：审核成功后 +1 ⇒ 重挂 ⇒ 重新取数（刷新那一行的列表） */
 const memberTableKey = ref(0)
 
-/**
- * 新增 / 编辑弹层：`@add` / `@edit` 在模板上接管 pro 的默认跳转，弹层状态留在壳里。
- *
- * ⚠️ 只记开关与记录 id（2026-09-30）：实体归**表单声明**（`createEntity` = `createEmptyForm`），
- * 编辑态由壳按 `id` 拉数据（旧版手工把整条记录 + `dayjs` 化后的过期时间塞进 `entity`，
- * 其实随后又被"按 id 拉"覆盖 ⇒ 现在直接只给 `id`，结果完全一致）；
- * 「审核类型」的 options 也由声明的 `enumRef` 自己拉 ⇒ `auditTypeOptions` 退役。
- */
 const form = ref<{open: boolean; id?: number}>({open: false})
 
 function openForm(record?: EnterpriseInvitationEntity): void {
@@ -97,7 +87,6 @@ function openForm(record?: EnterpriseInvitationEntity): void {
         @success="table?.fetchDataSource()"
       />
 
-      <!-- 审核弹层：与成员管理页共用一份（状态在成员声明里）。审核完把展开行里的表换个 key 重挂 ⇒ 重新取数 -->
       <l-enterprise-member-audit-modal
         v-if="enterpriseMemberAudit.open"
         @success="memberTableKey += 1"

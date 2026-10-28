@@ -4,9 +4,6 @@ import type {XRequestCallbacks} from '@antdv-next/x-sdk/x-request'
 import {HTTP} from '@/constants'
 import {buildAuthHeaders} from '@/requests'
 
-/**
- * SSE 消费依赖 XRequest / 浏览器头，留在管理端。
- */
 export class AgentService extends AgentClient {
   static loadStream(
     assistantMessageId: number,

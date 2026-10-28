@@ -144,7 +144,6 @@ const doAuth = async (): Promise<void> => {
       return
     }
     socketStore.ensureConnected()
-    // 登录后按当前用户重建路由表并加载菜单，再跳转，避免跳过去时功能路由还没装配
     await bootStore.rebuild()
     globalProperties.$router.push('/')
     accountLoginCaptchaRef.value.captchaToken = undefined

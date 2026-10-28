@@ -11,7 +11,6 @@ import {defineSearchProps, renderIconFont} from '@/utils'
 import {MESSAGE_SERVER_SMS_ROUTE} from '@/constants'
 import {smsCore} from './sms.page'
 
-/** 工具栏的三个跳转（旧表 `actionButtons`）：发短信 / 模板 / 签名 */
 function goSend(): void {
   void router.push({name: MESSAGE_SERVER_SMS_ROUTE.SEND})
 }
@@ -24,18 +23,6 @@ function goSign(): void {
   void router.push({name: MESSAGE_SERVER_SMS_ROUTE.SIGN})
 }
 
-/**
- * 短信消息列表（`Home.vue`）。核心在 `sms.page.ts`，这里只写列表形态。
- *
- * 照抄旧 `SmsTable.vue` 的 9 列（含每列的搜索组件与表达式）：
- * - 渠道 / 类型 / 状态三个下拉都是**多选**（`mode: 'multiple'` + `maxTagCount: 2`，表达式 `eq`）；
- * - 状态列**统一用 pro 的 `executeStatusCell()`**（状态点 + 状态名；失败且有 `exception` 时整块套 tooltip）；
- * - 重试次数显示 `重试 / 上限`（旧表 `{{ retryCount }} / {{ maxRetryCount }}`）；
- * - 三个时间列的 `format: 'dateTime'` 写在核心字典里。
- *
- * 嵌入用法（`batch/Detail` 的子表）在壳上给 `:record-actions="false"` / `:row-selection="false"`
- * / `:title="false"` + `plain`，等价旧组件的 `preview`。
- */
 export const smsHomePage = defineHomePage<SmsMessageEntity>(smsCore, {
   authority: {
     detail: MESSAGE_SERVER_SMS_AUTHORITY.GET,
@@ -89,7 +76,6 @@ export const smsHomePage = defineHomePage<SmsMessageEntity>(smsCore, {
       key: 'retryCount',
       width: 80,
       ellipsis: true,
-      // 旧表显示的是"重试次数 / 上限"（`maxRetryCount` 不是列 key，所以用 render 拼）
       render: (_value, record) => `${record.retryCount ?? ''} / ${record.maxRetryCount ?? ''}`,
     },
     {key: 'retryTime', width: 210, ellipsis: true},

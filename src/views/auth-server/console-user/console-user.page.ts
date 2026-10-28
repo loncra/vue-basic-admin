@@ -10,10 +10,6 @@ import {
 
 const consoleUserService = new ConsoleUserService()
 
-/**
- * 控制台用户的**核心**：三种形态共用，只写一次。
- * 形态内容在 `console-user.home.page.ts` / `console-user.form.page.ts` / `console-user.detail.page.ts`。
- */
 export const consoleUserCore: CrudPageCore<ConsoleUserSavePayload, ConsoleUserEntity> = {
   service: consoleUserService,
   i18nPrefix: 'authServer.consoleUser',
@@ -25,7 +21,6 @@ export const consoleUserCore: CrudPageCore<ConsoleUserSavePayload, ConsoleUserEn
   },
   operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.CONSOLE_USER,
 
-  /** 字段字典：labelKey / format / enumRef 只写一次，三种形态共用 */
   fields: {
     id: {labelKey: 'common.id'},
     realName: {labelKey: 'common.realName'},

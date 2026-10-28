@@ -2,7 +2,6 @@ import type {RouteRecordRaw} from 'vue-router'
 import {AI_SERVER_MODEL_SETTING_ROUTE} from '@/constants'
 import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
-/** AI 模型配置相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/ai-server/model/setting',

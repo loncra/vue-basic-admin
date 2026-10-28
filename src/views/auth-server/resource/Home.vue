@@ -7,11 +7,6 @@ import {ResourceService} from '@loncra/client/auth'
 import {CrudHomePage} from '@loncra/antdv-pro'
 import {resourceHomePage} from './resource.home.page'
 
-/**
- * 资源列表页薄壳。
- * 列、搜索、行操作、权限、插件行不可选都在声明（resource.page.ts）里；
- * 这里只处理「树拖拽排序」这个需要调接口、声明管不到的提交动作。
- */
 defineOptions({
   name: 'AuthServerResourceHome',
 })

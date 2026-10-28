@@ -1,18 +1,3 @@
-/**
- * 宿主的**配置**（就这一处）：
- * - **antdv 那半**：pro 的配置实例（`createAntdvConfig`）—— 主题模式 / 语言 / 组件尺寸 /
- *   token 覆盖 / formLayout / detailLayout。pro 只持内存状态（一台机器 N 个用户 ⇒ pro 不知道
- *   "按谁存"），初值读取、写回、`<html data-theme>`、i18n / dayjs 同步都是这里的宿主接线；
- * - **布局偏好**：首页侧边栏宽度 / 折叠宽度 / 可折叠 / 屏幕断点；
- * - **业务偏好**：创建成功后的去向、message / notification 配置。
- *
- * 前两半原来分在 `@/stores/antdvConfig` + 本文件两个文件里，2026-09-22 收紧到一处：
- * 它们都是"应用级、per-user 的配置"、都由 `App.vue` 引导，激活时机一致（首次 `useStore()`）。
- *
- * ⚠️ 取"**算好的 token 表**"走 `getToken()`（内部就是 antdv 的 `theme.useToken()`，由
- * `<provider :theme="antdv.themeConfig">` 驱动）；`antdv.state.token` 只是**用户改过的
- * 覆盖项**（`AntdvTokenOverrides`，标量白名单），别当 token 表用。
- */
 import {computed, type ComputedRef, markRaw, onMounted, onUnmounted, ref, watch} from 'vue'
 import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
@@ -37,7 +22,6 @@ const DEFAULTS: ConfigProviderStoredState = {
 }
 
 
-/** 先读新键；没有就**从老键迁一次**（老版本的 JSON 里这些字段就在同一份里） */
 function readStored(): Partial<ConfigProviderStoredState> {
   try {
     const raw = localStorage.getItem(LEGACY_KEY)
@@ -48,19 +32,9 @@ function readStored(): Partial<ConfigProviderStoredState> {
 }
 
 export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () => {
-  // #region antdv 配置实例（pro 的 `AntdvConfig`）+ 宿主接线
 
-  /**
-   * 唯一那份配置实例（`App.vue` 喂给 `LProvider`，pro 内部 `useAntdvConfig()` 拿到的就是它）。
-   *
-   * ⚠️ `markRaw` 不能省：pinia 会把 store 里的对象**深度 reactive 化**，那会把 `theme` /
-   * `themeConfig` 这两个 computed **解包掉**（类型也不再是 `AntdvConfig`）⇒ `LProvider` 与
-   * pro 的 `useAntdvConfig()` 都取不到 ref。实例内部的 `state` 本来就是 reactive，
-   * 所以读 `store.antdv.state.x` 一样响应式；`theme` / `themeConfig` 要写 `.value`。
-   */
   const antdv = markRaw(createAntdvConfig(readStored()))
 
-  // 存回：`state` 全是"输入"，整份写
   watch(
     antdv.state,
     (state) => {
@@ -69,7 +43,6 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     {deep: true},
   )
 
-  // `<html data-theme>`：启动骨架 / 依赖 CSS 变量的样式靠它适配明暗（pro 不碰 DOM）
   watch(
     antdv.theme,
     (resolved) => {
@@ -78,7 +51,6 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     {immediate: true},
   )
 
-  // 语言：配置一改就同步 vue-i18n 与 dayjs（pro 不引 vue-i18n）
   watch(
     () => antdv.state.locale,
     (locale) => {
@@ -91,31 +63,18 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     {immediate: true},
   )
 
-  /**
-   * `LProvider :locale-message` 的内容 = **pro 语言包 + antd 语言包**（都按当前语言）。
-   *
-   * ⚠️ **只给 antd 的包是不够的**：pro 组件的内部文案走 `useLocale('X')`，它是拿「XProvider 的
-   * `locale`」里的**同名段**去覆盖 pro 自己的 zh 兜底包（`@loncra/antdv/src/_util/useLocale.ts`）
-   * ⇒ 宿主若只喂 antd 的包（里面只有 `Select` / `Table` / `DatePicker`… ✗，没有 `Crud` / `FileEditor`
-   * / `AttachmentUpload` / `UserSelect` / `SystemUserPanel` / `ConfigProviderSetting` ✗）⇒ **永远回落中文**
-   * ⇒ 切英文时列表工具条（搜索 / 重置 / 新增…）/ 设置面板 / 文件编辑器仍是中文 ✗（2026-09-29 查明）。
-   * antd 在后 = 同名段 antd 优先 ✓。
-   */
   function antdvLocaleMessage(): object | undefined {
     const messages = i18n.global.messages.value as Record<string, LanguagePack>
     const antDesign = messages[antdv.state.locale]?.antDesign as object | undefined
     return {...proLocaleOf(antdv.state.locale), ...antDesign}
   }
 
-  // #endregion
 
-  // Ant Design 的 token：**视图值**（间距、尺寸），不是状态 —— 页面用它算 spacing/尺寸
   const {useToken} = theme
   const {token} = useToken()
 
   const state = ref<ConfigProviderState>($reset())
 
-  /** 按当前窗口宽度算屏幕断点（宽度取自 antdv token 的断点值） */
   function calculateScreenBreakpoint(width: number): NameValueEnumMetadata<number> {
     const currentToken = token.value
     const breakpoints: NameValueEnumMetadata<number>[] = [
@@ -146,7 +105,6 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     state.value.homeCollapsible = isPadScreen()
   }
 
-  /** Ant Design 的 token 表（视图值；要单个键就用 `getToken()` 自己取） */
   const getToken: ComputedRef<() => typeof token.value> = computed(() => () => token.value)
 
   function setHomeSiderWidth(width: number): void {
@@ -169,7 +127,6 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
     saveLocalStorage()
   }
 
-  /** 高亮文本中的指定内容（列表搜索命中项那类展示） */
   function highlightedText(text: string = '', replace: string = ''): string {
     const regex = new RegExp(`(${replace})`, 'gi')
     return (
@@ -183,7 +140,6 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
   }
 
   function saveLocalStorage(): void {
-    // `state.value` 的类型是深层解包过的，直接标注会触发 TS 的深度实例化限制 ⇒ 这里按"要存的形状"取一次
     const current = state.value as ConfigProviderStoredState
     const storedValue: ConfigProviderStoredState = {
       homeSiderWidth: current.homeSiderWidth,
@@ -222,27 +178,19 @@ export const useConfigProviderStore = defineStore(STORE.CONFIG_PROVIDER_ID, () =
 
   onUnmounted(() => window.removeEventListener('resize', handleResize))
 
-  // 初始化时把状态写回新键：老键里的布局项借此完成迁移，之后两边各写各的
   saveLocalStorage()
 
   return {
-    /** antdv 配置实例：喂 `LProvider :antdv-config`；宿主里读它的 `state` / `theme` / `themeConfig` */
     antdv,
-    /** antdv 的 locale 对象（喂 `LProvider :locale-message`；宿主的 i18n 决定） */
     antdvLocaleMessage,
-    /** 响应式状态对象 */
     state,
-    /** Ant Design 的 token（视图值） */
     getToken,
-    /** 是否窄屏（平板/手机） */
     isPadScreen,
     setHomeSiderWidth,
     setHomeCollapsedWidth,
     setHomeCollapsible,
     setCreateSuccessBack,
-    /** 高亮文本中的指定内容 */
     highlightedText,
-    /** 重置状态为初始值 */
     $reset,
   }
 })

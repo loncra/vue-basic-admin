@@ -14,12 +14,6 @@ import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
 import {consoleUserCore} from './console-user.page'
 import {consoleUserFormPage} from './console-user.form.page'
 
-/**
- * 控制台用户表单的**薄壳**。
- * 字段、校验、编辑态禁用、重置都在声明（`console-user.form.page.ts`）里；
- * 这里留声明管不到的三块：分隔标题、两个内嵌选择器、备注（默认插槽里，位置与旧页面一致），
- * 外加标题（旧 `titleText`）与主键（pro 的壳不认路由）。
- */
 defineOptions({
   name: 'AuthServerConsoleUserForm',
 })
@@ -27,26 +21,19 @@ defineOptions({
 const formRef = ref<{entity?: ConsoleUserSavePayload}>()
 const {id} = useRequiredQuery(['id'], {required: false})
 
-/** 两个选择器的固定查询：只列启用的、且支持控制台登录的 */
 const roleQuery = {
   'filter_[enabled_eq]': '1',
   'filter_[sources_jin]': AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE,
 }
 const resourceQuery = {...roleQuery}
 
-/** 标题：编辑态带真实姓名（与旧 `titleText` 一致） */
 useEntityPageTitle(() => (formRef.value?.entity?.id ? formRef.value?.entity?.realName : undefined))
 
-/** 保存成功后的去向（编辑回列表 / 新增按偏好；关 tab + 记住偏好）—— pro 的壳只 emit('success') */
 const {onSuccess, onStale, formKey} = useFormSuccessBack({
   redirect: consoleUserCore.routes?.home,
   entity: () => formRef.value?.entity,
 })
 
-/**
- * 勾了角色，把它带的资源也一并勾上（旧实现的行为，别丢）。
- * 实体来自表单壳的默认插槽，所以写成工厂：模板里 `roleSelection(entity)`。
- */
 function roleSelection(entity: ConsoleUserSavePayload) {
   const onChange: NonNullable<TableProps['rowSelection']>['onChange'] = (_selectedRowKeys, selectedRows) => {
     const roles = selectedRows as RoleEntity[]

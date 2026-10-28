@@ -9,21 +9,8 @@ import type {SiteMessageEntity} from '@loncra/client/message'
 import {getEnumName, getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {siteCore} from './site.page'
 
-/** `a-descriptions` 的响应式列数（照抄旧页面 `Detail.vue`） */
 const COLUMN = {xxxl: 3, xxl: 3, xl: 3, lg: 1, md: 1, sm: 1, xs: 1}
 
-/**
- * 站内信详情（`Detail.vue`）。核心在 `site.page.ts`，这里只写详情形态。
- *
- * 五处照旧（都是旧页面的原样行为）：
- * - `type` / `pushable` 在核心字典里写 `format: 'enum'`（= `getEnumName`）⇒ 不手写 `format`；
- * - **`executeStatus` 一律 `render: executeStatusCell()`**（状态点 + 状态名，全仓规矩，与列表同款）；
- * - `pushable` 可推送时后面括注推送渠道（`channels.map(getEnumName).join(', ')`）；
- * - 收件人后面括注姓名（`metadata.toPrincipal.name`）；
- * - 正文是 HTML（旧页面 `v-html`）⇒ 这里用 `innerHTML`；
- * - 封面 / 附件都用 pro 的 `AttachmentUpload` 只读预览（封面是 `picture-card` 那一套外观，
- *   连 `classes` 的尺寸配方一起照抄）。
- */
 export const siteDetailPage = defineDetailPage(siteCore, {
   column: COLUMN,
   fields: [
@@ -80,7 +67,6 @@ export const siteDetailPage = defineDetailPage(siteCore, {
     {
       key: 'content',
       span: 'filled',
-      // 照抄旧页面的 `v-html`：正文本身是 HTML（站内信内容），这里不做转义
       render: (value) => h('div', {innerHTML: String(value ?? '')}),
     },
     {

@@ -7,14 +7,6 @@ import router from '@/routers'
 
 const authenticationAuditEventService = new AuthenticationAuditEventService()
 
-/**
- * 认证事件的**核心**：service / i18nPrefix / routes / 字段字典只写一次。
- * 列表形态在 `authentication.home.page.ts`。
- *
- * - 字段字典只收**实体自身的字段**：`data.details.requestDetails.*` 那些是**路径列**（不是实体字段），
- *   `labelKey` 只能留在列上（字典按实体字段名索引）。
- * - 详情要带 `after` ⇒ page 级 `onNavigate`（全局兜底只会拼 `{id}`）。
- */
 export const authenticationCore: CrudPageCore<AuditEventEntity, AuditEventEntity> = {
   service: authenticationAuditEventService,
   i18nPrefix: 'authServer.authenticationEvent',
@@ -29,7 +21,6 @@ export const authenticationCore: CrudPageCore<AuditEventEntity, AuditEventEntity
     })
   },
 
-  /** 字段字典：labelKey 只写一次 */
   fields: {
     timestamp: {labelKey: 'authServer.lastAuthenticationTime'},
     principal: {labelKey: 'auth.account'},

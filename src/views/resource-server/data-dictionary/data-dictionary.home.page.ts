@@ -4,15 +4,10 @@ import {RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY} from '@loncra/client/resource
 import {defineSearchProps} from '@/utils'
 import {dataDictionaryCore} from './data-dictionary.page'
 
-/**
- * 没选字典类型时右表本来就是空的，新增 / 批量删除没有意义 ⇒
- * 按"查询里有没有 `type_id` 条件"决定显不显示（条件由 `Home.vue` 按外层传进来的 `typeId` 写）。
- */
 function hasTypeFilter(ctx: {query?: unknown}): boolean {
   return Boolean((ctx.query as Record<string, unknown> | undefined)?.['filter_[type_id_eq]'])
 }
 
-/** 字典数据列表（`Home.vue`）。核心在 `data-dictionary.page.ts`，这里只写列表形态。 */
 export const dataDictionaryHomePage = defineHomePage<DataDictionarySavePayload, DataDictionaryEntity>(
   dataDictionaryCore,
   {
@@ -23,7 +18,6 @@ export const dataDictionaryHomePage = defineHomePage<DataDictionarySavePayload, 
       detail: RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY.GET,
     },
     rowSelection: {fixed: true, type: 'checkbox'},
-    /** 拖拽幽灵 = 名称（这一侧一直可拖，旧实现就没按权限关） */
     drag: (record) => record.name,
     columns: [
       {key: 'name', search: defineSearchProps('input')},
@@ -32,7 +26,6 @@ export const dataDictionaryHomePage = defineHomePage<DataDictionarySavePayload, 
       {key: 'level', search: defineSearchProps('input')},
       {key: 'enabled', search: defineSearchProps('select')},
     ],
-    /** 同 id 覆盖默认动作的 `visible`（`add` / `deleteSelected` 都只在有类型过滤时出现） */
     toolbarActions: [
       {id: 'add', visible: hasTypeFilter},
       {id: 'deleteSelected', visible: hasTypeFilter},

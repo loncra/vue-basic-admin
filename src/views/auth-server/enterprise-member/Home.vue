@@ -10,13 +10,6 @@ import {
   enterpriseMemberInvitation,
 } from './enterprise-member.home.page'
 
-/**
- * 企业成员列表页薄壳：列、搜索、枚举来源、动作（编辑 / 删除 / 重置密码 / 邀请）、跳转都在声明里；
- * 这里只剩两件宿主的事 —— 两个弹层（发起邀请、审核成员）。
- *
- * ⚠️ 邀请弹层的 `auditTypeOptions` 已经删了（2026-09-30）：那个下拉的 options 现在由**表单声明的
- * `enumRef`** 自己拉，不用宿主再把列表的桶算好递进去。
- */
 defineOptions({
   name: 'AuthServerEnterpriseMemberHome',
 })

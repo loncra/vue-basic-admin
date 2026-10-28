@@ -5,19 +5,11 @@ import type {CrudPageCore} from '@loncra/antdv-pro'
 
 const smsTemplateService = new SmsTemplateService('alibabaCloud')
 
-/**
- * 短信模板的**核心**：service / i18nPrefix / 字段字典只写一次。
- * 列表形态在 `template.home.page.ts`。
- *
- * 与签名页同构：**没有 detail 路由** ⇒ 不写 `routes.detail`。
- */
 export const templateCore: CrudPageCore<SmsTemplateEntity, SmsTemplateEntity> = {
   service: smsTemplateService,
   i18nPrefix: 'messageServer.smsTemplate',
 
-  /** 字段字典：labelKey / format / enumRef 只写一次 */
   fields: {
-    // 渠道：后端 `CloudChannelEnum`（resource-server）
     channel: {
       labelKey: 'common.channel',
       format: 'enum',
@@ -29,7 +21,6 @@ export const templateCore: CrudPageCore<SmsTemplateEntity, SmsTemplateEntity> = 
     creationTime: {labelKey: 'common.creationTime'},
     id: {labelKey: 'common.code'},
     name: {labelKey: 'common.name'},
-    // 模板类型：后端 `MessageTypeEnum`（message-server）
     type: {
       labelKey: 'common.type',
       format: 'enum',
@@ -39,7 +30,6 @@ export const templateCore: CrudPageCore<SmsTemplateEntity, SmsTemplateEntity> = 
       },
     },
     content: {labelKey: 'common.content'},
-    // 审核状态：后端 `AuditStatusEnum`（resource-server）
     status: {
       labelKey: 'common.status',
       format: 'enum',

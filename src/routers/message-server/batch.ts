@@ -2,7 +2,6 @@ import type {RouteRecordRaw} from 'vue-router'
 import {MESSAGE_SERVER_BATCH_ROUTE} from '@/constants'
 import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
-/** 批量消息相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/message-server/batch',

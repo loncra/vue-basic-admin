@@ -1,9 +1,6 @@
 import type {BatchResponse} from '@loncra/client/message'
 import type {Router} from 'vue-router'
 
-/**
- * 发送成功后按单条/批量结果跳转列表或批次明细
- */
 export function navigateAfterMessageSend(
   router: Router,
   data: unknown,

@@ -6,7 +6,6 @@ import {createAxiosHttpClient} from '@loncra/client/adapters/axios'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import type {CrudNavigateTarget} from '@loncra/antdv-pro'
 import {Provider} from '@loncra/antdv-chat-pro'
-// `VNodeChild` 取**包的类型视野**（两份 vue 副本的 d.ts 互不兼容，运行期是同一份 vue）
 import type {VNodeChild} from '@loncra/antdv'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
@@ -26,26 +25,22 @@ const bootStore = useBootstrapStore()
 const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
 const router = globalProperties.$router
 
-// 地址栏回车时的原始地址：首次导航发生在路由装配之前，装配完成后要补跳一次
 const initialHref = location.pathname + location.search + location.hash
 
 onMounted(async () => {
   const ok = await bootStore.run()
   if (!ok) {
-    return // 失败时骨架保留，展示错误 + 重试
+    return
   }
-  // 先完成首次导航（目标页面已渲染），再移除骨架，避免中间露出空白
   await router.replace(initialHref)
   window.__boot?.remove()
 })
 
-// ===== 客户端（HTTP / 运行时）配置：在此构建，交给 Provider =====
 const http = createAxiosHttpClient(axios)
 const runtimeMode = import.meta.env.VITE_APP_RUNTIME_MODE
 const resourcePath = import.meta.env.VITE_APP_RESOURCE_PATH
 const uploadBlockSize = Number(import.meta.env.VITE_APP_UPLOAD_BLOCK_SIZE)
 
-/** antdv 的 locale 对象（跟着宿主的 i18n 走；`antdvConfig.state.locale` 一变就重算） */
 const localeMessage = computed(() => configProviderStore.antdvLocaleMessage())
 
 function getAccessToken(): string | null {
@@ -60,18 +55,10 @@ function formValueConvert(_key: string, value: unknown) {
   return convertFormUrlencoded(value)
 }
 
-/** 列表/表单/详情的**默认**文案解析：声明层给了 `i18nResolver` 就优先用声明层的，这里只是兜底 */
 function i18nResolver(key: string, named?: Record<string, unknown>) {
   return i18n.global.t(key, named as never)
 }
 
-/**
- * **显示**用日期格式（后端要的格式是 `VITE_APP_POST_*`，两回事）。
- *
- * pro 的 `useDateFormat()` 与声明里的 `format: 'date' | 'dateTime'` 都读 `CrudConfig` 的这两个值；
- * 不传就退回 pro 的默认 `YYYY-MM-DD` / `YYYY-MM-DD HH:mm:ss` —— 以前就是没传，
- * 于是所有 pro 表格/详情都按 ISO 显示，跟 env 里写的「YYYY年MM月DD日」对不上（宿主的声明自己也用 env 那个格式）。
- */
 const dateFormat = import.meta.env.VITE_APP_DATE_VALUE_FORMAT
 const dateTimeFormat = import.meta.env.VITE_APP_DATE_TIME_VALUE_FORMAT
 
@@ -79,29 +66,15 @@ function hasPermission(permission: string) {
   return principalStore.hasPermission(permission)
 }
 
-/**
- * 列表页默认标题（面包屑）：**在这里拼成 VNode**交给 pro（pro 不关心里面是图标还是文字）。
- *
- * 两次 `as` 是"两份 vue 副本"的代价：`renderIconFont` 的返回按**包视野**声明（pro 的动作类型吃它），
- * 喂给宿主的 `h` 时要当宿主 VNode 用，整体结果再按包视野交出去 —— 运行期是同一份 vue（vite 已 dedupe）。
- */
 function resolveDefaultTitle(): VNodeChild {
   const crumb = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
   const icon = renderIconFont(crumb?.icon ?? 'loncra-file', 'align') as unknown as VNode
-  // ⚠️ 给**组件**（这里 `Space`）传 children 必须走 slots：直接传数组会被 Vue 当成"非函数 default 槽"，
-  // 每次重渲染 warn 一次（卡片标题 → 每个列表页都刷）。`{default: () => [...]}` 才是对的。
   return h(Space, null, {
     default: () => [icon, h('span', crumb?.name ?? '')],
   }) as unknown as VNodeChild
 }
 
-/**
- * 列表页的跳转**兜底**：页面声明（`CrudPageCore.onNavigate`）没给实现时才用它。
- * 约定：编辑 / 详情带 `id`（`BasicIdMetadata.id` 是可选的，要判空）；
- * 内嵌列表（variant 不是整页）不动。
- */
 function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
-  // 兜底只服务整页列表：宿主给了形态名（如 'picker'）说明是内嵌场景，不跳
   if (!name || variant != null) {
     return
   }

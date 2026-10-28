@@ -1,4 +1,3 @@
-/** Agent 点名：TRIGGER 开弹层；MCP/SKILL 写入 instruction 槽 prefix */
 export const AGENT_INSTRUCTION_PREFIX = {
   TRIGGER: '/',
   MCP: '/mcp',

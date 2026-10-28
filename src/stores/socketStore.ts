@@ -111,9 +111,6 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     socket.value = instance
   }
 
-  /**
-   * 幂等连接：有 token 且未连接或 token 变更则建连
-   */
   function ensureConnected(): void {
     const token = principalStore.state.details?.token?.value
     if (!token) {
@@ -136,9 +133,6 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     createSocketInstance(token)
   }
 
-  /**
-   * 断开 Socket 连接，保留 handler registry
-   */
   function disconnect(): void {
     destroySocketInstance()
     connected.value = false

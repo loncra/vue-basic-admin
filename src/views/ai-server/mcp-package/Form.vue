@@ -10,7 +10,6 @@ import {AI_SERVER_MCP_CLIENT_TYPE, MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/cli
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {KeyValueTable} from '@loncra/antdv'
 import {CrudFormPage} from '@loncra/antdv-pro'
-/** 三张键值表的行数据是宿主扩展字段（不是后端字段）⇒ 模板里在这个类型上取/写 */
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
 import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyTable.vue'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
@@ -21,18 +20,6 @@ import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {mcpPackageCore} from './mcp-package.page'
 import {mcpPackageFormPage} from './mcp-package.form.page'
 
-/**
- * MCP 包新增/编辑页薄壳：12 个字段、校验、初值、枚举来源、组合控件（图标 / 分组 / 初始化超时）
- * 以及 `preMounted` / `postGetEntity` / `preSubmit` 都在声明（`mcp-package.form.page.ts`）。
- *
- * 这里只剩：主键与标题、离场，外加**「客户端」那一大块**（旧页面它就在 `#rowLayout` 之外）——
- * 按 `metadata.client.type` 分叉的两套附表（HTTP / STDIO）+ 三张键值表 + 澄清策略表。
- * 留在壳里的两个原因：① 顺序与旧页面一致（声明里的字段会全部排在插槽之前）；
- * ② 都是宿主组件，且声明侧的 `preSubmit` 要靠它们 `confirmAllEditingRows()` 的 ref（走 `contextExtra`）。
- *
- * 这一块要的三份枚举（时间单位 / 客户端类型 / 是否）**从槽作用域的 `buckets` 取** —— 与声明里
- * `enums` 拉的是同一份结果（一处加载，两处消费）⇒ 壳里不另发请求，声明也不必导出模块级 ref。
- */
 defineOptions({
   name: 'AiServerMcpPackageForm',
 })
@@ -43,7 +30,6 @@ const {id} = useRequiredQuery(['id'], {required: false})
 
 const configProviderStore = useConfigProviderStore()
 
-/** 三张键值表：`preSubmit` 里要先把"正在编辑"的行确认掉，再摊回 `metadata.client` */
 const headerTableRef = ref<{confirmAllEditingRows: () => void}>()
 const queryParamTableRef = ref<{confirmAllEditingRows: () => void}>()
 const envTableRef = ref<{confirmAllEditingRows: () => void}>()
@@ -54,25 +40,17 @@ function confirmKeyValueTables() {
   envTableRef.value?.confirmAllEditingRows()
 }
 
-/**
- * 分段控件的选项：值来自**槽作用域那份桶**（`CrudFormPageSlots.default` 给的 `buckets`，
- * 与声明里 `enums` 拉的是同一份 ⇒ 壳里不另发请求）。
- * 桶条目值是 `string | number`，而客户端类型本身就是字符串枚举 ⇒ 这里收成字符串，
- * 分段控件的 `v-model` 才与实体的声明类型对得上。
- */
 function clientTypeOptions(buckets: EnumBucketsResponseBody | undefined) {
   return (
     buckets?.[SYSTEM_MODULE_NAME.AI_SERVER]?.[SYSTEM_ENUM_TYPE.MCP_CLIENT_TYPE_ENUM] ?? []
   ).map((item) => ({label: item.name, value: String(item.value)}))
 }
 
-/** 标题：旧 `title-text` 是 `标题 (包名)`，新增态只给基标题 */
 useEntityPageTitle(() => {
   const entity = formRef.value?.entity
   return entity?.id ? entity.name : undefined
 })
 
-/** 保存成功后的去向（旧页面 `:redirect="{name: MCP_PACKAGE_ROUTE.HOME}"`） */
 const {onSuccess, onStale, formKey} = useFormSuccessBack({
   redirect: mcpPackageCore.routes?.home,
   entity: () => formRef.value?.entity,
@@ -89,7 +67,6 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
     @success="onSuccess"
     @stale="onStale"
   >
-    <!-- 字段行之后（旧页面同一顺序） -->
     <template #default="{entity, buckets}">
       <a-divider class="m-0 mb-md" title-placement="start" plain>
         <a-space>

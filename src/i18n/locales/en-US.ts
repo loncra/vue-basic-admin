@@ -177,11 +177,6 @@ const locale: LanguagePack = {
       },
     },
   },
-  /**
-   * Host-only copy. The settings panel's remaining copy (colors / sizes / fonts / line heights /
-   * shadows / opacity…) comes from `@loncra/antdv-pro`'s `ConfigProviderSetting` locale
-   * (see its `src/locale/en_US.ts`) — the host no longer keeps a copy.
-   */
   systemSetting: {
     createSuccessBack: 'After creating a record',
     home: {

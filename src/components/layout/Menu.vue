@@ -71,7 +71,6 @@ const collapsedAndSelectedMenu = (route: RouteLocationNormalizedLoaded) => {
   menuOptions.value.openKeys = [...new Set([...menuOptions.value.openKeys, ...openKeys])]
 }
 
-// 监听路由变化：路由变化 => 对应分段激活或追加
 watch(
   () => globalProperties.$route.fullPath,
   () => collapsedAndSelectedMenu(globalProperties.$route)

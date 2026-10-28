@@ -12,27 +12,19 @@ import {emailHomePage} from '@/views/message-server/email/email.home.page'
 import {batchCore} from './batch.page'
 import {BATCH_MESSAGE_TYPE, batchDetailPage} from './batch.detail.page'
 
-/**
- * 批量消息详情页薄壳：字段、标签、枚举显示、`count` 的拼装、已读数都在声明
- * （`batch.detail.page.ts` / `batch.page.ts`）；
- * 这里剩四件宿主的事 —— 主键（pro 不认路由）、标题、离场，以及 descriptions 之后那三张子表。
- */
 defineOptions({
   name: 'MessageServerBatchDetail',
 })
 
 const detailRef = ref<{entity?: BatchMessageEntity}>()
 
-/** 详情必须有 id：缺了就摆清错误字段跳 400，且**壳不挂载**；**id 由它一并带出来**（快照） */
 const {ok, id} = useRequiredQuery()
 
-/** 标题：旧 `title-text` 是 `标题 (id)` */
 useEntityPageTitle(() => {
   const entityId = detailRef.value?.entity?.id
   return entityId == null ? undefined : String(entityId)
 })
 
-/** 记录被删 ⇒ 回列表 + 关 tab（旧 `BasicDetail` 自己干的） */
 const {onStale} = usePageExit({redirect: batchCore.routes?.home})
 </script>
 
@@ -49,7 +41,6 @@ const {onStale} = usePageExit({redirect: batchCore.routes?.home})
       旧组件 `preview` 的等价物 = `:title="false"` + 不要行内动作 + 不要多选 + `plain`。
     -->
     <template #afterDescriptions="{entity}">
-      <!-- 实体到位（新增/编辑中还没 id）才挂子表 -->
       <template v-if="Number(entity.id) > 0">
         <crud-home-page
           v-if="getEnumValue(entity.type) === BATCH_MESSAGE_TYPE.SMS"

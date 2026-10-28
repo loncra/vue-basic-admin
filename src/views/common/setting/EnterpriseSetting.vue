@@ -36,10 +36,6 @@ const globalProperties =
 const principalStore = usePrincipalStore()
 const {modal} = useApp()
 
-/**
- * 弹层状态：**不再持实体**（旧壳 `v-model:entity` 那套）—— 实体归声明（`createEntity`），
- * 而且弹层内容是**每次打开重挂载**的 ⇒ 这里只记"这一次给谁改"（`id` 用于取数，`name` 只用于标题）。
- */
 const options = ref<{
   modal:{
     open:boolean,
@@ -54,15 +50,8 @@ const options = ref<{
   loading:false
 })
 
-/** 「解散 / 退出」与弹层共用声明里那一份 service（`new` 在声明文件里，全app只有一份） */
 const service = enterpriseSettingService
 
-/**
- * 弹层标题（旧页按 `id` 有无切换，文案照抄）。
- *
- * 图标跟 pro **默认动作**那一套（`add` = `FileAddOutlined`、`edit` = `EditOutlined`，
- * 见 `packages/antdv-pro/src/_util/crud/defaultActions.ts`）—— 与字典类型那个弹层同一个口径。
- */
 const modalTitle = computed(() => {
   const current = options.value.modal
   return h(Space, null, {
@@ -76,7 +65,6 @@ const modalTitle = computed(() => {
 })
 
 function onSaveSuccess(data: RestResult<number | undefined>) {
-  // 关弹层（不再需要"复位实体"：内容每次打开重挂载）→ 刷 accessToken → 整页重载（旧顺序照搬）
   options.value.modal.open = false
   if (data.metadata?.accessToken) {
     const accessTokenStorageName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME

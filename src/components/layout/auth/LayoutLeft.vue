@@ -9,17 +9,8 @@ defineOptions({
 })
 
 export interface AuthLayoutLeftProps {
-  /**
-   * 标题
-   */
   title?: string
-  /**
-   * 副标题
-   */
   subTitle?: string
-  /**
-   * logo 配置
-   */
   logo?: Partial<LogoProps>
 }
 

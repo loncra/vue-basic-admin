@@ -17,7 +17,6 @@ const {message} = App.useApp()
 const table = ref<CrudHomePageExpose<SkillPackageEntity>>()
 const snapshotFormRef = ref()
 
-/** 快照提交：校验表单 → 调接口 → 提示 → 关弹层 → 刷新列表（业务留在壳里，因为表单 ref 在这儿） */
 async function onSnapshotOk(): Promise<void> {
   await snapshotFormRef.value?.validate()
   const snapshot = skillSnapshot.value

@@ -1,6 +1,5 @@
 export const MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY = "setExtraContent"
 
-/** Socket.IO 事件名 */
 export const SOCKET_EVENT_TYPE = {
   CONNECT: 'connect',
   DISCONNECT: 'disconnect',
@@ -8,7 +7,6 @@ export const SOCKET_EVENT_TYPE = {
   CONNECT_ERROR: 'connect_error',
   CONNECT_TIMEOUT: 'connect_timeout',
   CLIENT_DISCONNECT: 'client_disconnect',
-  /** 服务端推送的执行系统命令事件，payload 为 RestResult<string> */
   RUN_COMMAND: 'run_command',
   CHAT_MESSAGE: 'chat_message',
   CHAT_MESSAGE_MENTION: 'chat_message_mention',

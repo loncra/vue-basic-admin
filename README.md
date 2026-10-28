@@ -22,16 +22,16 @@ npm run type-check
 | `src/apis/` | [`@loncra/client`](../packages/client/README.md)（各后端服务的领域客户端：Service、枚举/权限/字典常量）覆盖不了的 Service 包装（现状仅两个：验证码弹层、Agent SSE） | 与 client 子路径重复的 Service |
 | `src/assets/` | 全局样式 + 静态插图 | 控件样式、页面私有样式 |
 | `src/components/` | ≥2 个 views 模块共用的全局组件 | 只服务单个模块的组件 |
-| `src/composables/` | 状态 + 副作用（`useXxx.ts`） | JSX、纯函数 |
+| `src/composables/` | 状态 + 副作用（`useXxx.ts`），用法见 [UTILITIES.md](UTILITIES.md) | JSX、纯函数 |
 | `src/constants/` | 同一语义字面量在 ≥2 个文件出现时收敛 | 只在单文件出现的字面量 |
 | `src/i18n/` | 文案与语言包合并 | 业务逻辑 |
 | `src/requests/` | 唯一 axios 实例与拦截器 | 页面私有请求封装 |
 | `src/routers/` | 路由模块与动态装配 | 静态 import 页面组件 |
 | `src/stores/` | pinia store（`xxxStore.ts`） | 页面私有状态 |
-| `src/types/`、`src/utils/` | 跨模块类型 / 纯函数 | 组件、副作用 |
+| `src/types/`、`src/utils/` | 跨模块类型 / 纯函数（用法见 [UTILITIES.md](UTILITIES.md)） | 组件、副作用 |
 | `src/views/<服务>/<模块>/` | 页面四件套 + 模块私有组件（就近放，不建 components 子目录） | 全局组件 |
 
-模块私有组件的落点优先级：模块目录 > 服务目录 > 全局；被第二个模块用到时才上提，不许复制。
+模块私有组件的落点优先级：模块目录 > 服务目录 > 全局；被第二个模块用到时才上提，不许复制。模块特有的 composable / 纯函数同理允许留在模块目录（先例：`message-server/navigateAfterMessageSend.ts`，仅 message-server 的发送流程在用）。
 
 ## 开发规范
 
@@ -72,7 +72,7 @@ npm run type-check
 
 ### 4. 状态与请求
 
-- store id 统一收在 `constants/systemConstant.ts` 的 `STORE`；启动顺序由 `bootStore` 的管线闸门管理，业务代码不复制启动状态。
+- store id 统一收在 `constants/systemConstant.ts` 的 `STORE`；启动顺序由 `bootStore` 的管线闸门管理，业务代码不复制启动状态。管线失败时也必须放行闸门（`markDone`），否则路由守卫会永久挂起；失败后启动骨架保留、展示错误与重试。
 - `src/requests/http.ts` 是唯一 axios 实例：请求拦截器统一 `buildAuthHeaders()`；业务成功判定唯一来源是 [`@loncra/client/commons`](../packages/client/src/commons/) 的实现，拦截器只调用；失败统一 `message.error` + 抛 `BusinessError`；401 统一跳登录。页面不得自建实例、不得再写一套成功判定。
 - `VITE_APP_*` 环境变量只在基础设施处读取（`http.ts`、`App.vue` 配置注入），页面组件不直接读。
 
@@ -101,7 +101,7 @@ npm run type-check
 
 ### 9. 注释与文档
 
-- 代码里不写注释；注释承载的知识（坑、约定、默认值陷阱、为什么）一律写进本文件或对应包/控件的 README。
+- 代码里不写注释；注释承载的知识（坑、约定、默认值陷阱、为什么）一律写进本文件、[UTILITIES.md](UTILITIES.md)（composables 与 utils 的唯一使用说明）或对应包/控件的 README。
 
 ### 10. 自动检查与工程配置
 

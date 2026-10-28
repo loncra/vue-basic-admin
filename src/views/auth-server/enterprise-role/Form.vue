@@ -14,11 +14,6 @@ import {
 import {enterpriseRoleCore} from './enterprise-role.page'
 import {enterpriseRoleFormPage, enterpriseRoleParent} from './enterprise-role.form.page'
 
-/**
- * 企业角色新增/编辑页薄壳。
- * 字段、校验、主键提交、addChild 的继承、重置都在声明（`enterprise-role.form.page.ts`）里；
- * 这里只剩宿主的事：主键、标题、离场，外加「独立资源」选择器（宿主自己的组件）与它的备注框。
- */
 defineOptions({
   name: 'AuthServerEnterpriseRoleForm',
 })
@@ -26,7 +21,6 @@ defineOptions({
 const formRef = ref<{entity?: EnterpriseRoleSavePayload}>()
 const {id} = useRequiredQuery(['id'], {required: false})
 
-/** 标题（旧 `setPageTitle` 三档）：addChild 带进来的父角色名优先，其次编辑态的角色名，最后只有标题 */
 useEntityPageTitle(() => {
   const parent = enterpriseRoleParent.value
   if (parent) {
@@ -35,13 +29,11 @@ useEntityPageTitle(() => {
   return formRef.value?.entity?.id ? formRef.value?.entity?.name : undefined
 })
 
-/** 保存成功后的去向（编辑回列表 / 新增按偏好；关 tab + 记住偏好）—— pro 的壳只 emit('success') */
 const {onSuccess, onStale, formKey} = useFormSuccessBack({
   redirect: enterpriseRoleCore.routes?.home,
   entity: () => formRef.value?.entity,
 })
 
-/** 资源选择器的实例：树形勾选要按它当前的 `dataSource` 找祖先 / 子节点 */
 const resourcePickerRef = ref<{dataSource?: ResourceEntity[]}>()
 </script>
 
@@ -62,7 +54,6 @@ const resourcePickerRef = ref<{dataSource?: ResourceEntity[]}>()
       </a-space>
     </a-divider>
 
-    <!-- 独立资源：pro 的资源列表声明当选择器用；取数口换成 `/resource/find/enterprise`（`fetchEnterpriseResources`） -->
     <crud-home-page
       ref="resourcePickerRef"
       class="mb-md"

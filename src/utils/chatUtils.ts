@@ -30,10 +30,6 @@ export function createUserAvatarNode(
   )
 }
 
-/**
- * 根据会话封面构建头像 VNode（多封面用 AvatarGroup，无封面回退首字母）。
- * 纯渲染函数，由会话列表 / 通知等场景复用。
- */
 export function createAvatarNode(
   cover: FileObject[],
   defaultLabel: string,
@@ -60,7 +56,6 @@ export function createAvatarNode(
   return h(Avatar, {size}, {default: () => defaultLabel.substring(0, 1)})
 }
 
-/** 会话列表最后一条消息预览 */
 export function getMessageContent(lastUserMessage: UserChatMessageEntity | undefined, conversation?:UserChatConversationResponseBody): string {
   if (!lastUserMessage) {
     return ''
@@ -105,7 +100,6 @@ export function getMessageContent(lastUserMessage: UserChatMessageEntity | undef
   return content
 }
 
-/** 会话列表草稿预览 */
 export function getDraftContent(draft: SlotConfigType[] | undefined): string {
   if (!draft?.length) {
     return ''
@@ -113,7 +107,6 @@ export function getDraftContent(draft: SlotConfigType[] | undefined): string {
   return convertSlotConfigToText(draft)
 }
 
-/** Sender 词槽 -> 纯文本 */
 export function convertSlotConfigToText(slots: SlotConfigType[]): string {
   let result = ''
   for (const slot of slots) {

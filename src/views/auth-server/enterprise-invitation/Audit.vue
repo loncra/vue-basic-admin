@@ -9,13 +9,6 @@ import {
   submitAudit,
 } from '@/views/auth-server/enterprise-member/enterprise-member.home.page.ts'
 
-/**
- * 企业成员**审核弹层**（旧 `EnterpriseMemberTable.vue` 里内联的那一段）。
- *
- * 数据与状态在声明里（`enterpriseMemberAudit` + `submitAudit`/`closeAudit`）——
- * 审核动作在声明（工具栏 / 行内），它要打开的是这里的弹层，所以状态从声明导出、壳只负责渲染。
- * 整页成员管理页与邀请页的展开行**两边都用它**（所以单独一个组件，不在壳里各抄一份）。
- */
 defineOptions({
   name: 'AuthServerEnterpriseInvitationAuditForm',
 })
@@ -23,7 +16,6 @@ defineOptions({
 const emit = defineEmits<{success: []}>()
 const {message} = App.useApp()
 
-/** 同意 / 拒绝：提交成功就提示 + 关弹层 + 让壳刷新列表（旧表 `onAudit`） */
 async function onAudit(status: number): Promise<void> {
   const resultMessage = await submitAudit(status)
   if (resultMessage == null) {

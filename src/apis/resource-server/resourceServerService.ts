@@ -6,9 +6,6 @@ import type {CaptchaToken, CaptchaTokenType, RestResult} from '@loncra/client/co
 import {loadJs} from '@/utils'
 import type {TianaiCaptchaInstance} from '../../../env'
 
-/**
- * 验证码弹层 / 点天爱依赖浏览器与 Vite env，留在管理端。
- */
 export class ResourceServerService extends ResourceServerClient {
   static async createTianaiCaptchaInstance(
     captchaToken: CaptchaToken,

@@ -20,12 +20,6 @@ export const useMessageServerStore = defineStore(STORE.MESSAGE_SERVER_ID, () => 
   const install= ref<boolean>(false)
   const state= ref<MyMessageState>({...RESET})
 
-  /**
-   * 重置菜单状态
-   * 将菜单数据重置为空数组
-   *
-   * @returns 重置后的空菜单数组
-   */
   function $reset() {
     install.value = false;
     state.value = {...RESET}

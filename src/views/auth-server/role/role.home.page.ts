@@ -9,7 +9,6 @@ import {getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineSearchProps} from '@/utils'
 import {ROLE_VARIANT, roleCore} from './role.page'
 
-/** 加子级：跳到 addChild 路由，把当前行当父级（`run` 只接线，实现放这儿） */
 function addChild(ctx: RecordActionContext<RoleEntity>): void {
   const record = ctx.record
   if (record) {
@@ -20,7 +19,6 @@ function addChild(ctx: RecordActionContext<RoleEntity>): void {
   }
 }
 
-/** 角色列表（`Home.vue`）。核心在 `role.page.ts`，这里只写列表形态。 */
 export const roleHomePage = defineHomePage<RoleSavePayload, RoleEntity>(roleCore, {
   authority: {
     add: AUTH_SERVER_ROLE_AUTHORITY.SAVE,
@@ -38,7 +36,6 @@ export const roleHomePage = defineHomePage<RoleSavePayload, RoleEntity>(roleCore
   columns: [
     {key: 'name', width: 150, search: defineSearchProps('input')},
     {key: 'authority', width: 150, search: defineSearchProps('input')},
-    // 当选择器用的时候（variant: 'picker'）不展示 sources
     {
       key: 'sources',
       width: 300,

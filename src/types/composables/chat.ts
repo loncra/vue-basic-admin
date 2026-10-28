@@ -22,12 +22,10 @@ export type {
   UndoBlock,
 } from '@loncra/chat-core'
 
-/** IM 词槽与 Agent 词槽。两边共用的文本、附件、点名在两个联合里各出现一次。 */
 export type ChatContentBlock = ImContentBlock | AgentContentBlock
 
 export type BaseChatBubble = ChatBubbleBody<ChatContentBlock>
 
-/** 一条 IM 消息、一条 Agent 消息，或一条纯文本展示行。 */
 export type ChatBubbleItem = ImChatBubble | AgentChatBubble | CoreChatBubbleItem<TextBlock>
 
 export type ActiveChatSession = CoreActiveChatSession<ChatBubbleItem>
@@ -55,7 +53,6 @@ export type {
   BubbleRenderRow,
 } from '@loncra/antdv-chat-pro'
 
-/** IM 气泡列表配置（含时间分隔间隔） */
 export type ChatBubbleListProps = BubbleListProps & {
   timeDividerGap: number
 }

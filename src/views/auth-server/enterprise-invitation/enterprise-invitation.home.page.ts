@@ -17,18 +17,12 @@ import {
   roleNamesCell,
 } from './enterprise-invitation.page'
 
-/**
- * 分享二维码弹层：动作在声明里（`share`），所以状态也从这里导出，
- * 壳（`Home.vue`）只负责把它渲出来（`v-model:open` + `:url`），不碰业务。
- */
 export const invitationShare = ref({open: false, url: ''})
 
-/** 邀请链接：站点地址 + 邀请路径 + id + 认证类型（个人） */
 function invitationUrl(id: string | number): string {
   return `${import.meta.env.VITE_APP_SITE_URL}${import.meta.env.VITE_APP_ENTERPRISE_INVITATION_PATH}/${id}?${AUTH_SERVER_AUTHENTICATION_TYPE_PARAM}=${AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL}`
 }
 
-/** 分享（行内动作）：把链接写进弹层状态 */
 function shareInvitation(ctx: RecordActionContext<EnterpriseInvitationEntity>): void {
   const record = ctx.record
   if (record?.id == null) {
@@ -37,12 +31,6 @@ function shareInvitation(ctx: RecordActionContext<EnterpriseInvitationEntity>): 
   invitationShare.value = {open: true, url: invitationUrl(record.id)}
 }
 
-/**
- * 企业邀请列表（`Home.vue`）。核心在 `enterprise-invitation.page.ts`，这里只写列表形态。
- *
- * 「审核类型」下拉的选项就是声明里的 `enums`：壳从 `crud-home-page` 暴露的 `buckets` 取，不另发请求。
- * 新增 / 编辑弹层不走路由 —— 壳在组件上绑 `@add` / `@edit` 接管 pro 的默认跳转；详情走 `routes.detail`。
- */
 export const enterpriseInvitationHomePage = defineHomePage<
   EnterpriseInvitationSavePayload,
   EnterpriseInvitationEntity
@@ -57,7 +45,6 @@ export const enterpriseInvitationHomePage = defineHomePage<
     },
     rowSelection: {fixed: true, type: 'checkbox'},
     columns: [
-      // 显示（头像 + 名称，本人那行带「(我)」）来自核心字典的 `format: {name: 'principalName', args: {self: true}}`
       {key: 'member', width: 250, ellipsis: true},
       {key: 'status', width: 120, ellipsis: true, search: defineSearchProps('select')},
       {key: 'auditType', width: 120, ellipsis: true, search: defineSearchProps('select')},

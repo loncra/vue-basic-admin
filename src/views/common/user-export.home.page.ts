@@ -11,7 +11,6 @@ import i18n from '@/i18n'
 import {defineSearchProps, renderIconFont} from '@/utils'
 import {userExportCore} from './user-export.page'
 
-/** 单行下载：当前行有附件就下载（后端没给 bucket / object 就什么都不做） */
 function downloadFile(ctx: RecordActionContext<ExportDataMetadata>): void {
   const data = ctx.record?.metadata?.data as FileObject | undefined
   if (!data?.bucketName || !data.objectName) {
@@ -20,7 +19,6 @@ function downloadFile(ctx: RecordActionContext<ExportDataMetadata>): void {
   AttachmentService.download(data.bucketName, data.objectName)
 }
 
-/** 批量下载：只下执行成功的那些（其余后端还没有可下载的文件） */
 function downloadSelectedFiles(ctx: ToolbarActionContext<ExportDataMetadata>): void {
   const files: FileObject[] = ctx.selectedItems
     .filter((item) => item.executeStatus.value === EXECUTE_STATUS_TYPE.SUCCESS)
@@ -29,12 +27,6 @@ function downloadSelectedFiles(ctx: ToolbarActionContext<ExportDataMetadata>): v
   AttachmentService.downloads(files)
 }
 
-/**
- * 我的导出（`UserExport.vue`，非 Home 路由但同形）。核心在 `user-export.page.ts`，这里只写列表形态。
- *
- * 单行下载 / 批量下载都是**本业务自己的动作**（pro 只预置 add / deleteSelected），
- * 批量下载读 `ctx.selectedItems`，不需要页面壳喂选择态。
- */
 export const userExportHomePage = defineHomePage<ExportDataMetadata, ExportDataMetadata>(
   userExportCore,
   {
@@ -45,7 +37,6 @@ export const userExportHomePage = defineHomePage<ExportDataMetadata, ExportDataM
       {key: 'filename', width: 400},
       {key: 'type', width: 120, search: defineSearchProps('select')},
       {key: 'size', width: 150, format: 'byte'},
-      // 状态点 + 状态名：全仓规矩 —— executeStatus 不分形态都用 `executeStatusCell()`
       {key: 'executeStatus', width: 210, render: executeStatusCell(), search: defineSearchProps('select')},
       {key: 'successTime', width: 210, format: 'dateTime'},
       {key: 'expiresTime', width: 210, format: 'dateTime'},

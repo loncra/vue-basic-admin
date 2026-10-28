@@ -2,7 +2,6 @@ import type {RouteRecordRaw} from 'vue-router'
 import {AUTH_SERVER_PERSONAL_USER_ROUTE} from '@/constants'
 import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
-/** 个人用户管理相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/auth-server/user/personal',

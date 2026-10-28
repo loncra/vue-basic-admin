@@ -5,14 +5,6 @@ import {getEnumValue} from '@loncra/client/commons'
 import {defineSearchProps} from '@/utils'
 import {signCore} from './sign.page'
 
-/**
- * 短信签名列表（`Home.vue`）。核心在 `sign.page.ts`，这里只写列表形态。
- *
- * - 搜索项只有 `channel` / `status` 两个枚举下拉（桶由本页 `enums` 预载）；
- *   `format` 与 `enumRef` 在核心的字段字典里（值自带 `{name, value}`）。
- * - `auditionTime` 只在 `alibabaCloud` 渠道显示审核日期，其余显示空 ⇒ 必须**显式返回 `''`**
- *   （render 返回 `undefined` 表示不认领，会回落成表格原始值，显示就变了）。
- */
 export const signHomePage = defineHomePage<SmsSignEntity, SmsSignEntity>(signCore, {
   authority: {detail: MESSAGE_SERVER_SMS_SIGN_AUTHORITY.GET},
   columns: [

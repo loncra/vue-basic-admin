@@ -44,7 +44,6 @@ const isFullscreenExiting = ref(false)
 const routeCacheVersions = ref<Record<string, number>>({})
 const panes = ref<RouteResourceMetadata[]>([])
 
-/** 用户手动固定的标签页（路由 name 集合），持久化到 localStorage */
 const pinnedRouteNames = ref<RouteResourceMetadata[]>([])
 const fixedRouteNames = ref<Set<string>>(new Set())
 
@@ -61,7 +60,6 @@ const operateItems = ref<MenuItemType[]>([
   },
 ])
 
-/** 每次打开右键菜单要先剔掉这两项（pin/unpin 按当前标签状态再插入）；单独列出，避免在回调里推断大联合类型 */
 const HIDDEN_OPERATE_KEYS: string[] = ['unpin', 'pin']
 
 provide(APP_RELOAD_PROVIDE_KEY, reload)
@@ -142,8 +140,6 @@ function activateTab(route: RouteResourceMetadata) {
     if (route.parentKeepAlive) {
       current.path = String(route.path)
     } else if (globalProperties.$route.fullPath !== current.path) {
-      // 已在目标路径上就别再 push 一次：同址导航虽然会被 vue-router 静默吞掉，
-      // 但一次点击走两遍导航流程（含两遍过渡判定）纯属浪费 —— 排查页签缓存问题时顺手加的守卫
       globalProperties.$router.push(current.path)
     }
   }
@@ -275,7 +271,6 @@ function toggleFullscreen() {
   }
 }
 
-/** 判断标签页是否为固定（路由 meta.fixed 或用户手动固定） */
 function isPaneFixed(pane: RouteResourceMetadata): boolean {
   return pane.fixed || pinnedRouteNames.value.some(p => p.path === pane.path)
 }
@@ -287,13 +282,11 @@ function savePinnedToStorage() {
   )
 }
 
-/** 取消固定 */
 function onUnpin() {
   pinnedRouteNames.value = pinnedRouteNames.value.filter(p => p.path !== activeKey.value)
   savePinnedToStorage()
 }
 
-/** 固定当前标签页 */
 function onPin() {
   if (pinnedRouteNames.value.some(p => p.path === activeKey.value)) {
     return
@@ -306,7 +299,6 @@ function onPin() {
   savePinnedToStorage()
 }
 
-/** 关闭其他标签页：保留当前标签页和所有 fixed 标签页 */
 function onCloseOthers() {
   const toRemove = panes.value.filter((p) => p.path !== activeKey.value && !isPaneFixed(p))
   toRemove.forEach((p) => incrementRouteCacheVersions(p))
@@ -314,9 +306,7 @@ function onCloseOthers() {
   panes.value = panes.value.filter(p => !removedPages.includes(p.path))
 }
 
-/** 关闭右侧标签页 */
 function onCloseRight() {
-  //const currentRoute = globalProperties.$route
   const idx = panes.value.findIndex((p) => p.path === activeKey.value)
   if (idx < 0) {
     return
@@ -342,8 +332,6 @@ function onOpenOperateChange(open: boolean) {
   if (!open) {
     return
   }
-  // 显式标注回调参数 + key 列表提到外面：不让 TS 去**推断** MenuItemType（深度递归的大联合），
-  // 否则会触发 "Type instantiation is excessively deep and possibly infinite"（TS2589）。
   operateItems.value = operateItems.value.filter(
     (item: MenuItemType) => item?.key != null && !HIDDEN_OPERATE_KEYS.includes(String(item.key)),
   )
@@ -418,7 +406,6 @@ onUnmounted(() => routeCacheVersions.value = {})
       ]"
       @animationend="onFullscreenAnimationEnd"
     >
-      <!-- 顶部操作区：左侧预留按钮，右侧分段器充当标签导航 -->
       <a-flex align="center" justify="center" class="layout-content-operation">
         <div class="tool-bar " >
           <a-tabs

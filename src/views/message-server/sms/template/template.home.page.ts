@@ -5,12 +5,6 @@ import {getEnumValue} from '@loncra/client/commons'
 import {defineSearchProps} from '@/utils'
 import {templateCore} from './template.page'
 
-/**
- * 短信模板列表（`Home.vue`）。核心在 `template.page.ts`，这里只写列表形态。
- *
- * 与签名页同构：搜索项是三个枚举下拉（桶由本页 `enums` 预载）；
- * `auditionTime` 只在 `alibabaCloud` 显示（其余**显式 `''`**）。
- */
 export const templateHomePage = defineHomePage<SmsTemplateEntity, SmsTemplateEntity>(
   templateCore,
   {

@@ -174,11 +174,6 @@ const locale: LanguagePack = {
       }
     },
   },
-  /**
-   * 只留**宿主自己的**文案。设置面板的其余文案（颜色 / 尺寸 / 字号 / 行高 / 阴影 / 透明度…）
-   * 由 `@loncra/antdv-pro` 的 `ConfigProviderSetting` 语言包提供（见其 `src/locale/zh_CN.ts`），
-   * 宿主不再维护副本 —— 这里曾经抄过一整套（`colorSetting` / `boxShadow` / `size` / `theme`…），已删。
-   */
   systemSetting: {
     createSuccessBack:'创建记录成功后操作',
     home: {

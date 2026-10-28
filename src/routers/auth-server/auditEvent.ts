@@ -2,7 +2,6 @@ import type {RouteRecordRaw} from 'vue-router'
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants'
 import {SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 
-/** 审计事件相关路由 */
 const router: RouteRecordRaw[] = [
   {
     path: '/auth-server/audit/event/authentication',

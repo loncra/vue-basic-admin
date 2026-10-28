@@ -6,7 +6,6 @@ import i18n from '@/i18n'
 import {defineSearchProps, renderIconFont} from '@/utils'
 import {mcpPackageCore, mcpPackageService} from './mcp-package.page'
 
-/** 可发布的：新建 / 已撤销（与行内 `release` 的 `enabled` 同一判据） */
 function releasable(items: McpPackageEntity[]) {
   return items.filter((item) => {
     const status = getEnumValue(item.status)
@@ -14,15 +13,10 @@ function releasable(items: McpPackageEntity[]) {
   })
 }
 
-/** 可撤销的：已发布 */
 function revocable(items: McpPackageEntity[]) {
   return items.filter((item) => getEnumValue(item.status) === DATA_STATUS.RELEASE)
 }
 
-/**
- * 发布：确认框 → 调接口 → 提示 → **刷新列表**（发布后行状态变了，不刷新用户看到的是旧状态）。
- * `fetchDataSource` 由集合组件注入（`ctx.app.collection`），声明里不需要壳的 ref。
- */
 function releasePackages(ctx: ActionContext<McpPackageEntity>, ids: number[]): void {
   if (ids.length === 0) {
     return
@@ -41,7 +35,6 @@ function releasePackages(ctx: ActionContext<McpPackageEntity>, ids: number[]): v
   })
 }
 
-/** 撤销：同发布 */
 function revokePackages(ctx: ActionContext<McpPackageEntity>, ids: number[]): void {
   if (ids.length === 0) {
     return
@@ -60,7 +53,6 @@ function revokePackages(ctx: ActionContext<McpPackageEntity>, ids: number[]): vo
   })
 }
 
-/** MCP 包列表（`Home.vue`）。核心在 `mcp-package.page.ts`，这里只写列表形态。 */
 export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPackageEntity>(
   mcpPackageCore,
   {
@@ -75,13 +67,10 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
       {
         key: 'name',
         width: 320,
-        // 旧实现这里是**没有 options 源的空下拉**，改成按名称模糊查
         search: defineSearchProps('input'),
-        // 名称前带包图标：宿主注册的 `iconName` formatter（布局仍归 pro 的 `iconNameCell`）
         format: {name: 'iconName', args: {size: 'large'}},
       },
       {key: 'authMode', width: 120, search: defineSearchProps('select')},
-      // 包装键要精确匹配（旧实现就是 `eq`）
       {key: 'packageKey', width: 160, search: defineSearchProps('input', {expression: 'eq'})},
       {key: 'origin', width: 80, search: defineSearchProps('select')},
       {key: 'status', width: 80, search: defineSearchProps('select')},
@@ -89,7 +78,6 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
       {
         key: 'category',
         width: 150,
-        // pro 默认按列 key 拼查询名，拼不出 `category.code`
         search: defineSearchProps('select', {queryName: 'filter_[category.code_jeq]'}),
       },
       {key: 'dynamicActivation', width: 120, search: defineSearchProps('select')},

@@ -10,12 +10,6 @@ import {
 
 export const emailMessageService = new EmailMessageService()
 
-/**
- * 邮件消息的**核心**：service / i18nPrefix / routes / 字段字典只写一次
- * （旧实现是 `components/message-server/EmailTable.vue` 里手写一份）。
- *
- * 与 `sms.page.ts` 同构：渠道这一列邮件没有，所以字典里也不放。
- */
 export const emailCore: CrudPageCore<EmailMessageEntity> = {
   service: emailMessageService,
   i18nPrefix: 'messageServer.email',
@@ -45,7 +39,6 @@ export const emailCore: CrudPageCore<EmailMessageEntity> = {
     retryCount: {labelKey: 'common.retry.count'},
     retryTime: {labelKey: 'common.retry.time', format: 'dateTime'},
     exception: {labelKey: 'error.errorMessage'},
-    // 下面四个只有**详情**形态用（旧 `Detail.vue` 手写的 descriptions 项），列表没有这几列
     fromEmail: {labelKey: 'messageServer.email.fromEmail'},
     remark: {labelKey: 'common.remark'},
     content: {labelKey: 'common.content'},

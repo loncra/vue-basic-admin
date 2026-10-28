@@ -49,7 +49,6 @@ const tabList = computed(()=> {
 
 const activeTabKey = ref<string>('accountSetting')
 
-/** pro 面板的语言下拉数据（来自宿主的 i18n；切换后 i18n / dayjs 由 `@/stores/configProviderStore` 同步） */
 const localeOptions = computed(() =>
   Object.values(i18n.global.messages.value as Record<string, LanguagePack>)
     .filter((locale) => !!locale)
@@ -61,10 +60,6 @@ const createSuccessOptions = computed(() => [
   {name: globalProperties.$t('form.createSuccess.addAnother'), value: CREATE_SUCCESS_BACK.CURRENT},
 ])
 
-/**
- * 宿主自己的配置项（走面板的 `#extra` 插槽）：
- * 首页侧边栏的三项 + "创建记录成功后"的去向 —— 都是宿主的布局 / 业务偏好，归宿主 store。
- */
 </script>
 
 <template>

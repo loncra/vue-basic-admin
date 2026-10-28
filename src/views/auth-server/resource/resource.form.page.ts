@@ -9,18 +9,15 @@ import type {IconfontJson} from '@/types/composables/common'
 import {resourceCore} from './resource.page'
 import {getEnumValue} from '@loncra/client/commons'
 
-/** 图标清单（表单的 `iconSelect` 用）。懒加载一次，函数形态的 props 读它 —— 只有表单用，所以留在形态文件里 */
 const iconOptions = ref<IconfontJson[]>([])
 const ICON_MANIFESTS = ['/font_loncra_icon/iconfont.json', '/font_xiaojiage/iconfont.json']
 
-/** 插件类资源：名称/权限/来源不必填，编辑时也不允许改这几个字段（只有表单用） */
 function isPlugin(entity: unknown): boolean {
   return (
     getEnumValue((entity as ResourceEntity | undefined)?.category) === AUTH_SERVER_RESOURCE_CATEGORY.PLUGIN
   )
 }
 
-/** 资源新增/编辑（`Form.vue`）。核心在 `resource.page.ts`，这里只写表单形态。 */
 export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEntity>(resourceCore, {
   createEntity: () => ({
     sort: 0,
@@ -72,12 +69,7 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
       key: 'icon',
       labelKey: 'common.icon',
       col: {span: 24},
-      // 走注册表内置的 `iconSelect`（值绑定 / label 归 pro）；`props` 函数形态是因为图标清单
-      // 在 `preMounted` 里懒加载（函数在 `fields` computed 里求值才跟得上）
       component: 'iconSelect',
-      // ⚠️ `iconRender` 必须给：`@loncra/antdv` 的 `IconSelect` **不认识宿主的图标字体**，
-      // 契约就是"不给就什么都不画"（面板会出一片空框）。宿主页面里的 `l-icon-select` 也都传了它。
-      // `IconSelect` 只把 `type` 递给它 ⇒ 这里包一层把 `align`（图标字体对齐类）带上 ✓
       props: () => ({
         options: iconOptions.value,
         iconRender: (type: string) => renderIconFont(type),
@@ -90,16 +82,12 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
       props: {rows: 4, showCount: true, maxlength: 256},
     },
   ],
-  // 标题不在这里：`titleText` 没进 pro（"怎么写标题"是宿主的事）⇒ 拼装在 `Form.vue` 的
-  // `useEntityPageTitle` 里（父资源名 / 实体名的分支照旧）。
-  // addChild 入口：带父资源；顺便懒加载图标清单
   preMounted: async (ctx) => {
     if (iconOptions.value.length === 0) {
       iconOptions.value = await Promise.all(
         ICON_MANIFESTS.map((path) => loadIcon(import.meta.env.VITE_APP_SITE_URL + path)),
       )
     }
-    // pro 的上下文不带 router（宿主环境不进声明上下文）⇒ 声明文件自己 import 宿主 router
     const parentId = router.currentRoute.value.query.parentId
     if (!parentId) {
       return

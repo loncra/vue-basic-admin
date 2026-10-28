@@ -22,28 +22,18 @@ import {
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {modelSettingFormPage} from './model-setting.form.page'
 
-/**
- * 模型设置新增/编辑页薄壳：字段、校验、初值、厂商字典与 400、默认参数的摊平/清洗都在声明
- * （`model-setting.form.page.ts` / `model-setting.page.ts`）；这里只剩四件宿主的事 ——
- * 主键（pro 不认路由）、标题、离场，外加「默认参数」那个 `a-collapse`（字段行之后的宿主编排）。
- */
 defineOptions({
   name: 'AiServerModelSettingForm',
 })
 
-/** 壳要读 expose 的 `buckets`（是/否下拉的选项来自声明统一加载的那份桶）⇒ 本地类型带上它 */
 const formRef = ref<{entity?: ModelSettingSavePayload; buckets?: EnumBucketsResponseBody}>()
 
-/** 关 tab 要递给声明的 `preMounted`（厂商 code 缺失/查不到 → 400 那条路），声明里拿不到 inject */
 const closeLayoutTab = inject<(page: string, activatePane: boolean) => void>(
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
 )
 
 const {id} = useRequiredQuery(['id'], {required: false})
 
-/**
- * 标题（旧 `title-text`）：编辑态 `标题 (实体名)`；新增态 `标题 (厂商名)`（厂商由 `preMounted` 灌进来）。
- */
 useEntityPageTitle(() => {
   const entity = formRef.value?.entity
   if (!entity) {
@@ -52,7 +42,6 @@ useEntityPageTitle(() => {
   return entity.id ? entity.name : entity.manufacturer?.name
 })
 
-/** 保存成功后的去向；回列表要**带上厂商 code**（列表左侧树靠它选中厂商） */
 const {onSuccess, onStale, formKey} = useFormSuccessBack({
   redirect: () => {
     const code = formRef.value?.entity?.manufacturer?.code
@@ -64,12 +53,6 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
   entity: () => formRef.value?.entity,
 })
 
-/**
- * 是/否枚举：默认参数里的布尔项，界面上是「是/否」下拉。
- *
- * 这份桶由**声明**统一加载（核心字典里 `enabled` 的 `enumRef: YES_OR_NO`）⇒ 壳从
- * `CrudFormPageExpose.buckets` 读**同一份**结果，不再自己发一次同样的请求（那段 `onMounted` 也就没了）。
- */
 const yesOrNoOptions = computed(
   () =>
     (formRef.value?.buckets?.[SYSTEM_MODULE_NAME.RESOURCE_SERVER]?.[
@@ -77,10 +60,6 @@ const yesOrNoOptions = computed(
     ] ?? []) as NameValueEnumMetadata<number>[],
 )
 
-/**
- * 「默认参数」的绑定对象：实体上的 `metadata.默认参数`（旧页面 `generateOptions` 的 getter）。
- * 插槽作用域给的是 client 实体 ⇒ 在边界收窄一次；缺这个键就补上（旧页面也是"读到就补"）。
- */
 function optionsOf(entity: unknown): ModelGenerateOptions {
   const record = (entity ?? {}) as ModelSettingSavePayload
   const metadata = record.metadata
@@ -90,7 +69,6 @@ function optionsOf(entity: unknown): ModelGenerateOptions {
   return metadata[MODEL_DEFAULT_OPTIONS_KEY] as ModelGenerateOptions
 }
 
-/** 三类控件（数字 / 是-否 / 字符串）靠这三张清单分流（照抄旧页面） */
 function isNumberOption(key: string): boolean {
   return (MODEL_GENERATE_OPTION_NUMBER_KEYS as readonly string[]).includes(key)
 }
@@ -114,7 +92,6 @@ function isStringOption(key: string): boolean {
     @success="onSuccess"
     @stale="onStale"
   >
-    <!-- 字段行之后：默认参数（旧页面同一个 `a-collapse`，位置与行为照旧） -->
     <template #default="{entity}">
       <a-collapse expand-icon-placement="end" :class="entity.id ? undefined : 'mb-lg'">
         <a-collapse-panel>

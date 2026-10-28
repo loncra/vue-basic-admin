@@ -6,22 +6,12 @@ import {AttachmentService, type ObjectItemInfo} from '@loncra/client/resource'
 import {fileManagerBucket, fileManagerHomePage} from './file-manager.home.page'
 import {fileManagerService} from './file-manager.page'
 
-/**
- * 文件管理（`FileManagerHome.vue`）：列 / 搜索 / 行内动作 / 批量动作 / 权限 / 行选择**全在声明**
- * （`file-manager.home.page.ts`，那里也写了"为什么这几样留在壳"）。
- *
- * 壳只剩三件：① 顶部 bucket 分段控件（**页面结构**，先于表格存在 —— 切它要改查询条件并重取）；
- * ② 目录树（展开态 + 点目录懒加载子级）；③ 单元格的画法（要前两样状态 ⇒ 走 `#bodyCell`）。
- */
 defineOptions({
-  // 旧名是 `CommonUserExport`（复制粘贴留下的，还与 `MyResourceHome.vue` **撞名** ⇒ keep-alive 会当成同一个）
-  // ⇒ 按房规改：`<模块><子模块><形态>`
   name: 'ResourceServerFileManagerHome',
 })
 
 const {dateTimeFormat} = useDateFormat()
 
-/** 表格实例：切 bucket 后要手动重取（`immediate: false` ⇒ 首屏由下面的 `onSegmented` 触发） */
 const table = ref<{fetchDataSource?: () => void}>()
 
 const query = ref<FilterRequest>({
@@ -29,14 +19,6 @@ const query = ref<FilterRequest>({
   filename: null,
 })
 
-/**
- * bucket 分段控件的数据。
- *
- * ⚠️ 旧版这里还有一个 `loading` 字段 —— 它**只在 `mounted()` 里赋值、没人读**（死状态，已删）。
- * "切分段器时表格转圈"靠的是**另一个** ref：壳里那份 `:loading` 双向绑给 `CrudTable`，
- * 而 `fetchDataSource()` 自己会开关它（`BasicCrudQuery.fetchDataSource`）。现在那个模型归表格自己
- * ⇒ 切 bucket 照旧转圈（壳只要调 `fetchDataSource()`）。
- */
 const segmented = ref<{
   data: Record<string, unknown>[]
   value: string
@@ -45,12 +27,10 @@ const segmented = ref<{
   value: '',
 })
 
-/** 目录树的展开态（`onDirClick` 的懒加载也会改它） */
 const expandedRowKeys = ref<string[]>([])
 
 async function onSegmented(value: string): Promise<void> {
   segmented.value.value = value
-  // 声明里的动作（下载 / 删除）要 `bucketName` ⇒ 写进那个模块级 ref
   fileManagerBucket.value = value
   await nextTick()
 
@@ -91,7 +71,6 @@ async function onDirClick(record: ObjectItemInfo): Promise<void> {
     : [...expandedRowKeys.value, record.id]
 }
 
-/** 首屏：先拉 bucket 列表 → 选中第一个 → 由此触发第一次取数（旧版同款） */
 async function mounted(): Promise<void> {
   const result: RestResult<Record<string, unknown>[]> = await AttachmentService.buckets()
   segmented.value.data = result.data || []

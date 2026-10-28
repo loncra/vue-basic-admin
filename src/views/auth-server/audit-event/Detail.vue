@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import {getCurrentInstance, ref} from 'vue'
 import type {AuditEventEntity} from '@loncra/client/auth'
-// ⚠️ 必须显式 import：宿主 `src/components` 下的旧 kit 渲染器被 unplugin-vue-components
-// 自动注册成了**全局** `CrudDetailPage` ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
 import {CrudDetailPage} from '@loncra/antdv-pro'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
@@ -10,12 +8,6 @@ import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants'
 import {auditEventDetailPage} from './audit-event.detail.page'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 
-/**
- * 审计事件详情页薄壳（「认证事件」与「操作数据轨迹」两个列表共用）：字段、显示优先级、跨列数、
- * 取数（带 `after`）都在声明（`audit-event.detail.page.ts` / `audit-event.page.ts`）。
- *
- * 这里只剩：主键、离场，外加「请求信息」那几块（按数据显隐 + 遍历对象画 `a-descriptions`）。
- */
 defineOptions({
   name: 'AuthServerAuditEventDetail',
 })
@@ -25,14 +17,8 @@ const t = globalProperties.$t
 const configProvider = useConfigProviderStore()
 const detailRef = ref<{entity?: AuditEventEntity}>()
 
-/**
- * 详情必须有 id（缺了就跳 400、壳不挂载）；`after` 是取数要带的查询参数（旧 `:query-fields`）。
- * ⚠️ 用 `numeric: false`：这两个值是**字符串**（`AuditEventService.detail(id: string, after: string)`），
- * 账户 id 那套"转成 number"的口径在这里不适用。
- */
 const {ok, id, after} = useRequiredQuery(['id', 'after'], {numeric: false})
 
-/** 离场回列表：两条路由进来（认证事件 / 操作数据轨迹），按当前路由名判断回哪 */
 const {onStale} = usePageExit({
   redirect:
     globalProperties.$route.name === AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION_DETAIL
@@ -48,13 +34,6 @@ interface DetailSection {
   source: Record<string, unknown> | undefined
 }
 
-/**
- * 「请求信息」各块：形状全是"有数据才画：分割线（图标 + 标题）+ 遍历对象画 `a-descriptions`"，
- * 区别只在图标 / 标题 / 分割线要不要 `plain` ⇒ 一处描述、模板里 `v-for`
- * （旧页面是五段几乎重复的 markup）。
- *
- * 用**函数**而不是 `computed`：它吃的是插槽给的 `entity`（渲染期求值 ⇒ 天然跟数据走）。
- */
 function sectionsOf(entity: AuditEventEntity): DetailSection[] {
   const data = entity.data as
     | {
@@ -116,7 +95,6 @@ function sectionsOf(entity: AuditEventEntity): DetailSection[] {
     :context-extra="{after}"
     @stale="onStale"
   >
-    <!-- 旧 `BasicDetail` 的同名插槽：描述列表之后、操作记录之前 -->
     <template #afterDescriptions="{entity}">
       <template v-for="section of sectionsOf(entity)" :key="section.title">
         <template v-if="section.show">

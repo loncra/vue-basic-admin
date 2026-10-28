@@ -10,12 +10,6 @@ import {
 
 export const siteMessageService = new SiteMessageService()
 
-/**
- * 站内信的**核心**：service / i18nPrefix / routes / 字段字典只写一次
- * （旧实现是 `components/message-server/SiteTable.vue` 里手写一份）。
- *
- * `pushable` 只是显示（值自带元数据，没有搜索项）⇒ 只给 `format: 'enum'`，不给 `enumRef`。
- */
 export const siteCore: CrudPageCore<SiteMessageEntity> = {
   service: siteMessageService,
   i18nPrefix: 'messageServer.site',
@@ -47,7 +41,6 @@ export const siteCore: CrudPageCore<SiteMessageEntity> = {
     pushable: {labelKey: 'messageServer.site.pushable', format: 'enum'},
     readTime: {labelKey: 'common.read.time', format: 'dateTime'},
     exception: {labelKey: 'error.errorMessage'},
-    // 下面四个只有**详情**形态用（旧 `Detail.vue` 手写的 descriptions 项），列表没有这几列
     remark: {labelKey: 'common.remark'},
     cover: {labelKey: 'common.cover'},
     content: {labelKey: 'common.content'},

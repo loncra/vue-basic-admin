@@ -21,9 +21,6 @@ import {isBusinessSuccess} from '@/requests'
 import {STORE} from '@/constants'
 import {clearPrincipalDrafts} from '@loncra/chat-core/dexie'
 
-/**
- * 重置状态常量
- */
 const RESET: AuthenticationInfo = {
   details: {
     metadata: {
@@ -61,26 +58,16 @@ const RESET: AuthenticationInfo = {
 export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   const state: Ref<AuthenticationInfo> = ref(RESET)
   const pluginInstalls = ref<UserPluginInstallResult[]>([])
-  /** 后端已启动的服务名；路由按此装配 */
   const pluginServices = ref<string[]>([])
 
-  /**
-   * 检查是否有指定权限
-   */
   function hasPermission(permission: string): boolean {
     return state.value.grantedAuthorities.includes(permission)
   }
 
-  /**
-   * 检查是否有任意一个权限
-   */
   function hasAnyPermission(permissions: string[]): boolean {
     return permissions.some((permission) => hasPermission(permission))
   }
 
-  /**
-   * 检查是否有指定角色
-   */
   function hasRole(role: string): boolean {
     const roles = state.value.grantedAuthorities
       .filter((item) => item.startsWith('ROLE_'))
@@ -88,16 +75,10 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return roles.includes(role)
   }
 
-  /**
-   * 检查是否有任意一个角色
-   */
   function hasAnyRole(roles: string[]): boolean {
     return roles.some((role) => hasRole(role))
   }
 
-  /**
-   * 获取用户显示名称
-   */
   function getName(): string {
     return AuthServerService.getPrincipalNameByUserDetails(state.value.details?.metadata)
   }
@@ -106,9 +87,6 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return (state.value.details?.metadata.role || []).map((r) => r.name).join(', ')
   }
 
-  /**
-   * 登录
-   */
   async function login(
     credentials: AuthCredentials,
     authenticationType: AuthenticationType = AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE,
@@ -123,9 +101,6 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return state.value
   }
 
-  /**
-   * 登出
-   */
   async function logout(): Promise<AuthenticationInfo> {
     await AuthServerService.logout()
     localStorage.removeItem(import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME)
@@ -160,9 +135,6 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     }
   }
 
-  /**
-   * 准备（初始化）应用数据
-   */
   async function prepare(): Promise<PrepareData> {
     const result:RestResult<PrepareData> = await AuthServerService.prepare()
 
@@ -173,7 +145,6 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     const data = result.data
     pluginServices.value = data.pluginServices ?? []
 
-    // 保存设备标识
     const deviceIdName = import.meta.env.VITE_APP_LOCAL_STORAGE_DEVICE_IDENTIFIED_NAME
     let deviceIdentified: string | null = localStorage.getItem(deviceIdName)
     if (!deviceIdentified) {
@@ -192,15 +163,11 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     return data
   }
 
-  /**
-   * 设置状态
-   */
   function setState(data: Partial<AuthenticationInfo>): void {
     if (!data) {
       return
     }
     state.value = {...state.value, ...data}
-    // 保存 accessToken
     const accessTokenName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
     let accessToken: string | null = localStorage.getItem(accessTokenName)
     const tokenValue = state.value.details?.token?.value
@@ -210,11 +177,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     localStorage.setItem(accessTokenName, accessToken ?? '')
   }
 
-  /**
-   * 重置状态，并清掉该用户本机草稿
-   */
   async function $reset(): Promise<void> {
-    // RESET 会清掉 name；先记下 principal，否则 clearPrincipalDrafts 清不到该用户的草稿。
     const principal = state.value.name
     state.value = {...RESET}
     pluginInstalls.value = []
@@ -225,7 +188,6 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     try {
       await clearPrincipalDrafts(principal)
     } catch {
-      // IndexedDB 清库失败不阻断登出
     }
   }
 
@@ -254,44 +216,31 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     pluginInstalls.value = pluginInstalls.value.filter((item) => item.id !== id)
   }
 
-  /**
-   * 计算属性：是否已认证
-   */
   const isAuthenticated = computed(() => state.value.authenticated)
 
-  /**
-   * 计算属性：是否完全认证（非记住我模式）
-   */
   const isFullyAuthenticated = computed(() => state.value.authenticated && !state.value.rememberMe)
 
   return {
-    // 状态
     state,
     pluginInstalls,
     pluginServices,
     loadPluginInstalls,
     upsertPluginInstall,
     removePluginInstall,
-    // 权限检查
     hasPermission,
     hasAnyPermission,
-    // 角色检查
     hasRole,
     hasAnyRole,
     isCurrentPrincipal,
-    // 认证状态
     isAuthenticated,
     isFullyAuthenticated,
-    // 用户信息
     getName,
     getRoleName,
     setAvatar,
-    // 操作方法
     login,
     logout,
     prepare,
     switchWorkspace,
-    // 工具方法
     $reset,
     setState,
   }

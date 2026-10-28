@@ -8,12 +8,8 @@ import {
   SYSTEM_MODULE_NAME
 } from '@loncra/client/commons'
 
-/**
- * 字典数据的 service。`Home.vue` 里的排序（`sort`）是**实例方法** ⇒ 导出，别重复 `new`。
- */
 export const dataDictionaryService = new DataDictionaryService()
 
-/** 字典数据（`Home.vue`）的**核心**：`service` / i18n / routes / `fields` 只写一次。 */
 export const dataDictionaryCore: CrudPageCore<DataDictionarySavePayload, DataDictionaryEntity> = {
   service: dataDictionaryService,
   i18nPrefix: 'resourceServer.dataDictionary',
@@ -23,7 +19,6 @@ export const dataDictionaryCore: CrudPageCore<DataDictionarySavePayload, DataDic
     edit: RESOURCE_SERVER_DATA_DICTIONARY_ROUTE.EDIT,
     detail: RESOURCE_SERVER_DATA_DICTIONARY_ROUTE.DETAIL,
   },
-  /** `Form.vue` / `Detail.vue` 在用（渲染操作轨迹）⇒ 写 */
   operationDataTraceTarget: OPERATION_DATA_TRACE_TABLE.DATA_DICTIONARY,
   fields: {
     name: {labelKey: 'common.name'},
@@ -39,7 +34,6 @@ export const dataDictionaryCore: CrudPageCore<DataDictionarySavePayload, DataDic
       format: 'enum',
       enumRef: {module: SYSTEM_MODULE_NAME.RESOURCE_SERVER, id: SYSTEM_ENUM_TYPE.YES_OR_NO},
     },
-    // 下面三个只有详情形态用（旧 `Detail.vue` 手写的 descriptions 项）
     sort: {labelKey: 'common.sort'},
     value: {labelKey: 'common.value'},
     remark: {labelKey: 'common.remark'},

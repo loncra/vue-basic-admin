@@ -1,21 +1,37 @@
 import {defineHomePage} from '@loncra/antdv-pro'
 import type {EnterpriseEntity, EnterprisePayload} from '@loncra/client/auth'
-import {AUTH_SERVER_ENTERPRISE_AUTHORITY} from '@loncra/client/auth'
-import {defineSearchProps} from '@/utils'
+import {AUTH_SERVER_CONSOLE_USER_AUTHORITY, AUTH_SERVER_ENTERPRISE_AUTHORITY} from '@loncra/client/auth'
+import type {ToolbarActionContext} from '@loncra/antdv-pro'
+import i18n from '@/i18n'
+import {defineSearchProps, exportCollectionToView, renderIconFont} from '@/utils'
 import {enterpriseCore} from './enterprise.page'
 
-/** 企业列表（`Home.vue`）。核心在 `enterprise.page.ts`，这里只写列表形态。 */
+async function exportEnterprises(ctx: ToolbarActionContext<EnterpriseEntity>): Promise<void> {
+  await exportCollectionToView({
+    service: enterpriseCore.service,
+    query: ctx.query ?? {},
+    records: ctx.selectedItems,
+  })
+}
+
 export const enterpriseHomePage = defineHomePage<EnterprisePayload, EnterpriseEntity>(
   enterpriseCore,
   {
     authority: {detail: AUTH_SERVER_ENTERPRISE_AUTHORITY.PAGE},
     rowSelection: false,
+    toolbarActions: [
+      {
+        id: 'export',
+        permission: AUTH_SERVER_CONSOLE_USER_AUTHORITY.EXPORT,
+        label: () => i18n.global.t('common.export.all'),
+        icon: () => renderIconFont('loncra-download', 'align'),
+        run: exportEnterprises,
+      },
+    ],
     columns: [
       {
         key: 'name',
         width: 240,
-        // 名称前带企业图标：布局仍归 pro（`iconNameCell`），这里用宿主注册的 `iconName`
-        // formatter；不传 `args.size` = Avatar 默认（32px，与改前一致）
         format: {name: 'iconName', args: {size: 'large'}},
         search: defineSearchProps('input'),
       },

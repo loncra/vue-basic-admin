@@ -13,22 +13,12 @@ import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useBootstrapStore} from "@/stores/bootStore.ts";
 import i18n from '@/i18n'
 
-/** 不弹出错误提示的 HTTP 状态码 */
 const ignoreErrorStatus: number[] = [404]
 
-/** 表示需要校验 data 的请求头合法值 */
 const checkDataValues: string[] = ['true', '1']
 
-/**
- * 成功判定**全平台只有一份实现**（`@loncra/client/commons` 的 `isResultSuccess` /
- * `isBusinessSuccess`，pro 的 `_util/uploadFile.ts` / `file-editor/useFileEditor.ts` 走的是同一套）。
- * 这里只转出，宿主 `@/requests` 的公开名保持不变。
- */
 export {isBusinessSuccess, isResultSuccess} from '@loncra/client/commons'
 
-/**
- * 组装与 axios 拦截器一致的鉴权/设备请求头（供 XRequest 等非 axios 客户端复用）。
- */
 export function buildAuthHeaders(): Record<string, string> {
   const headers: Record<string, string> = {}
   const dataVersionName = import.meta.env.VITE_APP_HEADER_DATA_VERSION_NAME
@@ -52,14 +42,6 @@ export function buildAuthHeaders(): Record<string, string> {
   return headers
 }
 
-/**
- * HTTP 请求拦截器
- * 在发送请求前，自动添加必要的请求头信息
- * 包括数据版本号和设备标识等
- *
- * @param config - Axios 请求配置对象
- * @returns 添加了请求头后的配置对象
- */
 function requestInterceptor(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   const headers = buildAuthHeaders()
   Object.entries(headers).forEach(([key, value]) => {
@@ -68,32 +50,18 @@ function requestInterceptor(config: InternalAxiosRequestConfig): InternalAxiosRe
   return config
 }
 
-/**
- * HTTP 响应拦截器
- * 统一处理业务状态码判断，验证请求是否成功
- * 如果失败则显示错误消息并抛出业务错误
- * 如果成功则直接返回 RestResult 数据，而不是整个 AxiosResponse
- *
- * @template T - 响应数据的类型
- * @param response - Axios 响应对象
- * @returns RestResult<T> 对象（成功时）或 Promise.reject（失败时）
- */
 function responseInterceptor<T = unknown>(
   response: AxiosResponse<RestResult<T>>,
 ): RestResult<T> | Promise<RestResult<T>> {
   const result = response.data
 
-  // 检查业务是否成功（检查 HTTP 状态码和业务状态码）
   if (!isBusinessSuccess(result)) {
-    // 构造错误消息
     const errorMsg = `[executeCode:${result.executeCode}] ${result.message || i18n.global.t('error.http.requestFailed')}`
 
-    // 如果错误状态码不在忽略列表中，显示错误消息提示用户
     if (!ignoreErrorStatus.includes(response.status)) {
       message.error(errorMsg).then(() => ({}))
     }
 
-    // 抛出业务错误，包含完整的错误信息
     return Promise.reject(
       new BusinessError(result.executeCode, result.status, result.message, result.data),
     )
@@ -106,25 +74,16 @@ function responseInterceptor<T = unknown>(
     )
   }
 
-  // 业务成功，直接返回 RestResult 数据，简化调用方的使用
   return result
 }
 
-/**
- * 异常管理
- * 统一处理 HTTP 错误和网络错误
- *
- * @param error 错误信息
- */
 async function responseError<T = unknown>(
   error: AxiosError<RestResult<T>>,
 ): Promise<AxiosError | Error | BusinessError | RestResult<T>> {
-  // 如果错误状态码在忽略列表中，直接拒绝
   if (error.response && ignoreErrorStatus.includes(error.response.status)) {
     return Promise.resolve(error.response.data)
   }
 
-  // 处理无响应的情况（网络错误）
   if (!error.response) {
     const errorMsg = i18n.global.t('error.http.networkError')
     message.error(errorMsg)
@@ -135,7 +94,6 @@ async function responseError<T = unknown>(
   const status = response.status
   const result = response.data
 
-  // 获取错误消息
   let serverMessage: string | undefined = result?.message
 
   if (!serverMessage) {
@@ -143,11 +101,9 @@ async function responseError<T = unknown>(
     serverMessage = HTTP.ERROR_MESSAGES[statusStr] || i18n.global.t('error.http.requestFailedWithStatus', {status})
   }
 
-  // 统一处理 401 未授权错误
   if (status === 401) {
     const principalStore = usePrincipalStore()
     message.error(i18n.global.t('error.http.loginExpired'))
-    // 启动管线执行期间不抢跳：路由表还没装配，跳转会与启动流程打架
     if (!useBootstrapStore().running) {
       const params = new URLSearchParams(location.search)
       const authenticationType = String(params.get(AUTH_SERVER_AUTHENTICATION_TYPE_PARAM) || principalStore.state.type);
@@ -159,7 +115,6 @@ async function responseError<T = unknown>(
     )
   }
 
-  // 检查是否有对应的错误页面路由
   const statusStr = status.toString()
   const errorRoute = router.getRoutes().find((r) => r.name === statusStr)
   if (errorRoute) {
@@ -170,7 +125,6 @@ async function responseError<T = unknown>(
     )
   }
 
-  // 格式化错误代码前缀
   let errorCodePrefix
   if (result?.executeCode) {
     errorCodePrefix = `[executeCode:${result.executeCode}] `
@@ -178,26 +132,17 @@ async function responseError<T = unknown>(
     errorCodePrefix = `[HTTP ${status}] `
   }
 
-  // 显示错误消息
   if (!ignoreErrorStatus.includes(status)) {
     message.error(errorCodePrefix + serverMessage)
   }
 
-  // 返回业务错误对象
   return Promise.reject(
     new BusinessError(result?.executeCode || statusStr, status, serverMessage, result?.data),
   )
 }
 
-/**
- * 添加 http 请求拦截器
- */
 axios.interceptors.request.use(requestInterceptor)
 
-/**
- * 添加 http 响应拦截器
- * 使用类型断言，因为我们修改了返回类型为 RestResult 而不是 AxiosResponse
- */
 axios.interceptors.response.use(responseInterceptor as never, responseError)
 
 export default axios
