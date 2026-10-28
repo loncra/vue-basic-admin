@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import {renderIconFont} from '@/utils/commonUtils.ts'
-import {
-  ConfigProviderSetting as LConfigProviderSetting,
-  DataLoadingCard as LDataLoadingCard
-} from '@loncra/antdv-pro'
+import {ConfigProviderSetting, DataLoadingCard} from '@loncra/antdv-pro'
 import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import LAccountSetting from "@/views/common/setting/AccountSetting.vue";
@@ -77,7 +74,7 @@ const createSuccessOptions = computed(() => [
     内层 `w-130` 只约束它自己那一段（看起来就"卡比内容宽、右边空一片"，2026-09-30 用户报）。
   -->
   <div class="mx-auto my-0 w-fit max-w-250">
-    <l-data-loading-card
+    <data-loading-card
       :tab-list="tabList"
       :title="false"
       :active-tab-key="activeTabKey"
@@ -94,11 +91,11 @@ const createSuccessOptions = computed(() => [
       -->
       <template v-if="activeTabKey === 'configProviderSetting'">
         <div class="min-w-140">
-          <l-config-provider-setting :locales="localeOptions">
+          <config-provider-setting :locales="localeOptions">
             <template #extra>
               <a-row :gutter="[configProviderStore.getToken().sizeMD]">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-                  <a-form-item :label="globalProperties.$t('systemSetting.home.homeSiderWidth')">
+                  <a-form-item :label="$t('systemSetting.home.homeSiderWidth')">
                     <a-input-number
                       class="w-full"
                       :value="configProviderStore.state.homeSiderWidth"
@@ -107,7 +104,7 @@ const createSuccessOptions = computed(() => [
                   </a-form-item>
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-                  <a-form-item :label="globalProperties.$t('systemSetting.home.homeCollapsedWidth')">
+                  <a-form-item :label="$t('systemSetting.home.homeCollapsedWidth')">
                     <a-space-compact block>
                       <a-input-number
                         class="w-full"
@@ -118,8 +115,8 @@ const createSuccessOptions = computed(() => [
                         <a-switch
                           size="small"
                           :checked="configProviderStore.state.homeCollapsible"
-                          :checked-children="globalProperties.$t('common.open')"
-                          :un-checked-children="globalProperties.$t('common.close')"
+                          :checked-children="$t('common.open')"
+                          :un-checked-children="$t('common.close')"
                           @change="(value: boolean) => configProviderStore.setHomeCollapsible(value)"
                         />
                       </a-space-addon>
@@ -127,7 +124,7 @@ const createSuccessOptions = computed(() => [
                   </a-form-item>
                 </a-col>
                 <a-col :span="24">
-                  <a-form-item :label="globalProperties.$t('systemSetting.createSuccessBack')">
+                  <a-form-item :label="$t('systemSetting.createSuccessBack')">
                     <a-select
                       :value="configProviderStore.state.createSuccessBack"
                       :options="createSuccessOptions"
@@ -138,12 +135,12 @@ const createSuccessOptions = computed(() => [
                 </a-col>
               </a-row>
             </template>
-          </l-config-provider-setting>
+          </config-provider-setting>
         </div>
       </template>
       <template v-if="activeTabKey === 'enterpriseSetting'">
         <l-enterprise-setting />
       </template>
-    </l-data-loading-card>
+    </data-loading-card>
   </div>
 </template>

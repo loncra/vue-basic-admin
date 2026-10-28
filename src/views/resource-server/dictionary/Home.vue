@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref} from 'vue'
-import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
+import {DataLoadingCard} from '@loncra/antdv-pro'
 import DataDictionaryHome from '../data-dictionary/Home.vue'
 import DictionaryTypeHome from '../dictionary-type/Home.vue'
 
@@ -21,7 +21,7 @@ const typeId = ref<number | string>()
 </script>
 
 <template>
-  <l-data-loading-card :classes="{card: {header: 'mb-0!', body: 'p-0!'}}">
+  <data-loading-card :classes="{card: {header: 'mb-0!', body: 'p-0!'}}">
     <a-splitter >
       <a-splitter-panel default-size="20%" min="15%" max="25%">
         <dictionary-type-home @select="typeId = $event" />
@@ -30,5 +30,5 @@ const typeId = ref<number | string>()
         <data-dictionary-home :type-id="typeId" />
       </a-splitter-panel>
     </a-splitter>
-  </l-data-loading-card>
+  </data-loading-card>
 </template>

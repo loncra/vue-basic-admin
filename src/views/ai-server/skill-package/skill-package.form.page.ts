@@ -1,13 +1,19 @@
 import {h, nextTick, ref} from 'vue'
 import {InputNumber, Select, SpaceAddon, SpaceCompact} from 'antdv-next'
 import type {NameValueEnumMetadata, RestResult} from '@loncra/client/commons'
-import {getEnumValue} from '@loncra/client/commons'
+import {
+  getEnumValue,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  TIME_UNIT_TYPE
+} from '@loncra/client/commons'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
   AI_SERVER_SKILL_SOURCE_TYPE,
   AI_SERVER_SKILL_UPDATE_POLICY,
   type GitSkillSourceMetadata,
   type ManualSkillSourceMetadata,
+  SKILL_GROUP_CODE_PREFIX,
   type SkillPackageEntity,
   type SkillPackageSavePayload,
   type SkillSourceMetadata,
@@ -16,8 +22,6 @@ import {defineFormPage} from '@loncra/antdv-pro'
 import type {IconfontJson} from '@/types/composables'
 import {loadIcon, renderIconFont} from '@/utils'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
-import {SKILL_GROUP_CODE_PREFIX} from '@loncra/client/ai'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, TIME_UNIT_TYPE} from '@loncra/client/commons'
 import {skillPackageCore} from './skill-package.page'
 
 /**

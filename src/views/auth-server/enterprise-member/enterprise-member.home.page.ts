@@ -1,11 +1,19 @@
 import {ref} from 'vue'
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE,
+  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
+  AUTH_SERVER_SYSTEM_USER_AUTHORITY,
   AuthServerService,
   type EnterpriseMemberEntity,
 } from '@loncra/client/auth'
-import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from '@loncra/client/commons'
+import {
+  AUDIT_STATUS_VALUE,
+  getEnumName,
+  getEnumValue,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from '@loncra/client/commons'
 import {
   defineHomePage,
   type RecordActionContext,
@@ -17,8 +25,6 @@ import {isBusinessSuccess} from '@/requests'
 import i18n from '@/i18n'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {defineSearchProps, renderIconFont} from '@/utils'
-import {AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY, AUTH_SERVER_SYSTEM_USER_AUTHORITY} from '@loncra/client/auth'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {
   ENTERPRISE_MEMBER_VARIANT,
   enterpriseMemberCore,

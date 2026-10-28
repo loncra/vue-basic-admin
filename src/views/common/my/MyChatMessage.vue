@@ -17,7 +17,7 @@ import type {
   UserChatMessageResponseBody
 } from "@/types/apis";
 import type {SystemUserContactItem} from "@loncra/antdv-chat-pro";
-import {ImChat as LIm, type ImChatExpose, type ImPageHost} from "@loncra/antdv-chat-pro";
+import {ImChat, type ImChatExpose, type ImPageHost} from "@loncra/antdv-chat-pro";
 import {useAppNotification} from '@loncra/antdv-pro'
 import type {IdNameValueMetadata, IdValueMetadata, RestResult} from "@loncra/client/commons";
 import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
@@ -65,6 +65,7 @@ const host: ImPageHost = {
   timeText: (unix) => globalProperties.$dayjs(unix).fromNow(),
   messagePreview: (message, conversation) => getMessageContent(message, conversation),
   draftPreview: (draft) => getDraftContent(draft),
+  roomUploadPrefix: (roomId) => `user_chat_room/${roomId}`,
   unreadCount: (id) => messageServerStore.getUserChatUnreadQuantity(Number(id)),
   refreshUnread: async () => {
     await messageServerStore.fetchUnreadQuantity()
@@ -236,13 +237,12 @@ onActivated(() => {
 
 <template>
   <div class="h-full min-h-120">
-    <l-im
+    <im-chat
       ref="chatRef"
       class="h-full min-h-0"
       :host="host"
       :contacts="options.contactDataSource"
       :loading="options.loading"
-      @update:loading="(value: boolean) => options.loading = value"
       @active="onActive"
       @muted="onMuted"
     />

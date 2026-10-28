@@ -56,7 +56,7 @@ onMounted(mounted)
         <div class="text-center">
           <a-image :src="imageSrc" :preview="false" :height="400"/>
         </div>
-        <a-divider>{{ globalProperties.$t('error.badRequest.title') }}</a-divider>
+        <a-divider>{{ $t('error.badRequest.title') }}</a-divider>
         <a-table :pagination="false"
                  :data-source="dataSource"
                  :columns="columns"
@@ -66,7 +66,7 @@ onMounted(mounted)
         <div class="text-center mt-lg">
           <a-button @click="globalProperties.$router.go(-1);">
             <icon-font class="icon align" type="loncra-undo-2"/>
-            <span>{{ globalProperties.$t('common.back') }}</span>
+            <span>{{ $t('common.back') }}</span>
           </a-button>
         </div>
       </div>

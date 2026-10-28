@@ -1,24 +1,28 @@
 <script setup lang="ts">
 
 import {
-  ActionButton as LActionButton,
-  CrudCardGridPage as LCrudCardGridPage,
-  DataLoadingCard as LDataLoadingCard,
+  ActionButton,
+  CrudCardGridPage,
+  DataLoadingCard,
   isObjectWriteResult,
   useDateFormat,
 } from '@loncra/antdv-pro';
 import {computed, ref} from 'vue'
 import type {CarouselEntity} from "@/types/apis";
 import type {NameValueEnumMetadata, PageRequest, RestResult} from "@loncra/client/commons";
+import {
+  DATA_STATUS,
+  getEnumName,
+  getEnumValue,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import {AttachmentService} from "@loncra/client/resource";
-import {getEnumName, getEnumValue} from "@loncra/client/commons";
+import {AttachmentService, RESOURCE_SERVER_CAROUSEL_AUTHORITY} from "@loncra/client/resource";
 import {ResourceServerService} from "@/apis";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
-import {BasicImage as LBasicImage} from '@loncra/antdv'
-import {DATA_STATUS, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
-import {RESOURCE_SERVER_CAROUSEL_AUTHORITY} from '@loncra/client/resource';
+import {BasicImage} from '@loncra/antdv'
 import {CAROUSEL_TYPE_FILTER, carouselService} from './carousel.page'
 import {carouselHomePage, carouselPreviewReloader} from './carousel.home.page'
 
@@ -145,7 +149,7 @@ async function activated(): Promise<void> {
       生命周期交给壳：`onMounted` / `onActivated` 是 `DataLoadingCard` 的两个口
       （它负责编排 + 统一 `loading`）⇒ 页面不再自己写 `onMounted` / `onActivated`。
     -->
-    <l-data-loading-card :on-mounted="load" :on-activated="activated">
+    <data-loading-card :on-mounted="load" :on-activated="activated">
       <a-tabs
         v-model:active-key="tabActiveKey"
         centered
@@ -171,7 +175,7 @@ async function activated(): Promise<void> {
                   :key="entity.id"
                   v-for="entity of item.preview"
                 >
-                  <l-basic-image
+                  <basic-image
                     :preview="false"
                     class="size-full object-cover"
                     :src="getCoverImageSrc(entity?.cover)"
@@ -185,7 +189,7 @@ async function activated(): Promise<void> {
               **`v-if` 懒挂载** ⇒ 首屏取数交给组件（`immediate` 默认开），切回页面交给
               `refreshOnActivate`（默认开）—— 页面不再手写取数时机、也不再拿 `instance.refs` 去调 `fetchDataSource`。
             -->
-            <l-crud-card-grid-page
+            <crud-card-grid-page
               v-if="tabActiveKey === item.key"
               ref="gridRef"
               :key="item.key"
@@ -216,7 +220,7 @@ async function activated(): Promise<void> {
                     <a-card size="small" :title="record.name">
                       <template #cover>
                         <div class="aspect-square rounded-none w-full overflow-hidden">
-                          <l-basic-image
+                          <basic-image
                             class="size-full object-cover"
                             @click.stop
                             :src="getCoverImageSrc(record.cover)"
@@ -225,7 +229,7 @@ async function activated(): Promise<void> {
                         </div>
                       </template>
                       <template #actions>
-                        <l-action-button
+                        <action-button
                           size="small"
                           type="text"
                           always-dropdown
@@ -249,10 +253,10 @@ async function activated(): Promise<void> {
                   </a-tooltip>
                 </a-badge-ribbon>
               </template>
-            </l-crud-card-grid-page>
+            </crud-card-grid-page>
           </a-space>
         </template>
       </a-tabs>
-    </l-data-loading-card>
+    </data-loading-card>
   </div>
 </template>

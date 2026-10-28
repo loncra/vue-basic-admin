@@ -2,7 +2,13 @@ import {onUnmounted} from 'vue'
 import type {SSEOutput} from '@antdv-next/x-sdk'
 import {AgentService} from '@/apis'
 import {TOKEN_USAGE_TYPE} from '@/constants'
-import {CHAT_BUBBLE_TYPE, STREAM_APPEND_TYPES, UPDATE_CONVERSATION_TYPES} from '@loncra/client/ai'
+import {
+  AI_SERVER_AGENT_BLOCK_STATUS,
+  AI_SERVER_AGENT_CONTENT_TYPE,
+  CHAT_BUBBLE_TYPE,
+  STREAM_APPEND_TYPES,
+  UPDATE_CONVERSATION_TYPES
+} from '@loncra/client/ai'
 import type {
   AgentSseMessageContent,
   AgentStatusChangeSse,
@@ -15,7 +21,6 @@ import type {
 import type {StreamAgentMessageEntity} from '@/types/apis'
 import {getEnumValue} from '@loncra/client/commons'
 import {getConversationRuns} from '@/composables'
-import {AI_SERVER_AGENT_BLOCK_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
 import type {AgentSession} from '@loncra/antdv-chat-pro'
 import {updateSessionMessage} from '@loncra/antdv-chat-pro'
 

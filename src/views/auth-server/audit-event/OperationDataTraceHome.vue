@@ -2,7 +2,7 @@
 import {computed} from 'vue'
 import dayjs from 'dayjs'
 import type {AuditEventEntity} from '@loncra/client/auth'
-import {CrudHomePage, createOperationTracePage} from '@loncra/antdv-pro'
+import {createOperationTracePage, CrudHomePage} from '@loncra/antdv-pro'
 import router from '@/routers'
 import {postTimestampFormat} from '@/utils'
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE} from '@/constants'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import {getCurrentInstance} from 'vue'
 import type {RestResult} from '@loncra/client/commons'
 import {CrudFormPage} from '@loncra/antdv-pro'
-import {useRouter} from 'vue-router'
 import {MESSAGE_SERVER_SITE_ROUTE} from '@/constants'
 import {navigateAfterMessageSend} from '@/views/message-server/useMessageSendFlow.ts'
 import {siteSendFormPage} from './site.send.page'
@@ -11,7 +11,8 @@ defineOptions({
   name: 'MessageServerSiteSend',
 })
 
-const router = useRouter()
+const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
+const router = globalProperties.$router
 
 /**
  * 站内信发送页：**只剩壳** —— 字段 / 校验 / 提交 / 来源（枚举桶）全在 `site.send.page.ts`。

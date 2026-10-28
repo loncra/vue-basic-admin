@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {byteFormat, CrudHomePage as LCrudHomePage, useDateFormat} from '@loncra/antdv-pro'
+import {byteFormat, CrudHomePage, DataLoadingCard, useDateFormat} from '@loncra/antdv-pro'
 import {nextTick, onMounted, ref} from 'vue'
 import type {FilterRequest, RestResult} from '@loncra/client/commons'
 import {AttachmentService, type ObjectItemInfo} from '@loncra/client/resource'
 import {fileManagerBucket, fileManagerHomePage} from './file-manager.home.page'
 import {fileManagerService} from './file-manager.page'
-import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
+
 /**
  * 文件管理（`FileManagerHome.vue`）：列 / 搜索 / 行内动作 / 批量动作 / 权限 / 行选择**全在声明**
  * （`file-manager.home.page.ts`，那里也写了"为什么这几样留在壳"）。
@@ -105,7 +105,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-data-loading-card>
+    <data-loading-card>
       <a-segmented class="mb-lg" v-model:value="segmented.value" block :options="segmented.data" @change="onSegmented">
         <template #labelRender="{name, size, objects}">
           <a-typography-text strong>{{ name }}({{ objects || 0 }})</a-typography-text>
@@ -113,7 +113,7 @@ onMounted(mounted)
         </template>
       </a-segmented>
 
-      <l-crud-home-page
+      <crud-home-page
         ref="table"
         plain
         :title="false"
@@ -150,8 +150,8 @@ onMounted(mounted)
             <span>{{ record.size > 0 ? byteFormat(record.size) : '—' }}</span>
           </template>
         </template>
-      </l-crud-home-page>
+      </crud-home-page>
 
-    </l-data-loading-card>
+    </data-loading-card>
   </div>
 </template>

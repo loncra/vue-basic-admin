@@ -1,16 +1,14 @@
 import {renderIconFont} from '@/utils/commonUtils'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
-import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
+import {AUTH_SERVER_RESOURCE_AUTHORITY, AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
+import type {DragPreviewContent, RecordActionContext} from '@loncra/antdv-pro'
 import {defineHomePage} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
 import {AUTH_SERVER_RESOURCE_ROUTE} from '@/constants'
-import {AUTH_SERVER_RESOURCE_AUTHORITY} from '@loncra/client/auth'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
-import {defineSearchProps} from '@/utils'
-import type {DragPreviewContent, RecordActionContext} from '@loncra/antdv-pro'
-import {renderIconName, RESOURCE_VARIANT, resourceCore} from './resource.page'
 import {getEnumValue} from '@loncra/client/commons'
+import {defineSearchProps} from '@/utils'
+import {renderIconName, RESOURCE_VARIANT, resourceCore} from './resource.page'
 
 /** 加子级：跳到 addChild 路由，把当前行当父级（`run` 只接线，实现放这儿） */
 function addChild(ctx: RecordActionContext<ResourceEntity>): void {

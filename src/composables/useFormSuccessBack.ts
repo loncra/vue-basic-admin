@@ -4,7 +4,7 @@ import type {RestResult} from '@loncra/client/commons'
 import i18n from '@/i18n'
 import {CREATE_SUCCESS_BACK} from '@/constants'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
-import {usePageExit, type PageExitRedirect} from '@/composables/usePageExit'
+import {type PageExitRedirect, usePageExit} from '@/composables/usePageExit'
 
 /**
  * 表单**保存成功后**的宿主策略（旧 `BasicForm.vue` 的 `doSubmit` 尾部 + `createdAfterSetting` 搬过来）。

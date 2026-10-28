@@ -1,12 +1,18 @@
 import type {EmailMessageSendPayload} from '@loncra/client/message'
 import {MESSAGE_SERVER_MESSAGE_TYPE_VALUE} from '@loncra/client/message'
-import {type BasicIdMetadata, getEnumName, getEnumValue} from '@loncra/client/commons'
+import {
+  type BasicIdMetadata,
+  getEnumName,
+  getEnumValue,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  YES_OR_NO_TYPE
+} from '@loncra/client/commons'
 import {type CrudFormCore, defineFormPage, type UserSelectOption} from '@loncra/antdv-pro'
 import {Tooltip, Typography} from 'antdv-next'
 import {h} from 'vue'
 import i18n from '@/i18n'
 import {AuthServerService} from '@loncra/client/auth'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {emailCore, emailMessageService} from './email.page'
 
 /**

@@ -2,13 +2,12 @@ import type {Ref} from 'vue'
 import type {RoleEntity, RoleSavePayload} from '@loncra/client/auth'
 import {RoleService} from '@loncra/client/auth'
 import type {CrudPageCore} from '@loncra/antdv-pro'
-import i18n from '@/i18n'
 import {AUTH_SERVER_ROLE_ROUTE} from '@/routers/auth-server/role'
 import {
+  getEnumValue,
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
-  getEnumValue,
 } from '@loncra/client/commons'
 
 const roleService = new RoleService()

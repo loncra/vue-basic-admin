@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import {ref} from 'vue'
-import {useRoute} from 'vue-router'
-import {useI18n} from 'vue-i18n'
+import {getCurrentInstance, ref} from 'vue'
 import type {AuditEventEntity} from '@loncra/client/auth'
 // ⚠️ 必须显式 import：宿主 `src/components` 下的旧 kit 渲染器被 unplugin-vue-components
 // 自动注册成了**全局** `CrudDetailPage` ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
@@ -22,8 +20,8 @@ defineOptions({
   name: 'AuthServerAuditEventDetail',
 })
 
-const {t} = useI18n()
-const route = useRoute()
+const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
+const t = globalProperties.$t
 const configProvider = useConfigProviderStore()
 const detailRef = ref<{entity?: AuditEventEntity}>()
 
@@ -37,7 +35,7 @@ const {ok, id, after} = useRequiredQuery(['id', 'after'], {numeric: false})
 /** 离场回列表：两条路由进来（认证事件 / 操作数据轨迹），按当前路由名判断回哪 */
 const {onStale} = usePageExit({
   redirect:
-    route.name === AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION_DETAIL
+    globalProperties.$route.name === AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION_DETAIL
       ? AUTH_SERVER_AUDIT_EVENT_ROUTE.AUTHENTICATION
       : AUTH_SERVER_AUDIT_EVENT_ROUTE.OPERATION_DATA_TRACE,
 })

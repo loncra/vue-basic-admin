@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import {type ComponentInternalInstance, getCurrentInstance, ref} from 'vue'
+import {ref} from 'vue'
 import type {EnterpriseInvitationEntity} from '@loncra/client/auth'
-import {AUTH_SERVER_AUDIT_TYPE_VALUE} from '@loncra/client/auth'
-import {AUDIT_STATUS_VALUE, getEnumValue} from '@loncra/client/commons'
-import {QrCodeModal as LQrCodeModal} from '@loncra/antdv'
 import {
-  CrudHomePage as LCrudHomePage,
-  CrudHomePage,
-  type CrudHomePageExpose
-} from '@loncra/antdv-pro'
-import {renderIconFont, requireNonNullOrUndefined} from '@/utils'
+  AUTH_SERVER_AUDIT_TYPE_VALUE,
+  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY
+} from '@loncra/client/auth'
+import {AUDIT_STATUS_VALUE, getEnumValue} from '@loncra/client/commons'
+import {QrCodeModal} from '@loncra/antdv'
+import {CrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import {renderIconFont} from '@/utils'
 import LEnterpriseInvitationModal from '@/views/auth-server/enterprise-invitation/Form.vue'
 import LEnterpriseMemberAuditModal from '@/views/auth-server/enterprise-invitation/Audit.vue'
-import {AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY} from '@loncra/client/auth'
 import {
   enterpriseMemberAudit,
   enterpriseMemberHomePage,
@@ -27,10 +25,6 @@ import {enterpriseInvitationHomePage, invitationShare,} from './enterprise-invit
 defineOptions({
   name: 'AuthServerEnterpriseInvitationHome',
 })
-
-const globalProperties =
-  requireNonNullOrUndefined<ComponentInternalInstance>(getCurrentInstance()).appContext.config
-    .globalProperties
 
 /** 表格实例（`@success` 之后刷新它） */
 const table = ref<CrudHomePageExpose<EnterpriseInvitationEntity>>()
@@ -55,7 +49,7 @@ function openForm(record?: EnterpriseInvitationEntity): void {
 
 <template>
   <div>
-    <l-crud-home-page
+    <crud-home-page
       ref="table"
       :page="enterpriseInvitationHomePage"
       :expandable="{
@@ -88,12 +82,12 @@ function openForm(record?: EnterpriseInvitationEntity): void {
           <template #title>
             <a-space>
               <component :is="() => renderIconFont('loncra-user-check', 'align')" />
-              {{ globalProperties.$t('authServer.enterpriseInvitation.invitedMembers') }}
+              {{ $t('authServer.enterpriseInvitation.invitedMembers') }}
             </a-space>
           </template>
         </crud-home-page>
       </template>
-    </l-crud-home-page>
+    </crud-home-page>
 
     <teleport v-if="form.open || invitationShare.open || enterpriseMemberAudit.open" to="body">
       <l-enterprise-invitation-modal
@@ -109,7 +103,7 @@ function openForm(record?: EnterpriseInvitationEntity): void {
         @success="memberTableKey += 1"
       />
 
-      <l-qr-code-modal
+      <qr-code-modal
         v-if="invitationShare.open"
         v-model:open="invitationShare.open"
         :url="invitationShare.url"

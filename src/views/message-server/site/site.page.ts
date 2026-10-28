@@ -2,7 +2,11 @@ import type {SiteMessageEntity} from '@loncra/client/message'
 import {SiteMessageService} from '@loncra/client/message'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import {MESSAGE_SERVER_SITE_ROUTE} from '@/constants'
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {
+  OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from '@loncra/client/commons'
 
 export const siteMessageService = new SiteMessageService()
 

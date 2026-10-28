@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {ref} from 'vue'
-import {useRoute} from 'vue-router'
 import type {EnterpriseRoleSavePayload, ResourceEntity} from '@loncra/client/auth'
 import {CrudFormPage, CrudHomePage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@loncra/client/commons'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
 import {
   fetchEnterpriseResources,
@@ -24,11 +23,8 @@ defineOptions({
   name: 'AuthServerEnterpriseRoleForm',
 })
 
-const route = useRoute()
 const formRef = ref<{entity?: EnterpriseRoleSavePayload}>()
-/** pro 的壳不认路由：主键由页壳取出来传进去（没有 = 新增） */
-/** 主键：**进页面那一刻取一次**（快照）。别写 `computed` —— 那样 id 会跟着"当前路由"走：本实例若在路由切走后被重新挂载/重新激活，就会拿**别人的 id** 去取自己的数据 */
-const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
+const {id} = useRequiredQuery(['id'], {required: false})
 
 /** 标题（旧 `setPageTitle` 三档）：addChild 带进来的父角色名优先，其次编辑态的角色名，最后只有标题 */
 useEntityPageTitle(() => {

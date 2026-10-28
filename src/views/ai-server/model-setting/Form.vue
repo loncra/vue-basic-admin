@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import {computed, inject, ref} from 'vue'
-import {useRoute} from 'vue-router'
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import type {ModelGenerateOptions, ModelSettingSavePayload} from '@loncra/client/ai'
+import {
+  MODEL_DEFAULT_OPTIONS_KEY,
+  MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
+  MODEL_GENERATE_OPTION_KEYS,
+  MODEL_GENERATE_OPTION_NUMBER_KEYS,
+  MODEL_GENERATE_OPTION_STRING_KEYS,
+} from '@loncra/client/ai'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
@@ -12,14 +19,7 @@ import {
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
   MODEL_SETTING_MANUFACTURER_CODE_QUERY,
 } from '@/constants'
-import {
-  MODEL_DEFAULT_OPTIONS_KEY,
-  MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
-  MODEL_GENERATE_OPTION_KEYS,
-  MODEL_GENERATE_OPTION_NUMBER_KEYS,
-  MODEL_GENERATE_OPTION_STRING_KEYS,
-} from '@loncra/client/ai'
-import {SYSTEM_CONSTANT, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {modelSettingFormPage} from './model-setting.form.page'
 
 /**
@@ -31,7 +31,6 @@ defineOptions({
   name: 'AiServerModelSettingForm',
 })
 
-const route = useRoute()
 /** 壳要读 expose 的 `buckets`（是/否下拉的选项来自声明统一加载的那份桶）⇒ 本地类型带上它 */
 const formRef = ref<{entity?: ModelSettingSavePayload; buckets?: EnumBucketsResponseBody}>()
 
@@ -40,13 +39,10 @@ const closeLayoutTab = inject<(page: string, activatePane: boolean) => void>(
   LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY,
 )
 
-/** 主键：**进页面那一刻取一次**（快照），别写 computed（缓存实例被重激活会拿别人的 id） */
-const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
+const {id} = useRequiredQuery(['id'], {required: false})
 
 /**
  * 标题（旧 `title-text`）：编辑态 `标题 (实体名)`；新增态 `标题 (厂商名)`（厂商由 `preMounted` 灌进来）。
- * ⚠️ 厂商 code 是**字符串** ⇒ 不能用 `useRequiredQuery`（它会把参数 `Number()`，`'openai'` 会变 NaN
- * 被当成"没给"），所以那条 400 校验留在声明的 `preMounted` 里。
  */
 useEntityPageTitle(() => {
   const entity = formRef.value?.entity

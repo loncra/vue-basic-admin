@@ -1,10 +1,9 @@
-import {defineHomePage, type ActionContext} from '@loncra/antdv-pro'
+import {type ActionContext, defineHomePage} from '@loncra/antdv-pro'
 import type {McpPackageEntity, McpPackageSavePayload} from '@loncra/client/ai'
-import {getEnumValue} from '@loncra/client/commons'
+import {MCP_PACKAGE_AUTHORITY} from '@loncra/client/ai'
+import {DATA_STATUS, getEnumValue} from '@loncra/client/commons'
 import i18n from '@/i18n'
 import {defineSearchProps, renderIconFont} from '@/utils'
-import {DATA_STATUS, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
-import {MCP_GROUP_CODE_PREFIX, MCP_PACKAGE_AUTHORITY} from '@loncra/client/ai'
 import {mcpPackageCore, mcpPackageService} from './mcp-package.page'
 
 /** 可发布的：新建 / 已撤销（与行内 `release` 的 `enabled` 同一判据） */

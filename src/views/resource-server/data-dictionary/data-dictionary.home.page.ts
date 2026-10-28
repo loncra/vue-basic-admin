@@ -1,8 +1,7 @@
 import {defineHomePage} from '@loncra/antdv-pro'
 import type {DataDictionaryEntity, DataDictionarySavePayload} from '@loncra/client/resource'
-import {defineSearchProps} from '@/utils'
 import {RESOURCE_SERVER_DATA_DICTIONARY_AUTHORITY} from '@loncra/client/resource'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {defineSearchProps} from '@/utils'
 import {dataDictionaryCore} from './data-dictionary.page'
 
 /**

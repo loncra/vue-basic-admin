@@ -12,9 +12,8 @@ import {
 import type {RestResult} from "@loncra/client/commons";
 import {AUDIT_STATUS_VALUE, getEnumName, getEnumValue} from "@loncra/client/commons"
 import {SYSTEM_ROUTE} from '@/constants'
-import {ICON_SELECT_AVATAR_MODE_VALUE} from '@loncra/antdv';
-import {IconSelect as LIconSelect} from '@loncra/antdv'
-import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {ICON_SELECT_AVATAR_MODE_VALUE, IconSelect} from '@loncra/antdv';
+import {useDateFormat, UserAvatar} from '@loncra/antdv-pro';
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 
 const {dateTimeFormat} = useDateFormat()
@@ -142,21 +141,21 @@ onMounted(mounted)
     <a-card class="shadow-card w-120" v-if="options.detail">
       <template #title>
         <a-space>
-          <l-icon-select preview :icon-render="renderIconFont" :value="options.detail.enterprise.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + options.detail.enterprise.name" />
+          <icon-select preview :icon-render="renderIconFont" :value="options.detail.enterprise.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + options.detail.enterprise.name" />
           <a-typography-text strong class="text-xl">
             {{options.detail.enterprise.name}}
           </a-typography-text>
         </a-space>
       </template>
       <template #extra>
-        {{ globalProperties.$t('authServer.enterpriseInvitation.confirm') }}
+        {{ $t('authServer.enterpriseInvitation.confirm') }}
       </template>
       <a-spin :spinning="options.loading" class="size-full-spin">
         <a-flex gap="middle" vertical>
           <template v-if="!options.detail.invitee">
             <a-flex gap="middle" vertical class="w-full">
               <a-space>
-                <l-user-avatar :user="options.detail.member" />
+                <user-avatar :user="options.detail.member" />
                 {{AuthServerService.getPrincipalNameByUserDetails(options.detail.member)}}
                 {{$t('authServer.enterpriseInvitation.invitation',{name:' ' + options.detail.enterprise.name + ' '}) }}
               </a-space>

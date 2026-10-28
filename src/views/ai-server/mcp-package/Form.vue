@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import {ref} from 'vue'
-import {useRoute} from 'vue-router'
 import type {
   McpPackageSavePayload,
   SseMcpClientTransportMetadata,
   StdioMcpClientTransportMetadata,
   StreamableHttpMcpClientTransportMetadata,
 } from '@loncra/client/ai'
-import {AI_SERVER_MCP_CLIENT_TYPE} from '@loncra/client/ai'
+import {AI_SERVER_MCP_CLIENT_TYPE, MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
-import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
+import {KeyValueTable} from '@loncra/antdv'
 import {CrudFormPage} from '@loncra/antdv-pro'
 /** 三张键值表的行数据是宿主扩展字段（不是后端字段）⇒ 模板里在这个类型上取/写 */
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
@@ -17,8 +16,8 @@ import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyT
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
-import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
-import {SYSTEM_CONSTANT, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {mcpPackageCore} from './mcp-package.page'
 import {mcpPackageFormPage} from './mcp-package.form.page'
 
@@ -38,11 +37,9 @@ defineOptions({
   name: 'AiServerMcpPackageForm',
 })
 
-const route = useRoute()
 const formRef = ref<{entity?: McpPackageSavePayload}>()
 
-/** 主键：进页面那一刻取一次（快照）；新增态没有 id ⇒ pro 不取数 */
-const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
+const {id} = useRequiredQuery(['id'], {required: false})
 
 const configProviderStore = useConfigProviderStore()
 
@@ -175,7 +172,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
             </a-col>
           </template>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <l-key-value-table
+            <key-value-table
               ref="headerTableRef"
               multiple-value
               :form-item-name-prefix="['headerDataSource']"
@@ -193,10 +190,10 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
                   {{ title }}
                 </a-space>
               </template>
-            </l-key-value-table>
+            </key-value-table>
           </a-col>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <l-key-value-table
+            <key-value-table
               ref="queryParamTableRef"
               multiple-value
               :form-item-name-prefix="['queryParamDataSource']"
@@ -214,7 +211,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
                   {{ title }}
                 </a-space>
               </template>
-            </l-key-value-table>
+            </key-value-table>
           </a-col>
         </template>
 
@@ -244,7 +241,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <l-key-value-table
+            <key-value-table
               ref="envTableRef"
               :form-item-name-prefix="['envDataSource']"
               :title="$t('aiServer.mcpPackage.env')"
@@ -261,7 +258,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
                   {{ title }}
                 </a-space>
               </template>
-            </l-key-value-table>
+            </key-value-table>
           </a-col>
         </template>
 

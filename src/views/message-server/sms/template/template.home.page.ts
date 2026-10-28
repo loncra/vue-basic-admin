@@ -1,7 +1,7 @@
 import {defineHomePage} from '@loncra/antdv-pro'
 import type {SmsTemplateEntity} from '@loncra/client/message'
-import {getEnumValue, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY} from '@loncra/client/message'
+import {getEnumValue} from '@loncra/client/commons'
 import {defineSearchProps} from '@/utils'
 import {templateCore} from './template.page'
 

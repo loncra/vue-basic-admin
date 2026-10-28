@@ -4,8 +4,7 @@ import {getEnumValue} from '@loncra/client/commons'
 import type {SmsSignEntity, SmsTemplateEntity} from '@loncra/client/message'
 import {SmsSignService, SmsTemplateService} from '@loncra/client/message'
 import {CrudFormPage, type CrudFormPageExpose, type SearchableColumnType,} from '@loncra/antdv-pro'
-import {computed, onMounted, ref, watch} from 'vue'
-import {useRouter} from 'vue-router'
+import {computed, getCurrentInstance, onMounted, ref, watch} from 'vue'
 import i18n from '@/i18n'
 import {MESSAGE_SERVER_SMS_ROUTE} from '@/constants'
 import {navigateAfterMessageSend} from '@/views/message-server/useMessageSendFlow.ts'
@@ -16,7 +15,8 @@ defineOptions({
   name: 'MessageServerSmsForm',
 })
 
-const router = useRouter()
+const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
+const router = globalProperties.$router
 
 const formRef = ref<CrudFormPageExpose<SmsSendForm>>()
 

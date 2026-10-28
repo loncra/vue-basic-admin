@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import {ref} from 'vue'
-import {useRoute} from 'vue-router'
 import type {ResourceEntity, RoleSavePayload} from '@loncra/client/auth'
 // ⚠️ `CrudHomePage` 也要显式 import：宿主 `src/components` 下的旧 kit 渲染器被
 // unplugin-vue-components 自动注册成了**全局**同名组件 ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
 import {CrudFormPage, CrudHomePage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@loncra/client/commons'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {RESOURCE_VARIANT, resourceTreeSelection,} from '@/views/auth-server/resource/resource.page'
 import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'
 import {roleCore} from './role.page'
@@ -22,11 +21,8 @@ defineOptions({
   name: 'AuthServerRoleForm',
 })
 
-const route = useRoute()
 const formRef = ref<{entity?: RoleSavePayload}>()
-/** pro 的壳不认路由：主键由页壳取出来传进去（没有 = 新增） */
-/** 主键：**进页面那一刻取一次**（快照）。别写 `computed` —— 那样 id 会跟着"当前路由"走：本实例若在路由切走后被重新挂载/重新激活，就会拿**别人的 id** 去取自己的数据 */
-const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
+const {id} = useRequiredQuery(['id'], {required: false})
 
 const resourcePickerRef = ref<{
   fetchDataSource?: () => void

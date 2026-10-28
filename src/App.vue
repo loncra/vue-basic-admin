@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {computed, h, onMounted, type VNode} from 'vue'
+import {computed, getCurrentInstance, h, onMounted, type VNode} from 'vue'
 import {Space} from 'antdv-next'
 import axios from '@/requests'
 import {createAxiosHttpClient} from '@loncra/client/adapters/axios'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import type {CrudNavigateTarget} from '@loncra/antdv-pro'
-import {Provider as LProvider} from '@loncra/antdv-chat-pro'
+import {Provider} from '@loncra/antdv-chat-pro'
 // `VNodeChild` 取**包的类型视野**（两份 vue 副本的 d.ts 互不兼容，运行期是同一份 vue）
 import type {VNodeChild} from '@loncra/antdv'
 import {usePrincipalStore} from '@/stores/principalStore'
@@ -13,7 +13,6 @@ import {useMenuPrincipalStore} from '@/stores/menuStore'
 import {useBootstrapStore} from '@/stores/bootStore.ts'
 import {convertFormUrlencoded, renderIconFont} from '@/utils/commonUtils'
 import {crudFormatters} from '@/utils/crudFormatters'
-import {useRouter} from 'vue-router'
 import i18n from '@/i18n'
 
 defineOptions({
@@ -24,7 +23,8 @@ const configProviderStore = useConfigProviderStore()
 const principalStore = usePrincipalStore()
 const menuPrincipalStore = useMenuPrincipalStore()
 const bootStore = useBootstrapStore()
-const router = useRouter()
+const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
+const router = globalProperties.$router
 
 // 地址栏回车时的原始地址：首次导航发生在路由装配之前，装配完成后要补跳一次
 const initialHref = location.pathname + location.search + location.hash
@@ -39,7 +39,7 @@ onMounted(async () => {
   window.__boot?.remove()
 })
 
-// ===== 客户端（HTTP / 运行时）配置：在此构建，交给 LProvider =====
+// ===== 客户端（HTTP / 运行时）配置：在此构建，交给 Provider =====
 const http = createAxiosHttpClient(axios)
 const runtimeMode = import.meta.env.VITE_APP_RUNTIME_MODE
 const resourcePath = import.meta.env.VITE_APP_RESOURCE_PATH
@@ -117,7 +117,7 @@ function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
       一层顶原来的「客户端配置 + antdv 主题/语言/尺寸 + CRUD 配置」。
       `antdv` 是宿主自己初始化的那份（初值从 localStorage 读、变更写回、`data-theme` 同步都在 `@/stores/configProviderStore`）。
     -->
-    <l-provider
+    <provider
       :antdv-config="configProviderStore.antdv"
       :locale-message="localeMessage"
       :http="http"
@@ -146,6 +146,6 @@ function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
           </transition>
         </router-view>
       </a-app>
-    </l-provider>
+    </provider>
   </a-style-provider>
 </template>

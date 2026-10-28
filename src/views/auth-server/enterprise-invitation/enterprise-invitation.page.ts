@@ -6,7 +6,11 @@ import {EnterpriseInvitationService} from '@loncra/client/auth'
 import {type CrudPageCore, dayjsFormat} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import {AUTH_SERVER_ENTERPRISE_INVITATION_ROUTE} from '@/constants'
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {
+  OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from '@loncra/client/commons'
 
 const enterpriseInvitationService = new EnterpriseInvitationService()
 

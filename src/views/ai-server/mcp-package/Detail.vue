@@ -5,7 +5,8 @@ import type {
   SseMcpClientTransportMetadata,
   StdioMcpClientTransportMetadata,
 } from '@loncra/client/ai'
-import {KeyValueTable as LKeyValueTable} from '@loncra/antdv'
+import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
+import {KeyValueTable} from '@loncra/antdv'
 // ⚠️ 必须显式 import：宿主 `src/components` 下的旧 kit 渲染器被 unplugin-vue-components
 // 自动注册成了**全局** `CrudDetailPage` ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
 import {CrudDetailPage} from '@loncra/antdv-pro'
@@ -15,7 +16,6 @@ import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {renderIconFont} from '@/utils'
-import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
 /** 宿主在 client 实体上补的三张「键值表」行数据（`@/types/apis`）—— 插槽作用域是 client 类型，写它要收窄 */
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
 import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyTable.vue'
@@ -98,7 +98,7 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
 
         <a-row :gutter="[configProviderStore.getToken().sizeMD]">
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <l-key-value-table
+            <key-value-table
               :edit="false"
               :title="$t('aiServer.mcpPackage.headers')"
               v-model:value="mcpSources(entity).headerDataSource"
@@ -109,10 +109,10 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
                   {{ title }}
                 </a-space>
               </template>
-            </l-key-value-table>
+            </key-value-table>
           </a-col>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
-            <l-key-value-table
+            <key-value-table
               :edit="false"
               :title="$t('aiServer.mcpPackage.queryParams')"
               v-model:value="mcpSources(entity).queryParamDataSource"
@@ -123,7 +123,7 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
                   {{ title }}
                 </a-space>
               </template>
-            </l-key-value-table>
+            </key-value-table>
           </a-col>
         </a-row>
       </template>
@@ -148,7 +148,7 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
             </a-tag>
           </a-descriptions-item>
         </a-descriptions>
-        <l-key-value-table
+        <key-value-table
           :edit="false"
           :title="$t('aiServer.mcpPackage.env')"
           v-model:value="mcpSources(entity).envDataSource"
@@ -159,7 +159,7 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
               {{ title }}
             </a-space>
           </template>
-        </l-key-value-table>
+        </key-value-table>
       </template>
 
       <l-mcp-clarify-policy-table

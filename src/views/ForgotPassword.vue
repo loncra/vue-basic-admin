@@ -16,7 +16,7 @@ import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
 import type {CaptchaToken} from "@loncra/client/resource";
 import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
 import useApp from "antdv-next/dist/app/useApp";
-import {Form as LForm, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {Form as LForm, UserAvatar} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'ForgotPasswordHome',
@@ -226,7 +226,7 @@ function isSelect(user: PlatformUser, type: string) {
         <l-logo/>
       </template>
       <template #extra>
-        {{ globalProperties.$t('forgotPassword.title') }}
+        {{ $t('forgotPassword.title') }}
       </template>
       <a-flex class="size-full">
 
@@ -235,7 +235,7 @@ function isSelect(user: PlatformUser, type: string) {
 
             <template v-if="step === 1">
               <a-typography-text type="secondary">
-                {{ globalProperties.$t('forgotPassword.step.sendCaptcha.subTitle') }}
+                {{ $t('forgotPassword.step.sendCaptcha.subTitle') }}
               </a-typography-text>
               <a-segmented block :options="segmentedData"
                            v-model:value="resetPasswordForm.metadata.id"/>
@@ -251,7 +251,7 @@ function isSelect(user: PlatformUser, type: string) {
                 <template v-if="isMultiUsers()">
                   <div class="mb-md">
                     <a-alert
-                      :description="globalProperties.$t('forgotPassword.step.multiUsersSelected.subTitle', {type: segmentedData.find(s => s.value === resetPasswordForm.metadata.id)?.label,target: resetPasswordForm.metadata.value})"
+                      :description="$t('forgotPassword.step.multiUsersSelected.subTitle', {type: segmentedData.find(s => s.value === resetPasswordForm.metadata.id)?.label,target: resetPasswordForm.metadata.value})"
                       type="info"
                       show-icon
                     />
@@ -270,18 +270,18 @@ function isSelect(user: PlatformUser, type: string) {
                         gap="small"
                         @click="onSelectedUser(user.id, typeUsers.id)"
                       >
-                        <l-user-avatar :user="user" size="large"/>
+                        <user-avatar :user="user" size="large"/>
                         <a-flex vertical flex="1">
                           <a-typography-text ellipsis strong="">
                             {{ AuthServerService.getPrincipalNameByUserDetails(user) }}
                           </a-typography-text>
                           <a-typography-text ellipsis type="secondary" class="text-sm">
                             <template v-if="user.phoneNumber">
-                              {{ globalProperties.$t('common.phoneNumber') }}:
+                              {{ $t('common.phoneNumber') }}:
                               {{ user.phoneNumber }}
                             </template>
                             <template v-if="user.email">
-                              , {{ globalProperties.$t('common.email') }}: {{ user.email }}
+                              , {{ $t('common.email') }}: {{ user.email }}
                             </template>
                           </a-typography-text>
                         </a-flex>
@@ -306,14 +306,14 @@ function isSelect(user: PlatformUser, type: string) {
                     v-if="generateCaptcha.result && generateCaptcha.disabledSendButton"
                     :value="generateCaptcha.result.expired"
                     type="countdown"
-                    :format="globalProperties.$t('captcha.countdown')"
+                    :format="$t('captcha.countdown')"
                   />
 
                   <span v-else-if="isMultiUsers()">
-                    {{ globalProperties.$t('forgotPassword.step.multiUsersSelected.action') }}
+                    {{ $t('forgotPassword.step.multiUsersSelected.action') }}
                   </span>
                   <span v-else>
-                    {{ globalProperties.$t('forgotPassword.step.sendCaptcha.action') }}
+                    {{ $t('forgotPassword.step.sendCaptcha.action') }}
                   </span>
                 </a-button>
                 <a-flex justify="center" align="center">
@@ -323,13 +323,13 @@ function isSelect(user: PlatformUser, type: string) {
                       <template #icon>
                         <icon-font type="loncra-undo-2"/>
                       </template>
-                      {{ globalProperties.$t('common.back') }}
+                      {{ $t('common.back') }}
                     </a-button>
                     <a-button type="text" v-if="generateCaptcha.result" @click="step = 2">
                       <template #icon>
                         <icon-font type="loncra-forward"/>
                       </template>
-                      {{ globalProperties.$t('forgotPassword.step.backRestPassword') }}
+                      {{ $t('forgotPassword.step.backRestPassword') }}
                     </a-button>
                   </a-space-compact>
                 </a-flex>
@@ -338,18 +338,18 @@ function isSelect(user: PlatformUser, type: string) {
             <template v-if="step === 2">
               <a-alert type="info" show-icon>
                 <template #description>
-                  {{ globalProperties.$t('captcha.sendTo', {type:segmentedData.find(s => s.value === resetPasswordForm.metadata.id)?.label,target: resetPasswordForm.metadata.value}) }}
-                  <a-typography-text type="secondary">{{globalProperties.$t('captcha.resend.prompt')}}</a-typography-text>
+                  {{ $t('captcha.sendTo', {type:segmentedData.find(s => s.value === resetPasswordForm.metadata.id)?.label,target: resetPasswordForm.metadata.value}) }}
+                  <a-typography-text type="secondary">{{$t('captcha.resend.prompt')}}</a-typography-text>
                   <a-statistic-timer
                     :classes="{root:'inline-block',content:'text-text-secondary text-DEFAULT'}"
                     @finish="() => generateCaptcha.disabledSendButton = false"
                     v-if="generateCaptcha.result && generateCaptcha.disabledSendButton"
                     :value="generateCaptcha.result.expired"
                     type="countdown"
-                    :format="'(' + globalProperties.$t('captcha.countdown') + ')'"
+                    :format="'(' + $t('captcha.countdown') + ')'"
                   />
                   <a-button v-else type="link" size="small" @click="doSendCaptcha()">
-                    {{globalProperties.$t('captcha.resend.action')}}
+                    {{$t('captcha.resend.action')}}
                   </a-button>
                 </template>
               </a-alert>
@@ -358,8 +358,8 @@ function isSelect(user: PlatformUser, type: string) {
                       :model="resetPasswordForm">
                 <a-form-item
                   name="captchaValue"
-                  :label="globalProperties.$t('captcha.text')"
-                  :message-variables="{ label: globalProperties.$t('captcha.text') }"
+                  :label="$t('captcha.text')"
+                  :message-variables="{ label: $t('captcha.text') }"
                   :rules="[{required: true}]"
                 >
 
@@ -371,12 +371,12 @@ function isSelect(user: PlatformUser, type: string) {
                     :length="generateCaptcha.result.codeLength"
                   />
                 </a-form-item>
-                <a-form-item name="newPassword" :label="globalProperties.$t('auth.newPassword')"
-                             :rules="[{required: true, trigger: 'change'},{type: 'string', pattern: VALID_REGX.PASSWORD, message: globalProperties.$t('error.valid.password'), trigger: 'change'}]">
+                <a-form-item name="newPassword" :label="$t('auth.newPassword')"
+                             :rules="[{required: true, trigger: 'change'},{type: 'string', pattern: VALID_REGX.PASSWORD, message: $t('error.valid.password'), trigger: 'change'}]">
                   <a-input-password class="w-full" v-model:value="resetPasswordForm.newPassword"/>
                 </a-form-item>
                 <a-form-item name="confirmPassword"
-                             :label="globalProperties.$t('common.confirmPassword')"
+                             :label="$t('common.confirmPassword')"
                              :rules="[{required: true, trigger: 'change'}, {validator: () => validatePassword(resetPasswordForm.newPassword,resetPasswordForm.confirmPassword), trigger: 'change'}]">
                   <a-input-password class="w-full"
                                     v-model:value="resetPasswordForm.confirmPassword"/>
@@ -385,14 +385,14 @@ function isSelect(user: PlatformUser, type: string) {
                   <template #icon>
                     <icon-font class="icon" type="loncra-user-check"/>
                   </template>
-                  {{ globalProperties.$t('systemSetting.account.modifyPassword') }}
+                  {{ $t('systemSetting.account.modifyPassword') }}
                 </a-button>
                 <a-flex justify="center" align="center">
                   <a-button type="text" @click="step = 1">
                     <template #icon>
                       <icon-font type="loncra-undo-2"/>
                     </template>
-                    {{ globalProperties.$t('common.back') }}
+                    {{ $t('common.back') }}
                   </a-button>
                 </a-flex>
               </l-form>

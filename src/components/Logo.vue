@@ -7,13 +7,11 @@ import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
 } from '@/constants'
-import {AUTHENTICATION_MEMBER_TYPE} from '@loncra/client/auth'
-import {ICON_SELECT_AVATAR_MODE_VALUE} from '@loncra/antdv';
-import {requireNonNullOrUndefined} from "@/utils";
-import {IconSelect as LIconSelect} from '@loncra/antdv'
-import {renderIconFont} from '@/utils/commonUtils'
 import type {PersonalEnterprise} from "@loncra/client/auth";
-import {AUTH_SERVER_AUTHENTICATION_TYPE} from '@loncra/client/auth'
+import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTHENTICATION_MEMBER_TYPE} from '@loncra/client/auth'
+import {ICON_SELECT_AVATAR_MODE_VALUE, IconSelect} from '@loncra/antdv';
+import {requireNonNullOrUndefined} from "@/utils";
+import {renderIconFont} from '@/utils/commonUtils'
 import {getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
@@ -87,7 +85,7 @@ async function onSwitch(item: { key:string }) {
 <template>
   <a-flex align="center" gap="small" class="w-full">
     <a-flex class="shrink-0" v-if="currentItem" >
-      <l-icon-select size="large" preview :icon-render="renderIconFont" :value="currentItem.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + currentItem.name" />
+      <icon-select size="large" preview :icon-render="renderIconFont" :value="currentItem.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + currentItem.name" />
     </a-flex>
     <slot name="icon" v-else>
       <icon-font class="icon shrink-0 text-h1! leading-none" :type="props.icon"/>

@@ -4,11 +4,17 @@ import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
 import {renderIconFont} from '@/utils/commonUtils'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {ResourceService} from '@loncra/client/auth'
-import {findAllTreeNodes, findFirstTreeNode, type FilterRequest, unmergeTree} from '@loncra/client/commons'
+import {
+  type FilterRequest,
+  findAllTreeNodes,
+  findFirstTreeNode,
+  OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  unmergeTree
+} from '@loncra/client/commons'
 import {AUTH_SERVER_RESOURCE_ROUTE} from '@/constants'
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import type {CrudPageCore} from '@loncra/antdv-pro'
-import i18n from '@/i18n'
 
 /** 资源服务实例（企业侧页面要拿它调 `findEnterprise`，见 `fetchEnterpriseResources`） */
 export const resourceService = new ResourceService()

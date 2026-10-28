@@ -3,9 +3,9 @@ import {Space, Tooltip} from 'antdv-next'
 import {EditOutlined, FileAddOutlined} from '@antdv-next/icons'
 import {defineHomePage, type RecordActionContext} from '@loncra/antdv-pro'
 import type {DictionaryTypeEntity, DictionaryTypeSavePayload} from '@loncra/client/resource'
+import {RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY} from '@loncra/client/resource'
 import i18n from '@/i18n'
 import {defineSearchProps, renderIconFont} from '@/utils'
-import {RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY} from '@loncra/client/resource'
 import {dictionaryTypeCore} from './dictionary-type.page'
 
 /**

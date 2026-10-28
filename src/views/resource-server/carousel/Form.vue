@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import {computed, ref} from 'vue'
-import {useRoute} from 'vue-router'
-import {useI18n} from 'vue-i18n'
+import {computed, getCurrentInstance, ref} from 'vue'
 import type {CarouselSavePayload} from '@/types/apis'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@loncra/client/commons'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {carouselCore} from './carousel.page'
 import {carouselFormPage} from './carousel.form.page'
 
@@ -22,20 +20,18 @@ defineOptions({
   name: 'ResourceServerCarouseForm',
 })
 
-const {t} = useI18n()
-const route = useRoute()
+const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
 const formRef = ref<{entity?: CarouselSavePayload}>()
 
-/** 主键：进页面那一刻取一次（快照）；新增态没有 id ⇒ pro 不取数 */
-const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
+const {id} = useRequiredQuery(['id'], {required: false})
 /** 旧 `preMounted` 里那段 `?type=` 初值覆盖（声明侧读不到路由 ⇒ 从这里递进去） */
-const initialType = route.query.type as string | undefined
+const initialType = globalProperties.$route.query.type as string | undefined
 
 /** 链接协议（旧页面那个 `linkOptions`；`applet://` 那个名字要翻） */
 const linkOptions = computed(() => [
   {name: 'http://', value: 'http://'},
   {name: 'https://', value: 'https://'},
-  {name: t('common.applet'), value: 'applet://'},
+  {name: globalProperties.$t('common.applet'), value: 'applet://'},
 ])
 
 /** 标题：旧 `title-text` 是 `标题 (名称)`，新增态只给基标题 */

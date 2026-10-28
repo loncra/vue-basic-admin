@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import {computed, inject, ref} from 'vue'
 import {
+  AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_MEMBER_ROLE,
   AuthServerService,
   type EnterpriseMemberEntity,
   type EnterpriseRoleEntity,
   type ResourceEntity
 } from '@loncra/client/auth'
-import {AUTH_SERVER_ENTERPRISE_MEMBER_ROLE} from '@loncra/client/auth'
 import {getEnumValue} from '@loncra/client/commons'
 import {CrudDetailPage, CrudHomePage} from '@loncra/antdv-pro'
 import type {TableProps} from 'antdv-next'
@@ -15,7 +16,6 @@ import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {APP_RELOAD_PROVIDE_KEY} from '@/constants'
-import {AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY} from '@loncra/client/auth'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {enterpriseRoleHomePage} from '@/views/auth-server/enterprise-role/enterprise-role.home.page'
 import {resourceHomePage} from '@/views/auth-server/resource/resource.home.page'

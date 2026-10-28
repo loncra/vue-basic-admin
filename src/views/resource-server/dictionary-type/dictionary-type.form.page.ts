@@ -1,4 +1,4 @@
-import type {DictionaryTypeEntity, DictionaryTypeSavePayload} from '@loncra/client/resource'
+import type {DictionaryTypeSavePayload} from '@loncra/client/resource'
 import {defineFormPage, type PageFieldRenderContext} from '@loncra/antdv-pro'
 import {dictionaryTypeCore} from './dictionary-type.page'
 

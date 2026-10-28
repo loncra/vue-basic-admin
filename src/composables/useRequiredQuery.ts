@@ -17,6 +17,11 @@ export interface RequiredQueryOptions {
    *   旧 `BasicDetail` 的 `queryFields` 就是这个口径。
    */
   numeric?: boolean
+  /**
+   * `false` = 参数**可选**：只取值快照、缺参不跳 400（Form 壳"没有 id = 新增"的口径）。
+   * 默认 `true`（缺参摆清字段跳 400，壳 `v-if="ok"` 不挂载）。
+   */
+  required?: boolean
 }
 
 /**
@@ -108,7 +113,7 @@ export function useRequiredQuery<T extends string = typeof SYSTEM_CONSTANT.ID_NA
   const ok = missing.length === 0
 
   onMounted(() => {
-    if (ok) {
+    if (options.required === false || ok) {
       return
     }
     // 缺了什么、错在哪，都摆到 400 页上（不然就是一个什么都不显示的空页面，没法调）

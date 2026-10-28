@@ -14,7 +14,7 @@ import i18n from '@/i18n'
 import type {SlotConfigType} from "@antdv-next/x/dist/sender/interface";
 import type {UploadFile} from "antdv-next/dist/upload/interface";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {UserAvatar} from '@loncra/antdv-pro';
 import {MESSAGE_SERVER_USER_CHAT_ROOM_TYPE} from '@loncra/client/message'
 
 export function createUserAvatarNode(
@@ -22,7 +22,7 @@ export function createUserAvatarNode(
   size: AvatarSize = 'medium'
 ) {
   return h(
-    LUserAvatar,
+    UserAvatar,
     {
       user,
       size

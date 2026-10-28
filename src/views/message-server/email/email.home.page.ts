@@ -1,10 +1,10 @@
 import type {EmailMessageEntity} from '@loncra/client/message'
+import {MESSAGE_SERVER_EMAIL_AUTHORITY} from '@loncra/client/message'
 import {defineHomePage, executeStatusCell} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
 import {defineSearchProps, renderIconFont} from '@/utils'
 import {MESSAGE_SERVER_EMAIL_ROUTE} from '@/constants'
-import {MESSAGE_SERVER_EMAIL_AUTHORITY} from '@loncra/client/message'
 import {emailCore} from './email.page'
 
 /** 工具栏：发邮件（旧表 `actionButtons` 那一个按钮） */

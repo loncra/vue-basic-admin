@@ -1,5 +1,5 @@
 import {h} from 'vue'
-import {IconSelect} from '@loncra/antdv'
+import {ICON_SELECT_AVATAR_MODE_VALUE, IconSelect} from '@loncra/antdv'
 import {
   AI_SERVER_SKILL_SOURCE_TYPE,
   AI_SERVER_SKILL_UPDATE_POLICY,
@@ -8,7 +8,6 @@ import {
 } from '@loncra/client/ai'
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import {defineDetailPage, executeStatusCell} from '@loncra/antdv-pro'
-import {ICON_SELECT_AVATAR_MODE_VALUE} from '@loncra/antdv'
 import {renderIconFont} from '@/utils'
 import {skillPackageCore} from './skill-package.page'
 

@@ -1,12 +1,11 @@
 import type {EnterpriseRoleEntity, EnterpriseRoleSavePayload} from '@loncra/client/auth'
-import {getEnumValue} from '@loncra/client/commons'
+import {AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY} from '@loncra/client/auth'
+import {getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineHomePage, type RecordActionContext} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
 import {defineSearchProps, renderIconFont} from '@/utils'
 import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE} from '@/constants'
-import {AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY} from '@loncra/client/auth'
-import {YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {enterpriseRoleCore} from './enterprise-role.page'
 
 /** 加子角色：跳到 addChild 路由，把当前行当父级（`run` 只接线，实现放这儿） */

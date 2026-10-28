@@ -13,7 +13,7 @@ import {usePrincipalStore} from '@/stores/principalStore'
 import {renderIconFont} from '@/utils/commonUtils'
 
 /**
- * 宿主注册给 CRUD DSL 的 **formatter 表**（`<l-provider :formatters="…">`
+ * 宿主注册给 CRUD DSL 的 **formatter 表**（`<provider :formatters="…">`
  * → `CrudConfigProvider` → 按 key 覆盖 pro 的内置表）。
  *
  * 声明里写 `format: 'iconName'`，或带参数 `format: {name: 'iconName', args: {size: 'large'}}`。

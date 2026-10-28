@@ -2,8 +2,11 @@ import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@loncra/client/aut
 import {ConsoleUserService} from '@loncra/client/auth'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import {AUTH_SERVER_CONSOLE_USER_ROUTE} from '@/constants'
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
-import i18n from '@/i18n'
+import {
+  OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from '@loncra/client/commons'
 
 const consoleUserService = new ConsoleUserService()
 

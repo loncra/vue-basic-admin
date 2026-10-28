@@ -1,12 +1,11 @@
 import {defineStore} from "pinia";
 import {STORE} from '@/constants'
-import {YES_OR_NO_TYPE} from '@loncra/client/commons';
+import type {IdNameMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
+import {getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons';
 import {computed, ref} from "vue";
 import type {MyMessageState} from "@/types/apis";
-import type {IdNameMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import type {MessageGroup, UserChatUnreadItem} from "@loncra/client/message";
 import {MESSAGE_SERVER_MESSAGE_GROUP, MessageServerService} from "@loncra/client/message";
-import {getEnumValue} from "@loncra/client/commons"
 
 const RESET: MyMessageState = {
   record: {

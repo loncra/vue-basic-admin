@@ -1,8 +1,8 @@
 import {ref} from 'vue'
 import {
   AttachmentService,
-  RESOURCE_SERVER_ATTACHMENT_AUTHORITY,
   type ObjectItemInfo,
+  RESOURCE_SERVER_ATTACHMENT_AUTHORITY,
 } from '@loncra/client/resource'
 import {
   type ActionAppApis,

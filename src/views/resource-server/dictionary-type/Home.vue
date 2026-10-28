@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import {onActivated, onMounted, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
+import {getCurrentInstance, onActivated, onMounted, ref, watch} from 'vue'
 import type {TableProps} from 'antdv-next'
-import {CrudFormModal as LCrudFormModal, CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import {CrudFormModal, CrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
 import type {DictionaryTypeEntity} from '@loncra/client/resource'
 import {findAllTreeNodes, findFirstTreeNode, unmergeTree} from '@loncra/client/commons'
 import {dictionaryTypeFormPage} from './dictionary-type.form.page'
@@ -27,7 +26,7 @@ const emit = defineEmits<{
   select: [typeId?: number | string]
 }>()
 
-const route = useRoute()
+const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
 const table = ref<CrudHomePageExpose<DictionaryTypeEntity>>()
 
 /**
@@ -119,7 +118,7 @@ watch(rows, () => {
 
 /** 路由 query 里的 `typeId`（可能是数组 / 空 ⇒ 只认非空字符串） */
 function queryTypeId(): string | undefined {
-  const value = route.query.typeId
+  const value = globalProperties.$route.query.typeId
   return typeof value === 'string' && value ? value : undefined
 }
 
@@ -143,7 +142,7 @@ onActivated(restoreFromRoute)
 
 <template>
   <div>
-    <l-crud-home-page
+    <crud-home-page
       ref="table"
       v-model:data-source="rows"
       :page="dictionaryTypeHomePage"
@@ -167,14 +166,14 @@ onActivated(restoreFromRoute)
           </a-space>
         </a-flex>
       </template>
-    </l-crud-home-page>
+    </crud-home-page>
 
     <!--
       新增 / 修改弹层：字段与必填、父级 code 前缀、操作轨迹**全在声明里**
       （`dictionary-type.form.page.ts`）—— 这里只递"这一次为谁而开"：
       `id`（编辑态）/ `parentId` 与 `parentCode`（加子级）。保存成功刷左树后关弹层。
     -->
-    <l-crud-form-modal
+    <crud-form-modal
       v-model:open="dictionaryTypeModal.open"
       :page="dictionaryTypeFormPage"
       :id="dictionaryTypeModal.id"

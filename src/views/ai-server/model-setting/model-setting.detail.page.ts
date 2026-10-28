@@ -1,9 +1,17 @@
 import {h} from 'vue'
 import {Space} from 'antdv-next'
-import {AI_SERVER_MODEL_TYPE, type ModelSettingEntity} from '@loncra/client/ai'
+import {
+  AI_SERVER_MODEL_TYPE,
+  MODEL_DEFAULT_OPTIONS_KEY,
+  type ModelSettingEntity
+} from '@loncra/client/ai'
 import {defineDetailPage} from '@loncra/antdv-pro'
-import {MODEL_DEFAULT_OPTIONS_KEY} from '@loncra/client/ai'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, VALUE_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
+import {
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  VALUE_TYPE,
+  YES_OR_NO_TYPE
+} from '@loncra/client/commons'
 import {renderIconFont} from '@/utils'
 import {modelSettingCore} from './model-setting.page'
 

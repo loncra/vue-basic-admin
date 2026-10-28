@@ -5,20 +5,19 @@ import type {
   ModelSettingManufacturerMetadata,
   ModelSettingSavePayload,
 } from '@loncra/client/ai'
-import {AI_SERVER_MODEL_TYPE} from '@loncra/client/ai'
-import {getEnumValue} from '@loncra/client/commons'
+import {
+  AI_SERVER_MODEL_TYPE,
+  MODEL_DEFAULT_OPTIONS_KEY,
+  MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
+  MODEL_GENERATE_OPTION_KEYS
+} from '@loncra/client/ai'
+import {getEnumValue, SYSTEM_CONSTANT, VALUE_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineFormPage} from '@loncra/antdv-pro'
 import {ResourceServerService} from '@/apis'
 import {booleanToYesOrNo, yesOrNoToBoolean} from '@/utils'
 import i18n from '@/i18n'
 import router from '@/routers'
 import {MODEL_SETTING_MANUFACTURER_CODE_QUERY, SYSTEM_ROUTE} from '@/constants'
-import {
-  MODEL_DEFAULT_OPTIONS_KEY,
-  MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
-  MODEL_GENERATE_OPTION_KEYS,
-} from '@loncra/client/ai'
-import {SYSTEM_CONSTANT, VALUE_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {modelSettingCore} from './model-setting.page'
 
 /** 厂商 code 缺失 / 字典里查不到时的兜底（照抄旧页面的 400 流程，与 `useRequiredQuery` 同一口径） */

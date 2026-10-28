@@ -1,8 +1,18 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import type {ModelGenerateOptions, ModelSettingEntity} from '@loncra/client/ai'
+import {
+  MODEL_DEFAULT_OPTIONS_KEY,
+  MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
+  MODEL_GENERATE_OPTION_KEYS,
+} from '@loncra/client/ai'
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
+import {
+  getEnumName,
+  getEnumValue,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from '@loncra/client/commons'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 // ⚠️ 必须显式 import：宿主 `src/components` 下的旧 kit 渲染器被 unplugin-vue-components
 // 自动注册成了**全局** `CrudDetailPage` ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
@@ -13,12 +23,6 @@ import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
 import {AI_SERVER_MODEL_SETTING_ROUTE, MODEL_SETTING_MANUFACTURER_CODE_QUERY} from '@/constants'
-import {
-  MODEL_DEFAULT_OPTIONS_KEY,
-  MODEL_GENERATE_OPTION_BOOLEAN_KEYS,
-  MODEL_GENERATE_OPTION_KEYS,
-} from '@loncra/client/ai'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {modelSettingDetailPage} from './model-setting.detail.page'
 
 /**

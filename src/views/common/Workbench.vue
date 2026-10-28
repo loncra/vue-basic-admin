@@ -8,7 +8,7 @@ import type {AuditEventEntity} from "@loncra/client/auth";
 import {OperationDataTraceAuditEventService} from "@loncra/client/auth";
 import type {RestResult, TotalPage} from "@loncra/client/commons";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {useDateFormat, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {useDateFormat, UserAvatar} from '@loncra/antdv-pro';
 import {AUTH_SERVER_AUDIT_EVENT_ROUTE, DATE_TIME_FORMAT} from '@/constants';
 
 const {dateTimeFormat} = useDateFormat()
@@ -52,7 +52,7 @@ onMounted(mounted)
   <a-row :gutter="configProviderStore.getToken().sizeMD">
     <a-col span="6">
       <a-flex gap="large" vertical>
-        <a-card :classes="{body:'max-h-67 overflow-auto'}" :title="globalProperties.$t('workbench.quickAccess')">
+        <a-card :classes="{body:'max-h-67 overflow-auto'}" :title="$t('workbench.quickAccess')">
           <template #extra>
             <icon-font class="icon" type="loncra-fan"/>
           </template>
@@ -81,7 +81,7 @@ onMounted(mounted)
 
         <a-card>
           <a-flex gap="small" vertical justify="space-between" align="center">
-            <l-user-avatar :size="configProviderStore.getToken().sizeXXL" :user="principalStore.state.details.metadata" />
+            <user-avatar :size="configProviderStore.getToken().sizeXXL" :user="principalStore.state.details.metadata" />
             <a-typography-text class="text-xl block">
               {{ principalStore.getName() }}
             </a-typography-text>
@@ -97,7 +97,7 @@ onMounted(mounted)
           <a-divider plain titlePlacement="start" class="text-text-secondary">
             <a-space>
               <icon-font class="icon align" type="loncra-file-text"/>
-              {{globalProperties.$t('common.basicInformation')}}
+              {{$t('common.basicInformation')}}
             </a-space>
           </a-divider>
 
@@ -105,28 +105,28 @@ onMounted(mounted)
             <a-flex justify="space-between" align="center">
               <a-space>
                 <icon-font class="icon align" type="loncra-smartphone"/>
-                {{globalProperties.$t('common.phoneNumber')}}
+                {{$t('common.phoneNumber')}}
               </a-space>
               <span>{{ principalStore.state?.details?.metadata.phoneNumber }}</span>
             </a-flex>
             <a-flex justify="space-between" align="center">
               <a-space>
                 <icon-font class="icon align" type="loncra-mail"/>
-                {{globalProperties.$t('common.email')}}
+                {{$t('common.email')}}
               </a-space>
               <span>{{ principalStore.state?.details?.metadata.email }}</span>
             </a-flex>
             <a-flex justify="space-between" align="center">
               <a-space>
                 <icon-font class="icon align" type="loncra-transgender"/>
-                {{globalProperties.$t('common.gender')}}
+                {{$t('common.gender')}}
               </a-space>
               <span>{{ principalStore.state?.details?.metadata?.gender?.name }}</span>
             </a-flex>
           </a-space>
         </a-card>
 
-        <a-card :title="globalProperties.$t('workbench.personalActivity')" :classes="{body:'max-h-125 overflow-auto'}">
+        <a-card :title="$t('workbench.personalActivity')" :classes="{body:'max-h-125 overflow-auto'}">
           <template #extra>
             <icon-font class="icon" type="loncra-timer"/>
           </template>

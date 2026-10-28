@@ -12,12 +12,12 @@ import {AttachmentService} from "@loncra/client/resource";
 import useApp from "antdv-next/dist/app/useApp";
 import {
   ATTACHMENT_UPLOAD_MODE,
-  AttachmentUpload as LAttachmentUpload,
+  AttachmentUpload,
   Form as LForm,
-  UserAvatar as LUserAvatar
+  UserAvatar
 } from '@loncra/antdv-pro'
 import {AuthServerService, AvatarServerService} from "@loncra/client/auth";
-import {BasicImage as LBasicImage} from '@loncra/antdv'
+import {BasicImage} from '@loncra/antdv'
 import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 
 defineOptions({
@@ -138,11 +138,11 @@ onMounted(mounted)
       <template #title>
         <a-space>
           <icon-font class="icon align" type="loncra-history"/>
-          <span>{{ globalProperties.$t('systemSetting.account.avatar.history') }}</span>
+          <span>{{ $t('systemSetting.account.avatar.history') }}</span>
         </a-space>
       </template>
       <a-card-grid :hoverable="false" class="p-0 w-1/7" :key="v.etag" v-for="v of historyAvatar" >
-        <l-basic-image class="h-15 w-full" :src="AttachmentService.resourceByFileObject(v)">
+        <basic-image class="h-15 w-full" :src="AttachmentService.resourceByFileObject(v)">
           <template #cover>
             <a-space-compact >
               <a-button @click.stop="selectHistory(v)" size="small" type="text" class="text-white">
@@ -153,11 +153,11 @@ onMounted(mounted)
               </a-button>
             </a-space-compact>
           </template>
-        </l-basic-image>
+        </basic-image>
       </a-card-grid>
     </a-card>
     <div class="text-center mb-md">
-      <l-attachment-upload
+      <attachment-upload
         accept="image/png,image/jpeg,image/jpg,image/bmp"
         :before-upload="beforeUpload"
         :show-upload-list="false"
@@ -167,12 +167,12 @@ onMounted(mounted)
 
       >
         <span class="relative inline-block cursor-pointer group rounded-full">
-          <l-user-avatar :user="principalStore.state.details.metadata" :size="configProviderStore.getToken().sizeXL * 2" />
+          <user-avatar :user="principalStore.state.details.metadata" :size="configProviderStore.getToken().sizeXL * 2" />
           <span class="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 transition-opacity opacity-0 group-hover:opacity-100">
             <icon-font class="icon text-white" type="loncra-image-up" />
           </span>
         </span>
-      </l-attachment-upload>
+      </attachment-upload>
     </div>
 
     <a-typography-title :level="4" class="text-center">
@@ -180,15 +180,15 @@ onMounted(mounted)
     </a-typography-title>
     <a-spin :spinning="loading" >
       <l-form :model="form" ref="formRef" @finish="updatePassword">
-        <a-form-item :label="globalProperties.$t('auth.oldPassword')" name="oldPassword" :rules="[{required: true, trigger: 'change'}]">
+        <a-form-item :label="$t('auth.oldPassword')" name="oldPassword" :rules="[{required: true, trigger: 'change'}]">
           <a-input-password v-model:value="form.oldPassword" autocomplete="current-password"/>
         </a-form-item>
 
-        <a-form-item :label="globalProperties.$t('auth.newPassword')" name="newPassword" :rules="[{required: true, trigger: 'change'}, {type: 'string', pattern: VALID_REGX.PASSWORD, message: globalProperties.$t('error.valid.password')}]">
+        <a-form-item :label="$t('auth.newPassword')" name="newPassword" :rules="[{required: true, trigger: 'change'}, {type: 'string', pattern: VALID_REGX.PASSWORD, message: $t('error.valid.password')}]">
           <a-input-password v-model:value="form.newPassword" autocomplete="new-password"/>
         </a-form-item>
 
-        <a-form-item :label="globalProperties.$t('common.confirmPassword')" name="confirmPassword" :rules="[{required: true, trigger: 'change'}, {validator: () => validatePassword(form.newPassword,form.confirmPassword), trigger: 'change'}]">
+        <a-form-item :label="$t('common.confirmPassword')" name="confirmPassword" :rules="[{required: true, trigger: 'change'}, {validator: () => validatePassword(form.newPassword,form.confirmPassword), trigger: 'change'}]">
           <a-input-password v-model:value="form.confirmPassword" autocomplete="new-password"/>
         </a-form-item>
 
@@ -197,7 +197,7 @@ onMounted(mounted)
           <template #icon>
             <icon-font class="icon" type="loncra-user-check"/>
           </template>
-          {{globalProperties.$t('systemSetting.account.modifyPassword')}}
+          {{$t('systemSetting.account.modifyPassword')}}
         </a-button>
       </l-form>
     </a-spin>

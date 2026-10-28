@@ -8,7 +8,5 @@ defineOptions({
 </script>
 
 <template>
-  <div>
-    <crud-home-page :page="batchHomePage" />
-  </div>
+  <crud-home-page :page="batchHomePage" />
 </template>

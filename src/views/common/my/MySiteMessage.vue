@@ -19,13 +19,13 @@ import {
 } from "@loncra/client/message";
 import type {MySiteMessageProps} from "@/types/apis";
 import type {IdNameMetadata, RestResult, TotalPage} from "@loncra/client/commons";
+import {getEnumValue} from "@loncra/client/commons"
 import {useMessageServerStore} from "@/stores/messageServerStore.js";
 import {requireNonNullOrUndefined} from "@/utils";
 import useApp from "antdv-next/dist/app/useApp";
 import type {ResolvedAction} from '@loncra/antdv-pro';
-import {useDateFormat, ActionButton as LActionButton} from '@loncra/antdv-pro';
+import {ActionButton, useDateFormat} from '@loncra/antdv-pro';
 import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from '@/constants';
-import {getEnumValue} from "@loncra/client/commons"
 
 const {dateTimeFormat} = useDateFormat()
 
@@ -272,7 +272,7 @@ onMounted(mounted)
   <a-flex class="p-md w-full" vertical gap="middle">
     <a-tabs :classes="{header:'m-0'}" :items="types.map(t => ({key:t.id, label:t.name, iconText:t.iconText}))" :active-key="activeTagKey" @change="onTabChange">
       <template #rightExtra>
-        <l-action-button
+        <action-button
           :actions="actions"
         />
       </template>

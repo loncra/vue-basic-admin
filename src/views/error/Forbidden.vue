@@ -26,21 +26,21 @@ function logout() {
         <div class="text-center">
           <a-image :src="imageSrc" :preview="false" :height="400"/>
         </div>
-        <a-divider>{{ globalProperties.$t('error.forbidden.title') }}</a-divider>
+        <a-divider>{{ $t('error.forbidden.title') }}</a-divider>
         <div class="text-center">
           <a-space>
             <a-button @click="globalProperties.$router.go(-1);">
               <template #icon>
                 <icon-font class="icon align" type="loncra-undo-2"/>
               </template>
-              <span>{{ globalProperties.$t('common.back') }}</span>
+              <span>{{ $t('common.back') }}</span>
             </a-button>
 
             <a-button type="primary" @click="logout" >
               <template #icon>
                 <icon-font class="icon align" type="loncra-log-out"/>
               </template>
-              <span >{{ globalProperties.$t('auth.reLogin') }}</span>
+              <span >{{ $t('auth.reLogin') }}</span>
             </a-button>
           </a-space>
         </div>

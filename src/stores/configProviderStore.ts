@@ -10,7 +10,7 @@
  * 它们都是"应用级、per-user 的配置"、都由 `App.vue` 引导，激活时机一致（首次 `useStore()`）。
  *
  * ⚠️ 取"**算好的 token 表**"走 `getToken()`（内部就是 antdv 的 `theme.useToken()`，由
- * `<l-provider :theme="antdv.themeConfig">` 驱动）；`antdv.state.token` 只是**用户改过的
+ * `<provider :theme="antdv.themeConfig">` 驱动）；`antdv.state.token` 只是**用户改过的
  * 覆盖项**（`AntdvTokenOverrides`，标量白名单），别当 token 表用。
  */
 import {computed, type ComputedRef, markRaw, onMounted, onUnmounted, ref, watch} from 'vue'
@@ -18,7 +18,7 @@ import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
 import {createAntdvConfig} from '@loncra/antdv-pro'
 import dayjs from 'dayjs'
-import i18n, {proLocaleOf, type LanguagePack} from '@/i18n'
+import i18n, {type LanguagePack, proLocaleOf} from '@/i18n'
 import {type CreateSuccessBackValue, PAD_SCREENS, SCREEN_BREAKPOINT, STORE,} from '@/constants'
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import type {ConfigOptions} from 'antdv-next/dist/message/interface'

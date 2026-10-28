@@ -8,7 +8,7 @@ const COLUMN = {xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1}
  * 企业详情（`Detail.vue`）。核心在 `enterprise.page.ts`，这里只写详情形态。
  *
  * 两处照旧：
- * - `name` 在旧页面是"图标 + 名称"（手写的 `<l-icon-select preview>` 套 `a-space`，`size="large"`）
+ * - `name` 在旧页面是"图标 + 名称"（手写的 `<icon-select preview>` 套 `a-space`，`size="large"`）
  *   ⇒ 用宿主注册的 `iconName` formatter，尺寸从声明里传（`args.size`）；图标怎么画由宿主注入
  *   `renderIconFont`（见 `@/utils/crudFormatters`）；
  * - 两个时间用 `format: 'dateTime'`（与旧 `useDateFormat().dateTimeFormat` 同源）；

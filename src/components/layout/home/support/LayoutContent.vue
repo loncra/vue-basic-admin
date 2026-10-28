@@ -449,7 +449,7 @@ onUnmounted(() => routeCacheVersions.value = {})
             </template>
             <template #leftExtra>
               <div class="mr-xs">
-                <a-tooltip :title="globalProperties.$t('common.refresh')">
+                <a-tooltip :title="$t('common.refresh')">
                   <a-button type="text" @click="reload">
                     <template #icon>
                       <icon-font class="icon align" type="loncra-refresh-cw"/>
@@ -459,8 +459,8 @@ onUnmounted(() => routeCacheVersions.value = {})
                 <a-tooltip
                   :title="
                     isFullscreen
-                      ? globalProperties.$t('layoutContent.exitFullscreen')
-                      : globalProperties.$t('layoutContent.fullscreen')
+                      ? $t('layoutContent.exitFullscreen')
+                      : $t('layoutContent.fullscreen')
                   "
                 >
                   <a-button type="text" @click="toggleFullscreen">
@@ -493,7 +493,7 @@ onUnmounted(() => routeCacheVersions.value = {})
         <a-spin
           class="size-full-spin"
           :spinning="isRoutePageLoading(globalProperties.$route.fullPath)"
-          :description="globalProperties.$t('layoutContent.loading')"
+          :description="$t('layoutContent.loading')"
         >
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
 

@@ -229,12 +229,12 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
           <a-form-item name="username" :label="$t('auth.account')" :rules="[{required: true}]">
             <a-input autocomplete="current-username" v-model:value="authForm.username"/>
           </a-form-item>
-          <a-form-item name="password" :label="$t('auth.password')" :rules="[{required: true}, register ? {type: 'string', pattern: VALID_REGX.PASSWORD, message: globalProperties.$t('error.valid.password')} : {}]">
+          <a-form-item name="password" :label="$t('auth.password')" :rules="[{required: true}, register ? {type: 'string', pattern: VALID_REGX.PASSWORD, message: $t('error.valid.password')} : {}]">
             <a-input-password autocomplete="current-password" v-model:value="authForm.password"/>
           </a-form-item>
           <a-form-item
             v-if="register"
-            :label="globalProperties.$t('common.confirmPassword')"
+            :label="$t('common.confirmPassword')"
             name="confirmPassword"
             :rules="[
               {required: true, trigger: 'change'},
@@ -261,15 +261,15 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
                   v-if="sendPhoneNumberCaptchaRef.result && sendPhoneNumberCaptchaRef.disabledSendButton"
                   :value="sendPhoneNumberCaptchaRef.result.expired"
                   type="countdown"
-                  :format="globalProperties.$t('captcha.countdown')"
+                  :format="$t('captcha.countdown')"
                 />
               </a-button>
             </a-space-compact>
           </a-form-item>
-          <a-form-item v-if="sendPhoneNumberCaptchaRef.result" name="password" :label="globalProperties.$t('captcha.text')" :rules="[{required: true}]">
+          <a-form-item v-if="sendPhoneNumberCaptchaRef.result" name="password" :label="$t('captcha.text')" :rules="[{required: true}]">
             <template #extra>
               <div class="mt-xs">
-              {{globalProperties.$t('captcha.sendTo',{target:sendPhoneNumberCaptchaRef.sendPhoneNumber})}}
+              {{$t('captcha.sendTo',{target:sendPhoneNumberCaptchaRef.sendPhoneNumber})}}
               </div>
             </template>
             <a-input-otp
@@ -286,7 +286,7 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
           <template #icon>
             <icon-font class="icon" :type="register ? 'loncra-id-card' : 'loncra-log-in'"/>
           </template>
-          {{ register ? globalProperties.$t('auth.register.action') : globalProperties.$t('auth.welcome.action') }}
+          {{ register ? $t('auth.register.action') : $t('auth.welcome.action') }}
         </a-button>
       </l-form>
 
@@ -294,25 +294,25 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
       <template v-if="authenticationType === AUTH_SERVER_AUTHENTICATION_TYPE.PERSONAL">
         <a-flex justify="space-between" align="center" v-if="!register" >
           <a-typography class="text-center" >
-            {{ globalProperties.$t('auth.noAccount') }}
+            {{ $t('auth.noAccount') }}
             <a-typography-link @click="register = !register">
-              {{ globalProperties.$t('auth.createAccount') }}
+              {{ $t('auth.createAccount') }}
             </a-typography-link>
           </a-typography>
           <!--      <a-typography-link v-else @click="register = !register">
-                  {{ globalProperties.$t('auth.reLogin') }}
+                  {{ $t('auth.reLogin') }}
                 </a-typography-link>-->
-          <a-typography-link href="/forgot/password">{{ globalProperties.$t('auth.forgotPassword') }}</a-typography-link>
+          <a-typography-link href="/forgot/password">{{ $t('auth.forgotPassword') }}</a-typography-link>
         </a-flex>
         <a-button block v-else @click="register = !register">
           <template #icon>
             <icon-font class="icon" type="loncra-log-in"/>
           </template>
-          {{ globalProperties.$t('auth.reLogin') }}
+          {{ $t('auth.reLogin') }}
         </a-button>
       </template>
       <div v-else-if="authenticationType === AUTH_SERVER_AUTHENTICATION_TYPE.CONSOLE" class="text-center">
-        <a-typography-link href="/forgot/password">{{ globalProperties.$t('auth.forgotPassword') }}</a-typography-link>
+        <a-typography-link href="/forgot/password">{{ $t('auth.forgotPassword') }}</a-typography-link>
       </div>
     </a-flex>
   </a-spin>

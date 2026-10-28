@@ -2,7 +2,11 @@ import type {ModelSettingEntity, ModelSettingSavePayload} from '@loncra/client/a
 import {ModelSettingService} from '@loncra/client/ai'
 import type {CrudPageCore} from '@loncra/antdv-pro'
 import {AI_SERVER_MODEL_SETTING_ROUTE} from '@/constants'
-import {OPERATION_DATA_TRACE_TABLE, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {
+  OPERATION_DATA_TRACE_TABLE,
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME
+} from '@loncra/client/commons'
 
 /**
  * 页面 service。声明用它取数；排序（`sort`）是**实例方法**，

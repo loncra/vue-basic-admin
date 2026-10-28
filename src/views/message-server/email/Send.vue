@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useRouter} from 'vue-router'
+import {getCurrentInstance} from 'vue'
 import type {RestResult} from '@loncra/client/commons'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {MESSAGE_SERVER_EMAIL_ROUTE} from '@/constants'
@@ -20,7 +20,8 @@ defineOptions({
   name: 'MessageServerEmailSend',
 })
 
-const router = useRouter()
+const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
+const router = globalProperties.$router
 
 /** 列表 / 批次明细由返回值形状决定（旧 `doSubmit` 里那一步） */
 function onSuccess(result: RestResult<unknown>) {

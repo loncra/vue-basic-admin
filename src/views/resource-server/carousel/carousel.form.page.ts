@@ -9,7 +9,6 @@ import {
   disableDate,
   disableTime,
 } from '@loncra/antdv-pro'
-import type {CarouselSavePayload} from '@/types/apis'
 import {DATE_TIME_FORMAT} from '@/constants'
 import {carouselCore} from './carousel.page'
 

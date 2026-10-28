@@ -3,15 +3,14 @@
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {requireNonNullOrUndefined} from "@/utils";
 import type {RestResult} from "@loncra/client/commons";
-import {getEnumValue} from "@loncra/client/commons"
+import {getEnumValue, YES_OR_NO_TYPE} from "@loncra/client/commons"
 import type {
   McpClarifyToolPolicyMetadata,
   McpClientTransportMetadata,
   McpToolMetadata
 } from "@loncra/client/ai";
 import {AiMcpPackageService} from "@loncra/client/ai";
-import {TooltipValidationFormItem as LTooltipValidationFormItem} from "@loncra/antdv";
-import {YES_OR_NO_TYPE} from '@loncra/client/commons';
+import {TooltipValidationFormItem} from "@loncra/antdv";
 import type {ColumnType} from "antdv-next/dist/table/interface";
 
 defineOptions({
@@ -130,7 +129,7 @@ function clarifyPolicyRowClassName(record: McpClarifyToolPolicyMetadata) {
       <a-flex justify="space-between" align="center">
         <a-space>
           <icon-font class="icon align" type="loncra-tower-control" />
-          {{globalProperties.$t('aiServer.mcpPackage.clarifyTools')}}
+          {{$t('aiServer.mcpPackage.clarifyTools')}}
         </a-space>
         <a-button @click="loadTools" v-if="props.edit">
           <template #icon>
@@ -155,13 +154,13 @@ function clarifyPolicyRowClassName(record: McpClarifyToolPolicyMetadata) {
           class="m-0"
           :name="[...props.formItemNamePrefix, index, column.dataIndex]"
         >
-          <l-tooltip-validation-form-item>
+          <tooltip-validation-form-item>
             <a-input-number
               class="w-full"
               :min="1"
               v-model:value="record.maxClarifyRounds"
             />
-          </l-tooltip-validation-form-item>
+          </tooltip-validation-form-item>
         </a-form-item>
         <template v-else>
           {{record.maxClarifyRounds}}

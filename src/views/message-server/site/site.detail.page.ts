@@ -6,8 +6,7 @@ import {
   executeStatusCell,
 } from '@loncra/antdv-pro'
 import type {SiteMessageEntity} from '@loncra/client/message'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
-import {YES_OR_NO_TYPE} from '@loncra/client/commons'
+import {getEnumName, getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {siteCore} from './site.page'
 
 /** `a-descriptions` 的响应式列数（照抄旧页面 `Detail.vue`） */

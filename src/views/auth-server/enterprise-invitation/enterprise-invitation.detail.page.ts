@@ -1,9 +1,5 @@
 import {defineDetailPage} from '@loncra/antdv-pro'
-import {
-  enterpriseInvitationCore,
-  expirationCell,
-  roleNamesCell,
-} from './enterprise-invitation.page'
+import {enterpriseInvitationCore, roleNamesCell,} from './enterprise-invitation.page'
 
 /** `a-descriptions` 的响应式列数（照抄旧 `Detail.vue`） */
 const COLUMN = {xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1}

@@ -6,11 +6,10 @@ import type {Router} from 'vue-router'
 import type {VNode} from '@loncra/antdv'
 
 import dayjs from 'dayjs'
+import type {PageSearchConfig} from '@loncra/antdv-pro';
 import {type DateLike, dayjsFormat} from '@loncra/antdv-pro'
-import {getEnumValue, type NameValueEnumMetadata} from '@loncra/client/commons'
+import {getEnumValue, type NameValueEnumMetadata, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import i18n from '@/i18n'
-import {YES_OR_NO_TYPE} from '@loncra/client/commons'
-import type {DefaultCrudEntity, PageSearchConfig, SearchableColumnType} from '@loncra/antdv-pro';
 
 /**
  * 导出视图数据接口

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {App} from 'antdv-next'
 import {AUDIT_STATUS_VALUE, getEnumName} from '@loncra/client/commons'
-import {Form as LForm, UserAvatar as LUserAvatar} from '@loncra/antdv-pro'
+import {Form as LForm, UserAvatar} from '@loncra/antdv-pro'
 import {AuthServerService} from '@loncra/client/auth'
 import {
   closeAudit,
@@ -50,7 +50,7 @@ async function onAudit(status: number): Promise<void> {
         gap="small"
         class="p-sm rounded-lg border border-border-secondary"
       >
-        <l-user-avatar size="large" :user="item" />
+        <user-avatar size="large" :user="item" />
         <a-flex vertical>
           <a-typography-text>
             {{ AuthServerService.getPrincipalNameByUserDetails(item) }}

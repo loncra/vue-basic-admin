@@ -1,10 +1,14 @@
 import {renderIconFont} from '@/utils/commonUtils'
 import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@loncra/client/auth'
-import {AUTH_SERVER_AUTHENTICATION_TYPE, AuthServerService} from '@loncra/client/auth'
+import {
+  AUTH_SERVER_AUTHENTICATION_TYPE,
+  AUTH_SERVER_CONSOLE_USER_AUTHORITY,
+  AUTH_SERVER_SYSTEM_USER_AUTHORITY,
+  AuthServerService
+} from '@loncra/client/auth'
 import type {RecordActionContext, ToolbarActionContext} from '@loncra/antdv-pro'
 import {defineHomePage, exportCollectionData} from '@loncra/antdv-pro'
 import {RESOURCE_SERVER_USER_EXPORT_ROUTE} from '@/constants'
-import {AUTH_SERVER_CONSOLE_USER_AUTHORITY, AUTH_SERVER_SYSTEM_USER_AUTHORITY} from '@loncra/client/auth'
 import i18n from '@/i18n'
 import {isBusinessSuccess} from '@/requests'
 import router from '@/routers'

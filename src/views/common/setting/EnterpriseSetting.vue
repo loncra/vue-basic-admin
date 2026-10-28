@@ -7,7 +7,7 @@ import {
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR,
   AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_ICON,
 } from '@/constants'
-import {ICON_SELECT_AVATAR_MODE_VALUE} from '@loncra/antdv';
+import {ICON_SELECT_AVATAR_MODE_VALUE, IconSelect} from '@loncra/antdv';
 import type {PersonalEnterprise} from "@loncra/client/auth";
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE,
@@ -15,11 +15,10 @@ import {
 } from "@loncra/client/auth";
 import type {RestResult} from "@loncra/client/commons";
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
-import {IconSelect as LIconSelect} from '@loncra/antdv'
 import {requireNonNullOrUndefined} from "@/utils";
 import {renderIconFont} from '@/utils/commonUtils.ts'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {CrudFormModal as LCrudFormModal, UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {CrudFormModal, UserAvatar} from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
 import {
   enterpriseSettingFormPage,
@@ -157,7 +156,7 @@ async function doLeave(id:number) {
               align="center"
               flex="1"
             >
-              <l-icon-select preview :icon-render="renderIconFont" :value="item.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + item.name" />
+              <icon-select preview :icon-render="renderIconFont" :value="item.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + item.name" />
               <a-typography-text>{{ item.name }}</a-typography-text>
               <a-tag :color="AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR[Number(getEnumValue(item.role))] || 'purple'" variant="outlined">
                 <template #icon>
@@ -219,7 +218,7 @@ async function doLeave(id:number) {
           align="center"
         >
           <a-flex flex="1" gap="small" align="center">
-            <l-user-avatar :user="principalStore.state.details.metadata" />
+            <user-avatar :user="principalStore.state.details.metadata" />
             <a-typography-text>{{ principalStore.getName()}}</a-typography-text>
             <a-tag color="blue" variant="outlined">
               <template #icon>
@@ -258,7 +257,7 @@ async function doLeave(id:number) {
     （`enterprise-setting.form.page.ts`）—— 这里只递"给谁改"（`:id`）与标题。
     旧版的 `<teleport to="body">` 不再需要：`a-modal` 自己就挂到 body。
   -->
-  <l-crud-form-modal
+  <crud-form-modal
     v-model:open="options.modal.open"
     :page="enterpriseSettingFormPage"
     :id="options.modal.id"

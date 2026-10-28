@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import {computed, onActivated, onMounted, ref} from 'vue'
+import {computed, getCurrentInstance, onActivated, onMounted, ref} from 'vue'
 import {App, type MenuProps} from 'antdv-next'
-import {useRoute} from 'vue-router'
-import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import {CrudHomePage, type CrudHomePageExpose, DataLoadingCard} from '@loncra/antdv-pro'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import type {ModelSettingEntity} from '@loncra/client/ai'
+import {
+  AI_SERVER_MODEL_SETTING_AUTHORITY,
+  MODEL_SETTING_MANUFACTURER_CODE_PREFIX
+} from '@loncra/client/ai'
 import type {FilterRequest, RestResult, TreeSortMetadata} from '@loncra/client/commons'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {ResourceServerService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
-import router from '@/routers'
 import {AI_SERVER_MODEL_SETTING_ROUTE, MODEL_SETTING_MANUFACTURER_CODE_QUERY} from '@/constants'
-import {AI_SERVER_MODEL_SETTING_AUTHORITY, MODEL_SETTING_MANUFACTURER_CODE_PREFIX} from '@loncra/client/ai'
-import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {modelSettingService} from './model-setting.page'
 import {modelSettingHomePage, selectedManufacturer} from './model-setting.home.page'
 
@@ -21,7 +21,7 @@ defineOptions({
 })
 
 const {message} = App.useApp()
-const route = useRoute()
+const globalProperties = getCurrentInstance()!.appContext.config.globalProperties
 const principalStore = usePrincipalStore()
 
 const table = ref<CrudHomePageExpose<ModelSettingEntity>>()
@@ -101,7 +101,7 @@ function onAdd(): void {
   if (!manufacturer) {
     return
   }
-  void router.push({
+  void globalProperties.$router.push({
     name: AI_SERVER_MODEL_SETTING_ROUTE.ADD,
     query: {[MODEL_SETTING_MANUFACTURER_CODE_QUERY]: manufacturer.code},
   })
@@ -109,11 +109,11 @@ function onAdd(): void {
 
 async function mounted(): Promise<void> {
   await loadManufacturers()
-  await activated(route.query[MODEL_SETTING_MANUFACTURER_CODE_QUERY] as string)
+  await activated(globalProperties.$route.query[MODEL_SETTING_MANUFACTURER_CODE_QUERY] as string)
 }
 
 onActivated(() => {
-  void activated(route.query[MODEL_SETTING_MANUFACTURER_CODE_QUERY] as string)
+  void activated(globalProperties.$route.query[MODEL_SETTING_MANUFACTURER_CODE_QUERY] as string)
 })
 
 onMounted(mounted)
@@ -121,7 +121,7 @@ onMounted(mounted)
 
 <template>
   <div>
-    <l-data-loading-card :classes="{card: {header: 'mb-0!', body: 'p-0!'}}">
+    <data-loading-card :classes="{card: {header: 'mb-0!', body: 'p-0!'}}">
       <a-splitter>
         <a-splitter-panel default-size="20%" min="15%" max="25%">
           <a-flex vertical class="h-full min-h-0">
@@ -153,7 +153,7 @@ onMounted(mounted)
         </a-splitter-panel>
 
         <a-splitter-panel>
-          <l-crud-home-page
+          <crud-home-page
             ref="table"
             v-model:query="query"
             :page="modelSettingHomePage"
@@ -178,9 +178,9 @@ onMounted(mounted)
                 </a-space>
               </a-flex>
             </template>
-          </l-crud-home-page>
+          </crud-home-page>
         </a-splitter-panel>
       </a-splitter>
-    </l-data-loading-card>
+    </data-loading-card>
   </div>
 </template>

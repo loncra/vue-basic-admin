@@ -5,7 +5,7 @@ import {AI_SERVER_SKILL_SOURCE_TYPE} from '@loncra/client/ai'
 // ⚠️ 必须显式 import `CrudDetailPage`：宿主 `src/components` 下的旧 kit 渲染器被
 // unplugin-vue-components 自动注册成了**全局**同名组件 ⇒ 漏 import 不报错、静默跑旧 kit（2026-09-28 踩过）
 import {CrudDetailPage} from '@loncra/antdv-pro'
-import {FileEditor as LFileEditor} from '@loncra/antdv-chat-pro'
+import {FileEditor} from '@loncra/antdv-chat-pro'
 import {getEnumValue} from '@loncra/client/commons'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
@@ -81,7 +81,7 @@ const {onStale} = usePageExit({redirect: skillPackageCore.routes?.home})
           {{ $t('aiServer.skillPackage.files') }}
         </a-space>
       </a-divider>
-      <l-file-editor
+      <file-editor
         v-if="entity.id"
         readonly
         bucket="system.file"

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {App} from 'antdv-next'
-import {CrudHomePage as LCrudHomePage, Form as LForm, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import {CrudHomePage, type CrudHomePageExpose, Form as LForm} from '@loncra/antdv-pro'
 import type {SkillPackageEntity} from '@loncra/client/ai'
-import {getEnumValue} from '@loncra/client/commons'
-import {SkillReleaseChangeLog as LAgentHubSkillReleaseChangeLog} from '@loncra/antdv-chat-pro'
-import {DATA_STATUS} from '@loncra/client/commons'
+import {DATA_STATUS, getEnumValue} from '@loncra/client/commons'
+import {SkillReleaseChangeLog} from '@loncra/antdv-chat-pro'
 import {skillPackageService} from './skill-package.page'
 import {skillPackageHomePage, skillSnapshot} from './skill-package.home.page'
 
@@ -43,7 +42,7 @@ function cancelSnapshot(): void {
 
 <template>
   <div>
-    <l-crud-home-page
+    <crud-home-page
       ref="table"
       :page="skillPackageHomePage"
       :expandable="{
@@ -56,10 +55,10 @@ function cancelSnapshot(): void {
           <a-typography-text>
             {{ $t('agent.hub.changelog.text') }}
           </a-typography-text>
-          <l-agent-hub-skill-release-change-log :package-id="Number(record.id)" />
+          <skill-release-change-log :package-id="Number(record.id)" />
         </a-flex>
       </template>
-    </l-crud-home-page>
+    </crud-home-page>
 
     <a-modal
       v-model:open="skillSnapshot.open"

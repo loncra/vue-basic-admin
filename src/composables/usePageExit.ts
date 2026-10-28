@@ -1,5 +1,5 @@
 import {inject} from 'vue'
-import {useRoute, useRouter, type RouteLocationRaw} from 'vue-router'
+import {type RouteLocationRaw, useRoute, useRouter} from 'vue-router'
 import type {CrudStaleInfo} from '@loncra/antdv-pro'
 import {LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY} from '@/constants'
 

@@ -7,7 +7,7 @@ import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import type {MenuInfo} from '@v-c/menu'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useSocketStore} from "@/stores/socketStore.ts";
-import {UserAvatar as LUserAvatar} from '@loncra/antdv-pro';
+import {UserAvatar} from '@loncra/antdv-pro';
 import {getAuthRouterParam} from "@/routers";
 import {AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 import {getEnumValue} from '@loncra/client/commons'
@@ -65,7 +65,7 @@ onMounted(mounted)
     @menu-click="onOperateClickItem"
   >
     <a-badge :classes="{root: 'hover:cursor-pointer flex'}" :status="socketStore.isConnected ? 'success' : 'error'" :offset="[-3, 28]" dot show-zero>
-      <l-user-avatar :user="principalStore.state.details.metadata" />
+      <user-avatar :user="principalStore.state.details.metadata" />
     </a-badge>
   </a-dropdown>
 </template>

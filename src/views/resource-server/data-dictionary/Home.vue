@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {onActivated, ref, watch} from 'vue'
 import {App} from 'antdv-next'
-import {CrudHomePage as LCrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
+import {CrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
 import type {DataDictionaryEntity} from '@loncra/client/resource'
 import type {FilterRequest, RestResult, TreeSortMetadata} from '@loncra/client/commons'
+import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import router from '@/routers'
 import {RESOURCE_SERVER_DATA_DICTIONARY_ROUTE} from '@/constants'
-import {SYSTEM_CONSTANT} from '@loncra/client/commons'
 import {dataDictionaryService} from './data-dictionary.page'
 import {dataDictionaryHomePage} from './data-dictionary.home.page'
 
@@ -82,7 +82,7 @@ async function onDrop(
 </script>
 
 <template>
-  <l-crud-home-page
+  <crud-home-page
     ref="table"
     v-model:query="query"
     :page="dataDictionaryHomePage"
@@ -103,5 +103,5 @@ async function onDrop(
         </a-space>
       </a-flex>
     </template>
-  </l-crud-home-page>
+  </crud-home-page>
 </template>

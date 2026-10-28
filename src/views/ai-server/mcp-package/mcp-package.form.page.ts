@@ -1,9 +1,17 @@
 import {h, ref} from 'vue'
 import {InputNumber, Select, SpaceCompact} from 'antdv-next'
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
+import {
+  SYSTEM_ENUM_TYPE,
+  SYSTEM_MODULE_NAME,
+  TIME_UNIT_TYPE,
+  YES_OR_NO_TYPE
+} from '@loncra/client/commons'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
   AI_SERVER_MCP_CLIENT_TYPE,
+  MCP_CLIENT_HTTP_TYPE_VALUE,
+  MCP_GROUP_CODE_PREFIX,
   type McpPackageSavePayload,
   type SseMcpClientTransportMetadata,
   type StdioMcpClientTransportMetadata,
@@ -15,8 +23,6 @@ import type {IconfontJson} from '@/types/composables'
 /** 宿主在 `metadata.client` 上补的三张「键值表」行数据（`@/types/apis`）—— 只在摊/收数据时要 */
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
-import {MCP_CLIENT_HTTP_TYPE_VALUE, MCP_GROUP_CODE_PREFIX} from '@loncra/client/ai'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME, TIME_UNIT_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {mcpPackageCore} from './mcp-package.page'
 
 /**

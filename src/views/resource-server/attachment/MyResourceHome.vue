@@ -7,11 +7,7 @@ import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from "vue";
 import type {RestResult} from "@loncra/client/commons";
 import type {ResolvedAction} from '@loncra/antdv-pro';
-import {
-  ActionButton as LActionButton,
-  AttachmentMasonry as LAttachmentMasonry,
-  DataLoadingCard as LDataLoadingCard
-} from '@loncra/antdv-pro';
+import {ActionButton, AttachmentMasonry, DataLoadingCard} from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({
@@ -106,11 +102,11 @@ onMounted(() => loadDataSource())
 
 <template>
   <div>
-    <l-data-loading-card :loading="loading" :classes="{card: {body:'max-h-150 overflow-auto'}}">
+    <data-loading-card :loading="loading" :classes="{card: {body:'max-h-150 overflow-auto'}}">
       <template #extra>
-        <l-action-button :actions="actions"/>
+        <action-button :actions="actions"/>
       </template>
-      <l-attachment-masonry :data-source="dataSource" :check-value="checkValue" />
-    </l-data-loading-card>
+      <attachment-masonry :data-source="dataSource" :check-value="checkValue" />
+    </data-loading-card>
   </div>
 </template>

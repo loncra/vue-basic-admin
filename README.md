@@ -50,8 +50,18 @@ npm run type-check
   - **弹层型**：[`CrudFormModal`](../packages/antdv-pro/src/crud-page/form-modal/README.md) 吃 `*.form.page.ts` 声明，弹层状态在 `*.home.page.ts` 导出。
   - **组合薄壳页**：只做布局与数据缝（如 `dictionary/Home.vue`），不碰子页内部状态。
   - **多子页/发送流程型**：子模块目录 + 模块级共享 composable（如 `useMessageSendFlow.ts`）。
-- 列显示走声明式 `format`（`'enum'` 配 `enumRef`，来源 `@loncra/client/commons` 的 `SYSTEM_ENUM_TYPE` / `SYSTEM_MODULE_NAME`）；动作权限写在动作声明的 `permission` 字段（常量来自 `@loncra/client/auth` / `client/resource`）；组件级权限经 `App.vue` 注入 `LProvider` 的 `hasPermission`（`LProvider` 见第 5 节）。
+- 列显示走声明式 `format`（`'enum'` 配 `enumRef`，来源 `@loncra/client/commons` 的 `SYSTEM_ENUM_TYPE` / `SYSTEM_MODULE_NAME`）；动作权限写在动作声明的 `permission` 字段（常量来自 `@loncra/client/auth` / `client/resource`）；组件级权限经 `App.vue` 注入 `Provider` 的 `hasPermission`（`Provider` 见第 5 节）。
 - 搜索过滤依赖 pro 按 key 拼接时，非默认拼法必须显式写 `filter_*`。
+
+**页面壳的写法**：壳是路由容器，只做 pro 不认的宿主事（取参、标题、去向、逃生区块），字段与提交全在声明文件；壳里不写业务分支、不发请求。
+
+- `Home.vue`：模板只挂 `CrudHomePage`，不包多余 `<div>`（仅当页面有表格 + 弹窗这类**多根**内容时才包，布局的 `<transition>`/`<keep-alive>` 要求单根）。
+- **import 与模板标签**：`@loncra/*` 组件直接用原名 import、模板用 kebab-case 标签（`<crud-home-page>`），不用 `as L` 别名；唯一例外 `Form as LForm`——原名 `<form>` 撞原生 HTML 标签。与 ref 变量撞名的 tag 用 PascalCase 或改 ref 名解决（先例：`attachment-upload` ↔ `attachmentUpload`）。`@loncra/*` 控件必须显式 import（unplugin-vue-components 只自动导入 antdv-next 的组件）。
+- **i18n / 路由取用口径（全 `.vue` 适用）**：script 里在 setup 阶段取一次 `const globalProperties = getCurrentInstance()!.appContext.config.globalProperties`（异步回调里取会拿到 null，回调只用捕获好的 const），用 `globalProperties.$t` / `$router` / `$route`；template 里文案直接写 `$t(...)`；不引 `import router from '@/routers'`、不在 `.vue` 里用 `useRouter` / `useRoute` / `useI18n`（这些只留给 `src/composables` 等 `.ts` 文件）。`$route` 是 getter、每次取当前路由；`$t` 随 locale 切换响应。
+- `Form.vue`（add / edit / child 三态复用同一文件）：`useEntityPageTitle` + `useFormSuccessBack`（`redirect` 走 `core.routes?.home`，不手写 `router.back()`）；主键走 `useRequiredQuery(['id'], {required: false})`（缺参不跳 400 = 新增态，值是真 `number` 快照而非 `as number` 断言）。模式判定（child 的父级等）不进壳，声明在 `preMounted` 里读 `router.currentRoute.value.query`。
+- `Detail.vue`：`useRequiredQuery()`（缺参摆清字段跳 400，模板 `v-if="ok"` 壳不挂载）+ `useEntityPageTitle` + `usePageExit`；id 由它带出并转成 `number`，不再手写 `as number | undefined`。主键是字符串的页面用 `{numeric: false}`（先例：`audit-event/Detail` 的 `id` / `after`）。
+- `defineOptions({name})` 必填，统一 `模块 + 实体 + 角色` 的 PascalCase（如 `AuthServerRoleForm`）—— tab / keep-alive / 路由缓存认这个名字。
+- 逃生区块（表单/详情里的宿主自定义 UI）拆不拆，沿用第 1 节"变更原因相同才同文件"判据：与 `preSubmit` / `contextExtra` 强耦合且单页专用 → 留在壳里；Form/Detail 双用或体量大 → 拆模块私有组件（先例：`mcp-package/ClarifyPolicyTable.vue`）。
 
 ### 3. 路由
 
@@ -68,8 +78,8 @@ npm run type-check
 
 ### 5. 上传
 
-- `LProvider` 是 [`@loncra/antdv-chat-pro`](../packages/antdv-chat-pro/README.md) 出口的 `Provider`（源码：[src/config-provider/ConfigProvider.tsx](../packages/antdv-chat-pro/src/config-provider/ConfigProvider.tsx)，组件名 `LChatProvider`）：内部包 `@antdv-next/x` 的 XProvider 与 [`@loncra/antdv-pro`](../packages/antdv-pro/README.md) 的 `Provider`（[src/config-provider](../packages/antdv-pro/src/config-provider/README.md)，后者聚合 antdv ConfigProvider / ClientProvider / CrudConfigProvider）。宿主在 `App.vue` 注入的能力（HTTP 客户端、accessToken、权限、i18n、上传分片大小等）经这条 Provider 链下灌给所有包内控件。
-- 宿主不实现上传执行器：分片大小经 `App.vue` 把 `VITE_APP_UPLOAD_BLOCK_SIZE` 传给 `LProvider`，统一执行器在 `@loncra/antdv-pro` 侧（[src/_util/uploadFile.ts](../packages/antdv-pro/src/_util/uploadFile.ts)）。
+- `Provider`（App.vue 里从 `@loncra/antdv-chat-pro` 显式 import，旧写作 `LProvider`）是 [`@loncra/antdv-chat-pro`](../packages/antdv-chat-pro/README.md) 出口的 `Provider`（源码：[src/config-provider/ConfigProvider.tsx](../packages/antdv-chat-pro/src/config-provider/ConfigProvider.tsx)，组件名 `LChatProvider`）：内部包 `@antdv-next/x` 的 XProvider 与 [`@loncra/antdv-pro`](../packages/antdv-pro/README.md) 的 `Provider`（[src/config-provider](../packages/antdv-pro/src/config-provider/README.md)，后者聚合 antdv ConfigProvider / ClientProvider / CrudConfigProvider）。宿主在 `App.vue` 注入的能力（HTTP 客户端、accessToken、权限、i18n、上传分片大小等）经这条 Provider 链下灌给所有包内控件。
+- 宿主不实现上传执行器：分片大小经 `App.vue` 把 `VITE_APP_UPLOAD_BLOCK_SIZE` 传给 `Provider`，统一执行器在 `@loncra/antdv-pro` 侧（[src/_util/uploadFile.ts](../packages/antdv-pro/src/_util/uploadFile.ts)）。
 
 ### 6. 样式
 

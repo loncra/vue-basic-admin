@@ -2,7 +2,7 @@
 import {computed, h} from 'vue'
 import {Space} from 'antdv-next'
 import {FileAddOutlined} from '@antdv-next/icons'
-import {CrudFormModal as LCrudFormModal} from '@loncra/antdv-pro'
+import {CrudFormModal} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import {
   enterpriseInvitationFormPage
@@ -47,7 +47,7 @@ function onSuccess(): void {
 </script>
 
 <template>
-  <l-crud-form-modal
+  <crud-form-modal
     v-model:open="open"
     :page="enterpriseInvitationFormPage"
     :title="title"

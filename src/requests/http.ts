@@ -3,7 +3,12 @@ import router, {saveRequestPathThenToAuth} from '@/routers'
 import {message} from 'antdv-next'
 import {HTTP} from '@/constants'
 import {AUTH_SERVER_AUTHENTICATION_TYPE_PARAM} from '@loncra/client/auth'
-import {BusinessError, isBusinessSuccess, isResultSuccess, type RestResult} from '@loncra/client/commons'
+import {
+  BusinessError,
+  isBusinessSuccess,
+  isResultSuccess,
+  type RestResult
+} from '@loncra/client/commons'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useBootstrapStore} from "@/stores/bootStore.ts";
 import i18n from '@/i18n'

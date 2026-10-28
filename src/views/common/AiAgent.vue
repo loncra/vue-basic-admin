@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue'
-import {AgentChat as LAgent, type AgentSession} from '@loncra/antdv-chat-pro'
+import {AgentChat, type AgentSession} from '@loncra/antdv-chat-pro'
 import {AgentService} from '@loncra/client/ai'
 import {getConversationRuns, useAgentStream} from '@/composables'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {DataLoadingCard as LDataLoadingCard} from '@loncra/antdv-pro'
+import {DataLoadingCard} from '@loncra/antdv-pro'
 
 defineOptions({
   name: 'CommonAiAgent',
@@ -39,7 +39,7 @@ onMounted(() => {
 
 <template>
   <div class="h-full min-h-120">
-    <l-data-loading-card
+    <data-loading-card
       :spin="false"
       :classes="{
         card: {
@@ -50,7 +50,7 @@ onMounted(() => {
       }"
     >
       <template #extra>{{ current?.name ?? '' }}</template>
-      <l-agent
+      <agent-chat
         :installs="principalStore.pluginInstalls"
         :self="{...principalStore.state.details.metadata, systemName: principalStore.state.name}"
         @active="onActive"
@@ -62,7 +62,7 @@ onMounted(() => {
         <template #agentAvatar>
           <icon-font type="icon-xiaojiage-a" />
         </template>
-      </l-agent>
-    </l-data-loading-card>
+      </agent-chat>
+    </data-loading-card>
   </div>
 </template>

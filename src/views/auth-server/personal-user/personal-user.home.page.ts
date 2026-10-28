@@ -1,7 +1,7 @@
 import type {PersonalUserEntity} from '@loncra/client/auth'
+import {AUTH_SERVER_PERSONAL_USER_AUTHORITY} from '@loncra/client/auth'
 import {defineHomePage} from '@loncra/antdv-pro'
 import {defineSearchProps} from '@/utils'
-import {AUTH_SERVER_PERSONAL_USER_AUTHORITY} from '@loncra/client/auth'
 import {personalUserCore} from './personal-user.page'
 
 /**

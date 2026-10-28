@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {ref} from 'vue'
-import {useRoute} from 'vue-router'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
-import {SYSTEM_CONSTANT} from '@loncra/client/commons'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {resourceCore} from './resource.page'
 import {resourceFormPage} from './resource.form.page'
 
@@ -18,11 +17,8 @@ defineOptions({
   name: 'AuthServerResourceForm',
 })
 
-const route = useRoute()
 const formRef = ref<{entity?: ResourceSavePayload}>()
-/** pro 的壳不认路由：主键由页壳取出来传进去（没有 = 新增） */
-/** 主键：**进页面那一刻取一次**（快照）。别写 `computed` —— 那样 id 会跟着"当前路由"走：本实例若在路由切走后被重新挂载/重新激活，就会拿**别人的 id** 去取自己的数据 */
-const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
+const {id} = useRequiredQuery(['id'], {required: false})
 
 const parent = ref<ResourceEntity>()
 /** 声明里的 preMounted 通过 contextExtra 拿到它 */

@@ -1,14 +1,13 @@
 import {h} from 'vue'
 import {Tooltip} from 'antdv-next'
 import type {SiteMessageEntity} from '@loncra/client/message'
-import {getEnumName, getEnumValue} from '@loncra/client/commons'
+import {MESSAGE_SERVER_SITE_AUTHORITY} from '@loncra/client/message'
+import {getEnumName, getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineHomePage, executeStatusCell} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
 import {defineSearchProps, renderIconFont} from '@/utils'
 import {MESSAGE_SERVER_SITE_ROUTE} from '@/constants'
-import {MESSAGE_SERVER_SITE_AUTHORITY} from '@loncra/client/message'
-import {YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {siteCore} from './site.page'
 
 /** 工具栏：发站内信（旧表 `actionButtons` 那一个按钮） */

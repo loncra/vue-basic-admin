@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import {ref} from 'vue'
-import {useRoute} from 'vue-router'
 import type {GitSkillSourceMetadata, SkillPackageSavePayload} from '@loncra/client/ai'
 import {AI_SERVER_SKILL_SOURCE_TYPE} from '@loncra/client/ai'
-import {getEnumValue, SYSTEM_CONSTANT} from '@loncra/client/commons'
+import {getEnumValue} from '@loncra/client/commons'
 import {
   ATTACHMENT_UPLOAD_MODE,
-  AttachmentUpload as LAttachmentUpload,
+  AttachmentUpload,
   type AttachmentUploadExpose,
   CrudFormPage,
 } from '@loncra/antdv-pro'
-import {FileEditor as LFileEditor} from '@loncra/antdv-chat-pro'
+import {FileEditor} from '@loncra/antdv-chat-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
+import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {skillPackageCore} from './skill-package.page'
 import {skillPackageFormPage} from './skill-package.form.page'
 
@@ -29,14 +29,12 @@ defineOptions({
   name: 'AiServerSkillPackageForm',
 })
 
-const route = useRoute()
 const formRef = ref<{entity?: SkillPackageSavePayload}>()
 
-/** 主键：进页面那一刻取一次（快照）；新增态没有 id ⇒ pro 不取数 */
-const id = route.query[SYSTEM_CONSTANT.ID_NAME] as number | undefined
+const {id} = useRequiredQuery(['id'], {required: false})
 
 /** 新增态选好的附件：`postSubmit` 里（声明侧）要拿它上传，所以从壳递进去 */
-const attachmentUpload = ref<AttachmentUploadExpose>()
+const attachmentUploadRef = ref<AttachmentUploadExpose>()
 
 /** 标题：旧 `title-text` 是 `标题 (技能包名)`，新增态只给基标题 */
 useEntityPageTitle(() => {
@@ -57,7 +55,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
     :key="formKey"
     :id="id"
     :page="skillPackageFormPage"
-    :context-extra="{uploadAttachments: () => attachmentUpload?.upload()}"
+    :context-extra="{uploadAttachments: () => attachmentUploadRef?.upload()}"
     @success="onSuccess"
     @stale="onStale"
   >
@@ -130,15 +128,15 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
         :label="$t('aiServer.skillPackage.files')"
       >
         <a-flex gap="middle" vertical>
-          <l-attachment-upload
+          <attachment-upload
             v-if="entity.id === undefined"
             directory
-            ref="attachmentUpload"
+            ref="attachmentUploadRef"
             :upload-options="{param: {prefix: 'ai/skill/' + entity.id, randomName: false}}"
             bucket="system.file"
             :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER"
           />
-          <l-file-editor
+          <file-editor
             v-else
             bucket="system.file"
             :path="'ai/skill/' + entity.id + '/'"
