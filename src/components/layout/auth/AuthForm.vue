@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import {renderIconFont} from '@/utils/commonUtils'
-import {Form as LForm} from '@loncra/antdv-pro'
+import {
+  CaptchaSendButton,
+  type CaptchaSendResult,
+  Form as LForm,
+  useBehaviorCaptcha
+} from '@loncra/antdv-pro'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import type {AuthFormProp} from '@/types/apis'
 import {BusinessError, type RestResult} from '@loncra/client/commons'
 import type {AuthCredentials, AuthenticationType, LoginType} from '@loncra/client/auth'
 import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTH_SERVER_LOGIN_TYPE} from '@loncra/client/auth'
 import type {CaptchaGenerationResult, CaptchaToken} from '@loncra/client/resource'
-import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
+import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE, ResourceServerService} from '@loncra/client/resource'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
 import {useBootstrapStore} from '@/stores/bootStore.ts'
 import {VALID_REGX} from '@/constants'
 import {requireNonNullOrUndefined, validatePassword} from '@/utils'
-import {ResourceServerService} from "@/apis";
-import type {TianaiCaptchaInstance} from "../../../../env";
 import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({
@@ -76,19 +79,15 @@ const formRef = ref()
 const loading = ref(false)
 const register = ref(false)
 
-const accountLoginCaptchaRef = ref<{
-  instance?:TianaiCaptchaInstance
-  captchaToken?:CaptchaToken
-}>({});
+const {run: runBehaviorCaptcha} = useBehaviorCaptcha()
 
-const sendPhoneNumberCaptchaRef = ref<{
-  instance?:TianaiCaptchaInstance
-  sendPhoneNumber?:string,
-  disabledSendButton?:boolean,
-  captchaToken?:CaptchaToken
-  sending?:boolean,
-  result?:CaptchaGenerationResult
-}>({});
+const loginCaptcha = ref<{token?: CaptchaToken}>({})
+
+const phoneCaptcha = ref<{
+  generateResult?: CaptchaGenerationResult
+  sendPhoneNumber?: string
+}>({})
+const phoneSending = ref(false)
 
 const authForm = ref<AuthCredentials>({
   username: '',
@@ -96,37 +95,36 @@ const authForm = ref<AuthCredentials>({
   loginType: AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD,
 })
 
+const captchaSendButtonRef = ref<{trigger: () => void}>()
+
 function onAuth() {
-  if (loading.value || sendPhoneNumberCaptchaRef.value.sending) {
+  if (loading.value) {
     return
   }
   formRef.value.validate().then(onValidateThen)
 }
 
 async function onValidateThen() {
-  if (accountLoginCaptchaRef.value.instance) {
-    accountLoginCaptchaRef.value.instance.show()
+  if (loginCaptcha.value.token) {
+    loading.value = true
+    const params = await runBehaviorCaptcha(loginCaptcha.value.token)
+    loading.value = false
+    if (!params) {
+      return
+    }
+    authForm.value = {...authForm.value, ...params}
+    await doAuth()
   } else if (register.value) {
     loading.value = true
     const result:RestResult<CaptchaToken> = await ResourceServerService.generateCaptchaToken(RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.TIANAI)
     if (!result.data) {
       message.error(globalProperties.$t('error.global'))
+      loading.value = false
       return
     }
-    accountLoginCaptchaRef.value.captchaToken = result.data
-    accountLoginCaptchaRef.value.instance = await ResourceServerService.createTianaiCaptchaInstance(
-      accountLoginCaptchaRef.value.captchaToken,
-      onAccountCaptchaSuccess,
-      () => {
-        loading.value = false
-        accountLoginCaptchaRef.value.instance?.hide()
-      }
-    )
-    if (!accountLoginCaptchaRef.value.instance) {
-      message.error(globalProperties.$t('error.global'))
-      return
-    }
-    accountLoginCaptchaRef.value.instance.show()
+    loginCaptcha.value.token = result.data
+    loading.value = false
+    await onValidateThen()
   } else {
     await doAuth()
   }
@@ -146,8 +144,7 @@ const doAuth = async (): Promise<void> => {
     socketStore.ensureConnected()
     await bootStore.rebuild()
     globalProperties.$router.push('/')
-    accountLoginCaptchaRef.value.captchaToken = undefined
-    accountLoginCaptchaRef.value.instance = undefined
+    loginCaptcha.value.token = undefined
     const requestPath = sessionStorage.getItem(import.meta.env.VITE_APP_SESSION_STORAGE_REQUEST_PATH_NAME)
     if (requestPath) {
       globalProperties.$router.push(requestPath)
@@ -159,12 +156,7 @@ const doAuth = async (): Promise<void> => {
     }
     const error:BusinessError = (e as BusinessError)
     if (error.executeCode === "100429" && error.data) {
-      accountLoginCaptchaRef.value.captchaToken = (error.data as {captchaToken:CaptchaToken}).captchaToken
-      accountLoginCaptchaRef.value.instance = await ResourceServerService.createTianaiCaptchaInstance(
-        accountLoginCaptchaRef.value.captchaToken,
-        onAccountCaptchaSuccess,
-        () => {}
-      )
+      loginCaptcha.value.token = (error.data as {captchaToken:CaptchaToken}).captchaToken
     }
   } finally {
     loading.value = false
@@ -172,39 +164,16 @@ const doAuth = async (): Promise<void> => {
 
 }
 
-function onAccountCaptchaSuccess(result: { data:string }) {
-  if (!accountLoginCaptchaRef.value.captchaToken) {
-    return
+function onPhoneCaptchaSent(result: CaptchaSendResult) {
+  phoneCaptcha.value = {
+    generateResult: result.generateResult,
+    sendPhoneNumber: authForm.value.username,
   }
-  authForm.value = {
-    ...authForm.value,
-    ...ResourceServerService.createGenerateTokenParam(accountLoginCaptchaRef.value.captchaToken,{
-      [(accountLoginCaptchaRef.value.captchaToken.args.post as {captchaParamName:string}).captchaParamName]:result.data
-    })
-  }
-
-  accountLoginCaptchaRef.value.instance?.hide()
-
-  doAuth()
-}
-
-async function sendPhoneNumberCaptcha() {
-  sendPhoneNumberCaptchaRef.value.sending = true
-  try {
-    const result = await ResourceServerService.sendPhoneNumberCaptcha(authForm.value.username, "system.sms.captcha.login")
-    sendPhoneNumberCaptchaRef.value.captchaToken = result.token as CaptchaToken
-    sendPhoneNumberCaptchaRef.value.disabledSendButton = true
-    sendPhoneNumberCaptchaRef.value.result = result.generateResult as CaptchaGenerationResult
-    sendPhoneNumberCaptchaRef.value.sendPhoneNumber = authForm.value.username
-    authForm.value = {...authForm.value, ...ResourceServerService.createGenerateTokenParam(sendPhoneNumberCaptchaRef.value.captchaToken)}
-  } finally {
-    sendPhoneNumberCaptchaRef.value.sending = false
-  }
-
+  authForm.value = {...authForm.value, ...result.captchaParams}
 }
 
 function onOtpComplete() {
-  if (loading.value || sendPhoneNumberCaptchaRef.value.sending) {
+  if (loading.value) {
     return
   }
   onAuth()
@@ -245,30 +214,24 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
         <template v-else-if="segmentedKey === AUTH_SERVER_LOGIN_TYPE.PHONE_CAPTCHA">
           <a-form-item name="username" :label="$t('common.phoneNumber')" :rules="[{required: true}]">
             <a-space-compact block>
-              <a-input autocomplete="current-username" @keydown.enter.prevent="sendPhoneNumberCaptcha()" v-model:value="authForm.username"/>
-              <a-button
-                @click="sendPhoneNumberCaptcha"
-                :disabled="sendPhoneNumberCaptchaRef.disabledSendButton"
-                :loading="sendPhoneNumberCaptchaRef.sending"
+              <a-input autocomplete="current-username" @keydown.enter.prevent="captchaSendButtonRef?.trigger()" v-model:value="authForm.username"/>
+              <captcha-send-button
+                ref="captchaSendButtonRef"
+                captcha-type="sms"
+                :append="{phoneNumber: authForm.username, messageType: 'system.sms.captcha.login'}"
+                :countdown-format="$t('captcha.countdown')"
+                @sent="onPhoneCaptchaSent"
               >
-                <template #icon v-if="!sendPhoneNumberCaptchaRef.disabledSendButton">
+                <template #icon>
                   <icon-font type="loncra-send"/>
                 </template>
-                <a-statistic-timer
-                  :classes="{content:'text-DEFAULT'}"
-                  @finish="() => sendPhoneNumberCaptchaRef.disabledSendButton = false"
-                  v-if="sendPhoneNumberCaptchaRef.result && sendPhoneNumberCaptchaRef.disabledSendButton"
-                  :value="sendPhoneNumberCaptchaRef.result.expired"
-                  type="countdown"
-                  :format="$t('captcha.countdown')"
-                />
-              </a-button>
+              </captcha-send-button>
             </a-space-compact>
           </a-form-item>
-          <a-form-item v-if="sendPhoneNumberCaptchaRef.result" name="password" :label="$t('captcha.text')" :rules="[{required: true}]">
+          <a-form-item v-if="phoneCaptcha.generateResult" name="password" :label="$t('captcha.text')" :rules="[{required: true}]">
             <template #extra>
               <div class="mt-xs">
-              {{$t('captcha.sendTo',{target:sendPhoneNumberCaptchaRef.sendPhoneNumber})}}
+              {{$t('captcha.sendTo',{target:phoneCaptcha.sendPhoneNumber})}}
               </div>
             </template>
             <a-input-otp
@@ -277,11 +240,11 @@ onMounted(() => register.value = globalProperties.$route.query.register === 'tru
               v-model:value="authForm.password"
               input-mode="numeric"
               :formatter="(value:string) => value.replace(/[^0-9]/g, '')"
-              :length="sendPhoneNumberCaptchaRef.result.codeLength"
+              :length="phoneCaptcha.generateResult?.codeLength"
             />
           </a-form-item>
         </template>
-        <a-button html-type="submit" block type="primary" :disabled="loading" :loading="sendPhoneNumberCaptchaRef.sending">
+        <a-button html-type="submit" block type="primary" :disabled="loading" :loading="phoneSending">
           <template #icon>
             <icon-font class="icon" :type="register ? 'loncra-id-card' : 'loncra-log-in'"/>
           </template>

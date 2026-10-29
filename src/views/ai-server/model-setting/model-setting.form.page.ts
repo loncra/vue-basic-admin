@@ -13,7 +13,7 @@ import {
 } from '@loncra/client/ai'
 import {getEnumValue, SYSTEM_CONSTANT, VALUE_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineFormPage} from '@loncra/antdv-pro'
-import {ResourceServerService} from '@/apis'
+import {ResourceServerService} from '@loncra/client/resource'
 import {booleanToYesOrNo, yesOrNoToBoolean} from '@/utils'
 import i18n from '@/i18n'
 import router from '@/routers'

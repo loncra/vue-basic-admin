@@ -35,6 +35,7 @@
       "@loncra/antdv-pro/locale/en_US": ["../packages/antdv-pro/src/locale/en_US.ts"],
       "@loncra/client": ["../packages/client/src/index.ts"],
       "@loncra/client/commons": ["../packages/client/src/commons/index.ts"],
+      "@loncra/client/http": ["../packages/client/src/http/index.ts"],
       "@loncra/client/auth": ["../packages/client/src/auth/index.ts"],
       "@loncra/client/resource": ["../packages/client/src/resource/index.ts"],
       "@loncra/client/message": ["../packages/client/src/message/index.ts"],

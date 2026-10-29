@@ -5,7 +5,6 @@ import LLogo from "@/components/Logo.vue";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
 import {requireNonNullOrUndefined, validatePassword} from "@/utils";
 import {VALID_REGX} from '@/constants';
-import {ResourceServerService} from "@/apis";
 import type {
   IdNameValueMetadata,
   IdValueMetadata,
@@ -13,10 +12,21 @@ import type {
   RestResult
 } from "@loncra/client/commons";
 import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
-import type {CaptchaToken} from "@loncra/client/resource";
+import type {
+  CaptchaGenerationResult,
+  CaptchaToken,
+  CaptchaTokenType
+} from "@loncra/client/resource";
 import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE} from '@loncra/client/resource'
+import {
+  buildCaptchaSubmitParams,
+  CaptchaSendButton,
+  type CaptchaSendResult,
+  Form as LForm,
+  useCaptchaSend,
+  UserAvatar
+} from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
-import {Form as LForm, UserAvatar} from '@loncra/antdv-pro';
 
 defineOptions({
   name: 'ForgotPasswordHome',
@@ -50,12 +60,33 @@ const loading = ref<boolean>(false);
 
 const systemUsers = ref<IdNameValueMetadata<PlatformUser[]>[]>([])
 
+useCaptchaSend()
+const captchaSendButtonRef = ref<{trigger: () => void}>()
+
 const generateCaptcha = ref<{
-  disabledSendButton?: boolean
-  captchaToken?: CaptchaToken
-  result?: any
+  token?: CaptchaToken
+  captchaParams?: Record<string, unknown>
+  result?: CaptchaGenerationResult
 }>({
 })
+
+const resendCooling = ref(false)
+
+const captchaAppend = computed(() =>
+  resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL
+    ? {email: resetPasswordForm.value.metadata.value, messageType: 'system.email.captcha.forgot-password'}
+    : {phoneNumber: resetPasswordForm.value.metadata.value, messageType: 'system.sms.captcha.forgot-password'},
+)
+
+function onCaptchaSent(result: CaptchaSendResult) {
+  generateCaptcha.value = {
+    token: result.token,
+    captchaParams: result.captchaParams,
+    result: result.generateResult,
+  }
+  resendCooling.value = true
+  step.value = 2
+}
 
 const resetPasswordForm = ref<{
   type?: string
@@ -79,84 +110,51 @@ const authPageName = import.meta.env.VITE_APP_AUTH_PAGE_NAME
 const sendCaptchaFormRef = ref()
 const resetPasswordFormRef = ref()
 
-async function sendCaptcha() {
-  if (loading.value || generateCaptcha.value.disabledSendButton) {
-    return
+async function beforeSend() {
+  if (loading.value) {
+    return false
+  }
+  if (resetPasswordForm.value.userId && resetPasswordForm.value.type) {
+    return true
   }
   loading.value = true
-  let unloading = false
+  let ok = false
   try {
-    if (!resetPasswordForm.value.userId || !resetPasswordForm.value.type) {
-      const param: PageRequest = {
-        number: 1
-      }
-      if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL) {
-        param['filter_[email_eq]'] = resetPasswordForm.value.metadata.value
-      } else if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS) {
-        param['filter_[phone_number_eq]'] = resetPasswordForm.value.metadata.value
-      } else {
-        return
-      }
-
-      const systemUserResult: RestResult<IdNameValueMetadata<PlatformUser[]>[]> = await AuthServerService.systemUsers(param)
-      if (!systemUserResult.data || systemUserResult.data.length <= 0) {
-        message.warning(resetPasswordForm.value.metadata.value + "找不到相关账户信息，无法进行下一步")
-        return
-      }
-
-      systemUsers.value = systemUserResult.data || []
-      if (isMultiUsers()) {
-        return
-      }
-      const user = systemUsers.value.flatMap(item => item.value)[0]
-      const group = systemUsers.value[0]
-      onSelectedUser(user?.id, group?.id)
-      unloading = true
+    const param: PageRequest = {
+      number: 1
     }
-
-    await doSendCaptcha()
-  } catch (e) {
-    message.error(e instanceof Error ? e.message : String(e))
-  } finally {
-    if (!unloading) {
-      loading.value = false
-    }
-  }
-}
-
-async function doSendCaptcha() {
-  if (!resetPasswordForm.value.type || !resetPasswordForm.value.userId) {
-    return
-  }
-  loading.value = true
-  try {
     if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL) {
-      const result = await ResourceServerService.sendEmailCaptcha(
-        resetPasswordForm.value.metadata.value,
-        'system.email.captcha.forgot-password'
-      )
-      generateCaptcha.value.result = result.generateResult
-      generateCaptcha.value.captchaToken = result.token as CaptchaToken
+      param['filter_[email_eq]'] = resetPasswordForm.value.metadata.value
     } else if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS) {
-      const result = await ResourceServerService.sendPhoneNumberCaptcha(
-        resetPasswordForm.value.metadata.value,
-        'system.sms.captcha.forgot-password'
-      )
-      generateCaptcha.value.result = result.generateResult
-      generateCaptcha.value.captchaToken = result.token as CaptchaToken
+      param['filter_[phone_number_eq]'] = resetPasswordForm.value.metadata.value
+    } else {
+      return false
     }
 
-    step.value = 2
-    generateCaptcha.value.disabledSendButton = true
+    const systemUserResult: RestResult<IdNameValueMetadata<PlatformUser[]>[]> = await AuthServerService.systemUsers(param)
+    if (!systemUserResult.data || systemUserResult.data.length <= 0) {
+      message.warning(resetPasswordForm.value.metadata.value + "找不到相关账户信息，无法进行下一步")
+      return false
+    }
+
+    systemUsers.value = systemUserResult.data || []
+    if (isMultiUsers()) {
+      return false
+    }
+    const user = systemUsers.value.flatMap(item => item.value)[0]
+    const group = systemUsers.value[0]
+    onSelectedUser(user?.id, group?.id)
+    ok = true
   } catch (e) {
     message.error(e instanceof Error ? e.message : String(e))
   } finally {
     loading.value = false
   }
+  return ok
 }
 
 async function submitRestPassword() {
-  if (!generateCaptcha.value.captchaToken) {
+  if (!generateCaptcha.value.token) {
     return
   }
   if (!resetPasswordForm.value.type || !resetPasswordForm.value.userId) {
@@ -165,7 +163,7 @@ async function submitRestPassword() {
   loading.value = true
   try {
     const postAppend = {
-      [(generateCaptcha.value.captchaToken.args.post as {
+      [(generateCaptcha.value.token.args.post as {
         captchaParamName: string
       }).captchaParamName]: resetPasswordForm.value.captchaValue
     }
@@ -174,7 +172,7 @@ async function submitRestPassword() {
     } else if (resetPasswordForm.value.metadata.id === RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL) {
       postAppend.email = resetPasswordForm.value.metadata.value
     }
-    const append = ResourceServerService.createGenerateTokenParam(generateCaptcha.value.captchaToken, postAppend)
+    const append = buildCaptchaSubmitParams(generateCaptcha.value.token, resetPasswordForm.value.captchaValue, postAppend)
     const result: RestResult<void> = await AuthServerService.resetPassword(
       resetPasswordForm.value.type,
       resetPasswordForm.value.userId,
@@ -241,7 +239,7 @@ function isSelect(user: PlatformUser, type: string) {
                            v-model:value="resetPasswordForm.metadata.id"/>
 
               <l-form ref="sendCaptchaFormRef"
-                      @finish="sendCaptchaFormRef.validate().then(() => sendCaptcha())"
+                      @finish="sendCaptchaFormRef.validate().then(() => captchaSendButtonRef?.trigger())"
                       :model="resetPasswordForm.metadata">
                 <a-form-item name="value"
                              :label="segmentedData.find(s => s.value === resetPasswordForm.metadata.id)?.label"
@@ -290,32 +288,28 @@ function isSelect(user: PlatformUser, type: string) {
                     </a-flex>
                   </template>
                 </template>
-                <a-button
+                <captcha-send-button
+                  ref="captchaSendButtonRef"
                   type="primary"
-                  :disabled="generateCaptcha.disabledSendButton || (isMultiUsers() && (!resetPasswordForm.userId || !resetPasswordForm.type))"
-                  html-type="submit"
+                  :captcha-type="resetPasswordForm.metadata.id as CaptchaTokenType"
+                  :append="captchaAppend"
+                  :before-send="beforeSend"
+                  :disabled="isMultiUsers() && (!resetPasswordForm.userId || !resetPasswordForm.type)"
                   block
                   class="mb-md"
+                  :countdown-format="$t('captcha.countdown')"
+                  @sent="onCaptchaSent"
                 >
-                  <template #icon v-if="!generateCaptcha.disabledSendButton">
+                  <template #icon>
                     <icon-font :type="isMultiUsers() ? 'loncra-user-check' : 'loncra-lock-open'"/>
                   </template>
-                  <a-statistic-timer
-                    :classes="{content:'text-DEFAULT'}"
-                    @finish="() => generateCaptcha.disabledSendButton = false"
-                    v-if="generateCaptcha.result && generateCaptcha.disabledSendButton"
-                    :value="generateCaptcha.result.expired"
-                    type="countdown"
-                    :format="$t('captcha.countdown')"
-                  />
-
-                  <span v-else-if="isMultiUsers()">
+                  <span v-if="isMultiUsers()">
                     {{ $t('forgotPassword.step.multiUsersSelected.action') }}
                   </span>
                   <span v-else>
                     {{ $t('forgotPassword.step.sendCaptcha.action') }}
                   </span>
-                </a-button>
+                </captcha-send-button>
                 <a-flex justify="center" align="center">
                   <a-space-compact>
                     <a-button type="text"
@@ -342,13 +336,13 @@ function isSelect(user: PlatformUser, type: string) {
                   <a-typography-text type="secondary">{{$t('captcha.resend.prompt')}}</a-typography-text>
                   <a-statistic-timer
                     :classes="{root:'inline-block',content:'text-text-secondary text-DEFAULT'}"
-                    @finish="() => generateCaptcha.disabledSendButton = false"
-                    v-if="generateCaptcha.result && generateCaptcha.disabledSendButton"
+                    @finish="() => resendCooling = false"
+                    v-if="generateCaptcha.result && resendCooling"
                     :value="generateCaptcha.result.expired"
                     type="countdown"
                     :format="'(' + $t('captcha.countdown') + ')'"
                   />
-                  <a-button v-else type="link" size="small" @click="doSendCaptcha()">
+                  <a-button v-else type="link" size="small" @click="captchaSendButtonRef?.trigger()">
                     {{$t('captcha.resend.action')}}
                   </a-button>
                 </template>
@@ -368,7 +362,7 @@ function isSelect(user: PlatformUser, type: string) {
                     v-model:value="resetPasswordForm.captchaValue"
                     input-mode="numeric"
                     :formatter="(value:string) => value.replace(/[^0-9]/g, '')"
-                    :length="generateCaptcha.result.codeLength"
+                    :length="generateCaptcha.result?.codeLength"
                   />
                 </a-form-item>
                 <a-form-item name="newPassword" :label="$t('auth.newPassword')"

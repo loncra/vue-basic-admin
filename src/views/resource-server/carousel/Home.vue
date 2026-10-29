@@ -18,8 +18,11 @@ import {
   SYSTEM_MODULE_NAME
 } from "@loncra/client/commons";
 import type {EnumBucketsResponseBody} from "@loncra/client/resource";
-import {AttachmentService, RESOURCE_SERVER_CAROUSEL_AUTHORITY} from "@loncra/client/resource";
-import {ResourceServerService} from "@/apis";
+import {
+  AttachmentService,
+  RESOURCE_SERVER_CAROUSEL_AUTHORITY,
+  ResourceServerService
+} from "@loncra/client/resource";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import {BasicImage} from '@loncra/antdv'

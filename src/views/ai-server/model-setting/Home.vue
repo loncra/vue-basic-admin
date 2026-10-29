@@ -3,6 +3,7 @@ import {computed, getCurrentInstance, onActivated, onMounted, ref} from 'vue'
 import {App, type MenuProps} from 'antdv-next'
 import {CrudHomePage, type CrudHomePageExpose, DataLoadingCard} from '@loncra/antdv-pro'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
+import {ResourceServerService} from '@loncra/client/resource'
 import type {ModelSettingEntity} from '@loncra/client/ai'
 import {
   AI_SERVER_MODEL_SETTING_AUTHORITY,
@@ -10,7 +11,6 @@ import {
 } from '@loncra/client/ai'
 import type {FilterRequest, RestResult, TreeSortMetadata} from '@loncra/client/commons'
 import {SYSTEM_CONSTANT} from '@loncra/client/commons'
-import {ResourceServerService} from '@/apis'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 import {AI_SERVER_MODEL_SETTING_ROUTE, MODEL_SETTING_MANUFACTURER_CODE_QUERY} from '@/constants'
 import {modelSettingService} from './model-setting.page'
