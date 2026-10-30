@@ -1,36 +1,14 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
-import {AgentChat, type AgentSession} from '@loncra/antdv-chat-pro'
-import {AgentService} from '@loncra/client/ai'
-import {getConversationRuns, useAgentStream} from '@/composables'
+import {onMounted} from 'vue'
+import {AgentChat} from '@loncra/antdv-chat-pro'
+import {buildAuthHeaders} from '@/requests'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
-import {DataLoadingCard} from '@loncra/antdv-pro'
 
 defineOptions({
   name: 'CommonAiAgent',
 })
 
-const current = ref<AgentSession>()
-const stream = useAgentStream(() => current.value)
 const principalStore = usePrincipalStore()
-
-function onActive(session?: AgentSession) {
-  stream.disconnectIfRunning()
-  current.value = session
-  for (const run of getConversationRuns(session as AgentSession)) {
-    stream.connect(Number(run.id), false)
-  }
-}
-
-function onResume(assistantMessageId: number) {
-  stream.connect(assistantMessageId, false)
-}
-
-async function onCancel(session: AgentSession) {
-  for (const run of getConversationRuns(session)) {
-    await AgentService.interrupt(Number(run.key))
-  }
-}
 
 onMounted(() => {
   void principalStore.loadPluginInstalls()
@@ -39,30 +17,16 @@ onMounted(() => {
 
 <template>
   <div class="h-full min-h-120">
-    <data-loading-card
-      :spin="false"
-      :classes="{
-        card: {
-          root:'min-h-0 flex flex-col h-full shadow-ter',
-          header: 'shrink-0',
-          body:'flex flex-1 min-h-0 p-0! overflow-hidden'
-        }
-      }"
+    <agent-chat
+      :installs="principalStore.pluginInstalls"
+      :self="{...principalStore.state.details.metadata, systemName: principalStore.state.name}"
+      :build-headers="buildAuthHeaders"
+      @installed="principalStore.upsertPluginInstall"
+      @uninstalled="principalStore.removePluginInstall"
     >
-      <template #extra>{{ current?.name ?? '' }}</template>
-      <agent-chat
-        :installs="principalStore.pluginInstalls"
-        :self="{...principalStore.state.details.metadata, systemName: principalStore.state.name}"
-        @active="onActive"
-        @resume="onResume"
-        @cancel="onCancel"
-        @installed="principalStore.upsertPluginInstall"
-        @uninstalled="principalStore.removePluginInstall"
-      >
-        <template #agentAvatar>
-          <icon-font type="icon-xiaojiage-a" />
-        </template>
-      </agent-chat>
-    </data-loading-card>
+      <template #agentAvatar>
+        <icon-font type="icon-xiaojiage-a" />
+      </template>
+    </agent-chat>
   </div>
 </template>

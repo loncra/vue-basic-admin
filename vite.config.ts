@@ -131,6 +131,8 @@ export default defineConfig(({ mode }) => {
         // 源码别名后 peer 不再沿管理端 node_modules 往上找，显式指回本应用。
         'p-limit': fileURLToPath(new URL('./node_modules/p-limit', import.meta.url)),
         'dexie': fileURLToPath(new URL('./node_modules/dexie', import.meta.url)),
+        // packages/antdv-chat-pro 的 stream 适配器（源码 alias 直连后同上：文件位置解析链上没有 x-sdk）。
+        '@antdv-next/x-sdk': fileURLToPath(new URL('./node_modules/@antdv-next/x-sdk', import.meta.url)),
       },
       /**
        * `antdv-next-tiptap` 住在 packages/node_modules，它把整个 tiptap 家族声明成 **peer**

@@ -42,6 +42,8 @@
       "@loncra/client/ai": ["../packages/client/src/ai/index.ts"],
       "@loncra/client/adapters/axios": ["../packages/client/src/adapters/axios.ts"],
       "p-limit": ["./node_modules/p-limit"],
+      // packages/antdv-chat-pro 源码经本工程编译，其 stream 适配器 import @antdv-next/x-sdk（装于本包 node_modules），需此映射供 TS 解析
+      "@antdv-next/x-sdk": ["./node_modules/@antdv-next/x-sdk/dist/index.d.ts"],
       "@codemirror/*": ["./node_modules/@codemirror/*"]
     },
 

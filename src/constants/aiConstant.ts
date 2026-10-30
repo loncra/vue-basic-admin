@@ -1,9 +1,6 @@
-import type {AgentChatStatus, AgentSseMessageContent} from "@/types/composables";
-import {AI_SERVER_AGENT_CHAT_STATUS, AI_SERVER_AGENT_CONTENT_TYPE} from '@loncra/client/ai'
+﻿import {AI_SERVER_AGENT_CHAT_STATUS} from '@loncra/client/ai'
 
-export const AGENT_CHAT_CONTEXT_PROVIDE_KEY = "agentChatContextProvide"
-
-export const TOKEN_USAGE_TYPE: Readonly<AgentSseMessageContent['type']> = AI_SERVER_AGENT_CONTENT_TYPE.TOKEN_USAGE
+export type AgentChatStatus = (typeof AI_SERVER_AGENT_CHAT_STATUS)[keyof typeof AI_SERVER_AGENT_CHAT_STATUS]
 
 export const AGENT_CHAT_STATUS_STYLE = {
   [AI_SERVER_AGENT_CHAT_STATUS.READY]: {

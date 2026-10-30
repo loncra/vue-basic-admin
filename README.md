@@ -19,7 +19,7 @@ npm run type-check
 
 | 目录 | 放什么 | 不允许放 |
 |---|---|---|
-| `src/apis/` | `@loncra/client`（各后端服务的领域客户端：Service、枚举/权限/字典常量）覆盖不了的 Service 包装（现状仅两个：验证码弹层、Agent SSE） | 与 client 子路径重复的 Service |
+| `src/apis/` | `@loncra/client`（各后端服务的领域客户端：Service、枚举/权限/字典常量）覆盖不了的 Service 包装 | 与 client 子路径重复的 Service |
 | `src/assets/` | 全局样式 + 静态插图 | 控件样式、页面私有样式 |
 | `src/components/` | ≥2 个 views 模块共用的全局组件 | 只服务单个模块的组件 |
 | `src/composables/` | 状态 + 副作用（`useXxx.ts`），用法见 [UTILITIES.md](./UTILITIES.md) | JSX、纯函数 |
