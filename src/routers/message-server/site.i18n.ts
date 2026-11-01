@@ -1,4 +1,4 @@
-import type {RouteTitleMap} from '@/types/composables/common'
+import type {RouteTitleMap} from '@/stores/menuStore'
 
 export default {
   message_server_site_send: () =>

@@ -12,7 +12,7 @@ import {
   AUTH_SERVER_RESOURCE_TYPE,
   AUTHENTICATION_MEMBER_TYPE
 } from '@loncra/client/auth'
-import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from "@/types/composables";
+import type {RouteTitleGetter, RouteTitleMap, RouteTitleParams} from '@/stores/menuStore'
 import {RESOURCE_SERVER_USER_EXPORT_ROUTE, SYSTEM_ROUTE} from '@/constants'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
 import {nextTick, ref, watch} from 'vue'

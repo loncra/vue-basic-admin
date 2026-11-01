@@ -3,9 +3,14 @@ import {STORE} from '@/constants'
 import type {IdNameMetadata, NameValueEnumMetadata, RestResult} from "@loncra/client/commons";
 import {getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons';
 import {computed, ref} from "vue";
-import type {MyMessageState} from "@/types/apis";
+
 import type {MessageGroup, UserChatUnreadItem} from "@loncra/client/message";
 import {MESSAGE_SERVER_MESSAGE_GROUP, MessageServerService} from "@loncra/client/message";
+
+export interface MyMessageState {
+  record?: Partial<Record<MessageGroup, Record<number, unknown>>> | undefined
+  siteTypes?: IdNameMetadata[]
+}
 
 const RESET: MyMessageState = {
   record: {

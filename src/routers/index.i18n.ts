@@ -1,4 +1,4 @@
-import type {RouteTitleMap} from "@/types/composables";
+import type {RouteTitleMap} from '@/stores/menuStore';
 
 export default {
   '403': () => ['error.forbidden.page'] as const,

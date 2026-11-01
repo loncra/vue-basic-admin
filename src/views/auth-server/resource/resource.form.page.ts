@@ -4,7 +4,7 @@ import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
 import {defineFormPage, loadIcon} from '@loncra/antdv-pro'
 import router from '@/routers'
 import {renderIconFont} from '@/utils'
-import type {IconfontJson} from '@/types/composables/common'
+import type {IconfontJson} from '@loncra/antdv'
 import {resourceCore} from './resource.page'
 import {getEnumValue} from '@loncra/client/commons'
 

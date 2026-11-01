@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LAuthLayoutRight from '@/components/layout/auth/LayoutRight.vue'
 import LAuthLayoutLeft, {type AuthLayoutLeftProps} from '@/components/layout/auth/LayoutLeft.vue'
-import type {LogoProps} from "@/types/composables";
+import type {LogoProps} from "../Logo.vue";
 
 defineOptions({
   name: 'LAuthLayout',

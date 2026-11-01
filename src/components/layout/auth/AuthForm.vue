@@ -1,3 +1,10 @@
+<script lang="ts">
+export interface AuthFormProp {
+  enablePhoneAuth?: boolean
+  enableQrCodeAuth?: boolean
+}
+</script>
+
 <script setup lang="ts">
 import {renderIconFont} from '@/utils/commonUtils'
 import {
@@ -7,7 +14,6 @@ import {
   useBehaviorCaptcha
 } from '@loncra/antdv-pro'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
-import type {AuthFormProp} from '@/types/apis'
 import {BusinessError, type RestResult} from '@loncra/client/commons'
 import type {AuthCredentials, AuthenticationType, LoginType} from '@loncra/client/auth'
 import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTH_SERVER_LOGIN_TYPE} from '@loncra/client/auth'

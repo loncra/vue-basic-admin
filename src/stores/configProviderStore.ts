@@ -1,6 +1,7 @@
 import {computed, type ComputedRef, markRaw, onMounted, onUnmounted, ref, watch} from 'vue'
 import {defineStore} from 'pinia'
 import {theme} from 'antdv-next'
+import type {AntdvConfigInitial} from '@loncra/antdv-pro'
 import {createAntdvConfig} from '@loncra/antdv-pro'
 import dayjs from 'dayjs'
 import i18n, {type LanguagePack, proLocaleOf} from '@/i18n'
@@ -8,7 +9,19 @@ import {type CreateSuccessBackValue, PAD_SCREENS, SCREEN_BREAKPOINT, STORE,} fro
 import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import type {ConfigOptions} from 'antdv-next/dist/message/interface'
 import type {GlobalConfigProps} from 'antdv-next/dist/notification/interface'
-import type {ConfigProviderState, ConfigProviderStoredState} from '@/types/composables'
+
+export interface ConfigProviderStoredState extends AntdvConfigInitial {
+  homeSiderWidth: number
+  homeCollapsedWidth: number
+  homeCollapsible: boolean
+  createSuccessBack?: CreateSuccessBackValue
+  messageConfig: ConfigOptions
+  notificationConfig: GlobalConfigProps
+}
+
+export interface ConfigProviderState extends ConfigProviderStoredState {
+  screen: NameValueEnumMetadata<number>
+}
 
 const LEGACY_KEY = import.meta.env.VITE_APP_LOCAL_STORAGE_CONFIG_PROVIDER_NAME
 

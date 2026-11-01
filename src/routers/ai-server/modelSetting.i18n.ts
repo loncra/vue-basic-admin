@@ -1,4 +1,4 @@
-import type {RouteTitleMap} from '@/types/composables/common'
+import type {RouteTitleMap} from '@/stores/menuStore'
 
 export default {
   ai_server_model_setting_edit: () =>

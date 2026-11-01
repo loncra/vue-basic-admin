@@ -1,3 +1,15 @@
+<script lang="ts">
+import type {PageRequest} from '@loncra/client/commons'
+
+export interface MySiteMessageProps {
+  dataSource: TotalPage<SiteMessageEntity>
+  key: string
+  install: boolean
+  loading: boolean
+  pageRequest: PageRequest
+}
+</script>
+
 <script setup lang="ts">
 import {renderIconFont} from '@/utils/commonUtils'
 import {
@@ -17,7 +29,6 @@ import {
   MessageServerService,
   SiteMessageService
 } from "@loncra/client/message";
-import type {MySiteMessageProps} from "@/types/apis";
 import type {IdNameMetadata, RestResult, TotalPage} from "@loncra/client/commons";
 import {getEnumValue} from "@loncra/client/commons"
 import {useMessageServerStore} from "@/stores/messageServerStore.js";

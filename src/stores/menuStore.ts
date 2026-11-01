@@ -1,19 +1,33 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import {STORE} from '@/constants'
-import type {RouteResourceMetadata} from '@/types/apis'
 import type {RestResult} from '@loncra/client/commons'
 import {filterTreeDeep, unmergeTree} from '@loncra/client/commons'
+import type {RouteResourceMetadata as ClientRouteResourceMetadata} from '@loncra/client/auth'
 import {AuthServerService, type ResourceEntity, type ResourceMetadata} from '@loncra/client/auth'
 import {
   type RouteLocationNormalized,
   type RouteMeta,
   type Router,
+  type RouteRecordName,
   type RouteRecordNormalized
 } from "vue-router";
 import {requireNonNullOrUndefined} from '@/utils'
 import {getRouteTitle} from '@/routers'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
+
+export interface RouteResourceMetadata
+  extends Omit<ClientRouteResourceMetadata, 'route'> {
+  route: RouteRecordName
+}
+
+export type RouteTitleParams = Record<string, string>
+
+export type RouteTitleSpec = readonly [string, RouteTitleParams?]
+
+export type RouteTitleGetter = () => RouteTitleSpec
+
+export type RouteTitleMap = Record<string, RouteTitleGetter>
 
 export interface RouteEnterPage {
   loading: boolean

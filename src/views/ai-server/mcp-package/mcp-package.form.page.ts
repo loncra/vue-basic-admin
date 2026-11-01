@@ -12,6 +12,7 @@ import {
   AI_SERVER_MCP_CLIENT_TYPE,
   MCP_CLIENT_HTTP_TYPE_VALUE,
   MCP_GROUP_CODE_PREFIX,
+  type McpPackageEntity as ClientMcpPackageEntity,
   type McpPackageSavePayload,
   type SseMcpClientTransportMetadata,
   type StdioMcpClientTransportMetadata,
@@ -19,10 +20,17 @@ import {
 } from '@loncra/client/ai'
 import {defineFormPage, loadIcon} from '@loncra/antdv-pro'
 import {renderIconFont} from '@/utils'
-import type {IconfontJson} from '@/types/composables'
-import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
+import type {IconfontJson, KeyValueRow} from '@loncra/antdv'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
 import {mcpPackageCore} from './mcp-package.page'
+
+export interface McpPackageEntity extends ClientMcpPackageEntity {
+  headerDataSource?: KeyValueRow[]
+  queryParamDataSource?: KeyValueRow[]
+  envDataSource?: KeyValueRow[]
+}
+
+export type McpPackageEntityWithSources = McpPackageEntity
 
 const ICON_FONTS = ['/font_ai_icon/iconfont.json']
 const iconOptions = ref<IconfontJson[]>([])

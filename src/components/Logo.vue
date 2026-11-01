@@ -1,6 +1,13 @@
+<script lang="ts">
+export interface LogoProps {
+  text?: string
+  icon?: string
+  hideText?: boolean
+}
+</script>
+
 <script setup lang="ts">
 
-import type {LogoProps} from '@/types/composables/common'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {type ComponentInternalInstance, computed, getCurrentInstance} from "vue";
 import {

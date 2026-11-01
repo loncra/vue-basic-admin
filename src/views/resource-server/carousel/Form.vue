@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref} from 'vue'
-import type {CarouselSavePayload} from '@/types/apis'
+import type {CarouselSavePayload} from './carousel.page'
+import {carouselCore} from './carousel.page'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
-import {carouselCore} from './carousel.page'
 import {carouselFormPage} from './carousel.form.page'
 
 defineOptions({

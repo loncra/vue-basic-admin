@@ -1,12 +1,26 @@
+import type {Dayjs} from 'dayjs'
+import type {
+  CarouselEntity as ClientCarouselEntity,
+  CarouselSavePayload as ClientCarouselSavePayload,
+} from '@loncra/client/resource'
 import {CarouselService} from '@loncra/client/resource'
 import type {CrudPageCore} from '@loncra/antdv-pro'
-import type {CarouselEntity, CarouselSavePayload} from '@/types/apis'
 import {RESOURCE_SERVER_CAROUSEL_ROUTE} from '@/constants'
 import {
   OPERATION_DATA_TRACE_TABLE,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME
 } from '@loncra/client/commons'
+
+export interface CarouselSavePayload
+  extends Omit<ClientCarouselSavePayload, 'expirationTime' | 'showtime'> {
+  expirationTime?: number | Dayjs
+  showtime?: number | Dayjs
+}
+
+export interface CarouselEntity
+  extends Omit<ClientCarouselEntity, 'expirationTime' | 'showtime'>,
+    CarouselSavePayload {}
 
 export const carouselService = new CarouselService()
 

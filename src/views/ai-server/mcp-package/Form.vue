@@ -10,7 +10,8 @@ import {AI_SERVER_MCP_CLIENT_TYPE, MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/cli
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
 import {KeyValueTable} from '@loncra/antdv'
 import {CrudFormPage} from '@loncra/antdv-pro'
-import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
+import type {McpPackageEntity as McpPackageEntityWithSources} from './mcp-package.form.page'
+import {mcpPackageFormPage} from './mcp-package.form.page'
 import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyTable.vue'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
@@ -18,7 +19,6 @@ import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
 import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {mcpPackageCore} from './mcp-package.page'
-import {mcpPackageFormPage} from './mcp-package.form.page'
 
 defineOptions({
   name: 'AiServerMcpPackageForm',

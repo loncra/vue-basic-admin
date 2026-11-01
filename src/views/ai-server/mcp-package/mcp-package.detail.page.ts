@@ -7,7 +7,7 @@ import {
 } from '@loncra/client/ai'
 import {getEnumName, TIME_UNIT_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineDetailPage} from '@loncra/antdv-pro'
-import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
+import type {McpPackageEntity as McpPackageEntityWithSources} from './mcp-package.form.page'
 import {mcpPackageCore} from './mcp-package.page'
 
 const COLUMN = {xxxl: 3, xxl: 3, xl: 3, lg: 3, md: 1, sm: 1, xs: 1}

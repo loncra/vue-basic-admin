@@ -19,9 +19,9 @@ import {
   type SkillSourceMetadata,
 } from '@loncra/client/ai'
 import {defineFormPage, loadIcon} from '@loncra/antdv-pro'
-import type {IconfontJson} from '@/types/composables'
-import {renderIconFont} from '@/utils'
+import type {IconfontJson} from '@loncra/antdv'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
+import {renderIconFont} from '@/utils'
 import {skillPackageCore} from './skill-package.page'
 
 const iconOptions = ref<IconfontJson[]>([])

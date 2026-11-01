@@ -1,6 +1,6 @@
 import {onUnmounted} from 'vue'
+import type {SocketBusinessEvent, SocketBusinessEventPayloadMap} from '@/stores/socketStore'
 import {useSocketStore} from '@/stores/socketStore'
-import type {SocketBusinessEvent, SocketBusinessEventPayloadMap} from '@/types/socket'
 
 export function useSocketSubscriptions() {
   const socketStore = useSocketStore()

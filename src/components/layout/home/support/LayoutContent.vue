@@ -20,7 +20,7 @@ import {
   LAYOUT_PANE_TITLE_PROVIDE_KEY
 } from '@/constants'
 import {useMenuPrincipalStore} from "@/stores/menuStore.ts";
-import type {RouteResourceMetadata} from '@/types/apis'
+import type {RouteResourceMetadata} from '@/stores/menuStore'
 import i18n from "@/i18n";
 import {getRouteTitle} from '@/routers'
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";

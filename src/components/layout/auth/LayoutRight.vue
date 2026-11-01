@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LAuthForm from '@/components/layout/auth/AuthForm.vue'
 import LLogo from '@/components/Logo.vue'
-import type {LogoProps} from "@/types/composables";
+import type {LogoProps} from '../../Logo.vue'
 
 defineOptions({
   name: 'LAuthLayoutRight',

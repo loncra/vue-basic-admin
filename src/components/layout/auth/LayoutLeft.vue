@@ -2,7 +2,7 @@
 import banner from '@/assets/信息服务.svg'
 import LLogo from '@/components/Logo.vue'
 import LayoutFooter from '@/components/layout/LayoutFooter.vue'
-import type {LogoProps} from "@/types/composables";
+import type {LogoProps} from '../../Logo.vue'
 
 defineOptions({
   name: 'LAuthLayoutRight',

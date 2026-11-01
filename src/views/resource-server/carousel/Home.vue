@@ -8,7 +8,8 @@ import {
   useDateFormat,
 } from '@loncra/antdv-pro';
 import {computed, ref} from 'vue'
-import type {CarouselEntity} from "@/types/apis";
+import type {CarouselEntity} from './carousel.page';
+import {CAROUSEL_TYPE_FILTER, carouselService} from './carousel.page'
 import type {NameValueEnumMetadata, PageRequest, RestResult} from "@loncra/client/commons";
 import {
   DATA_STATUS,
@@ -26,7 +27,6 @@ import {
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useConfigProviderStore} from "@/stores/configProviderStore";
 import {BasicImage} from '@loncra/antdv'
-import {CAROUSEL_TYPE_FILTER, carouselService} from './carousel.page'
 import {carouselHomePage, carouselPreviewReloader} from './carousel.home.page'
 
 interface CarouselTab {
