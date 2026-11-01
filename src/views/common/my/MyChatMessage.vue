@@ -12,30 +12,21 @@ import {
   type VNode,
 } from "vue";
 import type {
-  UserChatConversationResponseBody,
-  UserChatMessageEntity,
-  UserChatMessageResponseBody
-} from "@/types/apis";
-import type {SystemUserContactItem} from "@loncra/antdv-chat-pro";
-import {ImChat, type ImChatExpose, type ImPageHost} from "@loncra/antdv-chat-pro";
-import {useAppNotification} from '@loncra/antdv-pro'
-import type {IdNameValueMetadata, IdValueMetadata, RestResult} from "@loncra/client/commons";
-import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
-import type {BasicUserChatConversation} from "@loncra/client/message";
+  BasicUserChatConversation,
+  UserChatConversationResponseBody
+} from '@loncra/client/message';
 import {MESSAGE_SERVER_MESSAGE_GROUP} from '@loncra/client/message'
-import {
-  createAvatarNode,
-  getDraftContent,
-  getMessageContent,
-  requireNonNullOrUndefined
-} from "@/utils";
+import type {SystemUserContactItem} from "@loncra/antdv-chat-pro";
+import {createAvatarNode, ImChat, type ImChatExpose, type ImPageHost} from "@loncra/antdv-chat-pro";
+import {useAppNotification} from '@loncra/antdv-pro'
+import type {IdNameValueMetadata, RestResult} from "@loncra/client/commons";
+import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
+import {requireNonNullOrUndefined} from "@/utils";
 import {renderIconFont} from '@/utils/commonUtils'
 import {usePrincipalStore} from "@/stores/principalStore";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {useSocketStore} from '@/stores/socketStore.ts'
-import {parseSocketRestPayload} from '@/types/socket.ts'
-import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY, SOCKET_EVENT_TYPE} from '@/constants'
-import {useSocketSubscriptions} from "@/composables";
+import {MY_MESSAGE_EXTRA_CONTENT_PROVIDE_KEY} from '@/constants'
 
 defineOptions({
   name: 'MyChatMessageHome',
@@ -54,7 +45,6 @@ const chatRef = ref<ImChatExpose>()
 const roomOpen = ref(false)
 const activeConversation = ref<UserChatConversationResponseBody>()
 
-const socketStore = useSocketStore()
 const host: ImPageHost = {
   get self() {
     return {
@@ -63,20 +53,18 @@ const host: ImPageHost = {
     }
   },
   timeText: (unix) => globalProperties.$dayjs(unix).fromNow(),
-  messagePreview: (message, conversation) => getMessageContent(message, conversation),
-  draftPreview: (draft) => getDraftContent(draft),
   roomUploadPrefix: (roomId) => `user_chat_room/${roomId}`,
   unreadCount: (id) => messageServerStore.getUserChatUnreadQuantity(Number(id)),
   refreshUnread: async () => {
     await messageServerStore.fetchUnreadQuantity()
   },
-  subscribeReadUpdate: (handler) => socketStore.subscribe(
-    SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ_UPDATE,
-    (payload) => {
-      const result = parseSocketRestPayload<IdValueMetadata<number, number>[]>(payload)
-      handler(result.data ?? [])
-    },
-  ),
+  subscribe: (event, handler) => {
+    const socketStore = useSocketStore()
+    return socketStore.subscribe(
+      event as Parameters<typeof socketStore.subscribe>[0],
+      handler as Parameters<typeof socketStore.subscribe>[1],
+    )
+  },
 }
 
 const options = ref<{
@@ -88,54 +76,6 @@ const options = ref<{
 })
 
 const {getNotificationKey, destroy} = useAppNotification()
-
-const {on} = useSocketSubscriptions()
-
-on(SOCKET_EVENT_TYPE.CHAT_MESSAGE, (payload) => {
-  const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
-  if (result.data) {
-    chatRef.value?.applyIncomingMessage(result.data)
-  }
-})
-on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_CREATE, (payload) => {
-  const result = parseSocketRestPayload<UserChatConversationResponseBody>(payload)
-  if (result.data) {
-    void chatRef.value?.addConversation(result.data)
-  }
-})
-on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH_BY_ROOM_ID, (payload) => {
-  const result = parseSocketRestPayload<number>(payload)
-  if (result.data) {
-    void chatRef.value?.refreshConversationByRoom(result.data)
-  }
-})
-on(SOCKET_EVENT_TYPE.CHAT_CONVERSATION_REFRESH, () => {
-  void chatRef.value?.refreshConversations()
-})
-on(SOCKET_EVENT_TYPE.CHAT_PARTICIPANT_REFRESH_BY_ROOM_ID, (payload) => {
-  const result = parseSocketRestPayload<number>(payload)
-  if (result.data) {
-    void chatRef.value?.refreshParticipants(result.data)
-  }
-})
-on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ, (payload) => {
-  const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
-  if (result.data) {
-    chatRef.value?.applyMessageUpdate(result.data)
-  }
-})
-on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_UPDATE, (payload) => {
-  const result = parseSocketRestPayload<UserChatMessageResponseBody | UserChatMessageEntity>(payload)
-  if (result.data) {
-    chatRef.value?.applyMessageUpdate(result.data)
-  }
-})
-on(SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO, (payload) => {
-  const result = parseSocketRestPayload<UserChatMessageEntity>(payload)
-  if (result.data) {
-    chatRef.value?.applyMessageUndo(result.data)
-  }
-})
 
 function paintHeader() {
   const conversation = activeConversation.value

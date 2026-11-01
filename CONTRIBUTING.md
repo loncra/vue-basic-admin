@@ -7,7 +7,7 @@
 ## 1. 宿主边界
 
 - 管理端不实现 packages 已有的能力：CRUD 控件（`@loncra/antdv-pro`）、IM/AI 套件（`@loncra/antdv-chat` / `@loncra/antdv-chat-pro`）、请求与上传执行器、枚举/字典/权限机制、领域 Service（`@loncra/client`）。
-- Service 一律从 `@loncra/client/*` 子路径导入（`commons` / `auth` / `resource` / `message` / `ai` / `adapters/axios`，见 client 包的 `package.json`）；`src/apis/` 只放 client 覆盖不了的包装，新增包装必须说明 client 为什么覆盖不了。
+- Service 一律从 `@loncra/client/*` 子路径导入（`commons` / `auth` / `resource` / `message` / `ai` / `adapters/axios`，见 client 包的 `package.json`）。宿主不再保留 Service 包装目录——client 覆盖不了的能力（如通话的 LiveKit 媒体注册）经包出口的注入契约提供。
 - 不把包内控件的样式写进 `src/assets/style.css`（见第 8 节）；不得深路径 import 包内 `_util/`（`_util` 是各包的内部实现、不构成跨包契约），要用其能力须经包出口、或宿主自建等价物。
 - 实现包定义的 host 注入契约时（如 IM 的 `ImPageHost`、Agent 的会话宿主回调），宿主只灌能力（取数、格式化、跳转），不把页面业务分支写进注入实现；注入的取数与格式化落在基础设施或模块级纯函数（先例：`src/utils/chatUtils.ts`）。
 

@@ -1,33 +1,19 @@
 import {useSocketSubscriptions} from '@/composables/useSocketSubscriptions.ts'
-import {SOCKET_EVENT_TYPE, SYSTEM_ROUTE} from '@/constants'
+import {SOCKET_EVENT_TYPE} from '@/constants'
 import type {IdValueMetadata, RestResult, TimeProperties} from "@loncra/client/commons";
-import {getEnumName, isEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons';
-import {parseSocketRestPayload} from "@/types/socket.ts";
-import type {UserChatConversationResponseBody, UserChatMessageResponseBody} from "@/types/apis";
+import {getEnumName, isEnumValue} from '@loncra/client/commons';
+import {createUserAvatarNode, parseSocketRestPayload} from '@loncra/antdv-chat-pro'
 import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
 import type {
   UserChatCallEntity,
   UserChatCallParticipantEntity,
-  UserChatCallResponseBody,
-  UserChatConversationEntity
+  UserChatCallResponseBody
 } from "@loncra/client/message";
-import {
-  ChatMessageService,
-  MESSAGE_SERVER_CHAT_CALL_TYPE,
-  MESSAGE_SERVER_MESSAGE_GROUP,
-  MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE
-} from "@loncra/client/message";
+import {MESSAGE_SERVER_CHAT_CALL_TYPE, MESSAGE_SERVER_MESSAGE_GROUP} from "@loncra/client/message";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
-import {
-  createAvatarNode,
-  createUserAvatarNode,
-  getMessageContent,
-  requireNonNullOrUndefined,
-} from "@/utils";
 
-import {type ComponentInternalInstance, getCurrentInstance, h, type Ref} from "vue";
+import {h, type Ref} from "vue";
 import {usePrincipalStore} from "@/stores/principalStore.ts";
-import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {useAppNotification} from '@loncra/antdv-pro'
 import {Flex} from "antdv-next";
 import {AudioOutlined, VideoCameraOutlined} from '@antdv-next/icons'
@@ -39,13 +25,9 @@ export function useChatNotification(config: {
   chatCallConfig: {closeTimerValue: Ref<TimeProperties>}
 }) {
   const {on} = useSocketSubscriptions()
-  const {destroy, info, createNotificationDescription} = useAppNotification()
+  const {info, createNotificationDescription} = useAppNotification()
   const messageServerStore = useMessageServerStore()
   const principalStore = usePrincipalStore()
-  const configProviderStore = useConfigProviderStore()
-  const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
-    getCurrentInstance(),
-  ).appContext.config.globalProperties
 
   const callLocale = useLocale('ImCall')
   const session = provideImChatCall({
@@ -66,79 +48,6 @@ export function useChatNotification(config: {
   session.reject = async (callId) => {
     await rejectCall(callId)
     await messageServerStore.fetchUnreadQuantity()
-  }
-
-  async function onChatMessageReceived(
-    result: RestResult<UserChatMessageResponseBody>,
-    event: string
-  ) {
-    if (!result.data || result.data.principal === principalStore.state.name) {
-      return
-    }
-
-    await messageServerStore.fetchUnreadQuantity()
-
-    if (isEnumValue(result.data.type, MESSAGE_SERVER_USER_CHAT_MESSAGE_TYPE.CALL)) {
-      return
-    }
-
-    const conversationResult: RestResult<UserChatConversationEntity | UserChatConversationResponseBody> = await ChatMessageService.getConversation(result.data.userChatRoomId, true)
-    if (!conversationResult.data) {
-      return;
-    }
-
-    const body: UserChatConversationResponseBody = conversationResult.data as UserChatConversationResponseBody;
-    let notificationKey = MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT + "_" + body.id;
-    let description: string = getMessageContent(result.data, body)
-    let duration = configProviderStore.state.notificationConfig.duration;
-    let messageId = undefined
-    if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE && isEnumValue(body.muted, YES_OR_NO_TYPE.YES)) {
-      return
-    } else if (event === SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION) {
-      const message = result.data
-
-      destroy(notificationKey)
-      notificationKey = MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT + "_" + SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION + "_" + message.id;
-
-      duration = false
-      messageId = message.id
-
-      description = globalProperties.$t(
-        'chat.notification.mention',
-        {principal: '[' + AuthServerService.getPrincipalNameByUserDetails(message.participant.metadata.details) + '] '}
-      )
-    }
-
-    if (description === '') {
-      return
-    }
-
-    await info({
-        title: body.name,
-        duration: duration,
-        description: createNotificationDescription(description),
-        icon: createAvatarNode(
-          Array.isArray(body.cover) ? body.cover : [],
-          body.name || '',
-          'large',
-          '[&>*:not(:first-child)]:-ms-8!',
-        ),
-        classes: {
-          root: 'cursor-pointer',
-        },
-        onClick: () => {
-          void globalProperties.$router.push({
-            name: SYSTEM_ROUTE.MY_CHAT_MESSAGE,
-            query: {conversationId: body.id, messageId},
-          }).then(() => {
-            destroy(notificationKey)
-          })
-        },
-      },
-      MESSAGE_SERVER_MESSAGE_GROUP.USER_CHAT,
-      notificationKey
-    )
-
   }
 
   async function onChatCallReceived(result: RestResult<IdValueMetadata<number, PlatformUser>>) {
@@ -175,21 +84,6 @@ export function useChatNotification(config: {
     )
 
   }
-
-  on(
-    SOCKET_EVENT_TYPE.CHAT_MESSAGE,
-    (payload) => onChatMessageReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload), SOCKET_EVENT_TYPE.CHAT_MESSAGE)
-  )
-
-  on(
-    SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION,
-    (payload) => onChatMessageReceived(parseSocketRestPayload<UserChatMessageResponseBody>(payload), SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION)
-  )
-
-  on(
-    SOCKET_EVENT_TYPE.CHAT_MESSAGE_UNDO,
-    () => messageServerStore.fetchUnreadQuantity()
-  )
 
   on(
     SOCKET_EVENT_TYPE.CHAT_CALL,

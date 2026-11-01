@@ -18,9 +18,9 @@ import {
   type SkillPackageSavePayload,
   type SkillSourceMetadata,
 } from '@loncra/client/ai'
-import {defineFormPage} from '@loncra/antdv-pro'
+import {defineFormPage, loadIcon} from '@loncra/antdv-pro'
 import type {IconfontJson} from '@/types/composables'
-import {loadIcon, renderIconFont} from '@/utils'
+import {renderIconFont} from '@/utils'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
 import {skillPackageCore} from './skill-package.page'
 

@@ -1,11 +1,12 @@
+import type {IdValueMetadata, RestResult} from '@loncra/client/commons'
+import type {PlatformUser} from '@loncra/client/auth'
 import type {
+  UserChatCallEntity,
+  UserChatCallParticipantEntity,
   UserChatConversationResponseBody,
   UserChatMessageEntity,
   UserChatMessageResponseBody
-} from '@/types/apis'
-import type {IdValueMetadata, RestResult} from '@loncra/client/commons'
-import type {PlatformUser} from '@loncra/client/auth'
-import type {UserChatCallEntity, UserChatCallParticipantEntity} from '@loncra/client/message'
+} from '@loncra/client/message'
 import {SOCKET_EVENT_TYPE} from '@/constants';
 
 export type SocketBusinessEventPayloadMap = {
@@ -38,7 +39,3 @@ export type SocketConnectionStatus =
   | 'connected'
   | 'disconnected'
   | 'error'
-
-export function parseSocketRestPayload<T>(payload: unknown): RestResult<T> {
-  return typeof payload === 'string' ? JSON.parse(payload) : (payload as RestResult<T>)
-}

@@ -682,7 +682,6 @@ const locale: LanguagePack = {
       flags: 'Flags',
     },
     notification: {
-      mention: '{principal} mentioned you in the message',
     },
     conversation: {
       newMessage: 'There are {count} unread messages',

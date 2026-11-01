@@ -17,8 +17,8 @@ import {
   type StdioMcpClientTransportMetadata,
   type StreamableHttpMcpClientTransportMetadata,
 } from '@loncra/client/ai'
-import {defineFormPage} from '@loncra/antdv-pro'
-import {loadIcon, renderIconFont} from '@/utils'
+import {defineFormPage, loadIcon} from '@loncra/antdv-pro'
+import {renderIconFont} from '@/utils'
 import type {IconfontJson} from '@/types/composables'
 import type {McpPackageEntity as McpPackageEntityWithSources} from '@/types/apis'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
