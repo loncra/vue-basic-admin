@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 
 import {type RouteLocationNormalized, type RouteLocationNormalizedLoaded} from 'vue-router'
 import {
@@ -51,12 +51,12 @@ const operateItems = ref<MenuItemType[]>([
   {
     key: 'close-others',
     label: globalProperties.$t('layoutContent.close.others'),
-    icon: () => renderIconFont('loncra-copy-x'),
+    icon: () => iconFontRender('loncra-copy-x'),
   },
   {
     key: 'close-right',
     label: globalProperties.$t('layoutContent.close.right'),
-    icon: () => renderIconFont('loncra-list-x'),
+    icon: () => iconFontRender('loncra-list-x'),
   },
 ])
 
@@ -342,13 +342,13 @@ function onOpenOperateChange(open: boolean) {
     operateItems.value.unshift({
       key: 'unpin',
       label: globalProperties.$t('layoutContent.unpin'),
-      icon: () => renderIconFont('loncra-pin-off'),
+      icon: () => iconFontRender('loncra-pin-off'),
     })
   } else {
     operateItems.value.unshift({
       key: 'pin',
       label: globalProperties.$t('layoutContent.pin'),
-      icon: () => renderIconFont('loncra-pin'),
+      icon: () => iconFontRender('loncra-pin'),
     })
   }
 }

@@ -59,7 +59,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
 
 ## 列表与搜索
 
-### defineSearchProps
+### defineSearchProps（crudSearch）
 
 ```ts
 {key: 'email', search: defineSearchProps('input', {expression: 'eq'})}
@@ -67,14 +67,14 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
 
 按组件类型一次产出整份列表搜索项默认值（placeholder、查询表达式、组件 props）。`kind`：`'input' | 'number' | 'select' | 'date' | 'dateRange'`；`override` 按 `PageSearchConfig` 字段覆盖（如 `expression`）。组件 props 返回函数形态，跟随语言切换。所有 `*.home.page.ts` 的列搜索都用它，不再手写搜索配置。
 
-### exportCollectionToView
+### exportCollectionToView（exportCollection）
 
 ```ts
 // toolbarActions 的 run 里一行完成：导出 → 提示 → 跳导出视图
 await exportCollectionToView({service: consoleUserCore.service, query: ctx.query ?? {}, records: ctx.selectedItems})
 ```
 
-列表导出的统一入口（commonUtils）：内部依次执行 antdv-pro 的 `exportCollectionData`（**选中了就按 id 集合导选中，没选就按当前查询条件导全部**）→ `message.success(result.message)` → 跳转导出视图页（`RESOURCE_SERVER_USER_EXPORT_ROUTE`）。参数形状与 `exportCollectionData` 一致。
+列表导出的统一入口（exportCollection）：内部依次执行 antdv-pro 的 `exportCollectionData`（**选中了就按 id 集合导选中，没选就按当前查询条件导全部**）→ `message.success(result.message)` → 跳转导出视图页（`RESOURCE_SERVER_USER_EXPORT_ROUTE`）。参数形状与 `exportCollectionData` 一致。
 
 前提：`service` 有 `exportData`（`@loncra/client` 的 `DetailSearchRestfulService` 基类自带，`/export` 端点）。后端权限现状：控制台用户与企业共用 `perms[auth_server_console_user:export]`，个人用户用 `perms[auth_server_personal_user:export]`。
 
@@ -120,7 +120,9 @@ const runs = getConversationRuns(conversation)   // AgentSession 中仍在运行
 
 从会话数据源筛出运行中的 AI 消息气泡（按角色与流式运行状态过滤）。`useAgentStream` 内部与 `AiAgent.vue` 在用。
 
-## 通用纯函数（commonUtils）
+## 通用纯函数
+
+文件按领域命名、不带 Utils 后缀：搜索配置在 `crudSearch.ts`，导出动作在 `exportCollection.ts`，提交时间格式化在 `format.ts`，YesOrNo 互转在 `yesOrNo.ts`，断言 / 密码校验 / Tauri 判定在 `common.ts`。都经 `@/utils` 桶出口引用。
 
 ### requireNonNullOrUndefined
 
@@ -130,7 +132,7 @@ const user = requireNonNullOrUndefined(getUser())   // null/undefined 抛错，�
 
 断言守卫，收窄类型用。全仓使用最广的工具函数。
 
-### convertFormUrlencoded / postTimestampFormat
+### convertFormUrlencoded / postTimestampFormat（format）
 
 ```ts
 data: convertFormUrlencoded(payload)      // 提交前处理整个 payload
@@ -139,19 +141,7 @@ postTimestampFormat(value)                // 单值：按 env 的 POST_TIMESTAMP
 
 后端时间口径与显示口径不同：这两个把 dayjs 对象按 POST 时间格式转字符串，其余值原样透传。发请求带时间字段时经它们处理。
 
-### convertObject
-
-```ts
-const treeNodes = convertObject(source, {
-  fieldMappings: {id: 'key', name: 'label'},
-  childrenField: 'children',
-  valueTransformers: {...},
-})
-```
-
-通用数据结构转换：字段映射 + 保留字段 + 值转换器 + 过滤 + 按 `childrenField` 递归。用于菜单、树选择器等"后端结构 → 组件结构"的组装（model-setting 在用）。配置形状见 `ConvertConfig`。
-
-### yesOrNoToBoolean / booleanToYesOrNo
+### yesOrNoToBoolean / booleanToYesOrNo（yesOrNo）
 
 ```ts
 yesOrNoToBoolean(record.enabled)     // YesOrNo(0/1) → boolean（后端不认布尔）
@@ -168,14 +158,6 @@ YesOrNo 枚举与布尔的双向转换，表单提交/回显边界用（ForgotPa
 ```
 
 第三个参数可指定不一致提示的 i18n key（默认 `auth.newPassword`，登录注册场景传 `auth.password`）。
-
-### renderIconFont
-
-```ts
-icon: () => renderIconFont('loncra-download', 'align')
-```
-
-把宿主注册的 IconFont 字体图标渲染成 VNode，给 pro 动作的 `icon` 字段用。`type` 是图标名（`loncra-*`），其余参数控制类名 / 旋转 / 转动。
 
 ### isTauri
 
@@ -199,6 +181,18 @@ addAllDataDictionary(sources)              // 字典选项数组头部插入「�
 ```
 
 `loadCss`/`loadJs`/`loadIcon` 由 `resourceServerService` 用于加载服务端下发的动态资源；`addAllDataDictionary` 给各 `*.form.page.ts` 组装字典下拉选项用。
+
+## 图标渲染（icons/iconFont）
+
+### iconFontRender / IconFont
+
+```ts
+import {iconFontRender, IconFont} from '@/icons/iconFont'
+
+icon: () => iconFontRender('loncra-download', {class: 'align'})
+```
+
+管理端 iconfont 渲染的**唯一来源**（`src/icons/iconFont.ts`）：`IconFont` 是注册到全局 `<icon-font>` 的组件实例（scriptUrl 在这里维护），`iconFontRender` 是同一份实例的渲染闭包——同时接给根节点 `<provider :icon-font-render>`，包内控件经 `useIconFontRender` 注入取用，`IconSelect` 未传 `iconRender` 时自动回落到它。`type` 是图标名（`loncra-*`），`attrs.class` 控制对齐类，`attrs` 里还可带 `spin` / `rotate`；对齐不齐的字形往文件内 `ICON_ALIGN_OVERRIDES` 按图标名加类。
 
 ## 会话渲染纯函数（chatUtils）
 

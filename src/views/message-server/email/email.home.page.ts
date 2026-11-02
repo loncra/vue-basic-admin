@@ -3,7 +3,8 @@ import {MESSAGE_SERVER_EMAIL_AUTHORITY} from '@loncra/client/message'
 import {defineHomePage, executeStatusCell} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {MESSAGE_SERVER_EMAIL_ROUTE} from '@/constants'
 import {emailCore} from './email.page'
 
@@ -65,7 +66,7 @@ export const emailHomePage = defineHomePage<EmailMessageEntity>(emailCore, {
       permission: MESSAGE_SERVER_EMAIL_AUTHORITY.SEND,
       label: () =>
         i18n.global.t('common.send', {name: i18n.global.t('messageServer.email.routePage')}),
-      icon: () => renderIconFont('loncra-send'),
+      icon: () => iconFontRender('loncra-send'),
       run: goSend,
     },
   ],

@@ -1,4 +1,4 @@
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import type {ConsoleUserEntity, ConsoleUserSavePayload} from '@loncra/client/auth'
 import {
   AUTH_SERVER_AUTHENTICATION_TYPE,
@@ -62,7 +62,7 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
           ctx.selectedItems.length > 0
             ? i18n.global.t('common.export.selected', {count: ctx.selectedItems.length})
             : i18n.global.t('common.export.all'),
-        icon: () => renderIconFont('loncra-download', 'align'),
+        icon: () => iconFontRender('loncra-download', {class: 'align'}),
         run: exportConsoleUsers,
       },
     ],
@@ -85,7 +85,7 @@ export const consoleUserHomePage = defineHomePage<ConsoleUserSavePayload, Consol
         danger: true,
         permission: AUTH_SERVER_SYSTEM_USER_AUTHORITY.ADMIN_RESET_PASSWORD,
         label: () => i18n.global.t('auth.adminResetPassword.text'),
-        icon: () => renderIconFont('loncra-lock-open'),
+        icon: () => iconFontRender('loncra-lock-open'),
         run: resetPassword,
       },
     ],

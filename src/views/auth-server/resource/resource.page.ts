@@ -1,7 +1,7 @@
 import {h} from 'vue'
 import {Space, type TableProps} from 'antdv-next'
 import type {RowSelectMethod} from 'antdv-next/dist/table/interface'
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {ResourceService} from '@loncra/client/auth'
 import {
@@ -25,7 +25,7 @@ export const fetchEnterpriseResources = (request: FilterRequest) =>
 
 export function renderIconName(value: unknown, record: ResourceEntity) {
   return h(Space, null, () => [
-    renderIconFont(record.icon || 'loncra-file', 'icon align'),
+    iconFontRender(record.icon || 'loncra-file', {class: 'icon align'}),
     String(value ?? ''),
   ])
 }

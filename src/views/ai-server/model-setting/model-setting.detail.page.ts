@@ -12,7 +12,7 @@ import {
   VALUE_TYPE,
   YES_OR_NO_TYPE
 } from '@loncra/client/commons'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 import {modelSettingCore} from './model-setting.page'
 
 const COLUMN = {xxxl: 2, xxl: 2, xl: 2, lg: 2, md: 2, sm: 1, xs: 1}
@@ -42,7 +42,7 @@ export const modelSettingDetailPage = defineDetailPage(modelSettingCore, {
     'id',
     'name',
     'model',
-    {key: 'icon', render: (value) => renderIconFont(String(value || 'loncra-sticker'))},
+    {key: 'icon', render: (value) => iconFontRender(String(value || 'loncra-sticker'))},
     'type',
     'enabled',
     {
@@ -50,7 +50,7 @@ export const modelSettingDetailPage = defineDetailPage(modelSettingCore, {
       render: (_value, entity: ModelSettingEntity) =>
         h(Space, null, {
           default: () => [
-            renderIconFont(String(entity.manufacturer?.metadata?.icon || 'loncra-building')),
+            iconFontRender(String(entity.manufacturer?.metadata?.icon || 'loncra-building')),
             h('span', null, entity.manufacturer?.name || ''),
           ],
         }),

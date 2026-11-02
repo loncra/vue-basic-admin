@@ -21,7 +21,7 @@ import {
 import {defineFormPage, loadIcon} from '@loncra/antdv-pro'
 import type {IconfontJson} from '@loncra/antdv'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 import {skillPackageCore} from './skill-package.page'
 
 const iconOptions = ref<IconfontJson[]>([])
@@ -88,7 +88,7 @@ export const skillPackageFormPage = defineFormPage(skillPackageCore, {
       props: () => ({
         class: 'w-full',
         mode: ICON_SELECT_MODE.AVATAR,
-        iconRender: (type: string) => renderIconFont(type),
+        iconRender: (type: string) => iconFontRender(type),
         options: iconOptions.value,
       }),
     },

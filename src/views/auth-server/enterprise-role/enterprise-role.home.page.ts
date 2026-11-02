@@ -4,7 +4,8 @@ import {getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineHomePage, type RecordActionContext} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {AUTH_SERVER_ENTERPRISE_ROLE_ROUTE} from '@/constants'
 import {enterpriseRoleCore} from './enterprise-role.page'
 
@@ -41,7 +42,7 @@ export const enterpriseRoleHomePage = defineHomePage<EnterpriseRoleSavePayload, 
         id: 'addChild',
         permission: AUTH_SERVER_ENTERPRISE_ROLE_AUTHORITY.SAVE,
         label: () => i18n.global.t('common.addChild', {name: ''}),
-        icon: () => renderIconFont('loncra-list-tree'),
+        icon: () => iconFontRender('loncra-list-tree'),
         run: addChild,
       },
       {

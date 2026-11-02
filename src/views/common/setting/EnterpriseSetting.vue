@@ -16,7 +16,7 @@ import {
 import type {RestResult} from "@loncra/client/commons";
 import {getEnumName, getEnumValue} from "@loncra/client/commons"
 import {requireNonNullOrUndefined} from "@/utils";
-import {renderIconFont} from '@/utils/commonUtils.ts'
+import {iconFontRender} from '@/icons/iconFont'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {CrudFormModal, UserAvatar} from '@loncra/antdv-pro';
 import useApp from "antdv-next/dist/app/useApp";
@@ -144,7 +144,7 @@ async function doLeave(id:number) {
               align="center"
               flex="1"
             >
-              <icon-select preview :icon-render="renderIconFont" :value="item.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + item.name" />
+              <icon-select preview :icon-render="iconFontRender" :value="item.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + item.name" />
               <a-typography-text>{{ item.name }}</a-typography-text>
               <a-tag :color="AUTH_SERVER_ENTERPRISE_MEMBER_ROLE_COLOR[Number(getEnumValue(item.role))] || 'purple'" variant="outlined">
                 <template #icon>

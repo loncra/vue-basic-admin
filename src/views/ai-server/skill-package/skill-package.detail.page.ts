@@ -8,7 +8,7 @@ import {
 } from '@loncra/client/ai'
 import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import {defineDetailPage, executeStatusCell} from '@loncra/antdv-pro'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 import {skillPackageCore} from './skill-package.page'
 
 const COLUMN = {xxxl: 3, xxl: 3, xl: 3, lg: 3, md: 1, sm: 1, xs: 1}
@@ -42,7 +42,7 @@ export const skillPackageDetailPage = defineDetailPage(skillPackageCore, {
       render: (_value, entity: SkillPackageEntity) =>
         h(IconSelect, {
           preview: true,
-          iconRender: (type: string) => renderIconFont(type, 'align'),
+          iconRender: (type: string) => iconFontRender(type, {class: 'align'}),
           value: entity.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + entity.name,
         }),
     },

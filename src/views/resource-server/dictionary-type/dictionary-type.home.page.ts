@@ -5,7 +5,8 @@ import {defineHomePage, type RecordActionContext} from '@loncra/antdv-pro'
 import type {DictionaryTypeEntity, DictionaryTypeSavePayload} from '@loncra/client/resource'
 import {RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY} from '@loncra/client/resource'
 import i18n from '@/i18n'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {dictionaryTypeCore} from './dictionary-type.page'
 
 export const dictionaryTypeModal = ref<{
@@ -69,7 +70,7 @@ export const dictionaryTypeHomePage = defineHomePage<DictionaryTypeSavePayload, 
         id: 'addChild',
         permission: RESOURCE_SERVER_DICTIONARY_TYPE_AUTHORITY.SAVE,
         label: () => i18n.global.t('common.addChild', {name: ''}),
-        icon: () => renderIconFont('loncra-list-tree'),
+        icon: () => iconFontRender('loncra-list-tree'),
         run: addChild,
       },
       {id: 'edit', run: editRecord},

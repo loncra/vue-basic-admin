@@ -1,4 +1,4 @@
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import type {RoleEntity, RoleSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_ROLE_AUTHORITY} from '@loncra/client/auth'
 import {defineHomePage, type RecordActionContext} from '@loncra/antdv-pro'
@@ -51,7 +51,7 @@ export const roleHomePage = defineHomePage<RoleSavePayload, RoleEntity>(roleCore
       id: 'addChild',
       permission: AUTH_SERVER_ROLE_AUTHORITY.SAVE,
       label: () => i18n.global.t('common.addChild', {name: ''}),
-      icon: () => renderIconFont('loncra-list-tree'),
+      icon: () => iconFontRender('loncra-list-tree'),
       run: addChild,
     },
     ...(ctx.variant === ROLE_VARIANT.PICKER

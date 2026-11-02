@@ -6,7 +6,8 @@ import {getEnumName, getEnumValue, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineHomePage, executeStatusCell} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {MESSAGE_SERVER_SITE_ROUTE} from '@/constants'
 import {siteCore} from './site.page'
 
@@ -74,7 +75,7 @@ export const siteHomePage = defineHomePage<SiteMessageEntity>(siteCore, {
       permission: MESSAGE_SERVER_SITE_AUTHORITY.SEND,
       label: () =>
         i18n.global.t('common.send', {name: i18n.global.t('messageServer.site.routePage')}),
-      icon: () => renderIconFont('loncra-send'),
+      icon: () => iconFontRender('loncra-send'),
       run: goSend,
     },
   ],

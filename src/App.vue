@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, h, onMounted, type VNode} from 'vue'
+import {computed, getCurrentInstance, h, onMounted} from 'vue'
 import {Space} from 'antdv-next'
 import axios from '@/requests'
 import {createAxiosHttpClient} from '@loncra/client/adapters/axios'
@@ -10,7 +10,8 @@ import type {VNodeChild} from '@loncra/antdv'
 import {usePrincipalStore} from '@/stores/principalStore'
 import {useMenuPrincipalStore} from '@/stores/menuStore'
 import {useBootstrapStore} from '@/stores/bootStore.ts'
-import {convertFormUrlencoded, renderIconFont} from '@/utils/commonUtils'
+import {convertFormUrlencoded} from '@/utils/format'
+import {iconFontRender} from '@/icons/iconFont'
 import {crudFormatters} from '@/utils/crudFormatters'
 import i18n from '@/i18n'
 
@@ -68,7 +69,7 @@ function hasPermission(permission: string) {
 
 function resolveDefaultTitle(): VNodeChild {
   const crumb = menuPrincipalStore.state.currentBreadcrumbs.at(-1)
-  const icon = renderIconFont(crumb?.icon ?? 'loncra-file', 'align') as unknown as VNode
+  const icon = iconFontRender(crumb?.icon ?? 'loncra-file', {class: 'align'})
   return h(Space, null, {
     default: () => [icon, h('span', crumb?.name ?? '')],
   }) as unknown as VNodeChild
@@ -107,6 +108,7 @@ function onNavigate({kind, name, record, variant}: CrudNavigateTarget) {
       :formatters="crudFormatters"
       :date-format="dateFormat"
       :date-time-format="dateTimeFormat"
+      :icon-font-render="iconFontRender"
     >
       <a-app
         class="min-h-screen bg-layout"

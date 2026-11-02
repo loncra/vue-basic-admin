@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 
 import type {ObjectItemInfo} from "@loncra/client/resource";
 import {AttachmentService, MyResourceService} from "@loncra/client/resource";
@@ -33,7 +33,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'downloadSelected',
       label: globalProperties.$t('common.download.selected', { count }),
-      icon: renderIconFont('loncra-download', 'align'),
+      icon: iconFontRender('loncra-download', {class: 'align'}),
       disabled,
       run: disabled
         ? undefined
@@ -48,7 +48,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'deleteSelected',
       label: globalProperties.$t('common.delete.selected', { count }),
-      icon: renderIconFont('loncra-archive-x', 'align'),
+      icon: iconFontRender('loncra-archive-x', {class: 'align'}),
       disabled,
       run: disabled ? undefined : () => onDelete(checkValue.value),
     },

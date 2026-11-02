@@ -11,7 +11,8 @@ import {
   type ToolbarActionDefinition,
 } from '@loncra/antdv-pro'
 import i18n from '@/i18n'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {fileManagerCore} from './file-manager.page'
 
 export const fileManagerBucket = ref('')
@@ -41,7 +42,7 @@ const download: RecordActionDefinition<ObjectItemInfo> = {
   id: 'download',
   permission: true,
   label: () => i18n.global.t('common.download.text'),
-  icon: () => renderIconFont('loncra-download'),
+  icon: () => iconFontRender('loncra-download'),
   run: (ctx) => {
     if (!ctx.record) {
       return
@@ -54,7 +55,7 @@ const remove: RecordActionDefinition<ObjectItemInfo> = {
   id: 'delete',
   permission: RESOURCE_SERVER_ATTACHMENT_AUTHORITY.DELETE,
   label: () => i18n.global.t('common.delete.text'),
-  icon: () => renderIconFont('loncra-archive-x'),
+  icon: () => iconFontRender('loncra-archive-x'),
   run: (ctx) => {
     if (!ctx.record) {
       return
@@ -68,7 +69,7 @@ const downloadSelected: ToolbarActionDefinition<ObjectItemInfo> = {
   permission: true,
   label: (ctx) => i18n.global.t('common.download.selected', {count: ctx.selectedItems.length}),
   enabled: () => true,
-  icon: () => renderIconFont('loncra-download'),
+  icon: () => iconFontRender('loncra-download'),
   run: (ctx) => AttachmentService.downloads(objectsOf(ctx.selectedItems)),
 }
 
@@ -77,7 +78,7 @@ const deleteSelected: ToolbarActionDefinition<ObjectItemInfo> = {
   permission: RESOURCE_SERVER_ATTACHMENT_AUTHORITY.DELETE,
   label: (ctx) => i18n.global.t('common.delete.selected', {count: ctx.selectedItems.length}),
   enabled: () => true,
-  icon: () => renderIconFont('loncra-archive-x'),
+  icon: () => iconFontRender('loncra-archive-x'),
   run: (ctx) => removeObjects(ctx.app, ctx.selectedItems),
 }
 

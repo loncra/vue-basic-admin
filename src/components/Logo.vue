@@ -18,7 +18,7 @@ import type {PersonalEnterprise} from "@loncra/client/auth";
 import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTHENTICATION_MEMBER_TYPE} from '@loncra/client/auth'
 import {ICON_SELECT_AVATAR_MODE_VALUE, IconSelect} from '@loncra/antdv';
 import {requireNonNullOrUndefined} from "@/utils";
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import {getEnumValue} from "@loncra/client/commons"
 
 defineOptions({
@@ -46,7 +46,7 @@ const switchItems = computed(()=>{
     type:'group',
     label:globalProperties.$t('systemSetting.enterprise.title'),
     key:AUTH_SERVER_AUTHENTICATION_TYPE.ENTERPRISE,
-    icon:renderIconFont('loncra-building', 'align'),
+    icon:iconFontRender('loncra-building', {class: 'align'}),
     children:principalStore
       .state
       .enterpriseDataSource
@@ -92,7 +92,7 @@ async function onSwitch(item: { key:string }) {
 <template>
   <a-flex align="center" gap="small" class="w-full">
     <a-flex class="shrink-0" v-if="currentItem" >
-      <icon-select size="large" preview :icon-render="renderIconFont" :value="currentItem.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + currentItem.name" />
+      <icon-select size="large" preview :icon-render="iconFontRender" :value="currentItem.icon || ICON_SELECT_AVATAR_MODE_VALUE.INPUT + currentItem.name" />
     </a-flex>
     <slot name="icon" v-else>
       <icon-font class="icon shrink-0 text-h1! leading-none" :type="props.icon"/>

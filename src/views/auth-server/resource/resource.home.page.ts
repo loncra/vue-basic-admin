@@ -1,4 +1,4 @@
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_RESOURCE_AUTHORITY, AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
 import type {DragPreviewContent, RecordActionContext} from '@loncra/antdv-pro'
@@ -60,7 +60,7 @@ export const resourceHomePage = defineHomePage<ResourceSavePayload, ResourceEnti
       id: 'addChild',
       permission: AUTH_SERVER_RESOURCE_AUTHORITY.SAVE,
       label: () => i18n.global.t('common.addChild', {name: ''}),
-      icon: () => renderIconFont('loncra-list-tree'),
+      icon: () => iconFontRender('loncra-list-tree'),
       run: addChild,
     },
     ...(ctx.variant === RESOURCE_VARIANT.PICKER ? [] : [{id: 'edit'}, {id: 'delete'}]),

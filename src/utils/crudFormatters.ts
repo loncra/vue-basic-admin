@@ -10,9 +10,7 @@ import type {VNode} from '@loncra/antdv'
 import {iconNameCell, UserAvatar, type ValueFormatter,} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import {usePrincipalStore} from '@/stores/principalStore'
-import {renderIconFont} from '@/utils/commonUtils'
-
-
+import {iconFontRender} from '@/icons/iconFont'
 
 interface IconNameRecord {
   icon?: string
@@ -27,13 +25,12 @@ export const iconNameFormatter: ValueFormatter = (value, ctx, args) => {
   const {size} = (args ?? {}) as IconNameArgs
   const record = ctx.record as IconNameRecord
   return iconNameCell<IconNameRecord>({
-    renderIcon: renderIconFont,
+    renderIcon: iconFontRender,
     nameOf: (item) => item.name ?? '',
     iconOf: (item) => item.icon,
     size,
   })(value, record) as unknown as VNode
 }
-
 
 
 interface PrincipalNameArgs {
@@ -89,7 +86,6 @@ export const auditStatusFormatter: ValueFormatter = (value, ctx) => {
   const remark = (ctx.record as {remark?: string} | undefined)?.remark
   return (remark ? h(Tooltip, {title: remark}, {default: () => badge}) : badge) as unknown as VNode
 }
-
 
 export const crudFormatters = {
   iconName: iconNameFormatter,

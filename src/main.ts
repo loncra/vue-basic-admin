@@ -6,21 +6,14 @@ import router from '@/routers'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import i18n from '@/i18n'
-import {createFromIconfontCN, ExclamationCircleOutlined} from '@antdv-next/icons'
+import {IconFont} from '@/icons/iconFont'
+import {ExclamationCircleOutlined} from '@antdv-next/icons'
 import {message, Modal, notification} from 'antdv-next'
 import '@/assets/style.css'
 
 import '@/requests'
 
 dayjs.extend(relativeTime)
-
-const IconFont = createFromIconfontCN({
-  scriptUrl: [
-    '/font_loncra_icon/iconfont.js',
-    '/font_ai_icon/iconfont.js',
-    '/font_xiaojiage/iconfont.js',
-  ],
-})
 
 const app = createApp(App)
 

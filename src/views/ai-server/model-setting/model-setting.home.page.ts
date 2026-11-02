@@ -3,7 +3,8 @@ import {defineHomePage, iconNameCell} from '@loncra/antdv-pro'
 import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import type {ModelSettingEntity, ModelSettingSavePayload} from '@loncra/client/ai'
 import {AI_SERVER_MODEL_SETTING_AUTHORITY} from '@loncra/client/ai'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {modelSettingCore} from './model-setting.page'
 
 export const selectedManufacturer = ref<DataDictionaryMetadata | null>(null)
@@ -23,7 +24,7 @@ export const modelSettingHomePage = defineHomePage<ModelSettingSavePayload, Mode
         key: 'name',
         search: defineSearchProps('input'),
         render: iconNameCell({
-          renderIcon: renderIconFont,
+          renderIcon: iconFontRender,
           nameOf: (record) => record.name,
           iconOf: (record) => record.icon || 'loncra-sticker',
         }),

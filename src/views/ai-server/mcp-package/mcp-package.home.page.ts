@@ -3,7 +3,8 @@ import type {McpPackageEntity, McpPackageSavePayload} from '@loncra/client/ai'
 import {MCP_PACKAGE_AUTHORITY} from '@loncra/client/ai'
 import {DATA_STATUS, getEnumValue} from '@loncra/client/commons'
 import i18n from '@/i18n'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {mcpPackageCore, mcpPackageService} from './mcp-package.page'
 
 function releasable(items: McpPackageEntity[]) {
@@ -89,7 +90,7 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
         enabled: (ctx) => releasable(ctx.selectedItems).length > 0,
         label: (ctx) =>
           i18n.global.t('common.release.selected', {count: releasable(ctx.selectedItems).length}),
-        icon: () => renderIconFont('loncra-screen-share'),
+        icon: () => iconFontRender('loncra-screen-share'),
         run: (ctx) => releasePackages(ctx, releasable(ctx.selectedItems).map((item) => Number(item.id))),
       },
       {
@@ -98,7 +99,7 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
         enabled: (ctx) => revocable(ctx.selectedItems).length > 0,
         label: (ctx) =>
           i18n.global.t('common.revoke.selected', {count: revocable(ctx.selectedItems).length}),
-        icon: () => renderIconFont('loncra-screen-share-off'),
+        icon: () => iconFontRender('loncra-screen-share-off'),
         run: (ctx) => revokePackages(ctx, revocable(ctx.selectedItems).map((item) => Number(item.id))),
       },
     ],
@@ -108,7 +109,7 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
         permission: MCP_PACKAGE_AUTHORITY.RELEASE,
         enabled: (ctx) => getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE,
         label: () => i18n.global.t('common.release.text'),
-        icon: () => renderIconFont('loncra-screen-share'),
+        icon: () => iconFontRender('loncra-screen-share'),
         run: (ctx) => releasePackages(ctx, [Number(ctx.record!.id)]),
       },
       {
@@ -116,7 +117,7 @@ export const mcpPackageHomePage = defineHomePage<McpPackageSavePayload, McpPacka
         permission: MCP_PACKAGE_AUTHORITY.REVOKE,
         enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
         label: () => i18n.global.t('common.revoke.text'),
-        icon: () => renderIconFont('loncra-screen-share-off'),
+        icon: () => iconFontRender('loncra-screen-share-off'),
         run: (ctx) => revokePackages(ctx, [Number(ctx.record!.id)]),
       },
     ],

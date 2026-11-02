@@ -10,7 +10,8 @@ import {
 } from '@loncra/client/auth'
 import {defineHomePage, type RecordActionContext} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {
   enterpriseInvitationCore,
   expirationCell,
@@ -57,7 +58,7 @@ export const enterpriseInvitationHomePage = defineHomePage<
         id: 'share',
         permission: AUTH_SERVER_ENTERPRISE_INVITATION_AUTHORITY.GET,
         label: () => i18n.global.t('common.share'),
-        icon: () => renderIconFont('loncra-share'),
+        icon: () => iconFontRender('loncra-share'),
         run: shareInvitation,
       },
     ],

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import {type ComponentInternalInstance, getCurrentInstance, onMounted, ref} from 'vue'
 import type {MenuItemType} from 'antdv-next'
 import {requireNonNullOrUndefined} from '@/utils'
@@ -32,7 +32,7 @@ const operateItems = ref<MenuItemType[]>([
   {
     key: 'logout',
     label: globalProperties.$t('profile.logout'),
-    icon: () => renderIconFont('loncra-log-out'),
+    icon: () => iconFontRender('loncra-log-out'),
   },
 ])
 
@@ -52,7 +52,7 @@ function mounted() {
   const data = menuPrincipalStore.state
     .menu
     .filter(r => getEnumValue(r.type) === AUTH_SERVER_RESOURCE_TYPE.PROFILE)
-    .map(r => ({key: String(r.id), label: r.name, icon: renderIconFont(r.icon || 'loncra-file'), page: r.page}));
+    .map(r => ({key: String(r.id), label: r.name, icon: iconFontRender(r.icon || 'loncra-file'), page: r.page}));
   operateItems.value.unshift(...data)
 }
 

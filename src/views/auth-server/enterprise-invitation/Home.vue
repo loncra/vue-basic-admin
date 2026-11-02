@@ -8,7 +8,7 @@ import {
 import {AUDIT_STATUS_VALUE, getEnumValue} from '@loncra/client/commons'
 import {QrCodeModal} from '@loncra/antdv'
 import {CrudHomePage, type CrudHomePageExpose} from '@loncra/antdv-pro'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 import LEnterpriseInvitationModal from '@/views/auth-server/enterprise-invitation/Form.vue'
 import LEnterpriseMemberAuditModal from '@/views/auth-server/enterprise-invitation/Audit.vue'
 import {
@@ -71,7 +71,7 @@ function openForm(record?: EnterpriseInvitationEntity): void {
         >
           <template #title>
             <a-space>
-              <component :is="() => renderIconFont('loncra-user-check', 'align')" />
+              <component :is="() => iconFontRender('loncra-user-check', {class: 'align'})" />
               {{ $t('authServer.enterpriseInvitation.invitedMembers') }}
             </a-space>
           </template>

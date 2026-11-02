@@ -3,7 +3,7 @@ import type {ResourceEntity, ResourceSavePayload} from '@loncra/client/auth'
 import {AUTH_SERVER_RESOURCE_CATEGORY} from '@loncra/client/auth'
 import {defineFormPage, loadIcon} from '@loncra/antdv-pro'
 import router from '@/routers'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 import type {IconfontJson} from '@loncra/antdv'
 import {resourceCore} from './resource.page'
 import {getEnumValue} from '@loncra/client/commons'
@@ -71,7 +71,7 @@ export const resourceFormPage = defineFormPage<ResourceSavePayload, ResourceEnti
       component: 'iconSelect',
       props: () => ({
         options: iconOptions.value,
-        iconRender: (type: string) => renderIconFont(type),
+        iconRender: (type: string) => iconFontRender(type),
       }),
     },
     {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 
 import LLogo from "@/components/Logo.vue";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
@@ -41,12 +41,12 @@ const {message} = useApp()
 const segmentedData = computed(() => [{
   label: globalProperties.$t('common.email'),
   value: RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.EMAIL,
-  icon: renderIconFont('loncra-email', 'align'),
+  icon: iconFontRender('loncra-email', {class: 'align'}),
   rules: [{required: true, trigger: 'change', type: 'email'}]
 }, {
   label: globalProperties.$t('common.phoneNumber'),
   value: RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE.SMS,
-  icon: renderIconFont('loncra-tablet-smartphone', 'align'),
+  icon: iconFontRender('loncra-tablet-smartphone', {class: 'align'}),
   rules: [{required: true, trigger: 'change'}, {
     type: 'string',
     pattern: VALID_REGX.PHONE_NUMBER,

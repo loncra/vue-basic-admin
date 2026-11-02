@@ -24,7 +24,8 @@ import {
 import {isBusinessSuccess} from '@/requests'
 import i18n from '@/i18n'
 import {usePrincipalStore} from '@/stores/principalStore'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {
   ENTERPRISE_MEMBER_VARIANT,
   enterpriseMemberCore,
@@ -114,7 +115,7 @@ export const memberManageRecordActions: RecordActionDefinition<EnterpriseMemberE
     danger: true,
     permission: AUTH_SERVER_SYSTEM_USER_AUTHORITY.ADMIN_RESET_PASSWORD,
     label: () => i18n.global.t('auth.adminResetPassword.text'),
-    icon: () => renderIconFont('loncra-lock-open'),
+    icon: () => iconFontRender('loncra-lock-open'),
     visible: (ctx) => !isSelf(ctx.record!),
     run: resetPassword,
   },
@@ -125,7 +126,7 @@ export const memberManageToolbarActions: ToolbarActionDefinition<EnterpriseMembe
     id: 'invitation',
     permission: AUTH_SERVER_ENTERPRISE_MEMBER_AUTHORITY.AUDIT,
     label: () => i18n.global.t('authServer.enterpriseInvitation.routePage'),
-    icon: () => renderIconFont('loncra-share'),
+    icon: () => iconFontRender('loncra-share'),
     run: openInvitation,
   },
 ]
@@ -139,7 +140,7 @@ export const memberAuditRecordActions: RecordActionDefinition<EnterpriseMemberEn
     enabled: (ctx) =>
       getEnumValue(ctx.record?.auditStatus ?? 0) === AUDIT_STATUS_VALUE.AUDITABLE,
     label: () => i18n.global.t('common.audit.text'),
-    icon: () => renderIconFont('loncra-vote'),
+    icon: () => iconFontRender('loncra-vote'),
     run: auditRecord,
   },
 ]
@@ -151,7 +152,7 @@ export const memberAuditToolbarActions: ToolbarActionDefinition<EnterpriseMember
     enabled: (ctx) => auditable(ctx.selectedItems).length > 0,
     label: (ctx) =>
       i18n.global.t('common.audit.selected', {count: auditable(ctx.selectedItems).length}),
-    icon: () => renderIconFont('loncra-vote'),
+    icon: () => iconFontRender('loncra-vote'),
     run: auditSelected,
   },
 ]

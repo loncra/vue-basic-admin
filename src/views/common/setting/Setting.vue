@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils.ts'
+import {iconFontRender} from '@/icons/iconFont'
 import {ConfigProviderSetting, DataLoadingCard} from '@loncra/antdv-pro'
 import {requireNonNullOrUndefined} from "@/utils";
 import {type ComponentInternalInstance, computed, getCurrentInstance, ref} from "vue";
@@ -27,12 +27,12 @@ const tabList = computed(()=> {
     {
       key: 'accountSetting',
       tab: globalProperties.$t('systemSetting.tab.accountSetting'),
-      icon:renderIconFont('loncra-user-round-cog', 'align')
+      icon:iconFontRender('loncra-user-round-cog', {class: 'align'})
     },
     {
       key: 'configProviderSetting',
       tab: globalProperties.$t('systemSetting.tab.configProviderSetting'),
-      icon:renderIconFont('loncra-sliders-horizontal', 'align')
+      icon:iconFontRender('loncra-sliders-horizontal', {class: 'align'})
     },
   ]
 
@@ -40,7 +40,7 @@ const tabList = computed(()=> {
     result.push({
       key: 'enterpriseSetting',
       tab: globalProperties.$t('systemSetting.tab.enterpriseSetting'),
-      icon:renderIconFont('loncra-building', 'align')
+      icon:iconFontRender('loncra-building', {class: 'align'})
     })
   }
 

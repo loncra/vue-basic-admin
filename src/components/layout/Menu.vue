@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import type {ResourceEntity} from "@loncra/client/auth";
 import {AUTH_SERVER_RESOURCE_TYPE} from '@loncra/client/auth'
 import {
@@ -89,7 +89,7 @@ function labelRender(item: ResourceEntity) {
 }
 
 function iconRender(item: ResourceEntity) {
-  const icon = renderIconFont(item.icon || 'loncra-file', props.iconClass || '')
+  const icon = iconFontRender(item.icon || 'loncra-file', {class: props.iconClass || ''})
   let trigger = icon
   if (props.badges && props.badges.includes(item.code)) {
     const badge = resolveComponent('ABadge')

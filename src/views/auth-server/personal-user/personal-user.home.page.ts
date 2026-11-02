@@ -3,7 +3,8 @@ import {AUTH_SERVER_PERSONAL_USER_AUTHORITY} from '@loncra/client/auth'
 import type {ToolbarActionContext} from '@loncra/antdv-pro'
 import {defineHomePage} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
-import {defineSearchProps, exportCollectionToView, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps, exportCollectionToView} from '@/utils'
 import {personalUserCore} from './personal-user.page'
 
 async function exportPersonalUsers(ctx: ToolbarActionContext<PersonalUserEntity>): Promise<void> {
@@ -25,7 +26,7 @@ export const personalUserHomePage = defineHomePage<PersonalUserEntity>(personalU
         ctx.selectedItems.length > 0
           ? i18n.global.t('common.export.selected', {count: ctx.selectedItems.length})
           : i18n.global.t('common.export.all'),
-      icon: () => renderIconFont('loncra-download', 'align'),
+      icon: () => iconFontRender('loncra-download', {class: 'align'}),
       run: exportPersonalUsers,
     },
   ],

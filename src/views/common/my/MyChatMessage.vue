@@ -22,7 +22,7 @@ import {useAppNotification} from '@loncra/antdv-pro'
 import type {IdNameValueMetadata, RestResult} from "@loncra/client/commons";
 import {AuthServerService, type PlatformUser} from "@loncra/client/auth";
 import {requireNonNullOrUndefined} from "@/utils";
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import {usePrincipalStore} from "@/stores/principalStore";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {useSocketStore} from '@/stores/socketStore.ts'
@@ -96,7 +96,7 @@ function paintHeader() {
       h(button, {
         type: 'text',
         size: 'small',
-        icon: () => renderIconFont(roomOpen.value ? 'loncra-panel-right-close' : 'loncra-panel-left-close'),
+        icon: () => iconFontRender(roomOpen.value ? 'loncra-panel-right-close' : 'loncra-panel-left-close'),
         onClick: () => {
           roomOpen.value = !roomOpen.value
           chatRef.value?.setRoomSettingsOpen(roomOpen.value)

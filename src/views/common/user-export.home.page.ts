@@ -8,7 +8,8 @@ import type {ExportDataMetadata, FileObject} from '@loncra/client/resource'
 import {AttachmentService} from '@loncra/client/resource'
 import {EXECUTE_STATUS_TYPE} from '@loncra/client/commons'
 import i18n from '@/i18n'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {userExportCore} from './user-export.page'
 
 function downloadFile(ctx: RecordActionContext<ExportDataMetadata>): void {
@@ -46,7 +47,7 @@ export const userExportHomePage = defineHomePage<ExportDataMetadata, ExportDataM
         id: 'download',
         permission: true,
         label: () => i18n.global.t('common.download.text'),
-        icon: () => renderIconFont('loncra-download', 'align'),
+        icon: () => iconFontRender('loncra-download', {class: 'align'}),
         run: downloadFile,
       },
     ],
@@ -57,7 +58,7 @@ export const userExportHomePage = defineHomePage<ExportDataMetadata, ExportDataM
         label: (ctx) => i18n.global.t('common.download.selected', {count: ctx.selectedItems.length}),
         enabled: (ctx) =>
           ctx.selectedItems.some((item) => item.executeStatus.value === EXECUTE_STATUS_TYPE.SUCCESS),
-        icon: () => renderIconFont('loncra-download', 'align'),
+        icon: () => iconFontRender('loncra-download', {class: 'align'}),
         run: downloadSelectedFiles,
       },
     ],

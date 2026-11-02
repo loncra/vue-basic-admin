@@ -15,7 +15,8 @@ import {
   getEnumValue
 } from '@loncra/client/commons'
 import i18n from '@/i18n'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {skillPackageCore, skillPackageService} from './skill-package.page'
 
 export const skillSnapshot = ref({
@@ -144,7 +145,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         enabled: (ctx) => releasable(ctx.selectedItems).length > 0,
         label: (ctx) =>
           i18n.global.t('common.release.selected', {count: releasable(ctx.selectedItems).length}),
-        icon: () => renderIconFont('loncra-screen-share'),
+        icon: () => iconFontRender('loncra-screen-share'),
         run: (ctx) =>
           releasePackages(ctx, releasable(ctx.selectedItems).map((item) => Number(item.id))),
       },
@@ -154,7 +155,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         enabled: (ctx) => revocable(ctx.selectedItems).length > 0,
         label: (ctx) =>
           i18n.global.t('common.revoke.selected', {count: revocable(ctx.selectedItems).length}),
-        icon: () => renderIconFont('loncra-screen-share-off'),
+        icon: () => iconFontRender('loncra-screen-share-off'),
         run: (ctx) =>
           revokePackages(ctx, revocable(ctx.selectedItems).map((item) => Number(item.id))),
       },
@@ -166,7 +167,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
           i18n.global.t('aiServer.skillPackage.reingest.selected', {
             count: reingestable(ctx.selectedItems).length,
           }),
-        icon: () => renderIconFont('loncra-folder-sync'),
+        icon: () => iconFontRender('loncra-folder-sync'),
         run: (ctx) =>
           reingestPackages(ctx, reingestable(ctx.selectedItems).map((item) => Number(item.id))),
       },
@@ -177,7 +178,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         permission: SKILL_PACKAGE_AUTHORITY.SNAPSHOT,
         enabled: (ctx) => getEnumValue(ctx.record!.executeStatus ?? 0) === EXECUTE_STATUS_TYPE.SUCCESS,
         label: () => i18n.global.t('aiServer.skillPackage.snapshot.text'),
-        icon: () => renderIconFont('loncra-package'),
+        icon: () => iconFontRender('loncra-package'),
         run: openSnapshot,
       },
       {
@@ -186,7 +187,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         enabled: (ctx) =>
           getEnumValue(ctx.record!.status) !== DATA_STATUS.RELEASE && Boolean(ctx.record!.latestVersion),
         label: () => i18n.global.t('common.release.text'),
-        icon: () => renderIconFont('loncra-screen-share'),
+        icon: () => iconFontRender('loncra-screen-share'),
         run: (ctx) => releasePackages(ctx, [Number(ctx.record!.id)]),
       },
       {
@@ -194,7 +195,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         permission: SKILL_PACKAGE_AUTHORITY.REVOKE,
         enabled: (ctx) => getEnumValue(ctx.record!.status) === DATA_STATUS.RELEASE,
         label: () => i18n.global.t('common.revoke.text'),
-        icon: () => renderIconFont('loncra-screen-share-off'),
+        icon: () => iconFontRender('loncra-screen-share-off'),
         run: (ctx) => revokePackages(ctx, [Number(ctx.record!.id)]),
       },
       {
@@ -203,7 +204,7 @@ export const skillPackageHomePage = defineHomePage<SkillPackageSavePayload, Skil
         enabled: (ctx) =>
           EXECUTE_TYPE_RETRY_STATUS.includes(getEnumValue(ctx.record!.executeStatus ?? 0)),
         label: () => i18n.global.t('aiServer.skillPackage.reingest.text'),
-        icon: () => renderIconFont('loncra-folder-sync'),
+        icon: () => iconFontRender('loncra-folder-sync'),
         run: (ctx) => reingestPackages(ctx, [Number(ctx.record!.id)]),
       },
     ],

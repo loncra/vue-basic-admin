@@ -11,7 +11,7 @@ import {CAROUSEL_TYPE_FILTER, carouselCore, carouselService} from './carousel.pa
 import {DATA_STATUS, getEnumValue, type TreeSortMetadata} from '@loncra/client/commons'
 import i18n from '@/i18n'
 import router from '@/routers'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 import {RESOURCE_SERVER_CAROUSEL_ROUTE} from '@/constants'
 import {RESOURCE_SERVER_CAROUSEL_AUTHORITY} from '@loncra/client/resource'
 
@@ -104,7 +104,7 @@ export const carouselHomePage = defineCardGridPage<CarouselSavePayload, Carousel
       {
         id: 'add',
         permission: RESOURCE_SERVER_CAROUSEL_AUTHORITY.SAVE,
-        icon: () => renderIconFont('loncra-file-plus'),
+        icon: () => iconFontRender('loncra-file-plus'),
         label: () => i18n.global.t('common.add', {name: ''}),
         run: addCarousel,
       },
@@ -114,7 +114,7 @@ export const carouselHomePage = defineCardGridPage<CarouselSavePayload, Carousel
         enabled: (ctx) => unreleased(ctx.selectedItems).length > 0,
         label: (ctx) =>
           i18n.global.t('common.delete.selected', {count: unreleased(ctx.selectedItems).length}),
-        icon: () => renderIconFont('loncra-archive-x'),
+        icon: () => iconFontRender('loncra-archive-x'),
         run: deleteUnreleased,
       },
       {
@@ -123,7 +123,7 @@ export const carouselHomePage = defineCardGridPage<CarouselSavePayload, Carousel
         enabled: (ctx) => unreleased(ctx.selectedItems).length > 0,
         label: (ctx) =>
           i18n.global.t('common.release.selected', {count: unreleased(ctx.selectedItems).length}),
-        icon: () => renderIconFont('loncra-screen-share'),
+        icon: () => iconFontRender('loncra-screen-share'),
         run: (ctx) => releaseCarousels(ctx, unreleased(ctx.selectedItems).map((item) => Number(item.id))),
       },
       {
@@ -132,7 +132,7 @@ export const carouselHomePage = defineCardGridPage<CarouselSavePayload, Carousel
         enabled: (ctx) => released(ctx.selectedItems).length > 0,
         label: (ctx) =>
           i18n.global.t('common.revoke.selected', {count: released(ctx.selectedItems).length}),
-        icon: () => renderIconFont('loncra-screen-share-off'),
+        icon: () => iconFontRender('loncra-screen-share-off'),
         run: (ctx) => revokeCarousels(ctx, released(ctx.selectedItems).map((item) => Number(item.id))),
       },
     ],
@@ -143,7 +143,7 @@ export const carouselHomePage = defineCardGridPage<CarouselSavePayload, Carousel
         enabled: (ctx: RecordActionContext<CarouselEntity>) =>
           getEnumValue(ctx.record!.status ?? 0) !== DATA_STATUS.RELEASE,
         label: () => i18n.global.t('common.release.text'),
-        icon: () => renderIconFont('loncra-screen-share'),
+        icon: () => iconFontRender('loncra-screen-share'),
         run: (ctx) => releaseCarousels(ctx, [Number(ctx.record!.id)]),
       },
       {
@@ -152,7 +152,7 @@ export const carouselHomePage = defineCardGridPage<CarouselSavePayload, Carousel
         enabled: (ctx: RecordActionContext<CarouselEntity>) =>
           getEnumValue(ctx.record!.status ?? 0) === DATA_STATUS.RELEASE,
         label: () => i18n.global.t('common.revoke.text'),
-        icon: () => renderIconFont('loncra-screen-share-off'),
+        icon: () => iconFontRender('loncra-screen-share-off'),
         run: (ctx) => revokeCarousels(ctx, [Number(ctx.record!.id)]),
       },
       {
@@ -161,7 +161,7 @@ export const carouselHomePage = defineCardGridPage<CarouselSavePayload, Carousel
         enabled: (ctx: RecordActionContext<CarouselEntity>) =>
           getEnumValue(ctx.record!.status ?? 0) !== DATA_STATUS.RELEASE,
         label: () => i18n.global.t('common.edit'),
-        icon: () => renderIconFont('loncra-file-pen-line'),
+        icon: () => iconFontRender('loncra-file-pen-line'),
       },
       {id: 'delete', visible: () => false},
     ],

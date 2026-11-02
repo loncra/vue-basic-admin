@@ -1,9 +1,13 @@
+import type {ToolbarActionContext} from '@loncra/antdv-pro'
 import {defineHomePage} from '@loncra/antdv-pro'
 import type {EnterpriseEntity, EnterprisePayload} from '@loncra/client/auth'
-import {AUTH_SERVER_CONSOLE_USER_AUTHORITY, AUTH_SERVER_ENTERPRISE_AUTHORITY} from '@loncra/client/auth'
-import type {ToolbarActionContext} from '@loncra/antdv-pro'
+import {
+  AUTH_SERVER_CONSOLE_USER_AUTHORITY,
+  AUTH_SERVER_ENTERPRISE_AUTHORITY
+} from '@loncra/client/auth'
 import i18n from '@/i18n'
-import {defineSearchProps, exportCollectionToView, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps, exportCollectionToView} from '@/utils'
 import {enterpriseCore} from './enterprise.page'
 
 async function exportEnterprises(ctx: ToolbarActionContext<EnterpriseEntity>): Promise<void> {
@@ -24,7 +28,7 @@ export const enterpriseHomePage = defineHomePage<EnterprisePayload, EnterpriseEn
         id: 'export',
         permission: AUTH_SERVER_CONSOLE_USER_AUTHORITY.EXPORT,
         label: () => i18n.global.t('common.export.all'),
-        icon: () => renderIconFont('loncra-download', 'align'),
+        icon: () => iconFontRender('loncra-download', {class: 'align'}),
         run: exportEnterprises,
       },
     ],

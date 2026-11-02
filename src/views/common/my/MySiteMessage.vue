@@ -11,7 +11,7 @@ export interface MySiteMessageProps {
 </script>
 
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import {
   type ComponentInternalInstance,
   computed,
@@ -77,7 +77,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'deleteRead',
       label: globalProperties.$t('messageServer.site.deleteRead'),
-      icon: renderIconFont('loncra-archive-x', 'align'),
+      icon: iconFontRender('loncra-archive-x', {class: 'align'}),
       danger:true,
       disabled: false,
       run:onDeleteRead
@@ -85,7 +85,7 @@ const actions = computed<ResolvedAction[]>(() => {
     {
       id: 'readAll',
       label: globalProperties.$t('messageServer.site.readAll'),
-      icon: renderIconFont('loncra-user-check', 'align'),
+      icon: iconFontRender('loncra-user-check', {class: 'align'}),
       disabled: false,
       run:onReadAll
     },

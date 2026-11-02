@@ -6,7 +6,7 @@ export interface AuthFormProp {
 </script>
 
 <script setup lang="ts">
-import {renderIconFont} from '@/utils/commonUtils'
+import {iconFontRender} from '@/icons/iconFont'
 import {
   CaptchaSendButton,
   type CaptchaSendResult,
@@ -50,20 +50,20 @@ const segmentedData = computed(() => {
   const result = [{
     label:globalProperties.$t('auth.accountLogin'),
     value: String(AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD),
-    icon: renderIconFont('loncra-user', 'align'),
+    icon: iconFontRender('loncra-user', {class: 'align'}),
   }]
   if (props.enablePhoneAuth) {
     result.push({
       label:globalProperties.$t('auth.phoneLogin'),
       value: String(AUTH_SERVER_LOGIN_TYPE.PHONE_CAPTCHA),
-      icon: renderIconFont('loncra-tablet-smartphone', 'align'),
+      icon: iconFontRender('loncra-tablet-smartphone', {class: 'align'}),
     })
   }
   if (props.enableQrCodeAuth) {
     result.push({
       label:globalProperties.$t('auth.qrCodeLogin'),
       value: String(AUTH_SERVER_LOGIN_TYPE.QR_CODE),
-      icon: renderIconFont('loncra-qr-code', 'align'),
+      icon: iconFontRender('loncra-qr-code', {class: 'align'}),
     })
   }
   return result

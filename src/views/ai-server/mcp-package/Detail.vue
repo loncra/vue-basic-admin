@@ -13,7 +13,7 @@ import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {useConfigProviderStore} from '@/stores/configProviderStore'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 import type {McpPackageEntity as McpPackageEntityWithSources} from './mcp-package.form.page'
 import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyTable.vue'
 import {mcpPackageCore} from './mcp-package.page'
@@ -88,7 +88,7 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
             >
               <template #title="{title}">
                 <a-space>
-                  <component :is="() => renderIconFont('loncra-form', 'align')" />
+                  <component :is="() => iconFontRender('loncra-form', {class: 'align'})" />
                   {{ title }}
                 </a-space>
               </template>
@@ -102,7 +102,7 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
             >
               <template #title="{title}">
                 <a-space>
-                  <component :is="() => renderIconFont('loncra-variable', 'align')" />
+                  <component :is="() => iconFontRender('loncra-variable', {class: 'align'})" />
                   {{ title }}
                 </a-space>
               </template>
@@ -137,7 +137,7 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
         >
           <template #title="{title}">
             <a-space>
-              <component :is="() => renderIconFont('loncra-variable', 'align')" />
+              <component :is="() => iconFontRender('loncra-variable', {class: 'align'})" />
               {{ title }}
             </a-space>
           </template>

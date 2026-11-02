@@ -3,7 +3,7 @@ import {EnterpriseService} from '@loncra/client/auth'
 import {type CrudFormCore, defineFormPage} from '@loncra/antdv-pro'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
 import {OPERATION_DATA_TRACE_TABLE} from '@loncra/client/commons'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 
 export const enterpriseSettingService = new EnterpriseService()
 
@@ -26,7 +26,7 @@ export const enterpriseSettingFormPage = defineFormPage(enterpriseSettingCore, {
       key: 'icon',
       component: 'iconSelect',
       col: {span: 24},
-      props: {mode: ICON_SELECT_MODE.AVATAR, iconRender: renderIconFont},
+      props: {mode: ICON_SELECT_MODE.AVATAR, iconRender: iconFontRender},
     },
     {
       key: 'remark',

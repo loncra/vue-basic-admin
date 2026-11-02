@@ -7,7 +7,8 @@ import {
 import {defineHomePage, executeStatusCell} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
 import router from '@/routers'
-import {defineSearchProps, renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
+import {defineSearchProps} from '@/utils'
 import {MESSAGE_SERVER_SMS_ROUTE} from '@/constants'
 import {smsCore} from './sms.page'
 
@@ -86,21 +87,21 @@ export const smsHomePage = defineHomePage<SmsMessageEntity>(smsCore, {
       permission: MESSAGE_SERVER_SMS_AUTHORITY.SEND,
       label: () =>
         i18n.global.t('common.send', {name: i18n.global.t('messageServer.sms.routePage')}),
-      icon: () => renderIconFont('loncra-send'),
+      icon: () => iconFontRender('loncra-send'),
       run: goSend,
     },
     {
       id: 'template',
       permission: MESSAGE_SERVER_SMS_TEMPLATE_AUTHORITY.FIND,
       label: () => i18n.global.t('messageServer.sms.template.routePage'),
-      icon: () => renderIconFont('loncra-layout-template'),
+      icon: () => iconFontRender('loncra-layout-template'),
       run: goTemplate,
     },
     {
       id: 'sign',
       permission: MESSAGE_SERVER_SMS_SIGN_AUTHORITY.FIND,
       label: () => i18n.global.t('messageServer.sms.sign.routePage'),
-      icon: () => renderIconFont('loncra-signature'),
+      icon: () => iconFontRender('loncra-signature'),
       run: goSign,
     },
   ],

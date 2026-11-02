@@ -19,7 +19,7 @@ import {
   type StreamableHttpMcpClientTransportMetadata,
 } from '@loncra/client/ai'
 import {defineFormPage, loadIcon} from '@loncra/antdv-pro'
-import {renderIconFont} from '@/utils'
+import {iconFontRender} from '@/icons/iconFont'
 import type {IconfontJson, KeyValueRow} from '@loncra/antdv'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
 import {mcpPackageCore} from './mcp-package.page'
@@ -93,7 +93,7 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
       props: () => ({
         class: 'w-full',
         mode: ICON_SELECT_MODE.AVATAR,
-        iconRender: (type: string) => renderIconFont(type),
+        iconRender: (type: string) => iconFontRender(type),
         options: iconOptions.value,
       }),
     },
