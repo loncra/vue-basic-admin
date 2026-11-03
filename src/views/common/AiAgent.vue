@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import {onMounted} from 'vue'
+import {computed, onMounted} from 'vue'
 import {AgentChat} from '@loncra/antdv-chat-pro'
+import type {AgentConversationHost} from '@loncra/antdv-chat-pro'
 import {buildAuthHeaders} from '@/requests'
+import {agentConversationHost, isAgentWorkspaceDesktop} from '@/utils/agentWorkspace'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 
 defineOptions({
@@ -9,6 +11,9 @@ defineOptions({
 })
 
 const principalStore = usePrincipalStore()
+const conversationHost = computed<Partial<AgentConversationHost> | undefined>(() =>
+  isAgentWorkspaceDesktop() ? agentConversationHost : undefined,
+)
 
 onMounted(() => {
   void principalStore.loadPluginInstalls()
@@ -21,6 +26,7 @@ onMounted(() => {
       :installs="principalStore.pluginInstalls"
       :self="{...principalStore.state.details.metadata, systemName: principalStore.state.name}"
       :build-headers="buildAuthHeaders"
+      :conversation-host="conversationHost"
       @installed="principalStore.upsertPluginInstall"
       @uninstalled="principalStore.removePluginInstall"
     >

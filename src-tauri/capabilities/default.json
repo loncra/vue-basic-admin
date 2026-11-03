@@ -7,22 +7,6 @@
   ],
   "permissions": [
     "core:default",
-    {
-      "identifier": "shell:allow-execute",
-      "allow": [
-        {
-          "name": "powershell",
-          "cmd": "powershell",
-          "args": true,
-          "sidecar": false
-        },
-        {
-          "name": "cmd",
-          "cmd": "cmd",
-          "args": true,
-          "sidecar": false
-        }
-      ]
-    }
+    "dialog:allow-open"
   ]
 }

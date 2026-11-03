@@ -640,86 +640,7 @@ const locale: LanguagePack = {
       failNumber: 'Failure count {count}',
     },
   },
-  component: {
-    tiptap: {
-      undo: 'Undo',
-      redo: 'Redo',
-      picture: {
-        text: 'Image',
-        label: 'Image URL',
-      },
-      bold: 'Bold',
-      italic: 'Italic',
-      underline: 'Underline',
-      blockquote: 'Quote',
-      text: 'Body text',
-      link: {
-        text: 'Link',
-      },
-      title: 'Heading {number}',
-      list: {
-        none: 'No list',
-        bullet: 'Bullet list',
-        ordered: 'Ordered list',
-      },
-      align: {
-        left: 'Align left',
-        center: 'Align center',
-        right: 'Align right',
-      },
-    },
-  },
-  chat: {
-    emoji: {
-      smileys_emotion: 'Smileys & Emotion',
-      people_body: 'People & Body',
-      animals_nature: 'Animals & Nature',
-      food_drink: 'Food & Drink',
-      travel_places: 'Travel & Places',
-      activities: 'Activities',
-      objects: 'Objects',
-      symbols: 'Symbols',
-      flags: 'Flags',
-    },
-    notification: {
-    },
-    conversation: {
-      newMessage: 'There are {count} unread messages',
-    },
-    everyone: 'Everyone',
-    view: {
-      reference: 'Reference',
-      reedit: 'Re-edit',
-      selfUndo: 'You have undone this message',
-      undo: {
-        confirmTitle: 'Undo confirmation',
-        confirmContent: 'Are you sure you want to undo this message?',
-        action: 'Undo',
-        time: 'Undone at {time}',
-        messageValue: 'This message has been undone',
-        countdown: '(Cannot be undone after s seconds)',
-      },
-      placeholder: {
-        exitRoom: 'You have left this group',
-        roomRemove: 'You were removed from this group',
-        disbandRoom: 'This group has been disbanded',
-        text: 'Type a message; paste files here to send attachments',
-      },
-      readable: {
-        jumpTo: 'Jump to the earliest unread message',
-        systemMessage: 'The following are the earliest unread messages',
-      },
-    },
-  },
   agent: {
-    token: {
-      text: 'Token',
-      input: 'Input tokens',
-      output: 'Output tokens',
-      cache: 'Cache hit',
-      cacheHitRate: 'Cache hit rate',
-      total: 'Token usage statistics',
-    },
     hub: {
       mcp: 'MCP plugins',
       skill: 'Skill plugins',
@@ -746,23 +667,8 @@ const locale: LanguagePack = {
     },
     workspace: {
       title: 'Workspace',
-    },
-    think: 'Deep thinking',
-    toolCall: {
-      text: 'Tool call',
-      hitl: {
-        allow: 'Allow',
-        allowAll: 'Allow all',
-        reject: 'Reject',
-        rejectAll: 'Reject all',
-      },
-    },
-    welcome: {
-      title: 'Hello, I am Captain.J',
-      description: 'What do you need to do today?',
-    },
-    view: {
-      placeholder: 'Ask the agent…',
+      localDefault: 'This PC',
+      addLocal: 'Add local folder',
     },
   },
 }

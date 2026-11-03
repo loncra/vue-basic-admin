@@ -631,87 +631,7 @@ const locale: LanguagePack = {
       failNumber:'失败数量{count}'
     }
   },
-  component: {
-    tiptap:{
-      undo:'撤销',
-      redo:'重做',
-      picture:{
-        text:'图片',
-        label:'图片地址'
-      },
-      bold:'加粗',
-      italic:'斜体',
-      underline:'下划线',
-      blockquote:'引用',
-      text:'正文',
-      link:{
-        text:'链接',
-      },
-      title:'标题{number}',
-      list:{
-        none:'无列表',
-        bullet:'无序列表',
-        ordered:'有序列表'
-      },
-      align:{
-        left:'左对齐',
-        center:'居中对齐',
-        right:'右对齐'
-      }
-    }
-  },
-  chat:{
-    emoji:{
-      smileys_emotion:'笑脸与情感',
-      people_body:'人物与身体',
-      animals_nature:'动物与自然',
-      food_drink:'食物与饮品',
-      travel_places:'旅行与地点',
-      activities:'活动',
-      objects:'物品',
-      symbols:'符号',
-      flags:'旗帜',
-    },
-    notification:{
-      mention:'{principal} 在消息中提到了你'
-    },
-    conversation:{
-      newMessage:'有{count}条未读消息',
-    },
-    everyone:'所有人',
-    view:{
-      reference:'引用',
-      reedit:'重新编辑',
-      selfUndo:'您已撤回此消息',
-      undo:{
-        confirmTitle:'撤销确认',
-        confirmContent:'确定要撤销该消息吗？',
-        action:'撤销',
-        time:'撤销时间{time}',
-        messageValue:'该消息已撤销',
-        countdown: '(s 秒后不可撤销)'
-      },
-      placeholder:{
-        exitRoom:'您已退出本群',
-        roomRemove:'您已被本群移除',
-        disbandRoom:'本群已解散',
-        text:'输入消息，可粘贴文件到此处发送文件内容'
-      },
-      readable:{
-        jumpTo:'跳转至最早未读消息',
-        systemMessage:'以下为最早未读消息'
-      }
-    },
-  },
   agent: {
-    token:{
-      text:'词元',
-      input:'输入词元',
-      output:'输出词元',
-      cache:'缓存命中',
-      cacheHitRate:'缓存命率',
-      total:'词元消耗统计',
-    },
     hub:{
       mcp:'MCP 插件',
       skill:'技能插件',
@@ -738,23 +658,8 @@ const locale: LanguagePack = {
     },
     workspace:{
       title:'工作空间',
-    },
-    think:'深度思考',
-    toolCall:{
-      text:'工具调用',
-      hitl:{
-        allow:'允许',
-        allowAll:'允许全部',
-        reject:'拒绝',
-        rejectAll:'拒绝全部',
-      }
-    },
-    welcome: {
-      title:'你好，我是 Captain.J',
-      description:'今天有什么需要干的吗？'
-    },
-    view: {
-      placeholder:'向智能体提问…',
+      localDefault:'这台电脑',
+      addLocal:'添加本地文件夹',
     },
   }
 }
