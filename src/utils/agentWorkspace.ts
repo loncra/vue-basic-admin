@@ -8,7 +8,6 @@ import {
   AI_SERVER_AGENT_CONVERSATION_TYPE,
   AgentService,
 } from '@loncra/client/ai'
-import type {AgentConversationEntity} from '@loncra/client/ai'
 import type {AgentConversationHost, AgentConversationRecord} from '@loncra/antdv-chat-pro'
 import type {ResolvedAction} from '@loncra/antdv-pro'
 import i18n from '@/i18n'
@@ -16,7 +15,6 @@ import {isTauri} from '@/utils/common'
 
 export interface LocalWorkspaceDto {
   key: string
-  id?: number
   default: boolean
   nameKey?: string
   name?: string
@@ -40,10 +38,6 @@ async function removeLocalWorkspace(key: string): Promise<void> {
   await invoke('remove_workspace', {key})
 }
 
-async function attachWorkspaceConversation(key: string, id: number): Promise<void> {
-  await invoke('attach_workspace_conversation', {key, id})
-}
-
 async function pickLocalFolders(): Promise<string[] | null> {
   const selected = await open({directory: true, multiple: true})
   if (!selected) {
@@ -55,7 +49,6 @@ async function pickLocalFolders(): Promise<string[] | null> {
 function toConversationRecord(dto: LocalWorkspaceDto): AgentConversationRecord {
   return {
     key: dto.key,
-    id: dto.id,
     type: AI_SERVER_AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE,
     name: dto.name,
     metadata: {
@@ -80,10 +73,9 @@ function isLocalDefaultItem(item: AgentConversationRecord): boolean {
 
 async function loadConversations(): Promise<AgentConversationRecord[]> {
   const [server, local] = await Promise.all([AgentService.findConversation(), listLocalWorkspaces()])
-  const serverList = (server.data || []) as AgentConversationRecord[]
   return [
-    ...local.filter((dto) => dto.id == null).map(toConversationRecord),
-    ...serverList,
+    ...local.map(toConversationRecord),
+    ...((server.data || []) as AgentConversationRecord[]),
   ]
 }
 
@@ -100,17 +92,7 @@ function addLocalWorkspaceAction(refresh: () => Promise<void>): ResolvedAction {
       }
       const key = crypto.randomUUID()
       const name = roots[0]?.split(/[\\/]/).filter(Boolean).pop() ?? ''
-      const dto = await addLocalWorkspace(key, name, roots)
-      const entity: AgentConversationEntity = {
-        type: AI_SERVER_AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE,
-        name: dto.name,
-        metadata: {
-          [AGENT_WORKSPACE_METADATA_KIND]: AGENT_WORKSPACE_KIND_LOCAL,
-          roots: dto.roots,
-        },
-      }
-      const result = await AgentService.saveConversation(entity)
-      await attachWorkspaceConversation(dto.key, Number(result.data))
+      await addLocalWorkspace(key, name, roots)
       await refresh()
     },
   }
@@ -135,14 +117,10 @@ export const agentConversationHost: Partial<AgentConversationHost> = {
     if (!isLocalWorkspaceItem(item) || isLocalDefaultItem(item)) {
       return isLocalWorkspaceItem(item)
     }
-    const local = await listLocalWorkspaces()
-    const target = local.find((dto) =>
-      (item.id != null && dto.id != null && Number(dto.id) === Number(item.id)) || dto.key === item.key,
-    )
-    if (target) {
-      await removeLocalWorkspace(target.key)
+    if (item.key) {
+      await removeLocalWorkspace(String(item.key))
     }
-    return item.id == null
+    return true
   },
   workspaceActions: ({refresh}) => [addLocalWorkspaceAction(refresh)],
 }

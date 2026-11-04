@@ -1,5 +1,6 @@
 mod shell_cmd;
 mod shell_policy;
+mod system_shell;
 mod workspace_store;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -19,10 +20,10 @@ pub fn run() {
     })
     .invoke_handler(tauri::generate_handler![
       shell_cmd::run_restricted_shell,
+      system_shell::system_shell,
       workspace_store::list_workspaces,
       workspace_store::add_workspace,
       workspace_store::remove_workspace,
-      workspace_store::attach_workspace_conversation,
       workspace_store::device_fingerprint
     ])
     .run(tauri::generate_context!())

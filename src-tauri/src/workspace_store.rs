@@ -10,8 +10,6 @@ pub const LOCAL_DEFAULT_WORKSPACE_KEY: &str = "local.default.workspace";
 #[serde(rename_all = "camelCase")]
 pub struct AgentWorkspace {
     pub key: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub id: Option<i64>,
     pub default: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name_key: Option<String>,
@@ -56,7 +54,6 @@ fn ensure_local_default(mut list: Vec<AgentWorkspace>) -> Vec<AgentWorkspace> {
             0,
             AgentWorkspace {
                 key: LOCAL_DEFAULT_WORKSPACE_KEY.to_string(),
-                id: None,
                 default: true,
                 name_key: Some(LOCAL_DEFAULT_WORKSPACE_KEY.to_string()),
                 name: None,
@@ -99,7 +96,6 @@ pub fn add_workspace(app: AppHandle, key: String, name: String, roots: Vec<Strin
     };
     let item = AgentWorkspace {
         key,
-        id: None,
         default: false,
         name_key: None,
         name: Some(display_name),
@@ -119,17 +115,6 @@ pub fn remove_workspace(app: AppHandle, key: String) -> Result<(), String> {
     }
     let remaining: Vec<AgentWorkspace> = list.into_iter().filter(|item| item.key != key).collect();
     write_all(&app, &remaining)
-}
-
-#[tauri::command]
-pub fn attach_workspace_conversation(app: AppHandle, key: String, id: i64) -> Result<(), String> {
-    let mut list = read_all(&app)?;
-    let target = list
-        .iter_mut()
-        .find(|item| item.key == key)
-        .ok_or_else(|| "WORKSPACE_NOT_FOUND".to_string())?;
-    target.id = Some(id);
-    write_all(&app, &list)
 }
 
 #[tauri::command]

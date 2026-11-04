@@ -1,7 +1,9 @@
 import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
 import {io, type Socket} from 'socket.io-client'
-import {SOCKET_EVENT_TYPE, STORE} from '@/constants'
+import {invoke} from '@tauri-apps/api/core'
+import {EXECUTE_SHELL_QUERY_NAME, SOCKET_EVENT_TYPE, STORE} from '@/constants'
+import {isTauri} from '@/utils/common'
 import {usePrincipalStore} from '@/stores/principalStore'
 import type {IdValueMetadata, RestResult} from '@loncra/client/commons'
 import type {PlatformUser} from '@loncra/client/auth'
@@ -120,7 +122,7 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     }
   }
 
-  function createSocketInstance(token: string): void {
+  async function createSocketInstance(token: string): Promise<void> {
     const retryTimeout = Number(import.meta.env.VITE_APP_SOCKET_RETRY_TIMEOUT) || 1000
     const retryCount = Number(import.meta.env.VITE_APP_SOCKET_RETRY_COUNT) || 3
 
@@ -128,12 +130,22 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     const accessTokenName = import.meta.env.VITE_APP_LOCAL_STORAGE_ACCESS_TOKEN_NAME
     const deviceId = localStorage.getItem(deviceIdStorageName)
 
+    const query: Record<string, string> = {
+      t: String(Date.now()),
+      [deviceIdStorageName]: deviceId ?? '',
+      [accessTokenName]: token,
+    }
+
+    if (isTauri()) {
+      try {
+        query[EXECUTE_SHELL_QUERY_NAME] = String(await invoke('system_shell'))
+      } catch (error) {
+        console.warn('[socket] collect execute shell failed', error)
+      }
+    }
+
     const instance = io({
-      query: {
-        t: String(Date.now()),
-        [deviceIdStorageName]: deviceId,
-        [accessTokenName]: token,
-      },
+      query,
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: retryCount,
@@ -146,7 +158,7 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     socket.value = instance
   }
 
-  function ensureConnected(): void {
+  async function ensureConnected(): Promise<void> {
     const token = principalStore.state.details?.token?.value
     if (!token) {
       status.value = 'idle'
@@ -165,7 +177,7 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     lastToken.value = token
     status.value = 'connecting'
     connectError.value = null
-    createSocketInstance(token)
+    await createSocketInstance(token)
   }
 
   function disconnect(): void {
