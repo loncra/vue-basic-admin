@@ -1,3 +1,4 @@
+mod agent_fs;
 mod shell_cmd;
 mod shell_policy;
 mod system_shell;
@@ -20,6 +21,7 @@ pub fn run() {
     })
     .invoke_handler(tauri::generate_handler![
       shell_cmd::run_restricted_shell,
+      agent_fs::agent_fs,
       system_shell::system_shell,
       workspace_store::list_workspaces,
       workspace_store::add_workspace,

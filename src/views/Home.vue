@@ -11,14 +11,13 @@ import {requireNonNullOrUndefined} from '@/utils'
 import {usePrincipalStore} from "@/stores/principalStore.ts";
 import {useMessageServerStore} from "@/stores/messageServerStore.ts";
 import {useSocketStore} from '@/stores/socketStore.ts'
+import {registerAgentFilesystemExecutor} from '@/utils'
 import {useConfigProviderStore} from "@/stores/configProviderStore.ts";
 import {SYSTEM_ROUTE} from '@/constants'
 
 defineOptions({
   name: 'IndexHome',
 })
-
-registerImCallMedia(createLiveKitCallMedia)
 
 const globalProperties = requireNonNullOrUndefined<ComponentInternalInstance>(
   getCurrentInstance(),
@@ -37,6 +36,9 @@ const principalStore = usePrincipalStore()
 const messageServerStore = useMessageServerStore()
 const socketStore = useSocketStore()
 const configProviderStore = useConfigProviderStore()
+
+registerImCallMedia(createLiveKitCallMedia)
+registerAgentFilesystemExecutor(socketStore)
 
 useChatNotification({
   chatCallConfig:{

@@ -74,7 +74,7 @@ export const useBootstrapStore = defineStore(STORE.BOOT_ID, () => {
         await applyMenusToRoutes(importRoutes)
         setStatus('socketConnected')
         const socketStore = useSocketStore()
-        socketStore.ensureConnected()
+        await socketStore.ensureConnected()
       }
 
       const menuPrincipalStore = useMenuPrincipalStore()

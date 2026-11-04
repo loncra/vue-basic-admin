@@ -1,41 +1,4 @@
-﻿import {AI_SERVER_AGENT_CHAT_STATUS} from '@loncra/client/ai'
-
-export type AgentChatStatus = (typeof AI_SERVER_AGENT_CHAT_STATUS)[keyof typeof AI_SERVER_AGENT_CHAT_STATUS]
-
-export const AGENT_CHAT_STATUS_STYLE = {
-  [AI_SERVER_AGENT_CHAT_STATUS.READY]: {
-    icon: 'loncra-fish',
-    textClass: 'text-text-secondary',
-    spin: false,
-  },
-  [AI_SERVER_AGENT_CHAT_STATUS.RUNNING]: {
-    icon: 'loncra-loader-pinwheel',
-    textClass: 'text-primary',
-    spin: true,
-  },
-  [AI_SERVER_AGENT_CHAT_STATUS.STOPPED]: {
-    icon: 'loncra-circle-stop',
-    textClass: 'text-warning',
-    spin: false,
-  },
-  [AI_SERVER_AGENT_CHAT_STATUS.REQUEST_STOP]: {
-    icon: 'loncra-badge-question-mark',
-    textClass: 'text-warning',
-    spin: false,
-  },
-  [AI_SERVER_AGENT_CHAT_STATUS.COMPLETED]: {
-    icon: 'loncra-badge-check',
-    textClass: 'text-success',
-    spin: false,
-  },
-  [AI_SERVER_AGENT_CHAT_STATUS.FAILED]: {
-    icon: 'loncra-octagon-x',
-    textClass: 'text-error',
-    spin: false,
-  },
-} as const satisfies Record<AgentChatStatus, { icon: string; textClass: string; spin: boolean }>
-
-export const AI_SERVER_MODEL_SETTING_ROUTE = {
+﻿export const AI_SERVER_MODEL_SETTING_ROUTE = {
   HOME: 'ai_server_model_setting',
   ADD: 'ai_server_model_setting_add',
   EDIT: 'ai_server_model_setting_edit',
@@ -43,6 +6,8 @@ export const AI_SERVER_MODEL_SETTING_ROUTE = {
 } as const
 
 export const MODEL_SETTING_MANUFACTURER_CODE_QUERY = 'manufacturerCode'
+
+export const AGENT_FILESYSTEM_REQUEST_EVENT = 'agent_filesystem_request'
 
 export const MCP_PACKAGE_ROUTE = {
   HOME: 'ai_server_mcp_package',
@@ -56,19 +21,4 @@ export const SKILL_PACKAGE_ROUTE = {
   ADD: 'ai_server_skill_package_add',
   EDIT: 'ai_server_skill_package_edit',
   DETAIL: 'ai_server_skill_package_detail',
-} as const
-
-export const AGENT_CHAT_TYPE_STYLE = {
-  "10":{
-    color:'cyan',
-    icon:'loncra-message-circle-question-mark',
-  },
-  "20":{
-    color:'pink',
-    icon:'loncra-clipboard-list',
-  },
-  "30":{
-    color:'purple',
-    icon:'loncra-bot',
-  }
 } as const

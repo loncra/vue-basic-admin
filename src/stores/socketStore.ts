@@ -17,6 +17,10 @@ import type {
 
 export type SocketBusinessEventPayloadMap = {
   [SOCKET_EVENT_TYPE.RUN_COMMAND]: RestResult<string>
+  [SOCKET_EVENT_TYPE.AGENT_FILESYSTEM_REQUEST]: RestResult<{
+    operation: string
+    params: Record<string, unknown>
+  }>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE]: RestResult<UserChatMessageResponseBody>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_MENTION]: RestResult<UserChatMessageResponseBody>
   [SOCKET_EVENT_TYPE.CHAT_MESSAGE_READ]: RestResult<UserChatMessageResponseBody>
@@ -47,6 +51,8 @@ export type SocketConnectionStatus =
   | 'error'
 
 type SocketHandler = (...args: unknown[]) => void
+
+export type SocketAckHandler<P> = (payload: P, ack: (result: unknown) => void) => void
 
 export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
   const principalStore = usePrincipalStore()
@@ -220,6 +226,22 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     socket.value?.emit(event, ...args)
   }
 
+  function ackSubscribe<E extends SocketBusinessEvent>(
+    event: E,
+    handler: SocketAckHandler<SocketBusinessEventPayloadMap[E]>,
+  ): () => void {
+    const wrapped: SocketHandler = (...args: unknown[]) => {
+      const ack = args[args.length - 1]
+      if (typeof ack !== 'function') {
+        return
+      }
+      handler(args[0] as SocketBusinessEventPayloadMap[E], ack as (result: unknown) => void)
+    }
+    addToRegistry(event, wrapped)
+    socket.value?.on(event as string, wrapped)
+    return () => unsubscribe(event, wrapped)
+  }
+
   return {
     connectError,
     status,
@@ -228,6 +250,7 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
     disconnect,
     subscribe,
     unsubscribe,
+    ackSubscribe,
     emit,
   }
 })

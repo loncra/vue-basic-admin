@@ -8,6 +8,7 @@ export const SOCKET_EVENT_TYPE = {
   CONNECT_TIMEOUT: 'connect_timeout',
   CLIENT_DISCONNECT: 'client_disconnect',
   RUN_COMMAND: 'run_command',
+  AGENT_FILESYSTEM_REQUEST: 'agent_filesystem_request',
   CHAT_MESSAGE: 'chat_message',
   CHAT_MESSAGE_MENTION: 'chat_message_mention',
   CHAT_MESSAGE_READ:'chat_message_read',

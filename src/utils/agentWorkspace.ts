@@ -26,7 +26,7 @@ export function isAgentWorkspaceDesktop(): boolean {
   return isTauri()
 }
 
-async function listLocalWorkspaces(): Promise<LocalWorkspaceDto[]> {
+export async function listLocalWorkspaces(): Promise<LocalWorkspaceDto[]> {
   return invoke<LocalWorkspaceDto[]>('list_workspaces')
 }
 
