@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {computed, onMounted} from 'vue'
-import {AgentChat} from '@loncra/antdv-chat-pro'
 import type {AgentConversationHost} from '@loncra/antdv-chat-pro'
+import {AgentChat} from '@loncra/antdv-chat-pro'
 import {buildAuthHeaders} from '@/requests'
-import {agentConversationHost, isAgentWorkspaceDesktop} from '@/utils/agentWorkspace'
+import {agentConversationHost} from '@/utils/agentWorkspace'
+import {isTauri} from '@/utils/common'
 import {usePrincipalStore} from '@/stores/principalStore.ts'
 
 defineOptions({
@@ -12,7 +13,7 @@ defineOptions({
 
 const principalStore = usePrincipalStore()
 const conversationHost = computed<Partial<AgentConversationHost> | undefined>(() =>
-  isAgentWorkspaceDesktop() ? agentConversationHost : undefined,
+  isTauri() ? agentConversationHost : undefined,
 )
 
 onMounted(() => {

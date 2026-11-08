@@ -7,8 +7,6 @@
 
 export const MODEL_SETTING_MANUFACTURER_CODE_QUERY = 'manufacturerCode'
 
-export const AGENT_FILESYSTEM_REQUEST_EVENT = 'agent_filesystem_request'
-
 export const MCP_PACKAGE_ROUTE = {
   HOME: 'ai_server_mcp_package',
   ADD: 'ai_server_mcp_package_add',

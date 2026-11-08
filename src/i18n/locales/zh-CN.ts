@@ -658,7 +658,10 @@ const locale: LanguagePack = {
     },
     workspace:{
       title:'工作空间',
-      localDefault:'这台电脑',
+      default:{
+        local:'本机',
+        cloud:'云端默认工作空间',
+      },
       addLocal:'添加本地文件夹',
     },
   }

@@ -6,22 +6,24 @@ use tauri::{AppHandle, Manager};
 
 pub const LOCAL_DEFAULT_WORKSPACE_KEY: &str = "local.default.workspace";
 
+const DATA_DIR_NAME: &str = ".loncra-agent";
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentWorkspace {
     pub key: String,
     pub default: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub name_key: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
     #[serde(default)]
     pub roots: Vec<String>,
     pub created_at: u64,
 }
 
 fn store_file(app: &AppHandle) -> Result<PathBuf, String> {
-    let dir = app.path().app_data_dir().map_err(|error| error.to_string())?;
+    let dir = app
+        .path()
+        .home_dir()
+        .map_err(|error| error.to_string())?
+        .join(DATA_DIR_NAME);
     fs::create_dir_all(&dir).map_err(|error| error.to_string())?;
     Ok(dir.join("workspaces.json"))
 }
@@ -48,32 +50,43 @@ fn now_unix() -> u64 {
         .unwrap_or(0)
 }
 
-fn ensure_local_default(mut list: Vec<AgentWorkspace>) -> Vec<AgentWorkspace> {
+fn local_default_roots(app: &AppHandle) -> Result<Vec<String>, String> {
+    let home = app
+        .path()
+        .home_dir()
+        .map_err(|error| error.to_string())?;
+    Ok(vec![home.to_string_lossy().to_string()])
+}
+
+fn ensure_local_default(app: &AppHandle, mut list: Vec<AgentWorkspace>) -> Result<Vec<AgentWorkspace>, String> {
+    let roots = local_default_roots(app)?;
     if !list.iter().any(|item| item.default) {
         list.insert(
             0,
             AgentWorkspace {
                 key: LOCAL_DEFAULT_WORKSPACE_KEY.to_string(),
                 default: true,
-                name_key: Some(LOCAL_DEFAULT_WORKSPACE_KEY.to_string()),
-                name: None,
-                roots: Vec::new(),
+                roots: roots.clone(),
                 created_at: now_unix(),
             },
         );
+    } else if let Some(entry) = list.iter_mut().find(|item| item.default) {
+        if entry.roots.is_empty() {
+            entry.roots = roots;
+        }
     }
-    list
+    Ok(list)
 }
 
 #[tauri::command]
 pub fn list_workspaces(app: AppHandle) -> Result<Vec<AgentWorkspace>, String> {
-    let list = ensure_local_default(read_all(&app)?);
+    let list = ensure_local_default(&app, read_all(&app)?)?;
     write_all(&app, &list)?;
     Ok(list)
 }
 
 #[tauri::command]
-pub fn add_workspace(app: AppHandle, key: String, name: String, roots: Vec<String>) -> Result<AgentWorkspace, String> {
+pub fn add_workspace(app: AppHandle, key: String, roots: Vec<String>) -> Result<AgentWorkspace, String> {
     if roots.is_empty() {
         return Err("WORKSPACE_ROOTS_EMPTY".into());
     }
@@ -84,21 +97,9 @@ pub fn add_workspace(app: AppHandle, key: String, name: String, roots: Vec<Strin
     {
         return Err("WORKSPACE_ROOT_EXISTS".into());
     }
-    let display_name = if name.trim().is_empty() {
-        roots[0]
-            .split(['/', '\\'])
-            .filter(|part| !part.is_empty())
-            .last()
-            .unwrap_or("workspace")
-            .to_string()
-    } else {
-        name
-    };
     let item = AgentWorkspace {
         key,
         default: false,
-        name_key: None,
-        name: Some(display_name),
         roots,
         created_at: now_unix(),
     };

@@ -667,7 +667,10 @@ const locale: LanguagePack = {
     },
     workspace: {
       title: 'Workspace',
-      localDefault: 'This PC',
+      default: {
+        local: 'This Device',
+        cloud: 'Default Cloud Workspace',
+      },
       addLocal: 'Add local folder',
     },
   },

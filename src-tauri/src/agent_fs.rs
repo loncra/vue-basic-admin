@@ -1,22 +1,63 @@
 use serde_json::{json, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
+use tauri::{AppHandle, Manager};
 
 use crate::shell_cmd;
 
 const WORKSPACE_ROOT: &str = "/workspace";
+const DATA_ROOT: &str = ".loncra-agent";
 const MAX_LIST_ENTRIES: usize = 5000;
 const MAX_GREP_MATCHES: usize = 1000;
 const MAX_GREP_FILES: usize = 5000;
 const MAX_GREP_FILE_BYTES: u64 = 1024 * 1024;
 
 #[tauri::command]
-pub async fn agent_fs(operation: String, params: Value, roots: Vec<String>) -> Result<Value, String> {
-    let result = dispatch(&operation, &params, &roots).await;
+pub async fn agent_fs(
+    app: AppHandle,
+    operation: String,
+    params: Value,
+    scope: String,
+    roots: Vec<String>,
+) -> Result<Value, String> {
+    let effective_roots = resolve_roots(&app, &scope, &params, &roots)?;
+    let result = dispatch(&operation, &params, &effective_roots).await;
     Ok(match result {
         Ok(data) => success(data),
         Err(message) => failure(&message),
     })
+}
+
+fn resolve_roots(
+    app: &AppHandle,
+    scope: &str,
+    params: &Value,
+    roots: &[String],
+) -> Result<Vec<String>, String> {
+    let path_fields = ["path", "fromPath", "toPath"];
+    if scope == "store" {
+        for field in path_fields {
+            let Some(raw) = param_str(params, field) else { continue };
+            let rel = relative_path(raw)?;
+            if !rel.starts_with(&format!("{DATA_ROOT}/")) {
+                return Err("数据区路径必须位于 .loncra-agent 下".into());
+            }
+        }
+        let home = app.path().home_dir().map_err(|error| error.to_string())?;
+        return Ok(vec![home.to_string_lossy().to_string()]);
+    }
+    for field in path_fields {
+        if let Some(raw) = param_str(params, field) {
+            let rel = relative_path(raw)?;
+            if rel == DATA_ROOT || rel.starts_with(&format!("{DATA_ROOT}/")) {
+                return Err("无权访问数据区目录".into());
+            }
+        }
+    }
+    if roots.is_empty() {
+        return Err("工作空间未配置目录".into());
+    }
+    Ok(roots.to_vec())
 }
 
 async fn dispatch(operation: &str, params: &Value, roots: &[String]) -> Result<Value, String> {
