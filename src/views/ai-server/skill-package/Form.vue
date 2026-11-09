@@ -9,7 +9,7 @@ import {
   type AttachmentUploadExpose,
   CrudFormPage,
 } from '@loncra/antdv-pro'
-import {FileEditor} from '@loncra/antdv-chat-pro'
+import {AttachmentFileEditor} from '@loncra/antdv-chat-pro'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
@@ -121,7 +121,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
             bucket="system.file"
             :mode="ATTACHMENT_UPLOAD_MODE.DRAGGER"
           />
-          <file-editor
+          <attachment-file-editor
             v-else
             bucket="system.file"
             :path="'ai/skill/' + entity.id + '/'"

@@ -3,7 +3,7 @@ import {ref} from 'vue'
 import type {GitSkillSourceMetadata, SkillPackageEntity} from '@loncra/client/ai'
 import {AI_SERVER_SKILL_SOURCE_TYPE} from '@loncra/client/ai'
 import {CrudDetailPage} from '@loncra/antdv-pro'
-import {FileEditor} from '@loncra/antdv-chat-pro'
+import {AttachmentFileEditor} from '@loncra/antdv-chat-pro'
 import {getEnumValue} from '@loncra/client/commons'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
@@ -69,7 +69,7 @@ const {onStale} = usePageExit({redirect: skillPackageCore.routes?.home})
           {{ $t('aiServer.skillPackage.files') }}
         </a-space>
       </a-divider>
-      <file-editor
+      <attachment-file-editor
         v-if="entity.id"
         readonly
         bucket="system.file"
