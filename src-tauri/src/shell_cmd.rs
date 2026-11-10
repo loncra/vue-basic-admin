@@ -5,7 +5,7 @@ use tokio::process::Command;
 use tokio::time::{timeout, Duration};
 
 use crate::shell_policy::{
-    is_command_blocked, resolve_cwd, truncate_output, MAX_OUTPUT_CHARS,
+    is_command_blocked, resolve_cwd_trusted, truncate_output, MAX_OUTPUT_CHARS,
 };
 
 pub const MAX_TIMEOUT_MS: u64 = 120_000;
@@ -23,6 +23,8 @@ pub async fn run_restricted_shell(
     command: String,
     cwd: Option<String>,
     timeout_ms: u64,
+    stdin: Option<String>,
+    trusted_cwd: Option<bool>,
 ) -> Result<ShellExecDto, String> {
     let timeout_ms = timeout_ms.clamp(1, MAX_TIMEOUT_MS);
 
@@ -34,19 +36,32 @@ pub async fn run_restricted_shell(
         return Err("POLICY_DENIED".into());
     }
 
-    let cwd = resolve_cwd(cwd.as_deref())?;
+    let cwd = resolve_cwd_trusted(cwd.as_deref(), trusted_cwd.unwrap_or(false))?;
 
-    let mut child = Command::new("powershell");
+    let mut child = Command::new(shell_program());
+    child.args(shell_args(&command));
     child
-        .args(["-NoProfile", "-NonInteractive", "-Command", &command])
         .current_dir(&cwd)
+        .stdin(if stdin.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
 
     let duration = Duration::from_millis(timeout_ms);
-    let child = child
+    let mut child = child
         .spawn()
-        .map_err(|error| format!("failed to spawn powershell: {error}"))?;
+        .map_err(|error| format!("failed to spawn {}: {error}", shell_program()))?;
+
+    if let Some(input) = stdin {
+        use tokio::io::AsyncWriteExt;
+        let mut pipe = child.stdin.take().ok_or("stdin pipe missing")?;
+        pipe.write_all(input.as_bytes())
+            .await
+            .map_err(|error| format!("failed to write stdin: {error}"))?;
+    }
 
     let pid = child.id();
 
@@ -69,6 +84,27 @@ pub async fn run_restricted_shell(
             }
             Err(format!("execution timed out after {timeout_ms}ms"))
         }
+    }
+}
+
+fn shell_program() -> &'static str {
+    if cfg!(windows) {
+        "powershell"
+    } else {
+        "bash"
+    }
+}
+
+fn shell_args(command: &str) -> Vec<String> {
+    if cfg!(windows) {
+        vec![
+            "-NoProfile".to_string(),
+            "-NonInteractive".to_string(),
+            "-Command".to_string(),
+            command.to_string(),
+        ]
+    } else {
+        vec!["-lc".to_string(), command.to_string()]
     }
 }
 

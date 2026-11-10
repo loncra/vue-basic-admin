@@ -5,6 +5,7 @@ import {FolderAddOutlined} from '@antdv-next/icons'
 import type {AgentConversationEntity} from '@loncra/client/ai'
 import {
   AGENT_WORKSPACE_METADATA_KIND,
+  AGENT_WORKSPACE_METADATA_ROOTS,
   AgentService,
   AI_SERVER_AGENT_CONVERSATION_TYPE,
   AI_SERVER_EXECUTION_CHANNEL,
@@ -78,6 +79,7 @@ function addLocalWorkspaceAction(refresh: () => Promise<void>): ResolvedAction {
         name,
         metadata: {
           [AGENT_WORKSPACE_METADATA_KIND]: AI_SERVER_EXECUTION_CHANNEL.LOCAL,
+          [AGENT_WORKSPACE_METADATA_ROOTS]: [root],
           default: false,
           key,
         },

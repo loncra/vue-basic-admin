@@ -33,8 +33,9 @@ fn path_contains_parent_ref(path: &Path) -> bool {
         .any(|component| matches!(component, Component::ParentDir))
 }
 
-/// Default to user HOME; canonicalize; must stay under `allow_root` (HOME).
-pub fn resolve_cwd(requested: Option<&str>) -> Result<PathBuf, String> {
+/// Canonicalize `requested`, or the user home when it is absent.
+/// `trusted` allows a workspace root outside the user home.
+pub fn resolve_cwd_trusted(requested: Option<&str>, trusted: bool) -> Result<PathBuf, String> {
     let allow_root = user_home()?;
     let allow_root = allow_root
         .canonicalize()
@@ -53,7 +54,7 @@ pub fn resolve_cwd(requested: Option<&str>) -> Result<PathBuf, String> {
         .canonicalize()
         .map_err(|error| format!("invalid cwd: {error}"))?;
 
-    if !canonical.starts_with(&allow_root) {
+    if !trusted && !canonical.starts_with(&allow_root) {
         return Err(POLICY_DENIED.to_string());
     }
 
