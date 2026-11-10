@@ -2,7 +2,7 @@ import {computed, ref, type Ref} from 'vue'
 import {defineStore} from 'pinia'
 import {io, type Socket} from 'socket.io-client'
 import {invoke} from '@tauri-apps/api/core'
-import {EXECUTE_SHELL_QUERY_NAME, SOCKET_EVENT_TYPE, STORE} from '@/constants'
+import {CLIENT_HOME_QUERY_NAME, EXECUTE_SHELL_QUERY_NAME, SOCKET_EVENT_TYPE, STORE} from '@/constants'
 import {isTauri} from '@/utils/common'
 import {usePrincipalStore} from '@/stores/principalStore'
 import type {IdValueMetadata, RestResult} from '@loncra/client/commons'
@@ -144,7 +144,9 @@ export const useSocketStore = defineStore(STORE.SOCKET_ID, () => {
 
     if (isTauri()) {
       try {
-        query[EXECUTE_SHELL_QUERY_NAME] = String(await invoke('system_shell'))
+        const info = await invoke<{executeShell: string, clientHome: string}>('system_info')
+        query[EXECUTE_SHELL_QUERY_NAME] = info.executeShell
+        query[CLIENT_HOME_QUERY_NAME] = info.clientHome
       } catch (error) {
         console.warn('[socket] collect execute shell failed', error)
       }

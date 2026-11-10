@@ -1,5 +1,6 @@
 export const APP_RELOAD_PROVIDE_KEY = 'reload'
 export const EXECUTE_SHELL_QUERY_NAME = 'executeShell'
+export const CLIENT_HOME_QUERY_NAME = 'clientHome'
 export const LAYOUT_CONTENT_CLOSE_TAB_PROVIDE_KEY = "closeContentTab"
 export const LAYOUT_PANE_TITLE_PROVIDE_KEY = "paneTitle"
 

@@ -1,7 +1,4 @@
 mod agent_fs;
-mod shell_cmd;
-mod shell_policy;
-mod system_shell;
 mod workspace_store;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -20,9 +17,9 @@ pub fn run() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-      shell_cmd::run_restricted_shell,
+      agent_fs::run_restricted_shell,
       agent_fs::agent_fs,
-      system_shell::system_shell,
+      agent_fs::system_info,
       workspace_store::list_workspaces,
       workspace_store::add_workspace,
       workspace_store::remove_workspace,
