@@ -659,7 +659,7 @@ const locale: LanguagePack = {
     workspace:{
       title:'工作空间',
       default:{
-        local:'本机',
+        client:'本机',
         cloud:'云端默认工作空间',
       },
       addLocal:'添加本地文件夹',

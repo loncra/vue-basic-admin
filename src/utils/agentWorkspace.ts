@@ -38,11 +38,11 @@ async function pickLocalFolders(): Promise<string | null> {
 
 function workspaceKind(item: AgentConversationRecord): string {
   const kind = (item.metadata as Record<string, unknown> | undefined)?.[AGENT_WORKSPACE_METADATA_KIND]
-  return kind === AI_SERVER_EXECUTION_CHANNEL.LOCAL ? AI_SERVER_EXECUTION_CHANNEL.LOCAL : AI_SERVER_EXECUTION_CHANNEL.CLOUD
+  return kind === AI_SERVER_EXECUTION_CHANNEL.CLIENT ? AI_SERVER_EXECUTION_CHANNEL.CLIENT : AI_SERVER_EXECUTION_CHANNEL.CLOUD
 }
 
 function isLocalWorkspaceItem(item: AgentConversationRecord): boolean {
-  return workspaceKind(item) === AI_SERVER_EXECUTION_CHANNEL.LOCAL
+  return workspaceKind(item) === AI_SERVER_EXECUTION_CHANNEL.CLIENT
 }
 
 function isDefaultWorkspaceItem(item: AgentConversationRecord): boolean {
@@ -55,7 +55,7 @@ async function loadConversations(): Promise<AgentConversationRecord[]> {
   }
   const [server, local] = await Promise.all([
     AgentService.findConversation(),
-    AgentService.findConversation({}, AI_SERVER_EXECUTION_CHANNEL.LOCAL),
+    AgentService.findConversation({}, AI_SERVER_EXECUTION_CHANNEL.CLIENT),
   ])
   return [...((local.data || []) as AgentConversationRecord[]), ...((server.data || []) as AgentConversationRecord[])]
 }
@@ -78,13 +78,13 @@ function addLocalWorkspaceAction(refresh: () => Promise<void>): ResolvedAction {
         type: AI_SERVER_AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE,
         name,
         metadata: {
-          [AGENT_WORKSPACE_METADATA_KIND]: AI_SERVER_EXECUTION_CHANNEL.LOCAL,
+          [AGENT_WORKSPACE_METADATA_KIND]: AI_SERVER_EXECUTION_CHANNEL.CLIENT,
           [AGENT_WORKSPACE_METADATA_ROOTS]: [root],
           default: false,
           key,
         },
       } as AgentConversationEntity
-      await AgentService.saveConversation(entity, AI_SERVER_EXECUTION_CHANNEL.LOCAL)
+      await AgentService.saveConversation(entity, AI_SERVER_EXECUTION_CHANNEL.CLIENT)
       await refresh()
     },
   }
@@ -115,7 +115,7 @@ export const agentConversationHost: Partial<AgentConversationHost> = {
     if (!isLocalWorkspaceItem(item) || isDefaultWorkspaceItem(item)) {
       return isLocalWorkspaceItem(item)
     }
-    await AgentService.deleteConversation([String(item.id)], AI_SERVER_EXECUTION_CHANNEL.LOCAL)
+    await AgentService.deleteConversation([String(item.id)], AI_SERVER_EXECUTION_CHANNEL.CLIENT)
     const key = (item.metadata as Record<string, unknown>).key
     if (key) {
       await removeLocalWorkspace(String(key))

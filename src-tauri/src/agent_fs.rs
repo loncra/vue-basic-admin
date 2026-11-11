@@ -71,10 +71,12 @@ pub async fn agent_fs(
     operation: String,
     params: Value,
     scope: String,
+    base: Option<String>,
     roots: Vec<String>,
 ) -> Result<Value, String> {
-    let effective_roots = resolve_roots(&app, &scope, &roots)?;
-    let result = dispatch(&operation, &params, &effective_roots).await;
+    let effective_roots = resolve_roots(&app, &scope, &base, &roots)?;
+    let prefix = if scope == "store" { "/" } else { WORKSPACE_ROOT };
+    let result = dispatch(&operation, &params, &effective_roots, prefix).await;
     Ok(match result {
         Ok(body) => success(&body.execute_code, body.data),
         Err(message) => failure(&message),
@@ -111,29 +113,33 @@ pub async fn run_restricted_shell(
     run_shell(command, cwd, timeout_ms, stdin, trusted_cwd.unwrap_or(false)).await
 }
 
-async fn dispatch(operation: &str, params: &Value, roots: &[String]) -> Result<DispatchBody, String> {
+async fn dispatch(operation: &str, params: &Value, roots: &[String], prefix: &str) -> Result<DispatchBody, String> {
     let root = roots.first().ok_or("工作空间未配置目录")?;
     match operation.to_ascii_lowercase().as_str() {
-        "ls" => ls(params, root),
+        "ls" => ls(params, root, prefix),
         "read" => read(params, root),
-        "write" => write(params, root),
-        "edit" => edit(params, root),
-        "grep" => grep(params, root),
-        "glob" => glob_files(params, root),
+        "write" => write(params, root, prefix),
+        "edit" => edit(params, root, prefix),
+        "grep" => grep(params, root, prefix),
+        "glob" => glob_files(params, root, prefix),
         "upload" => upload(params, root),
         "download" => download(params, root),
         "delete" => delete(params, root),
-        "move" => move_path(params, root),
+        "move" => move_path(params, root, prefix),
         "exists" => exists(params, root),
         "execute" => execute(params, root).await,
         other => Err(format!("未知文件系统操作 [{other}]")),
     }
 }
 
-fn resolve_roots(app: &AppHandle, scope: &str, roots: &[String]) -> Result<Vec<String>, String> {
+fn resolve_roots(app: &AppHandle, scope: &str, base: &Option<String>, roots: &[String]) -> Result<Vec<String>, String> {
     if scope == "store" {
         let home = app.path().home_dir().map_err(|error| error.to_string())?;
-        return Ok(vec![home.to_string_lossy().to_string()]);
+        let mount = match base.as_deref().map(str::trim) {
+            Some(value) if !value.is_empty() => home.join(value.replace('\\', "/")),
+            _ => home,
+        };
+        return Ok(vec![mount.to_string_lossy().to_string()]);
     }
     if roots.is_empty() {
         return Err("工作空间未配置目录".into());
@@ -161,8 +167,12 @@ fn optional_text(params: &Value, key: &str) -> Option<String> {
     params.get(key).and_then(Value::as_str).filter(|value| !value.is_empty()).map(str::to_string)
 }
 
-fn ls(params: &Value, root: &str) -> Result<DispatchBody, String> {
-    let raw = optional_text(params, "path").unwrap_or_else(|| WORKSPACE_ROOT.to_string());
+fn default_path(prefix: &str) -> String {
+    if prefix == "/" { String::new() } else { WORKSPACE_ROOT.to_string() }
+}
+
+fn ls(params: &Value, root: &str, prefix: &str) -> Result<DispatchBody, String> {
+    let raw = optional_text(params, "path").unwrap_or_else(|| default_path(prefix));
     let path = resolve_path(&raw, root)?;
     if !path.is_dir() {
         return ok(json!({"entries": []}));
@@ -170,7 +180,7 @@ fn ls(params: &Value, root: &str) -> Result<DispatchBody, String> {
     let mut entries = Vec::new();
     for entry in fs::read_dir(&path).map_err(|error| error.to_string())? {
         let entry = entry.map_err(|error| error.to_string())?;
-        entries.push(file_entry(&entry.path(), &display_path(&entry.path(), root)));
+        entries.push(file_entry(&entry.path(), &display_path(&entry.path(), root, prefix)));
     }
     ok(json!({"entries": entries}))
 }
@@ -193,7 +203,7 @@ fn read(params: &Value, root: &str) -> Result<DispatchBody, String> {
     ok(json!({"content": slice, "encoding": "utf-8"}))
 }
 
-fn write(params: &Value, root: &str) -> Result<DispatchBody, String> {
+fn write(params: &Value, root: &str, prefix: &str) -> Result<DispatchBody, String> {
     let raw = text(params, "path")?;
     let path = resolve_path(&raw, root)?;
     let overwrite = params.get("overwrite").and_then(Value::as_bool).unwrap_or(false);
@@ -204,10 +214,10 @@ fn write(params: &Value, root: &str) -> Result<DispatchBody, String> {
         fs::create_dir_all(parent).map_err(|error| error.to_string())?;
     }
     fs::write(&path, optional_text(params, "content").unwrap_or_default()).map_err(|error| error.to_string())?;
-    ok(json!({"path": display_path(&path, root)}))
+    ok(json!({"path": display_path(&path, root, prefix)}))
 }
 
-fn edit(params: &Value, root: &str) -> Result<DispatchBody, String> {
+fn edit(params: &Value, root: &str, prefix: &str) -> Result<DispatchBody, String> {
     let raw = text(params, "path")?;
     let path = resolve_path(&raw, root)?;
     if !path.is_file() {
@@ -229,12 +239,12 @@ fn edit(params: &Value, root: &str) -> Result<DispatchBody, String> {
     }
     let updated = if replace_all { content.replace(&old, &new) } else { content.replacen(&old, &new, 1) };
     fs::write(&path, updated).map_err(|error| error.to_string())?;
-    ok(json!({"path": display_path(&path, root), "occurrences": count}))
+    ok(json!({"path": display_path(&path, root, prefix), "occurrences": count}))
 }
 
-fn grep(params: &Value, root: &str) -> Result<DispatchBody, String> {
+fn grep(params: &Value, root: &str, prefix: &str) -> Result<DispatchBody, String> {
     let pattern = text(params, "pattern")?;
-    let raw = optional_text(params, "path").unwrap_or_else(|| WORKSPACE_ROOT.to_string());
+    let raw = optional_text(params, "path").unwrap_or_else(|| default_path(prefix));
     let base = resolve_path(&raw, root)?;
     let glob = optional_text(params, "glob");
     if !base.exists() {
@@ -246,7 +256,7 @@ fn grep(params: &Value, root: &str) -> Result<DispatchBody, String> {
         if !path.is_file() {
             return;
         }
-        let relative = display_path(path, root);
+        let relative = display_path(path, root, prefix);
         if let Some(filter) = &glob {
             let name = path.file_name().and_then(|item| item.to_str()).unwrap_or("");
             if !matches_glob(filter, name) && !matches_glob(filter, &relative) {
@@ -267,9 +277,9 @@ fn grep(params: &Value, root: &str) -> Result<DispatchBody, String> {
     ok(json!({"matches": matches}))
 }
 
-fn glob_files(params: &Value, root: &str) -> Result<DispatchBody, String> {
+fn glob_files(params: &Value, root: &str, prefix: &str) -> Result<DispatchBody, String> {
     let pattern = text(params, "pattern")?;
-    let raw = optional_text(params, "path").unwrap_or_else(|| WORKSPACE_ROOT.to_string());
+    let raw = optional_text(params, "path").unwrap_or_else(|| default_path(prefix));
     let base = resolve_path(&raw, root)?;
     if !base.is_dir() {
         return ok(json!({"matches": []}));
@@ -279,7 +289,7 @@ fn glob_files(params: &Value, root: &str) -> Result<DispatchBody, String> {
     visit(&base, &mut walked, &mut |path| {
         let relative = path.strip_prefix(&base).map(|item| item.to_string_lossy().replace('\\', "/")).unwrap_or_default();
         if matches_glob(&pattern, &relative) {
-            matches.push(file_entry(path, &display_path(path, root)));
+            matches.push(file_entry(path, &display_path(path, root, prefix)));
         }
     })?;
     ok(json!({"matches": matches}))
@@ -350,7 +360,7 @@ fn delete(params: &Value, root: &str) -> Result<DispatchBody, String> {
     ok(json!({"path": raw}))
 }
 
-fn move_path(params: &Value, root: &str) -> Result<DispatchBody, String> {
+fn move_path(params: &Value, root: &str, prefix: &str) -> Result<DispatchBody, String> {
     let from = resolve_path(&text(params, "fromPath")?, root)?;
     let to_raw = text(params, "toPath")?;
     let to = resolve_path(&to_raw, root)?;
@@ -361,7 +371,7 @@ fn move_path(params: &Value, root: &str) -> Result<DispatchBody, String> {
         fs::create_dir_all(parent).map_err(|error| error.to_string())?;
     }
     fs::rename(&from, &to).map_err(|error| error.to_string())?;
-    ok(json!({"path": display_path(&to, root)}))
+    ok(json!({"path": display_path(&to, root, prefix)}))
 }
 
 fn exists(params: &Value, root: &str) -> Result<DispatchBody, String> {
@@ -467,9 +477,9 @@ fn file_entry(path: &Path, display: &str) -> FileEntry {
     }
 }
 
-fn display_path(path: &Path, root: &str) -> String {
+fn display_path(path: &Path, root: &str, prefix: &str) -> String {
     path.strip_prefix(PathBuf::from(root))
-        .map(|relative| format!("{WORKSPACE_ROOT}/{}", relative.to_string_lossy().replace('\\', "/")))
+        .map(|relative| format!("{prefix}/{}", relative.to_string_lossy().replace('\\', "/")))
         .unwrap_or_else(|_| path.to_string_lossy().replace('\\', "/"))
 }
 

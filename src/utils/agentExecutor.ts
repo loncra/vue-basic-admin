@@ -21,7 +21,7 @@ export function registerAgentFilesystemExecutor(socketStore: SocketStore): void 
       const params = body?.data?.params ?? {}
       const scope = body?.data?.scope
       if (scope?.type === 'store') {
-        ack(await invoke('agent_fs', {operation, params, scope: 'store', roots: []}))
+        ack(await invoke('agent_fs', {operation, params, scope: 'store', base: scope.base ?? '', roots: []}))
         return
       }
       const workspaces = await listLocalWorkspaces()
