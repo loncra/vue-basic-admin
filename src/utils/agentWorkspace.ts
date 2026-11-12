@@ -16,19 +16,33 @@ import {isTauri} from '@/utils/common'
 import {getEnumValue} from '@loncra/client/commons'
 import i18n from '@/i18n'
 
-export interface LocalWorkspaceDto {
-  key: string
-  default: boolean
-  roots: string[]
-  createdAt: number
+const clientWorkspaceRecords: AgentConversationRecord[] = []
+
+let clientHomePromise: Promise<string> | null = null
+
+function resolveClientHome(): Promise<string> {
+  if (clientHomePromise === null) {
+    clientHomePromise = invoke<{clientHome: string}>('system_info').then(info => info.clientHome)
+  }
+  return clientHomePromise
 }
 
-export async function listLocalWorkspaces(): Promise<LocalWorkspaceDto[]> {
-  return invoke<LocalWorkspaceDto[]>('list_workspaces')
-}
-
-async function removeLocalWorkspace(key: string): Promise<void> {
-  await invoke('remove_workspace', {key})
+export async function resolveAgentWorkspaceRoots(
+  scope: {default?: boolean; key?: string} | undefined,
+): Promise<string[]> {
+  if (scope?.default) {
+    return [await resolveClientHome()]
+  }
+  const workspace = clientWorkspaceRecords.find(
+    item => (item.metadata as Record<string, unknown> | undefined)?.key === scope?.key,
+  )
+  const roots = (workspace?.metadata as Record<string, unknown> | undefined)?.[
+    AGENT_WORKSPACE_METADATA_ROOTS
+  ]
+  if (!Array.isArray(roots) || roots.length === 0) {
+    throw new Error('工作空间不存在或未配置目录')
+  }
+  return roots as string[]
 }
 
 async function pickLocalFolders(): Promise<string | null> {
@@ -57,7 +71,9 @@ async function loadConversations(): Promise<AgentConversationRecord[]> {
     AgentService.findConversation(),
     AgentService.findConversation({}, AI_SERVER_EXECUTION_CHANNEL.CLIENT),
   ])
-  return [...((local.data || []) as AgentConversationRecord[]), ...((server.data || []) as AgentConversationRecord[])]
+  const localRecords = (local.data || []) as AgentConversationRecord[]
+  clientWorkspaceRecords.splice(0, clientWorkspaceRecords.length, ...localRecords)
+  return [...localRecords, ...((server.data || []) as AgentConversationRecord[])]
 }
 
 function addLocalWorkspaceAction(refresh: () => Promise<void>): ResolvedAction {
@@ -73,7 +89,6 @@ function addLocalWorkspaceAction(refresh: () => Promise<void>): ResolvedAction {
       }
       const name = root.split(/[\\/]/).filter(Boolean).pop() ?? ''
       const key = crypto.randomUUID()
-      await invoke('add_workspace', {key, roots: [root]})
       const entity = {
         type: AI_SERVER_AGENT_CONVERSATION_TYPE.CUSTOMIZE_WORKSPACE,
         name,
@@ -116,10 +131,6 @@ export const agentConversationHost: Partial<AgentConversationHost> = {
       return isLocalWorkspaceItem(item)
     }
     await AgentService.deleteConversation([String(item.id)], AI_SERVER_EXECUTION_CHANNEL.CLIENT)
-    const key = (item.metadata as Record<string, unknown>).key
-    if (key) {
-      await removeLocalWorkspace(String(key))
-    }
     return true
   },
   workspaceActions: ({refresh}) => [addLocalWorkspaceAction(refresh)],

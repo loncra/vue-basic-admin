@@ -1,7 +1,7 @@
 import {invoke} from '@tauri-apps/api/core'
 import {SOCKET_EVENT_TYPE} from '@/constants'
 import {isTauri} from '@/utils/common'
-import {listLocalWorkspaces} from '@/utils/agentWorkspace'
+import {resolveAgentWorkspaceRoots} from '@/utils/agentWorkspace'
 import {useSocketStore} from '@/stores/socketStore'
 
 type SocketStore = ReturnType<typeof useSocketStore>
@@ -24,15 +24,8 @@ export function registerAgentFilesystemExecutor(socketStore: SocketStore): void 
         ack(await invoke('agent_fs', {operation, params, scope: 'store', base: scope.base ?? '', roots: []}))
         return
       }
-      const workspaces = await listLocalWorkspaces()
-      const workspace = scope?.default
-        ? workspaces.find(item => item.default)
-        : workspaces.find(item => item.key === scope?.key)
-      if (!workspace || workspace.roots.length === 0) {
-        ack({status: 500, executeCode: '500', message: '工作空间不存在或未配置目录', data: null})
-        return
-      }
-      ack(await invoke('agent_fs', {operation, params, scope: 'workspace', roots: workspace.roots}))
+      const roots = await resolveAgentWorkspaceRoots(scope)
+      ack(await invoke('agent_fs', {operation, params, scope: 'workspace', roots}))
     } catch (error) {
       ack({
         status: 500,

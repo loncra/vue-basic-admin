@@ -1,5 +1,4 @@
 mod agent_fs;
-mod workspace_store;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -20,10 +19,7 @@ pub fn run() {
       agent_fs::run_restricted_shell,
       agent_fs::agent_fs,
       agent_fs::system_info,
-      workspace_store::list_workspaces,
-      workspace_store::add_workspace,
-      workspace_store::remove_workspace,
-      workspace_store::device_fingerprint
+      agent_fs::device_fingerprint
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

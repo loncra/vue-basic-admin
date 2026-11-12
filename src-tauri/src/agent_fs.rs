@@ -103,6 +103,11 @@ pub fn system_info(app: AppHandle) -> Result<SystemInfo, String> {
 }
 
 #[tauri::command]
+pub fn device_fingerprint() -> Result<String, String> {
+    machine_uid::get().map_err(|error| error.to_string())
+}
+
+#[tauri::command]
 pub async fn run_restricted_shell(
     command: String,
     cwd: Option<String>,
@@ -139,6 +144,7 @@ fn resolve_roots(app: &AppHandle, scope: &str, base: &Option<String>, roots: &[S
             Some(value) if !value.is_empty() => home.join(value.replace('\\', "/")),
             _ => home,
         };
+        fs::create_dir_all(&mount).map_err(|error| format!("创建数据区目录失败: {error}"))?;
         return Ok(vec![mount.to_string_lossy().to_string()]);
     }
     if roots.is_empty() {
