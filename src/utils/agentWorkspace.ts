@@ -10,11 +10,16 @@ import {
   AI_SERVER_AGENT_CONVERSATION_TYPE,
   AI_SERVER_EXECUTION_CHANNEL,
 } from '@loncra/client/ai'
-import type {AgentConversationHost, AgentConversationRecord} from '@loncra/antdv-chat-pro'
+import {
+  type AgentConversationHost,
+  type AgentConversationRecord,
+  isDefaultWorkspace
+} from '@loncra/antdv-chat-pro'
 import type {ResolvedAction} from '@loncra/antdv-pro'
 import {isTauri} from '@/utils/common'
-import {getEnumValue} from '@loncra/client/commons'
 import i18n from '@/i18n'
+import {getEnumValue} from "@loncra/client";
+
 
 const clientWorkspaceRecords: AgentConversationRecord[] = []
 
@@ -51,16 +56,11 @@ async function pickLocalFolders(): Promise<string | null> {
 }
 
 function workspaceKind(item: AgentConversationRecord): string {
-  const kind = (item.metadata as Record<string, unknown> | undefined)?.[AGENT_WORKSPACE_METADATA_KIND]
-  return kind === AI_SERVER_EXECUTION_CHANNEL.CLIENT ? AI_SERVER_EXECUTION_CHANNEL.CLIENT : AI_SERVER_EXECUTION_CHANNEL.CLOUD
+  return (item.metadata as Record<string, unknown> | undefined)?.[AGENT_WORKSPACE_METADATA_KIND] as string
 }
 
-function isLocalWorkspaceItem(item: AgentConversationRecord): boolean {
+function isClientWorkspaceItem(item: AgentConversationRecord): boolean {
   return workspaceKind(item) === AI_SERVER_EXECUTION_CHANNEL.CLIENT
-}
-
-function isDefaultWorkspaceItem(item: AgentConversationRecord): boolean {
-  return getEnumValue(item.type) === AI_SERVER_AGENT_CONVERSATION_TYPE.DEFAULT_WORKSPACE
 }
 
 async function loadConversations(): Promise<AgentConversationRecord[]> {
@@ -108,30 +108,31 @@ function addLocalWorkspaceAction(refresh: () => Promise<void>): ResolvedAction {
 export const agentConversationHost: Partial<AgentConversationHost> = {
   conversationsLoader: loadConversations,
   displayName: (item) => {
-    if (!isDefaultWorkspaceItem(item)) {
+    if (!isDefaultWorkspace(getEnumValue(item.type))) {
       return undefined
     }
     const key = `agent.workspace.default.${workspaceKind(item)}`
     return i18n.global.te(key) ? i18n.global.t(key) : item.name
   },
   iconTone: (item) => {
-    if (!isLocalWorkspaceItem(item)) {
+    if (!isClientWorkspaceItem(item)) {
       return undefined
     }
-    return isDefaultWorkspaceItem(item) ? 'warning' : ''
+
+    return isDefaultWorkspace(getEnumValue(item.type)) ? 'warning' : ''
   },
   menuKeys: (item) => {
-    if (!isLocalWorkspaceItem(item)) {
+    if (!isClientWorkspaceItem(item)) {
       return undefined
     }
-    return isDefaultWorkspaceItem(item) ? ['create'] : ['create', 'delete']
+    return isDefaultWorkspace(getEnumValue(item.type)) ? ['create'] : ['create', 'delete']
   },
   onRemove: async (item) => {
-    if (!isLocalWorkspaceItem(item) || isDefaultWorkspaceItem(item)) {
-      return isLocalWorkspaceItem(item)
+    if (!isClientWorkspaceItem(item) || isDefaultWorkspace(getEnumValue(item.type))) {
+      return isClientWorkspaceItem(item)
     }
     await AgentService.deleteConversation([String(item.id)], AI_SERVER_EXECUTION_CHANNEL.CLIENT)
     return true
   },
-  workspaceActions: ({refresh}) => [addLocalWorkspaceAction(refresh)],
+  workspaceActions: ({refresh}) => isTauri() ? [addLocalWorkspaceAction(refresh)] : [],
 }
