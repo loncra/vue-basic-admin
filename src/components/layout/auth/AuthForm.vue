@@ -15,7 +15,12 @@ import {
 } from '@loncra/antdv-pro'
 import {type ComponentInternalInstance, computed, getCurrentInstance, onMounted, ref} from 'vue'
 import {BusinessError, type RestResult} from '@loncra/client/commons'
-import type {AuthCredentials, AuthenticationType, LoginType} from '@loncra/client/auth'
+import {
+  AUTH_SERVER_TERMINAL_TYPE,
+  type AuthCredentials,
+  type AuthenticationType,
+  type LoginType
+} from '@loncra/client/auth'
 import {AUTH_SERVER_AUTHENTICATION_TYPE, AUTH_SERVER_LOGIN_TYPE} from '@loncra/client/auth'
 import type {CaptchaGenerationResult, CaptchaToken} from '@loncra/client/resource'
 import {RESOURCE_SERVER_CAPTCHA_TOKEN_TYPE, ResourceServerService} from '@loncra/client/resource'
@@ -23,7 +28,7 @@ import {usePrincipalStore} from '@/stores/principalStore'
 import {useSocketStore} from '@/stores/socketStore'
 import {useBootstrapStore} from '@/stores/bootStore.ts'
 import {VALID_REGX} from '@/constants'
-import {requireNonNullOrUndefined, validatePassword} from '@/utils'
+import {isTauri, requireNonNullOrUndefined, validatePassword} from '@/utils'
 import useApp from "antdv-next/dist/app/useApp";
 
 defineOptions({
@@ -99,6 +104,7 @@ const authForm = ref<AuthCredentials>({
   username: '',
   password: '',
   loginType: AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD,
+  terminal: AUTH_SERVER_TERMINAL_TYPE.BROWSER
 })
 
 const captchaSendButtonRef = ref<{trigger: () => void}>()
@@ -142,6 +148,9 @@ const doAuth = async (): Promise<void> => {
     authForm.value.loginType = AUTH_SERVER_LOGIN_TYPE.USERNAME_PASSWORD_REGISTER
   }
   try {
+    if (isTauri()) {
+      authForm.value.terminal = AUTH_SERVER_TERMINAL_TYPE.CLIENT
+    }
     const data = await principalStore.login(authForm.value, authenticationType.value)
 
     if (!data.authenticated) {
