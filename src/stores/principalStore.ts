@@ -13,7 +13,7 @@ import {
   EnterpriseService
 } from '@loncra/client/auth'
 import type {UserPluginInstallResult} from '@loncra/client/ai'
-import {AiUserPluginInstallService} from '@loncra/client/ai'
+import {AgentHubService} from '@loncra/client/ai'
 import type {RestResult} from '@loncra/client/commons'
 import {getEnumValue} from '@loncra/client/commons'
 import type {ObjectWriteResult} from '@loncra/client/resource'
@@ -192,7 +192,7 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   }
 
   async function loadPluginInstalls(): Promise<void> {
-    const result: RestResult<UserPluginInstallResult[]> = await AiUserPluginInstallService.my()
+    const result: RestResult<UserPluginInstallResult[]> = await AgentHubService.my()
     pluginInstalls.value = result.data || []
   }
 
