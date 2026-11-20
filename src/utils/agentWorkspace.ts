@@ -63,7 +63,7 @@ function isClientWorkspaceItem(item: AgentConversationRecord): boolean {
   return workspaceKind(item) === AI_SERVER_EXECUTION_CHANNEL.CLIENT
 }
 
-async function loadConversations(): Promise<AgentConversationRecord[]> {
+/*async function loadConversations(): Promise<AgentConversationRecord[]> {
   if (!isTauri()) {
     return ((await AgentService.findConversation()).data || []) as AgentConversationRecord[]
   }
@@ -74,7 +74,7 @@ async function loadConversations(): Promise<AgentConversationRecord[]> {
   const localRecords = (local.data || []) as AgentConversationRecord[]
   clientWorkspaceRecords.splice(0, clientWorkspaceRecords.length, ...localRecords)
   return [...localRecords, ...((server.data || []) as AgentConversationRecord[])]
-}
+}*/
 
 function addLocalWorkspaceAction(refresh: () => Promise<void>): ResolvedAction {
   return {
@@ -106,7 +106,7 @@ function addLocalWorkspaceAction(refresh: () => Promise<void>): ResolvedAction {
 }
 
 export const agentConversationHost: Partial<AgentConversationHost> = {
-  conversationsLoader: loadConversations,
+  /*conversationsLoader: loadConversations,*/
   displayName: (item) => {
     if (!isDefaultWorkspace(getEnumValue(item.type))) {
       return undefined

@@ -12,7 +12,7 @@ import {
   AuthServerService,
   EnterpriseService
 } from '@loncra/client/auth'
-import type {UserPluginInstallResult} from '@loncra/client/ai'
+import type {UserPluginInstallResult, UserPluginMetadata} from '@loncra/client/ai'
 import {AgentHubService} from '@loncra/client/ai'
 import type {RestResult} from '@loncra/client/commons'
 import {getEnumValue} from '@loncra/client/commons'
@@ -197,13 +197,13 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
   }
 
   function upsertPluginInstall(result: UserPluginInstallResult): void {
-    if (result.packageId == null) {
+    if (result.pluginPackage.id == null) {
       return
     }
     const targetType = getEnumValue(result.targetType)
     const index = pluginInstalls.value.findIndex(
       (item) =>
-        getEnumValue(item.targetType) === targetType && item.packageId === result.packageId,
+        getEnumValue(item.targetType) === targetType && item.pluginPackage.id === result.pluginPackage.id,
     )
     if (index >= 0) {
       pluginInstalls.value.splice(index, 1, result)
@@ -212,8 +212,11 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     pluginInstalls.value = [result, ...pluginInstalls.value]
   }
 
-  function removePluginInstall(id: number): void {
-    pluginInstalls.value = pluginInstalls.value.filter((item) => item.id !== id)
+  function removePluginInstall(uninstall: UserPluginMetadata): void {
+    const targetType = getEnumValue(uninstall.targetType)
+    pluginInstalls.value = pluginInstalls.value.filter(
+      (item) => !(getEnumValue(item.targetType) === targetType && item.pluginPackage.id === uninstall.packageId),
+    )
   }
 
   const isAuthenticated = computed(() => state.value.authenticated)
