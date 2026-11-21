@@ -28,6 +28,7 @@ export const skillPackageDetailPage = defineDetailPage(skillPackageCore, {
     type: 0,
     icon: '',
     defaultUpdatePolicy: 0,
+    latestVersion: '',
     sourceType: 0,
     metadata: {
       source: {type: AI_SERVER_SKILL_SOURCE_TYPE.MANUAL} as ManualSkillSourceMetadata,
