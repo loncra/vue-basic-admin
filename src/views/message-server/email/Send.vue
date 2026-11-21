@@ -3,7 +3,7 @@ import {getCurrentInstance} from 'vue'
 import type {RestResult} from '@loncra/client/commons'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import {MESSAGE_SERVER_EMAIL_ROUTE} from '@/constants'
-import {navigateAfterMessageSend} from './navigateAfterMessageSend.ts'
+import {navigateAfterMessageSend} from '../navigateAfterMessageSend.ts'
 import {emailSendFormPage} from './email.send.page'
 
 defineOptions({

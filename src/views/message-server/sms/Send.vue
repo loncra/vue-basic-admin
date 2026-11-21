@@ -7,7 +7,7 @@ import {CrudFormPage, type CrudFormPageExpose, type SearchableColumnType,} from 
 import {computed, getCurrentInstance, onMounted, ref, watch} from 'vue'
 import i18n from '@/i18n'
 import {MESSAGE_SERVER_SMS_ROUTE} from '@/constants'
-import {navigateAfterMessageSend} from './navigateAfterMessageSend.ts'
+import {navigateAfterMessageSend} from '../navigateAfterMessageSend.ts'
 import {type SmsSendForm, smsSendFormPage} from './sms.send.page'
 
 defineOptions({

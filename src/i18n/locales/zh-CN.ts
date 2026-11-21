@@ -633,27 +633,8 @@ const locale: LanguagePack = {
   },
   agent: {
     hub:{
-      mcp:'MCP 插件',
-      skill:'技能插件',
-      myPlugin:'我的插件',
       changelog:{
         text:'更新日志',
-      },
-      install:'安装',
-      installTitle:'安装 {name}',
-      uninstall:{
-        text:'卸载',
-        confirmTitle:'卸载确认',
-        confirmSingle:'确定要卸载 {name} 吗？',
-      },
-      workspaceScope:{
-        text:'生效范围',
-        all:'全部工作空间',
-        specific:'指定工作空间',
-      },
-      workspace:{
-        required:'指定工作空间时至少选择一个工作空间',
-        empty:'暂无工作空间',
       },
     },
     workspace:{

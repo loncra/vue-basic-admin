@@ -20,7 +20,12 @@ onMounted(() => {
   <div class="h-full min-h-120">
     <agent-chat
       :installs="principalStore.pluginInstalls"
-      :self="{...principalStore.state.details.metadata, systemName: principalStore.state.name}"
+      :self="{
+        ...principalStore.state.details.metadata,
+        systemName: principalStore.state.name,
+        type: principalStore.state.type,
+        authorities: principalStore.state.grantedAuthorities,
+      }"
       :build-headers="buildAuthHeaders"
       :conversation-host="agentConversationHost"
       @installed="principalStore.upsertPluginInstall"

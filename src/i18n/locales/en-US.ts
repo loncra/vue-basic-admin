@@ -642,27 +642,8 @@ const locale: LanguagePack = {
   },
   agent: {
     hub: {
-      mcp: 'MCP plugins',
-      skill: 'Skill plugins',
-      myPlugin: 'My plugins',
       changelog: {
         text: 'Changelog',
-      },
-      install: 'Install',
-      installTitle: 'Install {name}',
-      uninstall: {
-        text: 'Uninstall',
-        confirmTitle: 'Confirm uninstall',
-        confirmSingle: 'Are you sure you want to uninstall {name}?',
-      },
-      workspaceScope: {
-        text: 'Scope',
-        all: 'All workspaces',
-        specific: 'Selected workspaces',
-      },
-      workspace: {
-        required: 'Select at least one workspace',
-        empty: 'No workspace yet',
       },
     },
     workspace: {

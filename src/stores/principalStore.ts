@@ -203,7 +203,9 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     const targetType = getEnumValue(result.targetType)
     const index = pluginInstalls.value.findIndex(
       (item) =>
-        getEnumValue(item.targetType) === targetType && item.pluginPackage.id === result.pluginPackage.id,
+        getEnumValue(item.targetType) === targetType
+        && item.pluginPackage.id === result.pluginPackage.id
+        && item.workspace?.id === result.workspace?.id,
     )
     if (index >= 0) {
       pluginInstalls.value.splice(index, 1, result)
@@ -214,9 +216,16 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
 
   function removePluginInstall(uninstall: UserPluginMetadata): void {
     const targetType = getEnumValue(uninstall.targetType)
-    pluginInstalls.value = pluginInstalls.value.filter(
-      (item) => !(getEnumValue(item.targetType) === targetType && item.pluginPackage.id === uninstall.packageId),
-    )
+    const workspaces = uninstall.workspaces ?? []
+    pluginInstalls.value = pluginInstalls.value.filter((item) => {
+      if (getEnumValue(item.targetType) !== targetType || item.pluginPackage.id !== uninstall.packageId) {
+        return true
+      }
+      if (workspaces.length === 0) {
+        return false
+      }
+      return !workspaces.some((workspace) => item.workspace?.id === workspace.id)
+    })
   }
 
   const isAuthenticated = computed(() => state.value.authenticated)

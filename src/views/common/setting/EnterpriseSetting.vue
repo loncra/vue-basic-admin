@@ -240,11 +240,6 @@ async function doLeave(id:number) {
     </a-spin>
   </a-flex>
 
-  <!--
-    新增 / 编辑弹层：字段与必填、图标选择器、文本域、操作轨迹**全在声明里**
-    （`enterprise-setting.form.page.ts`）—— 这里只递"给谁改"（`:id`）与标题。
-    旧版的 `<teleport to="body">` 不再需要：`a-modal` 自己就挂到 body。
-  -->
   <crud-form-modal
     v-model:open="options.modal.open"
     :page="enterpriseSettingFormPage"
