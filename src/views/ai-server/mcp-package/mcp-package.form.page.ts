@@ -1,16 +1,22 @@
 import {h, ref} from 'vue'
 import {InputNumber, Select, SpaceCompact} from 'antdv-next'
-import type {NameValueEnumMetadata} from '@loncra/client/commons'
 import {
+  type DataDictionaryMetadata,
+  getEnumValue,
+  type IdNameMetadata,
+  type NameValueEnumMetadata,
   SYSTEM_ENUM_TYPE,
   SYSTEM_MODULE_NAME,
   TIME_UNIT_TYPE,
   YES_OR_NO_TYPE
 } from '@loncra/client/commons'
-import type {DataDictionaryMetadata} from '@loncra/client/resource'
 import {
+  AI_SERVER_API_KEY_MODE,
+  AI_SERVER_MCP_CLIENT_AUTH_FIELD,
   AI_SERVER_MCP_CLIENT_TYPE,
+  MCP_CLIENT_HTTP_MANUAL_AUTH_VALUE,
   MCP_CLIENT_HTTP_TYPE_VALUE,
+  MCP_CLIENT_STDIO_MANUAL_AUTH_VALUE,
   MCP_GROUP_CODE_PREFIX,
   type McpPackageEntity as ClientMcpPackageEntity,
   type McpPackageSavePayload,
@@ -23,12 +29,16 @@ import {iconFontRender} from '@/icons/iconFont'
 import type {IconfontJson, KeyValueRow} from '@loncra/antdv'
 import {ICON_SELECT_MODE} from '@loncra/antdv'
 import {mcpPackageCore} from './mcp-package.page'
+import i18n from "@/i18n";
 
 export interface McpPackageEntity extends ClientMcpPackageEntity {
   headerDataSource?: KeyValueRow[]
   queryParamDataSource?: KeyValueRow[]
   envDataSource?: KeyValueRow[]
-  manualAuthDataSource?: KeyValueRow[]
+  manualAuth:{
+    dataSource: KeyValueRow[],
+    segmentedOptions:IdNameMetadata[]
+  },
 }
 
 export type McpPackageEntityWithSources = McpPackageEntity
@@ -100,15 +110,74 @@ function createEmptyEntity(): McpPackageEntityWithSources {
       } as StreamableHttpMcpClientTransportMetadata,
       clarifyPolicies: [],
       authConfig: {
-        position: 'header',
+        position: AI_SERVER_MCP_CLIENT_AUTH_FIELD.HEADERS,
         items: [],
       },
     },
     envDataSource: [],
     headerDataSource: [],
     queryParamDataSource: [],
-    manualAuthDataSource: [],
+    manualAuth: {
+      dataSource:[],
+      segmentedOptions:[]
+    },
   }
+}
+
+function resetManualAutoData(entity:McpPackageEntity) {
+  if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(entity.metadata.client.type)) {
+
+    entity.metadata.authConfig??= {position: AI_SERVER_MCP_CLIENT_AUTH_FIELD.HEADERS, items: []}
+
+    if (!MCP_CLIENT_HTTP_MANUAL_AUTH_VALUE.includes(entity.metadata.authConfig.position)) {
+      entity.metadata.authConfig.position = AI_SERVER_MCP_CLIENT_AUTH_FIELD.HEADERS
+    }
+
+    entity.manualAuth = {
+      dataSource: entity.manualAuth?.dataSource || [],
+      segmentedOptions: [
+        {id: AI_SERVER_MCP_CLIENT_AUTH_FIELD.HEADERS, name: i18n.global.t('aiServer.mcpPackage.headers')},
+        {id: AI_SERVER_MCP_CLIENT_AUTH_FIELD.QUERY_PARAMS, name: i18n.global.t('aiServer.mcpPackage.queryParams')},
+      ],
+    }
+  } else  {
+
+    entity.metadata.authConfig??= {position: AI_SERVER_MCP_CLIENT_AUTH_FIELD.ENV, items: []}
+
+    if (!MCP_CLIENT_STDIO_MANUAL_AUTH_VALUE.includes(entity.metadata.authConfig.position)) {
+      entity.metadata.authConfig.position = AI_SERVER_MCP_CLIENT_AUTH_FIELD.ENV
+    }
+
+    entity.manualAuth = {
+      dataSource: entity.manualAuth?.dataSource || [],
+      segmentedOptions: [
+        {id: AI_SERVER_MCP_CLIENT_AUTH_FIELD.ENV, name: i18n.global.t('aiServer.mcpPackage.env')},
+        {id: AI_SERVER_MCP_CLIENT_AUTH_FIELD.ARGS, name: i18n.global.t('aiServer.mcpPackage.args')},
+      ],
+    }
+  }
+}
+
+function onAuthModeChange(entity:McpPackageEntityWithSources, value:number) {
+  if (value !== AI_SERVER_API_KEY_MODE.MANUAL) {
+    return
+  }
+  resetManualAutoData(entity)
+}
+
+export function hydrateManualAuth(record: McpPackageEntityWithSources): void {
+  resetManualAutoData(record)
+  record.manualAuth.dataSource = (record.metadata.authConfig?.items ?? []).map((item) => ({
+    id: crypto.randomUUID(),
+    key: item.key,
+    placeholder: item.placeholder,
+    editing: false,
+  }))
+}
+
+export function onHttpClientTypeChange(value:string, entity: McpPackageEntityWithSources) {
+  entity.metadata.client.type = value
+  hydrateManualAuth(entity)
 }
 
 export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
@@ -151,8 +220,19 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
           },
         }),
     },
-    {key: 'authMode', component: 'select', rules: [{required: true}]},
-    {key: 'origin', component: 'select', rules: [{required: true}], afterSlot: 'afterOrigin'},
+    {key: 'origin', component: 'select', rules: [{required: true}]},
+    {
+      key: 'authMode',
+      component: 'select',
+      rules: [{required: true}],
+      afterSlot: 'afterAuthMode',
+      props: (ctx) => ({
+        onChange: (value: number) => {
+          const record = ctx.entity as McpPackageEntityWithSources
+          onAuthModeChange(record, value)
+        }
+      }),
+    },
     {
       key: 'tags',
       component: 'select',
@@ -214,13 +294,9 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
   },
   postGetEntity: (entity) => {
     const record = entity as McpPackageEntityWithSources
-    record.metadata.authConfig ??= {position: 'header', items: []}
-    record.manualAuthDataSource = (record.metadata.authConfig.items ?? []).map((item) => ({
-      id: crypto.randomUUID(),
-      key: item.key,
-      placeholder: item.placeholder,
-      editing: false,
-    }))
+    if (getEnumValue(record.authMode) === AI_SERVER_API_KEY_MODE.MANUAL) {
+      hydrateManualAuth(record)
+    }
     return hydrateMcpClientDataSources(record)
   },
   preSubmit: (ctx) => {
@@ -228,11 +304,14 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
     confirm?.()
     const entity = ctx.entity.value as McpPackageEntityWithSources
     const client = entity.metadata.client
-    entity.metadata.authConfig ??= {position: 'header', items: []}
-    entity.metadata.authConfig.items = (entity.manualAuthDataSource ?? []).map((row) => ({
-      key: row.key,
-      placeholder: String(row.placeholder ?? ''),
-    }))
+    resetManualAutoData(entity)
+    if (entity.metadata.authConfig) {
+      entity.metadata.authConfig.items = (entity.manualAuth?.dataSource ?? []).map((row) => ({
+        key: row.key,
+        placeholder: String(row.placeholder ?? ''),
+      }))
+    }
+
     if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(client.type)) {
       const http = client as SseMcpClientTransportMetadata
       http.headers = Object.fromEntries(

@@ -1,7 +1,12 @@
-import {AI_SERVER_MCP_CLIENT_TYPE, type McpPackageEntity,} from '@loncra/client/ai'
-import {getEnumName, TIME_UNIT_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
+import {
+  AI_SERVER_API_KEY_MODE,
+  AI_SERVER_MCP_CLIENT_TYPE,
+  type McpPackageEntity,
+} from '@loncra/client/ai'
+import {getEnumName, getEnumValue, TIME_UNIT_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineDetailPage} from '@loncra/antdv-pro'
 import {
+  hydrateManualAuth,
   hydrateMcpClientDataSources,
   type McpPackageEntityWithSources
 } from './mcp-package.form.page'
@@ -55,12 +60,9 @@ export const mcpPackageDetailPage = defineDetailPage(mcpPackageCore, {
   ],
   postGetEntity: (entity) => {
     const record = hydrateMcpClientDataSources(entity as McpPackageEntityWithSources)
-    record.manualAuthDataSource = (record.metadata.authConfig?.items ?? []).map((item) => ({
-      id: crypto.randomUUID(),
-      key: item.key,
-      placeholder: item.placeholder,
-      editing: false,
-    }))
+    if (getEnumValue(record.authMode) === AI_SERVER_API_KEY_MODE.MANUAL) {
+      hydrateManualAuth(record)
+    }
     return record
   },
 })

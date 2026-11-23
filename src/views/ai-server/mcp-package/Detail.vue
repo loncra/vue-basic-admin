@@ -47,43 +47,6 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
   >
     <template #afterDescriptions="{entity}">
 
-      <template
-        v-if="getEnumValue(entity.authMode) === AI_SERVER_API_KEY_MODE.MANUAL && entity.metadata.authConfig"
-
-      >
-        <a-divider title-placement="start" plain>
-          <a-space>
-            <icon-font class="icon align" type="loncra-key" />
-            {{ $t('aiServer.mcpPackage.auth') }}
-            <a-flex class="shrink-0">
-              <a-segmented
-                :value="entity.metadata.authConfig.position"
-                :options="[
-                  {value: 'header', label: $t('aiServer.mcpPackage.headers'), disabled: entity.metadata.authConfig.position !== 'header'},
-                  {value: 'param', label: $t('aiServer.mcpPackage.queryParams'), disabled: entity.metadata.authConfig.position !== 'param'},
-                ]"
-              />
-            </a-flex>
-          </a-space>
-        </a-divider>
-        <key-value-table
-          :addable="false"
-          :columns="{
-            key: {readonly: true},
-            value: {title: $t('common.authPlaceholder'), field: 'placeholder', readonly: true},
-          }"
-          :title="$t('aiServer.mcpPackage.authRequestContent')"
-          v-model:value="mcpSources(entity).manualAuthDataSource"
-        >
-          <template #title="{title}">
-            <a-space>
-              <icon-font class="icon align" type="loncra-form" />
-              {{ title }}
-            </a-space>
-          </template>
-        </key-value-table>
-      </template>
-
       <a-divider titlePlacement="start" plain>
         <a-space>
           <icon-font class="icon align" type="loncra-sliders-horizontal" />
@@ -148,6 +111,46 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
             </key-value-table>
           </a-col>
         </a-row>
+      </template>
+
+
+
+      <template
+        v-if="getEnumValue(entity.authMode) === AI_SERVER_API_KEY_MODE.MANUAL && entity.metadata.authConfig"
+
+      >
+        <a-divider title-placement="start" plain>
+          <a-space>
+            <icon-font class="icon align" type="loncra-key" />
+            {{ $t('aiServer.mcpPackage.auth') }}
+            <a-flex class="shrink-0">
+              <a-segmented
+                :value="entity.metadata.authConfig.position"
+                :options="mcpSources(entity).manualAuth.segmentedOptions.map((v) => ({
+                  value: v.id,
+                  label: v.name,
+                  disabled: entity.metadata.authConfig?.position !== v.id,
+                }))"
+              />
+            </a-flex>
+          </a-space>
+        </a-divider>
+        <key-value-table
+          :addable="false"
+          :columns="{
+            key: {readonly: true},
+            value: {title: $t('common.authPlaceholder'), field: 'placeholder', readonly: true},
+          }"
+          :title="$t('aiServer.mcpPackage.authRequestContent')"
+          v-model:value="mcpSources(entity).manualAuth.dataSource"
+        >
+          <template #title="{title}">
+            <a-space>
+              <icon-font class="icon align" type="loncra-form" />
+              {{ title }}
+            </a-space>
+          </template>
+        </key-value-table>
       </template>
 
       <template v-else>
