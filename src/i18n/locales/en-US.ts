@@ -22,6 +22,7 @@ const locale: LanguagePack = {
   },
   common: {
     id: 'ID',
+    authPlaceholder: 'Hint',
     setting: 'Settings',
     me: 'Me',
     noMore: 'No more data available',

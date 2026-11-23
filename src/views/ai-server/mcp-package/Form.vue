@@ -49,7 +49,7 @@ function confirmKeyValueTables() {
 function onAuthChange(_item: KeyValueRow, data: KeyValueRow[]): void {
   const entity = formRef.value?.entity
   if (entity?.metadata.authConfig) {
-    entity.metadata.authConfig.items = data.map((row) => ({key: row.key, value: row.value as string}))
+    entity.metadata.authConfig.items = data.map((row) => ({key: row.key, placeholder: String(row.placeholder ?? '')}))
   }
 }
 
@@ -283,6 +283,7 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
             ref="authTableRef"
             :form-item-name-prefix="['manualAuthDataSource']"
             :title="$t('aiServer.mcpPackage.authRequestContent')"
+            :columns="{value: {title: $t('common.authPlaceholder'), field: 'placeholder', rules: null}}"
             v-model:value="(entity as McpPackageEntityWithSources).manualAuthDataSource"
             @change="onAuthChange"
           >

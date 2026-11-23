@@ -5,10 +5,10 @@ import type {
   SseMcpClientTransportMetadata,
   StdioMcpClientTransportMetadata,
 } from '@loncra/client/ai'
-import {MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
+import {AI_SERVER_API_KEY_MODE, MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
 import {KeyValueTable} from '@loncra/antdv'
 import {CrudDetailPage} from '@loncra/antdv-pro'
-import {getEnumName} from '@loncra/client/commons'
+import {getEnumName, getEnumValue} from '@loncra/client/commons'
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {usePageExit} from '@/composables/usePageExit'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
@@ -46,6 +46,44 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
     @stale="onStale"
   >
     <template #afterDescriptions="{entity}">
+
+      <template
+        v-if="getEnumValue(entity.authMode) === AI_SERVER_API_KEY_MODE.MANUAL && entity.metadata.authConfig"
+
+      >
+        <a-divider title-placement="start" plain>
+          <a-space>
+            <icon-font class="icon align" type="loncra-key" />
+            {{ $t('aiServer.mcpPackage.auth') }}
+            <a-flex class="shrink-0">
+              <a-segmented
+                :value="entity.metadata.authConfig.position"
+                :options="[
+                  {value: 'header', label: $t('aiServer.mcpPackage.headers'), disabled: entity.metadata.authConfig.position !== 'header'},
+                  {value: 'param', label: $t('aiServer.mcpPackage.queryParams'), disabled: entity.metadata.authConfig.position !== 'param'},
+                ]"
+              />
+            </a-flex>
+          </a-space>
+        </a-divider>
+        <key-value-table
+          :addable="false"
+          :columns="{
+            key: {readonly: true},
+            value: {title: $t('common.authPlaceholder'), field: 'placeholder', readonly: true},
+          }"
+          :title="$t('aiServer.mcpPackage.authRequestContent')"
+          v-model:value="mcpSources(entity).manualAuthDataSource"
+        >
+          <template #title="{title}">
+            <a-space>
+              <icon-font class="icon align" type="loncra-form" />
+              {{ title }}
+            </a-space>
+          </template>
+        </key-value-table>
+      </template>
+
       <a-divider titlePlacement="start" plain>
         <a-space>
           <icon-font class="icon align" type="loncra-sliders-horizontal" />
@@ -53,7 +91,6 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
           {{ entity.metadata.client.type }}
         </a-space>
       </a-divider>
-
       <template v-if="MCP_CLIENT_HTTP_TYPE_VALUE.includes(entity.metadata.client.type)">
         <a-descriptions
           class="mb-lg"
@@ -82,7 +119,8 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
         <a-row :gutter="[configProviderStore.getToken().sizeMD]">
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <key-value-table
-              :edit="false"
+              :addable="false"
+              :columns="{key: {readonly: true}, value: {readonly: true}}"
               :title="$t('aiServer.mcpPackage.headers')"
               v-model:value="mcpSources(entity).headerDataSource"
             >
@@ -96,7 +134,8 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
           </a-col>
           <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
             <key-value-table
-              :edit="false"
+              :addable="false"
+              :columns="{key: {readonly: true}, value: {readonly: true}}"
               :title="$t('aiServer.mcpPackage.queryParams')"
               v-model:value="mcpSources(entity).queryParamDataSource"
             >
@@ -131,7 +170,8 @@ function mcpSources(entity: unknown): McpPackageEntityWithSources {
           </a-descriptions-item>
         </a-descriptions>
         <key-value-table
-          :edit="false"
+          :addable="false"
+          :columns="{key: {readonly: true}, value: {readonly: true}}"
           :title="$t('aiServer.mcpPackage.env')"
           v-model:value="mcpSources(entity).envDataSource"
         >

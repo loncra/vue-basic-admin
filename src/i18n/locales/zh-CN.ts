@@ -22,6 +22,7 @@ const locale: LanguagePack = {
   },
   common: {
     id: '主键',
+    authPlaceholder:'提示语',
     setting:'设置',
     me: '我',
     noMore:'没有更多的数据了',

@@ -54,6 +54,13 @@ export const mcpPackageDetailPage = defineDetailPage(mcpPackageCore, {
     {key: 'additionalInformation', span: 'filled'},
   ],
   postGetEntity: (entity) => {
-    return hydrateMcpClientDataSources(entity as McpPackageEntityWithSources)
+    const record = hydrateMcpClientDataSources(entity as McpPackageEntityWithSources)
+    record.manualAuthDataSource = (record.metadata.authConfig?.items ?? []).map((item) => ({
+      id: crypto.randomUUID(),
+      key: item.key,
+      placeholder: item.placeholder,
+      editing: false,
+    }))
+    return record
   },
 })

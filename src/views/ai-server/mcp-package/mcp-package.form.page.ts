@@ -218,7 +218,7 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
     record.manualAuthDataSource = (record.metadata.authConfig.items ?? []).map((item) => ({
       id: crypto.randomUUID(),
       key: item.key,
-      value: item.value,
+      placeholder: item.placeholder,
       editing: false,
     }))
     return hydrateMcpClientDataSources(record)
@@ -231,7 +231,7 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
     entity.metadata.authConfig ??= {position: 'header', items: []}
     entity.metadata.authConfig.items = (entity.manualAuthDataSource ?? []).map((row) => ({
       key: row.key,
-      value: String(row.value),
+      placeholder: String(row.placeholder ?? ''),
     }))
     if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(client.type)) {
       const http = client as SseMcpClientTransportMetadata
