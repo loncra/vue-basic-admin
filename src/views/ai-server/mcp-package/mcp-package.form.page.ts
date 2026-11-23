@@ -28,9 +28,38 @@ export interface McpPackageEntity extends ClientMcpPackageEntity {
   headerDataSource?: KeyValueRow[]
   queryParamDataSource?: KeyValueRow[]
   envDataSource?: KeyValueRow[]
+  manualAuthDataSource?: KeyValueRow[]
 }
 
 export type McpPackageEntityWithSources = McpPackageEntity
+
+export function hydrateMcpClientDataSources(record: McpPackageEntityWithSources): McpPackageEntityWithSources {
+  const client = record.metadata.client
+  if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(client.type)) {
+    const http = client as SseMcpClientTransportMetadata
+    record.headerDataSource = Object.entries(http.headers || {}).map(([key, value]) => ({
+      id: crypto.randomUUID(),
+      key,
+      value: value as string[],
+      editing: false,
+    }))
+    record.queryParamDataSource = Object.entries(http.queryParams || {}).map(([key, value]) => ({
+      id: crypto.randomUUID(),
+      key,
+      value: value as string[],
+      editing: false,
+    }))
+  } else if (client.type === AI_SERVER_MCP_CLIENT_TYPE.STDIO) {
+    const stdio = client as StdioMcpClientTransportMetadata
+    record.envDataSource = Object.entries(stdio.env || {}).map(([key, value]) => ({
+      id: crypto.randomUUID(),
+      key,
+      value: String(value),
+      editing: false,
+    }))
+  }
+  return record
+}
 
 const ICON_FONTS = ['/font_ai_icon/iconfont.json']
 const iconOptions = ref<IconfontJson[]>([])
@@ -70,10 +99,15 @@ function createEmptyEntity(): McpPackageEntityWithSources {
         resumableStreams: 0,
       } as StreamableHttpMcpClientTransportMetadata,
       clarifyPolicies: [],
+      authConfig: {
+        position: 'header',
+        items: [],
+      },
     },
     envDataSource: [],
     headerDataSource: [],
     queryParamDataSource: [],
+    manualAuthDataSource: [],
   }
 }
 
@@ -118,7 +152,7 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
         }),
     },
     {key: 'authMode', component: 'select', rules: [{required: true}]},
-    {key: 'origin', component: 'select', rules: [{required: true}]},
+    {key: 'origin', component: 'select', rules: [{required: true}], afterSlot: 'afterOrigin'},
     {
       key: 'tags',
       component: 'select',
@@ -180,37 +214,25 @@ export const mcpPackageFormPage = defineFormPage(mcpPackageCore, {
   },
   postGetEntity: (entity) => {
     const record = entity as McpPackageEntityWithSources
-    const client = record.metadata.client
-    if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(client.type)) {
-      const http = client as SseMcpClientTransportMetadata
-      record.headerDataSource = Object.entries(http.headers || {}).map(([key, value]) => ({
-        id: crypto.randomUUID(),
-        key,
-        value: value as string[],
-        editing: false,
-      }))
-      record.queryParamDataSource = Object.entries(http.queryParams || {}).map(([key, value]) => ({
-        id: crypto.randomUUID(),
-        key,
-        value: value as string[],
-        editing: false,
-      }))
-    } else if (client.type === AI_SERVER_MCP_CLIENT_TYPE.STDIO) {
-      const stdio = client as StdioMcpClientTransportMetadata
-      record.envDataSource = Object.entries(stdio.env || {}).map(([key, value]) => ({
-        id: crypto.randomUUID(),
-        key,
-        value: String(value),
-        editing: false,
-      }))
-    }
-    return record
+    record.metadata.authConfig ??= {position: 'header', items: []}
+    record.manualAuthDataSource = (record.metadata.authConfig.items ?? []).map((item) => ({
+      id: crypto.randomUUID(),
+      key: item.key,
+      value: item.value,
+      editing: false,
+    }))
+    return hydrateMcpClientDataSources(record)
   },
   preSubmit: (ctx) => {
     const confirm = ctx.extra.confirmKeyValueTables as (() => void) | undefined
     confirm?.()
     const entity = ctx.entity.value as McpPackageEntityWithSources
     const client = entity.metadata.client
+    entity.metadata.authConfig ??= {position: 'header', items: []}
+    entity.metadata.authConfig.items = (entity.manualAuthDataSource ?? []).map((row) => ({
+      key: row.key,
+      value: String(row.value),
+    }))
     if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(client.type)) {
       const http = client as SseMcpClientTransportMetadata
       http.headers = Object.fromEntries(

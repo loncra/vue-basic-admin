@@ -1,13 +1,10 @@
-import {
-  AI_SERVER_MCP_CLIENT_TYPE,
-  MCP_CLIENT_HTTP_TYPE_VALUE,
-  type McpPackageEntity,
-  type SseMcpClientTransportMetadata,
-  type StdioMcpClientTransportMetadata,
-} from '@loncra/client/ai'
+import {AI_SERVER_MCP_CLIENT_TYPE, type McpPackageEntity,} from '@loncra/client/ai'
 import {getEnumName, TIME_UNIT_TYPE, YES_OR_NO_TYPE} from '@loncra/client/commons'
 import {defineDetailPage} from '@loncra/antdv-pro'
-import type {McpPackageEntity as McpPackageEntityWithSources} from './mcp-package.form.page'
+import {
+  hydrateMcpClientDataSources,
+  type McpPackageEntityWithSources
+} from './mcp-package.form.page'
 import {mcpPackageCore} from './mcp-package.page'
 
 const COLUMN = {xxxl: 3, xxl: 3, xl: 3, lg: 3, md: 1, sm: 1, xs: 1}
@@ -57,31 +54,6 @@ export const mcpPackageDetailPage = defineDetailPage(mcpPackageCore, {
     {key: 'additionalInformation', span: 'filled'},
   ],
   postGetEntity: (entity) => {
-    const record = entity as McpPackageEntityWithSources
-    const client = record.metadata.client
-    if (MCP_CLIENT_HTTP_TYPE_VALUE.includes(client.type)) {
-      const http = client as SseMcpClientTransportMetadata
-      record.headerDataSource = Object.entries(http.headers || {}).map(([key, value]) => ({
-        id: crypto.randomUUID(),
-        key,
-        value: value as string[],
-        editing: false,
-      }))
-      record.queryParamDataSource = Object.entries(http.queryParams || {}).map(([key, value]) => ({
-        id: crypto.randomUUID(),
-        key,
-        value: value as string[],
-        editing: false,
-      }))
-    } else if (client.type === AI_SERVER_MCP_CLIENT_TYPE.STDIO) {
-      const stdio = client as StdioMcpClientTransportMetadata
-      record.envDataSource = Object.entries(stdio.env || {}).map(([key, value]) => ({
-        id: crypto.randomUUID(),
-        key,
-        value: String(value),
-        editing: false,
-      }))
-    }
-    return record
+    return hydrateMcpClientDataSources(entity as McpPackageEntityWithSources)
   },
 })

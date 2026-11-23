@@ -6,9 +6,13 @@ import type {
   StdioMcpClientTransportMetadata,
   StreamableHttpMcpClientTransportMetadata,
 } from '@loncra/client/ai'
-import {AI_SERVER_MCP_CLIENT_TYPE, MCP_CLIENT_HTTP_TYPE_VALUE} from '@loncra/client/ai'
+import {
+  AI_SERVER_API_KEY_MODE,
+  AI_SERVER_MCP_CLIENT_TYPE,
+  MCP_CLIENT_HTTP_TYPE_VALUE
+} from '@loncra/client/ai'
 import type {EnumBucketsResponseBody} from '@loncra/client/resource'
-import {KeyValueTable} from '@loncra/antdv'
+import {type KeyValueRow, KeyValueTable} from '@loncra/antdv'
 import {CrudFormPage} from '@loncra/antdv-pro'
 import type {McpPackageEntity as McpPackageEntityWithSources} from './mcp-package.form.page'
 import {mcpPackageFormPage} from './mcp-package.form.page'
@@ -16,7 +20,7 @@ import LMcpClarifyPolicyTable from '@/views/ai-server/mcp-package/ClarifyPolicyT
 import {useEntityPageTitle} from '@/composables/useEntityPageTitle'
 import {useFormSuccessBack} from '@/composables/useFormSuccessBack'
 import {useConfigProviderStore} from '@/stores/configProviderStore.ts'
-import {SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
+import {getEnumValue, SYSTEM_ENUM_TYPE, SYSTEM_MODULE_NAME} from '@loncra/client/commons'
 import {useRequiredQuery} from '@/composables/useRequiredQuery'
 import {mcpPackageCore} from './mcp-package.page'
 
@@ -33,11 +37,20 @@ const configProviderStore = useConfigProviderStore()
 const headerTableRef = ref<{confirmAllEditingRows: () => void}>()
 const queryParamTableRef = ref<{confirmAllEditingRows: () => void}>()
 const envTableRef = ref<{confirmAllEditingRows: () => void}>()
+const authTableRef = ref<{confirmAllEditingRows: () => void}>()
 
 function confirmKeyValueTables() {
   headerTableRef.value?.confirmAllEditingRows()
   queryParamTableRef.value?.confirmAllEditingRows()
   envTableRef.value?.confirmAllEditingRows()
+  authTableRef.value?.confirmAllEditingRows()
+}
+
+function onAuthChange(_item: KeyValueRow, data: KeyValueRow[]): void {
+  const entity = formRef.value?.entity
+  if (entity?.metadata.authConfig) {
+    entity.metadata.authConfig.items = data.map((row) => ({key: row.key, value: row.value as string}))
+  }
 }
 
 function clientTypeOptions(buckets: EnumBucketsResponseBody | undefined) {
@@ -247,6 +260,41 @@ const {onSuccess, onStale, formKey} = useFormSuccessBack({
           />
         </a-col>
       </a-row>
+    </template>
+    <template #afterOrigin="{entity}">
+      <template v-if="getEnumValue(entity.authMode) === AI_SERVER_API_KEY_MODE.MANUAL && entity.metadata.authConfig">
+        <a-col :span="24" class="mb-lg">
+          <a-divider class="m-0 mb-md" title-placement="start" plain>
+            <a-space>
+              <icon-font class="icon align" type="loncra-key" />
+              {{ $t('aiServer.mcpPackage.auth') }}
+              <a-flex class="shrink-0">
+                <a-segmented
+                  v-model:value="entity.metadata.authConfig.position"
+                  :options="[
+                    {value: 'header', label: $t('aiServer.mcpPackage.headers')},
+                    {value: 'param', label: $t('aiServer.mcpPackage.queryParams')},
+                  ]"
+                />
+              </a-flex>
+            </a-space>
+          </a-divider>
+          <key-value-table
+            ref="authTableRef"
+            :form-item-name-prefix="['manualAuthDataSource']"
+            :title="$t('aiServer.mcpPackage.authRequestContent')"
+            v-model:value="(entity as McpPackageEntityWithSources).manualAuthDataSource"
+            @change="onAuthChange"
+          >
+            <template #title="{title}">
+              <a-space>
+                <icon-font class="icon align" type="loncra-form" />
+                {{ title }}
+              </a-space>
+            </template>
+          </key-value-table>
+        </a-col>
+      </template>
     </template>
   </crud-form-page>
 </template>

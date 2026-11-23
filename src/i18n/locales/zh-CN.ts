@@ -530,6 +530,8 @@ const locale: LanguagePack = {
       additionalInformation:'补充说明',
       initializeTimeout:'初始化超时',
       client:'传输配置',
+      auth:'认证配置',
+      authRequestContent:'请求内容',
       command:'启动命令',
       args:'启动参数',
       env:'环境变量',

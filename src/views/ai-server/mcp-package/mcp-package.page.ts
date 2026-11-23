@@ -34,8 +34,8 @@ export const mcpPackageCore: CrudPageCore<McpPackageSavePayload, McpPackageEntit
       labelKey: 'aiServer.mcpPackage.authMode',
       format: 'enum',
       enumRef: {
-        module: SYSTEM_MODULE_NAME.AI_SERVER,
-        id: SYSTEM_ENUM_TYPE.MCP_PACKAGE_AUTH_MODE_ENUM,
+        module: SYSTEM_MODULE_NAME.RESOURCE_SERVER,
+        id: SYSTEM_ENUM_TYPE.API_KEY_MODE_ENUM,
       },
     },
     packageKey: {labelKey: 'aiServer.mcpPackage.packageKey'},

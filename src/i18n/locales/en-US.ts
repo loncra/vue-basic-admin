@@ -539,6 +539,8 @@ const locale: LanguagePack = {
       additionalInformation: 'Additional information',
       initializeTimeout: 'Initialize timeout',
       client: 'Transport',
+      auth: 'Authentication',
+      authRequestContent: 'Request content',
       command: 'Command',
       args: 'Arguments',
       env: 'Environment',
