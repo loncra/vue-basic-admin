@@ -196,29 +196,15 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     pluginInstalls.value = result.data || []
   }
 
-  function upsertPluginInstall(result: UserPluginInstallResult): void {
-    if (result.pluginPackage.id == null) {
-      return
-    }
-    const targetType = getEnumValue(result.targetType)
-    const index = pluginInstalls.value.findIndex(
-      (item) =>
-        getEnumValue(item.targetType) === targetType
-        && item.pluginPackage.id === result.pluginPackage.id
-        && item.workspace?.id === result.workspace?.id,
-    )
-    if (index >= 0) {
-      pluginInstalls.value.splice(index, 1, result)
-      return
-    }
-    pluginInstalls.value = [result, ...pluginInstalls.value]
-  }
-
   function removePluginInstall(uninstall: UserPluginMetadata): void {
     const targetType = getEnumValue(uninstall.targetType)
+    const scope = getEnumValue(uninstall.scope)
     const workspaces = uninstall.workspaces ?? []
     pluginInstalls.value = pluginInstalls.value.filter((item) => {
       if (getEnumValue(item.targetType) !== targetType || item.pluginPackage.id !== uninstall.packageId) {
+        return true
+      }
+      if (scope != null && getEnumValue(item.scope) !== scope) {
         return true
       }
       if (workspaces.length === 0) {
@@ -237,7 +223,6 @@ export const usePrincipalStore = defineStore(STORE.PRINCIPAL_ID, () => {
     pluginInstalls,
     pluginServices,
     loadPluginInstalls,
-    upsertPluginInstall,
     removePluginInstall,
     hasPermission,
     hasAnyPermission,

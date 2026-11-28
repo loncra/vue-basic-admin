@@ -2,7 +2,11 @@
 import {ref} from 'vue'
 import {App} from 'antdv-next'
 import {CrudHomePage, type CrudHomePageExpose, Form as LForm} from '@loncra/antdv-pro'
-import type {SkillPackageEntity} from '@loncra/client/ai'
+import {
+  AiSkillPackageService,
+  type SkillPackageEntity,
+  type SkillReleaseEntity
+} from '@loncra/client/ai'
 import {DATA_STATUS, getEnumValue} from '@loncra/client/commons'
 import {SkillReleaseChangeLog} from '@loncra/antdv-chat-pro'
 import {skillPackageService} from './skill-package.page'
@@ -16,6 +20,25 @@ const {message} = App.useApp()
 
 const table = ref<CrudHomePageExpose<SkillPackageEntity>>()
 const snapshotFormRef = ref()
+const releaseCache = ref(new Map<number, SkillReleaseEntity[]>())
+const releaseLoading = ref(new Set<number>())
+const releaseService = new AiSkillPackageService()
+
+async function loadReleases(record: SkillPackageEntity): Promise<void> {
+  const packageId = Number(record.id)
+  if (!packageId || releaseCache.value.has(packageId) || releaseLoading.value.has(packageId)) {
+    return
+  }
+  releaseLoading.value = new Set(releaseLoading.value).add(packageId)
+  try {
+    const result = await releaseService.listReleases(packageId)
+    releaseCache.value = new Map(releaseCache.value).set(packageId, result.data || [])
+  } finally {
+    const next = new Set(releaseLoading.value)
+    next.delete(packageId)
+    releaseLoading.value = next
+  }
+}
 
 async function onSnapshotOk(): Promise<void> {
   await snapshotFormRef.value?.validate()
@@ -47,6 +70,9 @@ function cancelSnapshot(): void {
       :expandable="{
         rowExpandable: (record: SkillPackageEntity) =>
           getEnumValue(record.status) === DATA_STATUS.RELEASE,
+        onExpand: (expanded: boolean, record: SkillPackageEntity) => {
+          if (expanded) void loadReleases(record)
+        },
       }"
     >
       <template #expandedRowRender="{record}">
@@ -54,7 +80,10 @@ function cancelSnapshot(): void {
           <a-typography-text>
             {{ $t('agent.hub.changelog.text') }}
           </a-typography-text>
-          <skill-release-change-log :package-id="Number(record.id)" />
+          <skill-release-change-log
+            :data-source="releaseCache.get(Number(record.id)) ?? []"
+            :loading="releaseLoading.has(Number(record.id))"
+          />
         </a-flex>
       </template>
     </crud-home-page>

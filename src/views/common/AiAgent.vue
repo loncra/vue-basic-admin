@@ -11,6 +11,13 @@ defineOptions({
 
 const principalStore = usePrincipalStore()
 
+const conversationHost = {
+  ...agentConversationHost,
+  onWorkspaceRemoved: () => {
+    void principalStore.loadPluginInstalls()
+  },
+}
+
 onMounted(() => {
   void principalStore.loadPluginInstalls()
 })
@@ -24,11 +31,11 @@ onMounted(() => {
         ...principalStore.state.details.metadata,
         systemName: principalStore.state.name,
         type: principalStore.state.type,
-        authorities: principalStore.state.grantedAuthorities,
+        grantedAuthorities: principalStore.state.grantedAuthorities,
       }"
       :build-headers="buildAuthHeaders"
-      :conversation-host="agentConversationHost"
-      @installed="principalStore.upsertPluginInstall"
+      :conversation-host="conversationHost"
+      @installed="() => principalStore.loadPluginInstalls()"
       @uninstalled="principalStore.removePluginInstall"
     >
       <template #agentAvatar>
